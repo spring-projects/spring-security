@@ -148,12 +148,14 @@ public class CatalinaAcegiUserRealm extends RealmBase {
     }
 
     public boolean hasRole(Principal principal, String role) {
+        if ((principal == null) || (role == null)) {
+            return false;
+        }
+
         if (!(principal instanceof PrincipalAcegiUserToken)) {
-            if (logger.isWarnEnabled()) {
-                logger.warn(
-                    "Expected passed principal to be of type PrincipalSpringUserToken but was "
-                    + principal.getClass().getName());
-            }
+            logger.warn(
+                "Expected passed principal to be of type PrincipalAcegiUserToken but was "
+                + principal.getClass().getName());
 
             return false;
         }
@@ -163,37 +165,13 @@ public class CatalinaAcegiUserRealm extends RealmBase {
         return test.isUserInRole(role);
     }
 
+    /**
+     * Provides the method that Catalina will use to start the container.
+     *
+     * @throws LifecycleException if a problem is detected
+     */
     public void start() throws LifecycleException {
-        super.start();
-
-        if (appContextLocation == null) {
-            throw new LifecycleException("appContextLocation must be defined");
-        }
-
-        if (key == null) {
-            throw new LifecycleException("key must be defined");
-        }
-
-        File xml = new File(System.getProperty("catalina.base"),
-                appContextLocation);
-
-        if (!xml.exists()) {
-            throw new LifecycleException(
-                "appContextLocation does not seem to exist - try specifying conf/springsecurity.xml");
-        }
-
-        FileSystemXmlApplicationContext ctx = new FileSystemXmlApplicationContext(xml
-                .getAbsolutePath());
-        Map beans = ctx.getBeansOfType(AuthenticationManager.class, true, true);
-
-        if (beans.size() == 0) {
-            throw new IllegalArgumentException(
-                "Bean context must contain at least one bean of type AuthenticationManager");
-        }
-
-        String beanName = (String) beans.keySet().iterator().next();
-        authenticationManager = (AuthenticationManager) beans.get(beanName);
-        logger.info("CatalinaSpringUserRealm Started");
+        this.start(true);
     }
 
     protected String getName() {
@@ -220,5 +198,51 @@ public class CatalinaAcegiUserRealm extends RealmBase {
      */
     protected Principal getPrincipal(String arg0) {
         return null;
+    }
+
+    /**
+     * Provides a method to load the container adapter without delegating to
+     * the superclass, which cannot operate outside the Catalina container.
+     *
+     * @throws LifecycleException if a problem is detected
+     */
+    protected void startForTest() throws LifecycleException {
+        this.start(false);
+    }
+
+    private void start(boolean startParent) throws LifecycleException {
+        if (startParent) {
+            super.start();
+        }
+
+        if ((appContextLocation == null) || "".equals(appContextLocation)) {
+            throw new LifecycleException("appContextLocation must be defined");
+        }
+
+        if ((key == null) || "".equals(key)) {
+            throw new LifecycleException("key must be defined");
+        }
+
+        File xml = new File(System.getProperty("catalina.base"),
+                appContextLocation);
+
+        if (!xml.exists()) {
+            throw new LifecycleException(
+                "appContextLocation does not seem to exist in "
+                + xml.toString());
+        }
+
+        FileSystemXmlApplicationContext ctx = new FileSystemXmlApplicationContext(xml
+                .getAbsolutePath());
+        Map beans = ctx.getBeansOfType(AuthenticationManager.class, true, true);
+
+        if (beans.size() == 0) {
+            throw new IllegalArgumentException(
+                "Bean context must contain at least one bean of type AuthenticationManager");
+        }
+
+        String beanName = (String) beans.keySet().iterator().next();
+        authenticationManager = (AuthenticationManager) beans.get(beanName);
+        logger.info("CatalinaSpringUserRealm Started");
     }
 }
