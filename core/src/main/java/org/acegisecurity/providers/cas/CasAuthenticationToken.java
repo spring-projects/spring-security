@@ -55,7 +55,8 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
      * @param proxyList the list of proxies from CAS (cannot be
      *        <code>null</code>)
      * @param proxyGrantingTicketIou the PGT-IOU ID from CAS (cannot be
-     *        <code>null</code>)
+     *        <code>null</code>, but may be an empty <code>String</code> if no
+     *        PGT-IOU ID was provided)
      *
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
@@ -65,8 +66,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
         if ((key == null) || ("".equals(key)) || (principal == null)
             || "".equals(principal) || (credentials == null)
             || "".equals(credentials) || (authorities == null)
-            || (proxyList == null) || (proxyGrantingTicketIou == null)
-            || ("".equals(proxyGrantingTicketIou))) {
+            || (proxyList == null) || (proxyGrantingTicketIou == null)) {
             throw new IllegalArgumentException(
                 "Cannot pass null or empty values to constructor");
         }
@@ -127,6 +127,12 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
         return this.principal;
     }
 
+    /**
+     * Obtains the proxy granting ticket IOU.
+     *
+     * @return the PGT IOU-ID or an empty <code>String</code> if no proxy
+     *         callback was requested when validating the service ticket
+     */
     public String getProxyGrantingTicketIou() {
         return proxyGrantingTicketIou;
     }
