@@ -26,6 +26,7 @@
   </properties>
   <body>
     <release version="0.8.0" date="CVS">
+      <action dev="benalex" type="add">Added Digest Authentication support (RFC 2617 and RFC 2069)</action>
       <action dev="benalex" type="update">Made ConfigAttributeDefinition and ConfigAttribute Serializable</action>
       <action dev="benalex" type="update">User now accepts blank passwords (null passwords still rejected)</action>
       <action dev="benalex" type="update">FilterToBeanProxy now searches hierarchical bean factories</action>

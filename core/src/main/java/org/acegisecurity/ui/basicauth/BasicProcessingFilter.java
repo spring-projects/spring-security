@@ -19,7 +19,6 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationManager;
 import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter;
 import net.sf.acegisecurity.context.security.SecureContext;
 import net.sf.acegisecurity.context.security.SecureContextUtils;
 import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
@@ -46,7 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Processes a HTTP request's BASIC authorization headers, putting the result
- * into the <code>HttpSession</code>.
+ * into the <code>ContextHolder</code>.
  * 
  * <P>
  * For a detailed background on what this filter is designed to process, refer
@@ -75,15 +74,22 @@ import javax.servlet.http.HttpServletResponse;
  * 
  * <P>
  * If authentication is successful, the resulting {@link Authentication} object
- * will be placed into the <code>HttpSession</code> with the attribute defined
- * by {@link
- * HttpSessionContextIntegrationFilter#ACEGI_SECURITY_AUTHENTICATION_KEY}.
+ * will be placed into the <code>ContextHolder</code>.
  * </p>
  * 
  * <p>
  * If authentication fails, an {@link AuthenticationEntryPoint} implementation
  * is called. Usually this should be {@link BasicProcessingFilterEntryPoint},
  * which will prompt the user to authenticate again via BASIC authentication.
+ * </p>
+ * 
+ * <P>
+ * Basic authentication is an attractive protocol because it is simple and
+ * widely deployed. However, it still transmits a password in clear text and
+ * as such is undesirable in many situations. Digest authentication is also
+ * provided by Acegi Security and should be used instead of Basic
+ * authentication wherever possible. See {@link
+ * net.sf.acegisecurity.ui.digestauth.DigestProcessingFilter}.
  * </p>
  * 
  * <P>

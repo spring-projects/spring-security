@@ -82,6 +82,11 @@
         protocols or those web applications that prefer a simple browser pop-up 
         (rather than a form login), Acegi Security can directly process HTTP 
         BASIC authentication requests as per RFC 1945.<BR><BR>
+        <LI><B>Supports HTTP Digest authentication:</B> For greater security than
+        offered by BASIC authentcation, Acegi Security also supports Digest Authentication
+        (which never sends the user's password across the wire). Digest Authentication
+        is widely supported by modern browsers. Acegi Security's implementation complies
+        with both RFC 2617 and RFC 2069.<BR><BR>
         <LI><B>Convenient security taglib:</B> Your JSP files can use our taglib 
         to ensure that protected content like links and messages are only 
         displayed to users holding the appropriate granted authorities. The taglib

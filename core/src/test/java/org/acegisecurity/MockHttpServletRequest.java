@@ -171,7 +171,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     public String getMethod() {
-        throw new UnsupportedOperationException("mock method not implemented");
+        return "GET";
     }
 
     public void setParameter(String arg0, String value) {
