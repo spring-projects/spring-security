@@ -16,24 +16,12 @@ public class BaseLdapTestCase extends TestCase {
     // never seems to get the chance to cleanup after itself
 	protected static LdapTestHelper ldapTestHelper = new LdapTestHelper();
 	
-	protected DirContext ctx;
-	
-	protected void setUp() throws NamingException {
-		ctx = getClientContext();
-	}
-	
-	protected void tearDown() throws NamingException {
-		ctx.close();
-		ctx = null;
-	}
-	
-	
 	protected DirContext getClientContext() throws NamingException {
 		Hashtable env = new Hashtable();
 		env.put( Context.PROVIDER_URL, "ldap://localhost:389/ou=system" );
 		env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-		//env.put( Context.SECURITY_PRINCIPAL, "uid=admin" );
-		//env.put( Context.SECURITY_CREDENTIALS, "secret" );
+		env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+		env.put( Context.SECURITY_CREDENTIALS, "secret" );
 		return new InitialDirContext( env );
 	}
 	
