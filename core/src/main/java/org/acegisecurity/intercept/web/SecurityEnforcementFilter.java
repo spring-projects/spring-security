@@ -19,6 +19,7 @@ import net.sf.acegisecurity.AccessDeniedException;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.ui.AbstractProcessingFilter;
 import net.sf.acegisecurity.util.PortResolver;
+import net.sf.acegisecurity.util.PortResolverImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -100,7 +101,7 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
 
     private AuthenticationEntryPoint authenticationEntryPoint;
     private FilterSecurityInterceptor filterSecurityInterceptor;
-    private PortResolver portResolver;
+    private PortResolver portResolver = new PortResolverImpl();
 
     //~ Methods ================================================================
 

@@ -17,7 +17,9 @@ package net.sf.acegisecurity.ui.webapp;
 
 import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
 import net.sf.acegisecurity.util.PortMapper;
+import net.sf.acegisecurity.util.PortMapperImpl;
 import net.sf.acegisecurity.util.PortResolver;
+import net.sf.acegisecurity.util.PortResolverImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,8 +65,8 @@ public class AuthenticationProcessingFilterEntryPoint
 
     //~ Instance fields ========================================================
 
-    private PortMapper portMapper;
-    private PortResolver portResolver;
+    private PortMapper portMapper = new PortMapperImpl();
+    private PortResolver portResolver = new PortResolverImpl();
     private String loginFormUrl;
     private boolean forceHttps = false;
 

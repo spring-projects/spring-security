@@ -16,7 +16,9 @@
 package net.sf.acegisecurity.securechannel;
 
 import net.sf.acegisecurity.util.PortMapper;
+import net.sf.acegisecurity.util.PortMapperImpl;
 import net.sf.acegisecurity.util.PortResolver;
+import net.sf.acegisecurity.util.PortResolverImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,8 +54,8 @@ public class RetryWithHttpEntryPoint implements InitializingBean,
 
     //~ Instance fields ========================================================
 
-    private PortMapper portMapper;
-    private PortResolver portResolver;
+    private PortMapper portMapper = new PortMapperImpl();
+    private PortResolver portResolver = new PortResolverImpl();
 
     //~ Methods ================================================================
 

@@ -45,7 +45,7 @@ public class RetryWithHttpEntryPointTests extends TestCase {
 
     public void testDetectsMissingPortMapper() throws Exception {
         RetryWithHttpEntryPoint ep = new RetryWithHttpEntryPoint();
-        ep.setPortResolver(new MockPortResolver(80, 443));
+        ep.setPortMapper(null);
 
         try {
             ep.afterPropertiesSet();
@@ -57,7 +57,7 @@ public class RetryWithHttpEntryPointTests extends TestCase {
 
     public void testDetectsMissingPortResolver() throws Exception {
         RetryWithHttpEntryPoint ep = new RetryWithHttpEntryPoint();
-        ep.setPortMapper(new PortMapperImpl());
+        ep.setPortResolver(null);
 
         try {
             ep.afterPropertiesSet();

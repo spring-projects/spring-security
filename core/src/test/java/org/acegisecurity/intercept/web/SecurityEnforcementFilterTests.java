@@ -233,6 +233,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
                 false, false));
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
                 "/login.jsp"));
+        filter.setPortResolver(null);
 
         try {
             filter.afterPropertiesSet();

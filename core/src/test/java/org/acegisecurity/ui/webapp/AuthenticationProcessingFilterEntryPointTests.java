@@ -60,7 +60,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
     public void testDetectsMissingPortMapper() throws Exception {
         AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
         ep.setLoginFormUrl("xxx");
-        ep.setPortResolver(new MockPortResolver(80, 443));
+        ep.setPortMapper(null);
 
         try {
             ep.afterPropertiesSet();
@@ -73,7 +73,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
     public void testDetectsMissingPortResolver() throws Exception {
         AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
         ep.setLoginFormUrl("xxx");
-        ep.setPortMapper(new PortMapperImpl());
+        ep.setPortResolver(null);
 
         try {
             ep.afterPropertiesSet();
