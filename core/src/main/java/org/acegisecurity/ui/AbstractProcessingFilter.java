@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -158,6 +158,14 @@ public abstract class AbstractProcessingFilter implements Filter,
      */
     private boolean alwaysUseDefaultTargetUrl = false;
 
+    /**
+     * Indicates if the filter chain should be continued prior to delegation to
+     * {@link #successfulAuthentication(HttpServletRequest,
+     * HttpServletResponse, Authentication)}, which may be useful in certain
+     * environment (eg Tapestry). Defaults to <code>false</code>.
+     */
+    private boolean continueChainBeforeSuccessfulAuthentication = false;
+
     //~ Methods ================================================================
 
     public void setAlwaysUseDefaultTargetUrl(boolean alwaysUseDefaultTargetUrl) {
@@ -166,6 +174,15 @@ public abstract class AbstractProcessingFilter implements Filter,
 
     public boolean isAlwaysUseDefaultTargetUrl() {
         return alwaysUseDefaultTargetUrl;
+    }
+
+    public void setContinueChainBeforeSuccessfulAuthentication(
+        boolean continueChainBeforeSuccessfulAuthentication) {
+        this.continueChainBeforeSuccessfulAuthentication = continueChainBeforeSuccessfulAuthentication;
+    }
+
+    public boolean isContinueChainBeforeSuccessfulAuthentication() {
+        return continueChainBeforeSuccessfulAuthentication;
     }
 
     /**
@@ -305,8 +322,7 @@ public abstract class AbstractProcessingFilter implements Filter,
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        if (httpRequest.getRequestURL().toString().endsWith(httpRequest
-                .getContextPath() + filterProcessesUrl)) {
+        if (requiresAuthentication(httpRequest, httpResponse)) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Request is to process authentication");
             }
@@ -325,6 +341,10 @@ public abstract class AbstractProcessingFilter implements Filter,
             }
 
             // Authentication success
+            if (continueChainBeforeSuccessfulAuthentication) {
+                chain.doFilter(request, response);
+            }
+
             successfulAuthentication(httpRequest, httpResponse, authResult);
 
             return;
@@ -341,6 +361,27 @@ public abstract class AbstractProcessingFilter implements Filter,
 
     protected void onUnsuccessfulAuthentication(HttpServletRequest request,
         HttpServletResponse response) throws IOException {}
+
+    /**
+     * Indicates whether this filter should attempt to process a login request
+     * for the current invocation.
+     * 
+     * <p>
+     * Subclasses may override for special requirements, such as Tapestry
+     * integration.
+     * </p>
+     *
+     * @param request as received from the filter chain
+     * @param response as received from the filter chain
+     *
+     * @return <code>true</code> if the filter should attempt authentication,
+     *         <code>false</code> otherwise
+     */
+    protected boolean requiresAuthentication(HttpServletRequest request,
+        HttpServletResponse response) {
+        return request.getRequestURL().toString().endsWith(request
+            .getContextPath() + filterProcessesUrl);
+    }
 
     protected void successfulAuthentication(HttpServletRequest request,
         HttpServletResponse response, Authentication authResult)
