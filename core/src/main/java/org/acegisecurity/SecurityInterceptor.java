@@ -207,6 +207,10 @@ public class SecurityInterceptor implements MethodInterceptor, InitializingBean 
      *         <code>Authentication</code> object
      */
     public Object invoke(MethodInvocation mi) throws Throwable {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Intercepted request for method " + mi.getMethod());
+        }
+
         ConfigAttributeDefinition attr = this.methodDefinitionSource
             .getAttributes(mi);
 
@@ -225,6 +229,8 @@ public class SecurityInterceptor implements MethodInterceptor, InitializingBean 
 
             SecureContext context = (SecureContext) ContextHolder.getContext();
 
+            // We check for just the property we're interested in (we do
+            // not call Context.validate() like the ContextInterceptor)
             if (context.getAuthentication() == null) {
                 throw new AuthenticationCredentialsNotFoundException(
                     "Authentication credentials were not found in the SecureContext");
