@@ -354,48 +354,17 @@
 
 	<target name="clover.build" description="Compile main source tree java files WITH CLOVER into class files">
 
+		<mkdir dir="${clover.dbdir}"/>
+
 		<!-- switch on Clover by specifying it as the compiler to use -->
 		<property name="build.compiler" value="org.apache.tools.ant.taskdefs.CloverCompilerAdapter"/>
 
-		<mkdir dir="${target.clover.dir}"/>
-
-		<javac destdir="${target.clover.dir}" target="1.3" debug="${debug}"
-			deprecation="false" optimize="false" failonerror="true">
-			<src path="${src.dir}"/>
-			<classpath refid="qa-portalpath"/>
-		</javac>
-
-		<copy todir="${target.clover.dir}" preservelastmodified="true">
-			<fileset dir="${src.dir}">
-				<include name="**/*.xml"/>
-				<include name="**/*.dtd"/>
-			</fileset>
-		</copy>
+		<antcall target="build"/>
 
 	</target>
 
 
-	<target name="clover.tests" depends="buildtests,clover.build" description="Run Clover tests">
-
-		<junit printsummary="yes" haltonfailure="yes">
-
-			<!-- Must go first to ensure the jndi.properties takes precedence  -->
-			<classpath location="${target.testclasses.dir}"/>
-			<classpath location="${target.clover.dir}"/>
-
-			<!-- Need files loaded as resources -->
-			<classpath location="${test.dir}"/>
-
-			<classpath refid="qa-portalpath"/>
-
-			<batchtest fork="yes">
-				<fileset dir="${target.testclasses.dir}" includes="${test.includes}" excludes="${test.excludes}"/>
-			</batchtest>
-
-		</junit>
-
-	</target>
-
+	<target name="clover.tests" depends="clover.build,buildtests,tests" description="Run Clover tests"/>
 
 	<!--
 		Run test suite under Clover coverage analysis, and bring up
