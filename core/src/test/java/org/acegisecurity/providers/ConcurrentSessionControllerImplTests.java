@@ -141,6 +141,14 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         target.afterAuthentication(different, different);
     }
 
+    public void testEventObject() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user",
+                "password");
+        ConcurrentSessionViolationEvent ev = new ConcurrentSessionViolationEvent(token);
+        assertEquals("The token that went in should be the token that comes out",
+            token, ev.getAuthentication());
+    }
+
     public void testImplementsApplicationListener() throws Exception {
         assertTrue("This class must implement ApplicationListener, and at one point it didn't.",
             target instanceof ApplicationListener);

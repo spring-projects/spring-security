@@ -21,6 +21,9 @@ import net.sf.acegisecurity.AuthenticationTrustResolverImpl;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.ui.WebAuthenticationDetails;
 import net.sf.acegisecurity.ui.session.HttpSessionDestroyedEvent;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -46,16 +49,27 @@ import java.util.Set;
  * @author Ben Alex
  */
 public class ConcurrentSessionControllerImpl
-        implements ConcurrentSessionController, ApplicationListener {
+        implements ConcurrentSessionController, ApplicationListener,
+        ApplicationContextAware {
     //~ Instance fields ========================================================
 
     protected Map principalsToSessions = new HashMap();
     protected Map sessionsToPrincipals = new HashMap();
     protected Set sessionSet = new HashSet();
+    private ApplicationContext applicationContext;
     private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
     private int maxSessions = 1;
 
     //~ Methods ================================================================
+
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
 
     /**
      * Set the maximum number of sessions a user is allowed to have, defaults
@@ -103,10 +117,12 @@ public class ConcurrentSessionControllerImpl
      *
      * @param request  Used to retieve the {@link WebAuthenticationDetails}
      * @param response Used to store the sessionId for the current Principal
+     * @throws ConcurrentLoginException If the user is already logged in the
+     *                                  maximum number of times
      * @see #determineSessionPrincipal(net.sf.acegisecurity.Authentication)
      */
     public void afterAuthentication(Authentication request,
-                                    Authentication response) {
+                                    Authentication response) throws ConcurrentLoginException {
         enforceConcurrentLogins(response);
 
         if (request.getDetails() instanceof WebAuthenticationDetails) {
@@ -121,8 +137,8 @@ public class ConcurrentSessionControllerImpl
      * {@link AuthenticationProvider}s
      *
      * @param request The Authentication in question
-     * @throws ConcurrentLoginException if the user has already met the {@link
-     *                                  #setMaxSessions(int)}
+     * @throws ConcurrentLoginException If the user is already logged in the
+     *                                  maximum number of times #setMaxSessions(int)}
      */
     public void beforeAuthentication(Authentication request)
             throws ConcurrentLoginException {
@@ -250,12 +266,25 @@ public class ConcurrentSessionControllerImpl
 
             if (!isActiveSession(principal, sessionId)) {
                 if (maxSessions == countSessions(principal)) {
+                    //Publish the event                    
+                    publishViolationEvent(request);
+
                     //The user is AT their max, toss them out
                     throw new ConcurrentLoginException(principal
                             + " has reached the maximum concurrent logins");
                 }
             }
         }
+    }
+
+    /**
+     * Publish the even to the application context.
+     * The default action is to publish a new {@link ConcurrentSessionViolationEvent}
+     *
+     * @param auth The authentication object that caused the violation
+     */
+    protected void publishViolationEvent(Authentication auth) {
+        getApplicationContext().publishEvent(new ConcurrentSessionViolationEvent(auth));
     }
 
     /**
