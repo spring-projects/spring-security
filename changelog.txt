@@ -3,6 +3,12 @@ Changes in version 0.7 (2004-xx-xx)
 
 * Major CVS repository restructure to support Maven and eliminate libraries
 * Major improvements to Contacts sample application (now demos ACL security)
+* Added AfterInvocationManager to mutate objects return from invocations
+* Added BasicAclEntryAfterInvocationProvider to ACL evaluate returned Object
+* Added BasicAclEntryAfterInvocationCollectionFilteringProvider
+* Added security propagation during RMI invocations (from sandbox)
+* Added security propagation for Spring's HTTP invoker
+* Added BasicAclEntryVoter, which votes based on AclManager permissions
 * Added AspectJ support (especially useful for instance-level security)
 * Added MethodDefinitionSourceAdvisor for performance and autoproxying
 * Added MethodDefinitionMap querying of interfaces defined by secure objects
@@ -10,6 +16,7 @@ Changes in version 0.7 (2004-xx-xx)
 * Added 403-causing exception to HttpSession via SecurityEnforcementFilter
 * Added net.sf.acegisecurity.intercept.event package
 * Added BasicAclExtendedDao interface and JdbcExtendedDaoImpl for ACL CRUD
+* Added additional remoting protocol demonstrations to Contacts sample
 * Improved BasicAclProvider to only respond to specified ACL object requests
 * Refactored MethodDefinitionSource to work with Method, not MethodInvocation
 * Refactored AbstractSecurityInterceptor to better support other AOP libraries
