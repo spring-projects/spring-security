@@ -41,7 +41,7 @@ import javax.servlet.http.HttpServletRequest;
  * <code>HttpServletRequest.getUserPrincipal()</code>.
  * 
  * <p>
- * Used this filter with container adapters only.
+ * Use this filter with container adapters only.
  * </p>
  * 
  * <p>
