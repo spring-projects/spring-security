@@ -2,7 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <!--
-  - Application context loaded by ContextLoaderListener if NOT using container adapters
+  - Application context loaded by ContextLoaderListener if using container adapters
   - $Id$
   -->
 
@@ -21,10 +21,15 @@
      	<property name="key"><value>my_run_as_password</value></property>
  	</bean>
 
+	<bean id="authByAdapterProvider" class="net.sf.acegisecurity.adapters.AuthByAdapterProvider">
+  		<property name="key"><value>my_password</value></property>
+ 	</bean>
+
 	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
 		<property name="providers">
 		  <list>
 		    <ref bean="runAsAuthenticationProvider"/>
+		    <ref bean="authByAdapterProvider"/>
 		    <ref bean="daoAuthenticationProvider"/>
 		  </list>
 		</property>
@@ -124,57 +129,5 @@
   	</bean>
 
 	<bean id="backendContactManagerTarget" class="sample.contact.ContactManagerBackend"/>
-
-	<!-- ===================== HTTP REQUEST SECURITY ==================== -->
-
-	<bean id="httpRequestAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
-   		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
-		<property name="decisionVoters">
-		  <list>
-		    <ref bean="roleVoter"/>
-		  </list>
-		</property>
-	</bean>
-
-	<!-- The FilterSecurityInterceptor is called by the web.xml-defined SecurityEnforcementFilter.
-	     Note the order that entries are placed against the objectDefinitionSource is critical.
-	     The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
-	     Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
-	
-	<bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
-    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-    	<property name="accessDecisionManager"><ref bean="httpRequestAccessDecisionManager"/></property>
-    	<property name="runAsManager"><ref bean="runAsManager"/></property>
- 		<property name="objectDefinitionSource">
-			<value>
-			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-				\A/secure/super.*\Z=ROLE_WE_DONT_HAVE
-				\A/secure/.*\Z=ROLE_SUPERVISOR,ROLE_TELLER
-			</value>
-		</property>
-	</bean>
-	
-	<!-- BASIC Regular Expression Syntax (for beginners):
-	     
-	     \A means the start of the string (ie the beginning of the URL)
-	     \Z means the end of the string (ie the end of the URL)
-	     .  means any single character
-	     *  means null or any number of repetitions of the last expression (so .* means zero or more characters)
-	     
-	     Some examples:
-	     
-	     Expression:   \A/my/directory/.*\Z
-	     Would match:    /my/directory/
-	                     /my/directory/hello.html
-	     
-	     Expression:   \A/.*\Z
-	     Would match:    /hello.html
-	                     /
-	     
-	     Expression:   \A/.*/secret.html\Z
-	     Would match:    /some/directory/secret.html
-	                     /another/secret.html
-	     Not match:      /anothersecret.html (missing required /)
-	-->
 
 </beans>

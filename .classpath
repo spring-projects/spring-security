@@ -19,5 +19,6 @@
 	<classpathentry kind="lib" path="lib/extracted/resin/resin-extracted.jar"/>
 	<classpathentry kind="lib" path="integration-test/lib/httpunit.jar"/>
 	<classpathentry kind="lib" path="lib/regexp/jakarta-oro.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-commons/commons-codec.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>

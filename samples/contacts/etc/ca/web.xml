@@ -15,15 +15,44 @@
     	Example of an application secured using Acegi Security System for Spring.
     </description>
 
+	<!--
+	  - Location of the XML file that defines the root application context
+	  - Applied by ContextLoaderListener.
+	  -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/applicationContext.xml</param-value>
+	</context-param>
+
+    <filter>
+        <filter-name>Acegi HTTP BASIC Authorization Filter</filter-name>
+        <filter-class>net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter</filter-class>
+    </filter>
+
     <filter>
         <filter-name>Acegi Security System for Spring Auto Integration Filter</filter-name>
         <filter-class>net.sf.acegisecurity.ui.AutoIntegrationFilter</filter-class>
     </filter>
 
     <filter-mapping>
+      <filter-name>Acegi HTTP BASIC Authorization Filter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
       <filter-name>Acegi Security System for Spring Auto Integration Filter</filter-name>
       <url-pattern>/*</url-pattern>
     </filter-mapping>
+
+	<!--
+	  - Loads the root application context of this web app at startup,
+	  - by default from "/WEB-INF/applicationContext.xml".
+	  - Use WebApplicationContextUtils.getWebApplicationContext(servletContext)
+	  - to access it anywhere in the web application, outside of the framework.
+    -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
 
   <!--
     - Servlet that dispatches request to registered handlers (Controller implementations).
@@ -40,6 +69,12 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
+	<servlet>
+		<servlet-name>caucho</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
   <!--
     - Maps the contacts dispatcher to /*.
     -
@@ -49,6 +84,15 @@
     	<url-pattern>*.htm</url-pattern>
  	</servlet-mapping>
   
+  <!--
+	- Dispatcher servlet mapping for HTTP remoting via the Caucho protocols,
+	- i.e. Hessian and Burlap (see caucho-servlet.xml for the controllers).
+   -->
+	<servlet-mapping>
+		<servlet-name>caucho</servlet-name>
+		<url-pattern>/caucho/*</url-pattern>
+	</servlet-mapping>
+
  	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

@@ -21,6 +21,7 @@
 		<fileset dir="${httpunit.lib.dir}">
 			<include name="**/*.jar"/>
 		</fileset>
+		<fileset file="${contacts.client.jar}"/>
 	</path>
 
 	<path id="antcontrib-classpath">
@@ -49,6 +50,7 @@ Among the available targets are:
 clean             --> deletes output directories
 unzip             --> unzips each container into file system
 tests             --> unzips each container and runs all tests
+tests-all         --> runs all tests (does not unzip each container)
 tests-jetty       --> runs the integration tests with Jetty
 tests-jboss       --> runs the integration tests with JBoss
 tests-catalina    --> runs the integration tests with Catalina
@@ -94,7 +96,10 @@ Each tests-xxxx target assumes the container is unzipped
         </jalopy>
 	</target>
 
-	<target name="tests" depends="clean,unzip,tests-jetty,tests-catalina,tests-jboss"
+	<target name="tests" depends="clean,unzip,tests-all">
+	</target>
+	
+	<target name="tests-all" depends="tests-jetty,tests-catalina,tests-jboss"
 		description="Run all integration tests">
 		<condition property="anyerrors" value="true">
 			<or>
@@ -217,6 +222,9 @@ Tomcat ${tomcat-5.version}:&#9;Run: ${jakarta-tomcat-5.run}&#9;Errored: ${jakart
 		<copy file="${dist.lib.dir}/acegi-security-jetty-ext.jar" todir="${tmp.dir}/jetty-${jetty.version}/ext" overwrite="true"/>
 		<copy file="${lib.dir}/aop-alliance/aopalliance.jar" todir="${tmp.dir}/jetty-${jetty.version}/ext" overwrite="true"/>
 		<copy file="${lib.dir}/jakarta-commons/commons-logging.jar" todir="${tmp.dir}/jetty-${jetty.version}/ext" overwrite="true"/>
+		<copy file="${lib.dir}/jakarta-commons/commons-codec.jar" todir="${tmp.dir}/jetty-${jetty.version}/ext" overwrite="true"/>
+		<copy file="${lib.dir}/caucho/burlap.jar" todir="${tmp.dir}/jetty-${jetty.version}/ext" overwrite="true"/>
+		<copy file="${lib.dir}/caucho/hessian.jar" todir="${tmp.dir}/jetty-${jetty.version}/ext" overwrite="true"/>
 		<copy file="${lib.dir}/spring/spring.jar" todir="${tmp.dir}/jetty-${jetty.version}/ext" overwrite="true"/>
 		<copy file="${contacts.ca.war}" todir="${tmp.dir}/jetty-${jetty.version}/webapps" overwrite="true"/>
 		<antcallback target="-perform-test-jetty" return="jetty-${jetty.version}.errored, jetty-${jetty.version}.failed">
@@ -287,6 +295,9 @@ Tomcat ${tomcat-5.version}:&#9;Run: ${jakarta-tomcat-5.run}&#9;Errored: ${jakart
 		<copy file="${dist.lib.dir}/acegi-security-catalina-common.jar" todir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/common/lib" overwrite="true"/>
 		<copy file="${lib.dir}/aop-alliance/aopalliance.jar" todir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/common/lib" overwrite="true"/>
 		<copy file="${lib.dir}/spring/spring.jar" todir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/common/lib" overwrite="true"/>
+		<copy file="${lib.dir}/jakarta-commons/commons-codec.jar" todir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/common/lib" overwrite="true"/>
+		<copy file="${lib.dir}/caucho/burlap.jar" todir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/common/lib" overwrite="true"/>
+		<copy file="${lib.dir}/caucho/hessian.jar" todir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/common/lib" overwrite="true"/>
 		<copy file="${contacts.ca.war}" todir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/webapps" overwrite="true"/>
 		<delete dir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/webapps/contacts-container-adapter"/>
 		<antcallback target="-perform-test-catalina" return="jakarta-tomcat-${tomcat.version}.errored, jakarta-tomcat-${tomcat.version}.failed">
@@ -349,6 +360,9 @@ Tomcat ${tomcat-5.version}:&#9;Run: ${jakarta-tomcat-5.run}&#9;Errored: ${jakart
 		<copy file="${dist.lib.dir}/acegi-security-jboss-lib.jar" todir="${tmp.dir}/jboss-${jboss.version}/server/default/lib" overwrite="true"/>
 		<copy file="${lib.dir}/aop-alliance/aopalliance.jar" todir="${tmp.dir}/jboss-${jboss.version}/server/default/lib" overwrite="true"/>
 		<copy file="${lib.dir}/spring/spring.jar" todir="${tmp.dir}/jboss-${jboss.version}/server/default/lib" overwrite="true"/>
+		<copy file="${lib.dir}/jakarta-commons/commons-codec.jar" todir="${tmp.dir}/jboss-${jboss.version}/server/default/lib" overwrite="true"/>
+		<copy file="${lib.dir}/caucho/burlap.jar" todir="${tmp.dir}/jboss-${jboss.version}/server/default/lib" overwrite="true"/>
+		<copy file="${lib.dir}/caucho/hessian.jar" todir="${tmp.dir}/jboss-${jboss.version}/server/default/lib" overwrite="true"/>
 		<copy file="${contacts.ca.war}" todir="${tmp.dir}/jboss-${jboss.version}/server/default/deploy" overwrite="true"/>
 		<antcallback target="-perform-test-jboss" return="jboss-${jboss.version}.errored, jboss-${jboss.version}.failed">
 			<param name="test.includes" value="**/ContainerAdapterContactsTests.class"/>

@@ -24,7 +24,16 @@ import com.meterware.httpunit.WebResponse;
 
 import junit.framework.TestCase;
 
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.PropertiesBeanDefinitionReader;
+
+import org.springframework.remoting.RemoteAccessException;
+
+import sample.contact.ContactManager;
+
 import java.net.URL;
+
+import java.util.Properties;
 
 
 /**
@@ -61,6 +70,54 @@ public abstract class AbstractContactsTests extends TestCase {
         assertEquals("Contacts Security Demo", response.getTitle());
         assertEquals(2, response.getLinks().length); // debug and manage links
         assertTrue(response.getText().lastIndexOf("sample.contact.Contact@") != -1);
+    }
+
+    public void testHessianFailsWithIncorrectCredentials() {
+        String PREFIX = "beans.";
+        DefaultListableBeanFactory lbf = new DefaultListableBeanFactory();
+        Properties p = new Properties();
+        p.setProperty(PREFIX + "hessianProxy.class",
+            "org.springframework.remoting.caucho.HessianProxyFactoryBean");
+        p.setProperty(PREFIX + "hessianProxy.serviceInterface",
+            "sample.contact.ContactManager");
+        p.setProperty(PREFIX + "hessianProxy.serviceUrl",
+            getBaseUrl() + "/caucho/ContactManager-hessian");
+        p.setProperty(PREFIX + "hessianProxy.username", "marissa");
+        p.setProperty(PREFIX + "hessianProxy.password", "WRONG_PASSWORD");
+
+        (new PropertiesBeanDefinitionReader(lbf)).registerBeanDefinitions(p,
+            PREFIX);
+
+        ContactManager contactManager = (ContactManager) lbf.getBean(
+                "hessianProxy");
+
+        try {
+            contactManager.getRandomContact();
+            fail("Should have thrown RemoteAccessException");
+        } catch (RemoteAccessException exception) {
+             assertTrue(true);
+        }
+    }
+
+    public void testHessianOperational() {
+        String PREFIX = "beans.";
+        DefaultListableBeanFactory lbf = new DefaultListableBeanFactory();
+        Properties p = new Properties();
+        p.setProperty(PREFIX + "hessianProxy.class",
+            "org.springframework.remoting.caucho.HessianProxyFactoryBean");
+        p.setProperty(PREFIX + "hessianProxy.serviceInterface",
+            "sample.contact.ContactManager");
+        p.setProperty(PREFIX + "hessianProxy.serviceUrl",
+            getBaseUrl() + "/caucho/ContactManager-hessian");
+        p.setProperty(PREFIX + "hessianProxy.username", "marissa");
+        p.setProperty(PREFIX + "hessianProxy.password", "koala");
+
+        (new PropertiesBeanDefinitionReader(lbf)).registerBeanDefinitions(p,
+            PREFIX);
+
+        ContactManager contactManager = (ContactManager) lbf.getBean(
+                "hessianProxy");
+        assertTrue(contactManager.getRandomContact() != null);
     }
 
     public void testLoginNameCaseSensitive() throws Exception {

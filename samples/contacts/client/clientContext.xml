@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Contacts web application
+  - Client application context
+  - $Id$
+  -->
+
+<beans>
+
+	<!-- Resolves ${...} placeholders from client.properties -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location"><value>client.properties</value></property>
+	</bean>
+
+	<!-- Proxy for the Hessian-exported ContactManager -->
+	<!-- Hessian is a slim binary HTTP remoting protocol -->
+	<bean id="hessianProxy" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+		<property name="serviceInterface">
+			<value>sample.contact.ContactManager</value>
+		</property>
+		<property name="serviceUrl">
+			<value>http://${serverName}:${httpPort}${contextPath}/caucho/ContactManager-hessian</value>
+		</property>
+		<property name="username"><value>${username}</value></property>
+		<property name="password"><value>${password}</value></property>
+	</bean>
+
+	<!-- Proxy for the Burlap-exported ContactManager -->
+	<!-- Burlap is a slim XML-based HTTP remoting protocol -->
+	<bean id="burlapProxy" class="org.springframework.remoting.caucho.BurlapProxyFactoryBean">
+		<property name="serviceInterface">
+			<value>sample.contact.ContactManager</value>
+		</property>
+		<property name="serviceUrl">
+			<value>http://${serverName}:${httpPort}${contextPath}/caucho/ContactManager-burlap</value>
+		</property>
+		<property name="username"><value>${username}</value></property>
+		<property name="password"><value>${password}</value></property>
+	</bean>
+
+</beans>

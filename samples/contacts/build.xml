@@ -74,11 +74,14 @@
 			<classpath refid="qa-portalpath"/>
 		</javac>
 
-		<copy todir="${build.dir}">
-			<fileset dir="${src.dir}">
-				<include name="*.properties"/>
+		<jar jarfile="${client.dir}/contacts.jar">
+			<fileset dir="${build.dir}">
+				<include name="sample/contact/Contact.class"/>
+				<include name="sample/contact/ContactManager.class"/>
+				<include name="sample/contact/ClientApplication.class"/>
 			</fileset>
-		</copy>
+		</jar>
+
 	</target>
 
     <target name="format" description="Formats all project source code">
@@ -147,6 +150,8 @@
 			<lib dir="${lib.dir}/aop-alliance" includes="aopalliance.jar"/>
 			<lib dir="${lib.dir}/regexp" includes="jakarta-oro.jar"/>
 			<lib dir="${lib.dir}/j2ee" includes="jstl.jar"/>
+			<lib dir="${lib.dir}/caucho" includes="*.jar"/>
+			<lib dir="${lib.dir}/jakarta-commons" includes="commons-codec.jar"/>
 			<lib dir="${dist.lib.dir}" includes="acegi-security-taglib.jar"/>
 			<lib dir="${dist.lib.dir}" includes="acegi-security.jar"/>
 		</war>
@@ -175,6 +180,7 @@
 				<include name="jboss-web.xml"/>
 				<include name="resin-web.xml"/>
 				<include name="web.xml"/>
+				<include name="applicationContext.xml"/>
 			</fileset>
 		</copy>
 		<war warfile="${dist.dir}/${name.ca}.war" webxml="${tmp.dir}/${name.ca}/WEB-INF/web.xml">

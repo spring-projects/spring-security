@@ -42,6 +42,11 @@
     </filter>
 
     <filter>
+        <filter-name>Acegi HTTP BASIC Authorization Filter</filter-name>
+        <filter-class>net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter</filter-class>
+    </filter>
+
+    <filter>
         <filter-name>Acegi Security System for Spring Auto Integration Filter</filter-name>
         <filter-class>net.sf.acegisecurity.ui.AutoIntegrationFilter</filter-class>
     </filter>
@@ -57,6 +62,11 @@
 
     <filter-mapping>
       <filter-name>Acegi Authentication Processing Filter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+      <filter-name>Acegi HTTP BASIC Authorization Filter</filter-name>
       <url-pattern>/*</url-pattern>
     </filter-mapping>
 
@@ -95,6 +105,12 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
+	<servlet>
+		<servlet-name>caucho</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
   <!--
     - Maps the contacts dispatcher to /*.
     -
@@ -104,6 +120,15 @@
     	<url-pattern>*.htm</url-pattern>
  	</servlet-mapping>
   
+  <!--
+	- Dispatcher servlet mapping for HTTP remoting via the Caucho protocols,
+	- i.e. Hessian and Burlap (see caucho-servlet.xml for the controllers).
+   -->
+	<servlet-mapping>
+		<servlet-name>caucho</servlet-name>
+		<url-pattern>/caucho/*</url-pattern>
+	</servlet-mapping>
+
  	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
