@@ -100,6 +100,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("");
         request.setServletPath("/j_mock_post");
+        request.setRequestURL("http://www.example.com/mycontext/j_mock_post");
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
@@ -124,6 +125,8 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("");
         request.setServletPath("/j_OTHER_LOCATION");
+        request.setRequestURL(
+            "http://www.example.com/mycontext/j_OTHER_LOCATION");
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
@@ -167,6 +170,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("");
         request.setServletPath("/some.file.html");
+        request.setRequestURL("http://www.example.com/mycontext/some.file.html");
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
@@ -188,6 +192,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("");
         request.setServletPath("/j_mock_post");
+        request.setRequestURL("http://www.example.com/mycontext/j_mock_post");
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
@@ -284,6 +289,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("");
         request.setServletPath("/j_mock_post");
+        request.setRequestURL("http://www.example.com/mycontext/j_mock_post");
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
@@ -328,6 +334,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("");
         request.setServletPath("/j_mock_post");
+        request.setRequestURL("http://www.example.com/mycontext/j_mock_post");
         request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
             "/my-destination");
 

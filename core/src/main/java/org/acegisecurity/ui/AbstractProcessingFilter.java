@@ -204,7 +204,8 @@ public abstract class AbstractProcessingFilter implements Filter,
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        if (filterProcessesUrl.equals(httpRequest.getServletPath())) {
+        if (httpRequest.getRequestURL().toString().endsWith(httpRequest
+                .getContextPath() + filterProcessesUrl)) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Request is to process authentication");
             }
