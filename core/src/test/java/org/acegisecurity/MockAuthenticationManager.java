@@ -16,16 +16,36 @@
 package net.sf.acegisecurity;
 
 /**
- * Simply accepts as valid whatever is passed to it.
+ * Simply accepts as valid whatever is passed to it, if
+ * <code>grantAccess</code> is set to <code>true</code>.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MockAuthenticationManager implements AuthenticationManager {
+    //~ Instance fields ========================================================
+
+    private boolean grantAccess = true;
+
+    //~ Constructors ===========================================================
+
+    public MockAuthenticationManager(boolean grantAccess) {
+        this.grantAccess = grantAccess;
+    }
+
+    public MockAuthenticationManager() {
+        super();
+    }
+
     //~ Methods ================================================================
 
     public Authentication authenticate(Authentication authentication)
         throws AuthenticationException {
-        return authentication;
+        if (grantAccess) {
+            return authentication;
+        } else {
+            throw new BadCredentialsException(
+                "MockAuthenticationManager instructed to deny access");
+        }
     }
 }
