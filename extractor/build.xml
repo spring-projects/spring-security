@@ -41,6 +41,7 @@
 			<fileset dir="${tmp.dir}/jbosssx">
 				<include name="org/jboss/security/Simple*"/>
 				<include name="org/jboss/security/auth/spi/AbstractServerLoginModule*"/>
+				<include name="org/jboss/security/NestableGroup*"/>
 			</fileset>
 			<manifest>
 				<attribute name="Extracted-By-Acegi-Security-System-Extractor-Version" value="${extractor-version}"/>
@@ -52,6 +53,7 @@
 		<jar update="no" jarfile="${dest.dir.jboss}/jboss-common-extracted.jar">
 			<fileset dir="${tmp.dir}/jboss-common">
 				<include name="org/jboss/logging/Logger*"/>
+				<include name="org/jboss/logging/NullLoggerPlugin*"/>
 			</fileset>
 			<manifest>
 				<attribute name="Extracted-By-Acegi-Security-System-Extractor-Version" value="${extractor-version}"/>
@@ -78,6 +80,9 @@
 				<include name="org/apache/catalina/Lifecycle*"/>
 				<include name="org/apache/catalina/Realm*"/>
 				<include name="org/apache/catalina/realm/RealmBase*"/>
+				<include name="org/apache/catalina/util/MD5Encoder*"/>
+				<include name="org/apache/catalina/util/StringManager*"/>
+				<include name="org/apache/catalina/util/LifecycleSupport*"/>
 			</fileset>
 			<manifest>
 				<attribute name="Extracted-By-Acegi-Security-System-Extractor-Version" value="${extractor-version}"/>
