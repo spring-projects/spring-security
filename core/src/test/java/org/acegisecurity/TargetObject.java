@@ -95,7 +95,7 @@ public class TargetObject implements ITargetObject {
     }
 
     /**
-     * Delegates through to the {@link #toLowerCase(String)} method.
+     * Delegates through to the {@link #makeLowerCase(String)} method.
      *
      * @param input the method to be made uppercase
      *
