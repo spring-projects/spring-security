@@ -79,7 +79,7 @@
       <New class="net.sf.acegisecurity.adapters.jetty.JettyAcegiUserRealm">
         <Arg>Spring Powered Realm</Arg>
         <Arg>my_password</Arg>
-        <Arg>/etc/acegisecurity.xml</Arg>
+        <Arg>etc/acegisecurity.xml</Arg>
       </New>
     </Arg>
   </Call>
