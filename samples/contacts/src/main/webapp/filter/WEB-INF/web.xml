@@ -62,11 +62,11 @@
         The HttpSessionEventPublisher will publish
         HttpSessionCreatedEvent and HttpSessionDestroyedEvent
         to the WebApplicationContext
-   
+ -->  
     <listener>
         <listener-class>net.sf.acegisecurity.ui.session.HttpSessionEventPublisher</listener-class>
     </listener>
- -->
+ 
   <!--
 	- Provides core MVC application controller. See contacts-servlet.xml.
     -->
