@@ -24,4 +24,20 @@
 	<bean id="mockFilter" class="net.sf.acegisecurity.util.MockFilter"/>
 
 	<bean id="mockNotAFilter" class="net.sf.acegisecurity.util.MockNotAFilter"/>
+
+	<bean id="filterChain" class="net.sf.acegisecurity.util.FilterChainProxy">
+      <property name="filterInvocationDefinitionSource">
+         <value>
+                /*=mockFilter
+         </value>
+      </property>
+<!--
+        <property name="filters">
+            <value>
+                /*=mockFilter
+            </value>
+        </property>
+-->
+    </bean>
+
 </beans>
