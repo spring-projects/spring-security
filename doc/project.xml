@@ -14,7 +14,7 @@
     <dependency>
       <groupId>maven-plugins</groupId>
       <artifactId>maven-sdocbook-plugin</artifactId>
-      <version>1.4</version>
+      <version>1.4.1</version>
       <type>plugin</type>
       <url>http://maven-plugins.sourceforge.net/sdocbook</url>
     </dependency>

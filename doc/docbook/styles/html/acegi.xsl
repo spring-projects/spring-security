@@ -15,8 +15,8 @@
 
 <!DOCTYPE xsl:stylesheet [
     <!ENTITY db_xsl             "docbook.xsl">
-    <!ENTITY callout_gfx_path   "../images/callouts/">
-    <!ENTITY admon_gfx_path     "../images/admons/">
+    <!ENTITY callout_gfx_path   "images/callouts/">
+    <!ENTITY admon_gfx_path     "images/admons/">
 ]>
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -30,7 +30,7 @@
                      HTML Settings
     ################################################### -->   
 
-    <xsl:param name="html.stylesheet">acegi.css</xsl:param>
+    <xsl:param name="html.stylesheet">styles/html/acegi.css</xsl:param>
 
     <!-- These extensions are required for table printing and other stuff -->
     <xsl:param name="use.extensions">1</xsl:param>

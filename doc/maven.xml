@@ -103,40 +103,13 @@ Maven throws an OutOfMemoryError. :-(
             plugin="maven-sdocbook-plugin"
             property="maven.sdocbook.stylesheets.dir"/>
 
-        <!-- use a custom fo stylesheet -->
-        <copy todir="${maven.sdocbook.stylesheets.dir}/fo">
-            <fileset dir="${maven.sdocbook.src.dir}/styles/fo"/>
-        </copy>
-
-        <!-- use a custom html stylesheet -->
-        <copy todir="${maven.sdocbook.stylesheets.dir}/html">
-            <fileset dir="${maven.sdocbook.src.dir}/styles/html"/>
-        </copy>
-
-        <!-- copy images -->
-        <copy todir="${maven.sdocbook.stylesheets.dir}/images">
-            <fileset dir="${maven.sdocbook.src.dir}/images"/>
+        <!-- use custom stylesheets -->
+        <copy todir="${maven.sdocbook.stylesheets.dir}">
+            <fileset dir="${maven.sdocbook.src.dir}/styles"/>
         </copy>
 
     </postGoal>
 
-    <postGoal name="sdocbook:generate-html">
-        <j:if test="${chunk != true}">
-            <move file="${maven.sdocbook.target.dir}/index.html"
-                  tofile="${maven.sdocbook.target.dir}/index-all.html"/>
-        </j:if>
-    </postGoal>
-    <goal name="sdocbook:generate-htmlchunk">
-        <j:set var="maven.sdocbook.html.xsl" value="${maven.sdocbook.stylesheets.dir}/html/acegi-chunk.xsl"/>
-        <j:set var="maven.sdocbook.generated.html" value="${maven.build.dir}/generated-docbooks/html-chunk"/>
-        <j:set var="chunk" value="true"/>
-        <attainGoal name="sdocbook:generate-html"/>
-        <j:set var="chunk" value="false"/>
-    </goal>
-    <postGoal name="sdocbook">
-        <attainGoal name="sdocbook:generate-htmlchunk"/>
-    </postGoal>
-    
     <preGoal name="site">
         <attainGoal name="sdocbook"/>
     </preGoal>

@@ -15,8 +15,8 @@
 
 <!DOCTYPE xsl:stylesheet [
     <!ENTITY db_xsl             "chunk.xsl">
-    <!ENTITY callout_gfx_path   "../images/callouts/">
-    <!ENTITY admon_gfx_path     "../images/admons/">
+    <!ENTITY callout_gfx_path   "images/callouts/">
+    <!ENTITY admon_gfx_path     "images/admons/">
 ]>
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -32,7 +32,7 @@
 
     <xsl:param name="chunk.section.depth">'5'</xsl:param>
     <xsl:param name="use.id.as.filename">'1'</xsl:param>
-    <xsl:param name="html.stylesheet">acegi.css</xsl:param>
+    <xsl:param name="html.stylesheet">styles/html/acegi.css</xsl:param>
 
     <!-- These extensions are required for table printing and other stuff -->
     <xsl:param name="use.extensions">1</xsl:param>
