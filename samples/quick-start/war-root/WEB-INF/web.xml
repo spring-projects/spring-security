@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC '-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN' 'http://java.sun.com/dtd/web-app_2_3.dtd'>
+
+<!--
+  - These entries must be added to your EXISTING web.xml. This web.xml
+  - cannot be used in its current form. It only contains fragments of a real
+  - web.xml.
+  -
+  - $Id$
+  -->
+
+<web-app>
+
+	<!-- It is assumed you are already using Spring's ContextLoaderListener -->
+	
+	<!-- Do not forget to remove any existing Servlet spec security directives from your current web.xml -->
+
+	<filter>
+        <filter-name>Acegi Authentication Processing Filter</filter-name>
+        <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
+        <init-param>
+            <param-name>targetClass</param-name>
+            <param-value>net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>Acegi Security System for Spring Auto Integration Filter</filter-name>
+        <filter-class>net.sf.acegisecurity.ui.AutoIntegrationFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>Acegi HTTP Request Security Filter</filter-name>
+        <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
+        <init-param>
+            <param-name>targetClass</param-name>
+            <param-value>net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter</param-value>
+        </init-param>
+    </filter>
+	
+    <filter-mapping>
+      <filter-name>Acegi Authentication Processing Filter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+      <filter-name>Acegi Security System for Spring Auto Integration Filter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <filter-mapping>
+      <filter-name>Acegi HTTP Request Security Filter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+</web-app>

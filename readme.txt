@@ -29,6 +29,14 @@ Please refer to the Reference Guide, which is located in the docs/reference
 directory. In addition, JavaDocs are located in the docs/api directory.
 
 -------------------------------------------------------------------------------
+ADDING ACEGI SECURITY TO YOUR OWN APPLICATION
+-------------------------------------------------------------------------------
+
+Take a look in samples/quick-start. There we give you the fragments to add to
+your existing web.xml and applicationContext.xml, along with a couple of files
+that need to be added to your WAR file.
+
+-------------------------------------------------------------------------------
 OBTAINING SUPPORT
 -------------------------------------------------------------------------------
 

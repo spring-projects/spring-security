@@ -1,0 +1,15 @@
+You'll need to copy acegi-security.jar into your WEB-INF/lib directory.
+You can find the JAR in the /dist directory of any ZIP distribution.
+
+Acegi-security.jar requires the following JARs in WEB-INF/lib:
+
+commons-logging.jar
+commons-codec.jar
+commons-collections.jar
+jakarta-oro.jar
+spring.jar
+
+Most of the above JARs are included with Spring. Those that are not are
+definitely included in the Acegi Security "with dependencies" release ZIP.
+
+$Id$

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - These entries must be added to your EXISTING applicationContext.xml. 
+  - This applicationContext.xml cannot be used in its current form. It only
+  - contains fragments of a real applicationContext.xml.
+  -
+  - $Id$
+  -->
+
+<beans>
+
+	<!-- =================== SECURITY BEANS YOU SHOULD CHANGE ================== -->
+	
+	<!-- If you replace this bean with say JdbcDaoImpl, just ensure your replacement
+	     has the same bean id (authenticationDao) -->
+	<bean id="authenticationDao" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
+  		<property name="userMap">
+			<value>
+				marissa=koala,ROLE_TELLER,ROLE_SUPERVISOR
+				dianne=emu,ROLE_TELLER
+				scott=wombat,ROLE_TELLER
+				peter=opal,disabled,ROLE_TELLER
+			</value>
+		</property>
+	</bean>
+
+	<!-- Note the order that entries are placed against the objectDefinitionSource is critical.
+	     The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
+	     Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
+	<bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
+    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
+    	<property name="runAsManager"><ref bean="runAsManager"/></property>
+ 		<property name="objectDefinitionSource">
+			<value>
+			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+			    PATTERN_TYPE_APACHE_ANT
+				/secure/**=ROLE_SUPERVISOR
+			</value>
+		</property>
+	</bean>
+
+	<!-- =================== SECURITY BEANS YOU WILL RARELY (IF EVER) CHANGE ================== -->
+	<!-- However, it is a good idea to change each <property name="key">'s to a new random value -->
+	
+	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
+     	<property name="authenticationDao"><ref bean="authenticationDao"/></property>
+		<property name="key"><value>my_password</value></property>
+	</bean>
+
+	<bean id="runAsManager" class="net.sf.acegisecurity.runas.RunAsManagerImpl">
+     	<property name="key"><value>my_run_as_password</value></property>
+ 	</bean>
+
+	<bean id="runAsAuthenticationProvider" class="net.sf.acegisecurity.runas.RunAsImplAuthenticationProvider">
+     	<property name="key"><value>my_run_as_password</value></property>
+ 	</bean>
+
+	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+		<property name="providers">
+		  <list>
+		    <ref bean="runAsAuthenticationProvider"/>
+		    <ref bean="daoAuthenticationProvider"/>
+		  </list>
+		</property>
+	</bean>
+
+	<bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
+
+	<bean id="accessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
+   		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
+		<property name="decisionVoters">
+		  <list>
+		    <ref bean="roleVoter"/>
+		  </list>
+		</property>
+	</bean>
+
+	<bean id="authenticationProcessingFilter" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
+		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+		<property name="authenticationFailureUrl"><value>/acegilogin.jsp?login_error=1</value></property>
+		<property name="defaultTargetUrl"><value>/</value></property>
+		<property name="filterProcessesUrl"><value>/j_acegi_security_check</value></property>
+	</bean>
+
+	<bean id="securityEnforcementFilter" class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter">
+		<property name="filterSecurityInterceptor"><ref bean="filterInvocationInterceptor"/></property>
+		<property name="authenticationEntryPoint"><ref bean="authenticationProcessingFilterEntryPoint"/></property>
+	</bean>
+
+	<bean id="authenticationProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+		<property name="loginFormUrl"><value>/acegilogin.jsp</value></property>
+		<property name="forceHttps"><value>false</value></property>
+	</bean>
+
+</beans>
