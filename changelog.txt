@@ -1,4 +1,9 @@
-Changes in version 0.6 (2004-xx-xx)
+Changes in version 0.x (2004-xx-xx)
+-----------------------------------
+
+* Fixed EH-CACHE-based caching implementation behaviour when cache exists
+
+Changes in version 0.6 (2004-08-09)
 -----------------------------------
 
 * Added domain object instance access control list (ACL) packages

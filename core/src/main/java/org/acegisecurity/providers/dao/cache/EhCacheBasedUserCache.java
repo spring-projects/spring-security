@@ -97,6 +97,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean,
     public void afterPropertiesSet() throws Exception {
         if (CacheManager.getInstance().cacheExists(CACHE_NAME)) {
             // don’t remove the cache
+            cache = CacheManager.getInstance().getCache(CACHE_NAME);
         } else {
             manager = CacheManager.create();
 
