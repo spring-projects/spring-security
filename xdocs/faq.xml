@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+
+<document>
+
+  <properties>
+    <title>Acegi FAQ</title>
+  </properties>
+
+  <body>
+
+    <section name="Frequently Asked Questions">
+      <p>
+        This document attempts to answer some of the more frequently asked
+        questions regarding various aspects of JBoss.  These questions are
+        typically asked over and over again on the mailing lists and forums. As a
+        courtesy to the developers, we ask that you read this document
+        before posting to the mailing lists.
+      </p>
+      <p>
+        <strong>General</strong>
+      </p>
+      <ol>
+        <li>
+          <a href="#what-is-acegi">
+            What is Acegi?
+          </a>
+        </li>
+      </ol>
+
+      <p>
+        <strong>More FAQs ...</strong>
+      </p>
+
+
+      <section name="General">
+        <dl>
+          <dt>
+            <a name="what-is-acegi">
+              What is Acegi?
+            </a>
+          </dt>
+          <dd>
+            ...
+          </dd>
+        </dl>
+      </section>
+    </section>
+  </body>
+</document>

@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <title>Reference Documentation</title>
+  </properties>
+
+  <body>
+    <section name="Reference Documentation">
+
+      <subsection name="Overview of the Reference Documentation">
+        <table>
+          <tr><th>Document</th><th>Description</th></tr>
+
+          <tr><td><a href="../ref/index.html">Reference Guide</a></td>
+            <td>
+               The original docbook-generated reference. This is a good place to start if you want
+               to use the Acegi System to secure your applications.
+            </td>
+          </tr>
+
+<!--          <tr><td><a href="developer-guide.html">Developer Guide</a></td>
+            <td>
+              The Developer Guide is intended to help developers get
+              acquainted with the project.
+            </td>
+          </tr>
+-->
+        </table>
+      </subsection>
+    </section>
+ </body>
+</document>

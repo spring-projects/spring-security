@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="Maven">
+
+  <title>Acegi Security System for Spring</title>
+  <body>
+    <menu name="Overview">
+<!--      <item name="Goals"                   href="/goals.html"/>
+      <item name="Features"                href="/features.html"/> -->
+      <item name="News and Status"         href="/status.html"/>
+      <item name="Getting Started"         href="/start/index.html" collapse="true">
+        <item name="Download"              href="/start/download.html"/>
+        <item name="Build"                 href="/start/build.html"/>
+      </item>
+      <item name="Reference"               href="/reference/index.html" collapse="true">
+        <item name="User Guide"            href="/ref/index.html"/>
+        <!-- item name="Developer Guide"       href="/reference/developer-guide.html"/ -->
+        <!-- item name="FAQ"                   href="/faq.html"/ -->
+      </item>
+    </menu>
+<!--
+    <menu name="Misc">
+      <item name="Wiki"       href=""/>
+      <item name="Glossary"   href="/glossary.html"/>
+      <item name="Articles"   href="/articles.html"/>
+    </menu>
+ -->
+  </body>
+</project>

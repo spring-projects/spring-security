@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<document>
+
+  <properties>
+    <title>Getting Started with Acegi</title>
+  </properties>
+
+  <body>
+    <section name="Getting Started with Acegi">
+
+      <subsection name="Overview of the Getting Started Documentation">
+        <table>
+          <tr><th>Document</th><th>Description</th></tr>
+          <tr><td><a href="download.html">Download</a></td>
+            <td>
+              Before you can start using Acegi, you'll have
+              to download the distribution to your system (unless
+              you plan on building the project from source). This document
+              provides links to the various distributions available.
+            </td>
+          </tr>
+        </table>
+      </subsection>
+    </section>
+ </body>
+</document>
