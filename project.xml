@@ -123,6 +123,9 @@
     <contributor>
       <name>Sergio Berná</name>
     </contributor>
+    <contributor>
+      <name>Aaron Tang</name>
+    </contributor>
   </contributors>
   <dependencies>
     <dependency>
@@ -209,6 +212,12 @@
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.8</version>
+      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>springframework</groupId>
@@ -335,12 +344,6 @@
       <artifactId>maven-statcvs-plugin</artifactId>
       <version>2.5</version>
       <type>plugin</type>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.8</version>
-      <type>jar</type>
     </dependency>
   </dependencies>
   <build>
