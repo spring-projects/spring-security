@@ -91,7 +91,9 @@ public class FilterToBeanProxy implements Filter {
     //~ Methods ================================================================
 
     public void destroy() {
-        delegate.destroy();
+        if (delegate != null) {
+            delegate.destroy();
+        }
     }
 
     public void doFilter(ServletRequest request, ServletResponse response,
