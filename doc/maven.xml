@@ -98,6 +98,10 @@ Maven throws an OutOfMemoryError. :-(
   	</goal>
 
     <postGoal name="sdocbook:prepare-filesystem">
+    
+      <maven:get var="maven.sdocbook.stylesheets.dir"
+        plugin="maven-sdocbook-plugin"
+        property="maven.sdocbook.stylesheets.dir"/>
 
             <!-- use a custom fo stylesheet -->
             <copy todir="${maven.sdocbook.stylesheets.dir}/fo">
