@@ -286,6 +286,22 @@ public class DaoAuthenticationProviderTests extends TestCase {
         assertEquals("marissa", castResult.getPrincipal());
     }
 
+    public void testDetectsNullBeingReturnedFromAuthenticationDao() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa",
+                "koala");
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setAuthenticationDao(new MockAuthenticationDaoReturnsNull());
+
+        try {
+            provider.authenticate(token);
+            fail("Should have thrown AuthenticationServiceException");
+        } catch (AuthenticationServiceException expected) {
+            assertEquals("AuthenticationDao returned null, which is an interface contract violation",
+                expected.getMessage());
+        }
+    }
+
     public void testGettersSetters() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(new ShaPasswordEncoder());
@@ -383,6 +399,13 @@ public class DaoAuthenticationProviderTests extends TestCase {
     }
 
     //~ Inner Classes ==========================================================
+
+    private class MockAuthenticationDaoReturnsNull implements AuthenticationDao {
+        public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException, DataAccessException {
+            return null;
+        }
+    }
 
     private class MockAuthenticationDaoSimulateBackendError
         implements AuthenticationDao {

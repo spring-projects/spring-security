@@ -356,8 +356,10 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
     }
 
     private UserDetails getUserFromBackend(String username) {
+        UserDetails loadedUser;
+
         try {
-            return this.authenticationDao.loadUserByUsername(username);
+            loadedUser = this.authenticationDao.loadUserByUsername(username);
         } catch (UsernameNotFoundException notFound) {
             if (hideUserNotFoundExceptions) {
                 throw new BadCredentialsException("Bad credentials presented");
@@ -368,5 +370,12 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             throw new AuthenticationServiceException(repositoryProblem
                 .getMessage(), repositoryProblem);
         }
+
+        if (loadedUser == null) {
+            throw new AuthenticationServiceException(
+                "AuthenticationDao returned null, which is an interface contract violation");
+        }
+
+        return loadedUser;
     }
 }

@@ -45,7 +45,7 @@ public interface AuthenticationDao {
      * @param username the username presented to the {@link
      *        DaoAuthenticationProvider}
      *
-     * @return a fully populated user record
+     * @return a fully populated user record (never <code>null</code>)
      *
      * @throws UsernameNotFoundException if the user could not be found or the
      *         user has no GrantedAuthority

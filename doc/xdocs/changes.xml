@@ -53,6 +53,7 @@
       <action dev="benalex" type="update">Improved JaasAuthenticationProvider startup error detection</action>
       <action dev="benalex" type="update">Refactored EH-CACHE implementations to use Spring IoC defined caches instead</action>
       <action dev="benalex" type="update">AbstractProcessingFilter now has various hook methods to assist subclasses</action>
+      <action dev="benalex" type="update">DaoAuthenticationProvider better detects AuthenticationDao interface violations</action>
       <action dev="benalex" type="fix">Fixed ambiguous column references in JdbcDaoImpl default query</action>
       <action dev="benalex" type="fix">Fixed AbstractProcessingFilter to use removeAttribute (JRun compatibility)</action>
       <action dev="benalex" type="fix">Fixed GrantedAuthorityEffectiveAclResolver support of UserDetails principals</action>
