@@ -144,6 +144,7 @@ public class DigestProcessingFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Test
+        Thread.sleep(1000); // ensures token expired
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
