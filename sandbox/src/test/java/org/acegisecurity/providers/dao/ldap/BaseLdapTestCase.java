@@ -1,14 +1,10 @@
 package net.sf.acegisecurity.providers.dao.ldap;
 
 import java.util.Hashtable;
-
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-
-import org.apache.ldap.server.jndi.EnvKeys;
-
 import junit.framework.TestCase;
 
 /** Important note: this class merely defines certain 
@@ -16,22 +12,34 @@ import junit.framework.TestCase;
  */
 public class BaseLdapTestCase extends TestCase {
 
+    // static finalizers, they'd be nice, as LdapTestHelper 
+    // never seems to get the chance to cleanup after itself
 	protected static LdapTestHelper ldapTestHelper = new LdapTestHelper();
 	
-	/** Create and return a Hashtable with standard JNDI settings for our tests. */
-	protected Hashtable getEnvironment() {
-		Hashtable env = new Hashtable();
-		env.put( Context.PROVIDER_URL, "ou=system" );
-		env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.ldap.server.jndi.ServerContextFactory" );
-		env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-		env.put( Context.SECURITY_CREDENTIALS, "secret" );
-		env.put( EnvKeys.WKDIR, ldapTestHelper.getTempDirectoryPath() );
-		return env;
+	protected DirContext ctx;
+	
+	protected void setUp() throws NamingException {
+		ctx = getClientContext();
 	}
 	
-	/** Create and return a Hashtable with standard JNDI settings for our tests. 
-	 * @throws NamingException */
-	protected DirContext getInitialDirContext() throws NamingException {
-		 return new InitialDirContext( getEnvironment() );
+	protected void tearDown() throws NamingException {
+		ctx.close();
+		ctx = null;
 	}
+	
+	
+	protected DirContext getClientContext() throws NamingException {
+		Hashtable env = new Hashtable();
+		env.put( Context.PROVIDER_URL, "ldap://localhost:389/ou=system" );
+		env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+		//env.put( Context.SECURITY_PRINCIPAL, "uid=admin" );
+		//env.put( Context.SECURITY_CREDENTIALS, "secret" );
+		return new InitialDirContext( env );
+	}
+	
+	/** @return The server context for LDAP ops. used for things like addding/removing users. */
+	protected DirContext getServerContext() {
+		return ldapTestHelper.getServerContext();
+	}
+	
 }
