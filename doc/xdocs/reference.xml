@@ -35,6 +35,15 @@
 
           <tr>
             <td>
+              <a href="docbook/index.html">Reference Guide HTML One Page per Chapter</a>
+            </td>
+            <td>
+              The reference guide using one page per chapter.
+            </td>
+          </tr>
+
+          <tr>
+            <td>
               <a href="docbook/acegi.html">Reference Guide HTML Single Page</a>
             </td>
             <td>
