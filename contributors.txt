@@ -14,4 +14,10 @@ contributions to the Acegi Security System for Spring project:
 
 * Colin Sampaleanu is a current member of the development team.
 
+* Carlos Sanchez contributed the original Maven build file.
+
+* Luke Taylor is a current member of the development team and maintains a
+  public automated Maven build at the Monkey Machine
+  (http://www.monkeymachine.co.uk/acegi).
+
 $Id$
