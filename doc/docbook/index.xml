@@ -2650,7 +2650,7 @@ public boolean supports(Class clazz);</programlisting></para>
         <para>Copy <literal>acegisecurity.xml</literal> into
         <literal>$CATALINA_HOME/conf</literal>.</para>
 
-        <para>Copy <literal>acegi-security-catalina-server.jar</literal> into
+        <para>Copy <literal>acegi-security-catalina.jar</literal> into
         <literal>$CATALINA_HOME/server/lib</literal>.</para>
 
         <para>Copy the following files into
@@ -2666,7 +2666,7 @@ public boolean supports(Class clazz);</programlisting></para>
           </listitem>
 
           <listitem>
-            <para><literal>acegi-security-catalina-common.jar</literal></para>
+            <para><literal>acegi-security-core.jar</literal></para>
           </listitem>
 
           <listitem>
