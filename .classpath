@@ -43,8 +43,7 @@
 	<classpathentry kind="lib" path="lib/spring/spring-mock.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-commons/commons-collections.jar"/>
 	<classpathentry kind="lib" path="lib/aspectj/aspectjrt.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/xml-apis/jars/xml-apis-2.0.2.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xerces-2.4.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/resin/jars/resin-3.0.9.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/retroweaver/jars/retroweaver-1.0fcs.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>
