@@ -25,7 +25,12 @@ import org.springframework.util.StringUtils;
 
 import org.springframework.web.util.ExpressionEvaluationUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
@@ -127,6 +132,11 @@ public class AuthorizeTag extends TagSupport {
         Authentication currentUser = context.getAuthentication();
 
         if (null == currentUser) {
+            return Collections.EMPTY_LIST;
+        }
+
+        if ((null == currentUser.getAuthorities())
+            || (currentUser.getAuthorities().length < 1)) {
             return Collections.EMPTY_LIST;
         }
 
