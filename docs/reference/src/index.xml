@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
 "../lib/docbook-dtd/docbookx.dtd">
 <book>
@@ -910,32 +910,115 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
         </itemizedlist>
       </sect2>
 
-        <sect2>
-          <title>Authorization Tag Library</title>
+               <sect2>
+                       <title>Authorization Tag Library</title>
 
-            <para>The Acegi Security System for Spring comes bundled with a
-            JSP tag library that eases JSP writing.</para>
+                       <para>The Acegi Security System for Spring comes bundled with a
+             JSP tag library that eases JSP writing.</para>
 
-            <sect3>
-              <title>Installation</title>
-            </sect3>
+                       <para>This library simply wraps some bits of Java code, for
+            easy reuse.  The tag library also allows the JSP developer to
+            determine if a principal has, doesn't have or has any of a
+            specified set of roles.</para>
 
-            <sect3>
-              <title>Usage</title>
+                       <sect3>
+                               <title>Usage</title>
 
-              <para>The following JSP fragment illustrates how to use the
-              authz taglib:</para>
+                               <para>The following JSP fragment illustrates how to use the
+                         authz taglib:</para>
 
-              <para><programlisting>&lt;authz:authorize ifAllGranted="ROLE_SUPERVISOR"&gt;
-	&lt;td&gt;
-		&lt;A HREF="del.htm?id=&lt;c:out value="${contact.id}"/&gt;"&gt;Del&lt;/A&gt;
-	&lt;/td&gt;
-&lt;/authz:authorize&gt;</programlisting></para>
+                               <para>
+                                       <programlisting>&lt;authz:authorize ifAllGranted="ROLE_SUPERVISOR"&gt;
+        &lt;td&gt;
+                &lt;A HREF="del.htm?id=&lt;c:out value="${contact.id}"/&gt;"&gt;Del&lt;/A&gt;
+        &lt;/td&gt;
+&lt;/authz:authorize&gt;</programlisting>
+                               </para>
 
-				<para>What this code says is:  if the pricipal has been granted
-                ROLE_SUPERVISOR, allow the tag's body to be output.</para>
-            </sect3>
-        </sect2>
+                               <para>This code was copied from the Contacts sample
+                               application.</para>
+
+                                <para>What this code says is:  if the pricipal has been granted
+                               ROLE_SUPERVISOR, allow the tag's body to be output.</para>
+                       </sect3>
+
+                       <sect3>
+                               <title>Installation</title>
+
+                               <para>Installation is a simple matter-simply copy the
+                               acegi-security-taglib.jar file to your application's
+                               WEB-INF/lib folder.  The tag library includes it's TLD,
+                               which makes it easier to work with JSP 1.2+ containers.</para>
+
+                               <para>If you are using a JSP 1.1 container, you will need to
+                               declare the JSP tag library in your application's web.xml file,
+                               with code such as this:</para>
+
+                               <para>
+                                       <programlisting>&lt;taglib&gt;
+       &lt;taglib-uri&gt;http://acegisecurity.sf.net/authz&lt;/taglib-uri&gt;
+       &lt;taglib-location&gt;/WEB-INF/authz.tld&lt;/taglib-location&gt;
+&lt;/taglib&gt;</programlisting>
+                               </para>
+
+                               <para>You will also need to extract the authz.tld file from
+                               the acegi-security-taglib.jar file.  Use a regular Zip tool,
+                               or use Java's JAR utility.</para>
+                       </sect3>
+
+                       <sect3>
+                               <title>Reference</title>
+
+                               <para>The
+                                       <literal>authz:authorize</literal> tag declares the
+                                       following attributes:
+                               </para>
+
+                               <para>
+                                       <itemizedlist spacing="compact">
+                                               <listitem><para>
+                                                       <literal>ifAllGranted</literal>:  All the listed
+                                                       roles must be granted for the tag to output it's
+                                                       body.
+                                               </para></listitem>
+                                               <listitem><para>
+                                                       <literal>ifAnyGranted</literal>:  Any of the
+                                                       listed roles must be granted for the tag to output
+                                                       it's body.
+                                               </para></listitem>
+                                               <listitem><para>
+                                                       <literal>ifNotGranted</literal>:  None of the
+                                                       listed roles must be granted for the tag to output
+                                                       it's body.
+                                               </para></listitem>
+                                       </itemizedlist>
+                               </para>
+
+                               <para>You'll note that in each attribute you can list multiple
+                               roles.  Simply separate the roles using a comma.  The
+                               <literal>authorize</literal> tag ignores whitespace in
+                               attributes.</para>
+
+                               <para>The tag library logically ANDs all of it's parameters
+                               together.  This means that if you combine two or more
+                               attributes, they all must be true for the tag to output it's
+                               body.  Don't add an
+                               <literal>ifAllGranted="ROLE_SUPERVISOR"</literal>, followed by
+                               an <literal>ifNotGranted="ROLE_SUPERVISOR"</literal>, or
+                               you'll be surprised to never see the tag's body.</para>
+
+                               <para>One last item:  the tag verifies the authorizations in a
+                               specific order:  first <literal>ifNotGranted</literal>, then
+                               <literal>ifAllGranted</literal>, and finally,
+                               <literal>ifAnyGranted</literal>.
+                               </para>
+
+                               <para>This might or might not be important to you, depending
+                               on how your authorization scheme is defined, but it allows you
+                               to express concepts like:  principal is a SUPERVISOR, but not
+                               a NEWBIE_SUPERVISOR.</para>
+                       </sect3>
+               </sect2>
     </sect1>
 
     <sect1>
