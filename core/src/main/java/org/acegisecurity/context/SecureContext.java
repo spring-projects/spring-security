@@ -30,7 +30,7 @@ import net.sf.acegisecurity.Authentication;
  * @author Ben Alex
  * @version $Id$
  */
-public interface SecureContext {
+public interface SecureContext extends Context {
     //~ Methods ================================================================
 
     public void setAuthentication(Authentication newAuthentication);
