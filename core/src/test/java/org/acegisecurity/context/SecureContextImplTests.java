@@ -50,6 +50,12 @@ public class SecureContextImplTests extends TestCase {
         junit.textui.TestRunner.run(SecureContextImplTests.class);
     }
 
+    public void testEmptyObjectsAreEquals() {
+        SecureContextImpl obj1 = new SecureContextImpl();
+        SecureContextImpl obj2 = new SecureContextImpl();
+        assertTrue(obj1.equals(obj2));
+    }
+
     public void testSecureContextCorrectOperation() {
         SecureContext context = new SecureContextImpl();
         Authentication auth = new UsernamePasswordAuthenticationToken("marissa",
