@@ -27,8 +27,7 @@ if (context != null) { %>
 			if (auth instanceof AuthByAdapter) { %>
 				<BR><B>SUCCESS! Your container adapter appears to be properly configured!</B><BR><BR>
 <%			} else { %>
-				<BR><I>WARNING: Authentication object does not implement AuthByAdapter</I><BR>
-				This may point to an error with your adapter configuration, although can be ignored if intentional.<BR><BR>
+				<BR><B>SUCCESS! Your web filter appears to be properly configured!</B><BR>
 <%			}
 			
 		} else { %>
