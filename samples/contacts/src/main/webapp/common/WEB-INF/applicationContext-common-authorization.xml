@@ -13,6 +13,18 @@
 
    <!-- ~~~~~~~~~~~~~~~~~~ "BEFORE INVOCATION" AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~ -->
 
+   <!-- ACL permission masks used by this application -->
+   <bean id="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+      <property name="staticField"><value>net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION</value></property>
+   </bean>
+   <bean id="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+      <property name="staticField"><value>net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ</value></property>
+   </bean>
+   <bean id="net.sf.acegisecurity.acl.basic.SimpleAclEntry.DELETE" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+      <property name="staticField"><value>net.sf.acegisecurity.acl.basic.SimpleAclEntry.DELETE</value></property>
+   </bean>
+
+
    <!-- An access decision voter that reads ROLE_* configuration settings -->
    <bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
 
@@ -23,8 +35,8 @@
       <property name="aclManager"><ref local="aclManager"/></property>
       <property name="requirePermission">
 		<list>
-		    <value>1</value>  <!-- SimpleAclEntry.ADMINISTER -->
-		    <value>2</value>  <!-- SimpleAclEntry.READ -->
+		    <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+		    <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ"/>
 		</list>
       </property>
    </bean>
@@ -36,8 +48,8 @@
       <property name="aclManager"><ref local="aclManager"/></property>
       <property name="requirePermission">
 		<list>
-		    <value>1</value>  <!-- SimpleAclEntry.ADMINISTER -->
-		    <value>16</value> <!-- SimpleAclEntry.DELETE -->
+		    <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+		    <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.DELETE"/>
 		</list>
       </property>
    </bean>
@@ -49,7 +61,7 @@
       <property name="aclManager"><ref local="aclManager"/></property>
       <property name="requirePermission">
 		<list>
-		    <value>1</value>  <!-- SimpleAclEntry.ADMINISTER -->
+		    <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
 		</list>
       </property>
    </bean>
@@ -101,8 +113,8 @@
       <property name="aclManager"><ref local="aclManager"/></property>
       <property name="requirePermission">
 		<list>
-		    <value>1</value>  <!-- SimpleAclEntry.ADMINISTER -->
-		    <value>2</value>  <!-- SimpleAclEntry.READ -->
+		    <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+		    <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ"/>
 		</list>
       </property>
    </bean>
@@ -112,8 +124,8 @@
       <property name="aclManager"><ref local="aclManager"/></property>
       <property name="requirePermission">
 		<list>
-		    <value>1</value>  <!-- SimpleAclEntry.ADMINISTER -->
-		    <value>2</value>  <!-- SimpleAclEntry.READ -->
+		    <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+		    <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ"/>
 		</list>
       </property>
    </bean>
