@@ -15,6 +15,8 @@
 
 package net.sf.acegisecurity;
 
+import java.io.Serializable;
+
 import java.security.Principal;
 
 
@@ -33,7 +35,7 @@ import java.security.Principal;
  * @author Ben Alex
  * @version $Id$
  */
-public interface Authentication extends Principal {
+public interface Authentication extends Principal, Serializable {
     //~ Methods ================================================================
 
     public void setAuthenticated(boolean isAuthenticated);

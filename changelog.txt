@@ -3,6 +3,8 @@ Changes in version 0.6 (2004-xx-xx)
 
 * Added feature so DaoAuthenticationProvider returns User in Authentication
 * Added AbstractIntegrationFilter.secureContext property for custom contexts
+* Added stack trace logging to SecurityEnforcementFilter
+* Updated Authentication to be serializable (Weblogic support)
 * Refactored User to UserDetails interface
 * Improved organisation of DaoAuthenticationProvider to facilitate subclassing
 * Fixed Linux compatibility issues (directory case sensitivity etc)
