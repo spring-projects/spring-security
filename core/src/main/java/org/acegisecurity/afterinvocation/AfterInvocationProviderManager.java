@@ -117,7 +117,9 @@ public class AfterInvocationProviderManager implements AfterInvocationManager,
             AfterInvocationProvider provider = (AfterInvocationProvider) iter
                 .next();
 
-            logger.fatal("Evaluating " + attribute + " against " + provider);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Evaluating " + attribute + " against " + provider);
+            }
 
             if (provider.supports(attribute)) {
                 return true;
