@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@ public class HttpSessionIntegrationFilter extends AbstractIntegrationFilter {
         Authentication authentication) {
         if (request instanceof HttpServletRequest
             && ((HttpServletRequest) request).isRequestedSessionIdValid()) {
-            HttpSession httpSession = ((HttpServletRequest) request).getSession();
+            HttpSession httpSession = ((HttpServletRequest) request).getSession(false);
 
             if (httpSession != null) {
                 httpSession.setAttribute(ACEGI_SECURITY_AUTHENTICATION_KEY,
@@ -109,7 +109,7 @@ public class HttpSessionIntegrationFilter extends AbstractIntegrationFilter {
             HttpSession httpSession = null;
 
             try {
-                httpSession = ((HttpServletRequest) request).getSession();
+                httpSession = ((HttpServletRequest) request).getSession(false);
             } catch (IllegalStateException ignored) {}
 
             if (httpSession != null) {
