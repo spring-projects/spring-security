@@ -1,4 +1,6 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core' %>
+<%@ page import="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter" %>
+<%@ page import="net.sf.acegisecurity.AuthenticationException" %>
 <%-- This page will be copied into WAR's root directory if NOT using container adapter --%>
 
 <html>
@@ -21,7 +23,8 @@
          --%>
     <c:if test="${not empty param.login_error}">
       <font color="red">
-        Your login attempt was not successful, try again.
+        Your login attempt was not successful, try again.<BR><BR>
+        Reason: <%= ((AuthenticationException) session.getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY)).getMessage() %>
       </font>
     </c:if>
 
