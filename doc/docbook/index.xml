@@ -210,8 +210,7 @@
 
         <para><mediaobject>
             <imageobject role="html">
-              <imagedata align="center"
-                         fileref="SecurityInterception.gif"
+              <imagedata align="center" fileref="SecurityInterception.gif"
                          format="GIF" />
             </imageobject>
 
@@ -362,8 +361,7 @@
 
         <para><mediaobject>
             <imageobject role="html">
-              <imagedata align="center" fileref="Context.gif"
-                         format="GIF" />
+              <imagedata align="center" fileref="Context.gif" format="GIF" />
             </imageobject>
 
             <caption>
@@ -1710,8 +1708,7 @@ public boolean supports(Class clazz);</programlisting></para>
 
         <para><mediaobject>
             <imageobject role="html">
-              <imagedata align="center"
-                         fileref="AccessDecisionVoting.gif"
+              <imagedata align="center" fileref="AccessDecisionVoting.gif"
                          format="GIF" />
             </imageobject>
 
@@ -2111,10 +2108,10 @@ public boolean supports(Class clazz);</programlisting></para>
         <para>Similar to the
         <literal>BasicAclEntryAfterInvocationProvider</literal> is
         <literal>BasicAclEntryAfterInvocationCollectionFilteringProvider</literal>.
-        It is designed to remove <literal>Collection</literal> elements for
-        which a principal does not have access. It never thrown an
-        <literal>AccessDeniedException</literal> - simply silently removes the
-        offending elements. The provider is configured as follows:</para>
+        It is designed to remove <literal>Collection</literal> or array
+        elements for which a principal does not have access. It never thrown
+        an <literal>AccessDeniedException</literal> - simply silently removes
+        the offending elements. The provider is configured as follows:</para>
 
         <para><programlisting>&lt;bean id="afterAclCollectionRead" class="net.sf.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationCollectionFilteringProvider"&gt;
   &lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
@@ -2127,9 +2124,10 @@ public boolean supports(Class clazz);</programlisting></para>
 &lt;/bean&gt;</programlisting></para>
 
         <para>As you can imagine, the returned <literal>Object</literal> must
-        be a <literal>Collection</literal> for this provider to operate. It
-        will remove any element if the <literal>AclManager</literal> indicates
-        the <literal>Authentication</literal> does not hold one of the listed
+        be a <literal>Collection</literal> or array for this provider to
+        operate. It will remove any element if the
+        <literal>AclManager</literal> indicates the
+        <literal>Authentication</literal> does not hold one of the listed
         <literal>requirePermission</literal>s.</para>
 
         <para>The Contacts sample application demonstrates these two
@@ -3801,8 +3799,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
         <para><mediaobject>
             <imageobject role="html">
-              <imagedata align="center" fileref="ACLSecurity.gif"
-                         format="GIF" />
+              <imagedata align="center" fileref="ACLSecurity.gif" format="GIF" />
             </imageobject>
 
             <caption>
