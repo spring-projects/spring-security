@@ -2113,6 +2113,28 @@ public boolean supports(Class clazz);</programlisting></para>
         previous provider is passed to the next in the list. Let's now
         consider our ACL-aware implementations of
         <literal>AfterInvocationProvider</literal>.</para>
+
+        <para>Please be aware that if you're using
+        <literal>AfterInvocationManager</literal>, you will still need
+        configuration attributes that allow the
+        <literal>MethodSecurityInterceptor</literal>'s
+        <literal>AccessDecisionManager</literal> to allow an operation. If
+        you're using the typical Acegi Security included
+        <literal>AccessDecisionManager</literal> implementations, having no
+        configuration attributes defined for a particular secure method
+        invocation will cause each <literal>AccessDecisionVoter</literal> to
+        abstain from voting. In turn, if the
+        <literal>AccessDecisionManager</literal> property
+        "<literal>allowIfAllAbstainDecisions</literal>" is
+        <literal>false</literal>, an <literal>AccessDeniedException</literal>
+        will be thrown. You may avoid this potential issue by either (i)
+        setting "<literal>allowIfAllAbstainDecisions</literal>" to
+        <literal>true</literal> (although this is generally not recommended)
+        or (ii) simply ensure that there is at least one configuration
+        attribute that an <literal>AccessDecisionVoter</literal> will vote to
+        grant access for. This latter (recommended) approach is usually
+        achieved through a <literal>ROLE_USER</literal> or
+        <literal>ROLE_AUTHENTICATED</literal> configuration attribute. </para>
       </sect2>
 
       <sect2 id="afterinvocation-acl-aware">
@@ -3879,7 +3901,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
               <interfacename>X509AuthoritiesPopulator</interfacename>.</para>
             </listitem>
 
-            . 
+             . 
 
             <listitem>
               <para>The populator's single method,
@@ -3898,7 +3920,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
               your own regular expression to match a different part of the
               subject's distinguished name. An
               <classname>AuthenticationDao</classname> is used to load the
-              user information. <!-- TODO: Give email matching as an example --></para>
+              user information.<!-- TODO: Give email matching as an example --></para>
             </listitem>
 
              
