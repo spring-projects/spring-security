@@ -1211,7 +1211,11 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
   &lt;property name="userCache"&gt;&lt;ref bean="userCache"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/&gt;
+&lt;bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"&gt;
+  &lt;property name="configLocation"&gt;
+    &lt;value&gt;classpath:/ehcache-failsafe.xml&lt;/value&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;
     
 &lt;bean id="userCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean"&gt;
   &lt;property name="cacheManager"&gt;
@@ -3414,7 +3418,11 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
   &lt;!-- &lt;property name="trustStore"&gt;&lt;value&gt;/some/path/to/your/lib/security/cacerts&lt;/value&gt;&lt;/property&gt; --&gt;
 &lt;/bean&gt;
 
-&lt;bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/&gt;
+&lt;bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"&gt;
+  &lt;property name="configLocation"&gt;
+    &lt;value&gt;classpath:/ehcache-failsafe.xml&lt;/value&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;
     
 &lt;bean id="ticketCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean"&gt;
   &lt;property name="cacheManager"&gt;

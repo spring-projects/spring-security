@@ -28,6 +28,9 @@
 
    <!-- Setup a cache we can use in tests of the caching layer -->
    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+      <property name="configLocation">
+         <value>classpath:/ehcache-failsafe.xml</value>
+      </property>
    </bean>  
 
    <bean id="eHCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
