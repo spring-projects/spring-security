@@ -1564,7 +1564,7 @@ public boolean supports(Class clazz);</programlisting></para>
         be used instead of Container Adapters.</para>
       </sect2>
 
-      <sect2 id="security-ui-http-session">
+      <sect2 id="security-ui-http-basic">
         <title>HTTP Basic Authentication</title>
 
         <para>Primarily to cater for the needs of remoting protocols such as
@@ -2180,15 +2180,16 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
       and Burlap protocols. This demonstrates how to use the Acegi Security
       System for Spring for authentication with Spring remoting protocols. To
       try this client, ensure your servlet container is still running the
-      Contacts sample application, and then execute <literal>client
-      marissa</literal>. This will use the remoting protocols to obtain the
-      list of contacts with the owner specified (in this case
-      <literal>marissa</literal>). Note you will be need to edit
-      <literal>client.properties</literal> to use a different username,
-      password, or target URL. To see that security does indeed work, try
-      running <literal>client scott</literal> before changing
-      <literal>client.properties</literal> to use <literal>scott</literal>'s
-      authentication details.</para>
+      Contacts sample application, and then execute <literal>client marissa
+      marissa koala</literal>. The command-line parameters respectively
+      represent the owner of the contacts to extract, the username to use, and
+      the password to use. Note that you may need to edit
+      <literal>client.properties</literal> to use a different target URL. To
+      see that security does indeed work, try running <literal>client scott
+      marissa koala</literal>, which will try to obtain
+      <literal>scott</literal>'s contacts when authenticating as
+      <literal>marissa</literal>. To see it work properly, use <literal>client
+      scott scott wombat</literal>.</para>
     </sect1>
 
     <sect1 id="security-become-involved">

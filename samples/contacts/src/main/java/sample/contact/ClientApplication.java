@@ -21,6 +21,9 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import org.springframework.util.StopWatch;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import java.util.Iterator;
 import java.util.Map;
 
@@ -47,7 +50,8 @@ public class ClientApplication {
 
     //~ Methods ================================================================
 
-    public void invokeContactManager(String username, int nrOfCalls) {
+    public void invokeContactManager(String forOwner, String username,
+        String password, int nrOfCalls) {
         StopWatch stopWatch = new StopWatch(nrOfCalls
                 + " ContactManager call(s)");
         Map orderServices = this.beanFactory.getBeansOfType(ContactManager.class,
@@ -59,13 +63,44 @@ public class ClientApplication {
             ContactManager remoteContactManager = (ContactManager) orderServices
                 .get(beanName);
             System.out.println("Calling ContactManager '" + beanName
-                + "' for owner " + username);
+                + "' for owner " + forOwner);
+
+            Object object = this.beanFactory.getBean("&" + beanName);
+
+            try {
+                System.out.println("Trying to find setUsername(String) method");
+
+                Method method = object.getClass().getMethod("setUsername",
+                        new Class[] {String.class});
+                System.out.println("Found; Trying to setUsername(String) to "
+                    + username);
+                method.invoke(object, new Object[] {username});
+            } catch (NoSuchMethodException ignored) {
+                ignored.printStackTrace();
+            } catch (IllegalAccessException ignored) {
+                ignored.printStackTrace();
+            } catch (InvocationTargetException ignored) {
+                ignored.printStackTrace();
+            }
+
+            try {
+                System.out.println("Trying to find setPassword(String) method");
+
+                Method method = object.getClass().getMethod("setPassword",
+                        new Class[] {String.class});
+                method.invoke(object, new Object[] {password});
+                System.out.println("Found; Trying to setPassword(String) to "
+                    + password);
+            } catch (NoSuchMethodException ignored) {}
+             catch (IllegalAccessException ignored) {}
+             catch (InvocationTargetException ignored) {}
+
             stopWatch.start(beanName);
 
             Contact[] contacts = null;
 
             for (int i = 0; i < nrOfCalls; i++) {
-                contacts = remoteContactManager.getAllByOwner(username);
+                contacts = remoteContactManager.getAllByOwner(forOwner);
             }
 
             stopWatch.stop();
@@ -88,20 +123,23 @@ public class ClientApplication {
     public static void main(String[] args) {
         if ((args.length == 0) || "".equals(args[0])) {
             System.out.println(
-                "You need to specify a user ID and optionally a number of calls, e.g. for user marissa: "
-                + "'client marissa' for a single call per service or 'client marissa 10' for 10 calls each");
+                "You need to specify the owner to request contacts for, the user ID to use, the password to use, and optionally a number of calls, e.g. for user marissa: "
+                + "'client marissa marissa koala' for a single call per service or 'client marissa marissa koala 10' for 10 calls each");
         } else {
-            String username = args[0];
+            String forOwner = args[0];
+            String username = args[1];
+            String password = args[2];
+
             int nrOfCalls = 1;
 
-            if ((args.length > 1) && !"".equals(args[1])) {
-                nrOfCalls = Integer.parseInt(args[1]);
+            if ((args.length > 3) && !"".equals(args[3])) {
+                nrOfCalls = Integer.parseInt(args[3]);
             }
 
             ListableBeanFactory beanFactory = new FileSystemXmlApplicationContext(
                     "clientContext.xml");
             ClientApplication client = new ClientApplication(beanFactory);
-            client.invokeContactManager(username, nrOfCalls);
+            client.invokeContactManager(forOwner, username, password, nrOfCalls);
         }
     }
 }

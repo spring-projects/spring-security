@@ -23,8 +23,6 @@
 		<property name="serviceUrl">
 			<value>http://${serverName}:${httpPort}${contextPath}/caucho/ContactManager-hessian</value>
 		</property>
-		<property name="username"><value>${username}</value></property>
-		<property name="password"><value>${password}</value></property>
 	</bean>
 
 	<!-- Proxy for the Burlap-exported ContactManager -->
@@ -36,8 +34,6 @@
 		<property name="serviceUrl">
 			<value>http://${serverName}:${httpPort}${contextPath}/caucho/ContactManager-burlap</value>
 		</property>
-		<property name="username"><value>${username}</value></property>
-		<property name="password"><value>${password}</value></property>
 	</bean>
 
 </beans>
