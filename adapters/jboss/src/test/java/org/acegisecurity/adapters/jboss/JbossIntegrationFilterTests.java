@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.adapters.MockPrincipal;
 import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -115,7 +114,11 @@ public class JbossIntegrationFilterTests extends TestCase {
 
     public void testReturnsNullIfPrincipalNotAnAuthenticationImplementation() {
         JbossIntegrationFilter filter = new MockJbossIntegrationFilter(new MockInitialContext(
-                    makeIntoSubject(new MockPrincipal())));
+                    makeIntoSubject(new Principal() {
+                    public String getName() {
+                        return "MockPrincipal";
+                    }
+                })));
         assertEquals(null,
             filter.extractFromContainer(new MockHttpServletRequest(null, null)));
     }

@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.adapters.MockPrincipal;
 import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
 
 import java.security.Principal;
@@ -257,8 +256,12 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
             "net/sf/acegisecurity/adapters/adaptertest-valid.xml");
         adapter.setKey(ADAPTER_KEY);
         adapter.init();
-        assertTrue(!adapter.isUserInRole(null, null, null, new MockPrincipal(),
-                "ROLE_ONE"));
+        assertTrue(!adapter.isUserInRole(null, null, null,
+                new Principal() {
+                public String getName() {
+                    return "MockPrincipal";
+                }
+            }, "ROLE_ONE"));
     }
 
     public void testHasRoleWithPrincipalAcegiUserToken()

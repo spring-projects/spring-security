@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.adapters.MockPrincipal;
 import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
 
 import org.apache.catalina.LifecycleException;
@@ -243,7 +242,11 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
 
     public void testHasRoleWithAPrincipalTheAdapterDidNotCreateFails() {
         CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
-        assertTrue(!adapter.hasRole(new MockPrincipal(), "ROLE_ONE"));
+        assertTrue(!adapter.hasRole(new Principal() {
+                public String getName() {
+                    return "MockPrincipal";
+                }
+            }, "ROLE_ONE"));
     }
 
     public void testHasRoleWithPrincipalAcegiUserToken() {
@@ -261,8 +264,8 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
         throws Exception {
         CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
 
-        URL url = Thread.currentThread().getContextClassLoader().getResource(
-                "net/sf/acegisecurity/adapters/" + fileName);
+        URL url = Thread.currentThread().getContextClassLoader().getResource("net/sf/acegisecurity/adapters/"
+                + fileName);
 
         if (url == null) {
             throw new Exception("Could not find " + fileName
