@@ -56,7 +56,11 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     public boolean isCommitted() {
-        throw new UnsupportedOperationException("mock method not implemented");
+        if (redirect == null) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public void setContentLength(int arg0) {

@@ -140,8 +140,6 @@
 
 	<bean id="channelProcessingFilter" class="net.sf.acegisecurity.securechannel.ChannelProcessingFilter">
 		<property name="channelDecisionManager"><ref bean="channelDecisionManager"/></property>
-		<property name="secureChannelEntryPoint"><ref bean="secureChannelEntryPoint"/></property>
-		<property name="insecureChannelEntryPoint"><ref bean="insecureChannelEntryPoint"/></property>
  		<property name="filterInvocationDefinitionSource">
 			<value>
 			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -153,17 +151,17 @@
 		</property>
 	</bean>
 
-	<bean id="channelDecisionManager" class="net.sf.acegisecurity.securechannel.ChannelDecisionManagerImpl"/>
-
-	<bean id="secureChannelEntryPoint" class="net.sf.acegisecurity.securechannel.RetryWithHttpsEntryPoint">
-		<property name="portMapper"><ref bean="portMapper"/></property>
-		<property name="portResolver"><ref bean="portResolver"/></property>
+	<bean id="channelDecisionManager" class="net.sf.acegisecurity.securechannel.ChannelDecisionManagerImpl">
+	    <property name="channelProcessors">
+      		<list>
+ 	        	<ref bean="secureChannelProcessor"/>
+        		<ref bean="insecureChannelProcessor"/>
+     		</list>
+	    </property>
 	</bean>
 
-	<bean id="insecureChannelEntryPoint" class="net.sf.acegisecurity.securechannel.RetryWithHttpEntryPoint">
-		<property name="portMapper"><ref bean="portMapper"/></property>
-		<property name="portResolver"><ref bean="portResolver"/></property>
-	</bean>
+	<bean id="secureChannelProcessor" class="net.sf.acegisecurity.securechannel.SecureChannelProcessor"/>
+	<bean id="insecureChannelProcessor" class="net.sf.acegisecurity.securechannel.InsecureChannelProcessor"/>
 
 	<!-- ===================== HTTP REQUEST SECURITY ==================== -->
 
@@ -177,22 +175,11 @@
 	<bean id="securityEnforcementFilter" class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter">
 		<property name="filterSecurityInterceptor"><ref bean="filterInvocationInterceptor"/></property>
 		<property name="authenticationEntryPoint"><ref bean="authenticationProcessingFilterEntryPoint"/></property>
-		<property name="portResolver"><ref bean="portResolver"/></property>
 	</bean>
 
 	<bean id="authenticationProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
 		<property name="loginFormUrl"><value>/acegilogin.jsp</value></property>
 		<property name="forceHttps"><value>false</value></property>
-		<property name="portMapper"><ref bean="portMapper"/></property>
-		<property name="portResolver"><ref bean="portResolver"/></property>
-	</bean>
-
-	<bean id="portMapper" class="net.sf.acegisecurity.util.PortMapperImpl"/>
-	
-	<!-- Comment the always[Scheme]Port properties to use ServletRequest.getServerPort() -->
-	<bean id="portResolver" class="net.sf.acegisecurity.util.PortResolverImpl">
-		<property name="alwaysHttpPort"><value>8080</value></property>
-		<property name="alwaysHttpsPort"><value>8443</value></property>
 	</bean>
 
 	<bean id="httpRequestAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">

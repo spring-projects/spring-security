@@ -67,12 +67,12 @@
 	
 	<!-- Remove the comments from the following <filter-mapping> if you'd
 	     like to ensure secure URLs are only available over HTTPS -->
-    <!--
+ 
     <filter-mapping>
       <filter-name>Acegi Channel Processing Filter</filter-name>
       <url-pattern>/*</url-pattern>
     </filter-mapping>
-	-->
+
 	
     <filter-mapping>
       <filter-name>Acegi Authentication Processing Filter</filter-name>

@@ -25,18 +25,23 @@ import javax.servlet.ServletException;
 
 
 /**
- * Decides whether a web channel provides sufficient security.
+ * Decides whether a web channel meets a specific security condition.
  * 
  * <P>
- * If necessary due to the nature of the redirection, implementations should
- * store the original destination of the request in {@link
- * net.sf.acegisecurity.ui.AbstractProcessingFilter#ACEGI_SECURITY_TARGET_URL_KEY}.
+ * <code>ChannelProcessor</code> implementations are iterated by the {@link
+ * ChannelDecisionManagerImpl}.
+ * </p>
+ * 
+ * <P>
+ * If an implementation has an issue with the channel security, they should
+ * take action themselves. The callers of the implementation do not take any
+ * action.
  * </p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public interface ChannelDecisionManager {
+public interface ChannelProcessor {
     //~ Methods ================================================================
 
     /**
@@ -48,8 +53,8 @@ public interface ChannelDecisionManager {
         ConfigAttributeDefinition config) throws IOException, ServletException;
 
     /**
-     * Indicates whether this <code>ChannelDecisionManager</code> is able to
-     * process the passed <code>ConfigAttribute</code>.
+     * Indicates whether this <code>ChannelProcessor</code> is able to process
+     * the passed <code>ConfigAttribute</code>.
      * 
      * <p>
      * This allows the <code>ChannelProcessingFilter</code> to check every
@@ -60,7 +65,7 @@ public interface ChannelDecisionManager {
      * @param attribute a configuration attribute that has been configured
      *        against the <code>ChannelProcessingFilter</code>
      *
-     * @return true if this <code>ChannelDecisionManager</code> can support the
+     * @return true if this <code>ChannelProcessor</code> can support the
      *         passed configuration attribute
      */
     public boolean supports(ConfigAttribute attribute);

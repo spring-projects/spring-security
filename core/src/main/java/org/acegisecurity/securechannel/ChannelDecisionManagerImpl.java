@@ -21,100 +21,104 @@ import net.sf.acegisecurity.intercept.web.FilterInvocation;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import java.io.IOException;
+
 import java.util.Iterator;
+import java.util.List;
+
+import javax.servlet.ServletException;
 
 
 /**
+ * Implementation of {@link ChannelDecisionManager}.
+ * 
  * <p>
- * Ensures configuration attribute requested channel security is present by
- * review of <code>HttpServletRequest.isSecure()</code> responses.
+ * Iterates through each configured {@link ChannelProcessor}. If a
+ * <code>ChannelProcessor</code> has any issue with the security of the
+ * request, it should cause a redirect, exception or whatever other action is
+ * appropriate for the <code>ChannelProcessor</code> implementation.
  * </p>
  * 
  * <P>
- * The class responds to two and only two case-sensitive keywords: {@link
- * #getInsecureKeyword()} and {@link #getSecureKeyword}. If either of these
- * keywords are detected, <code>HttpServletRequest.isSecure()</code> is used
- * to determine the channel security offered. If the channel security differs
- * from that requested by the keyword, the relevant exception is thrown.
- * </p>
- * 
- * <P>
- * If both the <code>secureKeyword</code> and <code>insecureKeyword</code>
- * configuration attributes are detected, the request will be deemed to be
- * requesting a secure channel. This is a reasonable approach, as when in
- * doubt, the decision manager assumes the most secure outcome is desired. Of
- * course, you <b>should</b> indicate one configuration attribute or the other
- * (not both).
- * </p>
- * 
- * <P>
- * The default <code>secureKeyword</code> and <code>insecureKeyword</code> is
- * <code>REQUIRES_SECURE_CHANNEL</code> and
- * <code>REQUIRES_INSECURE_CHANNEL</code> respectively.
+ * Once any response is committed (ie a redirect is written to the response
+ * object), the <code>ChannelDecisionManagerImpl</code> will not iterate
+ * through any further <code>ChannelProcessor</code>s.
  * </p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class ChannelDecisionManagerImpl implements InitializingBean,
-    ChannelDecisionManager {
+public class ChannelDecisionManagerImpl implements ChannelDecisionManager,
+    InitializingBean {
     //~ Instance fields ========================================================
 
-    private String insecureKeyword = "REQUIRES_INSECURE_CHANNEL";
-    private String secureKeyword = "REQUIRES_SECURE_CHANNEL";
+    private List channelProcessors;
 
     //~ Methods ================================================================
 
-    public void setInsecureKeyword(String insecureKeyword) {
-        this.insecureKeyword = insecureKeyword;
+    public void setChannelProcessors(List newList) {
+        checkIfValidList(newList);
+
+        Iterator iter = newList.iterator();
+
+        while (iter.hasNext()) {
+            Object currentObject = null;
+
+            try {
+                currentObject = iter.next();
+
+                ChannelProcessor attemptToCast = (ChannelProcessor) currentObject;
+            } catch (ClassCastException cce) {
+                throw new IllegalArgumentException("ChannelProcessor "
+                    + currentObject.getClass().getName()
+                    + " must implement ChannelProcessor");
+            }
+        }
+
+        this.channelProcessors = newList;
     }
 
-    public String getInsecureKeyword() {
-        return insecureKeyword;
-    }
-
-    public void setSecureKeyword(String secureKeyword) {
-        this.secureKeyword = secureKeyword;
-    }
-
-    public String getSecureKeyword() {
-        return secureKeyword;
+    public List getChannelProcessors() {
+        return this.channelProcessors;
     }
 
     public void afterPropertiesSet() throws Exception {
-        if ((secureKeyword == null) || "".equals(secureKeyword)) {
-            throw new IllegalArgumentException("secureKeyword required");
-        }
-
-        if ((insecureKeyword == null) || "".equals(insecureKeyword)) {
-            throw new IllegalArgumentException("insecureKeyword required");
-        }
+        checkIfValidList(this.channelProcessors);
     }
 
     public void decide(FilterInvocation invocation,
-        ConfigAttributeDefinition config) throws SecureChannelRequiredException {
-        if ((invocation == null) || (config == null)) {
-            throw new IllegalArgumentException("Nulls cannot be provided");
-        }
-
-        Iterator iter = config.getConfigAttributes();
+        ConfigAttributeDefinition config) throws IOException, ServletException {
+        Iterator iter = this.channelProcessors.iterator();
 
         while (iter.hasNext()) {
-            ConfigAttribute attribute = (ConfigAttribute) iter.next();
+            ChannelProcessor processor = (ChannelProcessor) iter.next();
 
-            if (attribute.equals(secureKeyword)) {
-                if (!invocation.getHttpRequest().isSecure()) {
-                    throw new SecureChannelRequiredException(
-                        "Request is not being made over a secure channel");
-                }
-            }
+            processor.decide(invocation, config);
 
-            if (attribute.equals(insecureKeyword)) {
-                if (invocation.getHttpRequest().isSecure()) {
-                    throw new InsecureChannelRequiredException(
-                        "Request is being made over a secure channel when an insecure channel is required");
-                }
+            if (invocation.getResponse().isCommitted()) {
+                break;
             }
+        }
+    }
+
+    public boolean supports(ConfigAttribute attribute) {
+        Iterator iter = this.channelProcessors.iterator();
+
+        while (iter.hasNext()) {
+            ChannelProcessor processor = (ChannelProcessor) iter.next();
+
+            if (processor.supports(attribute)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void checkIfValidList(List listToCheck) {
+        if ((listToCheck == null) || (listToCheck.size() == 0)) {
+            throw new IllegalArgumentException(
+                "A list of ChannelProcessors is required");
         }
     }
 }

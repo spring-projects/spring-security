@@ -15,6 +15,7 @@
 
 package net.sf.acegisecurity.securechannel;
 
+import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.intercept.web.FilterInvocation;
 import net.sf.acegisecurity.intercept.web.FilterInvocationDefinitionSource;
@@ -25,6 +26,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.io.IOException;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -46,6 +51,12 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <P>
+ * Delegates the actual channel security decisions and necessary actions to the
+ * configured {@link ChannelDecisionManager}. If a response is committed by
+ * the <code>ChannelDecisionManager</code>, the filter chain will not proceed.
+ * </p>
+ * 
+ * <P>
  * <B>Do not use this class directly.</B> Instead configure
  * <code>web.xml</code> to use the {@link
  * net.sf.acegisecurity.util.FilterToBeanProxy}.
@@ -62,8 +73,6 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
     //~ Instance fields ========================================================
 
     private ChannelDecisionManager channelDecisionManager;
-    private ChannelEntryPoint insecureChannelEntryPoint;
-    private ChannelEntryPoint secureChannelEntryPoint;
     private FilterInvocationDefinitionSource filterInvocationDefinitionSource;
 
     //~ Methods ================================================================
@@ -86,23 +95,6 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
         return filterInvocationDefinitionSource;
     }
 
-    public void setInsecureChannelEntryPoint(
-        ChannelEntryPoint insecureChannelEntryPoint) {
-        this.insecureChannelEntryPoint = insecureChannelEntryPoint;
-    }
-
-    public ChannelEntryPoint getInsecureChannelEntryPoint() {
-        return insecureChannelEntryPoint;
-    }
-
-    public void setSecureChannelEntryPoint(ChannelEntryPoint channelEntryPoint) {
-        this.secureChannelEntryPoint = channelEntryPoint;
-    }
-
-    public ChannelEntryPoint getSecureChannelEntryPoint() {
-        return secureChannelEntryPoint;
-    }
-
     public void afterPropertiesSet() throws Exception {
         if (filterInvocationDefinitionSource == null) {
             throw new IllegalArgumentException(
@@ -114,14 +106,41 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
                 "channelDecisionManager must be specified");
         }
 
-        if (secureChannelEntryPoint == null) {
-            throw new IllegalArgumentException(
-                "secureChannelEntryPoint must be specified");
+        Iterator iter = this.filterInvocationDefinitionSource
+            .getConfigAttributeDefinitions();
+
+        if (iter == null) {
+            if (logger.isWarnEnabled()) {
+                logger.warn(
+                    "Could not validate configuration attributes as the FilterInvocationDefinitionSource did not return a ConfigAttributeDefinition Iterator");
+            }
+
+            return;
         }
 
-        if (insecureChannelEntryPoint == null) {
+        Set set = new HashSet();
+
+        while (iter.hasNext()) {
+            ConfigAttributeDefinition def = (ConfigAttributeDefinition) iter
+                .next();
+            Iterator attributes = def.getConfigAttributes();
+
+            while (attributes.hasNext()) {
+                ConfigAttribute attr = (ConfigAttribute) attributes.next();
+
+                if (!this.channelDecisionManager.supports(attr)) {
+                    set.add(attr);
+                }
+            }
+        }
+
+        if (set.size() == 0) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Validated configuration attributes");
+            }
+        } else {
             throw new IllegalArgumentException(
-                "insecureChannelEntryPoint must be specified");
+                "Unsupported configuration attributes: " + set.toString());
         }
     }
 
@@ -147,27 +166,9 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
                     + "; ConfigAttributes: " + attr.toString());
             }
 
-            try {
-                channelDecisionManager.decide(fi, attr);
-            } catch (SecureChannelRequiredException secureException) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Channel insufficient security ("
-                        + secureException.getMessage()
-                        + "); delegating to secureChannelEntryPoint");
-                }
+            channelDecisionManager.decide(fi, attr);
 
-                secureChannelEntryPoint.commence(request, response);
-
-                return;
-            } catch (InsecureChannelRequiredException insecureException) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Channel too much security ("
-                        + insecureException.getMessage()
-                        + "); delegating to insecureChannelEntryPoint");
-                }
-
-                insecureChannelEntryPoint.commence(request, response);
-
+            if (fi.getResponse().isCommitted()) {
                 return;
             }
         }

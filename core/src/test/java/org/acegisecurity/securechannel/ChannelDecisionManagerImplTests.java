@@ -17,12 +17,21 @@ package net.sf.acegisecurity.securechannel;
 
 import junit.framework.TestCase;
 
+import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.MockFilterChain;
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpServletResponse;
 import net.sf.acegisecurity.SecurityConfig;
 import net.sf.acegisecurity.intercept.web.FilterInvocation;
+
+import java.io.IOException;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+
+import javax.servlet.ServletException;
 
 
 /**
@@ -42,141 +51,175 @@ public class ChannelDecisionManagerImplTests extends TestCase {
         junit.textui.TestRunner.run(ChannelDecisionManagerImplTests.class);
     }
 
-    public void testDetectsInvalidInsecureKeyword() throws Exception {
+    public void testCannotSetEmptyChannelProcessorsList()
+        throws Exception {
         ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-        cdm.setInsecureKeyword("");
 
         try {
-            cdm.afterPropertiesSet();
+            cdm.setChannelProcessors(new Vector());
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("insecureKeyword required", expected.getMessage());
-        }
-
-        cdm.setInsecureKeyword(null);
-
-        try {
-            cdm.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("insecureKeyword required", expected.getMessage());
+            assertEquals("A list of ChannelProcessors is required",
+                expected.getMessage());
         }
     }
 
-    public void testDetectsInvalidSecureKeyword() throws Exception {
+    public void testCannotSetIncorrectObjectTypesIntoChannelProcessorsList()
+        throws Exception {
         ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-        cdm.setSecureKeyword("");
+        List list = new Vector();
+        list.add("THIS IS NOT A CHANNELPROCESSOR");
 
         try {
-            cdm.afterPropertiesSet();
+            cdm.setChannelProcessors(list);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("secureKeyword required", expected.getMessage());
-        }
-
-        cdm.setSecureKeyword(null);
-
-        try {
-            cdm.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("secureKeyword required", expected.getMessage());
-        }
-    }
-
-    public void testDetectsNullsPassedToMainMethod() {
-        ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-
-        try {
-            cdm.decide(null, new ConfigAttributeDefinition());
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("Nulls cannot be provided", expected.getMessage());
-        }
-
-        try {
-            cdm.decide(new FilterInvocation(new MockHttpServletRequest("x"),
-                    new MockHttpServletResponse(), new MockFilterChain()), null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("Nulls cannot be provided", expected.getMessage());
-        }
-    }
-
-    public void testDetectsWhenInsecureChannelNeededAndInsecureSchemeUsed() {
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig(
-                "SOME_CONFIG_ATTRIBUTE_TO_IGNORE"));
-        attr.addConfigAttribute(new SecurityConfig("REQUIRES_INSECURE_CHANNEL"));
-
-        MockHttpServletRequest request = new MockHttpServletRequest("foo=bar");
-        request.setScheme("http");
-
-        ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-        cdm.decide(new FilterInvocation(request, new MockHttpServletResponse(),
-                new MockFilterChain()), attr);
-        assertTrue(true);
-    }
-
-    public void testDetectsWhenInsecureChannelNeededAndSecureSchemeUsed() {
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig(
-                "SOME_CONFIG_ATTRIBUTE_TO_IGNORE"));
-        attr.addConfigAttribute(new SecurityConfig("REQUIRES_INSECURE_CHANNEL"));
-
-        MockHttpServletRequest request = new MockHttpServletRequest("foo=bar");
-        request.setScheme("https");
-
-        ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-
-        try {
-            cdm.decide(new FilterInvocation(request,
-                    new MockHttpServletResponse(), new MockFilterChain()), attr);
-        } catch (InsecureChannelRequiredException expected) {
             assertTrue(true);
         }
     }
 
-    public void testDetectsWhenSecureChannelNeeded() {
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig(
-                "SOME_CONFIG_ATTRIBUTE_TO_IGNORE"));
-        attr.addConfigAttribute(new SecurityConfig("REQUIRES_SECURE_CHANNEL"));
-
-        MockHttpServletRequest request = new MockHttpServletRequest("foo=bar");
-        request.setScheme("http");
-
+    public void testCannotSetNullChannelProcessorsList()
+        throws Exception {
         ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 
         try {
-            cdm.decide(new FilterInvocation(request,
-                    new MockHttpServletResponse(), new MockFilterChain()), attr);
-        } catch (SecureChannelRequiredException expected) {
-            assertTrue(true);
+            cdm.setChannelProcessors(null);
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("A list of ChannelProcessors is required",
+                expected.getMessage());
         }
     }
 
-    public void testGetterSetters() throws Exception {
+    public void testDecideIsOperational() throws Exception {
         ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
+        MockChannelProcessor cpXyz = new MockChannelProcessor("xyz", false);
+        MockChannelProcessor cpAbc = new MockChannelProcessor("abc", true);
+        List list = new Vector();
+        list.add(cpXyz);
+        list.add(cpAbc);
+        cdm.setChannelProcessors(list);
         cdm.afterPropertiesSet();
-        assertEquals("REQUIRES_INSECURE_CHANNEL", cdm.getInsecureKeyword());
-        assertEquals("REQUIRES_SECURE_CHANNEL", cdm.getSecureKeyword());
 
-        cdm.setInsecureKeyword("MY_INSECURE");
-        cdm.setSecureKeyword("MY_SECURE");
+        MockHttpServletRequest request = new MockHttpServletRequest("not used");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+        FilterInvocation fi = new FilterInvocation(request, response, chain);
 
-        assertEquals("MY_INSECURE", cdm.getInsecureKeyword());
-        assertEquals("MY_SECURE", cdm.getSecureKeyword());
+        ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
+        cad.addConfigAttribute(new SecurityConfig("xyz"));
+
+        cdm.decide(fi, cad);
+        assertTrue(fi.getResponse().isCommitted());
     }
 
-    public void testIgnoresOtherConfigAttributes() {
-        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
-        attr.addConfigAttribute(new SecurityConfig("XYZ"));
-
+    public void testDecideIteratesAllProcessorsIfNoneCommitAResponse()
+        throws Exception {
         ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-        cdm.decide(new FilterInvocation(new MockHttpServletRequest("x"),
-                new MockHttpServletResponse(), new MockFilterChain()), attr);
-        assertTrue(true);
+        MockChannelProcessor cpXyz = new MockChannelProcessor("xyz", false);
+        MockChannelProcessor cpAbc = new MockChannelProcessor("abc", false);
+        List list = new Vector();
+        list.add(cpXyz);
+        list.add(cpAbc);
+        cdm.setChannelProcessors(list);
+        cdm.afterPropertiesSet();
+
+        MockHttpServletRequest request = new MockHttpServletRequest("not used");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+        FilterInvocation fi = new FilterInvocation(request, response, chain);
+
+        ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
+        cad.addConfigAttribute(new SecurityConfig(
+                "SOME_ATTRIBUTE_NO_PROCESSORS_SUPPORT"));
+
+        cdm.decide(fi, cad);
+        assertFalse(fi.getResponse().isCommitted());
+    }
+
+    public void testDelegatesSupports() throws Exception {
+        ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
+        MockChannelProcessor cpXyz = new MockChannelProcessor("xyz", false);
+        MockChannelProcessor cpAbc = new MockChannelProcessor("abc", false);
+        List list = new Vector();
+        list.add(cpXyz);
+        list.add(cpAbc);
+        cdm.setChannelProcessors(list);
+        cdm.afterPropertiesSet();
+
+        assertTrue(cdm.supports(new SecurityConfig("xyz")));
+        assertTrue(cdm.supports(new SecurityConfig("abc")));
+        assertFalse(cdm.supports(new SecurityConfig("UNSUPPORTED")));
+    }
+
+    public void testGettersSetters() {
+        ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
+        assertNull(cdm.getChannelProcessors());
+
+        MockChannelProcessor cpXyz = new MockChannelProcessor("xyz", false);
+        MockChannelProcessor cpAbc = new MockChannelProcessor("abc", false);
+        List list = new Vector();
+        list.add(cpXyz);
+        list.add(cpAbc);
+        cdm.setChannelProcessors(list);
+
+        assertEquals(list, cdm.getChannelProcessors());
+    }
+
+    public void testStartupFailsWithEmptyChannelProcessorsList()
+        throws Exception {
+        ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
+
+        try {
+            cdm.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("A list of ChannelProcessors is required",
+                expected.getMessage());
+        }
+    }
+
+    //~ Inner Classes ==========================================================
+
+    private class MockChannelProcessor implements ChannelProcessor {
+        private String configAttribute;
+        private boolean failIfCalled;
+
+        public MockChannelProcessor(String configAttribute, boolean failIfCalled) {
+            this.configAttribute = configAttribute;
+            this.failIfCalled = failIfCalled;
+        }
+
+        private MockChannelProcessor() {
+            super();
+        }
+
+        public void decide(FilterInvocation invocation,
+            ConfigAttributeDefinition config)
+            throws IOException, ServletException {
+            Iterator iter = config.getConfigAttributes();
+
+            if (failIfCalled) {
+                fail("Should not have called this channel processor");
+            }
+
+            while (iter.hasNext()) {
+                ConfigAttribute attr = (ConfigAttribute) iter.next();
+
+                if (attr.equals(configAttribute)) {
+                    invocation.getHttpResponse().sendRedirect("/redirected");
+
+                    return;
+                }
+            }
+        }
+
+        public boolean supports(ConfigAttribute attribute) {
+            if (attribute.getAttribute().equals(configAttribute)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 }
-;

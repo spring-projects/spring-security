@@ -23,11 +23,13 @@ import javax.servlet.ServletResponse;
 
 
 /**
- * Used by {@link ChannelProcessingFilter} to launch a web channel.
+ * May be used by a {@link ChannelProcessor} to launch a web channel.
  * 
  * <P>
- * Depending on the implementation, a secure or insecure channel will be
- * launched.
+ * <code>ChannelProcessor</code>s can elect to launch a new web channel
+ * directly, or they can delegate to another class. The
+ * <code>ChannelEntryPoint</code> is a pluggable interface to assist
+ * <code>ChannelProcessor</code>s in performing this delegation.
  * </p>
  *
  * @author Ben Alex
@@ -42,13 +44,10 @@ public interface ChannelEntryPoint {
      * <P>
      * Implementations should modify the headers on the
      * <code>ServletResponse</code> as necessary to commence the user agent
-     * using the implementation's supported channel type (ie secure or
-     * insecure).
+     * using the implementation's supported channel type.
      * </p>
      *
-     * @param request that resulted in a
-     *        <code>SecureChannelRequiredException</code> or
-     *        <code>InsecureChannelRequiredException</code>
+     * @param request that a <code>ChannelProcessor</code> has rejected
      * @param response so that the user agent can begin using a new channel
      */
     public void commence(ServletRequest request, ServletResponse response)
