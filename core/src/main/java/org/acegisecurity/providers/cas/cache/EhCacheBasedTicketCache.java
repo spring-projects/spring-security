@@ -23,6 +23,10 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.dao.DataRetrievalFailureException;
@@ -35,7 +39,12 @@ import org.springframework.dao.DataRetrievalFailureException;
  * @version $Id$
  */
 public class EhCacheBasedTicketCache implements StatelessTicketCache,
-    InitializingBean {
+    InitializingBean, DisposableBean {
+    //~ Static fields/initializers =============================================
+
+    private static final Log logger = LogFactory.getLog(EhCacheBasedTicketCache.class);
+    private static final String CACHE_NAME = "ehCacheBasedTicketCache";
+
     //~ Instance fields ========================================================
 
     private Cache cache;
@@ -54,13 +63,14 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache,
                 + cacheException.getMessage());
         }
 
-        if (element == null) {
-            System.out.println("not found");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Cache hit: " + (element != null)
+                + "; service ticket: " + serviceTicket);
+        }
 
+        if (element == null) {
             return null;
         } else {
-            System.out.println("found");
-
             return (CasAuthenticationToken) element.getValue();
         }
     }
@@ -87,18 +97,30 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache,
         manager = CacheManager.create();
 
         // Cache name, max memory, overflowToDisk, eternal, timeToLive, timeToIdle
-        cache = new Cache("ehCacheBasedTicketCache", Integer.MAX_VALUE, false,
-                false, minutesToIdle * 60, minutesToIdle * 60);
+        cache = new Cache(CACHE_NAME, Integer.MAX_VALUE, false, false,
+                minutesToIdle * 60, minutesToIdle * 60);
         manager.addCache(cache);
+    }
+
+    public void destroy() throws Exception {
+        manager.removeCache(CACHE_NAME);
     }
 
     public void putTicketInCache(CasAuthenticationToken token) {
         Element element = new Element(token.getCredentials().toString(), token);
-        System.out.println("Adding " + element.getKey());
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Cache put: " + element.getKey());
+        }
+
         cache.put(element);
     }
 
     public void removeTicketFromCache(CasAuthenticationToken token) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Cache remove: " + token.getCredentials().toString());
+        }
+
         this.removeTicketFromCache(token.getCredentials().toString());
     }
 
