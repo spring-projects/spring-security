@@ -7,7 +7,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>0.6</releaseinfo>
+    <releaseinfo>0.6.1</releaseinfo>
 
     <authorgroup>
       <author>
@@ -74,6 +74,61 @@
       The security architecture does not have a notion of roles or groups,
       which you may be familiar with from other security
       implementations.</para>
+
+      <sect2 id="security-introduction-status">
+        <title>Current Status</title>
+
+        <para>The Acegi Security System for Spring is widely used by members
+        of the Spring Community. The APIs are considered stable and only minor
+        changes are expected. Having said that, like many other projects we
+        need to strike a balance between backward compatibility and
+        improvement. Effective version 0.6.1, Acegi Security uses the Apache
+        Portable Runtime Project versioning guidelines, available from
+        <literal>http://apr.apache.org/versioning.html</literal>.</para>
+
+        <para>Some improvements are currently intended prior to the 1.0.0
+        release. These are:</para>
+
+        <itemizedlist spacing="compact">
+          <listitem>
+            <para>Replacing the Ant build with a Maven build. When this
+            happens the <literal>lib</literal> directory will no longer be
+            distributed in ZIP releases or hosted in CVS.</para>
+          </listitem>
+
+          <listitem>
+            <para>"Remember me" functionality. Some discussion on this can be
+            found at
+            <literal>http://sourceforge.net/mailarchive/forum.php?thread_id=5177499&amp;forum_id=40659</literal>.</para>
+          </listitem>
+
+          <listitem>
+            <para>A sample web application which demonstrates the access
+            control list package.</para>
+          </listitem>
+
+          <listitem>
+            <para>Implementation of an
+            <literal>ObjectDefinitionSource</literal> that retrieves its
+            details from a database.</para>
+          </listitem>
+
+          <listitem>
+            <para>Deprecation of Acegi Security's various EH-CACHE-based cache
+            implementations. Instead Acegi Security will provide new cache
+            implementations which use Spring Framework's new (currently in
+            CVS) <literal>EhCacheManagerFactoryBean</literal> factory. The
+            deprecated classes may be removed from the 1.0.0 release.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Whilst this list is subject to change and not in any particular
+        order, none of the above improvements are likely to result in changes
+        to the API. The improvements are also relatively minor to implement.
+        Users of Acegi Security System for Spring should therefore be
+        comfortable depending on the current version of the project in their
+        applications.</para>
+      </sect2>
     </sect1>
 
     <sect1 id="security-high-level-design">
@@ -1596,9 +1651,10 @@ public boolean supports(Class clazz);</programlisting></para>
           <literal>ifNotGranted="ROLE_SUPERVISOR"</literal>, or you'll be
           surprised to never see the tag's body.</para>
 
-          <para>By requiring all attributes to return true, the authorize tag allows you to
-          create more complex authorization scenarios. For example, you could
-          declare an <literal>ifAllGranted="ROLE_SUPERVISOR"</literal> and an
+          <para>By requiring all attributes to return true, the authorize tag
+          allows you to create more complex authorization scenarios. For
+          example, you could declare an
+          <literal>ifAllGranted="ROLE_SUPERVISOR"</literal> and an
           <literal>ifNotGranted="ROLE_NEWBIE_SUPERVISOR"</literal> in the same
           tag, in order to prevent new supervisors from seeing the tag body.
           However it would no doubt be simpler to use
@@ -1632,12 +1688,12 @@ public boolean supports(Class clazz);</programlisting></para>
           </listitem>
 
           <listitem>
-            <para>Writing an <literal>AccessDecisionVoter</literal> implementation
-            and using either <literal>ConsensusBased</literal>,
+            <para>Writing an <literal>AccessDecisionVoter</literal>
+            implementation and using either <literal>ConsensusBased</literal>,
             <literal>AffirmativeBased</literal> or
             <literal>UnanimousBased</literal> as the
-            <literal>AccessDecisionManager</literal> may be the best approach to
-			implementing your custom access decision rules.</para>
+            <literal>AccessDecisionManager</literal> may be the best approach
+            to implementing your custom access decision rules.</para>
           </listitem>
         </itemizedlist>
       </sect2>
@@ -1755,8 +1811,8 @@ public boolean supports(Class clazz);</programlisting></para>
         objects at runtime. However, several classes have been provided to
         make this process transparent in many situations.</para>
 
-        <para>The <literal>net.sf.acegisecurity.ui</literal> package is designed
-        to make interfacing web application user interfaces with the
+        <para>The <literal>net.sf.acegisecurity.ui</literal> package is
+        designed to make interfacing web application user interfaces with the
         <literal>ContextHolder</literal> as simple as possible. There are two
         major steps in doing this:</para>
 
@@ -2453,10 +2509,9 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         into some type of backend authentication repository, such as an LDAP
         server or database.</para>
 
-        <para>If you are already running an existing CAS server instance, 
-			you will have already
-        established a <literal>PasswordHandler</literal>. If you do not
-		already have a <literal>PasswordHandler</literal>, you
+        <para>If you are already running an existing CAS server instance, you
+        will have already established a <literal>PasswordHandler</literal>. If
+        you do not already have a <literal>PasswordHandler</literal>, you
         might prefer to use the Acegi Security System for Spring
         <literal>CasPasswordHandler</literal> class. This class delegates
         through to the standard Acegi Security
@@ -2921,8 +2976,6 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
       <sect2 id="security-cas-advanced-usage">
         <title>Advanced CAS Usage</title>
-
-        <para>[DRAFT - COMMENTS WELCOME]</para>
 
         <para>The <literal>CasAuthenticationProvider</literal> distinguishes
         between stateful and stateless clients. A stateful client is
@@ -3817,10 +3870,11 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
       <title>Further Information</title>
 
       <para>Questions and comments on the Acegi Security System for Spring are
-      welcome. Please direct comments to the Spring Users mailing list. You're
-      also welcome to join the acegisecurity-developer mailing list. Our
-      project home page (where you can obtain the latest release of the
-      project and access to CVS, mailing lists etc) is at
+      welcome. Please use the Spring Community Forum web site at
+      <literal>http://forum.springframework.org</literal>. You're also welcome
+      to join the acegisecurity-developer mailing list. Our project home page
+      (where you can obtain the latest release of the project and access to
+      CVS, mailing lists, forums etc) is at
       <literal>http://acegisecurity.sourceforge.net</literal>.</para>
     </sect1>
   </chapter>

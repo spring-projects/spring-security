@@ -1,6 +1,7 @@
-Changes in version 0.x (2004-xx-xx)
------------------------------------
+Changes in version 0.6.1 (2004-09-25)
+-------------------------------------
 
+* Resolved to use http://apr.apache.org/versioning.html for future versioning
 * Added additional DaoAuthenticationProvider event when user not found
 * Added Authentication.getDetails() to DaoAuthenticationProvider response
 * Added DaoAuthenticationProvider.hideUserNotFoundExceptions (default=true)
