@@ -42,6 +42,7 @@
       <action dev="benalex" type="add">Added net.sf.acegisecurity.intercept.event package</action>
       <action dev="benalex" type="add">Added BasicAclExtendedDao interface and JdbcExtendedDaoImpl for ACL CRUD</action>
       <action dev="benalex" type="add">Added additional remoting protocol demonstrations to Contacts sample</action>
+      <action dev="benalex" type="add">Added AbstractProcessingFilter property to always use defaultTargetUrl</action>
       <action dev="benalex" type="update">Improved BasicAclProvider to only respond to specified ACL object requests</action>
       <action dev="benalex" type="update">Refactored MethodDefinitionSource to work with Method, not MethodInvocation</action>
       <action dev="benalex" type="update">Refactored AbstractSecurityInterceptor to better support other AOP libraries</action>

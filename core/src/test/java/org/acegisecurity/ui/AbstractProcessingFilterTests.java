@@ -345,6 +345,35 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) == null);
     }
 
+    public void testSuccessfulAuthenticationButWithAlwaysUseDefaultTargetUrlCausesRedirectToDefaultTargetUrl()
+        throws Exception {
+        // Setup our HTTP request
+        MockHttpServletRequest request = new MockHttpServletRequest("");
+        request.setServletPath("/j_mock_post");
+        request.setRequestURL("http://www.example.com/mycontext/j_mock_post");
+        request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
+            "/my-destination");
+
+        // Setup our filter configuration
+        MockFilterConfig config = new MockFilterConfig();
+
+        // Setup our expectation that the filter chain will be invoked, as we want to go to the location requested in the session
+        MockFilterChain chain = new MockFilterChain(true);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        // Setup our test object, to grant access
+        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
+        filter.setFilterProcessesUrl("/j_mock_post");
+        filter.setDefaultTargetUrl("/foobar");
+        filter.setAlwaysUseDefaultTargetUrl(true);
+
+        // Test
+        executeFilterInContainerSimulator(config, filter, request, response,
+            chain);
+        assertEquals("/foobar", response.getRedirect());
+        assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) != null);
+    }
+
     public void testSuccessfulAuthenticationCausesRedirectToSessionSpecifiedUrl()
         throws Exception {
         // Setup our HTTP request

@@ -81,6 +81,12 @@ import javax.servlet.http.HttpServletResponse;
  * <code>filterProcessesUrl</code> indicates the URL that this filter will
  * respond to. This parameter varies by subclass.
  * </li>
+ * <li>
+ * <code>alwaysUseDefaultTargetUrl</code> causes successful authentication to
+ * always redirect to the <code>defaultTargetUrl</code>, even if the
+ * <code>HttpSession</code> attribute named {@link
+ * #ACEGI_SECURITY_TARGET_URL_KEY} defines the intended target URL.
+ * </li>
  * </ul>
  * 
  *
@@ -145,7 +151,22 @@ public abstract class AbstractProcessingFilter implements Filter,
      */
     private String filterProcessesUrl = getDefaultFilterProcessesUrl();
 
+    /**
+     * If <code>true</code>, will always redirect to {@link #defaultTargetUrl}
+     * upon successful authentication, irrespective of the page that caused
+     * the authentication request (defualts to <code>false</code>).
+     */
+    private boolean alwaysUseDefaultTargetUrl = false;
+
     //~ Methods ================================================================
+
+    public void setAlwaysUseDefaultTargetUrl(boolean alwaysUseDefaultTargetUrl) {
+        this.alwaysUseDefaultTargetUrl = alwaysUseDefaultTargetUrl;
+    }
+
+    public boolean isAlwaysUseDefaultTargetUrl() {
+        return alwaysUseDefaultTargetUrl;
+    }
 
     /**
      * Specifies the default <code>filterProcessesUrl</code> for the
@@ -347,6 +368,10 @@ public abstract class AbstractProcessingFilter implements Filter,
 
             String targetUrl = (String) httpRequest.getSession().getAttribute(ACEGI_SECURITY_TARGET_URL_KEY);
             httpRequest.getSession().removeAttribute(ACEGI_SECURITY_TARGET_URL_KEY);
+
+            if (alwaysUseDefaultTargetUrl == true) {
+                targetUrl = null;
+            }
 
             if (targetUrl == null) {
                 targetUrl = httpRequest.getContextPath() + defaultTargetUrl;
