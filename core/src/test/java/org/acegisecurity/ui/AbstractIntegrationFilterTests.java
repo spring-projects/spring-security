@@ -152,6 +152,23 @@ public class AbstractIntegrationFilterTests extends TestCase {
         }
     }
 
+    public void testSecureContextSettersGetters() throws Exception {
+        MockAbstractIntegrationFilterImpl filter = new MockAbstractIntegrationFilterImpl(null);
+
+        // check the default
+        assertEquals(SecureContextImpl.class, filter.getSecureContext());
+
+        // check null causes exception
+        filter.setSecureContext(null);
+
+        try {
+            filter.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+    }
+
     public void testSuccessWhenConcreteClassReturnsValidAuthenticationObject()
         throws Exception {
         PrincipalAcegiUserToken principal = new PrincipalAcegiUserToken("key",

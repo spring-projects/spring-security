@@ -172,6 +172,32 @@ public class DaoAuthenticationProviderTests extends TestCase {
         assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
     }
 
+    public void testAuthenticatesASecondTime() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa",
+                "koala");
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        provider.setUserCache(new MockUserCache());
+
+        Authentication result = provider.authenticate(token);
+
+        if (!(result instanceof UsernamePasswordAuthenticationToken)) {
+            fail(
+                "Should have returned instance of UsernamePasswordAuthenticationToken");
+        }
+
+        // Now try to authenticate with the previous result (with its UserDetails)
+        Authentication result2 = provider.authenticate(result);
+
+        if (!(result2 instanceof UsernamePasswordAuthenticationToken)) {
+            fail(
+                "Should have returned instance of UsernamePasswordAuthenticationToken");
+        }
+
+        assertEquals(result.getCredentials(), result2.getCredentials());
+    }
+
     public void testAuthenticatesWhenASaltIsUsed() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa",
                 "koala");
@@ -213,6 +239,10 @@ public class DaoAuthenticationProviderTests extends TestCase {
         provider.setUserCache(new EhCacheBasedUserCache());
         assertEquals(EhCacheBasedUserCache.class,
             provider.getUserCache().getClass());
+
+        assertFalse(provider.isForcePrincipalAsString());
+        provider.setForcePrincipalAsString(true);
+        assertTrue(provider.isForcePrincipalAsString());
     }
 
     public void testStartupFailsIfNoAuthenticationDao()
