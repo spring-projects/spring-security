@@ -50,17 +50,6 @@ public class DataSourcePopulator implements InitializingBean {
 
         JdbcTemplate template = new JdbcTemplate(dataSource);
 
-        try {
-            template.execute("DROP TABLE AUTHORITIES");
-            template.execute("DROP TABLE USERS");
-            template.execute("DROP TABLE ACL_PERMISSION");
-            template.execute("DROP TABLE ACL_OBJECT_IDENTITY");
-            template.execute("DROP TABLE CONTACTS");
-        } catch(Exception e) {
-            // ignored
-        }
-
-
         template.execute(
             "CREATE TABLE CONTACTS(ID INTEGER NOT NULL PRIMARY KEY, CONTACT_NAME VARCHAR_IGNORECASE(50) NOT NULL, EMAIL VARCHAR_IGNORECASE(50) NOT NULL)");
         template.execute(
@@ -130,8 +119,6 @@ public class DataSourcePopulator implements InitializingBean {
         template.execute(
             "INSERT INTO acl_permission VALUES (null, 9, 'scott', 22);"); // read+write+delete
         template.execute(
-            "INSERT INTO acl_permission VALUES (null, 8, 'luke@monkeymachine', 2);"); // read
-        template.execute(
             "CREATE TABLE USERS(USERNAME VARCHAR_IGNORECASE(50) NOT NULL PRIMARY KEY,PASSWORD VARCHAR_IGNORECASE(50) NOT NULL,ENABLED BOOLEAN NOT NULL);");
         template.execute(
             "CREATE TABLE AUTHORITIES(USERNAME VARCHAR_IGNORECASE(50) NOT NULL,AUTHORITY VARCHAR_IGNORECASE(50) NOT NULL,CONSTRAINT FK_AUTHORITIES_USERS FOREIGN KEY(USERNAME) REFERENCES USERS(USERNAME));");
@@ -144,9 +131,7 @@ public class DataSourcePopulator implements InitializingBean {
                    Encoded password for dianne is "emu"
                    Encoded password for scott is "wombat"
                    Encoded password for peter is "opal" (but user is disabled)
-                   Encoded password for luke@monkeymachine is "monkey" (but this user is for the X.509 authentication example)
-
-
+        
          */
         template.execute(
             "INSERT INTO USERS VALUES('marissa','a564de63c2d0da68cf47586ee05984d7',TRUE);");
@@ -157,8 +142,6 @@ public class DataSourcePopulator implements InitializingBean {
         template.execute(
             "INSERT INTO USERS VALUES('peter','22b5c9accc6e1ba628cedc63a72d57f8',FALSE);");
         template.execute(
-            "INSERT INTO USERS VALUES('luke@monkeymachine','2f548f61bd37f628077e552ae1537be2',TRUE);");
-        template.execute(
             "INSERT INTO AUTHORITIES VALUES('marissa','ROLE_USER');");
         template.execute(
             "INSERT INTO AUTHORITIES VALUES('marissa','ROLE_SUPERVISOR');");
@@ -166,7 +149,5 @@ public class DataSourcePopulator implements InitializingBean {
             "INSERT INTO AUTHORITIES VALUES('dianne','ROLE_USER');");
         template.execute("INSERT INTO AUTHORITIES VALUES('scott','ROLE_USER');");
         template.execute("INSERT INTO AUTHORITIES VALUES('peter','ROLE_USER');");
-        template.execute("INSERT INTO AUTHORITIES VALUES('luke@monkeymachine','ROLE_SUPERVISOR');");
-        template.execute("INSERT INTO AUTHORITIES VALUES('luke@monkeymachine','ROLE_USER');");
     }
 }
