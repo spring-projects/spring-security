@@ -284,6 +284,15 @@ public abstract class AbstractProcessingFilter implements Filter,
         return authenticationServiceFailureUrl;
     }
 
+    public void setCredentialsExpiredFailureUrl(
+        String credentialsExpiredFailureUrl) {
+        this.credentialsExpiredFailureUrl = credentialsExpiredFailureUrl;
+    }
+
+    public String getCredentialsExpiredFailureUrl() {
+        return credentialsExpiredFailureUrl;
+    }
+
     public void setDefaultTargetUrl(String defaultTargetUrl) {
         this.defaultTargetUrl = defaultTargetUrl;
     }
