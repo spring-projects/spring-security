@@ -203,7 +203,11 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
     public Authentication authenticate(Authentication authentication)
         throws AuthenticationException {
         // Determine username
-        String username = authentication.getPrincipal().toString();
+        String username = "NONE_PROVIDED";
+
+        if (authentication.getPrincipal() != null) {
+            username = authentication.getPrincipal().toString();
+        }
 
         if (authentication.getPrincipal() instanceof UserDetails) {
             username = ((UserDetails) authentication.getPrincipal())
@@ -220,10 +224,6 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
                 user = getUserFromBackend(username);
             } catch (BadCredentialsException ex) {
                 if (this.context != null) {
-                    if ((username == null) || "".equals(username)) {
-                        username = "NONE_PROVIDED";
-                    }
-
                     context.publishEvent(new AuthenticationFailureUsernameNotFoundEvent(
                             authentication,
                             new User(username, "*****", false,
