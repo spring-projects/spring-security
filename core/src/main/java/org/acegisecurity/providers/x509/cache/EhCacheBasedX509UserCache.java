@@ -16,8 +16,6 @@
 package net.sf.acegisecurity.providers.x509.cache;
 
 import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.dao.UserCache;
-import net.sf.acegisecurity.providers.dao.cache.EhCacheBasedUserCache;
 import net.sf.acegisecurity.providers.x509.X509UserCache;
 
 import net.sf.ehcache.Cache;
