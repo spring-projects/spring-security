@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
-
 <!--
  * ========================================================================
  * 
@@ -21,7 +20,6 @@
  * 
  * ========================================================================
 -->
-
 <book>
   <bookinfo>
     <title>Acegi Security System for Spring</title>
@@ -2479,14 +2477,17 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
       <sect2 id="security-container-adapters-joss">
         <title>JBoss Installation</title>
 
-        <para>The following was tested with JBoss 3.2.3. We automatically test
+        <para>The following was tested with JBoss 3.2.6. We automatically test
         the following directions using our container integration test system
         and this version of JBoss.</para>
 
         <para><literal>$JBOSS_HOME</literal> refers to the root of your JBoss
         installation.</para>
 
-        <para>Edit your
+        <para>There are two different ways of making spring context available
+        to the Jboss integration classes. </para>
+
+        <para>The first approach is by editing your
         <literal>$JBOSS_HOME/server/your_config/conf/login-config.xml</literal>
         file so that it contains a new entry under the
         <literal>&lt;Policy&gt;</literal> section:</para>
@@ -2504,7 +2505,51 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <para>Copy <literal>acegisecurity.xml</literal> into
         <literal>$JBOSS_HOME/server/your_config/conf</literal>.</para>
 
-        <para>Copy the following files into
+        <para>In this configuration <literal>acegisecurity.xml</literal>
+        contains the spring context definition including all the
+        authentication manager beans. You have to bear in mind though, that
+        <literal>SecurityContext</literal> is created and destroyed on each
+        login request, so the login operation might become costly.
+        Alternatively, the second approach is to use Spring singleton
+        capabilities through
+        <literal>org.springframework.beans.factory.access.SingletonBeanFactoryLocator</literal>.
+        The required configuration for this approach is:</para>
+
+        <para><programlisting>    &lt;application-policy name = "SpringPoweredRealm"&gt;
+       &lt;authentication&gt;
+          &lt;login-module code = "net.sf.acegisecurity.adapters.jboss.JbossSpringLoginModule"
+            flag = "required"&gt;
+            &lt;module-option name = "singletonId"&gt;springRealm&lt;/module-option&gt;
+            &lt;module-option name = "key"&gt;my_password&lt;/module-option&gt;
+            &lt;module-option name = "authenticationManager"&gt;authenticationManager&lt;/module-option&gt;
+         &lt;/login-module&gt;
+       &lt;/authentication&gt;
+    &lt;/application-policy&gt;</programlisting></para>
+
+        <para>In the above code fragment,
+        <literal>authenticationManager</literal> is a helper property that
+        defines the expected name of the
+        <literal>AuthenticationManager</literal> in case you have several
+        defined in the IoC container. The <literal>singletonId</literal>
+        property references a bean defined in a
+        <literal>beanRefFactory.xml</literal> file. This file needs to be
+        available from anywhere on the JBoss classpath, including
+        <literal>$JBOSS_HOME/server/your_config/conf</literal>. The
+        <literal>beanRefFactory.xml</literal> contains the following
+        declaration:</para>
+
+        <para><programlisting>&lt;beans&gt;
+  &lt;bean id="springRealm" singleton="true" lazy-init="true" class="org.springframework.context.support.ClassPathXmlApplicationContext"&gt;
+    &lt;constructor-arg&gt;
+      &lt;list&gt;
+        &lt;value&gt;acegisecurity.xml&lt;/value&gt;
+      &lt;/list&gt;
+    &lt;/constructor-arg&gt;
+  &lt;/bean&gt;
+&lt;/beans&gt;</programlisting></para>
+
+        <para>Finally, irrespective of the configuration approach you need to
+        copy the following files into
         <literal>$JBOSS_HOME/server/your_config/lib</literal>:<itemizedlist>
             <listitem>
               <para><literal>aopalliance.jar</literal></para>

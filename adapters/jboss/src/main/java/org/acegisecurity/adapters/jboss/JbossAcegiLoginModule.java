@@ -25,6 +25,9 @@ import org.jboss.security.SimpleGroup;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
 
+import org.springframework.beans.factory.access.*;
+import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
+
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.security.Principal;
@@ -53,6 +56,7 @@ import javax.security.auth.login.LoginException;
  * </p>
  *
  * @author Ben Alex
+ * @author Sergio Berná
  * @version $Id$
  */
 public class JbossAcegiLoginModule extends AbstractServerLoginModule {
@@ -69,35 +73,99 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
         Map sharedState, Map options) {
         super.initialize(subject, callbackHandler, sharedState, options);
 
+        if (super.log.isInfoEnabled()) {
+            super.log.info("initializing jboss login module");
+        }
+
         this.key = (String) options.get("key");
 
         if ((key == null) || "".equals(key)) {
             throw new IllegalArgumentException("key must be defined");
         }
 
+        String singletonId = (String) options.get("singletonId");
+
         String appContextLocation = (String) options.get("appContextLocation");
 
-        if ((appContextLocation == null) || "".equals(appContextLocation)) {
+        if ((((singletonId == null) || "".equals(singletonId))
+            && (appContextLocation == null)) || "".equals(appContextLocation)) {
             throw new IllegalArgumentException(
                 "appContextLocation must be defined");
         }
 
+        String beanName = (String) options.get("authenticationManager");
+
         if (Thread.currentThread().getContextClassLoader().getResource(appContextLocation) == null) {
+            if (super.log.isInfoEnabled()) {
+                super.log.info("cannot locate " + appContextLocation);
+            }
+
             throw new IllegalArgumentException("Cannot locate "
                 + appContextLocation);
         }
 
-        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(appContextLocation);
-        Map beans = ctx.getBeansOfType(AuthenticationManager.class, true, true);
+        ClassPathXmlApplicationContext ctx = null;
 
-        if (beans.size() == 0) {
-            throw new IllegalArgumentException(
-                "Bean context must contain at least one bean of type AuthenticationManager");
+        if ((singletonId == null) || "".equals(singletonId)) {
+            try {
+                ctx = new ClassPathXmlApplicationContext(appContextLocation);
+            } catch (Exception e) {
+                if (super.log.isInfoEnabled()) {
+                    super.log.info("error loading spring context "
+                        + appContextLocation + " " + e);
+                }
+
+                throw new IllegalArgumentException(
+                    "error loading spring context " + appContextLocation + " "
+                    + e);
+            }
+        } else {
+            if (super.log.isInfoEnabled()) {
+                super.log.debug("retrieving singleton instance " + singletonId);
+            }
+
+            BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance();
+            BeanFactoryReference bf = bfl.useBeanFactory(singletonId);
+            ctx = (ClassPathXmlApplicationContext) bf.getFactory();
+
+            if (ctx == null) {
+                if (super.log.isInfoEnabled()) {
+                    super.log.info("singleton " + beanName + " does not exists");
+                }
+
+                throw new IllegalArgumentException("singleton " + singletonId
+                    + " does not exists");
+            }
         }
 
-        String beanName = (String) beans.keySet().iterator().next();
-        authenticationManager = (AuthenticationManager) beans.get(beanName);
-        super.log.info("Successfully started JbossSpringLoginModule");
+        if ((beanName == null) || "".equals(beanName)) {
+            Map beans = null;
+
+            try {
+                beans = ctx.getBeansOfType(AuthenticationManager.class, true,
+                        true);
+            } catch (Exception e) {
+                if (super.log.isInfoEnabled()) {
+                    super.log.info("exception in getBeansOfType " + e);
+                }
+
+                throw new IllegalStateException(
+                    "spring error in get beans by class");
+            }
+
+            if (beans.size() == 0) {
+                throw new IllegalArgumentException(
+                    "Bean context must contain at least one bean of type AuthenticationManager");
+            }
+
+            beanName = (String) beans.keySet().iterator().next();
+        }
+
+        authenticationManager = (AuthenticationManager) ctx.getBean(beanName);
+
+        if (super.log.isInfoEnabled()) {
+            super.log.info("Successfully started JbossSpringLoginModule");
+        }
     }
 
     public boolean login() throws LoginException {
@@ -121,13 +189,27 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
             password = "";
         }
 
+        if (super.log.isDebugEnabled()) {
+            super.log.debug("checking identity");
+        }
+
         if (identity == null) {
+            super.log.debug("creating usernamepassword token");
+
             Authentication request = new UsernamePasswordAuthenticationToken(username,
                     password);
             Authentication response = null;
 
             try {
+                if (super.log.isDebugEnabled()) {
+                    super.log.debug("attempting authentication");
+                }
+
                 response = authenticationManager.authenticate(request);
+
+                if (super.log.isDebugEnabled()) {
+                    super.log.debug("authentication succeded");
+                }
             } catch (AuthenticationException failed) {
                 if (super.log.isDebugEnabled()) {
                     super.log.debug("Bad password for username=" + username);
@@ -136,6 +218,8 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
                 throw new FailedLoginException(
                     "Password Incorrect/Password Required");
             }
+
+            super.log.debug("user is logged. redirecting to jaas classes");
 
             identity = new PrincipalAcegiUserToken(this.key,
                     response.getPrincipal().toString(),
