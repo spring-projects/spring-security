@@ -1,15 +1,34 @@
 <?xml version="1.0"?>
+<!--
+ * Copyright 2004 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
+ * $Id$
+-->
 
 <!--
     Build file for the Acegi Security System for Spring.
-
-    $Id$
 -->
 
 <project name="acegi-security-core" default="usage" basedir=".">
 
 	<property file="build.properties"/>
 	<property file="project.properties"/>
+
+    <taskdef resource="clovertasks"/>
+    <typedef resource="clovertypes"/>
 
 	<path id="qa-portalpath">
 		<fileset dir="${lib.dir}">
@@ -22,6 +41,7 @@
             <include name="**/*.jar"/>
         </fileset>
     </path>
+
 
 	<target name="usage">
 		<echo message=""/>
@@ -39,6 +59,7 @@
 		<echo message="To build or test, your lib directory needs to be populated"/>
 	</target>
 
+
 	<target name="clean" description="Clean all output dirs (dist, javadocs, classes, test-classes, etc.)">
 
 		<delete dir="${dist.dir}"/>
@@ -49,6 +70,7 @@
 		<delete dir="${target.otherclasses.dir}"/>
 		<delete dir="${target.release.dir}"/>
 		<delete dir="${target.clover.dir}"/>
+		<delete dir="${target.clover.html.dir}"/>
 		<delete dir="${target.testclasses.dir}"/>
 
 	</target>
@@ -103,6 +125,7 @@
 		<ant inheritall="no" antfile="build.xml" dir="integration-test" target="format"/>
     </target>
 
+
 	<target name="initdist" description="Initialize the distribution directory">
 		<mkdir dir="${dist.dir}"/>
 	</target>
@@ -133,7 +156,7 @@
 			<zipfileset dir="${src.dir}/net/sf/acegisecurity/taglibs"
 				prefix="META-INF" includes="*.tld" />
 			<manifest>
-				<attribute name="Acegi-Security-Taglib-version" value="${acegi-security-version}"/>
+				<attribute name="Acegi-Security-System-version" value="${acegi-security-version}"/>
 				<attribute name="Sealed" value="true"/>
 			</manifest>
 		</jar>
@@ -220,6 +243,7 @@
 
 	</target>
 
+
 	<target name="srczip" depends="initdist" description="Create source ZIP (containing all Java sources)">
 		<delete file="${dist.dir}/${acegi-security-src.zip}"/>
 
@@ -233,6 +257,7 @@
 
 
 	<target name="alljars" depends="fulljar,srczip" description="Create all JAR files"/>
+
 
 	<target name="javadoc" description="Generate Javadocs.">
 		<mkdir dir="${javadocs.dir}"/>
@@ -249,7 +274,8 @@
 		</javadoc>
 	</target>
 
-	<target name="release" depends="clean,alljars,format,tests,javadoc,refdoc" description="Generate release zip file">
+
+	<target name="release" depends="clean,alljars,tests,javadoc,refdoc" description="Generate release zip file">
 		<ant inheritall="no" antfile="build.xml" dir="samples/contacts" target="release"/>
 		<ant inheritall="no" antfile="build.xml" dir="samples/attributes" target="release"/>
 
@@ -296,6 +322,7 @@
 		</zip>
 
 	</target>
+
 
  	<!--
 		Compile test cases
@@ -352,19 +379,29 @@
 
 	</target>
 
-	<target name="clover.build" description="Compile main source tree java files WITH CLOVER into class files">
+
+	<target name="clover.setup" description="Setup Clover">
 
 		<mkdir dir="${clover.dbdir}"/>
+		<mkdir dir="${clover.tmpdir}"/>
 
-		<!-- switch on Clover by specifying it as the compiler to use -->
-		<property name="build.compiler" value="org.apache.tools.ant.taskdefs.CloverCompilerAdapter"/>
-
-		<antcall target="build"/>
+		<!-- switch on Clover -->
+		<clover-setup initstring="${clover.dbdir}/${clover.dbfile}"
+		  tmpdir="${clover.tmpdir}" enabled="true">
+			<files>
+		       <exclude name="**/*Exception.java"/>
+		       <exclude name="**/*Tests.java"/>
+		       <exclude name="**/DenyVoter.java"/>
+		       <exclude name="**/DenyAgainVoter.java"/>
+		       <exclude name="**/*TargetObject.java"/>
+		       <exclude name="**/Mock*.java"/>
+		    </files>
+		</clover-setup>
 
 	</target>
 
 
-	<target name="clover.tests" depends="clover.build,buildtests,tests" description="Run Clover tests"/>
+	<target name="clover.tests" depends="clover.setup,build,buildtests,tests" description="Run Clover tests"/>
 
 	<!--
 		Run test suite under Clover coverage analysis, and bring up
@@ -374,10 +411,7 @@
 
 		<echo>Launching coverage viewer</echo>
 
-		<java classname="com.cortexeb.tools.clover.reporters.jfc.Viewer" fork="yes">
-			<arg value="${clover.initstring}"/>
-			<classpath refid="qa-portalpath"/>
-		</java>
+ 		<clover-view/>
 
 	</target>
 
@@ -388,10 +422,11 @@
 	-->
 	<target name="clover.html" depends="clover.tests" description="Generate Clover HTML coverage reports from an existing Clover database">
 
-		<java classname="com.cortexeb.tools.clover.reporters.html.HtmlReporter" fork="yes">
-			<arg line="-o '${target.clover.html.dir}' -i '${clover.initstring}' -t 'Acegi Security System for Spring'"/>
-			<classpath refid="qa-portalpath"/>
-		</java>
+	    <clover-report>
+	        <current outfile="${target.clover.html.dir}" title="Acegi Security System for Spring" summary="true">
+	           <format type="html"/>
+	        </current>
+	    </clover-report>
 
 	</target>
 
