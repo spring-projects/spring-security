@@ -30,8 +30,8 @@
 	     The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
 	     Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
 	<bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
-    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-    	<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
+    	<property name="authenticationManager"><ref local="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref local="accessDecisionManager"/></property>
  		<property name="objectDefinitionSource">
 			<value>
 			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -44,8 +44,8 @@
 	<!-- =================== SECURITY BEANS YOU WILL RARELY (IF EVER) CHANGE ================== -->
 	
 	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
-     	<property name="authenticationDao"><ref bean="authenticationDao"/></property>
-     	<property name="userCache"><ref bean="userCache"/></property>
+     	<property name="authenticationDao"><ref local="authenticationDao"/></property>
+     	<property name="userCache"><ref local="userCache"/></property>
 	</bean>
 	
 	<bean id="userCache" class="net.sf.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
@@ -55,7 +55,7 @@
 	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
 		<property name="providers">
 		  <list>
-		    <ref bean="daoAuthenticationProvider"/>
+		    <ref local="daoAuthenticationProvider"/>
 		  </list>
 		</property>
 	</bean>
@@ -66,21 +66,21 @@
    		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
 		<property name="decisionVoters">
 		  <list>
-		    <ref bean="roleVoter"/>
+		    <ref local="roleVoter"/>
 		  </list>
 		</property>
 	</bean>
 
 	<bean id="authenticationProcessingFilter" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
-		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+		<property name="authenticationManager"><ref local="authenticationManager"/></property>
 		<property name="authenticationFailureUrl"><value>/acegilogin.jsp?login_error=1</value></property>
 		<property name="defaultTargetUrl"><value>/</value></property>
 		<property name="filterProcessesUrl"><value>/j_acegi_security_check</value></property>
 	</bean>
 
 	<bean id="securityEnforcementFilter" class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter">
-		<property name="filterSecurityInterceptor"><ref bean="filterInvocationInterceptor"/></property>
-		<property name="authenticationEntryPoint"><ref bean="authenticationProcessingFilterEntryPoint"/></property>
+		<property name="filterSecurityInterceptor"><ref local="filterInvocationInterceptor"/></property>
+		<property name="authenticationEntryPoint"><ref local="authenticationProcessingFilterEntryPoint"/></property>
 	</bean>
 
 	<bean id="authenticationProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">

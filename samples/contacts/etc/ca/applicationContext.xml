@@ -28,9 +28,9 @@
 	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
 		<property name="providers">
 		  <list>
-		    <ref bean="runAsAuthenticationProvider"/>
-		    <ref bean="authByAdapterProvider"/>
-		    <ref bean="daoAuthenticationProvider"/>
+		    <ref local="runAsAuthenticationProvider"/>
+		    <ref local="authByAdapterProvider"/>
+		    <ref local="daoAuthenticationProvider"/>
 		  </list>
 		</property>
 	</bean>
@@ -47,12 +47,12 @@
 	</bean>
 	
 	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
-     	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
+     	<property name="authenticationDao"><ref local="inMemoryDaoImpl"/></property>
 	</bean>
 
 	<bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
-		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-		<property name="authenticationEntryPoint"><ref bean="basicProcessingFilterEntryPoint"/></property>
+		<property name="authenticationManager"><ref local="authenticationManager"/></property>
+		<property name="authenticationEntryPoint"><ref local="basicProcessingFilterEntryPoint"/></property>
 	</bean>
 
 	<bean id="basicProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
@@ -74,8 +74,8 @@
    		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
 		<property name="decisionVoters">
 		  <list>
-		    <ref bean="roleVoter"/>
-		    <ref bean="contactSecurityVoter"/>
+		    <ref local="roleVoter"/>
+		    <ref local="contactSecurityVoter"/>
 		  </list>
 		</property>
 	</bean>
@@ -83,9 +83,9 @@
 	<!-- ===================== SECURITY DEFINITIONS ======================= -->
 	
 	<bean id="publicContactManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor">
-    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-    	<property name="accessDecisionManager"><ref bean="businessAccessDecisionManager"/></property>
-    	<property name="runAsManager"><ref bean="runAsManager"/></property>
+    	<property name="authenticationManager"><ref local="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref local="businessAccessDecisionManager"/></property>
+    	<property name="runAsManager"><ref local="runAsManager"/></property>
  		<property name="objectDefinitionSource">
 			<value>
 				sample.contact.ContactManager.delete=ROLE_SUPERVISOR,RUN_AS_SERVER
@@ -98,9 +98,9 @@
 
 	<!-- We expect all callers of the backend object to hold the role ROLE_RUN_AS_SERVER -->
 	<bean id="backendContactManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor">
-    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-    	<property name="accessDecisionManager"><ref bean="businessAccessDecisionManager"/></property>
-    	<property name="runAsManager"><ref bean="runAsManager"/></property>
+    	<property name="authenticationManager"><ref local="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref local="businessAccessDecisionManager"/></property>
+    	<property name="runAsManager"><ref local="runAsManager"/></property>
  		<property name="objectDefinitionSource">
 			<value>
 				sample.contact.ContactManager.delete=ROLE_RUN_AS_SERVER
@@ -117,22 +117,22 @@
     	<property name="proxyInterfaces"><value>sample.contact.ContactManager</value></property>
 	    <property name="interceptorNames">
       	<list>
-        	<value>publicContactManagerSecurity</value>
- 	        <value>publicContactManagerTarget</value>
+        	<idref local="publicContactManagerSecurity"/>
+ 	        <idref local="publicContactManagerTarget"/>
     	</list>
 	    </property>
   	</bean>
 
 	<bean id="publicContactManagerTarget" class="sample.contact.ContactManagerFacade">
-    	<property name="backend"><ref bean="backendContactManager"/></property>
+    	<property name="backend"><ref local="backendContactManager"/></property>
 	</bean>
 
 	<bean id="backendContactManager" class="org.springframework.aop.framework.ProxyFactoryBean">
     	<property name="proxyInterfaces"><value>sample.contact.ContactManager</value></property>
 	    <property name="interceptorNames">
       	<list>
-        	<value>backendContactManagerSecurity</value>
- 	        <value>backendContactManagerTarget</value>
+        	<idref local="backendContactManagerSecurity"/>
+ 	        <idref local="backendContactManagerTarget"/>
     	</list>
 	    </property>
   	</bean>

@@ -24,8 +24,8 @@
 	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
 		<property name="providers">
 		  <list>
-		    <ref bean="runAsAuthenticationProvider"/>
-		    <ref bean="casAuthenticationProvider"/>
+		    <ref local="runAsAuthenticationProvider"/>
+		    <ref local="casAuthenticationProvider"/>
 		  </list>
 		</property>
 	</bean>
@@ -42,8 +42,8 @@
 	</bean>
 	
 	<bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
-		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-		<property name="authenticationEntryPoint"><ref bean="basicProcessingFilterEntryPoint"/></property>
+		<property name="authenticationManager"><ref local="authenticationManager"/></property>
+		<property name="authenticationEntryPoint"><ref local="basicProcessingFilterEntryPoint"/></property>
 	</bean>
 
 	<bean id="basicProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
@@ -53,17 +53,17 @@
 	<bean id="autoIntegrationFilter" class="net.sf.acegisecurity.ui.AutoIntegrationFilter" />
 
 	<bean id="casAuthenticationProvider" class="net.sf.acegisecurity.providers.cas.CasAuthenticationProvider">
-		<property name="casAuthoritiesPopulator"><ref bean="casAuthoritiesPopulator"/></property>
-		<property name="casProxyDecider"><ref bean="casProxyDecider"/></property>
-		<property name="ticketValidator"><ref bean="casProxyTicketValidator"/></property>
-		<property name="statelessTicketCache"><ref bean="statelessTicketCache"/></property>
+		<property name="casAuthoritiesPopulator"><ref local="casAuthoritiesPopulator"/></property>
+		<property name="casProxyDecider"><ref local="casProxyDecider"/></property>
+		<property name="ticketValidator"><ref local="casProxyTicketValidator"/></property>
+		<property name="statelessTicketCache"><ref local="statelessTicketCache"/></property>
 		<property name="key"><value>my_password_for_this_auth_provider_only</value></property>
 	</bean>
 
 	<bean id="casProxyTicketValidator" class="net.sf.acegisecurity.providers.cas.ticketvalidator.CasProxyTicketValidator">
 		<property name="casValidate"><value>https://localhost:8443/cas/proxyValidate</value></property>
 		<property name="proxyCallbackUrl"><value>https://localhost:8443/contacts-cas/casProxy/receptor</value></property>
-		<property name="serviceProperties"><ref bean="serviceProperties"/></property>
+		<property name="serviceProperties"><ref local="serviceProperties"/></property>
         <!-- <property name="trustStore"><value>/some/path/to/your/lib/security/cacerts</value></property> -->
 	</bean>
 
@@ -72,7 +72,7 @@
 	</bean>
 
 	<bean id="casAuthoritiesPopulator" class="net.sf.acegisecurity.providers.cas.populator.DaoCasAuthoritiesPopulator">
-		<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
+		<property name="authenticationDao"><ref local="inMemoryDaoImpl"/></property>
 	</bean>
 
 	<bean id="casProxyDecider" class="net.sf.acegisecurity.providers.cas.proxy.RejectProxyTickets">
@@ -96,8 +96,8 @@
    		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
 		<property name="decisionVoters">
 		  <list>
-		    <ref bean="roleVoter"/>
-		    <ref bean="contactSecurityVoter"/>
+		    <ref local="roleVoter"/>
+		    <ref local="contactSecurityVoter"/>
 		  </list>
 		</property>
 	</bean>
@@ -105,9 +105,9 @@
 	<!-- ===================== SECURITY DEFINITIONS ======================= -->
 	
 	<bean id="publicContactManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor">
-    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-    	<property name="accessDecisionManager"><ref bean="businessAccessDecisionManager"/></property>
-    	<property name="runAsManager"><ref bean="runAsManager"/></property>
+    	<property name="authenticationManager"><ref local="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref local="businessAccessDecisionManager"/></property>
+    	<property name="runAsManager"><ref local="runAsManager"/></property>
  		<property name="objectDefinitionSource">
 			<value>
 				sample.contact.ContactManager.delete=ROLE_SUPERVISOR,RUN_AS_SERVER
@@ -120,9 +120,9 @@
 
 	<!-- We expect all callers of the backend object to hold the role ROLE_RUN_AS_SERVER -->
 	<bean id="backendContactManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor">
-    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-    	<property name="accessDecisionManager"><ref bean="businessAccessDecisionManager"/></property>
-    	<property name="runAsManager"><ref bean="runAsManager"/></property>
+    	<property name="authenticationManager"><ref local="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref local="businessAccessDecisionManager"/></property>
+    	<property name="runAsManager"><ref local="runAsManager"/></property>
  		<property name="objectDefinitionSource">
 			<value>
 				sample.contact.ContactManager.delete=ROLE_RUN_AS_SERVER
@@ -139,22 +139,22 @@
     	<property name="proxyInterfaces"><value>sample.contact.ContactManager</value></property>
 	    <property name="interceptorNames">
       	<list>
-        	<value>publicContactManagerSecurity</value>
- 	        <value>publicContactManagerTarget</value>
+        	<idref local="publicContactManagerSecurity"/>
+ 	        <idref local="publicContactManagerTarget"/>
     	</list>
 	    </property>
   	</bean>
 
 	<bean id="publicContactManagerTarget" class="sample.contact.ContactManagerFacade">
-    	<property name="backend"><ref bean="backendContactManager"/></property>
+    	<property name="backend"><ref local="backendContactManager"/></property>
 	</bean>
 
 	<bean id="backendContactManager" class="org.springframework.aop.framework.ProxyFactoryBean">
     	<property name="proxyInterfaces"><value>sample.contact.ContactManager</value></property>
 	    <property name="interceptorNames">
       	<list>
-        	<value>backendContactManagerSecurity</value>
- 	        <value>backendContactManagerTarget</value>
+        	<idref local="backendContactManagerSecurity"/>
+ 	        <idref local="backendContactManagerTarget"/>
     	</list>
 	    </property>
   	</bean>
@@ -164,7 +164,7 @@
 	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
 	
 	<bean id="channelProcessingFilter" class="net.sf.acegisecurity.securechannel.ChannelProcessingFilter">
-		<property name="channelDecisionManager"><ref bean="channelDecisionManager"/></property>
+		<property name="channelDecisionManager"><ref local="channelDecisionManager"/></property>
  		<property name="filterInvocationDefinitionSource">
 			<value>
 			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -178,8 +178,8 @@
 	<bean id="channelDecisionManager" class="net.sf.acegisecurity.securechannel.ChannelDecisionManagerImpl">
 	    <property name="channelProcessors">
       		<list>
- 	        	<ref bean="secureChannelProcessor"/>
-        		<ref bean="insecureChannelProcessor"/>
+ 	        	<ref local="secureChannelProcessor"/>
+        		<ref local="insecureChannelProcessor"/>
      		</list>
 	    </property>
 	</bean>
@@ -190,27 +190,27 @@
 	<!-- ===================== HTTP REQUEST SECURITY ==================== -->
 
 	<bean id="casProcessingFilter" class="net.sf.acegisecurity.ui.cas.CasProcessingFilter">
-		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+		<property name="authenticationManager"><ref local="authenticationManager"/></property>
 		<property name="authenticationFailureUrl"><value>/casfailed.jsp</value></property>
 		<property name="defaultTargetUrl"><value>/</value></property>
 		<property name="filterProcessesUrl"><value>/j_acegi_cas_security_check</value></property>
 	</bean>
 
 	<bean id="securityEnforcementFilter" class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter">
-		<property name="filterSecurityInterceptor"><ref bean="filterInvocationInterceptor"/></property>
-		<property name="authenticationEntryPoint"><ref bean="casProcessingFilterEntryPoint"/></property>
+		<property name="filterSecurityInterceptor"><ref local="filterInvocationInterceptor"/></property>
+		<property name="authenticationEntryPoint"><ref local="casProcessingFilterEntryPoint"/></property>
 	</bean>
 
 	<bean id="casProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.cas.CasProcessingFilterEntryPoint">
 		<property name="loginUrl"><value>https://localhost:8443/cas/login</value></property>
-		<property name="serviceProperties"><ref bean="serviceProperties"/></property>
+		<property name="serviceProperties"><ref local="serviceProperties"/></property>
 	</bean>
 
 	<bean id="httpRequestAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
    		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
 		<property name="decisionVoters">
 		  <list>
-		    <ref bean="roleVoter"/>
+		    <ref local="roleVoter"/>
 		  </list>
 		</property>
 	</bean>
@@ -219,9 +219,9 @@
 	     The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
 	     Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
 	<bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
-    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-    	<property name="accessDecisionManager"><ref bean="httpRequestAccessDecisionManager"/></property>
-    	<property name="runAsManager"><ref bean="runAsManager"/></property>
+    	<property name="authenticationManager"><ref local="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref local="httpRequestAccessDecisionManager"/></property>
+    	<property name="runAsManager"><ref local="runAsManager"/></property>
  		<property name="objectDefinitionSource">
 			<value>
 			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON

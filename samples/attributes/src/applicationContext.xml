@@ -37,7 +37,7 @@
 	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
 		<property name="providers">
 		  <list>
-		    <ref bean="testingAuthenticationProvider"/>
+		    <ref local="testingAuthenticationProvider"/>
 		  </list>
 		</property>
 	</bean>
@@ -52,7 +52,7 @@
    		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
 		<property name="decisionVoters">
 		  <list>
-		    <ref bean="roleVoter"/>
+		    <ref local="roleVoter"/>
 		  </list>
 		</property>
 	</bean>
@@ -67,10 +67,10 @@
 	<!-- We don't validate config attributes, as it's unsupported by MethodDefinitionAttributes -->
 	<bean id="securityInterceptor" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor">
     	<property name="validateConfigAttributes"><value>false</value></property>
-    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-    	<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
-    	<property name="runAsManager"><ref bean="runAsManager"/></property>
- 		<property name="objectDefinitionSource"><ref bean="objectDefinitionSource"/></property>
+    	<property name="authenticationManager"><ref local="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref local="accessDecisionManager"/></property>
+    	<property name="runAsManager"><ref local="runAsManager"/></property>
+ 		<property name="objectDefinitionSource"><ref local="objectDefinitionSource"/></property>
 	</bean>
 	
 	<bean id="bankService" class="sample.attributes.BankServiceImpl"/>
@@ -86,7 +86,7 @@
 		<!-- the bean names to automatically generate proxies for -->
         <property name="beanNames">
             <list>
-                <value>bankService</value>
+                <idref local="bankService"/>
             </list>
         </property>
     </bean>

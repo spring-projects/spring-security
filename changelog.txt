@@ -7,6 +7,7 @@ Changes in version 0.x (2004-xx-xx)
 * Added PasswordAuthenticationProvider for password-validating DAOs (eg LDAP)
 * Added FilterToBeanProxy compatibility with ContextLoaderServlet (lazy inits)
 * Added convenience methods to ConfigAttributeDefinition
+* Improved sample applications' bean reference notation
 * Clarified contract for ObjectDefinitionSource.getAttributes(Object)
 * Extracted removeUserFromCache(String) to UserCache interface
 * Improved ConfigAttributeEditor so it trims preceding and trailing spaces
