@@ -24,7 +24,7 @@ import net.sf.acegisecurity.Authentication;
  * <p>
  * This interface must be implemented on contexts that will be presented to the
  * Acegi Security System for Spring, as it is required by the  {@link
- * net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor}.
+ * net.sf.acegisecurity.intercept.AbstractSecurityInterceptor}.
  * </p>
  *
  * @author Ben Alex
