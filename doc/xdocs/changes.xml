@@ -25,7 +25,7 @@
     <title>Acegi Security changes</title>
   </properties>
   <body>
-    <release version="0.8.0" date="CVS">
+    <release version="0.8.0" date="2005-03-03">
       <action dev="benalex" type="add">Added Digest Authentication support (RFC 2617 and RFC 2069)</action>
       <action dev="benalex" type="add">Added pluggable remember-me services</action>
       <action dev="benalex" type="add">Added pluggable mechnism to prevent concurrent login sessions</action>
