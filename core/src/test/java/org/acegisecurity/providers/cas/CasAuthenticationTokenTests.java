@@ -214,6 +214,28 @@ public class CasAuthenticationTokenTests extends TestCase {
         assertTrue(!token1.equals(token2));
     }
 
+    public void testNotEqualsDueToKey() {
+        List proxyList1 = new Vector();
+        proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");
+
+        CasAuthenticationToken token1 = new CasAuthenticationToken("key",
+                "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                        "ROLE_TWO")}, proxyList1,
+                "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+
+        List proxyList2 = new Vector();
+        proxyList2.add("https://localhost/newPortal/j_acegi_cas_security_check");
+
+        CasAuthenticationToken token2 = new CasAuthenticationToken("DIFFERENT_KEY",
+                "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                        "ROLE_TWO")}, proxyList2,
+                "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+
+        assertTrue(!token1.equals(token2));
+    }
+
     public void testNotEqualsDueToProxyGrantingTicket() {
         List proxyList1 = new Vector();
         proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");

@@ -154,6 +154,10 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
                 return false;
             }
 
+            if (this.getKeyHash() != test.getKeyHash()) {
+                return false;
+            }
+
             return true;
         }
 
