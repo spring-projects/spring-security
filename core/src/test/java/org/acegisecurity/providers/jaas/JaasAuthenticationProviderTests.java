@@ -17,10 +17,7 @@ package net.sf.acegisecurity.providers.jaas;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.*;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
@@ -31,9 +28,11 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.security.auth.login.LoginException;
+
 
 /**
- * DOCUMENT ME!
+ * Tests for the JaasAuthenticationProvider
  *
  * @author Ray Krueger
  * @version $Id$
@@ -163,6 +162,35 @@ public class JaasAuthenticationProviderTests extends TestCase {
             eventCheck.successEvent.getAuthentication());
 
         assertNull("Failure event was fired", eventCheck.failedEvent);
+    }
+
+    public void testLoginExceptionResolver() {
+        assertNotNull(jaasProvider.getLoginExceptionResolver());
+        jaasProvider.setLoginExceptionResolver(new LoginExceptionResolver() {
+                public AcegiSecurityException resolveException(LoginException e) {
+                    return new LockedException("This is just a test!");
+                }
+            });
+
+        try {
+            jaasProvider.authenticate(new UsernamePasswordAuthenticationToken(
+                    "user", "password"));
+        } catch (LockedException e) {}
+         catch (Exception e) {
+            fail("LockedException should have been thrown and caught");
+        }
+    }
+
+    public void testNullDefaultAuthorities() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user",
+                "password", null);
+
+        assertTrue(jaasProvider.supports(
+                UsernamePasswordAuthenticationToken.class));
+
+        Authentication auth = jaasProvider.authenticate(token);
+        assertTrue("Only ROLE_TEST should have been returned",
+            auth.getAuthorities().length == 1);
     }
 
     public void testUnsupportedAuthenticationObjectReturnsNull() {
