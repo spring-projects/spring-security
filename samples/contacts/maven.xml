@@ -4,6 +4,10 @@
    xmlns:maven="jelly:maven">
 
     <goal name="war">
+	    <echo>The "war" goal is deprecated. Use "multiwar:multiwar" instead.</echo>
+    </goal>
+    
+    <goal name="multiwar:multiwar">
         <!-- cas war -->
         <j:set var="webapp" value="cas"/>
         <attainGoal name="acegisecurity:war"/>
