@@ -1,6 +1,7 @@
 <project
    xmlns:j="jelly:core"
    xmlns:ant="jelly:ant"
+   xmlns:util="jelly:util"
    xmlns:maven="jelly:maven"
   >
 
@@ -166,5 +167,28 @@
       <copy file="${doc.ref.dir}/html_single/index.html"
           tofile="${maven.build.dir}/docs/ref/acegi-security-reference.html"/>
    </goal>
+
+    <postGoal name="sdocbook:prepare-filesystem">
+        <j:set var="unzipped" value="false" />
+        <util:available file="${maven.sdocbook.generated.fo}">
+            <j:set var="unzipped" value="true" />
+            <echo>Using previusly unzipped docbook files</echo>
+        </util:available>
+        <j:if test="${!unzipped}">
+            <!-- unzip docbook files -->
+            <ant:unzip dest="${maven.build.dir}"
+                src="${pom.getDependencyPath('docbook:docbook-xsl')}"/>
+                
+            <!-- use a custom stylesheet -->
+            <move file="${maven.sdocbook.stylesheets.dir}/fo/docbook.xsl"
+                tofile="${maven.sdocbook.stylesheets.dir}/fo/docbook-bak.xsl"/>
+            <copy file="${maven.sdocbook.src.dir}/styles/fo/docbook.xsl"
+                todir="${maven.sdocbook.stylesheets.dir}/fo"/>
+            <copy todir="${maven.sdocbook.stylesheets.dir}">
+                <fileset dir="${maven.sdocbook.src.dir}/images"/>
+            </copy>
+        </j:if>
+
+    </postGoal>
 
 </project>

@@ -241,6 +241,21 @@
       <version>2.5</version>
       <type>plugin</type>
     </dependency>
+    <dependency>
+      <groupId>maven-plugins</groupId>
+      <artifactId>maven-sdockbook-plugin</artifactId>
+      <version>1.4-SNAPSHOT</version>
+      <type>plugin</type>
+    </dependency>
+
+    <!-- docbook -->
+    <dependency>
+      <groupId>docbook</groupId>
+      <artifactId>docbook-xsl</artifactId>
+      <version>1.66.1</version>
+      <url>http://docbook.sourceforge.net</url>
+      <type>zip</type>
+    </dependency>
   </dependencies>
   <build>
     <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
