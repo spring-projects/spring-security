@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <project>
   <extend>${basedir}/../project.xml</extend>
   <artifactId>acegi-security-doc</artifactId>
@@ -21,5 +22,13 @@
       <type>zip</type>
     </dependency>
   </dependencies>
+
+  <reports>
+    <report>maven-faq-plugin</report>
+    <report>maven-dashboard-plugin</report>
+    <report>maven-multiproject-plugin</report>
+    <report>maven-multichanges-plugin</report>
+  </reports>
+
 </project>
 
