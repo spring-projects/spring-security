@@ -1,28 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project>
   <extend>${basedir}/../project.xml</extend>
+  <pomVersion>3</pomVersion>
   <artifactId>acegi-security-doc</artifactId>
   <name>Acegi Security System for Spring</name>
-
+  <groupId>acegi-security-doc</groupId>
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/doc/</url>
+  </repository>
   <dependencies>
+    <!-- docbook -->
     <dependency>
       <groupId>maven-plugins</groupId>
       <artifactId>maven-sdocbook-plugin</artifactId>
       <version>1.4-SNAPSHOT</version>
       <type>plugin</type>
     </dependency>
-
-    <!-- docbook -->
     <dependency>
       <groupId>docbook</groupId>
       <artifactId>docbook-xsl</artifactId>
       <version>1.66.1</version>
-      <url>http://docbook.sourceforge.net</url>
       <type>zip</type>
+      <url>http://docbook.sourceforge.net</url>
     </dependency>
   </dependencies>
-
   <reports>
     <report>maven-statcvs-plugin</report>
     <report>maven-license-plugin</report>
@@ -30,6 +32,5 @@
     <report>maven-dashboard-plugin</report>
     <report>maven-multiproject-plugin</report>
   </reports>
-
 </project>
 
