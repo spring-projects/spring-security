@@ -31,6 +31,8 @@ import net.sf.acegisecurity.providers.encoding.ShaPasswordEncoder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
+import java.util.Date;
+
 
 /**
  * Tests {@link DaoAuthenticationProvider}.
@@ -54,6 +56,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "KOala");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setKey("x");
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
 
         try {
@@ -69,6 +72,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "opal");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setKey("x");
         provider.setAuthenticationDao(new MockAuthenticationDaoUserPeter());
 
         try {
@@ -84,6 +88,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "koala");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setKey("x");
         provider.setAuthenticationDao(new MockAuthenticationDaoSimulateBackendError());
 
         try {
@@ -99,6 +104,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "INVALID_PASSWORD");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setKey("x");
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
 
         try {
@@ -114,6 +120,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "koala");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setKey("x");
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
 
         try {
@@ -129,6 +136,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "koala");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setKey("x");
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
 
         try {
@@ -144,20 +152,55 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "koala");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setKey("x");
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
 
         Authentication result = provider.authenticate(token);
 
-        if (!(result instanceof UsernamePasswordAuthenticationToken)) {
-            fail(
-                "Should have returned instance of UsernamePasswordAuthenticationToken");
+        if (!(result instanceof DaoAuthenticationToken)) {
+            fail("Should have returned instance of DaoAuthenticationToken");
         }
 
-        UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
+        DaoAuthenticationToken castResult = (DaoAuthenticationToken) result;
         assertEquals("marissa", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
         assertEquals("ROLE_ONE", castResult.getAuthorities()[0].getAuthority());
         assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
+        assertEquals(provider.getKey().hashCode(), castResult.getKeyHash());
+    }
+
+    public void testAuthenticatesThenAcceptsCreatedTokenAutomatically() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa",
+                "koala");
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setKey("x");
+        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+
+        Authentication result = provider.authenticate(token);
+
+        if (!(result instanceof DaoAuthenticationToken)) {
+            fail("Should have returned instance of DaoAuthenticationToken");
+        }
+
+        DaoAuthenticationToken castResult = (DaoAuthenticationToken) result;
+        assertEquals("marissa", castResult.getPrincipal());
+        assertEquals(provider.getKey().hashCode(), castResult.getKeyHash());
+        assertTrue(castResult.getExpires().after(new Date()));
+
+        // Now try to re-authenticate
+        // Set provider to null, so we get a NullPointerException if it tries to re-authenticate
+        provider.setAuthenticationDao(null);
+
+        Authentication secondResult = provider.authenticate(result);
+
+        if (!(secondResult instanceof DaoAuthenticationToken)) {
+            fail("Should have returned instance of DaoAuthenticationToken");
+        }
+
+        // Should still have the same expiry time as original
+        assertEquals(castResult.getExpires(),
+            ((DaoAuthenticationToken) secondResult).getExpires());
     }
 
     public void testAuthenticatesWhenASaltIsUsed() {
@@ -168,21 +211,77 @@ public class DaoAuthenticationProviderTests extends TestCase {
         salt.setSystemWideSalt("SYSTEM_SALT_VALUE");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setKey("x");
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissaWithSalt());
         provider.setSaltSource(salt);
 
         Authentication result = provider.authenticate(token);
 
-        if (!(result instanceof UsernamePasswordAuthenticationToken)) {
+        if (!(result instanceof DaoAuthenticationToken)) {
             fail(
-                "Should have returned instance of UsernamePasswordAuthenticationToken");
+                "Should have returned instance of DaoPasswordAuthenticationToken");
         }
 
-        UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
+        DaoAuthenticationToken castResult = (DaoAuthenticationToken) result;
         assertEquals("marissa", castResult.getPrincipal());
-        assertEquals("koala", castResult.getCredentials());
+        assertEquals("koala{SYSTEM_SALT_VALUE}", castResult.getCredentials());
         assertEquals("ROLE_ONE", castResult.getAuthorities()[0].getAuthority());
         assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
+        assertEquals(provider.getKey().hashCode(), castResult.getKeyHash());
+    }
+
+    public void testDaoAuthenticationTokensThatHaveExpiredAreRefreshed()
+        throws Exception {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa",
+                "koala");
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setKey("x");
+        provider.setRefreshTokenInterval(0); // never cache
+        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+
+        Authentication result = provider.authenticate(token);
+
+        if (!(result instanceof DaoAuthenticationToken)) {
+            fail("Should have returned instance of DaoAuthenticationToken");
+        }
+
+        DaoAuthenticationToken castResult = (DaoAuthenticationToken) result;
+        assertEquals("marissa", castResult.getPrincipal());
+        assertEquals(provider.getKey().hashCode(), castResult.getKeyHash());
+        Thread.sleep(1000);
+        assertTrue(castResult.getExpires().before(new Date())); // already expired
+
+        // Now try to re-authenticate
+        Authentication secondResult = provider.authenticate(result);
+
+        if (!(secondResult instanceof DaoAuthenticationToken)) {
+            fail("Should have returned instance of DaoAuthenticationToken");
+        }
+
+        // Should still have a later expiry time than original
+        assertTrue(castResult.getExpires().before(((DaoAuthenticationToken) secondResult)
+                .getExpires()));
+    }
+
+    public void testDaoAuthenticationTokensWithWrongKeyAreRejected()
+        throws Exception {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setKey("x");
+        provider.setRefreshTokenInterval(0); // never cache
+        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+
+        DaoAuthenticationToken token = new DaoAuthenticationToken("key",
+                new Date(), "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                        "ROLE_TWO")});
+
+        try {
+            provider.authenticate(token);
+            fail("Should have thrown BadCredentialsException");
+        } catch (BadCredentialsException expected) {
+            assertTrue(true);
+        }
     }
 
     public void testGettersSetters() {
@@ -199,6 +298,19 @@ public class DaoAuthenticationProviderTests extends TestCase {
     public void testStartupFailsIfNoAuthenticationDao()
         throws Exception {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setKey("xxx");
+
+        try {
+            provider.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+    }
+
+    public void testStartupFailsIfNoKeySet() throws Exception {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
 
         try {
             provider.afterPropertiesSet();
@@ -211,6 +323,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
     public void testStartupSuccess() throws Exception {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         AuthenticationDao dao = new MockAuthenticationDaoUserMarissa();
+        provider.setKey("x");
         provider.setAuthenticationDao(dao);
         assertEquals(dao, provider.getAuthenticationDao());
         provider.afterPropertiesSet();

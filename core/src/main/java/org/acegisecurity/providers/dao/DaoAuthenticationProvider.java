@@ -29,6 +29,8 @@ import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.dao.DataAccessException;
 
+import java.util.Date;
+
 
 /**
  * An {@link AuthenticationProvider} implementation that retrieves user details
@@ -38,6 +40,21 @@ import org.springframework.dao.DataAccessException;
  * This <code>AuthenticationProvider</code> is capable of validating  {@link
  * UsernamePasswordAuthenticationToken} requests contain the correct username,
  * password and the user is not disabled.
+ * </p>
+ * 
+ * <p>
+ * Upon successful validation, a <code>DaoAuthenticationToken</code> will be
+ * created and returned to the caller. This token will be signed with the key
+ * configured by {@link #getKey()} and expire {@link
+ * #getRefreshTokenInterval()} milliseconds into the future. The token will be
+ * assumed to remain valid whilstever it has not expired, and no requests of
+ * the <code>AuthenticationProvider</code> will need to be made. Once the
+ * token has expired, the relevant <code>AuthenticationProvider</code> will be
+ * called again to provide an updated enabled/disabled status, and list of
+ * granted authorities. It should be noted the credentials will not be
+ * revalidated, as the user presented correct credentials in the originial
+ * <code>UsernamePasswordAuthenticationToken</code>. This avoids complications
+ * if the user changes their password during the session.
  * </p>
  *
  * @author Ben Alex
@@ -50,6 +67,8 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
     private AuthenticationDao authenticationDao;
     private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
     private SaltSource saltSource;
+    private String key;
+    private long refreshTokenInterval = 60000; // 60 seconds
 
     //~ Methods ================================================================
 
@@ -59,6 +78,14 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
     public AuthenticationDao getAuthenticationDao() {
         return authenticationDao;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getKey() {
+        return key;
     }
 
     /**
@@ -74,6 +101,22 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
     public PasswordEncoder getPasswordEncoder() {
         return passwordEncoder;
+    }
+
+    public void setRefreshTokenInterval(long refreshTokenInterval) {
+        this.refreshTokenInterval = refreshTokenInterval;
+    }
+
+    /**
+     * Indicates the number of seconds a created
+     * <code>DaoAuthenticationToken</code> will remain valid for. Whilstever
+     * the token is valid, the <code>DaoAuthenticationProvider</code> will
+     * only check it presents the expected key hash code.
+     *
+     * @return Returns the refreshTokenInterval.
+     */
+    public long getRefreshTokenInterval() {
+        return refreshTokenInterval;
     }
 
     /**
@@ -98,10 +141,29 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             throw new IllegalArgumentException(
                 "An Authentication DAO must be set");
         }
+
+        if ((this.key == null) || "".equals(key)) {
+            throw new IllegalArgumentException("A key must be set");
+        }
     }
 
     public Authentication authenticate(Authentication authentication)
         throws AuthenticationException {
+        // If an existing DaoAuthenticationToken, check we created it and it hasn't expired
+        if (authentication instanceof DaoAuthenticationToken) {
+            if (this.key.hashCode() == ((DaoAuthenticationToken) authentication)
+                .getKeyHash()) {
+                if (((DaoAuthenticationToken) authentication).getExpires()
+                     .after(new Date())) {
+                    return authentication;
+                }
+            } else {
+                throw new BadCredentialsException(
+                    "The presented DaoAuthenticationToken does not contain the expected key");
+            }
+        }
+
+        // We need to authenticate or refresh the token
         User user = null;
 
         try {
@@ -114,23 +176,29 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
                 .getMessage(), repositoryProblem);
         }
 
-        Object salt = null;
+        if (!(authentication instanceof DaoAuthenticationToken)) {
+            // Must validate credentials, as this is not simply a token refresh
+            Object salt = null;
 
-        if (this.saltSource != null) {
-            salt = this.saltSource.getSalt(user);
-        }
+            if (this.saltSource != null) {
+                salt = this.saltSource.getSalt(user);
+            }
 
-        if (!passwordEncoder.isPasswordValid(user.getPassword(),
-                authentication.getCredentials().toString(), salt)) {
-            throw new BadCredentialsException("Bad credentials presented");
+            if (!passwordEncoder.isPasswordValid(user.getPassword(),
+                    authentication.getCredentials().toString(), salt)) {
+                throw new BadCredentialsException("Bad credentials presented");
+            }
         }
 
         if (!user.isEnabled()) {
             throw new DisabledException("User is disabled");
         }
 
-        return new UsernamePasswordAuthenticationToken(user.getUsername(),
-            authentication.getCredentials().toString(), user.getAuthorities());
+        Date expiry = new Date(new Date().getTime()
+                + this.getRefreshTokenInterval());
+
+        return new DaoAuthenticationToken(this.getKey(), expiry,
+            user.getUsername(), user.getPassword(), user.getAuthorities());
     }
 
     public boolean supports(Class authentication) {

@@ -24,6 +24,12 @@ applications:
   requested username. The new PlaintextPasswordEncoder offers a setter for
   ignoring the password case (defaults to require exact case matches).
 
+- DaoAuthenticationProvider now provides caching. Successful authentications
+  return DaoAuthenticationTokens. You must set the mandatory "key" property
+  on DaoAuthenticationProvider so these tokens can be validated. You may
+  also wish to change the "refreshTokenInterval" property from the default
+  of 60,000 milliseconds.
+
 - If you're using container adapters, please refer to the reference
   documentation as additional JARs are now required in your container
   classloader.

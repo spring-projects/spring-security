@@ -3,6 +3,7 @@ Changes in version 0.5 (2004-xx-xx)
 
 * Added single sign on support via Yale Central Authentication Service (CAS)
 * Added full support for HTTP Basic Authentication
+* Added caching for DaoAuthenticationProvider successful authentications
 * Added Burlap and Hessian remoting to Contacts sample application
 * Added pluggable password encoders including plaintext, SHA and MD5
 * Added pluggable salt sources to enhance security of hashed passwords
@@ -14,6 +15,7 @@ Changes in version 0.5 (2004-xx-xx)
 * Added Apache Ant path syntax support to SecurityEnforcementFilter
 * Updated JAR to Spring 1.0.1
 * Refactored filters to use Spring application context lifecycle support
+* Improved constructor detection of nulls in User and other key objects
 * Fixed FilterInvocation.getRequestUrl() to also include getPathInfo()
 * Fixed Contacts sample application <A></A> tags
 * Established acegisecurity-developer mailing list
