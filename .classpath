@@ -30,14 +30,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="MAVEN_REPO/resin/jars/resin-3.0.9.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/retroweaver/jars/retroweaver-1.0fcs.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-aop-1.1.5.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-context-1.1.5.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-core-1.1.5.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-dao-1.1.5.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.1.5.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-orm-1.1.5.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-web-1.1.5.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-webmvc-1.1.5.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2-rc1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2-rc1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/aopalliance/jars/aopalliance-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/aspectj/jars/aspectjrt-1.2.jar"/>
@@ -57,7 +51,7 @@
 	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/ehcache/jars/ehcache-1.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jspapi/jars/jsp-api-2.0.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-2.1.8.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0rc1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.0.jar"/>
 	<classpathentry sourcepath="DIST_BASE/commons-beanutils-1.6.1-src/src/java" kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.6.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/apache-directory/jars/apacheds-main-0.9-SNAPSHOT.jar"/>

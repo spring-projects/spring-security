@@ -247,68 +247,8 @@
     </dependency>
     <dependency>
       <groupId>springframework</groupId>
-      <artifactId>spring-core</artifactId>
-      <version>1.1.5</version>
-      <type>jar</type>
-      <url>http://www.springframework.org</url>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>springframework</groupId>
-      <artifactId>spring-dao</artifactId>
-      <version>1.1.5</version>
-      <type>jar</type>
-      <url>http://www.springframework.org</url>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>springframework</groupId>
-      <artifactId>spring-orm</artifactId>
-      <version>1.1.5</version>
-      <type>jar</type>
-      <url>http://www.springframework.org</url>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>springframework</groupId>
-      <artifactId>spring-context</artifactId>
-      <version>1.1.5</version>
-      <type>jar</type>
-      <url>http://www.springframework.org</url>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>springframework</groupId>
-      <artifactId>spring-aop</artifactId>
-      <version>1.1.5</version>
-      <type>jar</type>
-      <url>http://www.springframework.org</url>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>springframework</groupId>
-      <artifactId>spring-web</artifactId>
-      <version>1.1.5</version>
-      <type>jar</type>
-      <url>http://www.springframework.org</url>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
-      <version>1.1.5</version>
+      <artifactId>spring</artifactId>
+      <version>1.2-rc1</version>
       <type>jar</type>
       <url>http://www.springframework.org</url>
       <properties>
@@ -318,7 +258,7 @@
     <dependency>
       <groupId>springframework</groupId>
       <artifactId>spring-mock</artifactId>
-      <version>1.1.5</version>
+      <version>1.2-rc1</version>
       <type>jar</type>
       <url>http://www.springframework.org</url>
     </dependency>
