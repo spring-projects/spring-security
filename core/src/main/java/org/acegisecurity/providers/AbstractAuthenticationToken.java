@@ -31,13 +31,22 @@ public abstract class AbstractAuthenticationToken implements Authentication {
         if (obj instanceof AbstractAuthenticationToken) {
             AbstractAuthenticationToken test = (AbstractAuthenticationToken) obj;
 
-            if (this.getAuthorities().length != test.getAuthorities().length) {
-                return false;
-            }
-
-            for (int i = 0; i < this.getAuthorities().length; i++) {
-                if (!this.getAuthorities()[i].equals(test.getAuthorities()[i])) {
+            if (!((this.getAuthorities() == null)
+                && (test.getAuthorities() == null))) {
+                if ((this.getAuthorities() == null)
+                    || (test.getAuthorities() == null)) {
                     return false;
+                }
+
+                if (this.getAuthorities().length != test.getAuthorities().length) {
+                    return false;
+                }
+
+                for (int i = 0; i < this.getAuthorities().length; i++) {
+                    if (!this.getAuthorities()[i].equals(
+                            test.getAuthorities()[i])) {
+                        return false;
+                    }
                 }
             }
 
