@@ -36,9 +36,9 @@ public interface AuthenticationDao {
     /**
      * Locates the user based on the username. In the actual implementation,
      * the search may possibly be case insensitive, or case insensitive
-     * depending on how the implementaion instance is configured. In this case,
-     * the User object that comes back may have a username that is of a different
-     * case than what was actually requested..
+     * depending on how the implementaion instance is configured. In this
+     * case, the User object that comes back may have a username that is of a
+     * different case than what was actually requested..
      *
      * @param username the username presented to the {@link
      *        DaoAuthenticationProvider}

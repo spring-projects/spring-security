@@ -12,9 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.sf.acegisecurity.providers.dao;
 
 import junit.framework.TestCase;
+
+import net.sf.acegisecurity.providers.encoding.*;
+
 
 /**
  * <p>
@@ -25,23 +29,22 @@ import junit.framework.TestCase;
  * @version $Id$
  */
 public class MD5PasswordEncoderTest extends TestCase {
+    //~ Methods ================================================================
 
-  public void testBasicFunctionality() {
-    
-    MD5PasswordEncoder pe = new MD5PasswordEncoder();
-    String raw = "abc123";
-    String badRaw = "abc321";
-    String encoded = pe.encodePassword(raw, null);   // no SALT source
-    assertTrue(pe.isPasswordValid(encoded, raw, null));
-    assertFalse(pe.isPasswordValid(encoded, badRaw, null));
-    assertTrue(encoded.length() == 32);
-    
-    // now try Base64
-    pe.setEncodeHashAsBase64(true);
-    encoded = pe.encodePassword(raw, null);   // no SALT source
-    assertTrue(pe.isPasswordValid(encoded, raw, null));
-    assertFalse(pe.isPasswordValid(encoded, badRaw, null));
-    assertTrue(encoded.length() != 32);
-  }
+    public void testBasicFunctionality() {
+        Md5PasswordEncoder pe = new Md5PasswordEncoder();
+        String raw = "abc123";
+        String badRaw = "abc321";
+        String encoded = pe.encodePassword(raw, null); // no SALT source
+        assertTrue(pe.isPasswordValid(encoded, raw, null));
+        assertFalse(pe.isPasswordValid(encoded, badRaw, null));
+        assertTrue(encoded.length() == 32);
 
+        // now try Base64
+        pe.setEncodeHashAsBase64(true);
+        encoded = pe.encodePassword(raw, null); // no SALT source
+        assertTrue(pe.isPasswordValid(encoded, raw, null));
+        assertFalse(pe.isPasswordValid(encoded, badRaw, null));
+        assertTrue(encoded.length() != 32);
+    }
 }

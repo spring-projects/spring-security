@@ -22,6 +22,7 @@ import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.providers.AuthenticationProvider;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import net.sf.acegisecurity.providers.encoding.*;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -95,8 +96,9 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
         }
 
         if (!passwordEncoder.isPasswordValid(user.getPassword(),
-                authentication.getCredentials().toString(), user))
+                authentication.getCredentials().toString(), user)) {
             throw new BadCredentialsException("Bad credentials presented");
+        }
 
         if (!user.isEnabled()) {
             throw new DisabledException("User is disabled");

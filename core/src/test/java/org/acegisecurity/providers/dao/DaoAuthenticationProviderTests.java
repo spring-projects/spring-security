@@ -37,7 +37,6 @@ import org.springframework.dao.DataRetrievalFailureException;
  * @version $Id$
  */
 public class DaoAuthenticationProviderTests extends TestCase {
-
     //~ Methods ================================================================
 
     public final void setUp() throws Exception {
