@@ -109,4 +109,8 @@ public class AuthorizeTagTests extends TestCase {
 
         ContextHolder.setContext(context);
     }
+
+    protected void tearDown() throws Exception {
+		ContextHolder.setContext(null);
+	}
 }
