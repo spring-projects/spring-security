@@ -214,4 +214,13 @@ public class DaoAuthenticationTokenTests extends TestCase {
         token.setAuthenticated(false); // ignored
         assertTrue(token.isAuthenticated());
     }
+
+    public void testToString() {
+        DaoAuthenticationToken token = new DaoAuthenticationToken("key",
+                new Date(), "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                        "ROLE_TWO")});
+        String result = token.toString();
+        assertTrue(result.lastIndexOf("Expires:") != -1);
+    }
 }

@@ -145,4 +145,12 @@ public class DaoAuthenticationToken extends AbstractAuthenticationToken
 
         return false;
     }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(super.toString());
+        sb.append("; Expires: " + this.expires.toString());
+
+        return sb.toString();
+    }
 }
