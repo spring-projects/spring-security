@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -255,27 +255,6 @@ public class FilterToBeanProxyTests extends TestCase {
     }
 
     //~ Inner Classes ==========================================================
-
-    private class MockFilterChain implements FilterChain {
-        private boolean expectToProceed;
-
-        public MockFilterChain(boolean expectToProceed) {
-            this.expectToProceed = expectToProceed;
-        }
-
-        private MockFilterChain() {
-            super();
-        }
-
-        public void doFilter(ServletRequest request, ServletResponse response)
-            throws IOException, ServletException {
-            if (expectToProceed) {
-                assertTrue(true);
-            } else {
-                fail("Did not expect filter chain to proceed");
-            }
-        }
-    }
 
     private class MockFilterToBeanProxy extends FilterToBeanProxy {
         private String appContextLocation;
