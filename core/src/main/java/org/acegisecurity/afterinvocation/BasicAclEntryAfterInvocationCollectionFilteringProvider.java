@@ -25,10 +25,13 @@ import net.sf.acegisecurity.acl.AclManager;
 import net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry;
 import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
 
+import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
+import java.lang.reflect.Array;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -168,25 +171,22 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
                     return null;
                 }
 
-                if (!(returnedObject instanceof Collection)) {
+                Filterer filterer = null;
+
+                if (returnedObject instanceof Collection) {
+                    Collection collection = (Collection) returnedObject;
+                    filterer = new CollectionFilterer(collection);
+                } else if (returnedObject.getClass().isArray()) {
+                    Object[] array = (Object[]) returnedObject;
+                    filterer = new ArrayFilterer(array);
+                } else {
                     throw new AuthorizationServiceException(
-                        "A Collection (or null) was required as the returnedObject, but the returnedObject was: "
+                        "A Collection or an array (or null) was required as the returnedObject, but the returnedObject was: "
                         + returnedObject);
                 }
 
-                Collection collection = (Collection) returnedObject;
-
-                // We create a Set of objects to be removed from the Collection,
-                // as ConcurrentModificationException prevents removal during
-                // iteration, and making a new Collection to be returned is
-                // problematic as the original Collection implementation passed
-                // to the method may not necessarily be re-constructable (as
-                // the Collection(collection) constructor is not guaranteed and
-                // manually adding may lose sort order or other capabilities)
-                Set removeList = new HashSet();
-
                 // Locate unauthorised Collection elements
-                Iterator collectionIter = collection.iterator();
+                Iterator collectionIter = filterer.iterator();
 
                 while (collectionIter.hasNext()) {
                     Object domainObject = collectionIter.next();
@@ -228,7 +228,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
                     }
 
                     if (!hasPermission) {
-                        removeList.add(domainObject);
+                        filterer.remove(domainObject);
 
                         if (logger.isDebugEnabled()) {
                             logger.debug(
@@ -238,22 +238,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
                     }
                 }
 
-                // Now the Iterator has ended, remove Objects from Collection
-                Iterator removeIter = removeList.iterator();
-
-                int originalSize = collection.size();
-
-                while (removeIter.hasNext()) {
-                    collection.remove(removeIter.next());
-                }
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Original collection contained "
-                        + originalSize + " elements; now contains "
-                        + collection.size() + " elements");
-                }
-
-                return collection;
+                return filterer.getFilteredObject();
             }
         }
 
@@ -279,5 +264,172 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
      */
     public boolean supports(Class clazz) {
         return true;
+    }
+}
+
+
+/**
+ * Filter strategy interface.
+ */
+interface Filterer {
+    //~ Methods ================================================================
+
+    /**
+     * Gets the filtered collection or array.
+     *
+     * @return the filtered collection or array
+     */
+    public Object getFilteredObject();
+
+    /**
+     * Returns an iterator over the filtered collection or array.
+     *
+     * @return an Iterator
+     */
+    public Iterator iterator();
+
+    /**
+     * Removes the the given object from the resulting list.
+     *
+     * @param object the object to be removed
+     */
+    public void remove(Object object);
+}
+
+
+/**
+ * A filter used to filter Collections.
+ */
+class CollectionFilterer implements Filterer {
+    //~ Static fields/initializers =============================================
+
+    protected static final Log logger = LogFactory.getLog(BasicAclEntryAfterInvocationCollectionFilteringProvider.class);
+
+    //~ Instance fields ========================================================
+
+    private Collection collection;
+    private Set removeList;
+
+    //~ Constructors ===========================================================
+
+    CollectionFilterer(Collection collection) {
+        this.collection = collection;
+
+        // We create a Set of objects to be removed from the Collection,
+        // as ConcurrentModificationException prevents removal during
+        // iteration, and making a new Collection to be returned is
+        // problematic as the original Collection implementation passed
+        // to the method may not necessarily be re-constructable (as
+        // the Collection(collection) constructor is not guaranteed and
+        // manually adding may lose sort order or other capabilities)
+        removeList = new HashSet();
+    }
+
+    //~ Methods ================================================================
+
+    /**
+     * @see net.sf.acegisecurity.afterinvocation.Filterer#getFilteredObject()
+     */
+    public Object getFilteredObject() {
+        // Now the Iterator has ended, remove Objects from Collection
+        Iterator removeIter = removeList.iterator();
+
+        int originalSize = collection.size();
+
+        while (removeIter.hasNext()) {
+            collection.remove(removeIter.next());
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Original collection contained " + originalSize
+                + " elements; now contains " + collection.size() + " elements");
+        }
+
+        return collection;
+    }
+
+    /**
+     * @see net.sf.acegisecurity.afterinvocation.Filterer#iterator()
+     */
+    public Iterator iterator() {
+        return collection.iterator();
+    }
+
+    /**
+     * @see net.sf.acegisecurity.afterinvocation.Filterer#remove(java.lang.Object)
+     */
+    public void remove(Object object) {
+        removeList.add(object);
+    }
+}
+
+
+/**
+ * A filter used to filter arrays.
+ */
+class ArrayFilterer implements Filterer {
+    //~ Static fields/initializers =============================================
+
+    protected static final Log logger = LogFactory.getLog(BasicAclEntryAfterInvocationCollectionFilteringProvider.class);
+
+    //~ Instance fields ========================================================
+
+    private Set removeList;
+    private Object[] list;
+
+    //~ Constructors ===========================================================
+
+    ArrayFilterer(Object[] list) {
+        this.list = list;
+
+        // Collect the removed objects to a HashSet so that
+        // it is fast to lookup them when a filtered array
+        // is constructed.
+        removeList = new HashSet();
+    }
+
+    //~ Methods ================================================================
+
+    /**
+     * @see net.sf.acegisecurity.afterinvocation.Filterer#getFilteredObject()
+     */
+    public Object getFilteredObject() {
+        // Recreate an array of same type and filter the removed objects.
+        int originalSize = list.length;
+        int sizeOfResultingList = originalSize - removeList.size();
+        Object[] filtered = (Object[]) Array.newInstance(list.getClass()
+                                                             .getComponentType(),
+                sizeOfResultingList);
+
+        for (int i = 0, j = 0; i < list.length; i++) {
+            Object object = list[i];
+
+            if (!removeList.contains(object)) {
+                filtered[j] = object;
+                j++;
+            }
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Original array contained " + originalSize
+                + " elements; now contains " + sizeOfResultingList
+                + " elements");
+        }
+
+        return filtered;
+    }
+
+    /**
+     * @see net.sf.acegisecurity.afterinvocation.Filterer#iterator()
+     */
+    public Iterator iterator() {
+        return new ArrayIterator(list);
+    }
+
+    /**
+     * @see net.sf.acegisecurity.afterinvocation.Filterer#remove(java.lang.Object)
+     */
+    public void remove(Object object) {
+        removeList.add(object);
     }
 }

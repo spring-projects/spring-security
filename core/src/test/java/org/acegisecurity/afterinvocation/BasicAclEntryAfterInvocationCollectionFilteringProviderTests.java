@@ -167,6 +167,44 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests
         assertEquals("belmont", filteredList.get(0));
     }
 
+    public void testCorrectOperationWhenReturnedObjectIsArray()
+        throws Exception {
+        // Create an AclManager
+        AclManager aclManager = new MockAclManager("belmont", "marissa",
+                new AclEntry[] {new MockAclEntry(), new SimpleAclEntry(
+                        "marissa", new MockAclObjectIdentity(), null,
+                        SimpleAclEntry.ADMINISTRATION), new SimpleAclEntry(
+                        "marissa", new MockAclObjectIdentity(), null,
+                        SimpleAclEntry.READ), new SimpleAclEntry("marissa",
+                        new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)});
+
+        BasicAclEntryAfterInvocationCollectionFilteringProvider provider = new BasicAclEntryAfterInvocationCollectionFilteringProvider();
+        provider.setAclManager(aclManager);
+        assertEquals(aclManager, provider.getAclManager());
+        provider.afterPropertiesSet();
+
+        // Create a Collection containing many items, which only "belmont"
+        // should remain in after filtering by provider
+        String[] list = new String[4];
+        list[0] = "sydney";
+        list[1] = "melbourne";
+        list[2] = "belmont";
+        list[3] = "brisbane";
+
+        // Create the Authentication and Config Attribs we'll be presenting
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("marissa",
+                "NOT_USED");
+        ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
+        attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_COLLECTION_READ"));
+
+        // Filter
+        String[] filteredList = (String[]) provider.decide(auth,
+                new MockMethodInvocation(), attr, list);
+
+        assertEquals(1, filteredList.length);
+        assertEquals("belmont", filteredList[0]);
+    }
+
     public void testDetectsIfReturnedObjectIsNotACollection()
         throws Exception {
         // Create an AclManager

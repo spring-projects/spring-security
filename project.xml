@@ -129,6 +129,9 @@
     <contributor>
       <name>Orlando Garcia Carmona</name>
     </contributor>
+    <contributor>
+      <name>Joni Suominen</name>
+    </contributor>
   </contributors>
   <dependencies>
     <dependency>
@@ -147,16 +150,6 @@
       <version>3.0.9</version>
       <type>jar</type>
       <url>http://www.caucho.com</url>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>jetty</groupId>
-      <artifactId>org.mortbay.jetty</artifactId>
-      <version>4.2.22</version>
-      <type>jar</type>
-      <url>http://jetty.mortbay.org</url>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
@@ -257,6 +250,16 @@
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
       <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>jetty</groupId>
+      <artifactId>org.mortbay.jetty</artifactId>
+      <version>4.2.22</version>
+      <type>jar</type>
+      <url>http://jetty.mortbay.org</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
     </dependency>
     <dependency>
       <groupId>springframework</groupId>
