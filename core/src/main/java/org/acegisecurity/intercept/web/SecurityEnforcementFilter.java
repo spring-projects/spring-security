@@ -190,7 +190,7 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
             if (logger.isDebugEnabled()) {
                 logger.debug(
                     "Authentication failed - adding target URL to Session: "
-                    + targetUrl);
+                    + targetUrl, authentication);
             }
 
             ((HttpServletRequest) request).getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
