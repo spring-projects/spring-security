@@ -115,7 +115,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
     private AuthenticationDao authenticationDao;
     private String key;
     private String parameter = DEFAULT_PARAMETER;
-    private int tokenValiditySeconds = 1209600; // 14 days
+    private long tokenValiditySeconds = 1209600; // 14 days
 
     //~ Methods ================================================================
 
@@ -143,11 +143,11 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
         return parameter;
     }
 
-    public void setTokenValiditySeconds(int tokenValiditySeconds) {
+    public void setTokenValiditySeconds(long tokenValiditySeconds) {
         this.tokenValiditySeconds = tokenValiditySeconds;
     }
 
-    public int getTokenValiditySeconds() {
+    public long getTokenValiditySeconds() {
         return tokenValiditySeconds;
     }
 

@@ -27,6 +27,7 @@
   <body>
     <release version="0.8.2" date="In CVS">
       <action dev="benalex" type="fix">Correct location of AuthenticationSimpleHttpInvokerRequestExecutor in clientContext.xml</action>
+      <action dev="benalex" type="fix">TokenBasedRememberMeServices changed to use long instead of int for tokenValiditySeconds (SPR-807)</action>
       <action dev="benalex" type="update">Add credentialsExpiredFailureUrl getter/setter to AbstractProcessingFilter</action>
     </release>
     <release version="0.8.1" date="2005-03-22">
