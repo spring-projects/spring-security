@@ -79,7 +79,7 @@ import javax.servlet.http.HttpServletResponse;
  * desirable for  this filter to instantiate its own ApplicationContext
  * instance from which to obtain the AuthenticationManager, the location of
  * the config for this context may be specified with the optional
- * <code>appContextLocation</code> init param.
+ * <code>contextConfigLocation</code> init param.
  * </p>
  * 
  * <p>
@@ -105,8 +105,8 @@ import javax.servlet.http.HttpServletResponse;
  * <code>/j_acegi_security_check</code>.
  * </li>
  * <li>
- * <code>contextConfigLocation</code> (optional, normally not used), indicates the
- * path to an application context that contains an {@link
+ * <code>contextConfigLocation</code> (optional, normally not used), indicates
+ * the path to an application context that contains an {@link
  * AuthenticationManager} which should be used to process each authentication
  * request. If not specified, {@link
  * WebApplicationContextUtils#getWebApplicationContext(ServletContext sc)}

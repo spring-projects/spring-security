@@ -38,8 +38,11 @@ import javax.servlet.http.HttpSession;
  * This filter is normally used in conjunction with {@link
  * AuthenticationProcessingFilter}, which populates the
  * <code>HttpSession</code> with an <code>Authentication</code> object based
- * on a form login. Alternatively, users may elect to use their own approach
- * for populating the <code>HttpSession</code>.
+ * on a form login. Similarly, the {@link
+ * net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter} will populate the
+ * <code>HttpSession</code> based on a BASIC authentication request.
+ * Alternatively, users may elect to use their own approach for populating the
+ * <code>HttpSession</code>.
  * </p>
  * 
  * <p>
