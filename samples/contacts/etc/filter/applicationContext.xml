@@ -8,243 +8,243 @@
 
 <beans>
 
-	<!-- =================== SECURITY SYSTEM DEFINITIONS ================== -->
-	
-	<!-- RunAsManager -->
-	<bean id="runAsManager" class="net.sf.acegisecurity.runas.RunAsManagerImpl">
-     	<property name="key"><value>my_run_as_password</value></property>
- 	</bean>
+   <!-- =================== SECURITY SYSTEM DEFINITIONS ================== -->
 
-	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHENTICATION DEFINITIONS ~~~~~~~~~~~~~~~~~~ -->
-	
-	<bean id="runAsAuthenticationProvider" class="net.sf.acegisecurity.runas.RunAsImplAuthenticationProvider">
-     	<property name="key"><value>my_run_as_password</value></property>
- 	</bean>
+   <!-- RunAsManager -->
+   <bean id="runAsManager" class="net.sf.acegisecurity.runas.RunAsManagerImpl">
+      <property name="key"><value>my_run_as_password</value></property>
+   </bean>
 
-	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
-		<property name="providers">
-		  <list>
-		    <ref bean="runAsAuthenticationProvider"/>
-		    <ref bean="daoAuthenticationProvider"/>
-		  </list>
-		</property>
-	</bean>
-	
-	<!-- Passwords encoded using MD5, NOT in Base64 format, with null as salt
-		 Encoded password for marissa is "koala"
-		 Encoded password for dianne is "emu"
-		 Encoded password for scott is "wombat"
-		 Encoded password for peter is "opal" -->
-	<bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
-  		<property name="userMap">
-			<value>
+   <!-- ~~~~~~~~~~~~~~~~~~~~ AUTHENTICATION DEFINITIONS ~~~~~~~~~~~~~~~~~~ -->
+
+   <bean id="runAsAuthenticationProvider" class="net.sf.acegisecurity.runas.RunAsImplAuthenticationProvider">
+      <property name="key"><value>my_run_as_password</value></property>
+   </bean>
+
+   <bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+      <property name="providers">
+         <list>
+            <ref bean="runAsAuthenticationProvider"/>
+            <ref bean="daoAuthenticationProvider"/>
+         </list>
+      </property>
+   </bean>
+
+   <!-- Passwords encoded using MD5, NOT in Base64 format, with null as salt
+       Encoded password for marissa is "koala"
+       Encoded password for dianne is "emu"
+       Encoded password for scott is "wombat"
+       Encoded password for peter is "opal" -->
+   <bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
+      <property name="userMap">
+         <value>
 				marissa=a564de63c2d0da68cf47586ee05984d7,ROLE_TELLER,ROLE_SUPERVISOR
 				dianne=65d15fe9156f9c4bbffd98085992a44e,ROLE_TELLER
 				scott=2b58af6dddbd072ed27ffc86725d7d3a,ROLE_TELLER
 				peter=22b5c9accc6e1ba628cedc63a72d57f8,disabled,ROLE_TELLER
-			</value>
-		</property>
-	</bean>
+         </value>
+      </property>
+   </bean>
 
-    <bean id="passwordEncoder" class="net.sf.acegisecurity.providers.encoding.Md5PasswordEncoder"/>
-	
-	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
-     	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
-     	<property name="userCache"><ref bean="userCache"/></property>
-        <property name="passwordEncoder"><ref bean="passwordEncoder"/></property>
-	</bean>
-	
-	<bean id="userCache" class="net.sf.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
-		<property name="minutesToIdle"><value>5</value></property>
-	</bean>
+   <bean id="passwordEncoder" class="net.sf.acegisecurity.providers.encoding.Md5PasswordEncoder"/>
 
-	<!-- Automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->
-	<bean id="loggerListener" class="net.sf.acegisecurity.providers.dao.event.LoggerListener"/>
+   <bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
+      <property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
+      <property name="userCache"><ref bean="userCache"/></property>
+      <property name="passwordEncoder"><ref bean="passwordEncoder"/></property>
+   </bean>
 
-	<bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
-		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-		<property name="authenticationEntryPoint"><ref bean="basicProcessingFilterEntryPoint"/></property>
-	</bean>
+   <bean id="userCache" class="net.sf.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
+      <property name="minutesToIdle"><value>5</value></property>
+   </bean>
 
-	<bean id="basicProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
-		<property name="realmName"><value>Contacts Realm</value></property>
-	</bean>
+   <!-- Automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->
+   <bean id="loggerListener" class="net.sf.acegisecurity.providers.dao.event.LoggerListener"/>
 
-	<bean id="autoIntegrationFilter" class="net.sf.acegisecurity.ui.AutoIntegrationFilter" />
+   <bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
+      <property name="authenticationManager"><ref bean="authenticationManager"/></property>
+      <property name="authenticationEntryPoint"><ref bean="basicProcessingFilterEntryPoint"/></property>
+   </bean>
 
-	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~~~~ -->
+   <bean id="basicProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
+      <property name="realmName"><value>Contacts Realm</value></property>
+   </bean>
 
-	<!-- An access decision voter that reads ROLE_* configuaration settings -->
-	<bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
+   <bean id="autoIntegrationFilter" class="net.sf.acegisecurity.ui.AutoIntegrationFilter"/>
 
-	<!-- An access decision voter that reads CONTACT_OWNED_BY_CURRENT_USER configuaration settings -->
-	<bean id="contactSecurityVoter" class="sample.contact.ContactSecurityVoter"/>
+   <!-- ~~~~~~~~~~~~~~~~~~~~ AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~~~~ -->
 
-	<!-- An access decision manager used by the business objects -->
-	<bean id="businessAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
-   		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
-		<property name="decisionVoters">
-		  <list>
-		    <ref bean="roleVoter"/>
-		    <ref bean="contactSecurityVoter"/>
-		  </list>
-		</property>
-	</bean>
+   <!-- An access decision voter that reads ROLE_* configuration settings -->
+   <bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
 
-	<!-- ===================== SECURITY DEFINITIONS ======================= -->
-	
-	<bean id="publicContactManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor">
-    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-    	<property name="accessDecisionManager"><ref bean="businessAccessDecisionManager"/></property>
-    	<property name="runAsManager"><ref bean="runAsManager"/></property>
- 		<property name="objectDefinitionSource">
-			<value>
+   <!-- An access decision voter that reads CONTACT_OWNED_BY_CURRENT_USER configuration settings -->
+   <bean id="contactSecurityVoter" class="sample.contact.ContactSecurityVoter"/>
+
+   <!-- An access decision manager used by the business objects -->
+   <bean id="businessAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
+      <property name="allowIfAllAbstainDecisions"><value>false</value></property>
+      <property name="decisionVoters">
+         <list>
+            <ref bean="roleVoter"/>
+            <ref bean="contactSecurityVoter"/>
+         </list>
+      </property>
+   </bean>
+
+   <!-- ===================== SECURITY DEFINITIONS ======================= -->
+
+   <bean id="publicContactManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor">
+      <property name="authenticationManager"><ref bean="authenticationManager"/></property>
+      <property name="accessDecisionManager"><ref bean="businessAccessDecisionManager"/></property>
+      <property name="runAsManager"><ref bean="runAsManager"/></property>
+      <property name="objectDefinitionSource">
+         <value>
 				sample.contact.ContactManager.delete=ROLE_SUPERVISOR,RUN_AS_SERVER
 				sample.contact.ContactManager.getAllByOwner=CONTACT_OWNED_BY_CURRENT_USER,RUN_AS_SERVER
 				sample.contact.ContactManager.save=CONTACT_OWNED_BY_CURRENT_USER,RUN_AS_SERVER
 				sample.contact.ContactManager.getById=ROLE_TELLER,RUN_AS_SERVER
-			</value>
-		</property>
-	</bean>
+         </value>
+      </property>
+   </bean>
 
-	<!-- We expect all callers of the backend object to hold the role ROLE_RUN_AS_SERVER -->
-	<bean id="backendContactManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor">
-    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-    	<property name="accessDecisionManager"><ref bean="businessAccessDecisionManager"/></property>
-    	<property name="runAsManager"><ref bean="runAsManager"/></property>
- 		<property name="objectDefinitionSource">
-			<value>
+   <!-- We expect all callers of the backend object to hold the role ROLE_RUN_AS_SERVER -->
+   <bean id="backendContactManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor">
+      <property name="authenticationManager"><ref bean="authenticationManager"/></property>
+      <property name="accessDecisionManager"><ref bean="businessAccessDecisionManager"/></property>
+      <property name="runAsManager"><ref bean="runAsManager"/></property>
+      <property name="objectDefinitionSource">
+         <value>
 				sample.contact.ContactManager.delete=ROLE_RUN_AS_SERVER
 				sample.contact.ContactManager.getAllByOwner=ROLE_RUN_AS_SERVER
 				sample.contact.ContactManager.save=ROLE_RUN_AS_SERVER
 				sample.contact.ContactManager.getById=ROLE_RUN_AS_SERVER
-			</value>
-		</property>
-	</bean>
+         </value>
+      </property>
+   </bean>
 
-	<!-- ======================= BUSINESS DEFINITIONS ===================== -->
+   <!-- ======================= BUSINESS DEFINITIONS ===================== -->
 
-	<bean id="contactManager" class="org.springframework.aop.framework.ProxyFactoryBean">
-    	<property name="proxyInterfaces"><value>sample.contact.ContactManager</value></property>
-	    <property name="interceptorNames">
-      	<list>
-        	<value>publicContactManagerSecurity</value>
- 	        <value>publicContactManagerTarget</value>
-    	</list>
-	    </property>
-  	</bean>
+   <bean id="contactManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+      <property name="proxyInterfaces"><value>sample.contact.ContactManager</value></property>
+      <property name="interceptorNames">
+         <list>
+            <value>publicContactManagerSecurity</value>
+            <value>publicContactManagerTarget</value>
+         </list>
+      </property>
+   </bean>
 
-	<bean id="publicContactManagerTarget" class="sample.contact.ContactManagerFacade">
-    	<property name="backend"><ref bean="backendContactManager"/></property>
-	</bean>
+   <bean id="publicContactManagerTarget" class="sample.contact.ContactManagerFacade">
+      <property name="backend"><ref bean="backendContactManager"/></property>
+   </bean>
 
-	<bean id="backendContactManager" class="org.springframework.aop.framework.ProxyFactoryBean">
-    	<property name="proxyInterfaces"><value>sample.contact.ContactManager</value></property>
-	    <property name="interceptorNames">
-      	<list>
-        	<value>backendContactManagerSecurity</value>
- 	        <value>backendContactManagerTarget</value>
-    	</list>
-	    </property>
-  	</bean>
+   <bean id="backendContactManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+      <property name="proxyInterfaces"><value>sample.contact.ContactManager</value></property>
+      <property name="interceptorNames">
+         <list>
+            <value>backendContactManagerSecurity</value>
+            <value>backendContactManagerTarget</value>
+         </list>
+      </property>
+   </bean>
 
-	<bean id="backendContactManagerTarget" class="sample.contact.ContactManagerBackend"/>
+   <bean id="backendContactManagerTarget" class="sample.contact.ContactManagerBackend"/>
 
-	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
-	
-	<!-- You will need to uncomment the "Acegi Channel Processing Filter"
-	     <filter-mapping> in web.xml for the following beans to be used -->
+   <!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
 
-	<bean id="channelProcessingFilter" class="net.sf.acegisecurity.securechannel.ChannelProcessingFilter">
-		<property name="channelDecisionManager"><ref bean="channelDecisionManager"/></property>
- 		<property name="filterInvocationDefinitionSource">
-			<value>
+   <!-- You will need to uncomment the "Acegi Channel Processing Filter"
+        <filter-mapping> in web.xml for the following beans to be used -->
+
+   <bean id="channelProcessingFilter" class="net.sf.acegisecurity.securechannel.ChannelProcessingFilter">
+      <property name="channelDecisionManager"><ref bean="channelDecisionManager"/></property>
+      <property name="filterInvocationDefinitionSource">
+         <value>
 			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 				\A/secure/.*\Z=REQUIRES_SECURE_CHANNEL
 				\A/acegilogin.jsp.*\Z=REQUIRES_SECURE_CHANNEL
-				\A/j_acegi_security_check.*\Z=REQUIRES_SECURE_CHANNEL	
+				\A/j_acegi_security_check.*\Z=REQUIRES_SECURE_CHANNEL
 				\A.*\Z=REQUIRES_INSECURE_CHANNEL
-			</value>
-		</property>
-	</bean>
+         </value>
+      </property>
+   </bean>
 
-	<bean id="channelDecisionManager" class="net.sf.acegisecurity.securechannel.ChannelDecisionManagerImpl">
-	    <property name="channelProcessors">
-      		<list>
- 	        	<ref bean="secureChannelProcessor"/>
-        		<ref bean="insecureChannelProcessor"/>
-     		</list>
-	    </property>
-	</bean>
+   <bean id="channelDecisionManager" class="net.sf.acegisecurity.securechannel.ChannelDecisionManagerImpl">
+      <property name="channelProcessors">
+         <list>
+            <ref bean="secureChannelProcessor"/>
+            <ref bean="insecureChannelProcessor"/>
+         </list>
+      </property>
+   </bean>
 
-	<bean id="secureChannelProcessor" class="net.sf.acegisecurity.securechannel.SecureChannelProcessor"/>
-	<bean id="insecureChannelProcessor" class="net.sf.acegisecurity.securechannel.InsecureChannelProcessor"/>
+   <bean id="secureChannelProcessor" class="net.sf.acegisecurity.securechannel.SecureChannelProcessor"/>
+   <bean id="insecureChannelProcessor" class="net.sf.acegisecurity.securechannel.InsecureChannelProcessor"/>
 
-	<!-- ===================== HTTP REQUEST SECURITY ==================== -->
+   <!-- ===================== HTTP REQUEST SECURITY ==================== -->
 
-	<bean id="authenticationProcessingFilter" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
-		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-		<property name="authenticationFailureUrl"><value>/acegilogin.jsp?login_error=1</value></property>
-		<property name="defaultTargetUrl"><value>/</value></property>
-		<property name="filterProcessesUrl"><value>/j_acegi_security_check</value></property>
-	</bean>
+   <bean id="authenticationProcessingFilter" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
+      <property name="authenticationManager"><ref bean="authenticationManager"/></property>
+      <property name="authenticationFailureUrl"><value>/acegilogin.jsp?login_error=1</value></property>
+      <property name="defaultTargetUrl"><value>/</value></property>
+      <property name="filterProcessesUrl"><value>/j_acegi_security_check</value></property>
+   </bean>
 
-	<bean id="securityEnforcementFilter" class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter">
-		<property name="filterSecurityInterceptor"><ref bean="filterInvocationInterceptor"/></property>
-		<property name="authenticationEntryPoint"><ref bean="authenticationProcessingFilterEntryPoint"/></property>
-	</bean>
+   <bean id="securityEnforcementFilter" class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter">
+      <property name="filterSecurityInterceptor"><ref bean="filterInvocationInterceptor"/></property>
+      <property name="authenticationEntryPoint"><ref bean="authenticationProcessingFilterEntryPoint"/></property>
+   </bean>
 
-	<bean id="authenticationProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
-		<property name="loginFormUrl"><value>/acegilogin.jsp</value></property>
-		<property name="forceHttps"><value>false</value></property>
-	</bean>
+   <bean id="authenticationProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+      <property name="loginFormUrl"><value>/acegilogin.jsp</value></property>
+      <property name="forceHttps"><value>false</value></property>
+   </bean>
 
-	<bean id="httpRequestAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
-   		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
-		<property name="decisionVoters">
-		  <list>
-		    <ref bean="roleVoter"/>
-		  </list>
-		</property>
-	</bean>
+   <bean id="httpRequestAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
+      <property name="allowIfAllAbstainDecisions"><value>false</value></property>
+      <property name="decisionVoters">
+         <list>
+            <ref bean="roleVoter"/>
+         </list>
+      </property>
+   </bean>
 
-	<!-- Note the order that entries are placed against the objectDefinitionSource is critical.
-	     The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
-	     Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
-	<bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
-    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-    	<property name="accessDecisionManager"><ref bean="httpRequestAccessDecisionManager"/></property>
-    	<property name="runAsManager"><ref bean="runAsManager"/></property>
- 		<property name="objectDefinitionSource">
-			<value>
+   <!-- Note the order that entries are placed against the objectDefinitionSource is critical.
+        The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
+        Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
+   <bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
+      <property name="authenticationManager"><ref bean="authenticationManager"/></property>
+      <property name="accessDecisionManager"><ref bean="httpRequestAccessDecisionManager"/></property>
+      <property name="runAsManager"><ref bean="runAsManager"/></property>
+      <property name="objectDefinitionSource">
+         <value>
 			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 				\A/secure/super.*\Z=ROLE_WE_DONT_HAVE
 				\A/secure/.*\Z=ROLE_SUPERVISOR,ROLE_TELLER
-			</value>
-		</property>
-	</bean>
-	
-	<!-- BASIC Regular Expression Syntax (for beginners):
-	     
-	     \A means the start of the string (ie the beginning of the URL)
-	     \Z means the end of the string (ie the end of the URL)
-	     .  means any single character
-	     *  means null or any number of repetitions of the last expression (so .* means zero or more characters)
-	     
-	     Some examples:
-	     
-	     Expression:   \A/my/directory/.*\Z
-	     Would match:    /my/directory/
-	                     /my/directory/hello.html
-	     
-	     Expression:   \A/.*\Z
-	     Would match:    /hello.html
-	                     /
-	     
-	     Expression:   \A/.*/secret.html\Z
-	     Would match:    /some/directory/secret.html
-	                     /another/secret.html
-	     Not match:      /anothersecret.html (missing required /)
-	-->
+         </value>
+      </property>
+   </bean>
+
+   <!-- BASIC Regular Expression Syntax (for beginners):
+
+        \A means the start of the string (ie the beginning of the URL)
+        \Z means the end of the string (ie the end of the URL)
+        .  means any single character
+        *  means null or any number of repetitions of the last expression (so .* means zero or more characters)
+
+        Some examples:
+
+        Expression:   \A/my/directory/.*\Z
+        Would match:    /my/directory/
+                        /my/directory/hello.html
+
+        Expression:   \A/.*\Z
+        Would match:    /hello.html
+                        /
+
+        Expression:   \A/.*/secret.html\Z
+        Would match:    /some/directory/secret.html
+                        /another/secret.html
+        Not match:      /anothersecret.html (missing required /)
+   -->
 
 </beans>
