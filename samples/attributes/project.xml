@@ -1,0 +1,27 @@
+<project>
+    <extend>${basedir}/../project.xml</extend>
+    <artifactId>acegi-sample-attributes</artifactId>
+    <name>Acegi Security System for Spring - Attributes sample</name>
+    <dependencies>
+        <dependency>
+            <groupId>commons-attributes</groupId>
+            <artifactId>commons-attributes-compiler</artifactId>
+            <version>2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-attributes</groupId>
+            <artifactId>commons-attributes-api</artifactId>
+            <version>2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>xjavadoc</groupId>
+            <artifactId>xjavadoc</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.1</version>
+        </dependency>
+    </dependencies>
+</project>

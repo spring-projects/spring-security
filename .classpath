@@ -2,6 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="samples/attributes/src/main/java"/>
 	<classpathentry kind="src" path="adapters/catalina/src/main/resources"/>
+	<classpathentry kind="src" path="samples/attributes/src/main/resources"/>
+	<classpathentry kind="src" path="samples/attributes/src/test/java"/>
 	<classpathentry kind="src" path="adapters/cas/src/test/resources"/>
 	<classpathentry kind="src" path="adapters/cas/src/main/resources"/>
 	<classpathentry kind="src" path="core/src/main/resources"/>
