@@ -202,11 +202,24 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
                     "Access is denied - sending back forbidden response");
             }
 
-            ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN); // 403
+            sendAccessDeniedError(request, response);
         } catch (Throwable otherException) {
             throw new ServletException(otherException);
         }
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {}
+
+    /**
+     * Allows subclasses to override if required
+     *
+     * @param request
+     * @param response
+     *
+     * @throws IOException
+     */
+    protected void sendAccessDeniedError(ServletRequest request,
+        ServletResponse response) throws IOException {
+        ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN); // 403
+    }
 }
