@@ -73,6 +73,24 @@ public final class JettyAcegiUserRealm implements UserRealm {
         this.realm = realm;
         this.key = providerKey;
 
+        if ((realm == null) || "".equals(realm)) {
+            throw new IllegalArgumentException("realm must be specified");
+        }
+
+        if ((key == null) || "".equals(key)) {
+            throw new IllegalArgumentException("key must be specified");
+        }
+
+        if ((appContextLocation == null) || "".equals(appContextLocation)) {
+            throw new IllegalArgumentException(
+                "appContextLocation must be specified");
+        }
+
+        if (Thread.currentThread().getContextClassLoader().getResource(appContextLocation) == null) {
+            throw new IllegalArgumentException("Cannot locate "
+                + appContextLocation);
+        }
+
         ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(appContextLocation);
         Map beans = ctx.getBeansOfType(AuthenticationManager.class, true, true);
 
@@ -85,8 +103,8 @@ public final class JettyAcegiUserRealm implements UserRealm {
         authenticationManager = (AuthenticationManager) beans.get(beanName);
     }
 
-    private JettyAcegiUserRealm() {
-        super();
+    protected JettyAcegiUserRealm() {
+        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ================================================================
@@ -96,7 +114,7 @@ public final class JettyAcegiUserRealm implements UserRealm {
     }
 
     /**
-     * DOCUMENT ME!
+     * Accesses the realm name.
      *
      * @return the name of the realm as defined when
      *         <code>SpringUserRealm</code> was created
