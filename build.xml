@@ -338,7 +338,7 @@
  	<!--
 		Compile test cases
 	-->
-	<target name="buildtests" depends="" description="Compile test source tree Java files into class files">
+	<target name="buildtests" depends="build" description="Compile test source tree Java files into class files">
 
 		<mkdir dir="${target.testclasses.dir}"/>
 
