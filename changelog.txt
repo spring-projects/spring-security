@@ -1,8 +1,22 @@
-Changes in version 0.x (2004-xx-xx)
------------------------------------
+Changes in version 0.51 (2004-06-06)
+------------------------------------
 
 * Added samples/quick-start
-* Fixed issue with caching of Authentication objects
+* Added NullRunAsManager and made default for AbstractSecurityInterceptor
+* Added event notification (see net.sf.acegisecurity.providers.dao.event)
+* Updated JAR to Spring 1.0.2
+* Updated JAR to Commons Attributes CVS snapshot from Spring 1.0.2 release
+* Updated GrantedAuthorityImpl to be serializable (JBoss support)
+* Updated Authentication interface to present extra details for a request
+* Updated Authentication interface to subclass java.security.Principal
+* Refactored DaoAuthenticationProvider caching (refer to reference docs)
+* Improved HttpSessionIntegrationFilter to manage additional attributes
+* Improved URL encoding during redirects
+* Fixed issue with hot deploy of EhCacheBasedTicketCache (used with CAS)
+* Fixed issue with NullPointerExceptions in taglib
+* Removed DaoAuthenticationToken and session-based caching
+* Documentation improvements
+* Upgrade Note: DaoAuthenticationProvider no longer has a "key" property
 
 Changes in version 0.5 (2004-04-29)
 -----------------------------------
