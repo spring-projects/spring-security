@@ -18,8 +18,6 @@ package net.sf.acegisecurity.intercept.method;
 import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
