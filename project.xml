@@ -67,6 +67,7 @@
       <id>benalex</id>
       <email>benalex at users.sourceforge.net</email>
       <organization>Acegi Technology Pty Limited (http://www.acegi.com.au)</organization>
+      <timezone>+10</timezone>	  
     </developer>
     <developer>
       <name>Francois Beausoleil</name>
@@ -88,6 +89,8 @@
       <name>Luke Taylor</name>
       <id>luke_t</id>
       <email>luke at monkeymachine.ltd.uk</email>
+      <organization>Monkey Machine Ltd. (http://monkeymachine.ltd.uk)</organization>
+      <timezone>0</timezone>	  
     </developer>
     <developer>
       <name>Ray Krueger</name>
