@@ -13,6 +13,14 @@
   <build>
     <resources>
       <resource>
+        <directory>${basedir}/../</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>notice.txt</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+      <resource>
         <directory>${basedir}/src/main/resources/net/sf/acegisecurity/taglibs</directory>
         <targetPath>META-INF</targetPath>
         <includes>
