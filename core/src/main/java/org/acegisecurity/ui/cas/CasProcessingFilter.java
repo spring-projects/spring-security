@@ -32,21 +32,21 @@ import javax.servlet.http.HttpServletRequest;
  * <p>
  * A service ticket consists of an opaque ticket string. It arrives at this
  * filter by the user's browser successfully authenticating using CAS, and
- * then receiving a HTTP redirect to a <code>service</code>. The opal ticket
+ * then receiving a HTTP redirect to a <code>service</code>. The opaque ticket
  * string is presented in the <code>ticket</code> request parameter. This
  * filter monitors the <code>service</code> URL so it can receive the service
  * ticket and process it. The CAS server knows which <code>service</code> URL
  * to use via the {@link ServiceProperties#getService()} method.
  * </p>
  * 
- * <P>
+ * <p>
  * Processing the service ticket involves creating a
  * <code>UsernamePasswordAuthenticationToken</code> which uses {@link
  * #CAS_STATEFUL_IDENTIFIER} for the <code>principal</code> and the opaque
  * ticket string as the <code>credentials</code>.
  * </p>
  * 
- * <P>
+ * <p>
  * The configured <code>AuthenticationManager</code> is expected to provide a
  * provider that can recognise
  * <code>UsernamePasswordAuthenticationToken</code>s containing this special
@@ -54,8 +54,8 @@ import javax.servlet.http.HttpServletRequest;
  * with the CAS server.
  * </p>
  * 
- * <P>
- * <B>Do not use this class directly.</B> Instead configure
+ * <p>
+ * <b>Do not use this class directly.</b> Instead configure
  * <code>web.xml</code> to use the {@link
  * net.sf.acegisecurity.util.FilterToBeanProxy}.
  * </p>
