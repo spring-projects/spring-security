@@ -167,7 +167,7 @@
       <dependency>
          <groupId>commons-attributes</groupId>
          <artifactId>commons-attributes-api</artifactId>
-         <version>SNAPSHOT</version>
+         <version>2.1</version>
          <url>http://jakarta.apache.org/commons</url>
          <properties>
             <war.bundle>true</war.bundle>
@@ -177,7 +177,7 @@
       <dependency>
          <groupId>commons-attributes</groupId>
          <artifactId>commons-attributes-compiler</artifactId>
-         <version>SNAPSHOT</version>
+         <version>2.1</version>
          <url>http://jakarta.apache.org/commons</url>
       </dependency>
 
