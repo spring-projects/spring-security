@@ -112,6 +112,10 @@ public class AuthorizeTag extends TagSupport {
 
         Authentication currentUser = context.getAuthentication();
 
+        if (null == currentUser) {
+            return Collections.EMPTY_LIST;
+        }
+
         Collection granted = Arrays.asList(currentUser.getAuthorities());
 
         return granted;

@@ -42,6 +42,15 @@ public class AuthorizeTagTests extends TestCase {
 
     //~ Methods ================================================================
 
+    public void testAlwaysReturnsUnauthorizedIfNoUserFound()
+        throws JspException {
+        context.setAuthentication(null);
+
+        authorizeTag.setIfAllGranted("ROLE_TELLER");
+        assertEquals("prevents request - no principal in Context",
+            Tag.SKIP_BODY, authorizeTag.doStartTag());
+    }
+
     public void testDefaultsToNotOutputtingBodyWhenNoRequiredAuthorities()
         throws JspException {
         assertEquals("", authorizeTag.getIfAllGranted());
