@@ -909,6 +909,33 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
           </listitem>
         </itemizedlist>
       </sect2>
+
+        <sect2>
+          <title>Authorization Tag Library</title>
+
+            <para>The Acegi Security System for Spring comes bundled with a
+            JSP tag library that eases JSP writing.</para>
+
+            <sect3>
+              <title>Installation</title>
+            </sect3>
+
+            <sect3>
+              <title>Usage</title>
+
+              <para>The following JSP fragment illustrates how to use the
+              authz taglib:</para>
+
+              <para><programlisting>&lt;authz:authorize ifAllGranted="ROLE_SUPERVISOR"&gt;
+	&lt;td&gt;
+		&lt;A HREF="del.htm?id=&lt;c:out value="${contact.id}"/&gt;"&gt;Del&lt;/A&gt;
+	&lt;/td&gt;
+&lt;/authz:authorize&gt;</programlisting></para>
+
+				<para>What this code says is:  if the pricipal has been granted
+                ROLE_SUPERVISOR, allow the tag's body to be output.</para>
+            </sect3>
+        </sect2>
     </sect1>
 
     <sect1>
