@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,23 @@ import javax.servlet.ServletResponse;
  * <code>ContextLoaderServlet</code>. Where possible you should not use this
  * initialization parameter, instead using <code>ContextLoaderListener</code>.
  * </p>
+ * 
+ * <p>
+ * A final optional initialization parameter, <code>lifecycle</code>,
+ * determines whether the servlet container or the IoC container manages the
+ * lifecycle of the proxied filter. When possible you should write your
+ * filters to be managed via the IoC container interfaces such as {@link
+ * org.springframework.beans.factory.InitializingBean} and {@link
+ * org.springframework.beans.factory.DisposableBean}. If you cannot control
+ * the filters you wish to proxy (eg you do not have their source code) you
+ * might need to allow the servlet container to manage lifecycle via the
+ * {@link javax.servlet.Filter#init(javax.servlet.FilterConfig)} and {@link
+ * javax.servlet.Filter#destroy()} methods. If this case, set the
+ * <code>lifecycle</code> initialization parameter to
+ * <code>servlet-container-managed</code>. If the parameter is any other
+ * value, servlet container lifecycle methods will not be delegated through to
+ * the proxy.
+ * </p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -89,11 +106,12 @@ public class FilterToBeanProxy implements Filter {
     private Filter delegate;
     private FilterConfig filterConfig;
     private boolean initialized = false;
+    private boolean servletContainerManaged = false;
 
     //~ Methods ================================================================
 
     public void destroy() {
-        if (delegate != null) {
+        if ((delegate != null) && servletContainerManaged) {
             delegate.destroy();
         }
     }
@@ -139,6 +157,12 @@ public class FilterToBeanProxy implements Filter {
 
         if ("".equals(targetBean)) {
             targetBean = null;
+        }
+
+        String lifecycle = filterConfig.getInitParameter("lifecycle");
+
+        if ("servlet-container-managed".equals(lifecycle)) {
+            servletContainerManaged = true;
         }
 
         ApplicationContext ctx = this.getContext(filterConfig);
@@ -190,6 +214,8 @@ public class FilterToBeanProxy implements Filter {
 
         delegate = (Filter) object;
 
-        delegate.init(filterConfig);
+        if (servletContainerManaged) {
+            delegate.init(filterConfig);
+        }
     }
 }
