@@ -43,7 +43,7 @@ public class JettyAcegiUserToken extends AbstractAdapterAuthenticationToken
         this.password = password;
     }
 
-    private JettyAcegiUserToken() {
+    protected JettyAcegiUserToken() {
         super();
     }
 
