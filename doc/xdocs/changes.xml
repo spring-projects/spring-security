@@ -48,6 +48,7 @@
       <action dev="benalex" type="add">New WebAuthenticationDetails class now used by processing filters for Authentication.setDetails()</action>
       <action dev="benalex" type="update">Significantly refactor "well-known location model" to authentication processing mechanism and HttpSessionContextIntegrationFilter model</action>
       <action dev="benalex" type="fix">Improve Linux and non-Sun JDK (specifically IBM JDK) compatibility</action>
+      <action dev="benalex" type="fix">Correct NullPointerException in FilterInvocationDefinitionSource implementations</action>
     </release>
     <release version="0.7.0" date="2005-01-16">
       <action dev="carlossg" type="add">Major CVS repository restructure to support Maven and eliminate libraries</action>
