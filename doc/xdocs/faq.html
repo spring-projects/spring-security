@@ -30,7 +30,7 @@
   <h1>Frequently Asked Questions</h1>
   
   <h2>What is Acegi Security?</h2>
-  <p>Acegi Security is an open source project that provide comprehensive authentication
+  <p>Acegi Security is an open source project that provides comprehensive authentication
 	and authorisation services for enterprise applications based on
 	<a href="http://www.springframework.org">The Spring Framework</a>.
 	Acegi Security can authenticate using a variety of pluggable providers, and
@@ -69,7 +69,7 @@
 			expressed in the servlet specification's own limited URI path format.
 			Acegi Security provides a far more comprehensive approach. For instance,
 			you can use Ant paths or regular expressions, you can consider parts of the
-			URI other than simply the requested page (eg you can consider request
+			URI other than simply the requested page (eg you can consider HTTP GET
 			parameters), and you can implement your own runtime source of configuration
 			data. This means your web request security can be dynamically changed during
 			the actual execution of your webapp.<br><br></li>
@@ -144,12 +144,12 @@
 	has a specific section on filter ordering.</p>
   
   <h2>I'm sure my filters are ordered correctly. What else could be wrong?</h2>
-  <p>The next most common source of problems step from custom
+  <p>The next most common source of problems stem from custom
 	<code>AuthenticationDao</code> implementations that simply don't properly
-	implement the interface. For example, they return <code>null</code> instead
+	implement the interface contract. For example, they return <code>null</code> instead
 	of the user not found exception, or fail to add in the
 	<code>GrantedAuthority[]</code>s. Whilst <code>DaoAuthenticationProvider</code>
-	does its best to check the <code>AuthenticationDao</code>returns a valid 
+	does its best to check the <code>AuthenticationDao</code> returns a valid 
 	<code>UserDetails</code>, we suggest you write the
 	<code>UserDetails</code> object to the log and check it looks correct.</p>
 
