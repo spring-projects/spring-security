@@ -179,6 +179,10 @@ public class AbstractProcessingFilterTests extends TestCase {
         filter.setAuthenticationProxyUntrustedFailureUrl("/proxy");
         assertEquals("/proxy",
             filter.getAuthenticationProxyUntrustedFailureUrl());
+
+        filter.setAuthenticationServiceFailureUrl("/serviceFailure");
+        assertEquals("/serviceFailure",
+            filter.getAuthenticationServiceFailureUrl());
     }
 
     public void testIgnoresAnyServletPathOtherThanFilterProcessesUrl()
@@ -365,7 +369,9 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
         filter.setFilterProcessesUrl("/j_mock_post");
         filter.setDefaultTargetUrl("/foobar");
+        assertFalse(filter.isAlwaysUseDefaultTargetUrl()); // check default
         filter.setAlwaysUseDefaultTargetUrl(true);
+        assertTrue(filter.isAlwaysUseDefaultTargetUrl()); // check changed
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response,

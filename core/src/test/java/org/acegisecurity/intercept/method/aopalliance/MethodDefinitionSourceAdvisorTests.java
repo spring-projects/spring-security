@@ -85,6 +85,49 @@ public class MethodDefinitionSourceAdvisorTests extends TestCase {
         }
     }
 
+    public void testUnsupportedOperations() throws Throwable {
+        Class clazz = TargetObject.class;
+        Method method = clazz.getMethod("countLength",
+                new Class[] {String.class});
+
+        MethodDefinitionSourceAdvisor.InternalMethodInvocation imi = new MethodDefinitionSourceAdvisor(getInterceptor()).new InternalMethodInvocation(method);
+
+        try {
+            imi.getArguments();
+            fail("Should have thrown UnsupportedOperationException");
+        } catch (UnsupportedOperationException expected) {
+            assertTrue(true);
+        }
+
+        try {
+            imi.getStaticPart();
+            fail("Should have thrown UnsupportedOperationException");
+        } catch (UnsupportedOperationException expected) {
+            assertTrue(true);
+        }
+
+        try {
+            imi.getThis();
+            fail("Should have thrown UnsupportedOperationException");
+        } catch (UnsupportedOperationException expected) {
+            assertTrue(true);
+        }
+
+        try {
+            imi.proceed();
+            fail("Should have thrown UnsupportedOperationException");
+        } catch (UnsupportedOperationException expected) {
+            assertTrue(true);
+        }
+
+        try {
+            new MethodDefinitionSourceAdvisor(getInterceptor()).new InternalMethodInvocation();
+            fail("Should have thrown UnsupportedOperationException");
+        } catch (UnsupportedOperationException expected) {
+            assertTrue(true);
+        }
+    }
+
     private MethodSecurityInterceptor getInterceptor() {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(

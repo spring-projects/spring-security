@@ -13,24 +13,17 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package net.sf.acegisecurity.vote;
 
 /**
- * Represents the interface of a secured object.
+ * Used by {@link BasicAclEntryVoterTests} so it can create a
+ * <code>MethodInvocation</code> contining <code>SomeDomainObject</code>.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public interface ITargetObject {
+public class SomeDomainObjectManager {
     //~ Methods ================================================================
 
-    public Integer computeHashCode(String input);
-
-    public int countLength(String input);
-
-    public String makeLowerCase(String input);
-
-    public String makeUpperCase(String input);
-
-    public String publicMakeLowerCase(String input);
+    public void someServiceMethod(SomeDomainObject someDomainObject) {}
 }

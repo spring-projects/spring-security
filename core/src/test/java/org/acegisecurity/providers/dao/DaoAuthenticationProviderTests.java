@@ -31,6 +31,8 @@ import net.sf.acegisecurity.providers.dao.cache.NullUserCache;
 import net.sf.acegisecurity.providers.dao.salt.SystemWideSaltSource;
 import net.sf.acegisecurity.providers.encoding.ShaPasswordEncoder;
 
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
@@ -99,6 +101,22 @@ public class DaoAuthenticationProviderTests extends TestCase {
             provider.authenticate(token);
             fail("Should have thrown AuthenticationServiceException");
         } catch (AuthenticationServiceException expected) {
+            assertTrue(true);
+        }
+    }
+
+    public void testAuthenticateFailsWithEmptyUsername() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(null,
+                "koala");
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        provider.setUserCache(new MockUserCache());
+
+        try {
+            provider.authenticate(token);
+            fail("Should have thrown BadCredentialsException");
+        } catch (BadCredentialsException expected) {
             assertTrue(true);
         }
     }
@@ -247,6 +265,27 @@ public class DaoAuthenticationProviderTests extends TestCase {
         assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
     }
 
+    public void testAuthenticatesWithForcePrincipalAsString() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa",
+                "koala");
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        provider.setUserCache(new MockUserCache());
+        provider.setForcePrincipalAsString(true);
+
+        Authentication result = provider.authenticate(token);
+
+        if (!(result instanceof UsernamePasswordAuthenticationToken)) {
+            fail(
+                "Should have returned instance of UsernamePasswordAuthenticationToken");
+        }
+
+        UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
+        assertEquals(String.class, castResult.getPrincipal().getClass());
+        assertEquals("marissa", castResult.getPrincipal());
+    }
+
     public void testGettersSetters() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(new ShaPasswordEncoder());
@@ -264,6 +303,41 @@ public class DaoAuthenticationProviderTests extends TestCase {
         assertFalse(provider.isForcePrincipalAsString());
         provider.setForcePrincipalAsString(true);
         assertTrue(provider.isForcePrincipalAsString());
+
+        provider.setApplicationContext(new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/util/filtertest-valid.xml"));
+        assertEquals(ClassPathXmlApplicationContext.class.getName(),
+            provider.getContext().getClass().getName());
+    }
+
+    public void testGoesBackToAuthenticationDaoToObtainLatestPasswordIfCachedPasswordSeemsIncorrect() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa",
+                "koala");
+
+        MockAuthenticationDaoUserMarissa authenticationDao = new MockAuthenticationDaoUserMarissa();
+        MockUserCache cache = new MockUserCache();
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setAuthenticationDao(authenticationDao);
+        provider.setUserCache(cache);
+
+        // This will work, as password still "koala"
+        provider.authenticate(token);
+
+        // Check "marissa = koala" ended up in the cache
+        assertEquals("koala", cache.getUserFromCache("marissa").getPassword());
+
+        // Now change the password the AuthenticationDao will return
+        authenticationDao.setPassword("easternLongNeckTurtle");
+
+        // Now try authentication again, with the new password
+        token = new UsernamePasswordAuthenticationToken("marissa",
+                "easternLongNeckTurtle");
+        provider.authenticate(token);
+
+        // To get this far, the new password was accepted
+        // Check the cache was updated
+        assertEquals("easternLongNeckTurtle",
+            cache.getUserFromCache("marissa").getPassword());
     }
 
     public void testStartupFailsIfNoAuthenticationDao()
@@ -320,10 +394,16 @@ public class DaoAuthenticationProviderTests extends TestCase {
     }
 
     private class MockAuthenticationDaoUserMarissa implements AuthenticationDao {
+        private String password = "koala";
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("marissa".equals(username)) {
-                return new User("marissa", "koala", true,
+                return new User("marissa", password, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
             } else {

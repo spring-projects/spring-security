@@ -292,6 +292,11 @@ public class BasicAclProviderTests extends TestCase {
         assertFalse(provider.supports(new MockDomain(4)));
     }
 
+    public void testSupportsReturnsNullIfObjectNull() {
+        BasicAclProvider provider = new BasicAclProvider();
+        assertFalse(provider.supports(new Integer(34)));
+    }
+
     private JdbcDaoImpl makePopulatedJdbcDao() throws Exception {
         JdbcDaoImpl dao = new JdbcDaoImpl();
         dao.setDataSource(PopulatedDatabase.getDataSource());

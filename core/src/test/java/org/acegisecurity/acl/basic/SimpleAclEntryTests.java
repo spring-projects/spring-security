@@ -82,6 +82,10 @@ public class SimpleAclEntryTests extends TestCase {
         assertFalse(acl.isPermitted(SimpleAclEntry.ADMINISTRATION));
         acl.togglePermission(SimpleAclEntry.CREATE);
         assertFalse(acl.isPermitted(SimpleAclEntry.CREATE));
+
+        acl.togglePermission(SimpleAclEntry.DELETE);
+        assertTrue(acl.isPermitted(SimpleAclEntry.DELETE));
+        assertEquals("----D", acl.printPermissionsBlock());
     }
 
     public void testDetectsNullOnMainConstructor() {

@@ -198,6 +198,27 @@ public class PasswordDaoAuthenticationProviderTests extends TestCase {
         assertEquals(result.getCredentials(), result2.getCredentials());
     }
 
+    public void testAuthenticatesWithForcePrincipalAsString() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa",
+                "koala");
+
+        PasswordDaoAuthenticationProvider provider = new PasswordDaoAuthenticationProvider();
+        provider.setPasswordAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        provider.setUserCache(new MockUserCache());
+        provider.setForcePrincipalAsString(true);
+
+        Authentication result = provider.authenticate(token);
+
+        if (!(result instanceof UsernamePasswordAuthenticationToken)) {
+            fail(
+                "Should have returned instance of UsernamePasswordAuthenticationToken");
+        }
+
+        UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
+        assertEquals(String.class, castResult.getPrincipal().getClass());
+        assertEquals("marissa", castResult.getPrincipal());
+    }
+
     public void testGettersSetters() {
         PasswordDaoAuthenticationProvider provider = new PasswordDaoAuthenticationProvider();
         provider.setUserCache(new EhCacheBasedUserCache());

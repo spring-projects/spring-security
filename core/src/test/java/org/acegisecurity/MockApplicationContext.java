@@ -15,22 +15,22 @@
 
 package net.sf.acegisecurity;
 
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+
 /**
- * Represents the interface of a secured object.
+ * Simply returns an <code>ApplicationContext</code> which has a couple of
+ * <code>ApplicationEvent</code> listeners.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public interface ITargetObject {
+public class MockApplicationContext {
     //~ Methods ================================================================
 
-    public Integer computeHashCode(String input);
-
-    public int countLength(String input);
-
-    public String makeLowerCase(String input);
-
-    public String makeUpperCase(String input);
-
-    public String publicMakeLowerCase(String input);
+    public static ConfigurableApplicationContext getContext() {
+        return new ClassPathXmlApplicationContext(
+            "net/sf/acegisecurity/applicationContext.xml");
+    }
 }

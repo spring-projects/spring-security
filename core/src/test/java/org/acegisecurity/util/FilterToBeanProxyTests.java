@@ -226,6 +226,26 @@ public class FilterToBeanProxyTests extends TestCase {
             chain);
     }
 
+    public void testNullDelegateDoesNotCauseNullPointerException()
+        throws Exception {
+        // Setup our filter
+        MockFilterConfig config = new MockFilterConfig();
+        config.setInitParmeter("targetBean", "aFilterThatDoesntExist");
+        config.setInitParmeter("init", "lazy");
+
+        // Setup our expectation that the filter chain will be invoked
+        MockFilterChain chain = new MockFilterChain(true);
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockHttpServletRequest request = new MockHttpServletRequest("/go");
+
+        FilterToBeanProxy filter = new MockFilterToBeanProxy(
+                "net/sf/acegisecurity/util/filtertest-valid.xml");
+
+        // do not init (which would hapen if called .doFilter)
+        filter.destroy();
+    }
+
     private void executeFilterInContainerSimulator(FilterConfig filterConfig,
         Filter filter, ServletRequest request, ServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {

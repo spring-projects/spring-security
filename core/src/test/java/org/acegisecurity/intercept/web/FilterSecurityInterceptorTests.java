@@ -25,6 +25,7 @@ import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.MockAccessDecisionManager;
+import net.sf.acegisecurity.MockApplicationContext;
 import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpServletResponse;
@@ -74,7 +75,8 @@ public class FilterSecurityInterceptorTests extends TestCase {
         junit.textui.TestRunner.run(FilterSecurityInterceptorTests.class);
     }
 
-    public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass() {
+    public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass()
+        throws Exception {
         FilterSecurityInterceptor interceptor = new FilterSecurityInterceptor();
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
         interceptor.setObjectDefinitionSource(new RegExpBasedFilterInvocationDefinitionMap());
@@ -106,7 +108,8 @@ public class FilterSecurityInterceptorTests extends TestCase {
         }
     }
 
-    public void testEnsuresRunAsManagerSupportsFilterInvocationClass() {
+    public void testEnsuresRunAsManagerSupportsFilterInvocationClass()
+        throws Exception {
         FilterSecurityInterceptor interceptor = new FilterSecurityInterceptor();
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
@@ -138,7 +141,51 @@ public class FilterSecurityInterceptorTests extends TestCase {
         }
     }
 
-    public void testNormalStartupAndGetter() {
+    public void testHttpsInvocationReflectsPortNumber()
+        throws Throwable {
+        // Setup the FilterSecurityInterceptor
+        FilterSecurityInterceptor interceptor = new FilterSecurityInterceptor();
+        interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
+        interceptor.setAuthenticationManager(new MockAuthenticationManager());
+        interceptor.setRunAsManager(new MockRunAsManager());
+        interceptor.setApplicationContext(MockApplicationContext.getContext());
+
+        // Setup a mock config attribute definition
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
+        def.addConfigAttribute(new SecurityConfig("MOCK_OK"));
+
+        MockFilterInvocationDefinitionMap mockSource = new MockFilterInvocationDefinitionMap("/secure/page.html",
+                def);
+        interceptor.setObjectDefinitionSource(mockSource);
+
+        // Setup our expectation that the filter chain will be invoked, as access is granted
+        MockFilterChain chain = new MockFilterChain(true);
+
+        // Setup our HTTPS request and response
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockHttpServletRequest request = new MockHttpServletRequest(null,
+                new MockHttpSession());
+        request.setServletPath("/secure/page.html");
+        request.setScheme("https");
+        request.setServerPort(443);
+
+        // Setup a Context
+        SecureContext context = new SecureContextImpl();
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
+                "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_OK")});
+        context.setAuthentication(token);
+        ContextHolder.setContext(context);
+
+        // Create and test our secure object
+        FilterInvocation fi = new FilterInvocation(request, response, chain);
+        interceptor.invoke(fi);
+
+        // Destroy the Context
+        ContextHolder.setContext(null);
+    }
+
+    public void testNormalStartupAndGetter() throws Exception {
         FilterSecurityInterceptor interceptor = new FilterSecurityInterceptor();
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
@@ -164,6 +211,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
         interceptor.setRunAsManager(new MockRunAsManager());
+        interceptor.setApplicationContext(MockApplicationContext.getContext());
 
         // Setup a mock config attribute definition
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();

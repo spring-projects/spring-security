@@ -29,6 +29,10 @@ import net.sf.acegisecurity.context.SecureContext;
 public class TargetObject implements ITargetObject {
     //~ Methods ================================================================
 
+    public Integer computeHashCode(String input) {
+        return new Integer(input.hashCode());
+    }
+
     public int countLength(String input) {
         return input.length();
     }

@@ -20,24 +20,21 @@
 
 <beans>
 
-	<bean id="afterInvocation" class="net.sf.acegisecurity.MockAfterInvocationManager"/>
 	<bean id="authentication" class="net.sf.acegisecurity.MockAuthenticationManager"/>
 	<bean id="accessDecision" class="net.sf.acegisecurity.MockAccessDecisionManager"/>
 	<bean id="runAs" class="net.sf.acegisecurity.MockRunAsManager"/>
+	<bean id="attributes" class="net.sf.acegisecurity.intercept.method.MockAttributes"/>
 
-	<bean id="loggerListener" class="net.sf.acegisecurity.intercept.event.LoggerListener"/>
-
+	<bean id="objectDefinitionSource" class="net.sf.acegisecurity.intercept.method.MethodDefinitionAttributes">
+		<property name="attributes"><ref local="attributes"/></property>
+	</bean>
+	
 	<bean id="securityInterceptor" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
 		<property name="authenticationManager"><ref local="authentication"/></property>
 		<property name="accessDecisionManager"><ref local="accessDecision"/></property>
-		<property name="afterInvocationManager"><ref local="afterInvocation"/></property>
 		<property name="runAsManager"><ref local="runAs"/></property>
 		<property name="objectDefinitionSource">
-			<value>
-				net.sf.acegisecurity.ITargetObject.makeLower*=MOCK_LOWER
-				net.sf.acegisecurity.ITargetObject.makeUpper*=MOCK_UPPER,RUN_AS
-				net.sf.acegisecurity.ITargetObject.computeHashCode*=MOCK_HASH,AFTER_INVOCATION_MOCK
-			</value>
+			<ref local="objectDefinitionSource"/>
 		</property>
 	</bean>
 	
@@ -52,5 +49,7 @@
          </list>
       </property>
     </bean>
+
+	<bean id="loggerListener" class="net.sf.acegisecurity.intercept.event.LoggerListener"/>
 
 </beans>

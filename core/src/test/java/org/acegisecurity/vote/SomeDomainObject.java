@@ -13,24 +13,30 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package net.sf.acegisecurity.vote;
 
 /**
- * Represents the interface of a secured object.
+ * Simple domain object, used by {@link BasicAclEntryVoterTests}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public interface ITargetObject {
+public class SomeDomainObject {
+    //~ Instance fields ========================================================
+
+    private String identity;
+
+    //~ Constructors ===========================================================
+
+    public SomeDomainObject(String identity) {
+        this.identity = identity;
+    }
+
+    private SomeDomainObject() {}
+
     //~ Methods ================================================================
 
-    public Integer computeHashCode(String input);
-
-    public int countLength(String input);
-
-    public String makeLowerCase(String input);
-
-    public String makeUpperCase(String input);
-
-    public String publicMakeLowerCase(String input);
+    public String getParent() {
+        return "parentOf" + identity;
+    }
 }

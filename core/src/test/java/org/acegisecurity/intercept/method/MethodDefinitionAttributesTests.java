@@ -32,16 +32,13 @@ import net.sf.acegisecurity.context.SecureContext;
 import net.sf.acegisecurity.context.SecureContextImpl;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.beans.factory.support.PropertiesBeanDefinitionReader;
-
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.lang.reflect.Method;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.Set;
 
 
@@ -228,47 +225,10 @@ public class MethodDefinitionAttributesTests extends TestCase {
     }
 
     private ITargetObject makeInterceptedTarget() {
-        String PREFIX = "beans.";
-        DefaultListableBeanFactory lbf = new DefaultListableBeanFactory();
-        Properties p = new Properties();
-        p.setProperty(PREFIX + "authentication.class",
-            "net.sf.acegisecurity.MockAuthenticationManager");
-        p.setProperty(PREFIX + "accessDecision.class",
-            "net.sf.acegisecurity.MockAccessDecisionManager");
-        p.setProperty(PREFIX + "runAs.class",
-            "net.sf.acegisecurity.MockRunAsManager");
-        p.setProperty(PREFIX + "attributes.class",
-            "net.sf.acegisecurity.intercept.method.MockAttributes");
+        ApplicationContext context = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/intercept/method/applicationContext.xml");
 
-        p.setProperty(PREFIX + "objectDefinitionSource.class",
-            "net.sf.acegisecurity.intercept.method.MethodDefinitionAttributes");
-        p.setProperty(PREFIX + "objectDefinitionSource.attributes(ref)",
-            "attributes");
-
-        p.setProperty(PREFIX + "securityInterceptor.class",
-            "net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor");
-        p.setProperty(PREFIX + "securityInterceptor.authenticationManager(ref)",
-            "authentication");
-        p.setProperty(PREFIX + "securityInterceptor.accessDecisionManager(ref)",
-            "accessDecision");
-        p.setProperty(PREFIX + "securityInterceptor.runAsManager(ref)", "runAs");
-        p.setProperty(PREFIX
-            + "securityInterceptor.objectDefinitionSource(ref)",
-            "objectDefinitionSource");
-
-        p.setProperty(PREFIX + "targetObject.class",
-            "net.sf.acegisecurity.TargetObject");
-        p.setProperty(PREFIX + "target.class",
-            "org.springframework.aop.framework.ProxyFactoryBean");
-        p.setProperty(PREFIX + "target.proxyInterfaces",
-            "net.sf.acegisecurity.ITargetObject");
-        p.setProperty(PREFIX + "target.interceptorNames",
-            "securityInterceptor,targetObject");
-
-        (new PropertiesBeanDefinitionReader(lbf)).registerBeanDefinitions(p,
-            PREFIX);
-
-        return (ITargetObject) lbf.getBean("target");
+        return (ITargetObject) context.getBean("target");
     }
 
     /**

@@ -67,6 +67,18 @@ public class PortResolverImplTests extends TestCase {
         assertEquals(8443, pr.getServerPort(request));
     }
 
+    public void testDetectsEmptyPortMapper() throws Exception {
+        PortResolverImpl pr = new PortResolverImpl();
+        pr.setPortMapper(null);
+
+        try {
+            pr.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+    }
+
     public void testGettersSetters() throws Exception {
         PortResolverImpl pr = new PortResolverImpl();
         assertTrue(pr.getPortMapper() != null);

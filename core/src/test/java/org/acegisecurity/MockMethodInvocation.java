@@ -22,20 +22,34 @@ import java.lang.reflect.Method;
 
 
 /**
- * DOCUMENT ME!
+ * Represents the AOP Alliance <code>MethodInvocation</code> secure object.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MockMethodInvocation implements MethodInvocation {
+    //~ Instance fields ========================================================
+
+    private Method method;
+    private Object[] arguments;
+
+    //~ Constructors ===========================================================
+
+    public MockMethodInvocation(Method method, Object[] arguments) {
+        this.method = method;
+        this.arguments = arguments;
+    }
+
+    public MockMethodInvocation() {}
+
     //~ Methods ================================================================
 
     public Object[] getArguments() {
-        throw new UnsupportedOperationException("mock method not implemented");
+        return arguments;
     }
 
     public Method getMethod() {
-        throw new UnsupportedOperationException("mock method not implemented");
+        return method;
     }
 
     public AccessibleObject getStaticPart() {

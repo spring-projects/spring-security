@@ -19,14 +19,17 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.AccessDecisionManager;
 import net.sf.acegisecurity.AccessDeniedException;
+import net.sf.acegisecurity.AfterInvocationManager;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationCredentialsNotFoundException;
+import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.ITargetObject;
 import net.sf.acegisecurity.MockAccessDecisionManager;
+import net.sf.acegisecurity.MockAfterInvocationManager;
 import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockRunAsManager;
 import net.sf.acegisecurity.RunAsManager;
@@ -139,17 +142,20 @@ public class MethodSecurityInterceptorTests extends TestCase {
         MockAuthenticationManager authManager = new MockAuthenticationManager();
         MockMethodDefinitionSource methodSource = new MockMethodDefinitionSource(false,
                 true);
+        MockAfterInvocationManager afterInvocation = new MockAfterInvocationManager();
 
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
         si.setAccessDecisionManager(accessDecision);
         si.setRunAsManager(runAs);
         si.setAuthenticationManager(authManager);
         si.setObjectDefinitionSource(methodSource);
+        si.setAfterInvocationManager(afterInvocation);
 
         assertEquals(accessDecision, si.getAccessDecisionManager());
         assertEquals(runAs, si.getRunAsManager());
         assertEquals(authManager, si.getAuthenticationManager());
         assertEquals(methodSource, si.getObjectDefinitionSource());
+        assertEquals(afterInvocation, si.getAfterInvocationManager());
     }
 
     public void testMethodCallWithRunAsReplacement() throws Exception {
@@ -178,7 +184,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
         context.setAuthentication(token);
         ContextHolder.setContext(context);
 
-        ITargetObject target = makeInterceptedTarget();
+        ITargetObject target = makeInterceptedTargetWithoutAnAfterInvocationManager();
         String result = target.makeLowerCase("HELLO");
 
         // Note we check the isAuthenticated becomes true in following line
@@ -234,7 +240,8 @@ public class MethodSecurityInterceptorTests extends TestCase {
         ContextHolder.setContext(null);
     }
 
-    public void testRejectsAccessDecisionManagersThatDoNotSupportMethodInvocation() {
+    public void testRejectsAccessDecisionManagersThatDoNotSupportMethodInvocation()
+        throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
         si.setAccessDecisionManager(new MockAccessDecisionManagerWhichOnlySupportsStrings());
         si.setAuthenticationManager(new MockAuthenticationManager());
@@ -248,6 +255,28 @@ public class MethodSecurityInterceptorTests extends TestCase {
             assertEquals("AccessDecisionManager does not support secure object class: interface org.aopalliance.intercept.MethodInvocation",
                 expected.getMessage());
         }
+    }
+
+    public void testRejectsCallsWhenAuthenticationIsIncorrect()
+        throws Exception {
+        SecureContext context = new SecureContextImpl();
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
+                "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_LOWER")});
+        assertTrue(!token.isAuthenticated());
+        context.setAuthentication(token);
+        ContextHolder.setContext(context);
+
+        ITargetObject target = makeInterceptedTargetRejectsAuthentication();
+
+        try {
+            target.makeLowerCase("HELLO");
+            fail("Should have thrown AuthenticationException");
+        } catch (AuthenticationException expected) {
+            assertTrue(true);
+        }
+
+        ContextHolder.setContext(null);
     }
 
     public void testRejectsCallsWhenObjectDefinitionSourceDoesNotSupportObject()
@@ -278,12 +307,14 @@ public class MethodSecurityInterceptorTests extends TestCase {
         }
     }
 
-    public void testRejectsRunAsManagersThatDoNotSupportMethodInvocation() {
+    public void testRejectsRunAsManagersThatDoNotSupportMethodInvocation()
+        throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
         si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
         si.setRunAsManager(new MockRunAsManagerWhichOnlySupportsStrings());
+        si.setAfterInvocationManager(new MockAfterInvocationManager());
 
         try {
             si.afterPropertiesSet();
@@ -294,10 +325,12 @@ public class MethodSecurityInterceptorTests extends TestCase {
         }
     }
 
-    public void testStartupCheckForAccessDecisionManager() {
+    public void testStartupCheckForAccessDecisionManager()
+        throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
         si.setRunAsManager(new MockRunAsManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
+        si.setAfterInvocationManager(new MockAfterInvocationManager());
 
         si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
 
@@ -310,10 +343,12 @@ public class MethodSecurityInterceptorTests extends TestCase {
         }
     }
 
-    public void testStartupCheckForAuthenticationManager() {
+    public void testStartupCheckForAuthenticationManager()
+        throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setRunAsManager(new MockRunAsManager());
+        si.setAfterInvocationManager(new MockAfterInvocationManager());
 
         si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
 
@@ -326,7 +361,8 @@ public class MethodSecurityInterceptorTests extends TestCase {
         }
     }
 
-    public void testStartupCheckForMethodDefinitionSource() {
+    public void testStartupCheckForMethodDefinitionSource()
+        throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
@@ -340,7 +376,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
         }
     }
 
-    public void testStartupCheckForRunAsManager() {
+    public void testStartupCheckForRunAsManager() throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
@@ -356,7 +392,25 @@ public class MethodSecurityInterceptorTests extends TestCase {
         }
     }
 
-    public void testValidationFailsIfInvalidAttributePresented() {
+    public void testStartupCheckForValidAfterInvocationManager()
+        throws Exception {
+        MethodSecurityInterceptor si = new MethodSecurityInterceptor();
+        si.setRunAsManager(new MockRunAsManager());
+        si.setAuthenticationManager(new MockAuthenticationManager());
+        si.setAfterInvocationManager(new MockAfterInvocationManagerWhichOnlySupportsStrings());
+        si.setAccessDecisionManager(new MockAccessDecisionManager());
+        si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
+
+        try {
+            si.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(expected.getMessage().startsWith("AfterInvocationManager does not support secure object class:"));
+        }
+    }
+
+    public void testValidationFailsIfInvalidAttributePresented()
+        throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
@@ -374,7 +428,8 @@ public class MethodSecurityInterceptorTests extends TestCase {
         }
     }
 
-    public void testValidationNotAttemptedIfIsValidateConfigAttributesSetToFalse() {
+    public void testValidationNotAttemptedIfIsValidateConfigAttributesSetToFalse()
+        throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
@@ -388,7 +443,8 @@ public class MethodSecurityInterceptorTests extends TestCase {
         assertTrue(true);
     }
 
-    public void testValidationNotAttemptedIfMethodDefinitionSourceCannotReturnIterator() {
+    public void testValidationNotAttemptedIfMethodDefinitionSourceCannotReturnIterator()
+        throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setRunAsManager(new MockRunAsManager());
@@ -407,12 +463,57 @@ public class MethodSecurityInterceptorTests extends TestCase {
         return (ITargetObject) context.getBean("target");
     }
 
+    private ITargetObject makeInterceptedTargetRejectsAuthentication() {
+        ApplicationContext context = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
+
+        MockAuthenticationManager authenticationManager = new MockAuthenticationManager(false);
+        MethodSecurityInterceptor si = (MethodSecurityInterceptor) context
+            .getBean("securityInterceptor");
+        si.setAuthenticationManager(authenticationManager);
+
+        return (ITargetObject) context.getBean("target");
+    }
+
+    private ITargetObject makeInterceptedTargetWithoutAnAfterInvocationManager() {
+        ApplicationContext context = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
+
+        MethodSecurityInterceptor si = (MethodSecurityInterceptor) context
+            .getBean("securityInterceptor");
+        si.setAfterInvocationManager(null);
+
+        return (ITargetObject) context.getBean("target");
+    }
+
     //~ Inner Classes ==========================================================
 
     private class MockAccessDecisionManagerWhichOnlySupportsStrings
         implements AccessDecisionManager {
         public void decide(Authentication authentication, Object object,
             ConfigAttributeDefinition config) throws AccessDeniedException {
+            throw new UnsupportedOperationException(
+                "mock method not implemented");
+        }
+
+        public boolean supports(Class clazz) {
+            if (String.class.isAssignableFrom(clazz)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public boolean supports(ConfigAttribute attribute) {
+            return true;
+        }
+    }
+
+    private class MockAfterInvocationManagerWhichOnlySupportsStrings
+        implements AfterInvocationManager {
+        public Object decide(Authentication authentication, Object object,
+            ConfigAttributeDefinition config, Object returnedObject)
+            throws AccessDeniedException {
             throw new UnsupportedOperationException(
                 "mock method not implemented");
         }

@@ -65,6 +65,22 @@ public class LoggerListenerTests extends TestCase {
         assertTrue(true);
     }
 
+    public void testLogsUsernameNotFoundEvents() {
+        AuthenticationFailureUsernameNotFoundEvent event = new AuthenticationFailureUsernameNotFoundEvent(getAuthentication(),
+                getUser());
+        LoggerListener listener = new LoggerListener();
+        listener.onApplicationEvent(event);
+        assertTrue(true);
+    }
+
+    public void testLogsUsernameOfPasswordEvent() {
+        AuthenticationFailureUsernameOrPasswordEvent event = new AuthenticationFailureUsernameOrPasswordEvent(getAuthentication(),
+                getUser());
+        LoggerListener listener = new LoggerListener();
+        listener.onApplicationEvent(event);
+        assertTrue(true);
+    }
+
     private Authentication getAuthentication() {
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
                 "Credentials");

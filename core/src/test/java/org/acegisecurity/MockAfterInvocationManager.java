@@ -19,35 +19,35 @@ import java.util.Iterator;
 
 
 /**
- * Returns a new run-as identity if configuration attribute RUN_AS is found.
- * The new identity is simply an empty {@link MockRunAsAuthenticationToken}.
+ * If there is a configuration attribute of "AFTER_INVOCATION_MOCK", modifies
+ * the return value to null.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class MockRunAsManager implements RunAsManager {
+public class MockAfterInvocationManager implements AfterInvocationManager {
     //~ Methods ================================================================
 
-    public Authentication buildRunAs(Authentication authentication,
-        Object object, ConfigAttributeDefinition config) {
+    public Object decide(Authentication authentication, Object object,
+        ConfigAttributeDefinition config, Object returnedObject)
+        throws AccessDeniedException {
         Iterator iter = config.getConfigAttributes();
 
         while (iter.hasNext()) {
             ConfigAttribute attr = (ConfigAttribute) iter.next();
 
             if (this.supports(attr)) {
-                Authentication response = new MockRunAsAuthenticationToken();
-                response.setAuthenticated(true);
-
-                return response;
+                return null;
             }
         }
 
-        return null;
+        // this "after invocation" hasn't got a config attribute asking
+        // for this mock to modify the returned object
+        return returnedObject;
     }
 
     public boolean supports(ConfigAttribute attribute) {
-        if (attribute.getAttribute().startsWith("RUN_AS")) {
+        if (attribute.getAttribute().equals("AFTER_INVOCATION_MOCK")) {
             return true;
         } else {
             return false;

@@ -98,7 +98,8 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         assertTrue(ep.getForceHttps());
     }
 
-    public void testHttpsOperation() throws Exception {
+    public void testHttpsOperationFromOriginalHttpUrl()
+        throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest(
                 "/some_path");
         request.setScheme("http");
@@ -147,6 +148,36 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
 
         ep.commence(request, response);
         assertEquals("https://www.example.com:9999/bigWebApp/hello",
+            response.getRedirect());
+    }
+
+    public void testHttpsOperationFromOriginalHttpsUrl()
+        throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest(
+                "/some_path");
+        request.setScheme("https");
+        request.setServerName("www.example.com");
+        request.setContextPath("/bigWebApp");
+        request.setServerPort(443);
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        ep.setLoginFormUrl("/hello");
+        ep.setPortMapper(new PortMapperImpl());
+        ep.setForceHttps(true);
+        ep.setPortMapper(new PortMapperImpl());
+        ep.setPortResolver(new MockPortResolver(80, 443));
+        ep.afterPropertiesSet();
+
+        ep.commence(request, response);
+        assertEquals("https://www.example.com/bigWebApp/hello",
+            response.getRedirect());
+
+        request.setServerPort(8443);
+        ep.setPortResolver(new MockPortResolver(8080, 8443));
+        ep.commence(request, response);
+        assertEquals("https://www.example.com:8443/bigWebApp/hello",
             response.getRedirect());
     }
 

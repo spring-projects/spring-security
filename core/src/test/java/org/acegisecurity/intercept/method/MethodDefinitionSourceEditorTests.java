@@ -18,6 +18,7 @@ package net.sf.acegisecurity.intercept.method;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.ConfigAttributeDefinition;
+import net.sf.acegisecurity.MockJoinPoint;
 import net.sf.acegisecurity.SecurityConfig;
 import net.sf.acegisecurity.TargetObject;
 
@@ -55,6 +56,28 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(MethodDefinitionSourceEditorTests.class);
+    }
+
+    public void testAspectJJointPointLookup() throws Exception {
+        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        editor.setAsText(
+            "net.sf.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
+
+        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+
+        Class clazz = TargetObject.class;
+        Method method = clazz.getMethod("countLength",
+                new Class[] {String.class});
+        MockJoinPoint joinPoint = new MockJoinPoint(new TargetObject(), method);
+
+        ConfigAttributeDefinition returnedCountLength = map.getAttributes(joinPoint);
+
+        ConfigAttributeDefinition expectedCountLength = new ConfigAttributeDefinition();
+        expectedCountLength.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        expectedCountLength.addConfigAttribute(new SecurityConfig("ROLE_TWO"));
+        expectedCountLength.addConfigAttribute(new SecurityConfig(
+                "RUN_AS_ENTRY"));
+        assertEquals(expectedCountLength, returnedCountLength);
     }
 
     public void testClassNameNotFoundResultsInException() {
@@ -160,7 +183,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
             "net.sf.acegisecurity.TargetObject.*=ROLE_GENERAL\r\nnet.sf.acegisecurity.TargetObject.makeLower*=ROLE_LOWER\r\nnet.sf.acegisecurity.TargetObject.make*=ROLE_MAKE\r\nnet.sf.acegisecurity.TargetObject.makeUpper*=ROLE_UPPER");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
-        assertEquals(4, map.getMethodMapSize());
+        assertEquals(5, map.getMethodMapSize());
 
         ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(
                     TargetObject.class, "makeLowerCase",

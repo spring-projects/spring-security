@@ -174,6 +174,8 @@ public class CasAuthenticationTokenTests extends TestCase {
         assertEquals("PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt",
             token.getProxyGrantingTicketIou());
         assertEquals(proxyList, token.getProxyList());
+        assertEquals(makeUserDetails().getUsername(),
+            token.getUserDetails().getUsername());
     }
 
     public void testNoArgConstructor() {
