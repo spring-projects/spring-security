@@ -5,7 +5,7 @@
    <id>acegi-security</id>
    <name>Acegi Security System for Spring</name>
    <groupId>acegi</groupId>
-   <currentVersion>0.52-SNAPSHOT</currentVersion>
+   <currentVersion>0.6-SNAPSHOT</currentVersion>
    <package>net.sf.acegisecurity</package>
    <!--logo>http://acegisecurity.sourceforge.net/logo.gif</logoi-->
    <description>Acegi Security System for Spring</description>
