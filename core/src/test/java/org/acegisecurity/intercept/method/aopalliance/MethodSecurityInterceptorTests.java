@@ -40,13 +40,12 @@ import net.sf.acegisecurity.intercept.method.MockMethodDefinitionSource;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.runas.RunAsManagerImpl;
 
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.beans.factory.support.PropertiesBeanDefinitionReader;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.lang.reflect.Method;
 
 import java.util.Iterator;
-import java.util.Properties;
 
 
 /**
@@ -399,39 +398,10 @@ public class MethodSecurityInterceptorTests extends TestCase {
     }
 
     private ITargetObject makeInterceptedTarget() {
-        String PREFIX = "beans.";
-        DefaultListableBeanFactory lbf = new DefaultListableBeanFactory();
-        Properties p = new Properties();
-        p.setProperty(PREFIX + "authentication.class",
-            "net.sf.acegisecurity.MockAuthenticationManager");
-        p.setProperty(PREFIX + "accessDecision.class",
-            "net.sf.acegisecurity.MockAccessDecisionManager");
-        p.setProperty(PREFIX + "runAs.class",
-            "net.sf.acegisecurity.MockRunAsManager");
+        ApplicationContext context = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
 
-        p.setProperty(PREFIX + "securityInterceptor.class",
-            "net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor");
-        p.setProperty(PREFIX + "securityInterceptor.authenticationManager(ref)",
-            "authentication");
-        p.setProperty(PREFIX + "securityInterceptor.accessDecisionManager(ref)",
-            "accessDecision");
-        p.setProperty(PREFIX + "securityInterceptor.runAsManager(ref)", "runAs");
-        p.setProperty(PREFIX + "securityInterceptor.objectDefinitionSource",
-            "net.sf.acegisecurity.ITargetObject.makeLower*=MOCK_LOWER\r\nnet.sf.acegisecurity.ITargetObject.makeUpper*=MOCK_UPPER,RUN_AS");
-
-        p.setProperty(PREFIX + "targetObject.class",
-            "net.sf.acegisecurity.TargetObject");
-        p.setProperty(PREFIX + "target.class",
-            "org.springframework.aop.framework.ProxyFactoryBean");
-        p.setProperty(PREFIX + "target.proxyInterfaces",
-            "net.sf.acegisecurity.ITargetObject");
-        p.setProperty(PREFIX + "target.interceptorNames",
-            "securityInterceptor,targetObject");
-
-        (new PropertiesBeanDefinitionReader(lbf)).registerBeanDefinitions(p,
-            PREFIX);
-
-        return (ITargetObject) lbf.getBean("target");
+        return (ITargetObject) context.getBean("target");
     }
 
     //~ Inner Classes ==========================================================

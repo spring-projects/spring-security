@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+ * Copyright 2004 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * $Id$
+-->
+
+<beans>
+
+	<bean id="authentication" class="net.sf.acegisecurity.MockAuthenticationManager"/>
+	<bean id="accessDecision" class="net.sf.acegisecurity.MockAccessDecisionManager"/>
+	<bean id="runAs" class="net.sf.acegisecurity.MockRunAsManager"/>
+
+	<bean id="loggerListener" class="net.sf.acegisecurity.intercept.event.LoggerListener"/>
+
+	<bean id="securityInterceptor" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
+		<property name="authenticationManager"><ref local="authentication"/></property>
+		<property name="accessDecisionManager"><ref local="accessDecision"/></property>
+		<property name="runAsManager"><ref local="runAs"/></property>
+		<property name="objectDefinitionSource">
+			<value>
+				net.sf.acegisecurity.ITargetObject.makeLower*=MOCK_LOWER
+				net.sf.acegisecurity.ITargetObject.makeUpper*=MOCK_UPPER,RUN_AS
+			</value>
+		</property>
+	</bean>
+	
+	<bean id="target" class="net.sf.acegisecurity.TargetObject"/>
+
+	<!-- Autowire is fine as advisor requires MethodSecurityInterceptor -->
+	<bean id="methodSecurityAdvisor"
+		class="net.sf.acegisecurity.intercept.method.aopalliance.MethodDefinitionSourceAdvisor"
+		autowire="constructor" >
+	</bean>
+	
+	<bean id="autoproxy" 
+		class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
+	</bean>
+
+</beans>
