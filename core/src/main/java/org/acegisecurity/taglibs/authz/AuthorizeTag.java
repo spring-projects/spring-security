@@ -20,11 +20,12 @@ import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.SecureContext;
 
-import java.util.*;
-
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
+import java.util.*;
+
+import org.springframework.web.util.ExpressionEvaluationUtils;
 
 
 /**
@@ -43,7 +44,7 @@ public class AuthorizeTag extends TagSupport {
 
     //~ Methods ================================================================
 
-    public void setIfAllGranted(String ifAllGranted) {
+    public void setIfAllGranted(String ifAllGranted) throws JspException {
         this.ifAllGranted = ifAllGranted;
     }
 
@@ -51,7 +52,7 @@ public class AuthorizeTag extends TagSupport {
         return ifAllGranted;
     }
 
-    public void setIfAnyGranted(String ifAnyGranted) {
+    public void setIfAnyGranted(String ifAnyGranted) throws JspException {
         this.ifAnyGranted = ifAnyGranted;
     }
 
@@ -59,7 +60,7 @@ public class AuthorizeTag extends TagSupport {
         return ifAnyGranted;
     }
 
-    public void setIfNotGranted(String ifNotGranted) {
+    public void setIfNotGranted(String ifNotGranted) throws JspException {
         this.ifNotGranted = ifNotGranted;
     }
 
@@ -69,31 +70,43 @@ public class AuthorizeTag extends TagSupport {
 
     public int doStartTag() throws JspException {
         if (((null == ifAllGranted) || "".equals(ifAllGranted))
-            && ((null == ifAnyGranted) || "".equals(ifAnyGranted))
-            && ((null == ifNotGranted) || "".equals(ifNotGranted))) {
+                && ((null == ifAnyGranted) || "".equals(ifAnyGranted))
+                && ((null == ifNotGranted) || "".equals(ifNotGranted))) {
             return Tag.SKIP_BODY;
         }
 
         final Collection granted = getPrincipalAuthorities();
 
-        if ((null != ifNotGranted) && !"".equals(ifNotGranted)) {
-            Set grantedCopy = retainAll(granted,
-                    parseAuthoritiesString(ifNotGranted));
+        final String evaledIfNotGranted =
+                ExpressionEvaluationUtils.evaluateString(
+                        "ifNotGranted", ifNotGranted, pageContext);
+        if ((null != evaledIfNotGranted) && !"".equals(evaledIfNotGranted)) {
+            Set grantedCopy = retainAll(
+                    granted,
+                    parseAuthoritiesString(evaledIfNotGranted));
 
             if (!grantedCopy.isEmpty()) {
                 return Tag.SKIP_BODY;
             }
         }
 
-        if ((null != ifAllGranted) && !"".equals(ifAllGranted)) {
-            if (!granted.containsAll(parseAuthoritiesString(ifAllGranted))) {
+        final String evaledIfAllGranted =
+                ExpressionEvaluationUtils.evaluateString(
+                        "ifAllGranted", ifAllGranted, pageContext);
+        if ((null != evaledIfAllGranted) && !"".equals(evaledIfAllGranted)) {
+            if (!granted.containsAll(
+                    parseAuthoritiesString(evaledIfAllGranted))) {
                 return Tag.SKIP_BODY;
             }
         }
 
-        if ((null != ifAnyGranted) && !"".equals(ifAnyGranted)) {
-            Set grantedCopy = retainAll(granted,
-                    parseAuthoritiesString(ifAnyGranted));
+        final String evaledIfAnyGranted =
+                ExpressionEvaluationUtils.evaluateString(
+                        "ifAnyGranted", ifAnyGranted, pageContext);
+        if ((null != evaledIfAnyGranted) && !"".equals(evaledIfAnyGranted)) {
+            Set grantedCopy = retainAll(
+                    granted,
+                    parseAuthoritiesString(evaledIfAnyGranted));
 
             if (grantedCopy.isEmpty()) {
                 return Tag.SKIP_BODY;
@@ -135,7 +148,7 @@ public class AuthorizeTag extends TagSupport {
     }
 
     private Set retainAll(final Collection granted,
-        final Set requiredAuthorities) {
+                          final Set requiredAuthorities) {
         Set grantedCopy = new HashSet(granted);
         grantedCopy.retainAll(requiredAuthorities);
 
