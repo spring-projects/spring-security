@@ -15,9 +15,9 @@
 
 package net.sf.acegisecurity.providers.jaas;
 
+import net.sf.acegisecurity.AcegiSecurityException;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationServiceException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.providers.AuthenticationProvider;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
@@ -159,6 +159,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
     //~ Instance fields ========================================================
 
     private ApplicationContext context;
+    private LoginExceptionResolver loginExceptionResolver = new DefaultLoginExceptionResolver();
     private Resource loginConfig;
     private String loginContextName = "ACEGI";
     private AuthorityGranter[] authorityGranters;
@@ -184,9 +185,11 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns the AuthorityGrannter array that was passed to the {@link
+     * #setAuthorityGranters(AuthorityGranter[])} method, or null if it none
+     * were ever set.
      *
-     * @return The AuthorityGranter array
+     * @return The AuthorityGranter array, or null
      *
      * @see #setAuthorityGranters(net.sf.acegisecurity.providers.jaas.AuthorityGranter[])
      */
@@ -249,6 +252,15 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
         return loginContextName;
     }
 
+    public void setLoginExceptionResolver(
+        LoginExceptionResolver loginExceptionResolver) {
+        this.loginExceptionResolver = loginExceptionResolver;
+    }
+
+    public LoginExceptionResolver getLoginExceptionResolver() {
+        return loginExceptionResolver;
+    }
+
     public void afterPropertiesSet() throws Exception {
         if (loginConfig == null) {
             throw new ApplicationContextException("loginConfig must be set on "
@@ -284,7 +296,6 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
      *         AuthenticationServiceException, with the message of the
      *         LoginException that will be thrown, should the
      *         loginContext.login() method fail.
-     * @throws AuthenticationServiceException DOCUMENT ME!
      */
     public Authentication authenticate(Authentication auth)
         throws AuthenticationException {
@@ -334,12 +345,12 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
 
                 //we're done, return the token.
                 return token;
-            } catch (LoginException e) {
-                context.publishEvent(new JaasAuthenticationFailedEvent(auth, e));
+            } catch (LoginException loginException) {
+                AcegiSecurityException ase = loginExceptionResolver
+                    .resolveException(loginException);
 
-                //We have no way of knowing what caused the exception, so we cannot throw BadCredentialsException, DisabledException, or LockedException.
-                //So we'll just throw an AuthenticationServiceException
-                throw new AuthenticationServiceException(e.toString());
+                context.publishEvent(new JaasAuthenticationFailedEvent(auth, ase));
+                throw ase;
             }
         }
 
@@ -366,10 +377,12 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
             throws IOException, UnsupportedCallbackException {
             for (int i = 0; i < callbackHandlers.length; i++) {
                 JaasAuthenticationCallbackHandler handler = callbackHandlers[i];
+
                 handler.setAuthentication(authentication);
 
                 for (int j = 0; j < callbacks.length; j++) {
                     Callback callback = callbacks[j];
+
                     handler.handle(callback);
                 }
             }
