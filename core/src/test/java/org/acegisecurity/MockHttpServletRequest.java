@@ -47,7 +47,7 @@ import javax.servlet.http.HttpSession;
 public class MockHttpServletRequest implements HttpServletRequest {
     //~ Instance fields ========================================================
 
-    private HttpSession session;
+    private HttpSession session = new MockHttpSession();
     private Map headersMap = new HashMap();
     private Map paramMap = new HashMap();
     private Principal principal;

@@ -15,6 +15,8 @@
 
 package net.sf.acegisecurity.providers.dao;
 
+import java.io.Serializable;
+
 import net.sf.acegisecurity.GrantedAuthority;
 
 
@@ -24,7 +26,7 @@ import net.sf.acegisecurity.GrantedAuthority;
  * @author Ben Alex
  * @version $Id$
  */
-public class User {
+public class User implements Serializable {
     //~ Instance fields ========================================================
 
     private String password;
@@ -53,9 +55,10 @@ public class User {
      */
     public User(String username, String password, boolean enabled,
         GrantedAuthority[] authorities) throws IllegalArgumentException {
-        if ((username == null) || (password == null) || (authorities == null)) {
+        if (((username == null) || "".equals(username)) || (password == null)
+            || "".equals(password) || (authorities == null)) {
             throw new IllegalArgumentException(
-                "Cannot pass null values to constructor");
+                "Cannot pass null or empty values to constructor");
         }
 
         for (int i = 0; i < authorities.length; i++) {

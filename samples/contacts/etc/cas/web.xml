@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC '-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN' 'http://java.sun.com/dtd/web-app_2_3.dtd'>
+
+<!--
+  - Contacts web application
+  - $Id$
+  - File will be copied into WAR's WEB-INF directory if NOT using container adapter
+  -->
+
+<web-app>
+
+    <display-name>Contacts Sample Application</display-name>
+    
+	<description>
+    	Example of an application secured using Acegi Security System for Spring.
+    </description>
+
+	<!-- Required for CAS ProxyTicketReceptor servlet. This is the
+	     URL to CAS' "proxy" actuator, where a PGT and TargetService can
+	     be presented to obtain a new proxy ticket. THIS CAN BE
+	     REMOVED IF THE APPLICATION DOESN'T NEED TO ACT AS A PROXY -->
+    <context-param>
+        <param-name>edu.yale.its.tp.cas.proxyUrl</param-name>
+        <param-value>http://localhost:8433/cas/proxy</param-value>
+    </context-param>
+
+	<!--
+	  - Location of the XML file that defines the root application context
+	  - Applied by ContextLoaderListener.
+	  -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/applicationContext.xml</param-value>
+	</context-param>
+
+    <filter>
+        <filter-name>Acegi CAS Processing Filter</filter-name>
+        <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
+        <init-param>
+            <param-name>targetClass</param-name>
+            <param-value>net.sf.acegisecurity.ui.cas.CasProcessingFilter</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>Acegi HTTP BASIC Authorization Filter</filter-name>
+        <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
+        <init-param>
+            <param-name>targetClass</param-name>
+            <param-value>net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>Acegi Security System for Spring Auto Integration Filter</filter-name>
+        <filter-class>net.sf.acegisecurity.ui.AutoIntegrationFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>Acegi HTTP Request Security Filter</filter-name>
+        <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
+        <init-param>
+            <param-name>targetClass</param-name>
+            <param-value>net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+      <filter-name>Acegi CAS Processing Filter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+      <filter-name>Acegi HTTP BASIC Authorization Filter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+      <filter-name>Acegi Security System for Spring Auto Integration Filter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <filter-mapping>
+      <filter-name>Acegi HTTP Request Security Filter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+	<!--
+	  - Loads the root application context of this web app at startup,
+	  - by default from "/WEB-INF/applicationContext.xml".
+	  - Use WebApplicationContextUtils.getWebApplicationContext(servletContext)
+	  - to access it anywhere in the web application, outside of the framework.
+    -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+  <!--
+    - Servlet that dispatches request to registered handlers (Controller implementations).
+    - Has its own application context, by default defined in "{servlet-name}-servlet.xml",
+    - i.e. "contacts-servlet.xml".
+    -
+    - A web app can contain any number of such servlets.
+    - Note that this web app does not have a shared root application context,
+    - therefore the DispatcherServlet contexts do not have a common parent.
+    -->
+	<servlet>
+		<servlet-name>contacts</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet>
+		<servlet-name>caucho</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+	
+	<!-- CAS servlet which receives a proxy-granting ticket from the CAS
+	     server. THIS CAN BE REMOVED IF THE APPLICATION DOESN'T NEED TO 
+	     ACT AS A PROXY -->
+	<servlet>
+		<servlet-name>casproxy</servlet-name>
+		<servlet-class>edu.yale.its.tp.cas.proxy.ProxyTicketReceptor</servlet-class>
+		<load-on-startup>3</load-on-startup>
+	</servlet>
+
+  <!--
+    - Maps the contacts dispatcher to /*.
+    -
+   -->
+	<servlet-mapping>
+    	<servlet-name>contacts</servlet-name>
+    	<url-pattern>*.htm</url-pattern>
+ 	</servlet-mapping>
+  
+  <!--
+	- Dispatcher servlet mapping for HTTP remoting via the Caucho protocols,
+	- i.e. Hessian and Burlap (see caucho-servlet.xml for the controllers).
+   -->
+	<servlet-mapping>
+		<servlet-name>caucho</servlet-name>
+		<url-pattern>/caucho/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>casproxy</servlet-name>
+		<url-pattern>/casProxy/*</url-pattern>
+	</servlet-mapping>
+
+ 	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+  	<taglib>
+      <taglib-uri>/spring</taglib-uri>
+      <taglib-location>/WEB-INF/spring.tld</taglib-location>
+  	</taglib>
+  
+</web-app>

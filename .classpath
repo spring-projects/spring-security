@@ -21,5 +21,8 @@
 	<classpathentry kind="lib" path="lib/regexp/jakarta-oro.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-commons/commons-codec.jar"/>
 	<classpathentry kind="lib" path="lib/hsqldb/hsqldb.jar"/>
+	<classpathentry kind="lib" path="lib/cas/cas.jar"/>
+	<classpathentry kind="lib" path="lib/cas/casclient.jar"/>
+	<classpathentry kind="lib" path="lib/ehcache/ehcache.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>

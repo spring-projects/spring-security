@@ -156,6 +156,58 @@
 			<lib dir="${dist.lib.dir}" includes="acegi-security.jar"/>
 		</war>
 
+		<!-- Make WAR suitable for deployment into containers using Yale CAS -->
+        <delete file="${dist.dir}/${name.cas}.war"/>
+        <mkdir dir="${tmp.dir}/${name.cas}"/>
+		<copy todir="${tmp.dir}/${name.cas}">
+			<fileset dir="${war.dir}">
+				<include name="**"/>
+			</fileset>
+			<fileset dir="${etc.dir}/cas">
+				<include name="casfailed.jsp"/>
+			</fileset>
+		</copy>
+		<copy todir="${tmp.dir}/${name.cas}/classes">
+			<fileset dir="${build.dir}">
+				<include name="**"/>
+			</fileset>
+		</copy>
+		<copy todir="${tmp.dir}/${name.cas}/WEB-INF">
+			<fileset dir="${etc.dir}/cas">
+				<include name="web.xml"/>
+				<include name="applicationContext.xml"/>
+			</fileset>
+		</copy>
+		<war warfile="${dist.dir}/${name.cas}.war" webxml="${tmp.dir}/${name.cas}/WEB-INF/web.xml">
+			<!-- Include the files which are not under WEB-INF -->
+			<fileset dir="${tmp.dir}/${name.cas}">
+				<exclude name="WEB-INF/**"/>
+				<exclude name="classes/**"/>
+			</fileset>
+
+			<!-- Bring in various XML configuration files -->
+			<webinf dir="${tmp.dir}/${name.cas}/WEB-INF">
+				<exclude name="web.xml"/>
+			</webinf>
+
+			<!-- Include the compiled classes -->
+			<classes dir="${tmp.dir}/${name.cas}/classes"/>
+
+			<!-- Include required libraries -->
+			<lib dir="${lib.dir}/jakarta-taglibs" includes="*.jar"/>
+			<lib dir="${lib.dir}/spring" includes="spring.jar"/>
+			<lib dir="${lib.dir}/aop-alliance" includes="aopalliance.jar"/>
+			<lib dir="${lib.dir}/regexp" includes="jakarta-oro.jar"/>
+			<lib dir="${lib.dir}/j2ee" includes="jstl.jar"/>
+			<lib dir="${lib.dir}/caucho" includes="*.jar"/>
+			<lib dir="${lib.dir}/jakarta-commons" includes="commons-codec.jar"/>
+			<lib dir="${lib.dir}/jakarta-commons" includes="commons-collections.jar"/>
+			<lib dir="${lib.dir}/cas" includes="*.jar"/>
+			<lib dir="${lib.dir}/ehcache" includes="ehcache.jar"/>
+			<lib dir="${dist.lib.dir}" includes="acegi-security-taglib.jar"/>
+			<lib dir="${dist.lib.dir}" includes="acegi-security.jar"/>
+		</war>
+
 		<!-- Make WAR suitable for deployment into containers WITH container adapters -->
         <delete file="${dist.dir}/${name.ca}.war"/>
         <mkdir dir="${tmp.dir}/${name.ca}"/>

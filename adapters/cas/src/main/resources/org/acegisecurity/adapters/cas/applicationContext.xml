@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+ * Copyright 2004 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Demonstration of the applicationContext.xml that should be placed in
+ * CAS' WEB-INF directory. Note the CasPasswordHandler bean.
+ * 
+ * $Id$
+-->
+
+<beans>
+
+	<!-- Data access object which stores authentication information -->
+	<bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
+  		<property name="userMap">
+			<value>
+				marissa=koala,ROLES_IGNORED_BY_CAS
+				dianne=emu,ROLES_IGNORED_BY_CAS
+				scott=wombat,ROLES_IGNORED_BY_CAS
+				peter=opal,disabled,ROLES_IGNORED_BY_CAS
+			</value>
+		</property>
+	</bean>
+	
+	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
+     	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
+	</bean>
+
+	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+		<property name="providers">
+		  <list>
+		    <ref bean="daoAuthenticationProvider"/>
+		  </list>
+		</property>
+	</bean>
+
+	<bean id="casPasswordHandler" class="net.sf.acegisecurity.adapters.cas.CasPasswordHandler">
+		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+	</bean>
+</beans>
