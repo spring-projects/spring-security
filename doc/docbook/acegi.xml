@@ -1481,7 +1481,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <para>Acegi Security is able to stop the same principal authenticating
         to the same web application multiple times concurrently. Put
         differently, you can stop user "Batman" from logging into a web
-        application twice at the same time. </para>
+        application twice at the same time.</para>
 
         <para>To use concurrent session support, you'll need to add the
         following to web.xml:</para>
@@ -4609,6 +4609,17 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
         any of the <literal>Authentication</literal>'s
         <literal>GrantedAuthority</literal>[]s. Please refer to the JavaDocs
         for more information.</para>
+
+        <mediaobject>
+          <imageobject role="html">
+            <imagedata align="center" fileref="images/Permissions.gif"
+                       format="GIF" />
+          </imageobject>
+
+          <caption>
+            <para>Figure 8: ACL Instantiation Approach</para>
+          </caption>
+        </mediaobject>
       </sect2>
 
       <sect2 id="acls-conclusion">
