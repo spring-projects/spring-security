@@ -1,13 +1,22 @@
 Changes in version 0.5 (2004-xx-xx)
 -----------------------------------
 
-* Added support for HTTP Basic Authentication
+* Added single sign on support via Yale Central Authentication Service (CAS)
+* Added full support for HTTP Basic Authentication
 * Added Burlap and Hessian remoting to Contacts sample application
-* AuthenticationProcessingFilter by default finds configuration context using Spring's WebApplicationContextUtils.getWebApplicationContext()
-* AuthenticationProcessingFilter context may optionally be specified with 'contextConfigLocation' param (was previously 'appContextLocation')
-* SecurityEnforcementFilter by default finds configuration context using Spring's WebApplicationContextUtils.getWebApplicationContext()
-* SecurityEnforcementFilter context may optionally be specified with 'contextConfigLocation' param (was previously 'appContextLocation')
-* SecurityEnforcementFilter now supports URL definitions using the Apache Ant path syntax in addition to regular expressions
+* Added pluggable password encoders including plaintext, SHA and MD5
+* Added pluggable salt sources to enhance security of hashed passwords
+* Added FilterToBeanProxy to obtain filters from Spring application context
+* Added support for prepending strings to roles created by JdbcDaoImpl
+* Added support for user definition of SQL statements used by JdbcDaoImpl
+* Added definable prefixes to avoid expectation of "ROLE_" GrantedAuthoritys
+* Added pluggable AuthenticationEntryPoints to SecurityEnforcementFilter
+* Added Apache Ant path syntax support to SecurityEnforcementFilter
+* Updated JAR to Spring 1.0.1
+* Refactored filters to use Spring application context lifecycle support
+* Fixed FilterInvocation.getRequestUrl() to also include getPathInfo()
+* Fixed Contacts sample application <A></A> tags
+* Established acegisecurity-developer mailing list
 * Documentation improvements
 
 Changes in version 0.4 (2004-04-03)

@@ -5,21 +5,39 @@
 The following should help most casual users of the project update their
 applications:
 
-- By default, AuthenticationProcessingFilter and SecurityEnforcementFilter now
-  use Spring's WebApplicationContextUtils.getApplicationContext to load the 
-  ApplicationContext in which their respective configs may be found. Ideally,
-  move your configuration for these filters from the separate contexts you were
-  using before, to the main context used by your webapp. Alternately, the old
-  mechanism of having the filter load its own specific context is still
-  supported, but the param specifying the location of this context has been
-  changed to match the equivalent param as used by Spring's ContextLoader class.
-  If you do still want to use this approach, just rename your param from 
-  'appContextLocation' to 'contextConfigLocation'.
+- All filters are now loaded via FilterToBeanProxy. The FilterToBeanProxy
+  obtains the filter from a Spring application context via the
+  WebApplicationContextUtils.getApplicationContext() method. Refer to the
+  reference documentation to see the new configuration of filters.
+
+- SecurityEnforcementFilter now requires an AuthenticationEntryPoint.
+  Refer to the reference documentation to see the alternatives available.
+
+- Any of your login or login failure pages that previously referred to
+  AuthenticationProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY
+  should now use
+  net.sf.acegisecurity.ui.AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY
+
+- DaoAuthenticationProvider no longer provides setters for case sensitivity
+  handling. The respective AuthenticationDao implementations should decide
+  whether or not to return User instances reflecting the exact case of the
+  requested username. The new PlaintextPasswordEncoder offers a setter for
+  ignoring the password case (defaults to require exact case matches).
 
 - If you're using container adapters, please refer to the reference
   documentation as additional JARs are now required in your container
   classloader.
 
-We hope you find the new features useful in your projects.
+- Whilst not really a change needed to your program, if you're using
+  Acegi Security please consider joining the acegisecurity-developer mailing
+  list. This is currently the best way to keep informed about the project's
+  status and provide feedback in design discussions. You can join at 
+  https://lists.sourceforge.net/lists/listinfo/acegisecurity-developer.
+  Please continue using the Spring Users mailing list for general support.
+
+There are also lots of new features you might wish to consider for your
+projects. These include CAS integration, pluggable password encoders
+(such as MD5 and SHA), along with pluggable salt sources. We hope you find
+the new features useful in your projects.
 
 $Id$

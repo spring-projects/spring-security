@@ -19,11 +19,11 @@
       <c:out value="${contact.email}"/>
   </td>
   <authz:authorize ifAllGranted="ROLE_SUPERVISOR">
-    <td><A HREF="del.htm?id=<c:out value="${contact.id}"/>">Del</A></td>
+    <td><A HREF="<c:url value="del.htm"><c:param name="id" value="${contact.id}"/></c:url>">Del</A></td>
   </authz:authorize>
   </tr>
 </c:forEach>
 </table>
-<p><A HREF="add.htm">Add</a>   <A HREF="../logoff.jsp">Logoff</A>
+<p><a href="<c:url value="add.htm"/>">Add</a>   <p><a href="<c:url value="../logoff.jsp"/>">Logoff</a>
 </body>
 </html>

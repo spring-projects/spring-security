@@ -32,8 +32,14 @@ directory. In addition, JavaDocs are located in the docs/api directory.
 OBTAINING SUPPORT
 -------------------------------------------------------------------------------
 
-If you need any help, please post a question on the Spring Users mailing list
-or email ben.alex@acegi.com.au.
+If you need any help, please post a question on the Spring Users mailing list.
+
+If you start using Acegi Security in your project, please consider joining
+the acegisecurity-developer mailing list. This is currently the best way to
+keep informed about the project's status and provide feedback in design 
+discussions. You can join at:
+
+  https://lists.sourceforge.net/lists/listinfo/acegisecurity-developer.
 
 
 $Id$

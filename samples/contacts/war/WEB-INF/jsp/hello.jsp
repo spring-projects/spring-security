@@ -19,6 +19,7 @@ the random contact that is shown below:
 <c:out value="${contact}"/>
 </code>
 <p>
-<p><A HREF="secure/index.htm">Manage</a> <A HREF="secure/debug.jsp">Debug</a>
+<p><A HREF="<c:url value="secure/index.htm"/>">Manage</a>
+<A HREF="<c:url value="secure/debug.jsp"/>">Debug</a>
 </body>
 </html>

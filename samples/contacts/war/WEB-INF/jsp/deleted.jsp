@@ -8,6 +8,6 @@
 <code>
 <c:out value="${contact}"/>
 </code>
-<p><A HREF="index.htm">Manage</a>
+<p><a href="<c:url value="index.htm"/>">Manage</a>
 </body>
 </html>

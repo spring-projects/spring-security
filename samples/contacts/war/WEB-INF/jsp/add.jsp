@@ -35,6 +35,6 @@
   <br><br>
   <input name="execute" type="submit" alignment="center" value="Execute">
 </form>
-<a href="<c:url value="hello.htm"/>">Home</a>
+<a href="<c:url value="../hello.htm"/>">Home</a>
 </body>
 </html>
