@@ -102,25 +102,100 @@
    <target name="warfile" depends="build" description="Build the web application archives">
 
 		<mkdir dir="${dist.dir}"/>
-        <delete file="${dist.dir}/${name}.war"/>
+		<delete dir="${tmp.dir}"/>
+		
+		<!-- Make WAR suitable for deployment into containers WITHOUT container adapters -->
+        <delete file="${dist.dir}/${name.filter}.war"/>
+        <mkdir dir="${tmp.dir}/${name.filter}"/>
+		<copy todir="${tmp.dir}/${name.filter}">
+			<fileset dir="${war.dir}">
+				<include name="**"/>
+			</fileset>
+			<fileset dir="${etc.dir}/filter">
+				<include name="acegilogin.jsp"/>
+			</fileset>
+		</copy>
+		<copy todir="${tmp.dir}/${name.filter}/classes">
+			<fileset dir="${build.dir}">
+				<include name="**"/>
+			</fileset>
+			<fileset dir="${etc.dir}/filter">
+				<include name="web-filters-acegisecurity.xml"/>
+			</fileset>
+		</copy>
+		<copy todir="${tmp.dir}/${name.filter}/WEB-INF">
+			<fileset dir="${etc.dir}/filter">
+				<include name="web.xml"/>
+			</fileset>
+		</copy>
+		<war warfile="${dist.dir}/${name.filter}.war" webxml="${tmp.dir}/${name.filter}/WEB-INF/web.xml">
+			<!-- Include the files which are not under WEB-INF -->
+			<fileset dir="${tmp.dir}/${name.filter}">
+				<exclude name="WEB-INF/**"/>
+				<exclude name="classes/**"/>
+			</fileset>
 
-		<war warfile="${dist.dir}/${name}.war" webxml="${war.dir}/WEB-INF/web.xml">
-			<!-- Include the JSPs and other documents -->
-			<fileset dir="war" excludes="WEB-INF/**"/>
-
-			<!-- Bring in Spring-specific XML configuration files -->
-			<webinf dir="${war.dir}/WEB-INF">
-				<!-- We separately include these -->
+			<!-- Bring in various XML configuration files -->
+			<webinf dir="${tmp.dir}/${name.filter}/WEB-INF">
 				<exclude name="web.xml"/>
 			</webinf>
 
 			<!-- Include the compiled classes -->
-			<classes dir="${build.dir}"/>
+			<classes dir="${tmp.dir}/${name.filter}/classes"/>
 
 			<!-- Include required libraries -->
-			<lib dir="${lib.dir}/jakarta-commons" includes="*.jar" excludes="*logging*"/>
 			<lib dir="${lib.dir}/jakarta-taglibs" includes="*.jar"/>
-			<lib dir="${lib.dir}/hsqldb" includes="*.jar"/>
+			<lib dir="${lib.dir}/spring" includes="spring.jar"/>
+			<lib dir="${lib.dir}/aop-alliance" includes="aopalliance.jar"/>
+			<lib dir="${lib.dir}/regexp" includes="jakarta-oro.jar"/>
+			<lib dir="${lib.dir}/j2ee" includes="jstl.jar"/>
+			<lib dir="${dist.lib.dir}" includes="acegi-security-taglib.jar"/>
+			<lib dir="${dist.lib.dir}" includes="acegi-security.jar"/>
+		</war>
+
+		<!-- Make WAR suitable for deployment into containers WITH container adapters -->
+        <delete file="${dist.dir}/${name.ca}.war"/>
+        <mkdir dir="${tmp.dir}/${name.ca}"/>
+		<copy todir="${tmp.dir}/${name.ca}">
+			<fileset dir="${war.dir}">
+				<include name="**"/>
+			</fileset>
+			<fileset dir="${etc.dir}/ca">
+				<include name="login.jsp"/>
+			</fileset>
+		</copy>
+		<copy todir="${tmp.dir}/${name.ca}/classes">
+			<fileset dir="${build.dir}">
+				<include name="**"/>
+			</fileset>
+			<fileset dir="${etc.dir}/ca">
+				<include name="resin-acegisecurity.xml"/>
+			</fileset>
+		</copy>
+		<copy todir="${tmp.dir}/${name.ca}/WEB-INF">
+			<fileset dir="${etc.dir}/ca">
+				<include name="jboss-web.xml"/>
+				<include name="resin-web.xml"/>
+				<include name="web.xml"/>
+			</fileset>
+		</copy>
+		<war warfile="${dist.dir}/${name.ca}.war" webxml="${tmp.dir}/${name.ca}/WEB-INF/web.xml">
+			<!-- Include the files which are not under WEB-INF -->
+			<fileset dir="${tmp.dir}/${name.ca}">
+				<exclude name="WEB-INF/**"/>
+				<exclude name="classes/**"/>
+			</fileset>
+
+			<!-- Bring in various XML configuration files -->
+			<webinf dir="${tmp.dir}/${name.ca}/WEB-INF">
+				<exclude name="web.xml"/>
+			</webinf>
+
+			<!-- Include the compiled classes -->
+			<classes dir="${tmp.dir}/${name.ca}/classes"/>
+
+			<!-- Include required libraries -->
+			<lib dir="${lib.dir}/jakarta-taglibs" includes="*.jar"/>
 			<lib dir="${lib.dir}/j2ee" includes="jstl.jar"/>
 			<lib dir="${dist.lib.dir}" includes="acegi-security-taglib.jar"/>
 		</war>
