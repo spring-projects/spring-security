@@ -22,6 +22,7 @@ import net.sf.acegisecurity.providers.dao.AuthenticationDao;
 import net.sf.acegisecurity.providers.x509.X509AuthoritiesPopulator;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oro.text.regex.*;
@@ -93,9 +94,7 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (this.authenticationDao == null) {
-            throw new IllegalArgumentException("An authenticationDao must be set");
-        }
+        Assert.notNull(authenticationDao, "An authenticationDao must be set");
 
         Perl5Compiler compiler = new Perl5Compiler();
 
