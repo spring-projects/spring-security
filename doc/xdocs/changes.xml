@@ -25,7 +25,7 @@
     <title>Acegi Security changes</title>
   </properties>
   <body>
-    <release version="0.7.1" date="CVS">
+    <release version="0.8.0" date="CVS">
       <action dev="benalex" type="update">Made ConfigAttributeDefinition and ConfigAttribute Serializable</action>
       <action dev="benalex" type="update">User now accepts blank passwords (null passwords still rejected)</action>
       <action dev="benalex" type="update">FilterToBeanProxy now searches hierarchical bean factories</action>
