@@ -66,7 +66,7 @@ public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBea
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Cache hit: " + (element != null) + "; subjectDN: "
+            logger.debug("X.509 Cache hit. SubjectDN: "
                 + userCert.getSubjectDN());
         }
 
@@ -85,7 +85,7 @@ public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBea
         Element element = new Element(userCert, user);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Cache put: " + element.getKey());
+            logger.debug("Cache put: " + userCert.getSubjectDN());
         }
 
         cache.put(element);
