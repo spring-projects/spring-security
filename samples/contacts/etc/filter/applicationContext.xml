@@ -133,6 +133,25 @@
 
 	<bean id="backendContactManagerTarget" class="sample.contact.ContactManagerBackend"/>
 
+	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
+
+	<bean id="channelProcessingFilter" class="net.sf.acegisecurity.securechannel.ChannelProcessingFilter">
+		<property name="channelDecisionManager"><ref bean="channelDecisionManager"/></property>
+		<property name="channelEntryPoint"><ref bean="channelEntryPoint"/></property>
+ 		<property name="filterInvocationDefinitionSource">
+			<value>
+			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+				\A/secure/.*\Z=REQUIRES_SECURE_CHANNEL
+				\A/info/.*\Z=REQUIRES_SECURE_CHANNEL
+				\A/acegilogin.jsp.*\Z=REQUIRES_SECURE_CHANNEL
+			</value>
+		</property>
+	</bean>
+
+	<bean id="channelDecisionManager" class="net.sf.acegisecurity.securechannel.ChannelDecisionManagerImpl"/>
+
+	<bean id="channelEntryPoint" class="net.sf.acegisecurity.securechannel.RetryWithHttpsEntryPoint"/>
+
 	<!-- ===================== HTTP REQUEST SECURITY ==================== -->
 
 	<bean id="authenticationProcessingFilter" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
