@@ -59,12 +59,47 @@ public class JdbcDaoImplTests extends TestCase {
         junit.textui.TestRunner.run(JdbcDaoImplTests.class);
     }
 
-    public void testGetsAclsWhichExistInDatabase() throws Exception {
+    public void testExceptionThrownIfBasicAclEntryClassNotFound()
+        throws Exception {
+        JdbcDaoImpl dao = makePopulatedJdbcDao();
+        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
+                "7");
+
+        try {
+            dao.getAcls(identity);
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+    }
+
+    public void testGetsEntriesWhichExistInDatabaseAndHaveAcls()
+        throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
         AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
                 "2");
         BasicAclEntry[] acls = dao.getAcls(identity);
         assertEquals(2, acls.length);
+    }
+
+    public void testGetsEntriesWhichExistInDatabaseButHaveNoAcls()
+        throws Exception {
+        JdbcDaoImpl dao = makePopulatedJdbcDao();
+        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
+                "5");
+        BasicAclEntry[] acls = dao.getAcls(identity);
+        assertEquals(1, acls.length);
+        assertEquals(JdbcDaoImpl.RECIPIENT_USED_FOR_INHERITENCE_MARKER,
+            acls[0].getRecipient());
+    }
+
+    public void testGetsEntriesWhichHaveNoParent() throws Exception {
+        JdbcDaoImpl dao = makePopulatedJdbcDao();
+        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
+                "1");
+        BasicAclEntry[] acls = dao.getAcls(identity);
+        assertEquals(1, acls.length);
+        assertNull(acls[0].getAclObjectParentIdentity());
     }
 
     public void testGettersSetters() throws Exception {
@@ -74,15 +109,9 @@ public class JdbcDaoImplTests extends TestCase {
 
         dao.setAclsByObjectIdentityQuery("foo");
         assertEquals("foo", dao.getAclsByObjectIdentityQuery());
-    }
 
-    public void testNullReturnedIfBasicAclEntryClassNotFound()
-        throws Exception {
-        JdbcDaoImpl dao = makePopulatedJdbcDao();
-        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "8");
-        BasicAclEntry[] result = dao.getAcls(identity);
-        assertNull(result);
+        dao.setObjectPropertiesQuery("foobar");
+        assertEquals("foobar", dao.getObjectPropertiesQuery());
     }
 
     public void testNullReturnedIfEntityNotFound() throws Exception {
@@ -93,7 +122,7 @@ public class JdbcDaoImplTests extends TestCase {
         assertNull(result);
     }
 
-    public void testRejectsNonNamedEntityObjectIdentity()
+    public void testReturnsNullForUnNamedEntityObjectIdentity()
         throws Exception {
         JdbcDaoImpl dao = new JdbcDaoImpl();
         AclObjectIdentity identity = new AclObjectIdentity() {}

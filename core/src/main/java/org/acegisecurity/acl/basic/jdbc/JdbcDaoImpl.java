@@ -33,7 +33,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -46,12 +45,11 @@ import javax.sql.DataSource;
  * </p>
  * 
  * <p>
- * A default database structure is assumed (see {@link
- * #DEF_ACLS_BY_OBJECT_IDENTITY_QUERY}). This may be overridden by setting the
- * default query strings to use. If this does not provide enough flexibility,
- * another strategy would be to subclass this class and override the {@link
- * MappingSqlQuery} instance used, via the {@link #initMappingSqlQueries()}
- * extension point.
+ * A default database structure is assumed. This may be overridden by setting
+ * the default query strings to use. If this does not provide enough
+ * flexibility, another strategy would be to subclass this class and override
+ * the {@link MappingSqlQuery} instance used, via the {@link
+ * #initMappingSqlQueries()} extension point.
  * </p>
  *
  * @author Ben Alex
@@ -60,18 +58,23 @@ import javax.sql.DataSource;
 public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
     //~ Static fields/initializers =============================================
 
-    public static final String DEF_ACLS_BY_OBJECT_IDENTITY_QUERY = "SELECT OBJECT_IDENTITY, RECIPIENT, PARENT_OBJECT_IDENTITY, MASK, ACL_CLASS FROM acls WHERE object_identity = ?";
+    public static final String RECIPIENT_USED_FOR_INHERITENCE_MARKER = "___INHERITENCE_MARKER_ONLY___";
+    public static final String DEF_ACLS_BY_OBJECT_IDENTITY_QUERY = "SELECT RECIPIENT, MASK FROM acl_permission WHERE acl_object_identity = ?";
+    public static final String DEF_OBJECT_PROPERTIES_QUERY = "SELECT ID, OBJECT_IDENTITY, ACL_CLASS, PARENT.OBJECT_IDENTITY as PARENT_OBJECT_IDENTITY FROM acl_object_identity LEFT OUTER JOIN acl_object_identity as PARENT ON acl_object_identity.parent_object=parent.id WHERE parent.id=acl_object_identity.parent_object and object_identity = ?";
     private static final Log logger = LogFactory.getLog(JdbcDaoSupport.class);
 
     //~ Instance fields ========================================================
 
     private MappingSqlQuery aclsByObjectIdentity;
+    private MappingSqlQuery objectProperties;
     private String aclsByObjectIdentityQuery;
+    private String objectPropertiesQuery;
 
     //~ Constructors ===========================================================
 
     public JdbcDaoImpl() {
         aclsByObjectIdentityQuery = DEF_ACLS_BY_OBJECT_IDENTITY_QUERY;
+        objectPropertiesQuery = DEF_OBJECT_PROPERTIES_QUERY;
     }
 
     //~ Methods ================================================================
@@ -114,26 +117,36 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
         String aclObjectIdentityString = neoi.getClassname() + ":"
             + neoi.getId();
 
-        // Lookup the BasicAclEntrys from RDBMS (may include null responses)
-        List acls = aclsByObjectIdentity.execute(aclObjectIdentityString);
+        // Lookup the object's main properties from the RDBMS (guaranteed no nulls)
+        List objects = objectProperties.execute(aclObjectIdentityString);
 
-        // Now prune list of null responses (to meet interface contract)
-        List toReturnAcls = new Vector();
-        Iterator iter = acls.iterator();
-
-        while (iter.hasNext()) {
-            Object object = iter.next();
-
-            if (object != null) {
-                toReturnAcls.add(object);
-            }
+        if (objects.size() == 0) {
+            // this is an unknown object identity string
+            return null;
         }
 
-        // Return null if nothing of use found (to meet interface contract)
-        if (toReturnAcls.size() > 0) {
-            return (BasicAclEntry[]) toReturnAcls.toArray(new BasicAclEntry[] {});
+        // Cast to an object properties holder (there should only be one record)
+        AclDetailsHolder propertiesInformation = (AclDetailsHolder) objects.get(0);
+
+        // Lookup the object's ACLs from RDBMS (guaranteed no nulls)
+        List acls = aclsByObjectIdentity.execute(propertiesInformation
+                .getForeignKeyId());
+
+        if (acls.size() == 0) {
+            // return merely an inheritence marker (as we know about the object but it has no related ACLs)
+            return new BasicAclEntry[] {createBasicAclEntry(propertiesInformation,
+                    null)};
         } else {
-            return null;
+            // return the individual ACL instances
+            AclDetailsHolder[] aclHolders = (AclDetailsHolder[]) acls.toArray(new AclDetailsHolder[] {});
+            List toReturnAcls = new Vector();
+
+            for (int i = 0; i < aclHolders.length; i++) {
+                toReturnAcls.add(createBasicAclEntry(propertiesInformation,
+                        aclHolders[i]));
+            }
+
+            return (BasicAclEntry[]) toReturnAcls.toArray(new BasicAclEntry[] {});
         }
     }
 
@@ -164,6 +177,18 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
         return aclsByObjectIdentityQuery;
     }
 
+    public void setObjectProperties(MappingSqlQuery objectPropertiesQuery) {
+        this.objectProperties = objectPropertiesQuery;
+    }
+
+    public void setObjectPropertiesQuery(String queryString) {
+        objectPropertiesQuery = queryString;
+    }
+
+    public String getObjectPropertiesQuery() {
+        return objectPropertiesQuery;
+    }
+
     protected void initDao() throws ApplicationContextException {
         initMappingSqlQueries();
     }
@@ -174,70 +199,151 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
      */
     protected void initMappingSqlQueries() {
         setAclsByObjectIdentity(new AclsByObjectIdentityMapping(getDataSource()));
+        setObjectProperties(new ObjectPropertiesMapping(getDataSource()));
+    }
+
+    /**
+     * Constructs an individual <code>BasicAclEntry</code> from the passed
+     * <code>AclDetailsHolder</code>s.
+     * 
+     * <P>
+     * Guarantees to never return <code>null</code> (exceptions are thrown in
+     * the event of any issues).
+     * </p>
+     *
+     * @param propertiesInformation mandatory information about which instance
+     *        to create, the object identity, and the parent object identity
+     *        (<code>null</code> or empty <code>String</code>s prohibited for
+     *        <code>aclClass</code> and <code>aclObjectIdentity</code>
+     * @param aclInformation optional information about the individual ACL
+     *        record (if <code>null</code> only an "inheritence marker"
+     *        instance is returned; if not <code>null</code>, it is prohibited
+     *        to present <code>null</code> or an empty <code>String</code> for
+     *        <code>recipient</code>)
+     *
+     * @return a fully populated instance suitable for use by external objects
+     *
+     * @throws IllegalArgumentException if the indicated ACL class could not be
+     *         created
+     */
+    private BasicAclEntry createBasicAclEntry(
+        AclDetailsHolder propertiesInformation, AclDetailsHolder aclInformation) {
+        BasicAclEntry entry;
+
+        try {
+            entry = (BasicAclEntry) propertiesInformation.getAclClass()
+                                                         .newInstance();
+        } catch (InstantiationException ie) {
+            throw new IllegalArgumentException(ie.getMessage());
+        } catch (IllegalAccessException iae) {
+            throw new IllegalArgumentException(iae.getMessage());
+        }
+
+        entry.setAclObjectIdentity(propertiesInformation.getAclObjectIdentity());
+        entry.setAclObjectParentIdentity(propertiesInformation
+            .getAclObjectParentIdentity());
+
+        if (aclInformation == null) {
+            // this is an inheritence marker instance only
+            entry.setMask(0);
+            entry.setRecipient(RECIPIENT_USED_FOR_INHERITENCE_MARKER);
+        } else {
+            // this is an individual ACL entry
+            entry.setMask(aclInformation.getMask());
+            entry.setRecipient(aclInformation.getRecipient());
+        }
+
+        return entry;
     }
 
     //~ Inner Classes ==========================================================
 
     /**
-     * Query object to look up ACL entries.
+     * Query object to look up individual ACL entries.
+     * 
+     * <P>
+     * Returns the generic <code>AclDetailsHolder</code> object.
+     * </p>
+     * 
+     * <P>
+     * Guarantees to never return <code>null</code> (exceptions are thrown in
+     * the event of any issues).
+     * </p>
      * 
      * <P>
      * The executed SQL requires the following information be made available
-     * from the indicated placeholders: 1. OBJECT_IDENTITY, 2. RECIPIENT, 3.
-     * PARENT_OBJECT_IDENTITY, 4. MASK, and 5. ACL_CLASS
+     * from the indicated placeholders: 1. RECIPIENT, 2. MASK.
      * </p>
      */
     protected class AclsByObjectIdentityMapping extends MappingSqlQuery {
         protected AclsByObjectIdentityMapping(DataSource ds) {
             super(ds, aclsByObjectIdentityQuery);
+            declareParameter(new SqlParameter(Types.INTEGER));
+            compile();
+        }
+
+        protected Object mapRow(ResultSet rs, int rownum)
+            throws SQLException {
+            String recipient = rs.getString(1);
+            int mask = rs.getInt(2);
+
+            if ((recipient == null) || "".equals(recipient)) {
+                throw new IllegalArgumentException("recipient required");
+            }
+
+            return new AclDetailsHolder(recipient, mask);
+        }
+    }
+
+    /**
+     * Query object to look up properties for an object identity.
+     * 
+     * <P>
+     * Returns the generic <code>AclDetailsHolder</code> object.
+     * </p>
+     * 
+     * <P>
+     * Guarantees to never return <code>null</code> (exceptions are thrown in
+     * the event of any issues).
+     * </p>
+     * 
+     * <P>
+     * The executed SQL requires the following information be made available
+     * from the indicated placeholders: 1. ID, 2. OBJECT_IDENTITY, 3.
+     * ACL_CLASS and 4. PARENT_OBJECT_IDENTITY.
+     * </p>
+     */
+    protected class ObjectPropertiesMapping extends MappingSqlQuery {
+        protected ObjectPropertiesMapping(DataSource ds) {
+            super(ds, objectPropertiesQuery);
             declareParameter(new SqlParameter(Types.VARCHAR));
             compile();
         }
 
         protected Object mapRow(ResultSet rs, int rownum)
             throws SQLException {
-            String objectIdentity = rs.getString(1);
-            String recipient = rs.getString(2);
-            String parentObjectIdentity = rs.getString(3);
-            int mask = rs.getInt(4);
-            String aclClass = rs.getString(5);
+            int id = rs.getInt(1); // required
+            String objectIdentity = rs.getString(2); // required
+            String aclClass = rs.getString(3); // required
+            String parentObjectIdentity = rs.getString(4); // optional
 
-            // Try to create the indicated BasicAclEntry class
-            BasicAclEntry entry;
+            if ((objectIdentity == null) || "".equals(objectIdentity)
+                || (aclClass == null) || "".equals(aclClass)) {
+                // shouldn't happen if DB schema defined NOT NULL columns
+                throw new IllegalArgumentException(
+                    "required DEF_OBJECT_PROPERTIES_QUERY value returned null or empty");
+            }
+
+            Class aclClazz;
 
             try {
-                Class aclClazz = this.getClass().getClassLoader().loadClass(aclClass);
-                entry = (BasicAclEntry) aclClazz.newInstance();
+                aclClazz = this.getClass().getClassLoader().loadClass(aclClass);
             } catch (ClassNotFoundException cnf) {
-                logger.error(cnf);
-
-                return null;
-            } catch (InstantiationException ie) {
-                logger.error(ie);
-
-                return null;
-            } catch (IllegalAccessException iae) {
-                logger.error(iae);
-
-                return null;
+                throw new IllegalArgumentException(cnf.getMessage());
             }
 
-            // Now set each of the ACL's properties
-            entry.setAclObjectIdentity(buildIdentity(objectIdentity));
-            entry.setAclObjectParentIdentity(buildIdentity(parentObjectIdentity));
-            entry.setRecipient(recipient);
-            entry.setMask(mask);
-
-            if ((entry.getRecipient() == null)
-                || (entry.getAclObjectIdentity() == null)) {
-                // Problem with retrieval of ACL 
-                // (shouldn't happen if DB schema defined NOT NULL columns)
-                logger.error("recipient or aclObjectIdentity is null");
-
-                return null;
-            }
-
-            return entry;
+            return new AclDetailsHolder(id, buildIdentity(objectIdentity),
+                buildIdentity(parentObjectIdentity), aclClazz);
         }
 
         private AclObjectIdentity buildIdentity(String identity) {
@@ -251,6 +357,90 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
             String id = identity.substring(delim + 1);
 
             return new NamedEntityObjectIdentity(classname, id);
+        }
+    }
+
+    /**
+     * Used to hold details of a domain object instance's properties, or an
+     * individual ACL entry.
+     * 
+     * <P>
+     * Not all properties will be set. The actual properties set will depend on
+     * which <code>MappingSqlQuery</code> creates the object.
+     * </p>
+     * 
+     * <P>
+     * Does not enforce <code>null</code>s or empty <code>String</code>s as
+     * this is performed by the <code>MappingSqlQuery</code> objects (or
+     * preferably the backend RDBMS via schema constraints).
+     * </p>
+     */
+    private class AclDetailsHolder {
+        private AclObjectIdentity aclObjectIdentity;
+        private AclObjectIdentity aclObjectParentIdentity;
+        private Class aclClass;
+        private Object recipient;
+        private int foreignKeyId;
+        private int mask;
+
+        /**
+         * Record details of an individual ACL entry (usually from the
+         * ACL_PERMISSION table)
+         *
+         * @param recipient the recipient
+         * @param mask the integer to be masked
+         */
+        public AclDetailsHolder(Object recipient, int mask) {
+            this.recipient = recipient;
+            this.mask = mask;
+        }
+
+        /**
+         * Record details of a domain object instance's properties (usually
+         * from the ACL_OBJECT_IDENTITY table)
+         *
+         * @param foreignKeyId used by the
+         *        <code>AclsByObjectIdentityMapping</code> to locate the
+         *        individual ACL entries
+         * @param aclObjectIdentity the object identity of the domain object
+         *        instance
+         * @param aclObjectParentIdentity the object identity of the domain
+         *        object instance's parent
+         * @param aclClass the class of which a new instance which should be
+         *        created for each individual ACL entry (or an inheritence
+         *        "holder" class if there are no ACL entries)
+         */
+        public AclDetailsHolder(int foreignKeyId,
+            AclObjectIdentity aclObjectIdentity,
+            AclObjectIdentity aclObjectParentIdentity, Class aclClass) {
+            this.foreignKeyId = foreignKeyId;
+            this.aclObjectIdentity = aclObjectIdentity;
+            this.aclObjectParentIdentity = aclObjectParentIdentity;
+            this.aclClass = aclClass;
+        }
+
+        public Class getAclClass() {
+            return aclClass;
+        }
+
+        public AclObjectIdentity getAclObjectIdentity() {
+            return aclObjectIdentity;
+        }
+
+        public AclObjectIdentity getAclObjectParentIdentity() {
+            return aclObjectParentIdentity;
+        }
+
+        public int getForeignKeyId() {
+            return foreignKeyId;
+        }
+
+        public int getMask() {
+            return mask;
+        }
+
+        public Object getRecipient() {
+            return recipient;
         }
     }
 }

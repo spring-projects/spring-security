@@ -3208,23 +3208,41 @@ public java.lang.Object getRecipient();</programlisting></para>
         default database schema and some sample data will aid in understanding
         its function:</para>
 
-        <para><programlisting>CREATE TABLE acls (
-  object_identity VARCHAR_IGNORECASE(250) NOT NULL,
-  recipient VARCHAR_IGNORECASE(100) NOT NULL,
-  parent_object_identity VARCHAR_IGNORECASE(250),
-  mask INTEGER NOT NULL,
-  acl_class VARCHAR_IGNORECASE(250) NOT NULL,
-  CONSTRAINT pk_acls PRIMARY KEY(object_identity, recipient)
+        <para><programlisting>CREATE TABLE acl_object_identity (
+     id IDENTITY NOT NULL,
+     object_identity VARCHAR_IGNORECASE(250) NOT NULL,
+     parent_object INTEGER,
+     acl_class VARCHAR_IGNORECASE(250) NOT NULL,
+     CONSTRAINT unique_object_identity UNIQUE(object_identity),
+     FOREIGN KEY (parent_object) REFERENCES acl_object_identity(id)
 );
 
-INSERT INTO acls VALUES ('corp.DomainObject:1', 'ROLE_SUPERVISOR', null, 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acls VALUES ('corp.DomainObject:2', 'ROLE_SUPERVISOR', 'corp.DomainObject:1', 0, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acls VALUES ('corp.DomainObject:2', 'marissa', 'corp.DomainObject:1', 2, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acls VALUES ('corp.DomainObject:3', 'scott', 'corp.DomainObject:1', 14, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acls VALUES ('corp.DomainObject:4', 'inheritance_marker_only', 'corp.DomainObject:1', 0, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acls VALUES ('corp.DomainObject:5', 'inheritance_marker_only', 'corp.DomainObject:3', 0, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acls VALUES ('corp.DomainObject:6', 'scott', 'corp.DomainObject:3', 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acls VALUES ('corp.DomainObject:7', 'scott', 'some.invalid.parent:1', 2, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');</programlisting></para>
+CREATE TABLE acl_permission (
+     id IDENTITY NOT NULL,
+     acl_object_identity INTEGER NOT NULL,
+     recipient VARCHAR_IGNORECASE(100) NOT NULL,
+     mask INTEGER NOT NULL,
+     CONSTRAINT unique_recipient UNIQUE(acl_object_identity, recipient),
+     FOREIGN KEY (acl_object_identity) REFERENCES acl_object_identity(id)
+);
+
+INSERT INTO acl_object_identity VALUES (1, 'corp.DomainObject:1', null, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (2, 'corp.DomainObject:2', 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (3, 'corp.DomainObject:3', 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (4, 'corp.DomainObject:4', 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (5, 'corp.DomainObject:5', 3, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (6, 'corp.DomainObject:6', 3, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+
+INSERT INTO acl_permission VALUES (null, 1, 'ROLE_SUPERVISOR', 1);
+INSERT INTO acl_permission VALUES (null, 2, 'ROLE_SUPERVISOR', 0);
+INSERT INTO acl_permission VALUES (null, 2, 'marissa', 2);
+INSERT INTO acl_permission VALUES (null, 3, 'scott', 14);
+INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
+
+        <para>As can be seen, database-specific constraints are used
+        extensively to ensure the integrity of the ACL information. If you
+        need to use a different database (Hypersonic SQL statements are shown
+        above), you should try to implement equivalent constraints.</para>
 
         <para>The <literal>JdbcDaoImpl</literal> will only respond to requests
         for <literal>NamedEntityObjectIdentity</literal>s. It converts such
@@ -3312,8 +3330,7 @@ INSERT INTO acls VALUES ('corp.DomainObject:7', 'scott', 'some.invalid.parent:1'
 ---    5      ROLE_SUPERVISOR   Administer (from parent #3)
 ---           scott             Read, Write, Create (from parent #3)
 ---    6      ROLE_SUPERVISOR   Administer (from parent #3)
----           scott             Administer (overrides parent #3)
----    7      scott             Read (invalid parent ignored)</programlisting></para>
+---           scott             Administer (overrides parent #3)</programlisting></para>
 
         <para>So the above explains how a domain object instance has its
         <literal>AclObjectIdentity</literal> discovered, and the

@@ -27,13 +27,24 @@ INSERT INTO authorities VALUES ('dianne', 'ROLE_TELLER');
 INSERT INTO authorities VALUES ('scott', 'ROLE_TELLER');
 INSERT INTO authorities VALUES ('peter', 'ROLE_TELLER');
 
-CREATE TABLE acls (
-	object_identity VARCHAR_IGNORECASE(250) NOT NULL,
-	recipient VARCHAR_IGNORECASE(100) NOT NULL,
-	parent_object_identity VARCHAR_IGNORECASE(250),
-	mask INTEGER NOT NULL,
-	acl_class VARCHAR_IGNORECASE(250) NOT NULL,
-	CONSTRAINT pk_acls PRIMARY KEY(object_identity, recipient)
+--- Indexes auto created in HSQLDB for primary keys and unique columns
+
+CREATE TABLE acl_object_identity (
+     id IDENTITY NOT NULL,
+     object_identity VARCHAR_IGNORECASE(250) NOT NULL,
+     parent_object INTEGER,
+     acl_class VARCHAR_IGNORECASE(250) NOT NULL,
+     CONSTRAINT unique_object_identity UNIQUE(object_identity),
+     FOREIGN KEY (parent_object) REFERENCES acl_object_identity(id)
+);
+
+CREATE TABLE acl_permission (
+     id IDENTITY NOT NULL,
+     acl_object_identity INTEGER NOT NULL,
+     recipient VARCHAR_IGNORECASE(100) NOT NULL,
+     mask INTEGER NOT NULL,
+     CONSTRAINT unique_recipient UNIQUE(acl_object_identity, recipient),
+     FOREIGN KEY (acl_object_identity) REFERENCES acl_object_identity(id)
 );
 
 --- Mask integer 0  = no permissions
@@ -56,16 +67,19 @@ CREATE TABLE acls (
 ---           scott             Read, Write, Create (from parent #3)
 ---    6      ROLE_SUPERVISOR   Administer (from parent #3)
 ---           scott             Administer (overrides parent #3)
----    7      scott             Read (invalid parent ignored)
 ---------------------------------------------------------------------
 
-INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:1', 'ROLE_SUPERVISOR', null, 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:2', 'ROLE_SUPERVISOR', 'net.sf.acegisecurity.acl.DomainObject:1', 0, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:2', 'marissa', 'net.sf.acegisecurity.acl.DomainObject:1', 2, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:3', 'scott', 'net.sf.acegisecurity.acl.DomainObject:1', 14, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:4', 'inheritance_marker_only', 'net.sf.acegisecurity.acl.DomainObject:1', 0, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:5', 'inheritance_marker_only', 'net.sf.acegisecurity.acl.DomainObject:3', 0, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:6', 'scott', 'net.sf.acegisecurity.acl.DomainObject:3', 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:7', 'scott', 'some.invalid.parent:1', 2, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (1, 'net.sf.acegisecurity.acl.DomainObject:1', null, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (2, 'net.sf.acegisecurity.acl.DomainObject:2', 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (3, 'net.sf.acegisecurity.acl.DomainObject:3', 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (4, 'net.sf.acegisecurity.acl.DomainObject:4', 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (5, 'net.sf.acegisecurity.acl.DomainObject:5', 3, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (6, 'net.sf.acegisecurity.acl.DomainObject:6', 3, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+
+INSERT INTO acl_permission VALUES (null, 1, 'ROLE_SUPERVISOR', 1);
+INSERT INTO acl_permission VALUES (null, 2, 'ROLE_SUPERVISOR', 0);
+INSERT INTO acl_permission VALUES (null, 2, 'marissa', 2);
+INSERT INTO acl_permission VALUES (null, 3, 'scott', 14);
+INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);
 
 
