@@ -1,0 +1,21 @@
+<html>
+<body>
+Enables use of Spring's remoting extension points to propogate
+security identity from one JVM to the remote JVM.
+
+<P>The beans are wired as follows:
+
+<P>
+<code>
+&lt;bean id="test" class="org.springframework.remoting.rmi.RmiProxyFactoryBean"&gt;<BR>
+   &lt;property name="serviceUrl"&gt;&lt;value&gt;rmi://localhost/Test&lt;/value&gt;&lt;/property&gt;<BR>
+   &lt;property name="serviceInterface"&gt;&lt;value&gt;test.TargetInterface&lt;/value&gt;&lt;/property&gt;<BR>
+   &lt;property name="refreshStubOnConnectFailure"&gt;&lt;value&gt;true&lt;/value&gt;&lt;/property&gt;<BR>
+   &lt;property name="remoteInvocationFactory"&gt;&lt;ref bean="remoteInvocationFactory"/&gt;&lt;/property&gt;<BR>
+&lt;/bean&gt;<BR>
+<BR>
+&lt;bean id="remoteInvocationFactory" class="net.sf.acegisecurity.remoting.AcegiRemoteInvocationFactory"/&gt;<BR>
+</code>
+
+</body>
+</html>

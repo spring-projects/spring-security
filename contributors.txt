@@ -32,7 +32,9 @@ contributions to the Acegi Security System for Spring project:
 
 * Karel Miarka contributed a fix for EH-CACHE NPEs, additional event
   handling for DaoAuthenticationProvider, and the 
-  PasswordAuthenticationProvider-related classes
+  PasswordAuthenticationProvider-related (including LDAP DAO) classes.
+
+* James Monaghan contributed the AcegiRemoteInvocation support classes.
 
 * Anyone else I've forgotten (please let me know so I can correct this).
 
