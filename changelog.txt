@@ -9,6 +9,7 @@ Changes in version 0.7 (2004-xx-xx)
 * Added AuthenticationProcessingFilter.setDetails for use by subclasses
 * Added 403-causing exception to HttpSession via SecurityEnforcementFilter
 * Added net.sf.acegisecurity.intercept.event package
+* Added BasicAclExtendedDao interface and JdbcExtendedDaoImpl for ACL CRUD
 * Improved BasicAclProvider to only respond to specified ACL object requests
 * Refactored MethodDefinitionSource to work with Method, not MethodInvocation
 * Refactored AbstractSecurityInterceptor to better support other AOP libraries
