@@ -18,8 +18,6 @@ package net.sf.acegisecurity.adapters;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.adapters.jboss.JbossIntegrationFilter;
 
-import org.jboss.security.SimplePrincipal;
-
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,13 +31,11 @@ import javax.servlet.http.HttpServletRequest;
  * <code>web.xml</code> will not need to refer to a specific container
  * integration filter.
  * </p>
- * 
- * <p>
- * See {@link AbstractIntegrationFilter} for further information.
- * </p>
  *
  * @author Ben Alex
  * @version $Id$
+ *
+ * @see AbstractIntegrationFilter
  */
 public class AutoIntegrationFilter extends AbstractIntegrationFilter {
     //~ Methods ================================================================
@@ -52,8 +48,20 @@ public class AutoIntegrationFilter extends AbstractIntegrationFilter {
                 return new HttpRequestIntegrationFilter().extractFromContainer(request);
             }
 
-            if (httpRequest.getUserPrincipal() instanceof SimplePrincipal) {
-                return new JbossIntegrationFilter().extractFromContainer(request);
+            try {
+                Class simplePrincipalClass = Class.forName(
+                        "org.jboss.security.SimplePrincipal");
+
+                if (null != httpRequest.getUserPrincipal()) {
+                    if (simplePrincipalClass.isAssignableFrom(
+                            httpRequest.getUserPrincipal().getClass())) {
+                        return new JbossIntegrationFilter()
+                        .extractFromContainer(request);
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                // Can't be JBoss principal
+                // Expected, and normal - fall through
             }
         }
 
