@@ -271,12 +271,6 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
     }
 
     protected InterceptorStatusToken beforeInvocation(Object object) {
-        if (this.context != null) {
-            System.out.println("xx");
-        } else {
-            System.out.println("null");
-        }
-
         if (object == null) {
             throw new IllegalArgumentException("Object was null");
         }
