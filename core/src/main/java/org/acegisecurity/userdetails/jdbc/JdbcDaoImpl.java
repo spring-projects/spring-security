@@ -74,7 +74,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
     private MappingSqlQuery authoritiesByUsernameMapping;
     private MappingSqlQuery usersByUsernameMapping;
     private String authoritiesByUsernameQuery;
-    private String rolePrefix = "ROLE_";
+    private String rolePrefix = "";
     private String usersByUsernameQuery;
 
     //~ Constructors ===========================================================
@@ -212,7 +212,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
 
         protected Object mapRow(ResultSet rs, int rownum)
             throws SQLException {
-            String roleName = rolePrefix + rs.getString(1);
+            String roleName = rolePrefix + rs.getString(2);
             GrantedAuthorityImpl authority = new GrantedAuthorityImpl(roleName);
 
             return authority;

@@ -20,9 +20,15 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 /**
  * <p>
- * SHA implementation of PasswordEncoder.<br/
- * > The ignorePasswordCase parameter is not used for this implementation.<br/
- * > A null password is encoded to the same value as an empty ("") password.
+ * SHA implementation of PasswordEncoder.
+ * </p>
+ * 
+ * <p>
+ * The ignorePasswordCase parameter is not used for this implementation.
+ * </p>
+ * 
+ * <p>
+ * A null password is encoded to the same value as an empty ("") password.
  * </p>
  *
  * @author colin sampaleanu

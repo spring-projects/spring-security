@@ -105,6 +105,17 @@ public class JdbcDaoTests extends TestCase {
         assertEquals("wombat", dao.loadUserByUsername("ScOTt").getPassword());
     }
 
+    public void testRolePrefixWorks() throws Exception {
+        JdbcDaoImpl dao = makePopulatedJdbcDaoWithRolePrefix();
+        User user = dao.loadUserByUsername("marissa");
+        assertEquals("marissa", user.getUsername());
+        assertEquals("ARBITRARY_PREFIX_ROLE_TELLER",
+            user.getAuthorities()[0].getAuthority());
+        assertEquals("ARBITRARY_PREFIX_ROLE_SUPERVISOR",
+            user.getAuthorities()[1].getAuthority());
+        assertEquals(2, user.getAuthorities().length);
+    }
+
     public void testStartupFailsIfDataSourceNotSet() throws Exception {
         JdbcDaoImpl dao = new JdbcDaoImpl();
 
@@ -137,6 +148,22 @@ public class JdbcDaoTests extends TestCase {
 
         JdbcDaoImpl dao = new JdbcDaoImpl();
         dao.setDataSource(ds);
+        dao.afterPropertiesSet();
+
+        return dao;
+    }
+
+    private JdbcDaoImpl makePopulatedJdbcDaoWithRolePrefix()
+        throws Exception {
+        DriverManagerDataSource ds = new DriverManagerDataSource();
+        ds.setDriverClassName("org.hsqldb.jdbcDriver");
+        ds.setUrl("jdbc:hsqldb:acegisecuritytest");
+        ds.setUsername("sa");
+        ds.setPassword("");
+
+        JdbcDaoImpl dao = new JdbcDaoImpl();
+        dao.setDataSource(ds);
+        dao.setRolePrefix("ARBITRARY_PREFIX_");
         dao.afterPropertiesSet();
 
         return dao;
