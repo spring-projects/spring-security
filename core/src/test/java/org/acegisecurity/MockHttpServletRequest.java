@@ -52,9 +52,9 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     private HttpSession session = new MockHttpSession();
     private Map attribMap = new HashMap();
+    private Map cookiesMap = new HashMap();
     private Map headersMap = new HashMap();
     private Map paramMap = new HashMap();
-    private Map cookiesMap = new HashMap();
     private Principal principal;
     private String contextPath = "";
     private String pathInfo; // null for no extra path
@@ -76,12 +76,14 @@ public class MockHttpServletRequest implements HttpServletRequest {
         this.queryString = queryString;
     }
 
-    public MockHttpServletRequest(Map headers, HttpSession session, String queryString, Cookie[] cookies) {
-    	this.queryString = queryString;
+    public MockHttpServletRequest(Map headers, HttpSession session,
+        String queryString, Cookie[] cookies) {
+        this.queryString = queryString;
         this.headersMap = headers;
         this.session = session;
+
         for (int i = 0; i < cookies.length; i++) {
-        	cookiesMap.put(cookies[i].getName(), cookies[i]);
+            cookiesMap.put(cookies[i].getName(), cookies[i]);
         }
     }
 
@@ -172,6 +174,18 @@ public class MockHttpServletRequest implements HttpServletRequest {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
+    public String getLocalAddr() {
+        throw new UnsupportedOperationException("mock method not implemented");
+    }
+
+    public String getLocalName() {
+        throw new UnsupportedOperationException("mock method not implemented");
+    }
+
+    public int getLocalPort() {
+        throw new UnsupportedOperationException("mock method not implemented");
+    }
+
     public Locale getLocale() {
         throw new UnsupportedOperationException("mock method not implemented");
     }
@@ -243,6 +257,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     public String getRemoteHost() {
+        throw new UnsupportedOperationException("mock method not implemented");
+    }
+
+    public int getRemotePort() {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -244,6 +244,21 @@ public class FilterInvocationTests extends TestCase {
                 "mock method not implemented");
         }
 
+        public String getLocalAddr() {
+            throw new UnsupportedOperationException(
+                "mock method not implemented");
+        }
+
+        public String getLocalName() {
+            throw new UnsupportedOperationException(
+                "mock method not implemented");
+        }
+
+        public int getLocalPort() {
+            throw new UnsupportedOperationException(
+                "mock method not implemented");
+        }
+
         public Locale getLocale() {
             throw new UnsupportedOperationException(
                 "mock method not implemented");
@@ -299,6 +314,11 @@ public class FilterInvocationTests extends TestCase {
                 "mock method not implemented");
         }
 
+        public int getRemotePort() {
+            throw new UnsupportedOperationException(
+                "mock method not implemented");
+        }
+
         public RequestDispatcher getRequestDispatcher(String arg0) {
             throw new UnsupportedOperationException(
                 "mock method not implemented");
@@ -341,6 +361,11 @@ public class FilterInvocationTests extends TestCase {
                 "mock method not implemented");
         }
 
+        public void setCharacterEncoding(String arg0) {
+            throw new UnsupportedOperationException(
+                "mock method not implemented");
+        }
+
         public String getCharacterEncoding() {
             throw new UnsupportedOperationException(
                 "mock method not implemented");
@@ -357,6 +382,11 @@ public class FilterInvocationTests extends TestCase {
         }
 
         public void setContentType(String arg0) {
+            throw new UnsupportedOperationException(
+                "mock method not implemented");
+        }
+
+        public String getContentType() {
             throw new UnsupportedOperationException(
                 "mock method not implemented");
         }

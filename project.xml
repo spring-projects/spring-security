@@ -194,7 +194,7 @@
     <dependency>
       <groupId>jstl</groupId>
       <artifactId>jstl</artifactId>
-      <version>1.0.2</version>
+      <version>1.0.6</version>
       <type>jar</type>
       <properties>
         <war.bundle>true</war.bundle>
@@ -203,13 +203,14 @@
     <dependency>
       <groupId>servletapi</groupId>
       <artifactId>servletapi</artifactId>
-      <version>2.3</version>
+      <version>2.4</version>
       <type>jar</type>
+      <url>http://java.sun.com/products/servlet</url>
     </dependency>
     <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
-      <version>2.0.7</version>
+      <version>2.0.8</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/oro/</url>
       <properties>
@@ -229,7 +230,7 @@
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.8</version>
+      <version>1.2.9</version>
       <type>jar</type>
       <properties>
         <war.bundle>true</war.bundle>
@@ -338,7 +339,7 @@
     <dependency>
       <groupId>taglibs</groupId>
       <artifactId>standard</artifactId>
-      <version>1.0.4</version>
+      <version>1.0.6</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/taglibs/</url>
       <properties>
@@ -376,6 +377,16 @@
       <artifactId>maven-statcvs-plugin</artifactId>
       <version>2.5</version>
       <type>plugin</type>
+    </dependency>
+    <dependency>
+      <groupId>jspapi</groupId>
+      <artifactId>jsp-api</artifactId>
+      <version>2.0</version>
+      <type>jar</type>
+      <url>http://java.sun.com/products/jsp</url>
+      <properties>
+        <war.bundle>false</war.bundle>
+      </properties>
     </dependency>
   </dependencies>
   <build>

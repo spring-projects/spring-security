@@ -31,7 +31,7 @@
       <action dev="benalex" type="update">ContextHolderAwareRequestWrapper methods return null if user is anonymous</action>
       <action dev="benalex" type="update">AbstractBasicAclEntry improved compatibility with Hibernate</action>
       <action dev="benalex" type="update">User now provides a more useful toString() method</action>
-      <action dev="benalex" type="update">Use Spring 1.1.5 JARs</action>
+      <action dev="benalex" type="update">Update to match Spring 1.1.5 official JAR dependencies (NB: now using Servlet 2.4 and related JSP/taglib JARs)</action>
       <action dev="benalex" type="fix">SecurityEnforcementFilter caused NullPointerException when anonymous authentication used with BasicProcessingFilterEntryPoint</action>
       <action dev="benalex" type="fix">FilterChainProxy now supports replacement of ServletRequest and ServetResponse by Filter beans</action>
       <action dev="fbos" type="fix">Corrected Authz parsing of whitespace in GrantedAuthoritys</action>
@@ -39,6 +39,9 @@
       <action dev="benalex" type="fix">HttpSessionContextIntegrationFilter now handles HttpSession invalidation without redirection</action>
       <action dev="benalex" type="fix">StringSplitUtils.split() ignored delimiter argument</action>
       <action dev="benalex" type="fix">DigestProcessingFilter now provides userCache getter and setter</action>
+      <action dev="benalex" type="fix">Contacts Sample made to work with UserDetails-based Principal</action>
+      <action dev="benalex" type="update">Documentation improvements</action>
+      <action dev="benalex" type="update">Test coverage improvements</action>
     </release>
     <release version="0.8.0" date="2005-03-03">
       <action dev="benalex" type="add">Added Digest Authentication support (RFC 2617 and RFC 2069)</action>

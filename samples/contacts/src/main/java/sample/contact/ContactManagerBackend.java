@@ -15,14 +15,17 @@
 
 package sample.contact;
 
+import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.acl.basic.AclObjectIdentity;
 import net.sf.acegisecurity.acl.basic.BasicAclExtendedDao;
 import net.sf.acegisecurity.acl.basic.NamedEntityObjectIdentity;
 import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.security.SecureContextUtils;
 
 import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.support.ApplicationObjectSupport;
 
 import java.util.List;
 import java.util.Random;
@@ -34,7 +37,8 @@ import java.util.Random;
  * @author Ben Alex
  * @version $Id$
  */
-public class ContactManagerBackend implements ContactManager, InitializingBean {
+public class ContactManagerBackend extends ApplicationObjectSupport
+    implements ContactManager, InitializingBean {
     //~ Instance fields ========================================================
 
     private BasicAclExtendedDao basicAclExtendedDao;
@@ -44,10 +48,18 @@ public class ContactManagerBackend implements ContactManager, InitializingBean {
     //~ Methods ================================================================
 
     public List getAll() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Returning all contacts");
+        }
+
         return contactDao.findAll();
     }
 
     public List getAllRecipients() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Returning all recipients");
+        }
+
         List list = contactDao.findAllPrincipals();
         list.addAll(contactDao.findAllRoles());
 
@@ -63,6 +75,10 @@ public class ContactManagerBackend implements ContactManager, InitializingBean {
     }
 
     public Contact getById(Integer id) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Returning contact with id: " + id);
+        }
+
         return contactDao.getById(id);
     }
 
@@ -80,6 +96,10 @@ public class ContactManagerBackend implements ContactManager, InitializingBean {
      * @return DOCUMENT ME!
      */
     public Contact getRandomContact() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Returning random contact");
+        }
+
         Random rnd = new Random();
         List contacts = contactDao.findAll();
         int getNumber = rnd.nextInt(contacts.size());
@@ -94,6 +114,11 @@ public class ContactManagerBackend implements ContactManager, InitializingBean {
         simpleAclEntry.setMask(permission.intValue());
         simpleAclEntry.setRecipient(recipient);
         basicAclExtendedDao.create(simpleAclEntry);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Added permission " + permission + " for recipient "
+                + recipient + " contact " + contact);
+        }
     }
 
     public void afterPropertiesSet() throws Exception {
@@ -114,6 +139,11 @@ public class ContactManagerBackend implements ContactManager, InitializingBean {
         // Grant the current principal access to the contact 
         addPermission(contact, getUsername(),
             new Integer(SimpleAclEntry.ADMINISTRATION));
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Created contact " + contact
+                + " and granted admin permission to recipient " + getUsername());
+        }
     }
 
     public void delete(Contact contact) {
@@ -121,19 +151,39 @@ public class ContactManagerBackend implements ContactManager, InitializingBean {
 
         // Delete the ACL information as well
         basicAclExtendedDao.delete(makeObjectIdentity(contact));
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Deleted contact " + contact
+                + " including ACL permissions");
+        }
     }
 
     public void deletePermission(Contact contact, String recipient) {
         basicAclExtendedDao.delete(makeObjectIdentity(contact), recipient);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Deleted contact " + contact
+                + " ACL permissions for recipient " + recipient);
+        }
     }
 
     public void update(Contact contact) {
         contactDao.update(contact);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Updated contact " + contact);
+        }
     }
 
     protected String getUsername() {
-        return ((SecureContext) ContextHolder.getContext()).getAuthentication()
-                .getPrincipal().toString();
+        Authentication auth = SecureContextUtils.getSecureContext()
+                                                .getAuthentication();
+
+        if (auth.getPrincipal() instanceof UserDetails) {
+            return ((UserDetails) auth.getPrincipal()).getUsername();
+        } else {
+            return auth.getPrincipal().toString();
+        }
     }
 
     private AclObjectIdentity makeObjectIdentity(Contact contact) {

@@ -53,6 +53,10 @@ public class MockHttpServletResponse implements HttpServletResponse {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
+    public void setCharacterEncoding(String arg0) {
+        throw new UnsupportedOperationException("mock method not implemented");
+    }
+
     public String getCharacterEncoding() {
         throw new UnsupportedOperationException("mock method not implemented");
     }
@@ -70,6 +74,10 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     public void setContentType(String arg0) {
+        throw new UnsupportedOperationException("mock method not implemented");
+    }
+
+    public String getContentType() {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 

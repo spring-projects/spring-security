@@ -11,6 +11,10 @@
 
 	<!-- ========================== WEB DEFINITIONS ======================= -->
 
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename"><value>messages</value></property>
+	</bean>
+
     <bean id="publicIndexController" class="sample.contact.PublicIndexController">
     	<property name="contactManager"><ref bean="contactManager"/></property>
  	</bean>
