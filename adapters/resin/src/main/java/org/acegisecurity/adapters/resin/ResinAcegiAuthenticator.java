@@ -17,8 +17,6 @@ package net.sf.acegisecurity.adapters.resin;
 
 import com.caucho.http.security.AbstractAuthenticator;
 
-import com.caucho.vfs.Path;
-
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationManager;
@@ -28,9 +26,7 @@ import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-
-import java.io.File;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.security.Principal;
 
@@ -63,16 +59,16 @@ public class ResinAcegiAuthenticator extends AbstractAuthenticator {
     //~ Instance fields ========================================================
 
     private AuthenticationManager authenticationManager;
-    private Path appContextLocation;
+    private String appContextLocation;
     private String key;
 
     //~ Methods ================================================================
 
-    public void setAppContextLocation(Path appContextLocation) {
+    public void setAppContextLocation(String appContextLocation) {
         this.appContextLocation = appContextLocation;
     }
 
-    public Path getAppContextLocation() {
+    public String getAppContextLocation() {
         return appContextLocation;
     }
 
@@ -90,8 +86,7 @@ public class ResinAcegiAuthenticator extends AbstractAuthenticator {
         if (!(principal instanceof PrincipalAcegiUserToken)) {
             if (logger.isWarnEnabled()) {
                 logger.warn(
-                    "Expected passed principal to be of type PrincipalSpringUserToken but was "
-                    + principal.getClass().getName());
+                    "Expected passed principal to be of type PrincipalAcegiUserToken");
             }
 
             return false;
@@ -105,23 +100,19 @@ public class ResinAcegiAuthenticator extends AbstractAuthenticator {
     public void init() throws ServletException {
         super.init();
 
-        if (appContextLocation == null) {
+        if ((appContextLocation == null) || "".equals(appContextLocation)) {
             throw new ServletException("appContextLocation must be defined");
         }
 
-        if (key == null) {
+        if ((key == null) || "".equals(key)) {
             throw new ServletException("key must be defined");
         }
 
-        File xml = new File(appContextLocation.getPath());
-
-        if (!xml.exists()) {
-            throw new ServletException(
-                "appContextLocation does not seem to exist - try specifying WEB-INF/resin-springsecurity.xml");
+        if (Thread.currentThread().getContextClassLoader().getResource(appContextLocation) == null) {
+            throw new ServletException("Cannot locate " + appContextLocation);
         }
 
-        FileSystemXmlApplicationContext ctx = new FileSystemXmlApplicationContext(xml
-                .getAbsolutePath());
+        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(appContextLocation);
         Map beans = ctx.getBeansOfType(AuthenticationManager.class, true, true);
 
         if (beans.size() == 0) {
@@ -131,7 +122,7 @@ public class ResinAcegiAuthenticator extends AbstractAuthenticator {
 
         String beanName = (String) beans.keySet().iterator().next();
         authenticationManager = (AuthenticationManager) beans.get(beanName);
-        logger.info("ResinSpringAuthenticator Started");
+        logger.info("ResinAcegiAuthenticator Started");
     }
 
     protected Principal loginImpl(String username, String credentials) {
