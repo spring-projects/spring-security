@@ -15,6 +15,8 @@
 
 package net.sf.acegisecurity.util;
 
+import org.springframework.beans.factory.BeanFactoryUtils;
+
 import org.springframework.context.ApplicationContext;
 
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -167,7 +169,8 @@ public class FilterToBeanProxy implements Filter {
                     + " not found in classloader");
             }
 
-            Map beans = ctx.getBeansOfType(targetClass, true, true);
+            Map beans = BeanFactoryUtils.beansOfTypeIncludingAncestors(ctx,
+                    targetClass, true, true);
 
             if (beans.size() == 0) {
                 throw new ServletException(
