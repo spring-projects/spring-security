@@ -68,7 +68,8 @@ public class FilterInvocationTests extends TestCase {
     public void testGettersAndStringMethods() {
         MockHttpServletRequest request = new MockHttpServletRequest(null, null);
         request.setServletPath("/HelloWorld");
-        request.setRequestURL("http://www.example.com/mycontext/HelloWorld");
+        request.setPathInfo("/some/more/segments.html");
+        request.setRequestURL("http://www.example.com/mycontext/HelloWorld/some/more/segments.html");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
@@ -78,9 +79,9 @@ public class FilterInvocationTests extends TestCase {
         assertEquals(response, fi.getResponse());
         assertEquals(response, fi.getHttpResponse());
         assertEquals(chain, fi.getChain());
-        assertEquals("/HelloWorld", fi.getRequestUrl());
-        assertEquals("FilterInvocation: URL: /HelloWorld", fi.toString());
-        assertEquals("http://www.example.com/mycontext/HelloWorld",
+        assertEquals("/HelloWorld/some/more/segments.html", fi.getRequestUrl());
+        assertEquals("FilterInvocation: URL: /HelloWorld/some/more/segments.html", fi.toString());
+        assertEquals("http://www.example.com/mycontext/HelloWorld/some/more/segments.html",
             fi.getFullRequestUrl());
     }
 

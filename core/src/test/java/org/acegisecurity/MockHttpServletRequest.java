@@ -59,6 +59,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private String serverName;
     private String servletPath;
     private int serverPort;
+    private String pathInfo;   // null for no extra path
 
     //~ Constructors ===========================================================
 
@@ -196,8 +197,13 @@ public class MockHttpServletRequest implements HttpServletRequest {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
+    
+    public void setPathInfo(String pathInfo) {
+        this.pathInfo = pathInfo;
+    }
+    
     public String getPathInfo() {
-        throw new UnsupportedOperationException("mock method not implemented");
+        return pathInfo;
     }
 
     public String getPathTranslated() {
@@ -240,8 +246,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
-    public void setRequestURL(String newRequestURL) {
-        requestURL = newRequestURL;
+    public void setRequestURL(String requestURL) {
+        this.requestURL = requestURL;
     }
 
     public StringBuffer getRequestURL() {
@@ -268,8 +274,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
-    public void setScheme(String newScheme) {
-        scheme = newScheme;
+    public void setScheme(String scheme) {
+        this.scheme = scheme;
     }
 
     public String getScheme() {
@@ -280,16 +286,16 @@ public class MockHttpServletRequest implements HttpServletRequest {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
-    public void setServerName(String newServerName) {
-        serverName = newServerName;
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
     }
 
     public String getServerName() {
         return serverName;
     }
 
-    public void setServerPort(int newPort) {
-        serverPort = newPort;
+    public void setServerPort(int serverPort) {
+        this.serverPort = serverPort;
     }
 
     public int getServerPort() {

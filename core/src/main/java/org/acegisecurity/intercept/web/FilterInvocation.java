@@ -101,10 +101,11 @@ public class FilterInvocation {
     }
 
     public String getRequestUrl() {
-        return getHttpRequest().getServletPath()
-        + ((getHttpRequest().getQueryString() == null) ? ""
-                                                       : ("?"
-        + getHttpRequest().getQueryString()));
+        String pathInfo = getHttpRequest().getPathInfo();
+        String queryString = getHttpRequest().getQueryString();
+        
+        return getHttpRequest().getServletPath() + (pathInfo == null ? "" : pathInfo)
+                + (queryString == null ? "" : ("?" + queryString));
     }
 
     public ServletResponse getResponse() {
