@@ -43,6 +43,12 @@ public class TestLoginModule implements LoginModule {
                 return "TEST_PRINCIPAL";
             }
         });
+
+        subject.getPrincipals().add(new Principal() {
+            public String getName() {
+                return "NULL_PRINCIPAL";
+            }
+        });
         return true;
     }
 
@@ -63,11 +69,7 @@ public class TestLoginModule implements LoginModule {
             password = new String(passwordCallback.getPassword());
             user = nameCallback.getName();
 
-            if (!TestCallbackHandler.class.getName().equals(textCallback.getText()))
-                throw new RuntimeException("TEST FAILURE: " + textCallback.getText() + "!=" + TestCallbackHandler.class.getName());
-
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

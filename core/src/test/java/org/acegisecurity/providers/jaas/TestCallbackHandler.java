@@ -23,12 +23,9 @@ public class TestCallbackHandler implements JaasAuthenticationCallbackHandler {
     }
 
     public void handle(Callback callback) throws IOException, UnsupportedCallbackException {
-
-        if (auth == null) throw new RuntimeException("TEST FAILURE: setAuthentication was never called");
-
         if (callback instanceof TextInputCallback) {
             TextInputCallback tic = (TextInputCallback) callback;
-            tic.setText(getClass().getName());
+            tic.setText(auth.getPrincipal().toString());
         }
     }
 }

@@ -6,7 +6,8 @@ import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,10 +22,13 @@ import java.util.List;
 public class JaasAuthenticationProviderTests extends TestCase {
 
     private JaasAuthenticationProvider jaasProvider;
+    private ApplicationContext context;
+    private JaasEventCheck eventCheck;
 
     protected void setUp() throws Exception {
         String resName = "/" + getClass().getName().replace('.', '/') + ".xml";
-        FileSystemXmlApplicationContext context = new FileSystemXmlApplicationContext(getClass().getResource(resName).toString());
+        context = new ClassPathXmlApplicationContext(resName);
+        eventCheck = (JaasEventCheck) context.getBean("eventCheck");
         jaasProvider = (JaasAuthenticationProvider) context.getBean("jaasAuthenticationProvider");
     }
 
@@ -40,7 +44,14 @@ public class JaasAuthenticationProviderTests extends TestCase {
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password", defaultAuths);
 
+        assertTrue(jaasProvider.supports(UsernamePasswordAuthenticationToken.class));
+
         Authentication auth = jaasProvider.authenticate(token);
+
+        assertNotNull(jaasProvider.getAuthorityGranters());
+        assertNotNull(jaasProvider.getCallbackHandlers());
+        assertNotNull(jaasProvider.getLoginConfig());
+        assertNotNull(jaasProvider.getLoginContextName());
 
         List list = Arrays.asList(auth.getAuthorities());
 
@@ -50,6 +61,22 @@ public class JaasAuthenticationProviderTests extends TestCase {
         assertTrue("GrantedAuthorities does not contain ROLE_1", list.contains(role1));
 
         assertTrue("GrantedAuthorities does not contain ROLE_2", list.contains(role2));
+
+        boolean foundit = false;
+        for (int i = 0; i < list.size(); i++) {
+            Object obj = list.get(i);
+            if (obj instanceof JaasGrantedAuthority) {
+                JaasGrantedAuthority grant = (JaasGrantedAuthority) obj;
+                assertNotNull("Principal was null on JaasGrantedAuthority", grant.getPrincipal());
+                foundit = true;
+            }
+        }
+        assertTrue("Could not find a JaasGrantedAuthority", foundit);
+
+        assertNotNull("Success event not fired", eventCheck.successEvent);
+        assertEquals("Auth objects are not equal", auth, eventCheck.successEvent.getAuthentication());
+
+        assertNull("Failure event was fired", eventCheck.failedEvent);
     }
 
     public void testBadUser() {
@@ -58,6 +85,10 @@ public class JaasAuthenticationProviderTests extends TestCase {
             fail("LoginException should have been thrown for the bad user");
         } catch (AuthenticationException e) {
         }
+
+        assertNotNull("Failure event not fired", eventCheck.failedEvent);
+        assertNotNull("Failure event exception was null", eventCheck.failedEvent.getException());
+        assertNull("Success event was fired", eventCheck.successEvent);
     }
 
     public void testBadPassword() {
@@ -66,6 +97,10 @@ public class JaasAuthenticationProviderTests extends TestCase {
             fail("LoginException should have been thrown for the bad password");
         } catch (AuthenticationException e) {
         }
+
+        assertNotNull("Failure event not fired", eventCheck.failedEvent);
+        assertNotNull("Failure event exception was null", eventCheck.failedEvent.getException());
+        assertNull("Success event was fired", eventCheck.successEvent);
     }
 
 }

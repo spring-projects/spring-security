@@ -2,6 +2,9 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+
+    <bean id="eventCheck" class="net.sf.acegisecurity.providers.jaas.JaasEventCheck"/>
+
     <bean id="jaasAuthenticationProvider" class="net.sf.acegisecurity.providers.jaas.JaasAuthenticationProvider">
         <property name="loginContextName">
             <value>JAASTest</value>
