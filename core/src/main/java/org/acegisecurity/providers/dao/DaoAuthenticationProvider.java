@@ -197,6 +197,10 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
                 user = getUserFromBackend(username);
             } catch (BadCredentialsException ex) {
                 if (this.context != null) {
+                    if ((username == null) || "".equals(username)) {
+                        username = "NONE_PROVIDED";
+                    }
+
                     context.publishEvent(new AuthenticationFailureUsernameNotFoundEvent(
                             authentication,
                             new User(username, "*****", false,
