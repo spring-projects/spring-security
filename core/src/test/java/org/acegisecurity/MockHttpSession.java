@@ -99,7 +99,7 @@ public class MockHttpSession implements HttpSession {
     }
 
     public void removeAttribute(String arg0) {
-        throw new UnsupportedOperationException("mock method not implemented");
+        map.remove(arg0);
     }
 
     public void removeValue(String arg0) {
