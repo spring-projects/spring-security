@@ -15,13 +15,13 @@
    <!-- ======================== FILTER CHAIN ======================= -->
 
 	<!--  if you wish to use channel security, add "channelProcessingFilter," in front
-	      of "authenticationProcessingFilter" in the list below -->
+	      of "httpSessionContextIntegrationFilter" in the list below -->
 	<bean id="filterChainProxy" class="net.sf.acegisecurity.util.FilterChainProxy">
       <property name="filterInvocationDefinitionSource">
          <value>
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 		    PATTERN_TYPE_APACHE_ANT
-            /**=authenticationProcessingFilter,basicProcessingFilter,httpSessionIntegrationFilter,securityEnforcementFilter
+            /**=httpSessionContextIntegrationFilter,authenticationProcessingFilter,basicProcessingFilter,securityEnforcementFilter
          </value>
       </property>
     </bean>
@@ -75,7 +75,9 @@
       <property name="realmName"><value>Contacts Realm</value></property>
    </bean>
 
-   <bean id="httpSessionIntegrationFilter" class="net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter"/>
+   <bean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter">
+      <property name="context"><value>net.sf.acegisecurity.context.security.SecureContextImpl</value></property>
+   </bean>
 
    <!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
 

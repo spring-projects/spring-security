@@ -26,7 +26,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>0.7.0</releaseinfo>
+    <releaseinfo>0.8.0</releaseinfo>
 
     <authorgroup>
       <author>
@@ -398,6 +398,43 @@
         Security System for Spring is to be used, developers must ensure any
         custom request contexts implement the <literal>SecureContext</literal>
         interface.</para>
+      </sect2>
+
+      <sect2 id="security-contexts-storage">
+        <title>Context Storage</title>
+
+        <para>Central to Acegi Security's design is that the contents of the
+        <literal>ContextHolder</literal> (ie the <literal>Context</literal>)
+        can be stored between web requests. This is so that a successfully
+        authenticated principal can be identified on subsequent requests
+        through the <literal>Authentication</literal> stored inside a
+        <literal>SecureContext</literal> implementation. The
+        <literal>HttpSessionContextIntegrationFilter</literal> exists to
+        automatically copy the contents of a well-defined
+        <literal>HttpSession</literal> attribute into the
+        <literal>ContextHolder</literal>, then at the end of each request,
+        copy the <literal>ContextHolder</literal> contents back into the
+        <literal>HttpSession</literal> ready for next request.</para>
+
+        <para>It is essential - and an extremely common error of end users -
+        that <literal>HttpSessionContextIntegrationFilter</literal> appears
+        before any other Acegi Security filter. This is because other Acegi
+        Security filters (along with all Acegi Security classes) expect the
+        <literal>ContextHolder</literal> to contain a valid
+        <literal>SecureContext</literal> by the time they are called. Acegi
+        Security filters also expect to be able to modify the
+        <literal>ContextHolder</literal> contents as they see fit, and
+        something else will store those between requests if necessary. This is
+        why <literal>HttpSessionContextIntegrationFilter</literal> must be the
+        first filter used.</para>
+
+        <para>The <literal>HttpSessionContextIntegrationFilter</literal> has
+        been designed to store all types of <literal>Context</literal> objects
+        - not merely Acegi Security related contexts. This means, for example,
+        that you can extend <literal>SecureContextImpl</literal> to store a
+        locale or some other parameter, and
+        <literal>HttpSessionContextIntegrationFilter</literal> will
+        automatically manage it between web requests.</para>
       </sect2>
     </sect1>
 
@@ -2264,44 +2301,42 @@ public boolean supports(Class clazz);</programlisting></para>
         classes "authentication mechanisms".</para>
 
         <para>The <literal>net.sf.acegisecurity.ui</literal> package provides
-        authentication mechanisms for web applications. There are two major
-        steps in doing this:</para>
+        what we call "authentication processing mechanisms". An authentication
+        processing mechanism is solely concerned with received an
+        authentication request from the principal, testing if it seems valid,
+        and if so, placing the authentication request token onto the
+        ContextHolder. Of course, if the authentication request is invalid,
+        the authentication processing mechanism is responsible for informing
+        the principal in whatever way is appropriate to the protocol.</para>
 
-        <para><itemizedlist spacing="compact">
-            <listitem>
-              <para>Actually authenticate the user and place the resulting
-              <literal>Authentication</literal> object in a "well-known
-              location".</para>
-            </listitem>
+        <para>Recall the HttpSessionContextIntegrationFilter (discussed in the
+        context section) is responsible for storing the ContextHolder contents
+        between invocations. This means no authentication processing mechanism
+        need ever interact directly with HttpSession. Indeed
+        HttpSessionContextIntegrationFilter has been designed to minimise the
+        unnecessary creation of HttpSessions, as might occur when using Basic
+        authentication for example.</para>
 
-            <listitem>
-              <para>Extract the <literal>Authentication</literal> object from
-              the "well-known location" and place in into the
-              <literal>ContextHolder</literal> for the duration of the secure
-              object invocation.</para>
-            </listitem>
-          </itemizedlist></para>
-
-        <para>There are several alternatives are available for the first step,
-        which will be briefly discussed in this chapter. The most popular (and
-        almost always recommended) approach is HTTP Session Authentication,
-        which uses the <literal>HttpSession</literal> object and filters to
-        authenticate the user. Another approach (commonly use with web
-        services) is HTTP Basic Authentication, which allows clients to use
-        HTTP headers to present authentication information to the Acegi
-        Security System for Spring. Alternatively, you can also use Yale
-        Central Authentication Service (CAS) for enterprise-wide single sign
-        on. The final (generally unrecommended) approach is via Container
-        Adapters, which allow supported web containers to perform the
-        authentication themselves. HTTP Session and Basic Authentication is
-        discussed below, whilst CAS and Container Adapters are discussed in
-        separate sections of this document.</para>
+        <para>There are several authentication processing mechanisms included
+        with Acegi Security, which will be briefly discussed in this chapter.
+        The most popular (and almost always recommended) approach is HTTP Form
+        Authentication, which uses a login form to authenticate the user.
+        Another approach (commonly use with web services) is HTTP Basic
+        Authentication, which allows clients to use HTTP headers to present
+        authentication information to the Acegi Security System for Spring.
+        Alternatively, you can also use Yale Central Authentication Service
+        (CAS) for enterprise-wide single sign on. The final (and generally
+        unrecommended) approach is via Container Adapters, which allow
+        supported web containers to perform the authentication themselves.
+        HTTP Form Authentication and Basic Authentication is discussed below,
+        whilst CAS and Container Adapters are discussed in separate sections
+        of this document.</para>
       </sect2>
 
-      <sect2 id="security-ui-http-session">
-        <title>HTTP Session Authentication</title>
+      <sect2 id="security-ui-http-form">
+        <title>HTTP Form Authentication</title>
 
-        <para>HTTP Session Authentication involves using the
+        <para>HTTP Form Authentication involves using the
         <literal>AuthenticationProcessingFilter</literal> to process a login
         form. The login form simply contains <literal>j_username</literal> and
         <literal>j_password</literal> input fields, and posts to a URL that is
@@ -2346,12 +2381,9 @@ public boolean supports(Class clazz);</programlisting></para>
 
         <para>If authentication is successful, the resulting
         <literal>Authentication</literal> object will be placed into the
-        <literal>HttpSession</literal> attribute indicated by
-        <literal>HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY</literal>.
-        This becomes the "well-known location" from which the
-        <literal>Authentication</literal> object is later extracted.</para>
+        <literal>ContextHolder</literal>.</para>
 
-        <para>Once the <literal>HttpSession</literal> has been updated, the
+        <para>Once the <literal>ContextHolder</literal> has been updated, the
         browser will need to be redirected to the target URL. The target URL
         is usually indicated by the <literal>HttpSession</literal> attribute
         specified by
@@ -2365,8 +2397,8 @@ public boolean supports(Class clazz);</programlisting></para>
         <literal>defaultTargetUrl</literal> property.</para>
 
         <para>Because this authentication approach is fully contained within a
-        single web application, HTTP Session Authentication is recommended to
-        be used instead of Container Adapters.</para>
+        single web application, HTTP Form Authentication is recommended to be
+        used instead of Container Adapters.</para>
       </sect2>
 
       <sect2 id="security-ui-http-basic">
@@ -2421,10 +2453,7 @@ public boolean supports(Class clazz);</programlisting></para>
         401 response with a suitable header to retry HTTP Basic
         authentication. If authentication is successful, the resulting
         <literal>Authentication</literal> object will be placed into the
-        <literal>HttpSession</literal> attribute indicated by
-        <literal>HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY</literal>.
-        This becomes the "well-known location" from which the
-        <literal>Authentication</literal> object is later extracted.</para>
+        <literal>ContextHolder</literal>.</para>
 
         <para>If the authentication event was successful, or authentication
         was not attempted because the HTTP header did not contain a supported
@@ -2434,94 +2463,32 @@ public boolean supports(Class clazz);</programlisting></para>
         as discussed in the previous paragraph.</para>
 
         <para>HTTP Basic Authentication is recommended to be used instead of
-        Container Adapters. It can be used in conjunction with HTTP Session
+        Container Adapters. It can be used in conjunction with HTTP Form
         Authentication, as demonstrated in the Contacts sample application.
-        You can also use it instead of HTTP Session Authentication if you
+        You can also use it instead of HTTP Form Authentication if you
         wish.</para>
       </sect2>
 
       <sect2 id="security-ui-well-known">
-        <title>Well-Known Location Integration</title>
+        <title>Well-Known Locations</title>
 
-        <para>Once a web application has used either HTTP Session
-        Authentication, HTTP Basic Authentication, or a Container Adapter, an
-        <literal>Authentication</literal> object will exist in a well-known
-        location. The final step in automatically integrating the user
-        interface with the backend security interceptor is to extract this
-        <literal>Authentication</literal> object from the well-known location
-        and place it into a <literal>SecureContext</literal> in the
-        <literal>ContextHolder</literal>.</para>
-
-        <para>The <literal>AbstractIntegrationFilter</literal> and its
-        subclasses provide this well-known location integration. These classes
-        are standard filters, and at the start of each request they will
-        attempt to extract the <literal>Authentication</literal> object from a
-        well-known location. The <literal>Authentication</literal> object will
-        then be added to a <literal>SecureContext</literal>, the
-        <literal>SecureContext</literal> associated with the
-        <literal>ContextHolder</literal> for the duration of the request, and
-        the <literal>ContextHolder</literal> be cleared when the request is
-        finished. Four concrete subclasses of
-        <literal>AbstractIntegrationFilter</literal> are provided with the
-        Acegi Security System for Spring:</para>
-
-        <para><itemizedlist>
-            <listitem>
-              <para><literal>HttpSessionIntegrationFilter</literal> is used
-              with HTTP Session Authentication, HTTP Basic Authentication, or
-              any other approach that populates the
-              <literal>HttpSession</literal> accordingly. It extracts the
-              <literal>Authentication</literal> object from the
-              <literal>HttpSession</literal> attribute indicated by
-              <literal>HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY</literal>.</para>
-            </listitem>
-
-            <listitem>
-              <para><literal>HttpRequestIntegrationFilter</literal> is used
-              with Catalina, Jetty and Resin Container Adapters. It extracts
-              the authentication information from
-              <literal>HttpServletRequest.getUserPrincipal()</literal>.</para>
-            </listitem>
-
-            <listitem>
-              <para><literal>JbossIntegrationFilter</literal> is used with the
-              JBoss Container Adapter. It extracts the authentication from
-              <literal>java:comp/env/security/subject</literal>.</para>
-            </listitem>
-          </itemizedlist></para>
-
-        <para>To define the <literal>HttpSessionIntegrationFilter</literal>
-        (recommended), simply add the following to your web.xml:</para>
-
-        <para><programlisting>&lt;filter&gt;
-  &lt;filter-name&gt;Acegi Security System for Spring HttpSession Integration Filter&lt;/filter-name&gt;
-  &lt;filter-class&gt;net.sf.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
-  &lt;init-param&gt;
-    &lt;param-name&gt;targetClass&lt;/param-name&gt;
-    &lt;param-value&gt;net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter&lt;/param-value&gt;
-  &lt;/init-param&gt;
-&lt;/filter&gt;
-
-&lt;filter-mapping&gt;
-  &lt;filter-name&gt;Acegi Security System for Spring HttpSession Integration Filter&lt;/filter-name&gt;
-  &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-&lt;/filter-mapping&gt;</programlisting></para>
-
-        <para>You will also need to add the following line to your application
-        context:</para>
-
-        <para><programlisting>&lt;bean id="httpSessionIntegrationFilter" class="net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter" /&gt;</programlisting></para>
-
-        <para>Once in the <literal>ContextHolder</literal>, the standard Acegi
-        Security System for Spring classes can be used. Because
-        <literal>ContextHolder</literal> is a standard object which is
-        populated using a filter at the container level, JSPs and Servlets do
-        not need to use Spring's MVC packages. This enables those applications
-        that use other MVC frameworks to still leverage Spring's other
-        capabilities, with full authentication and authorization support. The
-        <literal>debug.jsp</literal> page provided with the sample application
-        demonstrates accessing the <literal>ContextHolder</literal>
-        independent of Spring's MVC packages.</para>
+        <para>Prior to release 0.8.0, Acegi Security referred to "well-known
+        locations" in discussions about storing the
+        <literal>Authentication</literal>. This approach did not explicitly
+        separate the function of <literal>HttpSession</literal> storage of
+        <literal>ContextHolder</literal> contents from the processing of
+        authentication requests received through various protocols. In
+        addition, the previous approach did not facilitate storage of
+        non-<literal>Authentication</literal> objects between requests, which
+        was limiting usefulness of the <literal>ContextHolder</literal> system
+        to member of the community. For these reasons, the notion of
+        well-known locations was abandoned, the
+        <literal>HttpSessionContextIntegrationFilter</literal> was
+        established, and the purpose of authentication processing mechanisms
+        was explicitly defined and limited to interaction with the
+        <literal>ContextHolder</literal> only. There is no need to refer to
+        well-known locations any more and we hope this clearer separation of
+        responsibilities enhances understanding of the project.</para>
       </sect2>
     </sect1>
 
@@ -2531,13 +2498,14 @@ public boolean supports(Class clazz);</programlisting></para>
       <sect2 id="security-container-adapters-overview">
         <title>Overview</title>
 
-        <para>Early versions of the Acegi Security System for Spring
+        <para>Very early versions of the Acegi Security System for Spring
         exclusively used Container Adapters for interfacing authentication
         with end users. Whilst this worked well, it required considerable time
         to support multiple container versions and the configuration itself
         was relatively time-consuming for developers. For this reason the HTTP
-        Session Authentication and HTTP Basic Authentication approaches were
-        developed, and are today recommended for most applications.</para>
+        Form Authentication and HTTP Basic Authentication approaches were
+        developed, and are today recommended for almost all
+        applications.</para>
 
         <para>Container Adapters enable the Acegi Security System for Spring
         to integrate directly with the containers used to host end user
@@ -2546,7 +2514,10 @@ public boolean supports(Class clazz);</programlisting></para>
         containers (such as <literal>isUserInRole()</literal> and form-based
         or basic authentication), whilst benefiting from the enhanced security
         interception capabilities provided by the Acegi Security System for
-        Spring.</para>
+        Spring (it should be noted that Acegi Security also offers
+        <literal>ContextHolderAwareRequestWrapper</literal> to deliver
+        <literal>isUserInRole()</literal> and similar Servlet Specification
+        compatibility methods).</para>
 
         <para>The integration between a container and the Acegi Security
         System for Spring is achieved through an adapter. The adapter provides
@@ -4208,8 +4179,8 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
     &lt;value&gt;
       CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
       PATTERN_TYPE_APACHE_ANT
-      /webServices/**=basicProcessingFilter,httpSessionIntegrationFilter,securityEnforcementFilter
-      /**=authenticationProcessingFilter,httpSessionIntegrationFilter,securityEnforcementFilter
+      /webServices/**=httpSessionContextIntegrationFilterWithASCFalse,basicProcessingFilter,securityEnforcementFilter
+      /**=httpSessionContextIntegrationFilterWithASCTrue,authenticationProcessingFilter,securityEnforcementFilter
     &lt;/value&gt;
   &lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -4228,8 +4199,8 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
 
         <para>As you can see, <literal>FitlerChainProxy</literal> requires the
         duplication of filter names for different request patterns (in the
-        above example, <literal>httpSessionIntegrationFilter</literal> and
-        <literal>securityEnforcementFilter</literal> are duplicated). This
+        above example, <literal>httpSessionContextIntegrationFilter</literal>
+        and <literal>securityEnforcementFilter</literal> are duplicated). This
         design decision was made to enable <literal>FilterChainProxy</literal>
         to specify different <literal>Filter</literal> invocation orders for
         different URI patterns, and also to improve both the expressiveness
@@ -4237,6 +4208,20 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
         <literal>FilterInvocationDefinitionSource</literal> implementations)
         and clarity of which <literal>Filter</literal>s should be
         invoked.</para>
+
+        <para>You may have noticed we have declared two
+        <literal>HttpSessionContextIntegrationFilter</literal>s in the filter
+        chain (<literal>ASC</literal> is short for
+        <literal>allowSessionCreation</literal>, a property of
+        <literal>HttpSessionContextIntegrationFilter</literal>). As web
+        services will never present a <literal>jsessionid</literal> on future
+        requests, creating <literal>HttpSession</literal>s for such user
+        agents would be wasteful. If you had a high-volume application which
+        required maximum scalability, we recommend you use the approach shown
+        above. For smaller applications, using a single
+        <literal>HttpSessionContextIntegrationFilter</literal> (with its
+        default <literal>allowSessionCreation</literal> as
+        <literal>true</literal>) would likely be sufficient.</para>
 
         <para>In relation to lifecycle issues, the
         <literal>FilterChainProxy</literal> will always delegate
@@ -4259,7 +4244,7 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
         <title>Filter Ordering</title>
 
         <para>The order that filters are defined in <literal>web.xml</literal>
-        is important.</para>
+        is important. NB: THE FILTER ORDER CHANGED FROM VERSION 0.8.0.</para>
 
         <para>Irrespective of which filters you are actually using, the order
         of the <literal>&lt;filter-mapping&gt;</literal>s should be as
@@ -4267,33 +4252,41 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
 
         <orderedlist>
           <listitem>
-            <para>Acegi Channel Processing Filter
-            (<literal>ChannelProcessingFilter</literal>)</para>
+            <para><literal>ChannelProcessingFilter</literal>, because it might
+            need to redirect to a different protocol</para>
           </listitem>
 
           <listitem>
-            <para>Acegi Authentication Processing Filter
-            (<literal>AuthenticationProcessingFilter</literal>)</para>
+            <para><literal>HttpSessionContextIntegrationFilter</literal>, so a
+            <literal>Context</literal> can be setup in the
+            <literal>ContextHolder</literal> at the beginning of a web
+            request, and any changes to the Context can be copied to the
+            <literal>HttpSession</literal> when the web request ends (ready
+            for use with the next web request)</para>
           </listitem>
 
           <listitem>
-            <para>Acegi CAS Processing Filter
-            (<literal>CasProcessingFilter</literal>)</para>
+            <para>Authentication processing mechanisms -
+            <literal>AuthenticationProcessingFilter</literal>,
+            <literal>CasProcessingFilter</literal>,
+            <literal>BasicProcessingFilter, HttpRequestIntegrationFilter,
+            JbossIntegrationFilter</literal> etc - so that the
+            <literal>ContextHolder</literal> can be modified to contain a
+            valid <literal>Authentication</literal> request token</para>
           </listitem>
 
           <listitem>
-            <para>Acegi HTTP BASIC Authorization Filter
-            (<literal>BasicProcessingFilter</literal>)</para>
+            <para>The <literal>ContextHolderAwareRequestFilter</literal>, if
+            you are using it to install an Acegi Security aware
+            <literal>HttpServletRequestWrapper</literal> into your servlet
+            container</para>
           </listitem>
 
           <listitem>
-            <para>Acegi Security System for Spring HTTP Session Integration
-            Filter (<literal>HttpSessionIntegrationFilter</literal>)</para>
-          </listitem>
-
-          <listitem>
-            <para>Acegi HTTP Request Security Filter
-            (<literal>SecurityEnforcementFilter</literal>)</para>
+            <para><literal>SecurityEnforcementFilter</literal>, to protect web
+            URIs and catch any Acegi Security exceptions so that an
+            appropriate <literal>AuthenticationEntryPoint</literal> can be
+            launched</para>
           </listitem>
         </orderedlist>
 
@@ -4353,7 +4346,7 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
 
       <blockquote>
         <para>Context on ContextHolder is of type:
-        net.sf.acegisecurity.context.SecureContextImpl</para>
+        net.sf.acegisecurity.context.secure.SecureContextImpl</para>
 
         <para>The Context implements SecureContext.</para>
 

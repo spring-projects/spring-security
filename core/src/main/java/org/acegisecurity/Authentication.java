@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,8 @@ import java.security.Principal;
  * </p>
  * 
  * <p>
- * Stored in a request {@link net.sf.acegisecurity.context.SecureContext}.
+ * Stored in a request {@link
+ * net.sf.acegisecurity.context.security.SecureContext}.
  * </p>
  *
  * @author Ben Alex

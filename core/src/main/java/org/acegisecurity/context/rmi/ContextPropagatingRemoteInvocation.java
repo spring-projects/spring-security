@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.rmi;
+package net.sf.acegisecurity.context.rmi;
 
 import net.sf.acegisecurity.context.Context;
 import net.sf.acegisecurity.context.ContextHolder;
@@ -34,10 +34,10 @@ import java.lang.reflect.InvocationTargetException;
  * 
  * <p>
  * When constructed on the client via {@link
- * net.sf.acegisecurity.ui.rmi.ContextPropagatingRemoteInvocationFactory}, the
- * contents of the <code>ContextHolder</code> are stored inside the object.
- * The object is then passed to the server that is processing the remote
- * invocation. Upon the server invoking the remote invocation, it will
+ * net.sf.acegisecurity.context.rmi.ContextPropagatingRemoteInvocationFactory},
+ * the contents of the <code>ContextHolder</code> are stored inside the
+ * object. The object is then passed to the server that is processing the
+ * remote invocation. Upon the server invoking the remote invocation, it will
  * retrieve the passed contents of the <code>ContextHolder</code> and set them
  * to the server-side <code>ContextHolder</code> whilst the target object is
  * invoked. When the target invocation has been completed, the server-side

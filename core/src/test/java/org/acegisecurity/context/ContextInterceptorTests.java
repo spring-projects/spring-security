@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 package net.sf.acegisecurity.context;
 
 import junit.framework.TestCase;
+
+import net.sf.acegisecurity.context.security.SecureContextImpl;
 
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.PropertiesBeanDefinitionReader;

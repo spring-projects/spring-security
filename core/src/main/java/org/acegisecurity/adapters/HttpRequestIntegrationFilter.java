@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,47 @@
 package net.sf.acegisecurity.adapters;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.ui.AbstractIntegrationFilter;
+import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.security.SecureContextUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.IOException;
+
+import java.security.Principal;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * Populates a {@link net.sf.acegisecurity.context.SecureContext} from the
- * container's <code>HttpServletRequest.getUserPrincipal()</code>.
+ * Populates <code>ContextHolder</code> with the <code>Authentication</code>
+ * obtained from the container's
+ * <code>HttpServletRequest.getUserPrincipal()</code>.
  * 
  * <p>
- * See {@link AbstractIntegrationFilter} for further information.
+ * Used this filter with container adapters only.
+ * </p>
+ * 
+ * <p>
+ * This filter <b>never</b> preserves the <code>Authentication</code> on the
+ * <code>ContextHolder</code> - it is replaced every request.
+ * </p>
+ * 
+ * <p>
+ * See {@link HttpSessionContextIntegrationFilter} for further information.
  * </p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class HttpRequestIntegrationFilter extends AbstractIntegrationFilter {
+public class HttpRequestIntegrationFilter implements Filter {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(HttpRequestIntegrationFilter.class);
@@ -44,19 +64,47 @@ public class HttpRequestIntegrationFilter extends AbstractIntegrationFilter {
     //~ Methods ================================================================
 
     /**
-     * Not supported for this type of well-known location.
-     *
-     * @param request DOCUMENT ME!
-     * @param authentication DOCUMENT ME!
+     * Does nothing. We use IoC container lifecycle services instead.
      */
-    public void commitToContainer(ServletRequest request,
-        Authentication authentication) {}
+    public void destroy() {}
 
-    public Object extractFromContainer(ServletRequest request) {
+    public void doFilter(ServletRequest request, ServletResponse response,
+        FilterChain chain) throws IOException, ServletException {
+        SecureContext sc = SecureContextUtils.getSecureContext();
+
         if (request instanceof HttpServletRequest) {
-            return ((HttpServletRequest) request).getUserPrincipal();
+            Principal principal = ((HttpServletRequest) request)
+                .getUserPrincipal();
+
+            if ((principal != null) && principal instanceof Authentication) {
+                sc.setAuthentication((Authentication) principal);
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "ContextHolder updated with Authentication from container: '"
+                        + principal + "'");
+                }
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "ContextHolder not set with new Authentication as Principal was: '"
+                        + principal + "'");
+                }
+            }
         } else {
-            return null;
+            throw new IllegalArgumentException(
+                "Only HttpServletRequest is acceptable");
         }
+
+        chain.doFilter(request, response);
     }
+
+    /**
+     * Does nothing. We use IoC container lifecycle services instead.
+     *
+     * @param arg0 ignored
+     *
+     * @throws ServletException ignored
+     */
+    public void init(FilterConfig arg0) throws ServletException {}
 }

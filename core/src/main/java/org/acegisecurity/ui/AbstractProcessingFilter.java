@@ -22,8 +22,10 @@ import net.sf.acegisecurity.AuthenticationServiceException;
 import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.LockedException;
+import net.sf.acegisecurity.context.ContextHolder;
+import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.security.SecureContextUtils;
 import net.sf.acegisecurity.providers.cas.ProxyUntrustedException;
-import net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +36,7 @@ import java.io.IOException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -42,15 +45,13 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Abstract processor of HTTP-based authentication requests, which places the
- * resulting <code>Authentication</code> object into the
- * <code>HttpSession</code>.
+ * Abstract processor of browser-based HTTP-based authentication requests.
  * 
  * <p>
  * This filter is responsible for processing authentication requests. If
  * authentication is successful, the resulting {@link Authentication} object
- * will be placed into the <code>HttpSession</code> with the attribute defined
- * by {@link HttpSessionIntegrationFilter#ACEGI_SECURITY_AUTHENTICATION_KEY}.
+ * will be placed into the <code>ContextHolder</code>, which is guaranteed to
+ * have already been created by an earlier filter.
  * </p>
  * 
  * <p>
@@ -307,6 +308,9 @@ public abstract class AbstractProcessingFilter implements Filter,
         }
     }
 
+    /**
+     * Does nothing. We use IoC container lifecycle services instead.
+     */
     public void destroy() {}
 
     public void doFilter(ServletRequest request, ServletResponse response,
@@ -353,6 +357,15 @@ public abstract class AbstractProcessingFilter implements Filter,
         chain.doFilter(request, response);
     }
 
+    /**
+     * Does nothing. We use IoC container lifecycle services instead.
+     *
+     * @param arg0 ignored
+     *
+     * @throws ServletException ignored
+     */
+    public void init(FilterConfig arg0) throws ServletException {}
+
     protected void onPreAuthentication(HttpServletRequest request,
         HttpServletResponse response) throws IOException {}
 
@@ -390,8 +403,14 @@ public abstract class AbstractProcessingFilter implements Filter,
             logger.debug("Authentication success: " + authResult.toString());
         }
 
-        request.getSession().setAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY,
-            authResult);
+        SecureContext sc = SecureContextUtils.getSecureContext();
+        sc.setAuthentication(authResult);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(
+                "Updated ContextHolder to contain the following Authentication: '"
+                + authResult + "'");
+        }
 
         String targetUrl = (String) request.getSession().getAttribute(ACEGI_SECURITY_TARGET_URL_KEY);
         request.getSession().removeAttribute(ACEGI_SECURITY_TARGET_URL_KEY);
@@ -418,6 +437,14 @@ public abstract class AbstractProcessingFilter implements Filter,
     protected void unsuccessfulAuthentication(HttpServletRequest request,
         HttpServletResponse response, AuthenticationException failed)
         throws IOException {
+        SecureContext sc = SecureContextUtils.getSecureContext();
+        sc.setAuthentication(null);
+        ContextHolder.setContext(sc);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Updated ContextHolder to contain null Authentication");
+        }
+
         String failureUrl = authenticationFailureUrl;
 
         if (failed instanceof AuthenticationServiceException
@@ -451,7 +478,6 @@ public abstract class AbstractProcessingFilter implements Filter,
 
         request.getSession().setAttribute(ACEGI_SECURITY_LAST_EXCEPTION_KEY,
             failed);
-        request.getSession().removeAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY);
 
         onUnsuccessfulAuthentication(request, response);
 

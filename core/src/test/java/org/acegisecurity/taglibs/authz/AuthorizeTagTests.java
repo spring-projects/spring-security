@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.SecureContextImpl;
+import net.sf.acegisecurity.context.security.SecureContextImpl;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 
 import javax.servlet.jsp.JspException;

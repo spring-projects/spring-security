@@ -19,7 +19,7 @@
          <value>
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 		    PATTERN_TYPE_APACHE_ANT
-            /**=channelProcessingFilter,casProcessingFilter,basicProcessingFilter,httpSessionIntegrationFilter,securityEnforcementFilter
+            /**=channelProcessingFilter,httpSessionContextIntegrationFilter,casProcessingFilter,basicProcessingFilter,securityEnforcementFilter
          </value>
       </property>
     </bean>
@@ -47,7 +47,9 @@
       <property name="realmName"><value>Contacts Realm</value></property>
    </bean>
 
-   <bean id="httpSessionIntegrationFilter" class="net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter"/>
+   <bean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter">
+      <property name="context"><value>net.sf.acegisecurity.context.security.SecureContextImpl</value></property>
+   </bean>
 
 	<bean id="casAuthenticationProvider" class="net.sf.acegisecurity.providers.cas.CasAuthenticationProvider">
 		<property name="casAuthoritiesPopulator"><ref local="casAuthoritiesPopulator"/></property>

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.wrapper;
+package net.sf.acegisecurity.wrapper;
 
 import junit.framework.TestCase;
 
@@ -22,10 +22,11 @@ import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.SecureContext;
-import net.sf.acegisecurity.context.SecureContextImpl;
+import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.security.SecureContextImpl;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.wrapper.ContextHolderAwareRequestWrapper;
 
 
 /**

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,10 @@ import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockFilterConfig;
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpServletResponse;
+import net.sf.acegisecurity.context.ContextHolder;
+import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.context.security.SecureContextUtils;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter;
 
 import java.io.IOException;
 
@@ -58,10 +60,6 @@ public class AbstractProcessingFilterTests extends TestCase {
     }
 
     //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AbstractProcessingFilterTests.class);
@@ -117,7 +115,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/myApp/failed.jsp", response.getRedirect());
-        assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) == null);
+        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
     }
 
     public void testFilterProcessesUrlVariationsRespected()
@@ -144,10 +142,10 @@ public class AbstractProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/logged_in.jsp", response.getRedirect());
-        assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) != null);
+        assertNotNull(SecureContextUtils.getSecureContext().getAuthentication());
         assertEquals("test",
-            ((Authentication) request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY)).getPrincipal()
-             .toString());
+            SecureContextUtils.getSecureContext().getAuthentication()
+                              .getPrincipal().toString());
     }
 
     public void testGettersSetters() {
@@ -233,10 +231,10 @@ public class AbstractProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/logged_in.jsp", response.getRedirect());
-        assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) != null);
+        assertNotNull(SecureContextUtils.getSecureContext().getAuthentication());
         assertEquals("test",
-            ((Authentication) request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY)).getPrincipal()
-             .toString());
+            SecureContextUtils.getSecureContext().getAuthentication()
+                              .getPrincipal().toString());
     }
 
     public void testStartupDetectsInvalidAuthenticationFailureUrl()
@@ -327,10 +325,10 @@ public class AbstractProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/logged_in.jsp", response.getRedirect());
-        assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) != null);
+        assertNotNull(SecureContextUtils.getSecureContext().getAuthentication());
         assertEquals("test",
-            ((Authentication) request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY)).getPrincipal()
-             .toString());
+            SecureContextUtils.getSecureContext().getAuthentication()
+                              .getPrincipal().toString());
 
         // Now try again but this time have filter deny access
         // Setup our HTTP request
@@ -346,7 +344,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Test
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
-        assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) == null);
+        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
     }
 
     public void testSuccessfulAuthenticationButWithAlwaysUseDefaultTargetUrlCausesRedirectToDefaultTargetUrl()
@@ -377,7 +375,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/foobar", response.getRedirect());
-        assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) != null);
+        assertNotNull(SecureContextUtils.getSecureContext().getAuthentication());
     }
 
     public void testSuccessfulAuthenticationCausesRedirectToSessionSpecifiedUrl()
@@ -404,7 +402,17 @@ public class AbstractProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/my-destination", response.getRedirect());
-        assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) != null);
+        assertNotNull(SecureContextUtils.getSecureContext().getAuthentication());
+    }
+
+    protected void setUp() throws Exception {
+        super.setUp();
+        ContextHolder.setContext(new SecureContextImpl());
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        ContextHolder.setContext(null);
     }
 
     private void executeFilterInContainerSimulator(FilterConfig filterConfig,

@@ -18,10 +18,13 @@ package net.sf.acegisecurity.ui.basicauth;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationManager;
+import net.sf.acegisecurity.context.ContextHolder;
+import net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter;
+import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.security.SecureContextUtils;
 import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.ui.WebAuthenticationDetails;
-import net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -73,7 +76,8 @@ import javax.servlet.http.HttpServletResponse;
  * <P>
  * If authentication is successful, the resulting {@link Authentication} object
  * will be placed into the <code>HttpSession</code> with the attribute defined
- * by {@link HttpSessionIntegrationFilter#ACEGI_SECURITY_AUTHENTICATION_KEY}.
+ * by {@link
+ * HttpSessionContextIntegrationFilter#ACEGI_SECURITY_AUTHENTICATION_KEY}.
  * </p>
  * 
  * <p>
@@ -172,6 +176,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
             authRequest.setDetails(new WebAuthenticationDetails(httpRequest));
 
             Authentication authResult;
+            SecureContext sc = SecureContextUtils.getSecureContext();
 
             try {
                 authResult = authenticationManager.authenticate(authRequest);
@@ -182,6 +187,8 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                         + " failed: " + failed.toString());
                 }
 
+                sc.setAuthentication(null);
+                ContextHolder.setContext(sc);
                 authenticationEntryPoint.commence(request, response, failed);
 
                 return;
@@ -192,8 +199,8 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                 logger.debug("Authentication success: " + authResult.toString());
             }
 
-            httpRequest.getSession().setAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY,
-                authResult);
+            sc.setAuthentication(authResult);
+            ContextHolder.setContext(sc);
         }
 
         chain.doFilter(request, response);

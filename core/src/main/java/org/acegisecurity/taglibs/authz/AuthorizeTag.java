@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,15 @@ package net.sf.acegisecurity.taglibs.authz;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.SecureContext;
+import net.sf.acegisecurity.context.security.SecureContext;
+
+import org.springframework.web.util.ExpressionEvaluationUtils;
+
+import java.util.*;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
-import java.util.*;
-
-import org.springframework.web.util.ExpressionEvaluationUtils;
 
 
 /**
@@ -70,19 +71,18 @@ public class AuthorizeTag extends TagSupport {
 
     public int doStartTag() throws JspException {
         if (((null == ifAllGranted) || "".equals(ifAllGranted))
-                && ((null == ifAnyGranted) || "".equals(ifAnyGranted))
-                && ((null == ifNotGranted) || "".equals(ifNotGranted))) {
+            && ((null == ifAnyGranted) || "".equals(ifAnyGranted))
+            && ((null == ifNotGranted) || "".equals(ifNotGranted))) {
             return Tag.SKIP_BODY;
         }
 
         final Collection granted = getPrincipalAuthorities();
 
-        final String evaledIfNotGranted =
-                ExpressionEvaluationUtils.evaluateString(
-                        "ifNotGranted", ifNotGranted, pageContext);
+        final String evaledIfNotGranted = ExpressionEvaluationUtils
+            .evaluateString("ifNotGranted", ifNotGranted, pageContext);
+
         if ((null != evaledIfNotGranted) && !"".equals(evaledIfNotGranted)) {
-            Set grantedCopy = retainAll(
-                    granted,
+            Set grantedCopy = retainAll(granted,
                     parseAuthoritiesString(evaledIfNotGranted));
 
             if (!grantedCopy.isEmpty()) {
@@ -90,22 +90,20 @@ public class AuthorizeTag extends TagSupport {
             }
         }
 
-        final String evaledIfAllGranted =
-                ExpressionEvaluationUtils.evaluateString(
-                        "ifAllGranted", ifAllGranted, pageContext);
+        final String evaledIfAllGranted = ExpressionEvaluationUtils
+            .evaluateString("ifAllGranted", ifAllGranted, pageContext);
+
         if ((null != evaledIfAllGranted) && !"".equals(evaledIfAllGranted)) {
-            if (!granted.containsAll(
-                    parseAuthoritiesString(evaledIfAllGranted))) {
+            if (!granted.containsAll(parseAuthoritiesString(evaledIfAllGranted))) {
                 return Tag.SKIP_BODY;
             }
         }
 
-        final String evaledIfAnyGranted =
-                ExpressionEvaluationUtils.evaluateString(
-                        "ifAnyGranted", ifAnyGranted, pageContext);
+        final String evaledIfAnyGranted = ExpressionEvaluationUtils
+            .evaluateString("ifAnyGranted", ifAnyGranted, pageContext);
+
         if ((null != evaledIfAnyGranted) && !"".equals(evaledIfAnyGranted)) {
-            Set grantedCopy = retainAll(
-                    granted,
+            Set grantedCopy = retainAll(granted,
                     parseAuthoritiesString(evaledIfAnyGranted));
 
             if (grantedCopy.isEmpty()) {
@@ -148,7 +146,7 @@ public class AuthorizeTag extends TagSupport {
     }
 
     private Set retainAll(final Collection granted,
-                          final Set requiredAuthorities) {
+        final Set requiredAuthorities) {
         Set grantedCopy = new HashSet(granted);
         grantedCopy.retainAll(requiredAuthorities);
 

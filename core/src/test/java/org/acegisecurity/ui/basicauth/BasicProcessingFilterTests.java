@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package net.sf.acegisecurity.ui.basicauth;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.MockAuthenticationEntryPoint;
 import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockFilterConfig;
@@ -25,7 +24,9 @@ import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpServletResponse;
 import net.sf.acegisecurity.MockHttpSession;
 import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter;
+import net.sf.acegisecurity.context.ContextHolder;
+import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.context.security.SecureContextUtils;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -63,10 +64,6 @@ public class BasicProcessingFilterTests extends TestCase {
     }
 
     //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(BasicProcessingFilterTests.class);
@@ -125,7 +122,7 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) == null);
+        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
     }
 
     public void testGettersSetters() {
@@ -167,7 +164,7 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) == null);
+        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
     }
 
     public void testNormalOperation() throws Exception {
@@ -198,10 +195,11 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) != null);
+        assertNotNull(SecureContextUtils.getSecureContext().getAuthentication());
         assertEquals("marissa",
-            ((UserDetails) ((Authentication) request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY))
-            .getPrincipal()).getUsername());
+            ((UserDetails) SecureContextUtils.getSecureContext()
+                                             .getAuthentication().getPrincipal())
+            .getUsername());
     }
 
     public void testOtherAuthorizationSchemeIsIgnored()
@@ -231,7 +229,7 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) == null);
+        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
     }
 
     public void testStartupDetectsMissingAuthenticationEntryPoint()
@@ -290,10 +288,11 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) != null);
+        assertNotNull(SecureContextUtils.getSecureContext().getAuthentication());
         assertEquals("marissa",
-            ((UserDetails) ((Authentication) request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY))
-            .getPrincipal()).getUsername());
+            ((UserDetails) SecureContextUtils.getSecureContext()
+                                             .getAuthentication().getPrincipal())
+            .getUsername());
 
         // NOW PERFORM FAILED AUTHENTICATION
         // Setup our HTTP request
@@ -313,7 +312,7 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) == null);
+        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
         assertEquals(401, response.getError());
     }
 
@@ -345,8 +344,18 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) == null);
+        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
         assertEquals(401, response.getError());
+    }
+
+    protected void setUp() throws Exception {
+        super.setUp();
+        ContextHolder.setContext(new SecureContextImpl());
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        ContextHolder.setContext(null);
     }
 
     private void executeFilterInContainerSimulator(FilterConfig filterConfig,

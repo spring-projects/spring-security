@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,14 @@
 package net.sf.acegisecurity.adapters.jboss;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.ui.AbstractIntegrationFilter;
+import net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter;
+import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.security.SecureContextUtils;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.IOException;
 
 import java.security.Principal;
 
@@ -28,33 +35,88 @@ import javax.naming.NamingException;
 
 import javax.security.auth.Subject;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 
 /**
- * Populates a {@link net.sf.acegisecurity.context.SecureContext} from JBoss'
- * <code>java:comp/env/security/subject</code>.
+ * Populates a {@link net.sf.acegisecurity.context.security.SecureContext} from
+ * JBoss' <code>java:comp/env/security/subject</code>.
  * 
  * <p>
- * See {@link AbstractIntegrationFilter} for further information.
+ * This filter <b>never</b> preserves the <code>Authentication</code> on the
+ * <code>ContextHolder</code> - it is replaced every request.
+ * </p>
+ * 
+ * <p>
+ * See {@link HttpSessionContextIntegrationFilter} for further information.
  * </p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class JbossIntegrationFilter extends AbstractIntegrationFilter {
+public class JbossIntegrationFilter implements Filter {
+    //~ Static fields/initializers =============================================
+
+    private static final Log logger = LogFactory.getLog(JbossIntegrationFilter.class);
+
     //~ Methods ================================================================
 
     /**
-     * Not supported for this type of well-known location.
-     *
-     * @param request DOCUMENT ME!
-     * @param authentication DOCUMENT ME!
+     * Does nothing. We use IoC container lifecycle services instead.
      */
-    public void commitToContainer(ServletRequest request,
-        Authentication authentication) {}
+    public void destroy() {}
 
-    public Object extractFromContainer(ServletRequest request) {
+    public void doFilter(ServletRequest request, ServletResponse response,
+        FilterChain chain) throws IOException, ServletException {
+        SecureContext sc = SecureContextUtils.getSecureContext();
+
+        Object principal = extractFromContainer(request);
+
+        if ((principal != null) && principal instanceof Authentication) {
+            sc.setAuthentication((Authentication) principal);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug(
+                    "ContextHolder updated with Authentication from container: '"
+                    + principal + "'");
+            }
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug(
+                    "ContextHolder not set with new Authentication as Principal was: '"
+                    + principal + "'");
+            }
+        }
+
+        chain.doFilter(request, response);
+    }
+
+    /**
+     * Does nothing. We use IoC container lifecycle services instead.
+     *
+     * @param arg0 ignored
+     *
+     * @throws ServletException ignored
+     */
+    public void init(FilterConfig arg0) throws ServletException {}
+
+    /**
+     * Provided so that unit tests can override.
+     *
+     * @return a <code>Context</code> that can be used for lookup
+     *
+     * @throws NamingException DOCUMENT ME!
+     */
+    protected Context getLookupContext() throws NamingException {
+        return new InitialContext();
+    }
+
+    private Object extractFromContainer(ServletRequest request) {
         Subject subject = null;
 
         try {
@@ -93,16 +155,5 @@ public class JbossIntegrationFilter extends AbstractIntegrationFilter {
         }
 
         return null;
-    }
-
-    /**
-     * Provided so that unit tests can override.
-     *
-     * @return a <code>Context</code> that can be used for lookup
-     *
-     * @throws NamingException DOCUMENT ME!
-     */
-    protected Context getLookupContext() throws NamingException {
-        return new InitialContext();
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,13 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
+import net.sf.acegisecurity.context.ContextHolder;
+import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.context.security.SecureContextUtils;
 
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import java.io.IOException;
 
 import java.security.Principal;
 
@@ -31,6 +36,13 @@ import java.util.Set;
 import javax.naming.Context;
 
 import javax.security.auth.Subject;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 
 /**
@@ -52,15 +64,11 @@ public class JbossIntegrationFilterTests extends TestCase {
 
     //~ Methods ================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public static void main(String[] args) {
         junit.textui.TestRunner.run(JbossIntegrationFilterTests.class);
     }
 
-    public void testCorrectOperation() {
+    public void testCorrectOperation() throws Exception {
         PrincipalAcegiUserToken principal = new PrincipalAcegiUserToken("key",
                 "someone", "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")});
@@ -68,59 +76,77 @@ public class JbossIntegrationFilterTests extends TestCase {
         JbossIntegrationFilter filter = new MockJbossIntegrationFilter(new MockInitialContext(
                     makeIntoSubject(principal)));
 
-        Object result = filter.extractFromContainer(new MockHttpServletRequest());
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockFilterChain chain = new MockFilterChain();
 
-        if (!(result instanceof PrincipalAcegiUserToken)) {
-            fail("Should have returned PrincipalAcegiUserToken");
-        }
+        filter.doFilter(request, null, chain);
 
-        PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) result;
-        assertEquals(principal, result);
-
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest();
-        mockRequest.setUserPrincipal(principal);
-
-        filter.commitToContainer(mockRequest, principal);
+        assertEquals(principal,
+            SecureContextUtils.getSecureContext().getAuthentication());
+        ContextHolder.setContext(null);
     }
 
-    public void testReturnsNullIfContextReturnsSomethingOtherThanASubject() {
+    public void testReturnsNullIfContextReturnsSomethingOtherThanASubject()
+        throws Exception {
         JbossIntegrationFilter filter = new MockJbossIntegrationFilter(new MockInitialContext(
                     "THIS_IS_NOT_A_SUBJECT"));
-        assertEquals(null,
-            filter.extractFromContainer(new MockHttpServletRequest(null, null)));
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(request, null, chain);
+        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
     }
 
-    public void testReturnsNullIfInitialContextHasNullPrincipal() {
+    public void testReturnsNullIfInitialContextHasNullPrincipal()
+        throws Exception {
         JbossIntegrationFilter filter = new MockJbossIntegrationFilter(new MockInitialContext(
                     makeIntoSubject(null)));
-        assertEquals(null,
-            filter.extractFromContainer(new MockHttpServletRequest(null, null)));
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(request, null, chain);
+        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
     }
 
-    public void testReturnsNullIfInitialContextHasNullSubject() {
+    public void testReturnsNullIfInitialContextHasNullSubject()
+        throws Exception {
         JbossIntegrationFilter filter = new MockJbossIntegrationFilter(new MockInitialContext(
                     null));
-        assertEquals(null,
-            filter.extractFromContainer(new MockHttpServletRequest(null, null)));
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(request, null, chain);
+        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
     }
 
-    public void testReturnsNullIfInitialContextIsNull() {
+    public void testReturnsNullIfInitialContextIsNull()
+        throws Exception {
         JbossIntegrationFilter filter = new MockJbossIntegrationFilter(null);
 
-        Object result = filter.extractFromContainer(new MockHttpServletRequest(
-                    null, null));
-        assertEquals(null, filter.extractFromContainer(null));
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(request, null, chain);
+        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
     }
 
-    public void testReturnsNullIfPrincipalNotAnAuthenticationImplementation() {
+    public void testReturnsNullIfPrincipalNotAnAuthenticationImplementation()
+        throws Exception {
         JbossIntegrationFilter filter = new MockJbossIntegrationFilter(new MockInitialContext(
                     makeIntoSubject(new Principal() {
                     public String getName() {
                         return "MockPrincipal";
                     }
                 })));
-        assertEquals(null,
-            filter.extractFromContainer(new MockHttpServletRequest(null, null)));
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(request, null, chain);
+        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
     }
 
     public void testTestingObjectReturnsInitialContext()
@@ -129,10 +155,35 @@ public class JbossIntegrationFilterTests extends TestCase {
         assertTrue(filter.getLookupContext() instanceof Context);
     }
 
+    protected void setUp() throws Exception {
+        super.setUp();
+        ContextHolder.setContext(new SecureContextImpl());
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        ContextHolder.setContext(null);
+    }
+
+    private void executeFilterInContainerSimulator(FilterConfig filterConfig,
+        Filter filter, ServletRequest request, ServletResponse response,
+        FilterChain filterChain) throws ServletException, IOException {
+        filter.init(filterConfig);
+        filter.doFilter(request, response, filterChain);
+        filter.destroy();
+    }
+
     private Subject makeIntoSubject(Principal principal) {
         Set principals = new HashSet();
         principals.add(principal);
 
         return new Subject(false, principals, new HashSet(), new HashSet());
+    }
+
+    //~ Inner Classes ==========================================================
+
+    private class MockFilterChain implements FilterChain {
+        public void doFilter(ServletRequest arg0, ServletResponse arg1)
+            throws IOException, ServletException {}
     }
 }

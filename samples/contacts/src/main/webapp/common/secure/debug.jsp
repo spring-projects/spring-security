@@ -1,6 +1,6 @@
 <%@ page import="net.sf.acegisecurity.context.Context" %>
 <%@ page import="net.sf.acegisecurity.context.ContextHolder" %>
-<%@ page import="net.sf.acegisecurity.context.SecureContext" %>
+<%@ page import="net.sf.acegisecurity.context.security.SecureContext" %>
 <%@ page import="net.sf.acegisecurity.Authentication" %>
 <%@ page import="net.sf.acegisecurity.GrantedAuthority" %>
 <%@ page import="net.sf.acegisecurity.adapters.AuthByAdapter" %>

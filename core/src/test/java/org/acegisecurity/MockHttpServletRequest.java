@@ -15,6 +15,8 @@
 
 package net.sf.acegisecurity;
 
+import org.springframework.mock.web.MockHttpSession;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 
@@ -315,10 +317,20 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     public HttpSession getSession(boolean arg0) {
+        if (arg0) {
+            if (this.session == null) {
+                this.session = new MockHttpSession();
+            }
+        }
+
         return this.session;
     }
 
     public HttpSession getSession() {
+        if (this.session == null) {
+            this.session = new MockHttpSession();
+        }
+
         return this.session;
     }
 

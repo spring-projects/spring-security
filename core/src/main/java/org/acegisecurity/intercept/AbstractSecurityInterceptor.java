@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.RunAsManager;
 import net.sf.acegisecurity.context.Context;
 import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.SecureContext;
+import net.sf.acegisecurity.context.security.SecureContext;
 import net.sf.acegisecurity.intercept.event.AuthenticationCredentialsNotFoundEvent;
 import net.sf.acegisecurity.intercept.event.AuthenticationFailureEvent;
 import net.sf.acegisecurity.intercept.event.AuthorizationFailureEvent;
@@ -104,7 +104,6 @@ import java.util.Set;
  * object, return the <code>ContextHolder</code> to the object that existed
  * after the call to <code>AuthenticationManager</code>.
  * </li>
- * 
  * <li>
  * If an <code>AfterInvocationManager</code> is defined, invoke the invocation
  * manager and allow it to replace the object due to be returned to the

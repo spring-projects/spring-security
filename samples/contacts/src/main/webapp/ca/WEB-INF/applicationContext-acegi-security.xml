@@ -21,7 +21,7 @@
          <value>
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 		    PATTERN_TYPE_APACHE_ANT
-            /**=httpRequestIntegrationFilter
+            /**=httpSessionContextIntegrationFilter,httpRequestIntegrationFilter
          </value>
       </property>
     </bean>
@@ -45,6 +45,10 @@
    </bean>
 
    <bean id="httpRequestIntegrationFilter" class="net.sf.acegisecurity.adapters.HttpRequestIntegrationFilter"/>
+
+   <bean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter">
+      <property name="context"><value>net.sf.acegisecurity.context.security.SecureContextImpl</value></property>
+   </bean>
 
 	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
 	

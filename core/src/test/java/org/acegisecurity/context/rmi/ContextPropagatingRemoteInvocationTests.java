@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.rmi;
+package net.sf.acegisecurity.context.rmi;
 
 import junit.framework.TestCase;
 
@@ -21,8 +21,10 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.MockMethodInvocation;
 import net.sf.acegisecurity.TargetObject;
 import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.SecureContext;
-import net.sf.acegisecurity.context.SecureContextImpl;
+import net.sf.acegisecurity.context.rmi.ContextPropagatingRemoteInvocation;
+import net.sf.acegisecurity.context.rmi.ContextPropagatingRemoteInvocationFactory;
+import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.security.SecureContextImpl;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.aopalliance.intercept.MethodInvocation;
