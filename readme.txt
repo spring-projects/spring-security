@@ -34,27 +34,11 @@ USE THE JAR. Please email the acegisecurity-developers list (contact details
 are provided below) for further assistance.
 
 -------------------------------------------------------------------------------
-ANT HELP
+BUILDING
 -------------------------------------------------------------------------------
 
-Acegi Security includes several Apache Ant build.xml files. This eases Clover
-integration and use of JUnit from the command line. We recommend you use the
-provided build.bat or build.sh script (as appropriate to your platform).
-
-With Windows, run the main build file "tests" target like this:
-  ant tests
-
-With Windows, run the Contacts sample "warfile" target like this:
-  ant -buildfile samples\contacts\build.xml warfile
-
-With Linux/Unix, run the main build file "tests" target like this:
-  ./ant.sh tests
-
-With Linux/Unix, run the Contacts sample "warfile" target like this:
-  ./ant.sh -buildfile samples/contacts/build.xml warfile
-
-Each example should be run from the root of the Acegi Security project
-directory.
+Acegi Security is built using Maven. Please check building instructions at
+http://acegisecurity.sourceforge.net
 
 -------------------------------------------------------------------------------
 QUICK START
@@ -69,8 +53,7 @@ the method invocations of business objects, and also the HTTP URLs.
 DOCUMENTATION
 -------------------------------------------------------------------------------
 
-Please refer to the Reference Guide, which is located in the docs/reference
-directory. In addition, JavaDocs are located in the docs/api directory.
+Please refer to the Reference Guide and JavaDocs at http://acegisecurity.sourceforge.net.
 
 -------------------------------------------------------------------------------
 ADDING ACEGI SECURITY TO YOUR OWN APPLICATION
