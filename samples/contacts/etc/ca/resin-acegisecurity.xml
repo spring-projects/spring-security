@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+ * The Acegi Security System for Spring is published under the terms
+ * of the Apache Software License.
+ *
+ * This springsecurity.xml file will only be used by Resin. Normally the
+ * springsecurity.xml is container-wide, but in the case of Resin it is
+ * web application specific.
+ *
+ * $Id$
+ *
+ * This file will be copied into WAR's classes directory if using container adapter
+ *
+-->
+
+<beans>
+
+	<!-- ================= CONTAINER ADAPTER CONFIGURATION ================ -->
+	
+	<!-- Data access object which stores authentication information -->
+	<bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
+  		<property name="userMap">
+			<value>
+				marissa=koala,ROLE_TELLER,ROLE_SUPERVISOR
+				dianne=emu,ROLE_TELLER
+				scott=wombat,ROLE_TELLER
+				peter=opal,disabled,ROLE_TELLER
+			</value>
+		</property>
+	</bean>
+	
+	<!-- Authentication provider that queries our data access object  -->
+	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
+     	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
+ 		<property name="ignorePasswordCase"><value>false</value></property>
+ 		<property name="ignoreUsernameCase"><value>true</value></property>
+	</bean>
+
+	<!-- The authentication manager that iterates through our only authentication provider -->
+	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+		<property name="providers">
+		  <list>
+		    <ref bean="daoAuthenticationProvider"/>
+		  </list>
+		</property>
+	</bean>
+
+</beans>

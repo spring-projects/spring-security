@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+ * Copyright 2004 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
+ * $Id$
+ *
+ * This file will be copied into WAR's classes directory if NOT using container adapter
+-->
+
+<beans>
+
+	<!-- ==================== AUTHENTICATION DEFINITIONS =================== -->
+	
+	<!-- Data access object which stores authentication information -->
+	<bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
+  		<property name="userMap">
+			<value>
+				marissa=koala,ROLE_TELLER,ROLE_SUPERVISOR
+				dianne=emu,ROLE_TELLER
+				scott=wombat,ROLE_TELLER
+				peter=opal,disabled,ROLE_TELLER
+			</value>
+		</property>
+	</bean>
+	
+	<!-- Authentication provider that queries our data access object  -->
+	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
+     	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
+ 		<property name="ignorePasswordCase"><value>false</value></property>
+ 		<property name="ignoreUsernameCase"><value>true</value></property>
+	</bean>
+
+	<!-- The authentication manager that iterates through our only authentication provider -->
+	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+		<property name="providers">
+		  <list>
+		    <ref bean="daoAuthenticationProvider"/>
+		  </list>
+		</property>
+	</bean>
+	
+	<!-- ===================== HTTP REQUEST SECURITY ==================== -->
+
+	<bean id="runAsManager" class="net.sf.acegisecurity.runas.RunAsManagerImpl">
+     	<property name="key"><value>my_run_as_password</value></property>
+ 	</bean>
+
+	<bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
+
+	<bean id="accessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
+   		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
+		<property name="decisionVoters">
+		  <list>
+		    <ref bean="roleVoter"/>
+		  </list>
+		</property>
+	</bean>
+
+	<!-- The FilterSecurityInterceptor is called by the web.xml-defined SecurityEnforcementFilter.
+	     Note the order that entries are placed against the objectDefinitionSource is critical.
+	     The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
+	     Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
+	
+	<bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
+    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
+    	<property name="runAsManager"><ref bean="runAsManager"/></property>
+ 		<property name="objectDefinitionSource">
+			<value>
+			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+				\A/secure/super.*\Z=ROLE_WE_DONT_HAVE
+				\A/secure/.*\Z=ROLE_SUPERVISOR,ROLE_TELLER
+			</value>
+		</property>
+	</bean>
+	
+	<!-- BASIC Regular Expression Syntax (for beginners):
+	     
+	     \A means the start of the string (ie the beginning of the URL)
+	     \Z means the end of the string (ie the end of the URL)
+	     .  means any single character
+	     *  means null or any number of repetitions of the last expression (so .* means zero or more characters)
+	     
+	     Some examples:
+	     
+	     Expression:   \A/my/directory/.*\Z
+	     Would match:    /my/directory/
+	                     /my/directory/hello.html
+	     
+	     Expression:   \A/.*\Z
+	     Would match:    /hello.html
+	                     /
+	     
+	     Expression:   \A/.*/secret.html\Z
+	     Would match:    /some/directory/secret.html
+	                     /another/secret.html
+	     Not match:      /anothersecret.html (missing required /)
+	-->
+
+</beans>

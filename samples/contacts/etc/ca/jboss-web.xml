@@ -1,0 +1,7 @@
+<!--
+  - $Id$
+  - File will be copied into WAR's WEB-INF directory if using container adapter
+  -->
+<jboss-web>
+    <security-domain>java:/jaas/SpringPoweredRealm</security-domain>
+</jboss-web>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC '-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN' 'http://java.sun.com/dtd/web-app_2_3.dtd'>
+
+<!--
+  - Contacts web application
+  - $Id$
+  - File will be copied into WAR's WEB-INF directory if NOT using container adapter
+  -->
+
+<web-app>
+
+    <display-name>Contacts Sample Application</display-name>
+    
+	<description>
+    	Example of an application secured using Acegi Security System for Spring.
+    </description>
+
+
+    <filter>
+        <filter-name>Acegi Authentication Processing Filter</filter-name>
+        <filter-class>net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter</filter-class>
+        <init-param>
+            <param-name>appContextLocation</param-name>
+            <param-value>web-filters-acegisecurity.xml</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authenticationFailureUrl</param-name>
+            <param-value>/acegilogin.jsp?login_error=1</param-value>
+        </init-param>
+        <init-param>
+              <param-name>defaultTargetUrl</param-name>
+              <param-value>/</param-value>
+        </init-param>
+        <init-param>
+            <param-name>filterProcessUrl</param-name>
+            <param-value>/j_acegi_security_check</param-value>
+        </init-param>
+    </filter>
+
+
+    <filter>
+        <filter-name>Acegi Security System for Spring Auto Integration Filter</filter-name>
+        <filter-class>net.sf.acegisecurity.ui.AutoIntegrationFilter</filter-class>
+    </filter>
+
+   
+    <filter>
+        <filter-name>Acegi HTTP Request Security Filter</filter-name>
+        <filter-class>net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter</filter-class>
+        <init-param>
+            <param-name>appContextLocation</param-name>
+            <param-value>web-filters-acegisecurity.xml</param-value>
+        </init-param>
+        <init-param>
+            <param-name>loginFormUrl</param-name>
+            <param-value>/acegilogin.jsp</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+      <filter-name>Acegi Authentication Processing Filter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+      <filter-name>Acegi Security System for Spring Auto Integration Filter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <filter-mapping>
+      <filter-name>Acegi HTTP Request Security Filter</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+  <!--
+    - Servlet that dispatches request to registered handlers (Controller implementations).
+    - Has its own application context, by default defined in "{servlet-name}-servlet.xml",
+    - i.e. "contacts-servlet.xml".
+    -
+    - A web app can contain any number of such servlets.
+    - Note that this web app does not have a shared root application context,
+    - therefore the DispatcherServlet contexts do not have a common parent.
+    -->
+	<servlet>
+		<servlet-name>contacts</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+  <!--
+    - Maps the contacts dispatcher to /*.
+    -
+   -->
+	<servlet-mapping>
+    	<servlet-name>contacts</servlet-name>
+    	<url-pattern>*.htm</url-pattern>
+ 	</servlet-mapping>
+  
+ 	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+  	<taglib>
+      <taglib-uri>/spring</taglib-uri>
+      <taglib-location>/WEB-INF/spring.tld</taglib-location>
+  	</taglib>
+  
+</web-app>
