@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Application context containing authentication, channel
+  - security and web URI beans.
+  -
+  - Only used by "cas" artifact.
+  -
+  - $Id$
+  -->
+
+<beans>
+
+   <!-- ======================== FILTER CHAIN ======================= -->
+
+	<bean id="filterChainProxy" class="net.sf.acegisecurity.util.FilterChainProxy">
+      <property name="filterInvocationDefinitionSource">
+         <value>
+		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+		    PATTERN_TYPE_APACHE_ANT
+            /**=channelProcessingFilter,httpSessionContextIntegrationFilter,x509ProcessingFilter,securityEnforcementFilter
+         </value>
+      </property>
+    </bean>
+
+   <!-- ======================== AUTHENTICATION ======================= -->
+
+   <bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+      <property name="providers">
+         <list>
+		    <ref local="x509AuthenticationProvider"/>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="jdbcDaoImpl" class="net.sf.acegisecurity.providers.dao.jdbc.JdbcDaoImpl">
+      <property name="dataSource"><ref bean="dataSource"/></property>
+   </bean>
+
+   <bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
+      <property name="authenticationManager"><ref local="authenticationManager"/></property>
+      <property name="authenticationEntryPoint"><ref local="basicProcessingFilterEntryPoint"/></property>
+   </bean>
+
+   <bean id="basicProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
+      <property name="realmName"><value>Contacts Realm</value></property>
+   </bean>
+
+   <bean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter">
+      <property name="context"><value>net.sf.acegisecurity.context.security.SecureContextImpl</value></property>
+   </bean>
+
+	<bean id="x509AuthenticationProvider" class="net.sf.acegisecurity.providers.x509.X509AuthenticationProvider">
+		<property name="x509AuthoritiesPopulator"><ref local="x509AuthoritiesPopulator"/></property>
+	</bean>
+
+    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+
+	<bean id="x509AuthoritiesPopulator" class="net.sf.acegisecurity.providers.x509.populator.DaoX509AuthoritiesPopulator">
+		<property name="authenticationDao"><ref local="jdbcDaoImpl"/></property>
+	</bean>
+
+	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
+	
+	<!-- Enabled by default for CAS, as a CAS deployment uses HTTPS -->
+	<bean id="channelProcessingFilter" class="net.sf.acegisecurity.securechannel.ChannelProcessingFilter">
+		<property name="channelDecisionManager"><ref local="channelDecisionManager"/></property>
+ 		<property name="filterInvocationDefinitionSource">
+			<value>
+			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+				\A/secure/.*\Z=REQUIRES_SECURE_CHANNEL
+				\A/j_acegi_cas_security_check.*\Z=REQUIRES_SECURE_CHANNEL	
+				\A.*\Z=REQUIRES_INSECURE_CHANNEL
+			</value>
+		</property>
+	</bean>
+
+	<bean id="channelDecisionManager" class="net.sf.acegisecurity.securechannel.ChannelDecisionManagerImpl">
+	    <property name="channelProcessors">
+      		<list>
+ 	        	<ref local="secureChannelProcessor"/>
+        		<ref local="insecureChannelProcessor"/>
+     		</list>
+	    </property>
+	</bean>
+
+	<bean id="secureChannelProcessor" class="net.sf.acegisecurity.securechannel.SecureChannelProcessor"/>
+	<bean id="insecureChannelProcessor" class="net.sf.acegisecurity.securechannel.InsecureChannelProcessor"/>
+
+	<!-- ===================== HTTP REQUEST SECURITY ==================== -->
+
+	<bean id="securityEnforcementFilter" class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter">
+		<property name="filterSecurityInterceptor"><ref local="filterInvocationInterceptor"/></property>
+		<property name="authenticationEntryPoint"><ref local="x509ProcessingFilterEntryPoint"/></property>
+	</bean>
+
+	<bean id="x509ProcessingFilter" class="net.sf.acegisecurity.ui.x509.X509ProcessingFilter">
+		<property name="authenticationManager"><ref local="authenticationManager"/></property>
+	</bean>
+
+	<bean id="x509ProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.x509.X509ProcessingFilterEntryPoint">
+	</bean>
+
+	<bean id="httpRequestAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
+   		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
+		<property name="decisionVoters">
+		  <list>
+		    <ref bean="roleVoter"/>
+		  </list>
+		</property>
+	</bean>
+
+	<!-- Note the order that entries are placed against the objectDefinitionSource is critical.
+	     The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
+	     Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
+	<bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
+    	<property name="authenticationManager"><ref local="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref local="httpRequestAccessDecisionManager"/></property>
+ 		<property name="objectDefinitionSource">
+			<value>
+			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+				\A/secure/super.*\Z=ROLE_WE_DONT_HAVE
+				\A/secure/.*\Z=ROLE_SUPERVISOR,ROLE_TELLER
+			</value>
+		</property>
+	</bean>
+	
+	<!-- BASIC Regular Expression Syntax (for beginners):
+	     
+	     \A means the start of the string (ie the beginning of the URL)
+	     \Z means the end of the string (ie the end of the URL)
+	     .  means any single character
+	     *  means null or any number of repetitions of the last expression (so .* means zero or more characters)
+	     
+	     Some examples:
+	     
+	     Expression:   \A/my/directory/.*\Z
+	     Would match:    /my/directory/
+	                     /my/directory/hello.html
+	     
+	     Expression:   \A/.*\Z
+	     Would match:    /hello.html
+	                     /
+	     
+	     Expression:   \A/.*/secret.html\Z
+	     Would match:    /some/directory/secret.html
+	                     /another/secret.html
+	     Not match:      /anothersecret.html (missing required /)
+	-->
+
+</beans>
