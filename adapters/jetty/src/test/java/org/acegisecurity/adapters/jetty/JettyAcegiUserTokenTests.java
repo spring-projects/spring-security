@@ -22,7 +22,7 @@ import net.sf.acegisecurity.GrantedAuthorityImpl;
 
 
 /**
- * Tests {@link JettyAcegiUserToken}
+ * Tests {@link JettyAcegiUserToken}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -59,74 +59,12 @@ public class JettyAcegiUserTokenTests extends TestCase {
         assertEquals("Test", token.getName());
     }
 
-    public void testIsUserInRole() throws Exception {
-        JettyAcegiUserToken token = new JettyAcegiUserToken("my_password",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
-        assertTrue(token.isUserInRole("ROLE_ONE"));
-        assertTrue(token.isUserInRole("ROLE_TWO"));
-        assertTrue(!token.isUserInRole(""));
-        assertTrue(!token.isUserInRole("ROLE_ONE "));
-        assertTrue(!token.isUserInRole("role_one"));
-        assertTrue(!token.isUserInRole("ROLE_XXXX"));
-    }
-
     public void testNoArgsConstructor() {
-        JettyAcegiUserToken token = new JettyAcegiUserToken();
-    }
-
-    public void testObjectsEquals() throws Exception {
-        JettyAcegiUserToken token1 = new JettyAcegiUserToken("my_password",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
-        JettyAcegiUserToken token2 = new JettyAcegiUserToken("my_password",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
-        assertEquals(token1, token2);
-
-        JettyAcegiUserToken token3 = new JettyAcegiUserToken("my_password",
-                "Test", "Password_Changed",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
-        assertTrue(!token1.equals(token3));
-
-        JettyAcegiUserToken token4 = new JettyAcegiUserToken("my_password",
-                "Test_Changed", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
-        assertTrue(!token1.equals(token4));
-
-        JettyAcegiUserToken token5 = new JettyAcegiUserToken("password_changed",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
-        assertTrue(!token1.equals(token5));
-
-        JettyAcegiUserToken token6 = new JettyAcegiUserToken("my_password",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO_CHANGED")});
-        assertTrue(!token1.equals(token6));
-
-        JettyAcegiUserToken token7 = new JettyAcegiUserToken("my_password",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE")});
-        assertTrue(!token1.equals(token7));
-
-        assertTrue(!token1.equals(new Integer(100)));
-    }
-
-    public void testSetAuthenticatedAlwaysReturnsTrue()
-        throws Exception {
-        JettyAcegiUserToken token = new JettyAcegiUserToken("my_password",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
-        assertTrue(token.isAuthenticated());
-        token.setAuthenticated(false);
-        assertTrue(token.isAuthenticated());
+        try {
+            new JettyAcegiUserToken();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
     }
 }

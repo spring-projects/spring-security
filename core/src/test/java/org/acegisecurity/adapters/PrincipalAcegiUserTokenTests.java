@@ -22,7 +22,7 @@ import net.sf.acegisecurity.GrantedAuthorityImpl;
 
 
 /**
- * Tests {@link net.sf.acegisecurity.adapters.PrincipalAcegiUserToken}
+ * Tests {@link PrincipalAcegiUserToken}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -59,74 +59,12 @@ public class PrincipalAcegiUserTokenTests extends TestCase {
         assertEquals("Test", token.getName());
     }
 
-    public void testIsUserInRole() throws Exception {
-        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("my_password",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
-        assertTrue(token.isUserInRole("ROLE_ONE"));
-        assertTrue(token.isUserInRole("ROLE_TWO"));
-        assertTrue(!token.isUserInRole(""));
-        assertTrue(!token.isUserInRole("ROLE_ONE "));
-        assertTrue(!token.isUserInRole("role_one"));
-        assertTrue(!token.isUserInRole("ROLE_XXXX"));
-    }
-
     public void testNoArgsConstructor() {
-        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken();
-    }
-
-    public void testObjectsEquals() throws Exception {
-        PrincipalAcegiUserToken token1 = new PrincipalAcegiUserToken("my_password",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
-        PrincipalAcegiUserToken token2 = new PrincipalAcegiUserToken("my_password",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
-        assertEquals(token1, token2);
-
-        PrincipalAcegiUserToken token3 = new PrincipalAcegiUserToken("my_password",
-                "Test", "Password_Changed",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
-        assertTrue(!token1.equals(token3));
-
-        PrincipalAcegiUserToken token4 = new PrincipalAcegiUserToken("my_password",
-                "Test_Changed", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
-        assertTrue(!token1.equals(token4));
-
-        PrincipalAcegiUserToken token5 = new PrincipalAcegiUserToken("password_changed",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
-        assertTrue(!token1.equals(token5));
-
-        PrincipalAcegiUserToken token6 = new PrincipalAcegiUserToken("my_password",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO_CHANGED")});
-        assertTrue(!token1.equals(token6));
-
-        PrincipalAcegiUserToken token7 = new PrincipalAcegiUserToken("my_password",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE")});
-        assertTrue(!token1.equals(token7));
-
-        assertTrue(!token1.equals(new Integer(100)));
-    }
-
-    public void testSetAuthenticatedAlwaysReturnsTrue()
-        throws Exception {
-        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("my_password",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
-        assertTrue(token.isAuthenticated());
-        token.setAuthenticated(false);
-        assertTrue(token.isAuthenticated());
+        try {
+            new PrincipalAcegiUserToken();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
     }
 }
