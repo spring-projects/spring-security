@@ -117,6 +117,7 @@ public class RetryWithHttpEntryPoint implements InitializingBean,
             logger.debug("Redirecting to: " + redirectUrl);
         }
 
-        ((HttpServletResponse) response).sendRedirect(redirectUrl);
+        ((HttpServletResponse) response).sendRedirect(((HttpServletResponse) response)
+            .encodeRedirectURL(redirectUrl));
     }
 }

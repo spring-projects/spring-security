@@ -146,7 +146,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     public String encodeRedirectURL(String arg0) {
-        throw new UnsupportedOperationException("mock method not implemented");
+        return arg0;
     }
 
     public String encodeRedirectUrl(String arg0) {

@@ -224,8 +224,8 @@ public abstract class AbstractProcessingFilter implements Filter,
                     failed);
                 httpRequest.getSession().setAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY,
                     null);
-                httpResponse.sendRedirect(httpRequest.getContextPath()
-                    + authenticationFailureUrl);
+                httpResponse.sendRedirect(httpResponse.encodeRedirectURL(httpRequest
+                        .getContextPath() + authenticationFailureUrl));
 
                 return;
             }
@@ -252,7 +252,7 @@ public abstract class AbstractProcessingFilter implements Filter,
                     + targetUrl);
             }
 
-            httpResponse.sendRedirect(targetUrl);
+            httpResponse.sendRedirect(httpResponse.encodeRedirectURL(targetUrl));
 
             return;
         }
