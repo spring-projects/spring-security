@@ -9,4 +9,20 @@
             <version>4.2.20</version>
         </dependency>
     </dependencies>
+  <build>
+    <unitTest>
+      <includes>
+        <include>**/*Tests.java</include>
+      </includes>
+      <resources>
+        <resource>
+          <directory>${basedir}/../../core/src/main/resources</directory>
+          <includes>
+            <include>**/**</include>
+          </includes>
+          <filtering>false</filtering>
+        </resource>
+      </resources>
+    </unitTest>
+  </build>
 </project>
