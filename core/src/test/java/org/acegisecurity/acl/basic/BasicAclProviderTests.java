@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,7 +147,26 @@ public class BasicAclProviderTests extends TestCase {
         assertEquals(2, acls.length);
 
         assertEquals("scott", ((BasicAclEntry) acls[0]).getRecipient());
+        assertEquals(1, ((BasicAclEntry) acls[0]).getMask());
         assertEquals("ROLE_SUPERVISOR", ((BasicAclEntry) acls[1]).getRecipient());
+    }
+
+    public void testGetAclsForInstanceWithParentLevelsButNoDirectAclsAgainstInstance()
+        throws Exception {
+        BasicAclProvider provider = new BasicAclProvider();
+        provider.setBasicAclDao(makePopulatedJdbcDao());
+
+        Object object = new MockDomain(5);
+        AclEntry[] acls = provider.getAcls(object);
+
+        assertEquals(3, acls.length);
+
+        assertEquals("scott", ((BasicAclEntry) acls[0]).getRecipient());
+        assertEquals(14, ((BasicAclEntry) acls[0]).getMask());
+        assertEquals("ROLE_SUPERVISOR", ((BasicAclEntry) acls[1]).getRecipient());
+        assertEquals(1, ((BasicAclEntry) acls[1]).getMask());
+        assertEquals(JdbcDaoImpl.RECIPIENT_USED_FOR_INHERITENCE_MARKER,
+            ((BasicAclEntry) acls[2]).getRecipient());
     }
 
     public void testGetAclsWithAuthentication() throws Exception {
