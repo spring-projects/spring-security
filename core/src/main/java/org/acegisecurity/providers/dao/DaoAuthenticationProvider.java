@@ -110,12 +110,26 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
                 .getMessage());
         }
 
-        if (!user.isEnabled()) {
-            throw new DisabledException("User is disabled");
+        if ((!this.ignoreUsernameCase)
+            && (!user.getUsername().equals(authentication.getPrincipal()
+                                                         .toString()))) {
+            throw new BadCredentialsException("Bad credentials presented");
         }
 
-        if (!user.getPassword().equals(authentication.getCredentials().toString())) {
+        if (!user.getPassword().toLowerCase().equals(authentication.getCredentials()
+                                                                   .toString()
+                                                                   .toLowerCase())) {
             throw new BadCredentialsException("Bad credentials presented");
+        }
+
+        if ((!this.ignorePasswordCase)
+            && (!user.getPassword().equals(authentication.getCredentials()
+                                                         .toString()))) {
+            throw new BadCredentialsException("Bad credentials presented");
+        }
+
+        if (!user.isEnabled()) {
+            throw new DisabledException("User is disabled");
         }
 
         return new UsernamePasswordAuthenticationToken(user.getUsername(),
