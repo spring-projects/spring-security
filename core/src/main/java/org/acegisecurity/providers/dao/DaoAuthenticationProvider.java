@@ -203,7 +203,8 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
     public boolean supports(Class authentication) {
         if (UsernamePasswordAuthenticationToken.class.isAssignableFrom(
-                authentication)) {
+                authentication)
+            || (DaoAuthenticationToken.class.isAssignableFrom(authentication))) {
             return true;
         } else {
             return false;

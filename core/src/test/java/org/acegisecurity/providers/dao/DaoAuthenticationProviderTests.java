@@ -334,6 +334,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         assertTrue(provider.supports(UsernamePasswordAuthenticationToken.class));
         assertTrue(!provider.supports(TestingAuthenticationToken.class));
+        assertTrue(provider.supports(DaoAuthenticationToken.class));
     }
 
     //~ Inner Classes ==========================================================
