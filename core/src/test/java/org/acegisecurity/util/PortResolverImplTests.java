@@ -47,15 +47,31 @@ public class PortResolverImplTests extends TestCase {
         junit.textui.TestRunner.run(PortResolverImplTests.class);
     }
 
+    public void testDetectsBuggyIeHttpRequest() throws Exception {
+        PortResolverImpl pr = new PortResolverImpl();
+        pr.afterPropertiesSet();
+
+        MockHttpServletRequest request = new MockHttpServletRequest("X");
+        request.setServerPort(8443);
+        request.setScheme("HTtP"); // proves case insensitive handling
+        assertEquals(8080, pr.getServerPort(request));
+    }
+
+    public void testDetectsBuggyIeHttpsRequest() throws Exception {
+        PortResolverImpl pr = new PortResolverImpl();
+        pr.afterPropertiesSet();
+
+        MockHttpServletRequest request = new MockHttpServletRequest("X");
+        request.setServerPort(8080);
+        request.setScheme("HTtPs"); // proves case insensitive handling
+        assertEquals(8443, pr.getServerPort(request));
+    }
+
     public void testGettersSetters() throws Exception {
         PortResolverImpl pr = new PortResolverImpl();
-        assertEquals(0, pr.getAlwaysHttpPort());
-        assertEquals(0, pr.getAlwaysHttpsPort());
-
-        pr.setAlwaysHttpPort(80);
-        pr.setAlwaysHttpsPort(443);
-        assertEquals(80, pr.getAlwaysHttpPort());
-        assertEquals(443, pr.getAlwaysHttpsPort());
+        assertTrue(pr.getPortMapper() != null);
+        pr.setPortMapper(new PortMapperImpl());
+        assertTrue(pr.getPortMapper() != null);
     }
 
     public void testNormalOperation() throws Exception {
@@ -66,79 +82,5 @@ public class PortResolverImplTests extends TestCase {
         request.setScheme("http");
         request.setServerPort(1021);
         assertEquals(1021, pr.getServerPort(request));
-    }
-
-    public void testOverridesHttp() throws Exception {
-        PortResolverImpl pr = new PortResolverImpl();
-        pr.setAlwaysHttpPort(495);
-        pr.afterPropertiesSet();
-
-        MockHttpServletRequest request = new MockHttpServletRequest("X");
-        request.setServerPort(7676);
-        request.setScheme("HTtP"); // proves case insensitive handling
-        assertEquals(495, pr.getServerPort(request));
-
-        request.setScheme("https");
-        assertEquals(7676, pr.getServerPort(request));
-    }
-
-    public void testOverridesHttps() throws Exception {
-        PortResolverImpl pr = new PortResolverImpl();
-        pr.setAlwaysHttpsPort(987);
-        pr.afterPropertiesSet();
-
-        MockHttpServletRequest request = new MockHttpServletRequest("X");
-        request.setServerPort(6949);
-        request.setScheme("HTtPs"); // proves case insensitive handling
-        assertEquals(987, pr.getServerPort(request));
-
-        request.setScheme("http");
-        assertEquals(6949, pr.getServerPort(request));
-    }
-
-    public void testRejectsOutOfRangeHttp() throws Exception {
-        PortResolverImpl pr = new PortResolverImpl();
-        pr.setAlwaysHttpPort(9999999);
-
-        try {
-            pr.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("alwaysHttpPort must be between 1 and 65535",
-                expected.getMessage());
-        }
-
-        pr.setAlwaysHttpPort(-49);
-
-        try {
-            pr.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("alwaysHttpPort must be between 1 and 65535",
-                expected.getMessage());
-        }
-    }
-
-    public void testRejectsOutOfRangeHttps() throws Exception {
-        PortResolverImpl pr = new PortResolverImpl();
-        pr.setAlwaysHttpsPort(9999999);
-
-        try {
-            pr.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("alwaysHttpsPort must be between 1 and 65535",
-                expected.getMessage());
-        }
-
-        pr.setAlwaysHttpsPort(-49);
-
-        try {
-            pr.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("alwaysHttpsPort must be between 1 and 65535",
-                expected.getMessage());
-        }
     }
 }

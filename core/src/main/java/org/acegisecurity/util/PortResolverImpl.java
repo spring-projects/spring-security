@@ -25,14 +25,14 @@ import javax.servlet.ServletRequest;
  * <code>ServletRequest.getServerPort()</code>.
  * 
  * <P>
- * If either the <code>alwaysHttpPort</code> or <code>alwaysHttpsPort</code>
- * properties are set, these ports will be used <B>instead of</B> those
- * obtained from the <code>ServletRequest.getServerPort()</code> method.
- * Setting these properties will cause the
- * <code>ServletRequest.getScheme()</code> method to be used to determine
- * whether a request was HTTP or HTTPS, and then return the port defined by
- * the <code>always[Scheme]Port</code> property. You can configure zero, one
- * or both of these properties.
+ * This class is capable of handling the IE bug which results in an incorrect
+ * URL being presented in the header subsequent to a redirect to a different
+ * scheme and port where the port is not a well-known number (ie 80 or 443).
+ * Handling involves detecting an incorrect response from
+ * <code>ServletRequest.getServerPort()</code> for the scheme (eg a HTTP
+ * request on 8443) and then determining the real server port (eg HTTP request
+ * is really on 8080). The map of valid ports is obtained from the configured
+ * {@link PortMapper}.
  * </p>
  *
  * @author Ben Alex
@@ -41,52 +41,45 @@ import javax.servlet.ServletRequest;
 public class PortResolverImpl implements InitializingBean, PortResolver {
     //~ Instance fields ========================================================
 
-    private int alwaysHttpPort = 0;
-    private int alwaysHttpsPort = 0;
+    private PortMapper portMapper = new PortMapperImpl();
 
     //~ Methods ================================================================
 
-    public void setAlwaysHttpPort(int alwaysHttpPort) {
-        this.alwaysHttpPort = alwaysHttpPort;
+    public void setPortMapper(PortMapper portMapper) {
+        this.portMapper = portMapper;
     }
 
-    public int getAlwaysHttpPort() {
-        return alwaysHttpPort;
-    }
-
-    public void setAlwaysHttpsPort(int alwaysHttpsPort) {
-        this.alwaysHttpsPort = alwaysHttpsPort;
-    }
-
-    public int getAlwaysHttpsPort() {
-        return alwaysHttpsPort;
+    public PortMapper getPortMapper() {
+        return portMapper;
     }
 
     public int getServerPort(ServletRequest request) {
-        if ("http".equals(request.getScheme().toLowerCase())
-            && (alwaysHttpPort != 0)) {
-            return alwaysHttpPort;
+        int result = request.getServerPort();
+
+        if ("http".equals(request.getScheme().toLowerCase())) {
+            Integer http = portMapper.lookupHttpPort(new Integer(result));
+
+            if (http != null) {
+                // IE 6 bug
+                result = http.intValue();
+            }
         }
 
-        if ("https".equals(request.getScheme().toLowerCase())
-            && (alwaysHttpsPort != 0)) {
-            return alwaysHttpsPort;
+        if ("https".equals(request.getScheme().toLowerCase())) {
+            Integer https = portMapper.lookupHttpsPort(new Integer(result));
+
+            if (https != null) {
+                // IE 6 bug
+                result = https.intValue();
+            }
         }
 
-        return request.getServerPort();
+        return result;
     }
 
     public void afterPropertiesSet() throws Exception {
-        if ((alwaysHttpPort != 0)
-            && ((alwaysHttpPort > 65535) || (alwaysHttpPort < 0))) {
-            throw new IllegalArgumentException(
-                "alwaysHttpPort must be between 1 and 65535");
-        }
-
-        if ((alwaysHttpsPort != 0)
-            && ((alwaysHttpsPort > 65535) || (alwaysHttpsPort < 0))) {
-            throw new IllegalArgumentException(
-                "alwaysHttpsPort must be between 1 and 65535");
+        if (portMapper == null) {
+            throw new IllegalArgumentException("portMapper required");
         }
     }
 }
