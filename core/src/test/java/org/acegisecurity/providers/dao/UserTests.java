@@ -82,6 +82,14 @@ public class UserTests extends TestCase {
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
+
+        try {
+            User user = new User("marissa", "koala", true,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), null});
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
     }
 
     public void testNullWithinGrantedAuthorityElementIsRejected()
