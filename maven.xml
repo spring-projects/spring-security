@@ -39,4 +39,8 @@
     <j:set var="rootdir">${rootdirname}</j:set>
     <echo>Using root dir: ${rootdir}</echo>
 
+    <postGoal name="site">
+        <attainGoal name="dashboard:report-single"/>
+    </postGoal>
+
 </project>

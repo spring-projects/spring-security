@@ -5,6 +5,7 @@
   <artifactId>acegi-security-jboss</artifactId>
   <name>Acegi Security System for Spring - JBoss adapter</name>
   <groupId>acegisecurity</groupId>
+  <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs/multiproject/acegi-security-jboss</siteDirectory>
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
     <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
