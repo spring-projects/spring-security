@@ -15,35 +15,32 @@
 
 package net.sf.acegisecurity.domain.hibernate;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+
 import net.sf.acegisecurity.domain.PersistableEntity;
 import net.sf.acegisecurity.domain.dao.Dao;
 import net.sf.acegisecurity.domain.dao.EvictionCapable;
 import net.sf.acegisecurity.domain.dao.PaginatedList;
 
-import net.sf.hibernate.Criteria;
-import net.sf.hibernate.Hibernate;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.expression.Expression;
-import net.sf.hibernate.expression.MatchMode;
-import net.sf.hibernate.expression.Order;
-import net.sf.hibernate.metadata.ClassMetadata;
-import net.sf.hibernate.type.Type;
-
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.HibernateObjectRetrievalFailureException;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
-
+import org.hibernate.Criteria;
+import org.hibernate.EntityMode;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.criterion.Expression;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
+import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.type.Type;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
-
-import java.util.Collection;
-import java.util.List;
 
 
 /**
- * {@link Dao} implementation that uses Hibernate for persistence.
+ * {@link Dao} implementation that uses Hibernate 3 for persistence.
  *
  * @author Ben Alex
  * @author Matthew Porter
@@ -103,13 +100,8 @@ public class DaoHibernate extends HibernateDaoSupport implements Dao,
 
     public PersistableEntity readId(Serializable id) {
         Assert.notNull(id);
-
-        try {
-            return (PersistableEntity) getHibernateTemplate().load(supportsClass,
-                id);
-        } catch (HibernateObjectRetrievalFailureException notFound) {
-            return null;
-        }
+		
+        return (PersistableEntity) getHibernateTemplate().get(supportsClass, id);
     }
 
     public PaginatedList scroll(PersistableEntity value, int firstElement,
@@ -215,7 +207,9 @@ public class DaoHibernate extends HibernateDaoSupport implements Dao,
                     /* for each persistent property of the bean */
                     for (int i = 0; i < propertyNames.length; i++) {
                         String name = propertyNames[i];
-                        Object value = classMetadata.getPropertyValue(bean, name);
+                        
+                        // TODO: Check if EntityMode.POJO appropriate
+                        Object value = classMetadata.getPropertyValue(bean, name, EntityMode.POJO);
 
                         if (value == null) {
                             continue;
@@ -231,7 +225,7 @@ public class DaoHibernate extends HibernateDaoSupport implements Dao,
                         }
 
                         // ignore any collections
-                        if (propertyTypes[i].isPersistentCollectionType()) {
+                        if (propertyTypes[i].isCollectionType()) {
                             continue;
                         }
 

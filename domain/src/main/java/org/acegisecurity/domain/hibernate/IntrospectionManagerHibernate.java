@@ -16,18 +16,24 @@
 package net.sf.acegisecurity.domain.hibernate;
 
 import net.sf.acegisecurity.domain.validation.IntrospectionManager;
+import net.sf.acegisecurity.domain.validation.ValidationRegistryManager;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.SessionFactory;
-import net.sf.hibernate.metadata.ClassMetadata;
-import net.sf.hibernate.type.Type;
+import org.hibernate.EntityMode;
+import org.hibernate.HibernateException;
+import org.hibernate.SessionFactory;
+
+import org.hibernate.metadata.ClassMetadata;
+
+import org.hibernate.type.Type;
 
 import org.springframework.beans.factory.InitializingBean;
 
-import org.springframework.orm.hibernate.HibernateSystemException;
+import org.springframework.orm.hibernate3.HibernateSystemException;
 
 import org.springframework.util.Assert;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -57,6 +63,7 @@ public class IntrospectionManagerHibernate implements IntrospectionManager,
     //~ Instance fields ========================================================
 
     private SessionFactory sessionFactory;
+    private ValidationRegistryManager validationRegistryManager;
 
     //~ Methods ================================================================
 
@@ -68,8 +75,27 @@ public class IntrospectionManagerHibernate implements IntrospectionManager,
         return this.sessionFactory;
     }
 
+    public void setValidationRegistryManager(
+        ValidationRegistryManager validationRegistryManager) {
+        this.validationRegistryManager = validationRegistryManager;
+    }
+
+    public ValidationRegistryManager getValidationRegistryManager() {
+        return validationRegistryManager;
+    }
+
     public void afterPropertiesSet() throws Exception {
+        Assert.notNull(validationRegistryManager,
+            "ValidationRegistryManager is required");
         Assert.notNull(sessionFactory, "SessionFactory is required");
+
+        // Eagerly pre-register Validators for all Hibernate metadata-defined classes
+        Collection mappedClasses = this.sessionFactory.getAllClassMetadata()
+                                                      .keySet();
+
+        for (Iterator iter = mappedClasses.iterator(); iter.hasNext();) {
+            this.validationRegistryManager.findValidator((Class) iter.next());
+        }
     }
 
     public void obtainImmediateChildren(Object parentObject, List allObjects) {
@@ -90,9 +116,12 @@ public class IntrospectionManagerHibernate implements IntrospectionManager,
                 for (int i = 0; i < propertyNames.length; i++) {
                     Type propertyType = classMetadata.getPropertyType(propertyNames[i]);
 
-                    if (propertyType.isObjectType()) {
+                    // Add this property to the List of Objects to validate
+                    // only if a Validator is registered for that Object
+                    if (this.validationRegistryManager.findValidator(
+                            propertyType.getReturnedClass()) != null) {
                         allObjects.add(classMetadata.getPropertyValue(
-                                parentObject, propertyNames[i]));
+                                parentObject, propertyNames[i], EntityMode.POJO));
                     }
                 }
             }
