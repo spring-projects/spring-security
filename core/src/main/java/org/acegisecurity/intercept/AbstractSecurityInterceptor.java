@@ -16,8 +16,10 @@
 package net.sf.acegisecurity.intercept;
 
 import net.sf.acegisecurity.AccessDecisionManager;
+import net.sf.acegisecurity.AccessDeniedException;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationCredentialsNotFoundException;
+import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationManager;
 import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
@@ -25,12 +27,21 @@ import net.sf.acegisecurity.RunAsManager;
 import net.sf.acegisecurity.context.Context;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.SecureContext;
+import net.sf.acegisecurity.intercept.event.AuthenticationCredentialsNotFoundEvent;
+import net.sf.acegisecurity.intercept.event.AuthenticationFailureEvent;
+import net.sf.acegisecurity.intercept.event.AuthorizationFailureEvent;
+import net.sf.acegisecurity.intercept.event.AuthorizedEvent;
+import net.sf.acegisecurity.intercept.event.PublicInvocationEvent;
 import net.sf.acegisecurity.runas.NullRunAsManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -127,7 +138,8 @@ import java.util.Set;
  * @author Ben Alex
  * @version $Id$
  */
-public abstract class AbstractSecurityInterceptor implements InitializingBean {
+public abstract class AbstractSecurityInterceptor implements InitializingBean,
+    ApplicationContextAware {
     //~ Static fields/initializers =============================================
 
     protected static final Log logger = LogFactory.getLog(AbstractSecurityInterceptor.class);
@@ -135,11 +147,17 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean {
     //~ Instance fields ========================================================
 
     private AccessDecisionManager accessDecisionManager;
+    private ApplicationContext context;
     private AuthenticationManager authenticationManager;
     private RunAsManager runAsManager = new NullRunAsManager();
     private boolean validateConfigAttributes = true;
 
     //~ Methods ================================================================
+
+    public void setApplicationContext(ApplicationContext applicationContext)
+        throws BeansException {
+        this.context = applicationContext;
+    }
 
     public abstract ObjectDefinitionSource obtainObjectDefinitionSource();
 
@@ -253,6 +271,12 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean {
     }
 
     protected InterceptorStatusToken beforeInvocation(Object object) {
+        if (this.context != null) {
+            System.out.println("xx");
+        } else {
+            System.out.println("null");
+        }
+
         if (object == null) {
             throw new IllegalArgumentException("Object was null");
         }
@@ -275,8 +299,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean {
             // Ensure ContextHolder presents a populated SecureContext
             if ((ContextHolder.getContext() == null)
                 || !(ContextHolder.getContext() instanceof SecureContext)) {
-                throw new AuthenticationCredentialsNotFoundException(
-                    "A valid SecureContext was not provided in the RequestContext");
+                credentialsNotFound("A valid SecureContext was not provided in the RequestContext",
+                    object, attr);
             }
 
             SecureContext context = (SecureContext) ContextHolder.getContext();
@@ -284,13 +308,27 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean {
             // We check for just the property we're interested in (we do
             // not call Context.validate() like the ContextInterceptor)
             if (context.getAuthentication() == null) {
-                throw new AuthenticationCredentialsNotFoundException(
-                    "Authentication credentials were not found in the SecureContext");
+                credentialsNotFound("Authentication credentials were not found in the SecureContext",
+                    object, attr);
             }
 
             // Attempt authentication
-            Authentication authenticated = this.authenticationManager
-                .authenticate(context.getAuthentication());
+            Authentication authenticated;
+
+            try {
+                authenticated = this.authenticationManager.authenticate(context
+                        .getAuthentication());
+            } catch (AuthenticationException authenticationException) {
+                if (this.context != null) {
+                    AuthenticationFailureEvent event = new AuthenticationFailureEvent(object,
+                            attr, context.getAuthentication(),
+                            authenticationException);
+                    this.context.publishEvent(event);
+                }
+
+                throw authenticationException;
+            }
+
             authenticated.setAuthenticated(true);
 
             if (logger.isDebugEnabled()) {
@@ -301,10 +339,26 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean {
             ContextHolder.setContext((Context) context);
 
             // Attempt authorization
-            this.accessDecisionManager.decide(authenticated, object, attr);
+            try {
+                this.accessDecisionManager.decide(authenticated, object, attr);
+            } catch (AccessDeniedException accessDeniedException) {
+                if (this.context != null) {
+                    AuthorizationFailureEvent event = new AuthorizationFailureEvent(object,
+                            attr, authenticated, accessDeniedException);
+                    this.context.publishEvent(event);
+                }
+
+                throw accessDeniedException;
+            }
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Authorization successful");
+            }
+
+            if (this.context != null) {
+                AuthorizedEvent event = new AuthorizedEvent(object, attr,
+                        authenticated);
+                this.context.publishEvent(event);
             }
 
             // Attempt to run as a different user
@@ -337,6 +391,10 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean {
                 logger.debug("Public object - authentication not attempted");
             }
 
+            if (this.context != null) {
+                this.context.publishEvent(new PublicInvocationEvent(object));
+            }
+
             // Set Authentication object (if it exists) to be unauthenticated
             if ((ContextHolder.getContext() != null)
                 && ContextHolder.getContext() instanceof SecureContext) {
@@ -358,5 +416,30 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean {
 
             return null; // no further work post-invocation
         }
+    }
+
+    /**
+     * Helper method which generates an exception contained the passed reason,
+     * and publishes an event to the application context.
+     * 
+     * <P>
+     * Always throws an exception.
+     * </p>
+     *
+     * @param reason to be provided in the exceptiond detail
+     * @param secureObject that was being called
+     * @param configAttribs that were defined for the secureObject
+     */
+    private void credentialsNotFound(String reason, Object secureObject,
+        ConfigAttributeDefinition configAttribs) {
+        AuthenticationCredentialsNotFoundException exception = new AuthenticationCredentialsNotFoundException(reason);
+
+        if (this.context != null) {
+            AuthenticationCredentialsNotFoundEvent event = new AuthenticationCredentialsNotFoundEvent(secureObject,
+                    configAttribs, exception);
+            this.context.publishEvent(event);
+        }
+
+        throw exception;
     }
 }
