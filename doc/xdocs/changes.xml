@@ -25,6 +25,10 @@
     <title>Acegi Security changes</title>
   </properties>
   <body>
+    <release version="0.7.1" date="CVS">
+      <action dev="benalex" type="update">Made ConfigAttributeDefinition and ConfigAttribute Serializable</action>
+      <action dev="benalex" type="update">FilterToBeanProxy now searches hierarchical bean factories</action>
+    </release>
     <release version="0.7.0" date="2005-01-16">
       <action dev="carlossg" type="add">Major CVS repository restructure to support Maven and eliminate libraries</action>
       <action dev="benalex" type="update">Major improvements to Contacts sample application (now demos ACL security)</action>
