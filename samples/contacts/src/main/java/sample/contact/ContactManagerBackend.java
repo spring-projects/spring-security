@@ -25,12 +25,12 @@ import java.util.Vector;
 
 /**
  * Backend business object that manages the contacts.
- * 
+ *
  * <P>
  * As a backend, it never faces the public callers. It is always accessed via
  * the {@link ContactManagerFacade}.
  * </p>
- * 
+ *
  * <P>
  * This facade approach is not really necessary in this application, and is
  * done simply to demonstrate granting additional authorities via the
@@ -87,13 +87,10 @@ public class ContactManagerBackend implements ContactManager {
             }
         }
 
-        Contact[] resultType = {new Contact(new Integer(1), "holder", "holder",
-                "holder")};
-
         if (list.size() == 0) {
             return null;
         } else {
-            return (Contact[]) list.toArray(resultType);
+            return (Contact[]) list.toArray(new Contact[list.size()]);
         }
     }
 
