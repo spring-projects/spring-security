@@ -210,23 +210,23 @@ Tomcat ${tomcat-5.version}:&#9;Run: ${jakarta-tomcat-5.run}&#9;Errored: ${jakart
   		<delete dir="${reports.dir}/jetty-${jetty.version}"/>
 
 		<!-- Execute non-container adapter unit tests in normal environment-->
-		<copy file="${contacts.filter.war}" todir="${tmp.dir}/jetty-${jetty.version}/webapps" overwrite="true"/>
+		<copy file="${contacts.filter.war}" todir="${tmp.dir}/Jetty-${jetty.version}/webapps" overwrite="true"/>
 		<antcallback target="-perform-test-jetty" return="jetty-${jetty.version}.errored, jetty-${jetty.version}.failed">
 			<param name="test.includes" value="**/FilterContactsTests.class"/>
 			<param name="wait.for.url" value="http://localhost:8080/contacts"/>
 		</antcallback>
 
 		<!-- Setup container adapter environment and execute unit tests -->
-		<copy file="${config.dir}/jetty-${jetty.version}/jetty.xml" todir="${tmp.dir}/jetty-${jetty.version}/etc" overwrite="true"/>
-		<copy file="${acegisecurity.xml}" todir="${tmp.dir}/jetty-${jetty.version}/etc" overwrite="true"/>
-		<copy file="${dist.lib.dir}/acegi-security-jetty-ext.jar" todir="${tmp.dir}/jetty-${jetty.version}/ext" overwrite="true"/>
-		<copy file="${lib.dir}/aop-alliance/aopalliance.jar" todir="${tmp.dir}/jetty-${jetty.version}/ext" overwrite="true"/>
-		<copy file="${lib.dir}/jakarta-commons/commons-logging.jar" todir="${tmp.dir}/jetty-${jetty.version}/ext" overwrite="true"/>
-		<copy file="${lib.dir}/jakarta-commons/commons-codec.jar" todir="${tmp.dir}/jetty-${jetty.version}/ext" overwrite="true"/>
-		<copy file="${lib.dir}/caucho/burlap.jar" todir="${tmp.dir}/jetty-${jetty.version}/ext" overwrite="true"/>
-		<copy file="${lib.dir}/caucho/hessian.jar" todir="${tmp.dir}/jetty-${jetty.version}/ext" overwrite="true"/>
-		<copy file="${lib.dir}/spring/spring.jar" todir="${tmp.dir}/jetty-${jetty.version}/ext" overwrite="true"/>
-		<copy file="${contacts.ca.war}" todir="${tmp.dir}/jetty-${jetty.version}/webapps" overwrite="true"/>
+		<copy file="${config.dir}/jetty-${jetty.version}/jetty.xml" todir="${tmp.dir}/Jetty-${jetty.version}/etc" overwrite="true"/>
+		<copy file="${acegisecurity.xml}" todir="${tmp.dir}/Jetty-${jetty.version}/etc" overwrite="true"/>
+		<copy file="${dist.lib.dir}/acegi-security-jetty-ext.jar" todir="${tmp.dir}/Jetty-${jetty.version}/ext" overwrite="true"/>
+		<copy file="${lib.dir}/aopalliance/aopalliance-1.0.jar" todir="${tmp.dir}/Jetty-${jetty.version}/ext" overwrite="true"/>
+		<copy file="${lib.dir}/jakarta-commons/commons-logging.jar" todir="${tmp.dir}/Jetty-${jetty.version}/ext" overwrite="true"/>
+		<copy file="${lib.dir}/jakarta-commons/commons-codec.jar" todir="${tmp.dir}/Jetty-${jetty.version}/ext" overwrite="true"/>
+		<copy file="${lib.dir}/caucho/burlap.jar" todir="${tmp.dir}/Jetty-${jetty.version}/ext" overwrite="true"/>
+		<copy file="${lib.dir}/caucho/hessian.jar" todir="${tmp.dir}/Jetty-${jetty.version}/ext" overwrite="true"/>
+		<copy file="${lib.dir}/spring/spring.jar" todir="${tmp.dir}/Jetty-${jetty.version}/ext" overwrite="true"/>
+		<copy file="${contacts.ca.war}" todir="${tmp.dir}/Jetty-${jetty.version}/webapps" overwrite="true"/>
 		<antcallback target="-perform-test-jetty" return="jetty-${jetty.version}.errored, jetty-${jetty.version}.failed">
 			<param name="test.includes" value="**/ContainerAdapterContactsTests.class"/>
 			<param name="wait.for.url" value="http://localhost:8080/contacts-container-adapter"/>
@@ -240,7 +240,7 @@ Tomcat ${tomcat-5.version}:&#9;Run: ${jakarta-tomcat-5.run}&#9;Errored: ${jakart
 
 	<target name="-perform-test-jetty">
 		<parallel>
-			<java fork="true" dir="${tmp.dir}/jetty-${jetty.version}/" classpath="${tmp.dir}/jetty-${jetty.version}/start.jar" classname="org.mortbay.start.Main">
+			<java fork="true" dir="${tmp.dir}/Jetty-${jetty.version}/" classpath="${tmp.dir}/Jetty-${jetty.version}/start.jar" classname="org.mortbay.start.Main">
 			</java>
 			<sequential>
                 <waitfor maxwait="60" maxwaitunit="second" checkevery="500" checkeveryunit="millisecond">
@@ -249,7 +249,7 @@ Tomcat ${tomcat-5.version}:&#9;Run: ${jakarta-tomcat-5.run}&#9;Errored: ${jakart
 				<antcallback target="-runtests" return="jetty-${jetty.version}.errored, jetty-${jetty.version}.failed">
 					<param name="product" value="jetty-${jetty.version}"/>
 				</antcallback>
-		  		<java fork="true" dir="${tmp.dir}/jetty-${jetty.version}/" classpath="${tmp.dir}/jetty-${jetty.version}/stop.jar" classname="org.mortbay.stop.Main"/>
+		  		<java fork="true" dir="${tmp.dir}/Jetty-${jetty.version}/" classpath="${tmp.dir}/Jetty-${jetty.version}/stop.jar" classname="org.mortbay.stop.Main"/>
         	</sequential>
 		</parallel>
 	</target>
@@ -293,7 +293,7 @@ Tomcat ${tomcat-5.version}:&#9;Run: ${jakarta-tomcat-5.run}&#9;Errored: ${jakart
 		<copy file="${acegisecurity.xml}" todir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/conf" overwrite="true"/>
 		<copy file="${dist.lib.dir}/acegi-security-catalina-server.jar" todir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/server/lib" overwrite="true"/>
 		<copy file="${dist.lib.dir}/acegi-security-catalina-common.jar" todir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/common/lib" overwrite="true"/>
-		<copy file="${lib.dir}/aop-alliance/aopalliance.jar" todir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/common/lib" overwrite="true"/>
+		<copy file="${lib.dir}/aopalliance/aopalliance-1.0.jar" todir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/common/lib" overwrite="true"/>
 		<copy file="${lib.dir}/spring/spring.jar" todir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/common/lib" overwrite="true"/>
 		<copy file="${lib.dir}/jakarta-commons/commons-codec.jar" todir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/common/lib" overwrite="true"/>
 		<copy file="${lib.dir}/caucho/burlap.jar" todir="${tmp.dir}/jakarta-tomcat-${tomcat.version}/common/lib" overwrite="true"/>
@@ -358,7 +358,7 @@ Tomcat ${tomcat-5.version}:&#9;Run: ${jakarta-tomcat-5.run}&#9;Errored: ${jakart
 		<copy file="${config.dir}/jboss-${jboss.version}/login-config.xml" todir="${tmp.dir}/jboss-${jboss.version}/server/default/conf" overwrite="true"/>
 		<copy file="${acegisecurity.xml}" todir="${tmp.dir}/jboss-${jboss.version}/server/default/conf" overwrite="true"/>
 		<copy file="${dist.lib.dir}/acegi-security-jboss-lib.jar" todir="${tmp.dir}/jboss-${jboss.version}/server/default/lib" overwrite="true"/>
-		<copy file="${lib.dir}/aop-alliance/aopalliance.jar" todir="${tmp.dir}/jboss-${jboss.version}/server/default/lib" overwrite="true"/>
+		<copy file="${lib.dir}/aopalliance/aopalliance-1.0.jar" todir="${tmp.dir}/jboss-${jboss.version}/server/default/lib" overwrite="true"/>
 		<copy file="${lib.dir}/spring/spring.jar" todir="${tmp.dir}/jboss-${jboss.version}/server/default/lib" overwrite="true"/>
 		<copy file="${lib.dir}/jakarta-commons/commons-codec.jar" todir="${tmp.dir}/jboss-${jboss.version}/server/default/lib" overwrite="true"/>
 		<copy file="${lib.dir}/caucho/burlap.jar" todir="${tmp.dir}/jboss-${jboss.version}/server/default/lib" overwrite="true"/>

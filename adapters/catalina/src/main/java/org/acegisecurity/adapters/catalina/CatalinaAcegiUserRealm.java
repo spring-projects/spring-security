@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import java.io.File;
+import java.io.IOException;
 
 import java.security.Principal;
 import java.security.cert.X509Certificate;
@@ -232,8 +233,8 @@ public class CatalinaAcegiUserRealm extends RealmBase {
                 + xml.toString());
         }
 
-        FileSystemXmlApplicationContext ctx = new FileSystemXmlApplicationContext(xml
-                .getAbsolutePath());
+        FileSystemXmlApplicationContext ctx = new FileSystemXmlApplicationContext(
+                "file://" + xml.getAbsolutePath());
         Map beans = ctx.getBeansOfType(AuthenticationManager.class, true, true);
 
         if (beans.size() == 0) {
