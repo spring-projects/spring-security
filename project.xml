@@ -243,6 +243,20 @@
                 <war.bundle>true</war.bundle>
             </properties>
         </dependency>
+
+        <!-- maven plugins -->
+        <dependency>
+            <groupId>maven-plugins</groupId>
+            <artifactId>maven-findbugs-plugin</artifactId>
+            <version>0.8.4</version>
+            <type>plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>statcvs</groupId>
+            <artifactId>maven-statcvs-plugin</artifactId>
+            <version>2.5</version>
+            <type>plugin</type>
+        </dependency>
     </dependencies>
     <build>
         <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
@@ -289,6 +303,8 @@
         <report>maven-tasklist-plugin</report>
         <report>maven-faq-plugin</report>
         <report>maven-clover-plugin</report>
+        <report>maven-findbugs-plugin</report>
+        <report>maven-statcvs-plugin</report>
     </reports>
     <properties/>
 </project>
