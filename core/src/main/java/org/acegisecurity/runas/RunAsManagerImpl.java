@@ -34,23 +34,40 @@ import java.util.Vector;
  * 
  * <p>
  * Is activated if any {@link ConfigAttribute#getAttribute()} is prefixed  with
- * <Code>RUN_AS_</code>. If found, it generates a new  {@link RunAsUserToken}
+ * <Code>RUN_AS_</code>. If found, it generates a new {@link RunAsUserToken}
  * containing the same principal, credentials and granted authorities as the
  * original {@link Authentication} object, along with {@link
  * GrantedAuthorityImpl}s for each <code>RUN_AS_</code> indicated. The created
- * <code>GrantedAuthorityImpl</code>s will be prefixed with <code>ROLE_</code>
+ * <code>GrantedAuthorityImpl</code>s will be prefixed with a special prefix
+ * indicating that it is a role (default prefix value is <code>ROLE_</code>),
  * and then the remainder of the <code>RUN_AS_</code> keyword. For example,
  * <code>RUN_AS_FOO</code> will result in the creation of a granted authority
  * of <code>ROLE_RUN_AS_FOO</code>.
  * </p>
+ * 
+ * <p>
+ * The role prefix may be overriden from the default, to match that used
+ * elsewhere, for example when using an existing role database with another
+ * prefix. An empty role prefix may also be specified. Note however that there
+ * are potential issues with using an empty role prefix since different
+ * categories of  {@link net.sf.acegisecurity.ConfigAttribute} can not be
+ * properly discerned based on the prefix, with possible consequences when
+ * performing voting and other actions. However, this option may be of some
+ * use when using preexisting role names without a prefix, and no ability
+ * exists to prefix them with a role prefix on reading them in, such as
+ * provided for example in  {@link
+ * net.sf.acegisecurity.providers.dao.jdbc.JdbcDaoImpl}.
+ * </p>
  *
  * @author Ben Alex
+ * @author colin sampaleanu
  * @version $Id$
  */
 public class RunAsManagerImpl implements RunAsManager, InitializingBean {
     //~ Instance fields ========================================================
 
     private String key;
+    private String rolePrefix = "ROLE_";
 
     //~ Methods ================================================================
 
@@ -60,6 +77,20 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 
     public String getKey() {
         return key;
+    }
+
+    /**
+     * Allows the default role prefix of <code>ROLE_</code> to be overriden.
+     * May be set to an empty value, although this is usually not desireable.
+     *
+     * @param rolePrefix the new prefix
+     */
+    public void setRolePrefix(String rolePrefix) {
+        this.rolePrefix = rolePrefix;
+    }
+
+    public String getRolePrefix() {
+        return rolePrefix;
     }
 
     public void afterPropertiesSet() throws Exception {
@@ -78,8 +109,8 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
             ConfigAttribute attribute = (ConfigAttribute) iter.next();
 
             if (this.supports(attribute)) {
-                GrantedAuthorityImpl extraAuthority = new GrantedAuthorityImpl(
-                        "ROLE_" + attribute.getAttribute());
+                GrantedAuthorityImpl extraAuthority = new GrantedAuthorityImpl(getRolePrefix()
+                        + attribute.getAttribute());
                 newAuthorities.add(extraAuthority);
             }
         }
