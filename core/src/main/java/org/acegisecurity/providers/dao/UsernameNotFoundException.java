@@ -15,7 +15,7 @@
 
 package net.sf.acegisecurity.providers.dao;
 
-import net.sf.acegisecurity.AuthenticationException;
+import net.sf.acegisecurity.BadCredentialsException;
 
 
 /**
@@ -25,7 +25,7 @@ import net.sf.acegisecurity.AuthenticationException;
  * @author Ben Alex
  * @version $Id$
  */
-public class UsernameNotFoundException extends AuthenticationException {
+public class UsernameNotFoundException extends BadCredentialsException {
     //~ Constructors ===========================================================
 
     /**

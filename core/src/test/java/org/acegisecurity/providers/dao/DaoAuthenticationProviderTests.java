@@ -119,11 +119,29 @@ public class DaoAuthenticationProviderTests extends TestCase {
         }
     }
 
-    public void testAuthenticateFailsWithInvalidUsername() {
+    public void testAuthenticateFailsWithInvalidUsernameAndHideUserNotFoundExceptionFalse() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("INVALID_USER",
                 "koala");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false); // we want UsernameNotFoundExceptions
+        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        provider.setUserCache(new MockUserCache());
+
+        try {
+            provider.authenticate(token);
+            fail("Should have thrown UsernameNotFoundException");
+        } catch (UsernameNotFoundException expected) {
+            assertTrue(true);
+        }
+    }
+
+    public void testAuthenticateFailsWithInvalidUsernameAndHideUserNotFoundExceptionsWithDefaultOfTrue() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("INVALID_USER",
+                "koala");
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        assertTrue(provider.isHideUserNotFoundExceptions());
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
 

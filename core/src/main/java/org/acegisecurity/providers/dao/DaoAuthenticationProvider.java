@@ -98,6 +98,7 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
     private SaltSource saltSource;
     private UserCache userCache = new NullUserCache();
     private boolean forcePrincipalAsString = false;
+    private boolean hideUserNotFoundExceptions = true;
 
     //~ Methods ================================================================
 
@@ -124,6 +125,28 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
     public boolean isForcePrincipalAsString() {
         return forcePrincipalAsString;
+    }
+
+    /**
+     * By default the <code>DaoAuthenticationProvider</code> throws a
+     * <code>BadCredentialsException</code> if a username is not found or the
+     * password is incorrect. Setting this property to <code>false</code> will
+     * cause <code>UsernameNotFoundException</code>s to be thrown instead for
+     * the former. Note this is considered less secure than throwing
+     * <code>BadCredentialsException</code> for both events.
+     *
+     * @param hideUserNotFoundExceptions set to <code>false</code> if you wish
+     *        <code>UsernameNotFoundException</code>s to be thrown instead of
+     *        the non-specific <code>BadCredentialsException</code> (defaults
+     *        to <code>true</code>)
+     */
+    public void setHideUserNotFoundExceptions(
+        boolean hideUserNotFoundExceptions) {
+        this.hideUserNotFoundExceptions = hideUserNotFoundExceptions;
+    }
+
+    public boolean isHideUserNotFoundExceptions() {
+        return hideUserNotFoundExceptions;
     }
 
     /**
@@ -335,7 +358,11 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
         try {
             return this.authenticationDao.loadUserByUsername(username);
         } catch (UsernameNotFoundException notFound) {
-            throw new BadCredentialsException("Bad credentials presented");
+            if (hideUserNotFoundExceptions) {
+                throw new BadCredentialsException("Bad credentials presented");
+            } else {
+                throw notFound;
+            }
         } catch (DataAccessException repositoryProblem) {
             throw new AuthenticationServiceException(repositoryProblem
                 .getMessage(), repositoryProblem);
