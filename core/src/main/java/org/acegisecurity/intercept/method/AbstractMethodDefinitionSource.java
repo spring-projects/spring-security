@@ -22,6 +22,11 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.reflect.CodeSignature;
+
+import java.lang.reflect.Method;
+
 
 /**
  * Abstract implementation of <Code>MethodDefinitionSource</code>.
@@ -39,26 +44,55 @@ public abstract class AbstractMethodDefinitionSource
 
     public ConfigAttributeDefinition getAttributes(Object object)
         throws IllegalArgumentException {
-        if ((object == null) || !this.supports(object.getClass())) {
-            throw new IllegalArgumentException(
-                "Object must be a MethodInvocation");
+        if (object == null) {
+            throw new IllegalArgumentException("Object cannot be null");
         }
 
-        return this.lookupAttributes((MethodInvocation) object);
+        if (object instanceof MethodInvocation) {
+            return this.lookupAttributes(((MethodInvocation) object).getMethod());
+        }
+
+        if (object instanceof JoinPoint) {
+            JoinPoint jp = (JoinPoint) object;
+            Class targetClazz = jp.getTarget().getClass();
+            String targetMethodName = jp.getStaticPart().getSignature().getName();
+            Class[] types = ((CodeSignature) jp.getStaticPart().getSignature())
+                .getParameterTypes();
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Target Class: " + targetClazz);
+                logger.debug("Target Method Name: " + targetMethodName);
+
+                for (int i = 0; i < types.length; i++) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Target Method Arg #" + i + ": "
+                            + types[i]);
+                    }
+                }
+            }
+
+            try {
+                return this.lookupAttributes(targetClazz.getMethod(
+                        targetMethodName, types));
+            } catch (NoSuchMethodException nsme) {
+                throw new IllegalArgumentException(
+                    "Could not obtain target method from JoinPoint: " + jp);
+            }
+        }
+
+        throw new IllegalArgumentException(
+            "Object must be a MethodInvocation or JoinPoint");
     }
 
     public boolean supports(Class clazz) {
-        if (MethodInvocation.class.isAssignableFrom(clazz)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (MethodInvocation.class.isAssignableFrom(clazz)
+        || JoinPoint.class.isAssignableFrom(clazz));
     }
 
     /**
      * Performs the actual lookup of the relevant
      * <code>ConfigAttributeDefinition</code> for the specified
-     * <code>MethodInvocation</code>.
+     * <code>Method</code> which is subject of the method invocation.
      * 
      * <P>
      * Provided so subclasses need only to provide one basic method to properly
@@ -67,15 +101,14 @@ public abstract class AbstractMethodDefinitionSource
      * 
      * <p>
      * Returns <code>null</code> if there are no matching attributes for the
-     * method invocation.
+     * method.
      * </p>
      *
-     * @param mi the method being invoked for which configuration attributes
-     *        should be looked up
+     * @param method the method being invoked for which configuration
+     *        attributes should be looked up
      *
      * @return the <code>ConfigAttributeDefinition</code> that applies to the
-     *         specified <code>MethodInvocation</code>
+     *         specified <code>Method</code>
      */
-    protected abstract ConfigAttributeDefinition lookupAttributes(
-        MethodInvocation mi);
+    protected abstract ConfigAttributeDefinition lookupAttributes(Method method);
 }

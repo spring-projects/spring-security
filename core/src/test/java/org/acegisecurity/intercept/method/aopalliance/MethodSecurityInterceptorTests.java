@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method;
+package net.sf.acegisecurity.intercept.method.aopalliance;
 
 import junit.framework.TestCase;
 
@@ -28,20 +28,22 @@ import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.ITargetObject;
 import net.sf.acegisecurity.MockAccessDecisionManager;
 import net.sf.acegisecurity.MockAuthenticationManager;
+import net.sf.acegisecurity.MockMethodInvocation;
 import net.sf.acegisecurity.MockRunAsManager;
 import net.sf.acegisecurity.RunAsManager;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.ContextImpl;
 import net.sf.acegisecurity.context.SecureContext;
 import net.sf.acegisecurity.context.SecureContextImpl;
-import net.sf.acegisecurity.intercept.SecurityInterceptorCallback;
+import net.sf.acegisecurity.intercept.method.AbstractMethodDefinitionSource;
+import net.sf.acegisecurity.intercept.method.MockMethodDefinitionSource;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.runas.RunAsManagerImpl;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.PropertiesBeanDefinitionReader;
+
+import java.lang.reflect.Method;
 
 import java.util.Iterator;
 import java.util.Properties;
@@ -250,25 +252,13 @@ public class MethodSecurityInterceptorTests extends TestCase {
         }
     }
 
-    public void testRejectsCallsWhenCallbackIsNull() throws Throwable {
-        MethodSecurityInterceptor interceptor = new MethodSecurityInterceptor();
-
-        try {
-            interceptor.interceptor(new Object(), null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("Callback was null", expected.getMessage());
-        }
-    }
-
     public void testRejectsCallsWhenObjectDefinitionSourceDoesNotSupportObject()
         throws Throwable {
         MethodSecurityInterceptor interceptor = new MethodSecurityInterceptor();
         interceptor.setObjectDefinitionSource(new MockObjectDefinitionSourceWhichOnlySupportsStrings());
 
         try {
-            interceptor.interceptor(new Integer(1),
-                new MockSecurityInterceptorCallback());
+            interceptor.invoke(new MockMethodInvocation());
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(expected.getMessage().startsWith("ObjectDefinitionSource does not support objects of type"));
@@ -279,7 +269,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
         MethodSecurityInterceptor interceptor = new MethodSecurityInterceptor();
 
         try {
-            interceptor.interceptor(null, new MockSecurityInterceptorCallback());
+            interceptor.invoke(null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertEquals("Object was null", expected.getMessage());
@@ -420,7 +410,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
             "net.sf.acegisecurity.MockRunAsManager");
 
         p.setProperty(PREFIX + "securityInterceptor.class",
-            "net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor");
+            "net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor");
         p.setProperty(PREFIX + "securityInterceptor.authenticationManager(ref)",
             "authentication");
         p.setProperty(PREFIX + "securityInterceptor.accessDecisionManager(ref)",
@@ -482,8 +472,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
             }
         }
 
-        protected ConfigAttributeDefinition lookupAttributes(
-            MethodInvocation mi) {
+        protected ConfigAttributeDefinition lookupAttributes(Method method) {
             throw new UnsupportedOperationException(
                 "mock method not implemented");
         }
@@ -507,15 +496,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
 
         public boolean supports(ConfigAttribute attribute) {
             return true;
-        }
-    }
-
-    private class MockSecurityInterceptorCallback
-        implements SecurityInterceptorCallback {
-        public Object proceedWithObject(Object object)
-            throws Throwable {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
         }
     }
 }

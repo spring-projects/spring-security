@@ -20,8 +20,7 @@ import net.sf.acegisecurity.intercept.ObjectDefinitionSource;
 
 /**
  * Marker interface for <code>ObjectDefinitionSource</code> implementations
- * that are designed to perform lookups keyed on
- * <code>MethodInvocation</code>s.
+ * that are designed to perform lookups keyed on <code>Method</code>s.
  *
  * @author Ben Alex
  * @version $Id$

@@ -246,7 +246,7 @@ public class MethodDefinitionAttributesTests extends TestCase {
             "attributes");
 
         p.setProperty(PREFIX + "securityInterceptor.class",
-            "net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor");
+            "net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor");
         p.setProperty(PREFIX + "securityInterceptor.authenticationManager(ref)",
             "authentication");
         p.setProperty(PREFIX + "securityInterceptor.accessDecisionManager(ref)",

@@ -16,8 +16,8 @@
 package net.sf.acegisecurity.intercept.web;
 
 import net.sf.acegisecurity.intercept.AbstractSecurityInterceptor;
+import net.sf.acegisecurity.intercept.InterceptorStatusToken;
 import net.sf.acegisecurity.intercept.ObjectDefinitionSource;
-import net.sf.acegisecurity.intercept.SecurityInterceptorCallback;
 
 
 /**
@@ -43,8 +43,7 @@ import net.sf.acegisecurity.intercept.SecurityInterceptorCallback;
  * @author Ben Alex
  * @version $Id$
  */
-public class FilterSecurityInterceptor extends AbstractSecurityInterceptor
-    implements SecurityInterceptorCallback {
+public class FilterSecurityInterceptor extends AbstractSecurityInterceptor {
     //~ Instance fields ========================================================
 
     private FilterInvocationDefinitionSource objectDefinitionSource;
@@ -75,17 +74,16 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor
     }
 
     public void invoke(FilterInvocation fi) throws Throwable {
-        super.interceptor(fi, this);
+        InterceptorStatusToken token = super.beforeInvocation(fi);
+
+        try {
+            fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+        } finally {
+            super.afterInvocation(token);
+        }
     }
 
     public ObjectDefinitionSource obtainObjectDefinitionSource() {
         return this.objectDefinitionSource;
-    }
-
-    public Object proceedWithObject(Object object) throws Throwable {
-        FilterInvocation fi = (FilterInvocation) object;
-        fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
-
-        return null;
     }
 }

@@ -18,8 +18,6 @@ package net.sf.acegisecurity.intercept.method;
 import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 import org.springframework.metadata.Attributes;
 
 import java.lang.reflect.Method;
@@ -85,11 +83,10 @@ public class MethodDefinitionAttributes extends AbstractMethodDefinitionSource {
         return null;
     }
 
-    protected ConfigAttributeDefinition lookupAttributes(
-        MethodInvocation invocation) {
+    protected ConfigAttributeDefinition lookupAttributes(Method method) {
         ConfigAttributeDefinition definition = new ConfigAttributeDefinition();
 
-        Class interceptedClass = invocation.getMethod().getDeclaringClass();
+        Class interceptedClass = method.getDeclaringClass();
 
         // add the class level attributes for the implementing class
         addClassAttributes(definition, interceptedClass);
@@ -98,10 +95,10 @@ public class MethodDefinitionAttributes extends AbstractMethodDefinitionSource {
         addClassAttributes(definition, interceptedClass.getInterfaces());
 
         // add the method level attributes for the implemented method
-        addMethodAttributes(definition, invocation.getMethod());
+        addMethodAttributes(definition, method);
 
         // add the method level attributes for the implemented intreface methods
-        addInterfaceMethodAttributes(definition, invocation.getMethod());
+        addInterfaceMethodAttributes(definition, method);
 
         if (definition.size() == 0) {
             return null;

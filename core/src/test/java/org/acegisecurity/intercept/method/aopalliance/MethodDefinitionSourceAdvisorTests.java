@@ -13,11 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method;
+package net.sf.acegisecurity.intercept.method.aopalliance;
 
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.TargetObject;
+import net.sf.acegisecurity.intercept.method.MethodDefinitionMap;
+import net.sf.acegisecurity.intercept.method.MethodDefinitionSourceEditor;
 
 import org.springframework.aop.framework.AopConfigException;
 

@@ -18,7 +18,7 @@ package net.sf.acegisecurity.intercept.method;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.SecurityConfig;
 
-import org.aopalliance.intercept.MethodInvocation;
+import java.lang.reflect.Method;
 
 import java.util.Iterator;
 import java.util.List;
@@ -82,7 +82,7 @@ public class MockMethodDefinitionSource extends AbstractMethodDefinitionSource {
         }
     }
 
-    protected ConfigAttributeDefinition lookupAttributes(MethodInvocation mi) {
+    protected ConfigAttributeDefinition lookupAttributes(Method method) {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 }

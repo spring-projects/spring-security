@@ -13,22 +13,26 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method;
+package net.sf.acegisecurity.intercept.method.aopalliance;
 
 import net.sf.acegisecurity.intercept.AbstractSecurityInterceptor;
+import net.sf.acegisecurity.intercept.InterceptorStatusToken;
 import net.sf.acegisecurity.intercept.ObjectDefinitionSource;
-import net.sf.acegisecurity.intercept.SecurityInterceptorCallback;
+import net.sf.acegisecurity.intercept.method.MethodDefinitionSource;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 
 /**
- * Provides security interception of method invocations.
+ * Provides security interception of AOP Alliance based method invocations.
  * 
  * <p>
  * The <code>ObjectDefinitionSource</code> required by this security
- * interceptor is of type {@link MethodDefinitionSource}.
+ * interceptor is of type {@link MethodDefinitionSource}. This is shared with
+ * the AspectJ based security interceptor
+ * (<code>AspectJSecurityInterceptor</code>), since both work with Java
+ * <code>Method</code>s.
  * </p>
  * 
  * <P>
@@ -39,7 +43,7 @@ import org.aopalliance.intercept.MethodInvocation;
  * @version $Id$
  */
 public class MethodSecurityInterceptor extends AbstractSecurityInterceptor
-    implements MethodInterceptor, SecurityInterceptorCallback {
+    implements MethodInterceptor {
     //~ Instance fields ========================================================
 
     private MethodDefinitionSource objectDefinitionSource;
@@ -79,14 +83,19 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor
      * @throws Throwable if any error occurs
      */
     public Object invoke(MethodInvocation mi) throws Throwable {
-        return super.interceptor(mi, this);
+        Object result;
+        InterceptorStatusToken token = super.beforeInvocation(mi);
+
+        try {
+            result = mi.proceed();
+        } finally {
+            super.afterInvocation(token);
+        }
+
+        return result;
     }
 
     public ObjectDefinitionSource obtainObjectDefinitionSource() {
         return this.objectDefinitionSource;
-    }
-
-    public Object proceedWithObject(Object object) throws Throwable {
-        return ((MethodInvocation) object).proceed();
     }
 }

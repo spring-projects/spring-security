@@ -38,9 +38,9 @@ import java.util.Map;
  * 
  * <p>
  * For consistency with {@link MethodDefinitionAttributes} as well as support
- * for {@link MethodDefinitionSourceAdvisor}, this implementation will return
- * a <code>ConfigAttributeDefinition</code> containing all configuration
- * attributes defined against:
+ * for <code>MethodDefinitionSourceAdvisor</code>, this implementation will
+ * return a <code>ConfigAttributeDefinition</code> containing all
+ * configuration attributes defined against:
  * 
  * <ul>
  * <li>
@@ -83,8 +83,8 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
     /**
      * Obtains the configuration attributes explicitly defined against this
      * bean. This method will not return implicit configuration attributes
-     * that may be returned by {@link #lookupAttributes(MethodInvocation)} as
-     * it does not have access to a method invocation at this time.
+     * that may be returned by {@link #lookupAttributes(Method)} as it does
+     * not have access to a method invocation at this time.
      *
      * @return the attributes explicitly defined against this bean
      */
@@ -95,9 +95,8 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
     /**
      * Obtains the number of configuration attributes explicitly defined
      * against this bean. This method will not return implicit configuration
-     * attributes that may be returned by {@link
-     * #lookupAttributes(MethodInvocation)} as it does not have access to a
-     * method invocation at this time.
+     * attributes that may be returned by {@link #lookupAttributes(Method)} as
+     * it does not have access to a method invocation at this time.
      *
      * @return the number of configuration attributes explicitly defined
      *         against this bean
@@ -209,25 +208,24 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
         }
     }
 
-    protected ConfigAttributeDefinition lookupAttributes(MethodInvocation mi) {
+    protected ConfigAttributeDefinition lookupAttributes(Method method) {
         ConfigAttributeDefinition definition = new ConfigAttributeDefinition();
 
         // Add attributes explictly defined for this method invocation
         ConfigAttributeDefinition directlyAssigned = (ConfigAttributeDefinition) this.methodMap
-            .get(mi.getMethod());
+            .get(method);
         merge(definition, directlyAssigned);
 
         // Add attributes explicitly defined for this method invocation's interfaces
-        Class[] interfaces = mi.getMethod().getDeclaringClass().getInterfaces();
+        Class[] interfaces = method.getDeclaringClass().getInterfaces();
 
         for (int i = 0; i < interfaces.length; i++) {
             Class clazz = interfaces[i];
 
             try {
                 // Look for the method on the current interface
-                Method interfaceMethod = clazz.getDeclaredMethod(mi.getMethod()
-                                                                   .getName(),
-                        mi.getMethod().getParameterTypes());
+                Method interfaceMethod = clazz.getDeclaredMethod(method.getName(),
+                        method.getParameterTypes());
                 ConfigAttributeDefinition interfaceAssigned = (ConfigAttributeDefinition) this.methodMap
                     .get(interfaceMethod);
                 merge(definition, interfaceAssigned);

@@ -65,7 +65,7 @@
 	</bean>
 
 	<!-- We don't validate config attributes, as it's unsupported by MethodDefinitionAttributes -->
-	<bean id="securityInterceptor" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor">
+	<bean id="securityInterceptor" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
     	<property name="validateConfigAttributes"><value>false</value></property>
     	<property name="authenticationManager"><ref local="authenticationManager"/></property>
     	<property name="accessDecisionManager"><ref local="accessDecisionManager"/></property>

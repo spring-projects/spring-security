@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method;
+package net.sf.acegisecurity.intercept.method.aopalliance;
+
+import net.sf.acegisecurity.intercept.method.MethodDefinitionSource;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -46,7 +48,7 @@ import java.lang.reflect.Method;
  * <p>
  * Based on Spring's TransactionAttributeSourceAdvisor.
  * </p>
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  */

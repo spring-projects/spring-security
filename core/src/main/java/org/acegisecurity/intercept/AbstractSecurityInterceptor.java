@@ -76,8 +76,16 @@ import java.util.Set;
  * Perform any run-as replacement via the configured {@link RunAsManager}.
  * </li>
  * <li>
- * Perform a callback to the {@link SecurityInterceptorCallback}, which will
- * actually proceed with executing the object.
+ * Pass control back to the concrete subclass, which will actually proceed with
+ * executing the object. A {@link InterceptorStatusToken} is returned so that
+ * after the subclass has finished proceeding with  execution of the object,
+ * its finally clause can ensure the <code>AbstractSecurityInterceptor</code>
+ * is re-called and tidies up correctly.
+ * </li>
+ * <li>
+ * The concrete subclass will re-call the
+ * <code>AbstractSecurityInterceptor</code> via the {@link
+ * #afterInvocation(InterceptorStatusToken)} method.
  * </li>
  * <li>
  * If the <code>RunAsManager</code> replaced the <code>Authentication</code>
@@ -98,17 +106,20 @@ import java.util.Set;
  * object to false.
  * </li>
  * <li>
- * Perform a callback to the {@link SecurityInterceptorCallback}, which will
- * actually proceed with the invocation.
+ * As described above, the concrete subclass will be returned an
+ * <code>InterceptorStatusToken</code> which is subsequently re-presented to
+ * the <code>AbstractSecurityInterceptor</code> after the secure object has
+ * been executed. The <code>AbstractSecurityInterceptor</code> will take no
+ * further action when its {@link #afterInvocation(InterceptorStatusToken)} is
+ * called.
  * </li>
  * </ol>
  * 
  * </li>
  * <li>
- * Return the result from the <code>SecurityInterceptorCallback</code> to the
- * method that called {@link AbstractSecurityInterceptor#interceptor(Object,
- * SecurityInterceptorCallback)}. This is almost always a concrete subclass of
- * the <code>AbstractSecurityInterceptor</code>.
+ * Control again returns to the concrete subclass, which will return to the
+ * caller any result or exception that occurred when it proceeded with the
+ * execution of the secure object.
  * </li>
  * </ol>
  * </p>
@@ -226,37 +237,24 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean {
         }
     }
 
-    /**
-     * Does the work of authenticating and authorizing the request.
-     * 
-     * <P>
-     * Throws {@link net.sf.acegisecurity.AcegiSecurityException} and its
-     * subclasses.
-     * </p>
-     *
-     * @param object details of a secure object invocation
-     * @param callback the object that will complete the target secure object
-     *        invocation
-     *
-     * @return The value that was returned by the
-     *         <code>SecurityInterceptorCallback</code>
-     *
-     * @throws Throwable if any error occurs during the
-     *         <code>SecurityInterceptorCallback</code>
-     * @throws IllegalArgumentException if a required argument was missing or
-     *         invalid
-     * @throws AuthenticationCredentialsNotFoundException if the
-     *         <code>ContextHolder</code> is not populated with a valid
-     *         <code>SecureContext</code>
-     */
-    public Object interceptor(Object object,
-        SecurityInterceptorCallback callback) throws Throwable {
-        if (object == null) {
-            throw new IllegalArgumentException("Object was null");
+    protected void afterInvocation(InterceptorStatusToken token) {
+        if (token == null) {
+            return;
         }
 
-        if (callback == null) {
-            throw new IllegalArgumentException("Callback was null");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Reverting to original Authentication: "
+                + token.getAuthenticated().toString());
+        }
+
+        SecureContext secureContext = (SecureContext) ContextHolder.getContext();
+        secureContext.setAuthentication(token.getAuthenticated());
+        ContextHolder.setContext(secureContext);
+    }
+
+    protected InterceptorStatusToken beforeInvocation(Object object) {
+        if (object == null) {
+            throw new IllegalArgumentException("Object was null");
         }
 
         if (!this.obtainObjectDefinitionSource().supports(object.getClass())) {
@@ -294,7 +292,11 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean {
             Authentication authenticated = this.authenticationManager
                 .authenticate(context.getAuthentication());
             authenticated.setAuthenticated(true);
-            logger.debug("Authenticated: " + authenticated.toString());
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Authenticated: " + authenticated.toString());
+            }
+
             context.setAuthentication(authenticated);
             ContextHolder.setContext((Context) context);
 
@@ -315,31 +317,20 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean {
                         "RunAsManager did not change Authentication object");
                 }
 
-                return callback.proceedWithObject(object);
+                return null; // no further work post-invocation
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Switching to RunAs Authentication: "
                         + runAs.toString());
                 }
 
-                SecureContext origSecureContext = null;
+                context.setAuthentication(runAs);
+                ContextHolder.setContext((Context) context);
 
-                try {
-                    origSecureContext = (SecureContext) ContextHolder
-                        .getContext();
-                    context.setAuthentication(runAs);
-                    ContextHolder.setContext((Context) context);
+                InterceptorStatusToken token = new InterceptorStatusToken();
+                token.setAuthenticated(authenticated);
 
-                    return callback.proceedWithObject(object);
-                } finally {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Reverting to original Authentication: "
-                            + authenticated.toString());
-                    }
-
-                    origSecureContext.setAuthentication(authenticated);
-                    ContextHolder.setContext(origSecureContext);
-                }
+                return token; // revert to token.Authenticated post-invocation
             }
         } else {
             if (logger.isDebugEnabled()) {
@@ -365,7 +356,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean {
                 }
             }
 
-            return callback.proceedWithObject(object);
+            return null; // no further work post-invocation
         }
     }
 }

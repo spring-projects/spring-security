@@ -93,7 +93,7 @@
 
    <!-- ===================== SECURITY DEFINITIONS ======================= -->
 
-   <bean id="publicContactManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor">
+   <bean id="publicContactManagerSecurity" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
       <property name="authenticationManager"><ref local="authenticationManager"/></property>
       <property name="accessDecisionManager"><ref local="businessAccessDecisionManager"/></property>
       <property name="runAsManager"><ref local="runAsManager"/></property>
@@ -108,7 +108,7 @@
    </bean>
 
    <!-- We expect all callers of the backend object to hold the role ROLE_RUN_AS_SERVER -->
-   <bean id="backendContactManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor">
+   <bean id="backendContactManagerSecurity" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
       <property name="authenticationManager"><ref local="authenticationManager"/></property>
       <property name="accessDecisionManager"><ref local="businessAccessDecisionManager"/></property>
       <property name="runAsManager"><ref local="runAsManager"/></property>
