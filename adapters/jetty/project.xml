@@ -1,14 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project>
-    <extend>${basedir}/../project.xml</extend>
-    <artifactId>acegi-security-jetty</artifactId>
-    <name>Acegi Security System for Spring - Jetty adapter</name>
-    <dependencies>
-        <dependency>
-            <groupId>jetty</groupId>
-            <artifactId>org.mortbay.jetty</artifactId>
-            <version>4.2.20</version>
-        </dependency>
-    </dependencies>
+  <extend>${basedir}/../project.xml</extend>
+  <pomVersion>1</pomVersion>
+  <artifactId>acegi-security-jetty</artifactId>
+  <name>Acegi Security System for Spring - Jetty adapter</name>
+  <groupId>acegi-security-jetty</groupId>
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
+    <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/adapters/jetty/</url>
+  </repository>
+  <dependencies>
+    <dependency>
+      <groupId>jetty</groupId>
+      <artifactId>org.mortbay.jetty</artifactId>
+      <version>4.2.22</version>
+      <type>jar</type>
+    </dependency>
+  </dependencies>
   <build>
     <unitTest>
       <includes>
@@ -26,3 +35,4 @@
     </unitTest>
   </build>
 </project>
+

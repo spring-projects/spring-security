@@ -1,14 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project>
-    <extend>${basedir}/../project.xml</extend>
-    <artifactId>acegi-security-catalina</artifactId>
-    <name>Acegi Security System for Spring - Catalina adapter</name>
-    <dependencies>
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>catalina</artifactId>
-            <version>4.1.9</version>
-            <type>jar</type>
-            <properties/>
-        </dependency>
-    </dependencies>
+  <extend>${basedir}/../project.xml</extend>
+  <pomVersion>1</pomVersion>
+  <artifactId>acegi-security-catalina</artifactId>
+  <name>Acegi Security System for Spring - Catalina adapter</name>
+  <groupId>acegi-security-catalina</groupId>
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
+    <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/adapters/catalina/</url>
+  </repository>
+  <dependencies>
+    <dependency>
+      <groupId>tomcat</groupId>
+      <artifactId>catalina</artifactId>
+      <version>4.1.9</version>
+      <type>jar</type>
+    </dependency>
+  </dependencies>
 </project>
+

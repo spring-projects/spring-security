@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <extend>${basedir}/../project.xml</extend>
-  <pomVersion>1</pomVersion>
+  <pomVersion>3</pomVersion>
   <artifactId>acegi-security-sample-contacts</artifactId>
   <name>Acegi Security System for Spring - Contacts sample</name>
   <groupId>acegi-security-sample-contacts</groupId>
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
+    <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/samples/contacts/</url>
+  </repository>
   <dependencies>
     <dependency>
       <groupId>hessian</groupId>
@@ -22,16 +27,6 @@
       <version>2.1.7</version>
       <type>jar</type>
       <url>http://www.caucho.com</url>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
-      <version>1.1.2</version>
-      <type>jar</type>
-      <url>http://www.springframework.org</url>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>

@@ -1,30 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project>
-    <extend>${basedir}/../project.xml</extend>
-    <artifactId>acegi-security-jboss</artifactId>
-    <name>Acegi Security System for Spring - JBoss adapter</name>
-    <dependencies>
-        <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-jmx</artifactId>
-            <version>3.2.1</version>
-            <type>jar</type>
-            <properties/>
-        </dependency>
-        <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-common</artifactId>
-            <version>3.2.3</version>
-            <type>jar</type>
-            <properties/>
-        </dependency>
-        <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jbosssx</artifactId>
-            <version>3.2.3</version>
-            <type>jar</type>
-            <properties/>
-        </dependency>
-    </dependencies>
+  <extend>${basedir}/../project.xml</extend>
+  <pomVersion>1</pomVersion>
+  <artifactId>acegi-security-jboss</artifactId>
+  <name>Acegi Security System for Spring - JBoss adapter</name>
+  <groupId>acegi-security-jboss</groupId>
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
+    <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/adapters/jboss/</url>
+  </repository>
+  <dependencies>
+    <dependency>
+      <groupId>jboss</groupId>
+      <artifactId>jboss-jmx</artifactId>
+      <version>3.2.1</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>jboss</groupId>
+      <artifactId>jboss-common</artifactId>
+      <version>3.2.3</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>jboss</groupId>
+      <artifactId>jbosssx</artifactId>
+      <version>3.2.3</version>
+      <type>jar</type>
+    </dependency>
+  </dependencies>
   <build>
     <unitTest>
       <includes>
@@ -42,3 +47,4 @@
     </unitTest>
   </build>
 </project>
+

@@ -1,19 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project>
-    <extend>${basedir}/../project.xml</extend>
-    <artifactId>acegi-security-resin</artifactId>
-    <name>Acegi Security System for Spring - Resin adapter</name>
-    <dependencies>
-        <dependency>
-            <groupId>resin</groupId>
-            <artifactId>resin</artifactId>
-            <version>3.0.9</version>
-        </dependency>
-        <dependency>
-            <groupId>retroweaver</groupId>
-            <artifactId>retroweaver</artifactId>
-            <version>1.0fcs</version>
-        </dependency>
-    </dependencies>
+  <extend>${basedir}/../project.xml</extend>
+  <pomVersion>1</pomVersion>
+  <artifactId>acegi-security-resin</artifactId>
+  <name>Acegi Security System for Spring - Resin adapter</name>
+  <groupId>acegi-security-resin</groupId>
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
+    <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/adapters/resin/</url>
+  </repository>
+  <dependencies>
+    <dependency>
+      <groupId>resin</groupId>
+      <artifactId>resin</artifactId>
+      <version>3.0.9</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>retroweaver</groupId>
+      <artifactId>retroweaver</artifactId>
+      <version>1.0fcs</version>
+      <type>jar</type>
+    </dependency>
+  </dependencies>
   <build>
     <unitTest>
       <includes>
@@ -31,3 +41,4 @@
     </unitTest>
   </build>
 </project>
+
