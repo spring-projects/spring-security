@@ -60,5 +60,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-2.1.8.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.0.jar"/>
 	<classpathentry sourcepath="DIST_BASE/commons-beanutils-1.6.1-src/src/java" kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.6.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/apache-directory/jars/apacheds-main-0.9-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>

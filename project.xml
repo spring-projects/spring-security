@@ -67,7 +67,7 @@
       <id>benalex</id>
       <email>benalex at users.sourceforge.net</email>
       <organization>Acegi Technology Pty Limited (http://www.acegi.com.au)</organization>
-      <timezone>+10</timezone>	  
+      <timezone>+10</timezone>
     </developer>
     <developer>
       <name>Francois Beausoleil</name>
@@ -90,7 +90,7 @@
       <id>luke_t</id>
       <email>luke at monkeymachine.ltd.uk</email>
       <organization>Monkey Machine Ltd. (http://monkeymachine.ltd.uk)</organization>
-      <timezone>0</timezone>	  
+      <timezone>0</timezone>
     </developer>
     <developer>
       <name>Ray Krueger</name>
@@ -390,6 +390,12 @@
       <properties>
         <war.bundle>false</war.bundle>
       </properties>
+    </dependency>
+    <dependency>
+      <groupId>apache-directory</groupId>
+      <artifactId>apacheds-main</artifactId>
+      <version>0.9-SNAPSHOT</version>
+      <type>jar</type>
     </dependency>
   </dependencies>
   <build>
