@@ -37,6 +37,7 @@ import java.util.StringTokenizer;
 
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
 
@@ -106,130 +107,113 @@ public class AclTag extends TagSupport {
         final String evaledPermissionsString = ExpressionEvaluationUtils
             .evaluateString("hasPermission", hasPermission, pageContext);
 
-        if ((null != evaledPermissionsString)
-            && !"".equals(evaledPermissionsString)) {
-            Integer[] requiredIntegers = null;
+        Integer[] requiredIntegers = null;
 
-            try {
-                requiredIntegers = parseIntegersString(evaledPermissionsString);
-            } catch (NumberFormatException nfe) {
-                throw new JspException(nfe);
-            }
+        try {
+            requiredIntegers = parseIntegersString(evaledPermissionsString);
+        } catch (NumberFormatException nfe) {
+            throw new JspException(nfe);
+        }
 
-            if (requiredIntegers.length == 0) {
-                throw new JspException(
-                    "A comma separate list of integers representing authorised permissions was NOT provided via the 'hasPermission' attribute");
-            }
+        Object resolvedDomainObject = null;
 
-            Object resolvedDomainObject = null;
+        if (domainObject instanceof String) {
+            resolvedDomainObject = ExpressionEvaluationUtils.evaluate("domainObject",
+                    (String) domainObject, Object.class, pageContext);
+        } else {
+            resolvedDomainObject = domainObject;
+        }
 
-            if (domainObject instanceof String) {
-                resolvedDomainObject = ExpressionEvaluationUtils.evaluate("domainObject",
-                        (String) domainObject, Object.class, pageContext);
-            } else {
-                resolvedDomainObject = domainObject;
-            }
-
-            if (resolvedDomainObject == null) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(
-                        "domainObject resolved to null, so including tag body");
-                }
-
-                // Of course they have access to a null object!
-                return Tag.EVAL_BODY_INCLUDE;
-            }
-
-            if ((ContextHolder.getContext() == null)
-                || !(ContextHolder.getContext() instanceof SecureContext)
-                || (((SecureContext) ContextHolder.getContext())
-                .getAuthentication() == null)) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(
-                        "ContextHolder did not return a non-null Authentication object, so skipping tag body");
-                }
-
-                return Tag.SKIP_BODY;
-            }
-
-            Authentication auth = ((SecureContext) ContextHolder.getContext())
-                .getAuthentication();
-
-            ApplicationContext context = getContext(pageContext
-                    .getServletContext());
-
-            if (context == null) {
-                throw new JspException(
-                    "applicationContext unavailable from servlet context");
-            }
-
-            Map beans = context.getBeansOfType(AclManager.class, false, false);
-
-            if (beans.size() == 0) {
-                throw new JspException(
-                    "No AclManager would found the application context: "
-                    + context.toString());
-            }
-
-            String beanName = (String) beans.keySet().iterator().next();
-            AclManager aclManager = (AclManager) context.getBean(beanName);
-
-            // Obtain aclEntrys applying to the current Authentication object
-            AclEntry[] acls = aclManager.getAcls(resolvedDomainObject, auth);
-
+        if (resolvedDomainObject == null) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Authentication: '" + auth + "' has: "
-                    + ((acls == null) ? 0 : acls.length)
-                    + " AclEntrys for domain object: '" + resolvedDomainObject
-                    + "' from AclManager: '" + aclManager.toString() + "'");
+                logger.debug(
+                    "domainObject resolved to null, so including tag body");
             }
 
-            if ((acls == null) || (acls.length == 0)) {
-                return Tag.SKIP_BODY;
-            }
+            // Of course they have access to a null object!
+            return Tag.EVAL_BODY_INCLUDE;
+        }
 
-            for (int i = 0; i < acls.length; i++) {
-                // Locate processable AclEntrys
-                if (acls[i] instanceof AbstractBasicAclEntry) {
-                    AbstractBasicAclEntry processableAcl = (AbstractBasicAclEntry) acls[i];
-
-                    // See if principal has any of the required permissions
-                    for (int y = 0; y < requiredIntegers.length; y++) {
-                        if (processableAcl.isPermitted(
-                                requiredIntegers[y].intValue())) {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug(
-                                    "Including tag body as found permission: "
-                                    + requiredIntegers[y]
-                                    + " due to AclEntry: '" + processableAcl
-                                    + "'");
-                            }
-
-                            return Tag.EVAL_BODY_INCLUDE;
-                        }
-                    }
-                }
-            }
-
+        if ((ContextHolder.getContext() == null)
+            || !(ContextHolder.getContext() instanceof SecureContext)
+            || (((SecureContext) ContextHolder.getContext()).getAuthentication() == null)) {
             if (logger.isDebugEnabled()) {
-                logger.debug("No permission, so skipping tag body");
+                logger.debug(
+                    "ContextHolder did not return a non-null Authentication object, so skipping tag body");
             }
 
             return Tag.SKIP_BODY;
-        } else {
-            throw new JspException("Unsupported use of auth:acl tag");
         }
+
+        Authentication auth = ((SecureContext) ContextHolder.getContext())
+            .getAuthentication();
+
+        ApplicationContext context = getContext(pageContext);
+        Map beans = context.getBeansOfType(AclManager.class, false, false);
+
+        if (beans.size() == 0) {
+            throw new JspException(
+                "No AclManager would found the application context: "
+                + context.toString());
+        }
+
+        String beanName = (String) beans.keySet().iterator().next();
+        AclManager aclManager = (AclManager) context.getBean(beanName);
+
+        // Obtain aclEntrys applying to the current Authentication object
+        AclEntry[] acls = aclManager.getAcls(resolvedDomainObject, auth);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Authentication: '" + auth + "' has: "
+                + ((acls == null) ? 0 : acls.length)
+                + " AclEntrys for domain object: '" + resolvedDomainObject
+                + "' from AclManager: '" + aclManager.toString() + "'");
+        }
+
+        if ((acls == null) || (acls.length == 0)) {
+            return Tag.SKIP_BODY;
+        }
+
+        for (int i = 0; i < acls.length; i++) {
+            // Locate processable AclEntrys
+            if (acls[i] instanceof AbstractBasicAclEntry) {
+                AbstractBasicAclEntry processableAcl = (AbstractBasicAclEntry) acls[i];
+
+                // See if principal has any of the required permissions
+                for (int y = 0; y < requiredIntegers.length; y++) {
+                    if (processableAcl.isPermitted(
+                            requiredIntegers[y].intValue())) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(
+                                "Including tag body as found permission: "
+                                + requiredIntegers[y] + " due to AclEntry: '"
+                                + processableAcl + "'");
+                        }
+
+                        return Tag.EVAL_BODY_INCLUDE;
+                    }
+                }
+            }
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("No permission, so skipping tag body");
+        }
+
+        return Tag.SKIP_BODY;
     }
 
     /**
      * Allows test cases to override where application context obtained from.
      *
-     * @param servletContext as required by Spring's
-     *        <code>WebApplicationContextUtils</code>
+     * @param pageContext so the <code>ServletContext</code> can be accessed as
+     *        required by Spring's <code>WebApplicationContextUtils</code>
      *
-     * @return the Spring application context
+     * @return the Spring application context (never <code>null</code>)
      */
-    protected ApplicationContext getContext(ServletContext servletContext) {
+    protected ApplicationContext getContext(PageContext pageContext) {
+        ServletContext servletContext = pageContext.getServletContext();
+
         return WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
     }
 

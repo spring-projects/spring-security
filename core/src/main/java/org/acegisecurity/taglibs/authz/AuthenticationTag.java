@@ -66,6 +66,10 @@ public class AuthenticationTag extends TagSupport {
             return Tag.SKIP_BODY;
         }
 
+        if (!OPERATION_PRINCIPAL.equalsIgnoreCase(operation)) {
+            throw new JspException("Unsupported use of auth:authentication tag");
+        }
+
         if ((ContextHolder.getContext() == null)
             || !(ContextHolder.getContext() instanceof SecureContext)
             || (((SecureContext) ContextHolder.getContext()).getAuthentication() == null)) {
@@ -75,20 +79,16 @@ public class AuthenticationTag extends TagSupport {
         Authentication auth = ((SecureContext) ContextHolder.getContext())
             .getAuthentication();
 
-        if (OPERATION_PRINCIPAL.equalsIgnoreCase(operation)) {
-            if (auth.getPrincipal() == null) {
-                return Tag.SKIP_BODY;
-            } else if (auth.getPrincipal() instanceof UserDetails) {
-                writeMessage(((UserDetails) auth.getPrincipal()).getUsername());
+        if (auth.getPrincipal() == null) {
+            return Tag.SKIP_BODY;
+        } else if (auth.getPrincipal() instanceof UserDetails) {
+            writeMessage(((UserDetails) auth.getPrincipal()).getUsername());
 
-                return Tag.SKIP_BODY;
-            } else {
-                writeMessage(auth.getPrincipal().toString());
-
-                return Tag.SKIP_BODY;
-            }
+            return Tag.SKIP_BODY;
         } else {
-            throw new JspException("Unsupported use of auth:athentication tag");
+            writeMessage(auth.getPrincipal().toString());
+
+            return Tag.SKIP_BODY;
         }
     }
 
