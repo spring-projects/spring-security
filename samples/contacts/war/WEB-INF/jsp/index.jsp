@@ -18,9 +18,9 @@
   <td>
       <c:out value="${contact.email}"/>
   </td>
-  <c:if test="${model.supervisor == true}">
+  <authz:authorize ifAllGranted="ROLE_SUPERVISOR">
     <td><A HREF="del.htm?id=<c:out value="${contact.id}"/>">Del</A></td>
-  </c:if>
+  </authz:authorize>
   </tr>
 </c:forEach>
 </table>
