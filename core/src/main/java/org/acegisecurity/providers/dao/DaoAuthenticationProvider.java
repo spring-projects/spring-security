@@ -349,7 +349,7 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
         UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(principal,
                 authentication.getCredentials(), user.getAuthorities());
         result.setDetails((authentication.getDetails() != null)
-            ? authentication.getDetails().toString() : null);
+            ? authentication.getDetails() : null);
 
         return result;
     }

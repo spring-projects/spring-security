@@ -8,6 +8,7 @@ Changes in version 0.x (2004-xx-xx)
 * Added FilterToBeanProxy compatibility with ContextLoaderServlet (lazy inits)
 * Extracted removeUserFromCache(String) to UserCache interface
 * Improved ConfigAttributeEditor so it trims preceding and trailing spaces
+* Refactored UsernamePasswordAuthenticationToken.getDetails() to Object
 * Fixed EH-CACHE-based caching implementation behaviour when cache exists
 * Fixed Ant "release" target not including project.properties
 * Fixed GrantedAuthorityEffectiveAclsResolver if null ACLs provided to method

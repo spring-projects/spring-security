@@ -37,10 +37,10 @@ public class UsernamePasswordAuthenticationToken
     //~ Instance fields ========================================================
 
     private Object credentials;
+    private Object details = null;
     private Object principal;
     private GrantedAuthority[] authorities;
     private boolean authenticated = false;
-    private String details = null;
 
     //~ Constructors ===========================================================
 
@@ -83,15 +83,15 @@ public class UsernamePasswordAuthenticationToken
         return this.credentials;
     }
 
+    public void setDetails(Object details) {
+        this.details = details;
+    }
+
+    public Object getDetails() {
+        return details;
+    }
+
     public Object getPrincipal() {
         return this.principal;
     }
-
-	public Object getDetails() {
-		return details;
-	}
-
-	public void setDetails(String details) {
-		this.details = details;
-	}
 }
