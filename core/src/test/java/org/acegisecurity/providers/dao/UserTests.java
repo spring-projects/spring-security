@@ -48,9 +48,13 @@ public class UserTests extends TestCase {
         junit.textui.TestRunner.run(UserTests.class);
     }
 
-    public void testNoArgsConstructor() throws Exception {
-        User user = new User();
-        assertTrue(true);
+    public void testNoArgConstructor() {
+        try {
+            new User();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
     }
 
     public void testNullValuesRejected() throws Exception {
