@@ -37,7 +37,7 @@ import java.security.Principal;
 public class ConcurrentSessionControllerImplTests extends TestCase {
     //~ Instance fields ========================================================
 
-    ConcurrentSessionControllerImpl target = new ConcurrentSessionControllerImpl();
+    ConcurrentSessionControllerImpl target;
 
     //~ Methods ================================================================
 
@@ -242,6 +242,11 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         assertFalse(target.isActiveSession(new Object(), "1"));
 
         target.removeSession("nothing to see here");
+    }
+
+    protected void setUp() throws Exception {
+        target = new ConcurrentSessionControllerImpl();
+        target.setApplicationContext(MockApplicationContext.getContext());
     }
 
     private Authentication createAuthentication(String user, String password,
