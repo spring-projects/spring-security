@@ -209,7 +209,7 @@
     <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
-      <version>1.7.2.9</version>
+      <version>1.7.3.0</version>
       <type>jar</type>
       <url>http://hsqldb.sourceforge.net/</url>
       <properties>
