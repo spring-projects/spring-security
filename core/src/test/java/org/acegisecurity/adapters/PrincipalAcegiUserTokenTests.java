@@ -56,6 +56,7 @@ public class PrincipalAcegiUserTokenTests extends TestCase {
         assertEquals("Test", token.getPrincipal());
         assertEquals("Password", token.getCredentials());
         assertEquals("my_password".hashCode(), token.getKeyHash());
+        assertEquals("Test", token.getName());
     }
 
     public void testIsUserInRole() throws Exception {
@@ -84,10 +85,6 @@ public class PrincipalAcegiUserTokenTests extends TestCase {
                 "Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")});
-        System.out.println("Token 1:" + token1.toString() + " hash of pass "
-            + token1.getKeyHash());
-        System.out.println("Token 2:" + token2.toString() + " hash of pass "
-            + token2.getKeyHash());
         assertEquals(token1, token2);
 
         PrincipalAcegiUserToken token3 = new PrincipalAcegiUserToken("my_password",
