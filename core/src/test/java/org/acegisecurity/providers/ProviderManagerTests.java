@@ -90,6 +90,26 @@ public class ProviderManagerTests extends TestCase {
         assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
     }
 
+    public void testAuthenticationSuccessWhenFirstProviderReturnsNullButSecondAuthenticates() {
+        TestingAuthenticationToken token = new TestingAuthenticationToken("Test",
+                "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                        "ROLE_TWO")});
+
+        ProviderManager mgr = makeProviderManagerWithMockProviderWhichReturnsNullInList();
+        Authentication result = mgr.authenticate(token);
+
+        if (!(result instanceof TestingAuthenticationToken)) {
+            fail("Should have returned instance of TestingAuthenticationToken");
+        }
+
+        TestingAuthenticationToken castResult = (TestingAuthenticationToken) result;
+        assertEquals("Test", castResult.getPrincipal());
+        assertEquals("Password", castResult.getCredentials());
+        assertEquals("ROLE_ONE", castResult.getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
+    }
+
     public void testStartupFailsIfProviderListDoesNotContainingProviders()
         throws Exception {
         List providers = new Vector();
@@ -146,6 +166,19 @@ public class ProviderManagerTests extends TestCase {
         return mgr;
     }
 
+    private ProviderManager makeProviderManagerWithMockProviderWhichReturnsNullInList() {
+        MockProviderWhichReturnsNull provider1 = new MockProviderWhichReturnsNull();
+        MockProvider provider2 = new MockProvider();
+        List providers = new Vector();
+        providers.add(provider1);
+        providers.add(provider2);
+
+        ProviderManager mgr = new ProviderManager();
+        mgr.setProviders(providers);
+
+        return mgr;
+    }
+
     //~ Inner Classes ==========================================================
 
     private class MockProvider implements AuthenticationProvider {
@@ -153,6 +186,27 @@ public class ProviderManagerTests extends TestCase {
             throws AuthenticationException {
             if (supports(authentication.getClass())) {
                 return authentication;
+            } else {
+                throw new AuthenticationServiceException(
+                    "Don't support this class");
+            }
+        }
+
+        public boolean supports(Class authentication) {
+            if (TestingAuthenticationToken.class.isAssignableFrom(
+                    authentication)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    private class MockProviderWhichReturnsNull implements AuthenticationProvider {
+        public Authentication authenticate(Authentication authentication)
+            throws AuthenticationException {
+            if (supports(authentication.getClass())) {
+                return null;
             } else {
                 throw new AuthenticationServiceException(
                     "Don't support this class");

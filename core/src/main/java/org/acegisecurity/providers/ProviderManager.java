@@ -123,7 +123,11 @@ public class ProviderManager implements InitializingBean, AuthenticationManager 
                 logger.debug("Authentication attempt using "
                     + provider.getClass().getName());
 
-                return provider.authenticate(authentication);
+                Authentication result = provider.authenticate(authentication);
+
+                if (result != null) {
+                    return result;
+                }
             }
         }
 
