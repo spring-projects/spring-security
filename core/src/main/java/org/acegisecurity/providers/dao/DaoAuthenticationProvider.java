@@ -292,7 +292,7 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
      * </p>
      *
      * @param principal that should be the principal in the returned object
-     *        (defined by the {@link #forcePrincipalAsString} property)
+     *        (defined by the {@link #isForcePrincipalAsString()} method)
      * @param authentication that was presented to the
      *        <code>DaoAuthenticationProvider</code> for validation
      * @param user that was loaded by the <code>AuthenticationDao</code>
