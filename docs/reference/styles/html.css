@@ -24,11 +24,23 @@ OL, UL, P {
 }
 
 P, BLOCKQUOTE {
-    font-size: 80%;
+    font-size: 90%;
+}
+
+P.releaseinfo {
+    font-size: 120%; font-weight: bold; 
+    font-family: Arial, helvetica, sans-serif;
+    padding-top: 10px;
+}
+
+P.pubdate {
+    font-size: 120%; font-weight: bold; 
+    font-family: Arial, helvetica, sans-serif;
 }
 
 td {
     font-size: 80%;
+}
 
 
 TD, TH, SPAN {
@@ -39,12 +51,30 @@ BLOCKQUOTE {
     margin-right: 0px;
 }
 
-
 H1, H2, H3, H4, H5, H6    {
     color: #000000;
     font-weight:500;
     margin-top:0px;
     padding-top:14px;
+    font-family: Arial, helvetica, sans-serif;
+    margin-bottom: 0px;
+}
+
+H2.title {
+    font-weight:800;
+    margin-bottom: 8px;
+}
+
+H2.subtitle {
+    font-weight:800;
+    margin-bottom: 20px;
+}
+
+H3.author {
+    color: #000000;
+    font-weight:500;
+    margin-top:0px;
+    padding-top:0px;
     font-family: Arial, helvetica, sans-serif;
     margin-bottom: 0px;
 }
@@ -61,7 +91,7 @@ TD  {
 }
 
 H1 { 
-    font-size: 130%; 
+    font-size: 150%; 
 }
 H2 { 
     font-size: 110%; 
@@ -80,7 +110,7 @@ H6 {
 }
 
 TT {
-font-size: 90%;
+    font-size: 90%;
     font-family: "Courier New", Courier, monospace;
     color: #000000;
 }
@@ -90,7 +120,7 @@ font-size: 90%;
 }
 
 PRE {
-    font-size: 70%;
+    font-size: 90%;
     padding: 5px;
     border-style: solid;
     border-width: 1px;
@@ -127,6 +157,12 @@ HR  {
     font-weight:bold;
 }
 
+.mediaobject {
+    padding-top: 30px; 
+    padding-bottom: 30px; 
+}
 
-
+.legalnotice {
+    font-size: 70%;
+}
     
