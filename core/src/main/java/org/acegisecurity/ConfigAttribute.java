@@ -15,6 +15,9 @@
 
 package net.sf.acegisecurity;
 
+import java.io.Serializable;
+
+
 /**
  * Stores a security system related configuration attribute.
  * 
@@ -34,7 +37,7 @@ package net.sf.acegisecurity;
  * @author Ben Alex
  * @version $Id$
  */
-public interface ConfigAttribute {
+public interface ConfigAttribute extends Serializable {
     //~ Methods ================================================================
 
     /**

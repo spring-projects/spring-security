@@ -15,6 +15,8 @@
 
 package net.sf.acegisecurity;
 
+import java.io.Serializable;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -33,7 +35,7 @@ import java.util.Vector;
  * @author Ben Alex
  * @version $Id$
  */
-public class ConfigAttributeDefinition {
+public class ConfigAttributeDefinition implements Serializable {
     //~ Instance fields ========================================================
 
     private List configAttributes = new Vector();
