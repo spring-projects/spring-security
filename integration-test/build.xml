@@ -30,24 +30,27 @@
     </path>
 
 	<target name="usage">
-		<echo message=""/>
-		<echo message="${name} build file"/>
-		<echo message="------------------------------------------------------"/>
-		<echo message=""/>
-		<echo message="Among the available targets are:"/>
-		<echo message=""/>
-		<echo message="clean             --> deletes output directories"/>
-		<echo message="unzip             --> unzips each container into file system"/>
-		<echo message="tests             --> unzips each container and runs all tests"/>
-		<echo message="tests-jetty       --> runs the integration tests with Jetty"/>
-		<echo message="tests-jboss       --> runs the integration tests with JBoss"/>
-		<echo message="tests-catalina    --> runs the integration tests with Catalina"/>
-		<echo message=""/>
-		<echo message="Each tests-xxxx target assumes the container is unzipped"/>
-		<echo message=""/>
-		<echo message="BE SURE TO CHECK REPORTS DIRECTORY FOR RESULTS OF TESTS!"/>
-		<echo message="   *** The script does NOT halt if a test fails ***"/>
-		<echo message=""/>
+		<echo level="info">
+${name} build file
+------------------------------------------------------
+
+Among the available targets are:
+
+clean             --> deletes output directories
+unzip             --> unzips each container into file system
+tests             --> unzips each container and runs all tests
+tests-jetty       --> runs the integration tests with Jetty
+tests-jboss       --> runs the integration tests with JBoss
+tests-catalina    --> runs the integration tests with Catalina
+                          (both 4.1 and 5.0)
+tests-catalina-4.1--> runs the integration tests with Catalina 4.1
+tests-catalina-5  --> runs the integration tests with Catalina 5.0
+
+Each tests-xxxx target assumes the container is unzipped
+
+BE SURE TO CHECK REPORTS DIRECTORY FOR RESULTS OF TESTS!
+   *** The script does NOT halt if a test errors or fails ***
+</echo>
 	</target>
 
 	<target name="clean" description="Clean all output dirs">
@@ -84,8 +87,105 @@
         </jalopy>
    </target>
 
-	<target name="tests" depends="clean,unzip,tests-jetty,tests-catalina,tests-jboss" description="Run all integration tests">
-		<echo message="BE SURE TO CHECK REPORTS DIRECTORY FOR RESULTS OF TESTS!"/>
+	<target name="tests" depends="clean,unzip,tests-jetty,tests-catalina,tests-jboss"
+		description="Run all integration tests">
+		<property name="jboss-${jboss.version}.errored" value="1"/>
+		<property name="jakarta-tomcat-${tomcat-4.1.version}.failed" value="1"/>
+		<condition property="anyerrors" value="true">
+			<or>
+				<isset property="jetty-${jetty.version}.errored"/>
+				<isset property="jboss-${jboss.version}.errored"/>
+				<isset property="jakarta-tomcat-${tomcat-4.1.version}.errored"/>
+				<isset property="jakarta-tomcat-${tomcat-5.version}.errored"/>
+			</or>
+		</condition>
+
+		<condition property="anyfailures" value="true">
+			<or>
+				<isset property="jetty-${jetty.version}.failed"/>
+				<isset property="jboss-${jboss.version}.failed"/>
+				<isset property="jakarta-tomcat-${tomcat-4.1.version}.failed"/>
+				<isset property="jakarta-tomcat-${tomcat-5.version}.failed"/>
+			</or>
+		</condition>
+
+		<fileset id="availablereports" dir="${reports.dir}"
+			includes="**/html/index.html"/>
+		<condition property="is.windows">
+			<os family="windows"/>
+		</condition>
+		<antcall target="-prepare.availablereports.unix"/>
+		<antcall target="-prepare.availablereports.windows"/>
+
+		<condition property="jetty.errored" value="YES !">
+			<isset property="jetty-${jetty.version}.errored"/>
+		</condition>
+
+		<condition property="jboss.errored" value="YES !">
+			<isset property="jboss-${jboss.version}.errored"/>
+		</condition>
+
+		<condition property="jakarta-tomcat-4.1.errored" value="YES !">
+			<isset property="jakarta-tomcat-${tomcat-4.1.version}.errored"/>
+		</condition>
+
+		<condition property="jakarta-tomcat-5.errored" value="YES !">
+			<isset property="jakarta-tomcat-${tomcat-5.version}.errored"/>
+		</condition>
+
+		<condition property="jetty.failed" value="YES !">
+			<isset property="jetty-${jetty.version}.failed"/>
+		</condition>
+
+		<condition property="jboss.failed" value="YES !">
+			<isset property="jboss-${jboss.version}.failed"/>
+		</condition>
+
+		<condition property="jakarta-tomcat-4.1.failed" value="YES !">
+			<isset property="jakarta-tomcat-${tomcat-4.1.version}.failed"/>
+		</condition>
+
+		<condition property="jakarta-tomcat-5.failed" value="YES !">
+			<isset property="jakarta-tomcat-${tomcat-5.version}.failed"/>
+		</condition>
+
+		<property name="jetty.errored" value="no   "/>
+		<property name="jboss.errored" value="no   "/>
+		<property name="jakarta-tomcat-4.1.errored" value="no   "/>
+		<property name="jakarta-tomcat-5.errored" value="no   "/>
+		<property name="jetty.failed" value="no   "/>
+		<property name="jboss.failed" value="no   "/>
+		<property name="jakarta-tomcat-4.1.failed" value="no   "/>
+		<property name="jakarta-tomcat-5.failed" value="no   "/>
+		<property name="jetty.run" value="no"/>
+		<property name="jboss.run" value="no"/>
+		<property name="jakarta-tomcat-4.1.run" value="no"/>
+		<property name="jakarta-tomcat-5.run" value="no"/>
+
+		<echo level="info">
+Jetty ${jetty.version}:&#9;Run: ${jetty.run}&#9;&#9;Errored: ${jetty.errored}&#9;Failed: ${jetty.failed}
+JBoss ${jboss.version}:&#9;Run: ${jboss.run}&#9;&#9;Errored: ${jboss.errored}&#9;Failed: ${jboss.failed}
+Tomcat ${tomcat-4.1.version}:&#9;Run: ${jakarta-tomcat-4.1.run}&#9;&#9;Errored: ${jakarta-tomcat-4.1.errored}&#9;Failed: ${jakarta-tomcat-4.1.failed}
+Tomcat ${tomcat-5.version}:&#9;Run: ${jakarta-tomcat-5.run}&#9;&#9;Errored: ${jakarta-tomcat-5.errored}&#9;Failed: ${jakarta-tomcat-5.failed}
+</echo>
+
+		<fail if="anyerrors">ERRORS OCCURED DURING TESTING</fail>
+		<fail if="anyfailures">Failures occured during testing</fail>
+	</target>
+
+	<target name="-prepare.availablereports.windows" if="is.windows">
+		<pathconvert dirsep="\" pathsep="&#13;&#10;"
+			property="availablereports.paths"
+			refid="availablereports"/>
+		<echo>${availablereports.paths}</echo>
+	</target>
+
+	<target name="-prepare.availablereports.unix" unless="is.windows">
+		<echo>not is.windows: ${is.windows}</echo>
+		<pathconvert dirsep="/" pathsep="&#10;"
+			property="availablereports.paths"
+			refid="availablereports"/>
+		<echo>${availablereports.paths}</echo>
 	</target>
 
 	<target name="tests-jetty" depends="buildtests" description="Runs Jetty integration tests">
@@ -104,16 +204,9 @@
                 <waitfor maxwait="240" maxwaitunit="second" checkevery="500" checkeveryunit="millisecond">
                     <http url="http://localhost:8080/contacts" />
                 </waitfor>
-		  		<delete dir="${reports.dir}/jetty-${jetty.version}"/>
-		  		<mkdir dir="${reports.dir}/jetty-${jetty.version}"/>
-		  		<junit printsummary="yes" haltonfailure="no">
-					<classpath location="${build.dir}"/>
-					<classpath refid="qa-portalpath"/>
-					<formatter type="xml"/>
-					<batchtest fork="yes" todir="${reports.dir}/jetty-${jetty.version}">
-						<fileset dir="${build.dir}" includes="${test.includes}" excludes="${test.excludes}"/>
-					</batchtest>
-				</junit>
+				<antcall target="-runtests">
+					<param name="product" value="jetty-${jetty.version}"/>
+				</antcall>
 		  		<java fork="true" dir="${tmp.dir}/jetty-${jetty.version}/" classpath="${tmp.dir}/jetty-${jetty.version}/stop.jar" classname="org.mortbay.stop.Main"/>
         	</sequential>
 		</parallel>
@@ -121,6 +214,7 @@
 		<antcall target="-report">
 			<param name="product" value="jetty-${jetty.version}"/>
 		</antcall>
+		<property name="jetty.run" value="yes"/>
 	</target>
 
 	<target name="tests-catalina" description="Runs Catalina integration tests">
@@ -170,16 +264,9 @@
                 <waitfor maxwait="240" maxwaitunit="second" checkevery="500" checkeveryunit="millisecond">
                     <http url="http://localhost:8080/contacts" />
                 </waitfor>
-		  		<delete dir="${reports.dir}/jakarta-tomcat-${tomcat.version}"/>
-		  		<mkdir dir="${reports.dir}/jakarta-tomcat-${tomcat.version}"/>
-		  		<junit printsummary="yes" haltonfailure="no">
-					<classpath location="${build.dir}"/>
-					<classpath refid="qa-portalpath"/>
-					<formatter type="xml"/>
-					<batchtest fork="yes" todir="${reports.dir}/jakarta-tomcat-${tomcat.version}">
-						<fileset dir="${build.dir}" includes="${test.includes}" excludes="${test.excludes}"/>
-					</batchtest>
-				</junit>
+				<antcall target="-runtests">
+					<param name="product" value="jakarta-tomcat-${tomcat.version}"/>
+				</antcall>
 				<java fork="true" classname="org.apache.catalina.startup.Bootstrap" dir="${tomcat.home}">
 					<jvmarg value="-Dcatalina.home=${tomcat.home}"/>
 					<arg value="stop"/>
@@ -196,6 +283,7 @@
 		<antcall target="-report">
 			<param name="product" value="jakarta-tomcat-${tomcat.version}"/>
 		</antcall>
+		<property name="jakarta-tomcat-${tomcat.version}.run" value="yes"/>
 	</target>
 
 	<target name="tests-jboss" depends="buildtests" description="Runs JBoss integration tests">
@@ -217,16 +305,9 @@
                 <waitfor maxwait="240" maxwaitunit="second" checkevery="500" checkeveryunit="millisecond">
                     <http url="http://localhost:8080/contacts" />
                 </waitfor>
-		  		<delete dir="${reports.dir}/jboss-${jboss.version}"/>
-		  		<mkdir dir="${reports.dir}/jboss-${jboss.version}"/>
-		  		<junit printsummary="yes" haltonfailure="no">
-					<classpath location="${build.dir}"/>
-					<classpath refid="qa-portalpath"/>
-					<formatter type="xml"/>
-					<batchtest fork="yes" todir="${reports.dir}/jboss-${jboss.version}">
-						<fileset dir="${build.dir}" includes="${test.includes}" excludes="${test.excludes}"/>
-					</batchtest>
-				</junit>
+				<antcall target="-runtests">
+					<param name="product" value="jboss-${jboss.version}"/>
+				</antcall>
 		        <java fork="yes" classname="org.jboss.Shutdown" dir="${tmp.dir}/jboss-${jboss.version}">
 					<arg value="--shutdown"/>
 		            <classpath>
@@ -239,6 +320,7 @@
 		<antcall target="-report">
 			<param name="product" value="jboss-${jboss.version}"/>
 		</antcall>
+		<property name="jboss.run" value="yes"/>
 	</target>
 
 	<target name="unzip" depends="unzip-jetty,unzip-catalina,unzip-jboss" description="Unzip all containers"/>
@@ -288,6 +370,21 @@
 			<fileset dir="${reports.dir}/${product}" includes="**/TEST-*.xml"/>
 			<report format="frames" todir="${reports.dir}/${product}/html"/>
 		</junitreport>
+	</target>
+
+	<target name="-runtests" description="Runs the unit tests">
+  		<delete dir="${reports.dir}/${product}"/>
+  		<mkdir dir="${reports.dir}/${product}"/>
+  		<junit printsummary="yes" haltonfailure="no" haltonerror="no"
+			failureproperty="${product}.failed"
+			errorproperty="${product}.errored">
+			<classpath location="${build.dir}"/>
+			<classpath refid="qa-portalpath"/>
+			<formatter type="xml"/>
+			<batchtest fork="yes" todir="${reports.dir}/${product}">
+				<fileset dir="${build.dir}" includes="${test.includes}" excludes="${test.excludes}"/>
+			</batchtest>
+		</junit>
 	</target>
 
 </project>
