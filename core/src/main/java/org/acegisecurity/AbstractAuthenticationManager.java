@@ -1,0 +1,75 @@
+/* Copyright 2004 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package net.sf.acegisecurity;
+
+/**
+ * An abstract implementation of the {@link AuthenticationManager}.
+ *
+ * @author Wesley Hall
+ * @version $Id$
+ */
+public abstract class AbstractAuthenticationManager
+    implements AuthenticationManager {
+    //~ Methods ================================================================
+
+    /**
+     * <p>
+     * An implementation of the <code>authenticate</code> method that calls the
+     * abstract method <code>doAuthenticatation</code> to do its work.
+     * </p>
+     * 
+     * <p>
+     * If doAuthenticate throws an <code>AuthenticationException</code> then
+     * the exception is populated with the failed <code>Authentication</code>
+     * object that failed.
+     * </p>
+     *
+     * @param authentication the authentication request object
+     *
+     * @return a fully authenticated object including credentials
+     *
+     * @throws AuthenticationException if authentication fails
+     */
+    public final Authentication authenticate(Authentication authentication)
+        throws AuthenticationException {
+        try {
+            return doAuthentication(authentication);
+        } catch (AuthenticationException e) {
+            e.setAuthentication(authentication);
+            throw e;
+        }
+    }
+
+    /**
+     * <p>
+     * Concrete implementations of this class override this method to provide
+     * the authentication service.
+     * </p>
+     * 
+     * <p>
+     * The contract for this method is documented in the {@link
+     * AuthenticationManager#authenticate(net.sf.acegisecurity.Authentication)}.
+     * </p>
+     *
+     * @param authentication the authentication request object
+     *
+     * @return a fully authenticated object including credentials
+     *
+     * @throws AuthenticationException if authentication fails
+     */
+    protected abstract Authentication doAuthentication(
+        Authentication authentication) throws AuthenticationException;
+}

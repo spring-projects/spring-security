@@ -15,9 +15,9 @@
 
 package net.sf.acegisecurity.providers;
 
+import net.sf.acegisecurity.AbstractAuthenticationManager;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,13 +29,15 @@ import java.util.List;
 
 
 /**
- * Iterates an {@link Authentication} request through a list of  {@link
+ * Iterates an {@link Authentication} request through a list of {@link
  * AuthenticationProvider}s.
  *
  * @author Ben Alex
+ * @author Wesley Hall
  * @version $Id$
  */
-public class ProviderManager implements InitializingBean, AuthenticationManager {
+public class ProviderManager extends AbstractAuthenticationManager
+    implements InitializingBean {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(ProviderManager.class);
@@ -109,7 +111,7 @@ public class ProviderManager implements InitializingBean, AuthenticationManager 
      * @throws AuthenticationException if authentication fails.
      * @throws ProviderNotFoundException DOCUMENT ME!
      */
-    public Authentication authenticate(Authentication authentication)
+    public Authentication doAuthentication(Authentication authentication)
         throws AuthenticationException {
         Iterator iter = providers.iterator();
 

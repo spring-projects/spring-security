@@ -20,9 +20,10 @@ package net.sf.acegisecurity;
  * <code>grantAccess</code> is set to <code>true</code>.
  *
  * @author Ben Alex
+ * @author Wesley Hall
  * @version $Id$
  */
-public class MockAuthenticationManager implements AuthenticationManager {
+public class MockAuthenticationManager extends AbstractAuthenticationManager {
     //~ Instance fields ========================================================
 
     private boolean grantAccess = true;
@@ -39,7 +40,7 @@ public class MockAuthenticationManager implements AuthenticationManager {
 
     //~ Methods ================================================================
 
-    public Authentication authenticate(Authentication authentication)
+    public Authentication doAuthentication(Authentication authentication)
         throws AuthenticationException {
         if (grantAccess) {
             return authentication;
