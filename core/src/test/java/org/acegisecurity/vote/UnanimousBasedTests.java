@@ -100,6 +100,18 @@ public class UnanimousBasedTests extends TestCase {
         }
     }
 
+    public void testRoleVoterPrefixObserved() throws Exception {
+        TestingAuthenticationToken auth = makeTestTokenWithFooBarPrefix();
+        UnanimousBased mgr = makeDecisionManagerWithFooBarPrefix();
+
+        ConfigAttributeDefinition config = new ConfigAttributeDefinition();
+        config.addConfigAttribute(new SecurityConfig("FOOBAR_1")); // grant
+        config.addConfigAttribute(new SecurityConfig("FOOBAR_2")); // grant
+
+        mgr.decide(auth, new Object(), config);
+        assertTrue(true);
+    }
+
     public void testThreeAbstainVotesDeniesAccessWithDefault()
         throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
@@ -159,9 +171,31 @@ public class UnanimousBasedTests extends TestCase {
         return decisionManager;
     }
 
+    private UnanimousBased makeDecisionManagerWithFooBarPrefix() {
+        UnanimousBased decisionManager = new UnanimousBased();
+        RoleVoter roleVoter = new RoleVoter();
+        roleVoter.setRolePrefix("FOOBAR_");
+
+        DenyVoter denyForSureVoter = new DenyVoter();
+        DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
+        List voters = new Vector();
+        voters.add(roleVoter);
+        voters.add(denyForSureVoter);
+        voters.add(denyAgainForSureVoter);
+        decisionManager.setDecisionVoters(voters);
+
+        return decisionManager;
+    }
+
     private TestingAuthenticationToken makeTestToken() {
         return new TestingAuthenticationToken("somebody", "password",
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_1"), new GrantedAuthorityImpl(
                     "ROLE_2")});
+    }
+
+    private TestingAuthenticationToken makeTestTokenWithFooBarPrefix() {
+        return new TestingAuthenticationToken("somebody", "password",
+            new GrantedAuthority[] {new GrantedAuthorityImpl("FOOBAR_1"), new GrantedAuthorityImpl(
+                    "FOOBAR_2")});
     }
 }

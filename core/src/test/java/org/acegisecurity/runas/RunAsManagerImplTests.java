@@ -75,6 +75,37 @@ public class RunAsManagerImplTests extends TestCase {
         assertEquals(null, resultingToken);
     }
 
+    public void testRespectsRolePrefix() throws Exception {
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
+        def.addConfigAttribute(new SecurityConfig("RUN_AS_SOMETHING"));
+
+        UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test",
+                "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ONE"), new GrantedAuthorityImpl("TWO")});
+
+        RunAsManagerImpl runAs = new RunAsManagerImpl();
+        runAs.setKey("my_password");
+        runAs.setRolePrefix("FOOBAR_");
+
+        Authentication resultingToken = runAs.buildRunAs(inputToken,
+                new Object(), def);
+
+        if (!(resultingToken instanceof RunAsUserToken)) {
+            fail("Should have returned a RunAsUserToken");
+        }
+
+        assertEquals(inputToken.getPrincipal(), resultingToken.getPrincipal());
+        assertEquals(inputToken.getCredentials(),
+            resultingToken.getCredentials());
+        assertEquals("FOOBAR_RUN_AS_SOMETHING",
+            resultingToken.getAuthorities()[0].getAuthority());
+        assertEquals("ONE", resultingToken.getAuthorities()[1].getAuthority());
+        assertEquals("TWO", resultingToken.getAuthorities()[2].getAuthority());
+
+        RunAsUserToken resultCast = (RunAsUserToken) resultingToken;
+        assertEquals("my_password".hashCode(), resultCast.getKeyHash());
+    }
+
     public void testReturnsAdditionalGrantedAuthorities()
         throws Exception {
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
