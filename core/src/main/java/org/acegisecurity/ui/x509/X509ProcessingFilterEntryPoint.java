@@ -57,6 +57,6 @@ public class X509ProcessingFilterEntryPoint implements AuthenticationEntryPoint 
     public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         logger.debug("X509 entry point called. Rejecting access");
         HttpServletResponse httpResponse = (HttpServletResponse)response;
-        httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, authException.getMessage());
+        httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
     }
 }
