@@ -29,6 +29,7 @@
       <action dev="benalex" type="fix">SecurityEnforcementFilter caused NullPointerException when anonymous authentication used with BasicProcessingFilterEntryPoint</action>
       <action dev="benalex" type="fix">FilterChainProxy now supports replacement of ServletRequest and ServetResponse by Filter beans</action>
       <action dev="benalex" type="update">ContextHolderAwareRequestWrapper methods returns null if user is anonymous</action>
+      <action dev="benalex" type="update">AbstractBasicAclEntry improved compatibility with Hibernate</action>
     </release>
     <release version="0.8.0" date="2005-03-03">
       <action dev="benalex" type="add">Added Digest Authentication support (RFC 2617 and RFC 2069)</action>
