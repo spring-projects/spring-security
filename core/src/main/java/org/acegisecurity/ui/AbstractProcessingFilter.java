@@ -162,7 +162,7 @@ public abstract class AbstractProcessingFilter implements Filter,
     /**
      * If <code>true</code>, will always redirect to {@link #defaultTargetUrl}
      * upon successful authentication, irrespective of the page that caused
-     * the authentication request (defualts to <code>false</code>).
+     * the authentication request (defaults to <code>false</code>).
      */
     private boolean alwaysUseDefaultTargetUrl = false;
 
