@@ -37,18 +37,19 @@ public interface Authentication {
 
     /**
      * Indicates whether or not authentication was attempted by the {@link
-     * net.sf.acegisecurity.SecurityInterceptor}. Note that  classes should
-     * not rely on this value as being valid unless it has been set by a
-     * trusted <code>SecurityInterceptor</code>.
+     * net.sf.acegisecurity.intercept.AbstractSecurityInterceptor}. Note that
+     * classes should not rely on this value as being valid unless it has been
+     * set by a trusted <code>AbstractSecurityInterceptor</code>.
      *
-     * @return true if authenticated by the <code>SecurityInterceptor</code>
+     * @return true if authenticated by the
+     *         <code>AbstractSecurityInterceptor</code>
      */
     public boolean isAuthenticated();
 
     /**
      * Set by an <code>AuthenticationManager</code> to indicate the authorities
-     * that the principal has been  granted. Note that classes should not rely
-     * on this value as being valid  unless it has been set by a trusted
+     * that the principal has been granted. Note that classes should not rely
+     * on this value as being valid unless it has been set by a trusted
      * <code>AuthenticationManager</code>.
      *
      * @return the authorities granted to the principal, or <code>null</code>

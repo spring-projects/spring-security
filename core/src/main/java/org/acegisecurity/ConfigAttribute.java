@@ -19,15 +19,16 @@ package net.sf.acegisecurity;
  * Stores a security system related configuration attribute.
  * 
  * <p>
- * When the {@link SecurityInterceptor} is setup, a list of configuration
- * attributes is defined for secure method patterns. These configuration
- * attributes have special meaning to a {@link RunAsManager}, {@link
- * AccessDecisionManager} or <code>AccessDecisionManager</code> delegate.
+ * When an {@link net.sf.acegisecurity.intercept.AbstractSecurityInterceptor}
+ * is setup, a list of configuration attributes is defined for secure object
+ * patterns. These configuration attributes have special meaning to a {@link
+ * RunAsManager}, {@link AccessDecisionManager} or
+ * <code>AccessDecisionManager</code> delegate.
  * </p>
  * 
  * <P>
  * Stored at runtime with other <code>ConfigAttribute</code>s for the same
- * method within a {@link ConfigAttributeDefinition}.
+ * secure object target within a {@link ConfigAttributeDefinition}.
  * </p>
  *
  * @author Ben Alex
@@ -47,7 +48,7 @@ public interface ConfigAttribute {
      * <p>
      * If the <code>ConfigAttribute</code> cannot be expressed with sufficient
      * precision as a <code>String</code>,  <code>null</code> should be
-     * returned. Returning <code>null</code> will require an relying classes
+     * returned. Returning <code>null</code> will require any relying classes
      * to specifically support the  <code>ConfigAttribute</code>
      * implementation, so returning  <code>null</code> should be avoided
      * unless actually  required.

@@ -22,12 +22,12 @@ import java.util.Vector;
 
 /**
  * Holds a group of {@link ConfigAttribute}s that are associated with a given
- * method.
+ * secure object target.
  * 
  * <p>
  * All the <code>ConfigAttributeDefinition</code>s associated with a given
- * <code>SecurityInterceptor</code> are stored in a  {@link
- * MethodDefinitionMap}.
+ * {@link net.sf.acegisecurity.intercept.AbstractSecurityInterceptor} are
+ * stored in an {@link net.sf.acegisecurity.intercept.ObjectDefinitionSource}.
  * </p>
  *
  * @author Ben Alex
@@ -47,18 +47,28 @@ public class ConfigAttributeDefinition {
     //~ Methods ================================================================
 
     /**
-     * DOCUMENT ME!
+     * Returns an <code>Iterator</code> over all the
+     * <code>ConfigAttribute</code>s defined by this
+     * <code>ConfigAttributeDefinition</code>.
+     * 
+     * <P>
+     * Allows <code>AccessDecisionManager</code>s and other classes to loop
+     * through every configuration attribute associated with a target secure
+     * object.
+     * </p>
      *
-     * @return all the configuration attributes related to the method.
+     * @return all the configuration attributes stored by the instance, or
+     *         <code>null</code> if an <code>Iterator</code> is unavailable
      */
     public Iterator getConfigAttributes() {
         return this.configAttributes.iterator();
     }
 
     /**
-     * Adds a <code>ConfigAttribute</code> that is related to the method.
+     * Adds a <code>ConfigAttribute</code> that is related to the secure object
+     * method.
      *
-     * @param newConfigAttribute DOCUMENT ME!
+     * @param newConfigAttribute the new configuration attribute to add
      */
     public void addConfigAttribute(ConfigAttribute newConfigAttribute) {
         this.configAttributes.add(newConfigAttribute);
