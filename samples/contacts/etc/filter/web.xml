@@ -15,14 +15,18 @@
     	Example of an application secured using Acegi Security System for Spring.
     </description>
 
+	<!--
+	  - Location of the XML file that defines the root application context
+	  - Applied by ContextLoaderListener.
+	  -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/applicationContext.xml</param-value>
+	</context-param>
 
     <filter>
         <filter-name>Acegi Authentication Processing Filter</filter-name>
         <filter-class>net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter</filter-class>
-        <init-param>
-            <param-name>appContextLocation</param-name>
-            <param-value>web-filters-acegisecurity.xml</param-value>
-        </init-param>
         <init-param>
             <param-name>authenticationFailureUrl</param-name>
             <param-value>/acegilogin.jsp?login_error=1</param-value>
@@ -37,20 +41,14 @@
         </init-param>
     </filter>
 
-
     <filter>
         <filter-name>Acegi Security System for Spring Auto Integration Filter</filter-name>
         <filter-class>net.sf.acegisecurity.ui.AutoIntegrationFilter</filter-class>
     </filter>
 
-   
     <filter>
         <filter-name>Acegi HTTP Request Security Filter</filter-name>
         <filter-class>net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter</filter-class>
-        <init-param>
-            <param-name>appContextLocation</param-name>
-            <param-value>web-filters-acegisecurity.xml</param-value>
-        </init-param>
         <init-param>
             <param-name>loginFormUrl</param-name>
             <param-value>/acegilogin.jsp</param-value>
@@ -71,6 +69,16 @@
       <filter-name>Acegi HTTP Request Security Filter</filter-name>
       <url-pattern>/*</url-pattern>
     </filter-mapping>
+
+	<!--
+	  - Loads the root application context of this web app at startup,
+	  - by default from "/WEB-INF/applicationContext.xml".
+	  - Use WebApplicationContextUtils.getWebApplicationContext(servletContext)
+	  - to access it anywhere in the web application, outside of the framework.
+    -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
 
   <!--
     - Servlet that dispatches request to registered handlers (Controller implementations).

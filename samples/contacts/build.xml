@@ -119,13 +119,11 @@
 			<fileset dir="${build.dir}">
 				<include name="**"/>
 			</fileset>
-			<fileset dir="${etc.dir}/filter">
-				<include name="web-filters-acegisecurity.xml"/>
-			</fileset>
 		</copy>
 		<copy todir="${tmp.dir}/${name.filter}/WEB-INF">
 			<fileset dir="${etc.dir}/filter">
 				<include name="web.xml"/>
+				<include name="applicationContext.xml"/>
 			</fileset>
 		</copy>
 		<war warfile="${dist.dir}/${name.filter}.war" webxml="${tmp.dir}/${name.filter}/WEB-INF/web.xml">

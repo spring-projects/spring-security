@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Application context loaded by ContextLoaderListener if NOT using container adapters
+  - $Id$
+  -->
+
+<beans>
+
+	<!-- ========================== WEB DEFINITIONS ======================= -->
+
+    <bean id="publicIndexController" class="sample.contact.PublicIndexController">
+    	<property name="contactManager"><ref bean="contactManager"/></property>
+ 	</bean>
+
+    <bean id="secureIndexController" class="sample.contact.SecureIndexController">
+    	<property name="contactManager"><ref bean="contactManager"/></property>
+ 	</bean>
+
+    <bean id="secureDeleteController" class="sample.contact.DeleteController">
+    	<property name="contactManager"><ref bean="contactManager"/></property>
+ 	</bean>
+
+    <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+        <property name="mappings">
+            <props>
+                <prop key="/hello.htm">publicIndexController</prop>
+                <prop key="/secure/add.htm">secureAddForm</prop>
+                <prop key="/secure/index.htm">secureIndexController</prop>
+                <prop key="/secure/del.htm">secureDeleteController</prop>
+			</props>
+        </property>
+    </bean>
+
+    <bean id="addValidator" class="sample.contact.WebContactValidator"/>
+    <bean id="secureAddForm" class="sample.contact.WebContactAddController">
+        <property name="sessionForm"><value>true</value></property>
+        <property name="commandName"><value>webContact</value></property>
+        <property name="commandClass"><value>sample.contact.WebContact</value></property>
+        <property name="validator"><ref bean="addValidator"/></property>
+        <property name="formView"><value>add</value></property>
+        <property name="successView"><value>index.htm</value></property>
+        <property name="contactManager">
+            <ref bean="contactManager"/>
+        </property>
+    </bean>
+
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix"><value>/WEB-INF/jsp/</value></property>
+		<property name="suffix"><value>.jsp</value></property>
+	</bean>
+
+	<!-- =================== SECURITY SYSTEM DEFINITIONS ================== -->
+	
+	<!-- RunAsManager -->
+	<bean id="runAsManager" class="net.sf.acegisecurity.runas.RunAsManagerImpl">
+     	<property name="key"><value>my_run_as_password</value></property>
+ 	</bean>
+
+	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHENTICATION DEFINITIONS ~~~~~~~~~~~~~~~~~~ -->
+	
+	<bean id="runAsAuthenticationProvider" class="net.sf.acegisecurity.runas.RunAsImplAuthenticationProvider">
+     	<property name="key"><value>my_run_as_password</value></property>
+ 	</bean>
+
+	<bean id="authByAdapterProvider" class="net.sf.acegisecurity.adapters.AuthByAdapterProvider">
+  		<property name="key"><value>my_password</value></property>
+ 	</bean>
+
+	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+		<property name="providers">
+		  <list>
+		    <ref bean="runAsAuthenticationProvider"/>
+		    <ref bean="authByAdapterProvider"/>
+		    <ref bean="daoAuthenticationProvider"/>
+		  </list>
+		</property>
+	</bean>
+
+	<bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
+  		<property name="userMap">
+			<value>
+				marissa=koala,ROLE_TELLER,ROLE_SUPERVISOR
+				dianne=emu,ROLE_TELLER
+				scott=wombat,ROLE_TELLER
+				peter=opal,disabled,ROLE_TELLER
+			</value>
+		</property>
+	</bean>
+	
+	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
+     	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
+ 		<property name="ignorePasswordCase"><value>false</value></property>
+ 		<property name="ignoreUsernameCase"><value>true</value></property>
+	</bean>
+
+	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~~~~ -->
+
+	<!-- An access decision voter that reads ROLE_* configuaration settings -->
+	<bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
+
+	<!-- An access decision voter that reads CONTACT_OWNED_BY_CURRENT_USER configuaration settings -->
+	<bean id="contactSecurityVoter" class="sample.contact.ContactSecurityVoter"/>
+
+	<!-- An affirmative access decision manager -->
+	<bean id="accessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
+   		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
+		<property name="decisionVoters">
+		  <list>
+		    <ref bean="roleVoter"/>
+		    <ref bean="contactSecurityVoter"/>
+		  </list>
+		</property>
+	</bean>
+
+	<!-- ===================== SECURITY DEFINITIONS ======================= -->
+	
+	<bean id="publicContactManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor">
+    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
+    	<property name="runAsManager"><ref bean="runAsManager"/></property>
+ 		<property name="objectDefinitionSource">
+			<value>
+				sample.contact.ContactManager.delete=ROLE_SUPERVISOR,RUN_AS_SERVER
+				sample.contact.ContactManager.getAllByOwner=CONTACT_OWNED_BY_CURRENT_USER,RUN_AS_SERVER
+				sample.contact.ContactManager.save=CONTACT_OWNED_BY_CURRENT_USER,RUN_AS_SERVER
+				sample.contact.ContactManager.getById=ROLE_TELLER,RUN_AS_SERVER
+			</value>
+		</property>
+	</bean>
+
+	<!-- We expect all callers of the backend object to hold the role ROLE_RUN_AS_SERVER -->
+	<bean id="backendContactManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor">
+    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
+    	<property name="runAsManager"><ref bean="runAsManager"/></property>
+ 		<property name="objectDefinitionSource">
+			<value>
+				sample.contact.ContactManager.delete=ROLE_RUN_AS_SERVER
+				sample.contact.ContactManager.getAllByOwner=ROLE_RUN_AS_SERVER
+				sample.contact.ContactManager.save=ROLE_RUN_AS_SERVER
+				sample.contact.ContactManager.getById=ROLE_RUN_AS_SERVER
+			</value>
+		</property>
+	</bean>
+
+	<!-- ======================= BUSINESS DEFINITIONS ===================== -->
+
+	<bean id="contactManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+    	<property name="proxyInterfaces"><value>sample.contact.ContactManager</value></property>
+	    <property name="interceptorNames">
+      	<list>
+        	<value>publicContactManagerSecurity</value>
+ 	        <value>publicContactManagerTarget</value>
+    	</list>
+	    </property>
+  	</bean>
+
+	<bean id="publicContactManagerTarget" class="sample.contact.ContactManagerFacade">
+    	<property name="backend"><ref bean="backendContactManager"/></property>
+	</bean>
+
+	<bean id="backendContactManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+    	<property name="proxyInterfaces"><value>sample.contact.ContactManager</value></property>
+	    <property name="interceptorNames">
+      	<list>
+        	<value>backendContactManagerSecurity</value>
+ 	        <value>backendContactManagerTarget</value>
+    	</list>
+	    </property>
+  	</bean>
+
+	<bean id="backendContactManagerTarget" class="sample.contact.ContactManagerBackend"/>
+
+	<!-- ===================== HTTP REQUEST SECURITY ==================== -->
+
+	<!-- We require a different AccessDecisionManager for the FilterSecurityInterceptor
+	     because the previous AccessDecisionManager included the ContactSecurityVoter,
+	     which is not compatible with FilterInvocation secure objects -->
+	<bean id="httpRequestAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
+   		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
+		<property name="decisionVoters">
+		  <list>
+		    <ref bean="roleVoter"/>
+		  </list>
+		</property>
+	</bean>
+
+	<!-- The FilterSecurityInterceptor is called by the web.xml-defined SecurityEnforcementFilter.
+	     Note the order that entries are placed against the objectDefinitionSource is critical.
+	     The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
+	     Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
+	
+	<bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
+    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref bean="httpRequestAccessDecisionManager"/></property>
+    	<property name="runAsManager"><ref bean="runAsManager"/></property>
+ 		<property name="objectDefinitionSource">
+			<value>
+			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+				\A/secure/super.*\Z=ROLE_WE_DONT_HAVE
+				\A/secure/.*\Z=ROLE_SUPERVISOR,ROLE_TELLER
+			</value>
+		</property>
+	</bean>
+	
+	<!-- BASIC Regular Expression Syntax (for beginners):
+	     
+	     \A means the start of the string (ie the beginning of the URL)
+	     \Z means the end of the string (ie the end of the URL)
+	     .  means any single character
+	     *  means null or any number of repetitions of the last expression (so .* means zero or more characters)
+	     
+	     Some examples:
+	     
+	     Expression:   \A/my/directory/.*\Z
+	     Would match:    /my/directory/
+	                     /my/directory/hello.html
+	     
+	     Expression:   \A/.*\Z
+	     Would match:    /hello.html
+	                     /
+	     
+	     Expression:   \A/.*/secret.html\Z
+	     Would match:    /some/directory/secret.html
+	                     /another/secret.html
+	     Not match:      /anothersecret.html (missing required /)
+	-->
+
+</beans>
