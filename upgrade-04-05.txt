@@ -1,0 +1,23 @@
+===============================================================================
+          ACEGI SECURITY SYSTEM FOR SPRING - UPGRADING FROM 0.4 TO 0.5
+===============================================================================
+
+Unfortunately, changes to the API and package locations were required. The
+following should help most casual users of the project update their
+applications:
+
+- By default, AuthenticationProcessingFilter and SecurityEnforcementFilter now
+  use Spring's WebApplicationContextUtils.getApplicationContext to load the 
+  ApplicationContext in which their respective configs may be found. Ideally,
+  move your configuration for these filters from the separate contexts you were
+  using before, to the main context used by your webapp. Alternately, the old
+  mechanism of having the filter load its own specific context is still
+  supported, but the param specifying the location of this context has been
+  changed to match the equivalent param as used by Spring's ContextLoader class.
+  If you do still want to use this approach, just rename your param from 
+  'appContextLocation' to 'contextConfigLocation'.
+
+
+We hope you find the new features useful in your projects.
+
+$Id$

@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.sf.acegisecurity.adapters.jboss;
 
 import net.sf.acegisecurity.Authentication;
@@ -44,7 +45,7 @@ import javax.security.auth.login.LoginException;
 /**
  * Adapter to enable JBoss to authenticate via the Acegi Security System for
  * Spring.
- *
+ * 
  * <p>
  * Returns a {@link PrincipalAcegiUserToken} to JBoss' authentication system,
  * which is subsequently available from
@@ -55,10 +56,14 @@ import javax.security.auth.login.LoginException;
  * @version $Id$
  */
 public class JbossAcegiLoginModule extends AbstractServerLoginModule {
+    //~ Instance fields ========================================================
+
     private AuthenticationManager authenticationManager;
     private Principal identity;
     private String key;
     private char[] credential;
+
+    //~ Methods ================================================================
 
     public void initialize(Subject subject, CallbackHandler callbackHandler,
         Map sharedState, Map options) {
@@ -78,8 +83,8 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
         }
 
         if (Thread.currentThread().getContextClassLoader().getResource(appContextLocation) == null) {
-            throw new IllegalArgumentException("Cannot locate " +
-                appContextLocation);
+            throw new IllegalArgumentException("Cannot locate "
+                + appContextLocation);
         }
 
         ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(appContextLocation);
@@ -104,8 +109,8 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
 
         if ((username == null) && (password == null)) {
             identity = null;
-            super.log.trace("Authenticating as unauthenticatedIdentity=" +
-                identity);
+            super.log.trace("Authenticating as unauthenticatedIdentity="
+                + identity);
         }
 
         if (username == null) {
@@ -145,8 +150,8 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
         }
 
         super.loginOk = true;
-        super.log.trace("User '" + identity + "' authenticated, loginOk=" +
-            loginOk);
+        super.log.trace("User '" + identity + "' authenticated, loginOk="
+            + loginOk);
 
         return true;
     }
@@ -157,7 +162,7 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
 
     protected Group[] getRoleSets() throws LoginException {
         SimpleGroup roles = new SimpleGroup("Roles");
-        Group[] roleSets = { roles };
+        Group[] roleSets = {roles};
 
         if (this.identity instanceof Authentication) {
             Authentication user = (Authentication) this.identity;
@@ -172,17 +177,17 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
     }
 
     protected String[] getUsernameAndPassword() throws LoginException {
-        String[] info = { null, null };
+        String[] info = {null, null};
 
         // prompt for a username and password
         if (callbackHandler == null) {
-            throw new LoginException("Error: no CallbackHandler available " +
-                "to collect authentication information");
+            throw new LoginException("Error: no CallbackHandler available "
+                + "to collect authentication information");
         }
 
         NameCallback nc = new NameCallback("User name: ", "guest");
         PasswordCallback pc = new PasswordCallback("Password: ", false);
-        Callback[] callbacks = { nc, pc };
+        Callback[] callbacks = {nc, pc};
         String username = null;
         String password = null;
 
@@ -202,8 +207,8 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
         } catch (java.io.IOException ioe) {
             throw new LoginException(ioe.toString());
         } catch (UnsupportedCallbackException uce) {
-            throw new LoginException("CallbackHandler does not support: " +
-                uce.getCallback());
+            throw new LoginException("CallbackHandler does not support: "
+                + uce.getCallback());
         }
 
         info[0] = username;

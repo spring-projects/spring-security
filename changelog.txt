@@ -1,3 +1,10 @@
+Changes in version 0.5 (2004-xx-xx)
+-----------------------------------
+* AuthenticationProcessingFilter by default finds configuration context using Spring's WebApplicationContextUtils.getWebApplicationContext()
+* AuthenticationProcessingFilter context may optionally be specified with 'contextConfigLocation' param (was previously 'appContextLocation')
+* SecurityEnforcementFilter by default finds configuration context using Spring's WebApplicationContextUtils.getWebApplicationContext()
+* SecurityEnforcementFilter context may optionally be specified with 'contextConfigLocation' param (was previously 'appContextLocation')
+
 Changes in version 0.4 (2004-04-03)
 -----------------------------------
 

@@ -287,8 +287,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testStartupDetectsMissingAppContextLocation()
-        throws Exception {
+    public void testStartupDetectsMissingAppContext() throws Exception {
         MockFilterConfig config = new MockFilterConfig();
         config.setInitParmeter("defaultTargetUrl", "/");
         config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
@@ -299,8 +298,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
             filter.init(config);
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("appContextLocation must be specified",
-                expected.getMessage());
+            assertTrue(expected.getMessage().startsWith("Error obtaining/creating ApplicationContext for config."));
         }
 
         config.setInitParmeter("appContextLocation", "");
@@ -309,8 +307,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
             filter.init(config);
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("appContextLocation must be specified",
-                expected.getMessage());
+            assertTrue(expected.getMessage().startsWith("Error obtaining/creating ApplicationContext for config."));
         }
     }
 

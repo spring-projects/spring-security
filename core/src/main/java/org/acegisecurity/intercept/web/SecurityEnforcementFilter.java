@@ -22,7 +22,11 @@ import net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import java.io.IOException;
 
@@ -41,12 +45,12 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Wraps requests to the {@link FilterSecurityInterceptor}.
  * 
- * <P>
- * This filter is necessary because it provides an application context
- * environment for the <code>FilterSecurityInterceptor</code> instance.
+ * <p>
+ * This filter is necessary because it provides the bridge between incoming
+ * requests and the <code>FilterSecurityInterceptor</code> instance.
  * </p>
  * 
- * <P>
+ * <p>
  * If a {@link AuthenticationException} is detected, the filter will redirect
  * to the <code>loginFormUrl</code>. This allows common handling of
  * authentication failures originating from any subclass of {@link
@@ -60,33 +64,55 @@ import javax.servlet.http.HttpServletResponse;
  * security interceptor.
  * </p>
  * 
- * <P>
+ * <p>
+ * This filter works with a <code>FilterSecurityInterceptor</code> instance. By
+ * default, at init time, the filter will use Spring's {@link
+ * WebApplicationContextUtils#getWebApplicationContext(ServletContext sc)}
+ * method to obtain an ApplicationContext instance, inside which must be a
+ * configured <code>FilterSecurityInterceptor</code> instance. In the case
+ * where it is desireable for this filter to instantiate its own
+ * ApplicationContext instance from which to obtain the
+ * <code>FilterSecurityInterceptor</code>, the location of the config for this
+ * context may be specified with the optional
+ * <code>contextConfigLocation</code> init param.
+ * </p>
+ * 
+ * <p>
  * To use this filter, it is necessary to specify the following filter
  * initialization parameters:
+ * </p>
  * 
  * <ul>
- * <li>
- * <code>appContextLocation</code> indicates the path to an application context
- * that contains the <code>FilterSecurityInterceptor</code>.
- * </li>
  * <li>
  * <code>loginFormUrl</code> indicates the URL that should be used for
  * redirection if an <code>AuthenticationException</code> is detected.
  * </li>
+ * <li>
+ * <code>contextConfigLocation</code> (optional, normally not used), indicates
+ * the path to an application context that contains a  properly configured
+ * <code>FilterSecurityInterceptor</code>. If not specified, {@link
+ * WebApplicationContextUtils#getWebApplicationContext(ServletContext sc)}
+ * will be used to obtain the context.
+ * </li>
  * </ul>
- * </p>
+ * 
  *
  * @author Ben Alex
+ * @author colin sampaleanu
  * @version $Id$
  */
 public class SecurityEnforcementFilter implements Filter {
     //~ Static fields/initializers =============================================
 
+    /**
+     * Name of (optional) servlet filter parameter that can specify the config
+     * location for a new ApplicationContext used to config this filter.
+     */
+    public static final String CONFIG_LOCATION_PARAM = "contextConfigLocation";
     private static final Log logger = LogFactory.getLog(SecurityEnforcementFilter.class);
 
     //~ Instance fields ========================================================
 
-    protected ClassPathXmlApplicationContext ctx;
     protected FilterSecurityInterceptor securityInterceptor;
 
     /**
@@ -94,11 +120,15 @@ public class SecurityEnforcementFilter implements Filter {
      * <code>AuthenticationException</code> is detected.
      */
     protected String loginFormUrl;
+    private ApplicationContext ctx;
+    private boolean ourContext = false;
 
     //~ Methods ================================================================
 
     public void destroy() {
-        ctx.close();
+        if (ourContext && ctx instanceof ConfigurableApplicationContext) {
+            ((ConfigurableApplicationContext) ctx).close();
+        }
     }
 
     public void doFilter(ServletRequest request, ServletResponse response,
@@ -145,15 +175,15 @@ public class SecurityEnforcementFilter implements Filter {
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {
-        String appContextLocation = filterConfig.getInitParameter(
-                "appContextLocation");
+        String appContextLocation = filterConfig.getInitParameter(CONFIG_LOCATION_PARAM);
 
-        if ((appContextLocation == null) || "".equals(appContextLocation)) {
-            throw new ServletException("appContextLocation must be specified");
-        }
+        if ((appContextLocation != null) && (appContextLocation.length() > 0)) {
+            ourContext = true;
 
-        if (Thread.currentThread().getContextClassLoader().getResource(appContextLocation) == null) {
-            throw new ServletException("Cannot locate " + appContextLocation);
+            if (Thread.currentThread().getContextClassLoader().getResource(appContextLocation) == null) {
+                throw new ServletException("Cannot locate "
+                    + appContextLocation);
+            }
         }
 
         loginFormUrl = filterConfig.getInitParameter("loginFormUrl");
@@ -162,7 +192,21 @@ public class SecurityEnforcementFilter implements Filter {
             throw new ServletException("loginFormUrl must be specified");
         }
 
-        ctx = new ClassPathXmlApplicationContext(appContextLocation);
+        try {
+            if (!ourContext) {
+                ctx = WebApplicationContextUtils
+                    .getRequiredWebApplicationContext(filterConfig
+                        .getServletContext());
+            } else {
+                ctx = new ClassPathXmlApplicationContext(appContextLocation);
+            }
+        } catch (RuntimeException e) {
+            throw new ServletException(
+                "Error obtaining/creating ApplicationContext for config. Must be stored in ServletContext, or optionally '"
+                + CONFIG_LOCATION_PARAM
+                + "' param may be used to allow creation of new context by this filter. See root error for additional details",
+                e);
+        }
 
         Map beans = ctx.getBeansOfType(FilterSecurityInterceptor.class, true,
                 true);
