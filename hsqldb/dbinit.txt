@@ -26,3 +26,46 @@ INSERT INTO authorities VALUES ('marissa', 'ROLE_SUPERVISOR');
 INSERT INTO authorities VALUES ('dianne', 'ROLE_TELLER');
 INSERT INTO authorities VALUES ('scott', 'ROLE_TELLER');
 INSERT INTO authorities VALUES ('peter', 'ROLE_TELLER');
+
+CREATE TABLE acls (
+	object_identity VARCHAR_IGNORECASE(250) NOT NULL,
+	recipient VARCHAR_IGNORECASE(100) NOT NULL,
+	parent_object_identity VARCHAR_IGNORECASE(250),
+	mask INTEGER NOT NULL,
+	acl_class VARCHAR_IGNORECASE(250) NOT NULL,
+	CONSTRAINT pk_acls PRIMARY KEY(object_identity, recipient)
+);
+
+--- Mask integer 0  = no permissions
+--- Mask integer 1  = administer
+--- Mask integer 2  = read
+--- Mask integer 6  = read and write permissions
+--- Mask integer 14 = read and write and create permissions
+
+---------------------------------------------------------------------
+--- *** EFFECTIVE RIGHTS FOR DIFFERENT INSTANCES AND RECIPIENTS *** 
+--- INSTANCE  RECIPIENT         PERMISSION(S) (COMMENT #INSTANCE)
+---------------------------------------------------------------------
+---    1      ROLE_SUPERVISOR   Administer
+---    2      ROLE_SUPERVISOR   None (overrides parent #1)
+---           marissa           Read
+---    3      ROLE_SUPERVISOR   Administer (from parent #1)
+---           scott             Read, Write, Create
+---    4      ROLE_SUPERVISOR   Administer (from parent #1)
+---    5      ROLE_SUPERVISOR   Administer (from parent #3)
+---           scott             Read, Write, Create (from parent #3)
+---    6      ROLE_SUPERVISOR   Administer (from parent #3)
+---           scott             Administer (overrides parent #3)
+---    7      scott             Read (invalid parent ignored)
+---------------------------------------------------------------------
+
+INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:1', 'ROLE_SUPERVISOR', null, 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:2', 'ROLE_SUPERVISOR', 'net.sf.acegisecurity.acl.DomainObject:1', 0, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:2', 'marissa', 'net.sf.acegisecurity.acl.DomainObject:1', 2, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:3', 'scott', 'net.sf.acegisecurity.acl.DomainObject:1', 14, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:4', 'inheritance_marker_only', 'net.sf.acegisecurity.acl.DomainObject:1', 0, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:5', 'inheritance_marker_only', 'net.sf.acegisecurity.acl.DomainObject:3', 0, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:6', 'scott', 'net.sf.acegisecurity.acl.DomainObject:3', 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acls VALUES ('net.sf.acegisecurity.acl.DomainObject:7', 'scott', 'some.invalid.parent:1', 2, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+
+

@@ -17,20 +17,14 @@ package net.sf.acegisecurity.providers.dao.jdbc;
 
 import junit.framework.TestCase;
 
+import net.sf.acegisecurity.PopulatedDatabase;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 
-import org.springframework.core.io.ClassPathResource;
-
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.object.MappingSqlQuery;
-
-import java.io.File;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import javax.sql.DataSource;
 
 
 /**
@@ -66,8 +60,8 @@ public class JdbcDaoTests extends TestCase {
         assertEquals("marissa", user.getUsername());
         assertEquals("koala", user.getPassword());
         assertTrue(user.isEnabled());
-        assertEquals("ROLE_TELLER", user.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_SUPERVISOR", user.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_TELLER", user.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_SUPERVISOR", user.getAuthorities()[0].getAuthority());
         assertEquals(2, user.getAuthorities().length);
     }
 
@@ -137,9 +131,9 @@ public class JdbcDaoTests extends TestCase {
         UserDetails user = dao.loadUserByUsername("marissa");
         assertEquals("marissa", user.getUsername());
         assertEquals("ARBITRARY_PREFIX_ROLE_TELLER",
-            user.getAuthorities()[0].getAuthority());
-        assertEquals("ARBITRARY_PREFIX_ROLE_SUPERVISOR",
             user.getAuthorities()[1].getAuthority());
+        assertEquals("ARBITRARY_PREFIX_ROLE_SUPERVISOR",
+            user.getAuthorities()[0].getAuthority());
         assertEquals(2, user.getAuthorities().length);
     }
 
@@ -166,23 +160,9 @@ public class JdbcDaoTests extends TestCase {
         }
     }
 
-    private DataSource makeDataSource() throws Exception {
-        ClassPathResource dbScript = new ClassPathResource(
-                "acegisecuritytest.script");
-        String path = dbScript.getFile().getParentFile().getAbsolutePath();
-
-        DriverManagerDataSource ds = new DriverManagerDataSource();
-        ds.setDriverClassName("org.hsqldb.jdbcDriver");
-        ds.setUrl("jdbc:hsqldb:" + path + File.separator + "acegisecuritytest");
-        ds.setUsername("sa");
-        ds.setPassword("");
-
-        return ds;
-    }
-
     private JdbcDaoImpl makePopulatedJdbcDao() throws Exception {
         JdbcDaoImpl dao = new JdbcDaoImpl();
-        dao.setDataSource(makeDataSource());
+        dao.setDataSource(PopulatedDatabase.getDataSource());
         dao.afterPropertiesSet();
 
         return dao;
@@ -191,7 +171,7 @@ public class JdbcDaoTests extends TestCase {
     private JdbcDaoImpl makePopulatedJdbcDaoWithRolePrefix()
         throws Exception {
         JdbcDaoImpl dao = new JdbcDaoImpl();
-        dao.setDataSource(makeDataSource());
+        dao.setDataSource(PopulatedDatabase.getDataSource());
         dao.setRolePrefix("ARBITRARY_PREFIX_");
         dao.afterPropertiesSet();
 
