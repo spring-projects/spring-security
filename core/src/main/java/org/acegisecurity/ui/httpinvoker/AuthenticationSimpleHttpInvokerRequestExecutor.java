@@ -47,6 +47,19 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor
     //~ Methods ================================================================
 
     /**
+     * Provided so subclasses can perform additional configuration if required
+     * (eg set additional request headers for non-security related information
+     * etc).
+     *
+     * @param con the HTTP connection to prepare
+     * @param contentLength the length of the content to send
+     *
+     * @throws IOException if thrown by HttpURLConnection methods
+     */
+    protected void doPrepareConnection(HttpURLConnection con, int contentLength)
+        throws IOException {}
+
+    /**
      * Called every time a HTTP invocation is made.
      * 
      * <P>
@@ -108,5 +121,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor
                     + "; does not provide a SecureContext");
             }
         }
+
+        doPrepareConnection(con, contentLength);
     }
 }
