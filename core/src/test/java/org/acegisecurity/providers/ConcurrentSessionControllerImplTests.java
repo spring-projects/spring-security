@@ -22,6 +22,7 @@ import net.sf.acegisecurity.providers.dao.User;
 import net.sf.acegisecurity.ui.WebAuthenticationDetails;
 import net.sf.acegisecurity.ui.session.HttpSessionCreatedEvent;
 import net.sf.acegisecurity.ui.session.HttpSessionDestroyedEvent;
+import org.springframework.context.ApplicationListener;
 
 import java.security.Principal;
 
@@ -240,5 +241,9 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken("blah", "anon", new GrantedAuthority[]{new GrantedAuthorityImpl("ROLE_ANON")});
         target.beforeAuthentication(auth);
         target.afterAuthentication(auth, auth);
+    }
+
+    public void testImplementsApplicationListener() throws Exception {
+        assertTrue("This class must implement ApplicationListener, and at one point it didn't.", target instanceof ApplicationListener);
     }
 }
