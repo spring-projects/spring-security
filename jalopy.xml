@@ -80,12 +80,12 @@
     </internal>
     <messages>
         <priority>
-            <general>30000</general>
-            <parser>30000</parser>
-            <parserJavadoc>30000</parserJavadoc>
-            <printer>30000</printer>
-            <printerJavadoc>30000</printerJavadoc>
-            <transform>30000</transform>
+            <general>40000</general>
+            <parser>40000</parser>
+            <parserJavadoc>40000</parserJavadoc>
+            <printer>40000</printer>
+            <printerJavadoc>40000</printerJavadoc>
+            <transform>40000</transform>
         </priority>
         <showErrorStackTrace>true</showErrorStackTrace>
     </messages>
@@ -180,7 +180,7 @@
                 <parseComments>true</parseComments>
                 <tags>
                     <in-line />
-                    <standard>@@SecurityConfig</standard>
+                    <standard>@hibernate|@@SecurityConfig</standard>
                 </tags>
                 <templates>
                     <method>
