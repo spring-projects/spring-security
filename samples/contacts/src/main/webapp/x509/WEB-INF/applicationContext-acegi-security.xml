@@ -5,7 +5,7 @@
   - Application context containing authentication, channel
   - security and web URI beans.
   -
-  - Only used by "cas" artifact.
+  - Only used by "x509" artifact.
   -
   - $Id$
   -->
@@ -53,18 +53,32 @@
 
 	<bean id="x509AuthenticationProvider" class="net.sf.acegisecurity.providers.x509.X509AuthenticationProvider">
 		<property name="x509AuthoritiesPopulator"><ref local="x509AuthoritiesPopulator"/></property>
+        <property name="x509UserCache"><ref local="x509UserCache"/></property>
 	</bean>
 
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
 
+    <bean id="x509UserCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+       <property name="cacheManager">
+          <ref local="cacheManager"/>
+       </property>
+       <property name="cacheName">
+          <value>x509Cache</value>
+       </property>
+    </bean>
+
+	<bean id="x509UserCache" class="net.sf.acegisecurity.providers.x509.cache.EhCacheBasedX509UserCache">
+      <property name="cache"><ref local="x509UserCacheBackend"/></property>
+	</bean>
+
 	<bean id="x509AuthoritiesPopulator" class="net.sf.acegisecurity.providers.x509.populator.DaoX509AuthoritiesPopulator">
 		<property name="authenticationDao"><ref local="jdbcDaoImpl"/></property>
-        <property name="subjectDNRegex"><value>emailAddress=(.*?),</value></property>
+      <!--  <property name="subjectDNRegex"><value>emailAddress=(.*?),</value></property> -->
 	</bean>
 
 	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
 	
-	<!-- Enabled by default for CAS, as a CAS deployment uses HTTPS -->
+	<!-- Enabled by default for X.509 (obviously) -->
 	<bean id="channelProcessingFilter" class="net.sf.acegisecurity.securechannel.ChannelProcessingFilter">
 		<property name="channelDecisionManager"><ref local="channelDecisionManager"/></property>
  		<property name="filterInvocationDefinitionSource">
