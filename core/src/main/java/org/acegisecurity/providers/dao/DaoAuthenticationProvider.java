@@ -89,7 +89,7 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
     InitializingBean, ApplicationContextAware {
     //~ Instance fields ========================================================
 
-    private ApplicationContext ctx;
+    private ApplicationContext context;
     private AuthenticationDao authenticationDao;
     private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
     private SaltSource saltSource;
@@ -100,7 +100,7 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
     public void setApplicationContext(ApplicationContext applicationContext)
         throws BeansException {
-        this.ctx = applicationContext;
+        this.context = applicationContext;
     }
 
     public void setAuthenticationDao(AuthenticationDao authenticationDao) {
@@ -109,6 +109,10 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
     public AuthenticationDao getAuthenticationDao() {
         return authenticationDao;
+    }
+
+    public ApplicationContext getContext() {
+        return context;
     }
 
     public void setForcePrincipalAsString(boolean forcePrincipalAsString) {
@@ -189,8 +193,8 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
         }
 
         if (!user.isEnabled()) {
-            if (this.ctx != null) {
-                ctx.publishEvent(new AuthenticationFailureDisabledEvent(
+            if (this.context != null) {
+                context.publishEvent(new AuthenticationFailureDisabledEvent(
                         authentication, user));
             }
 
@@ -205,8 +209,8 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             }
 
             if (!isPasswordCorrect(authentication, user)) {
-                if (this.ctx != null) {
-                    ctx.publishEvent(new AuthenticationFailurePasswordEvent(
+                if (this.context != null) {
+                    context.publishEvent(new AuthenticationFailurePasswordEvent(
                             authentication, user));
                 }
 
@@ -219,8 +223,8 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             this.userCache.putUserInCache(user);
 
             // As this appears to be an initial login, publish the event
-            if (this.ctx != null) {
-                ctx.publishEvent(new AuthenticationSuccessEvent(
+            if (this.context != null) {
+                context.publishEvent(new AuthenticationSuccessEvent(
                         authentication, user));
             }
         }
