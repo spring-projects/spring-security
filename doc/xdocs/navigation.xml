@@ -3,7 +3,7 @@
 <!--
  * ========================================================================
  * 
- * Copyright 2004 Acegi Technology Pty Limited
+ * Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,8 @@
       <item name="Sample SQL Schema" href="dbinit.txt"/>
       <item name="FAQ" href="faq.html"/>
       <item name="External Web Articles" href="articles.html"/>
+      <item name="Use without Spring" href="standalone.html"/>
+      <item name="Upgrading to 0.8.0" href="upgrade/upgrade-070-080.html"/>
       <item name="Upgrading to 0.7.0" href="upgrade/upgrade-06-070.html"/>
       <item name="Upgrading to 0.6" href="upgrade/upgrade-05-06.html"/>
       <item name="Upgrading to 0.5" href="upgrade/upgrade-04-05.html"/>
