@@ -30,15 +30,6 @@ import net.sf.acegisecurity.intercept.web.PathBasedFilterInvocationDefinitionMap
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
 
 /**
  * Tests {@link FilterChainProxy}.
