@@ -174,7 +174,7 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0</version>
+      <version>1.0.4</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/commons</url>
       <properties>
@@ -209,7 +209,7 @@
     <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
-      <version>1.7.2-rc6c</version>
+      <version>1.7.2.9</version>
       <type>jar</type>
       <url>http://hsqldb.sourceforge.net/</url>
       <properties>
@@ -220,6 +220,12 @@
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.8</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
       <type>jar</type>
     </dependency>
     <dependency>
