@@ -138,6 +138,9 @@
 				<include name="com/caucho/vfs/Path*"/>
 				<include name="com/caucho/server/security/AbstractAuthenticator*"/>
 				<include name="com/caucho/server/security/ServletAuthenticator*"/>
+				<include name="com/caucho/log/Log*"/>
+				<include name="com/caucho/util/L10N*"/>
+				<include name="com/caucho/util/LruCache*"/>
 			</fileset>
 			<manifest>
 				<attribute name="Extracted-By-Acegi-Security-System-Extractor-Version" value="${extractor-version}"/>
