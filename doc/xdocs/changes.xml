@@ -47,10 +47,13 @@
       <action dev="benalex" type="update">Refactored MethodDefinitionSource to work with Method, not MethodInvocation</action>
       <action dev="benalex" type="update">Refactored AbstractSecurityInterceptor to better support other AOP libraries</action>
       <action dev="benalex" type="update">Improved performance of JBoss container adapter (see reference docs)</action>
+      <action dev="benalex" type="update">Made DaoAuthenticationProvider detect null in Authentication.principal</action>
+      <action dev="benalex" type="update">Improved JaasAuthenticationProvider startup error detection</action>
       <action dev="benalex" type="fix">Fixed AbstractProcessingFilter to use removeAttribute (JRun compatibility)</action>
       <action dev="benalex" type="fix">Fixed GrantedAuthorityEffectiveAclResolver support of UserDetails principals</action>
       <action dev="benalex" type="update">Moved MethodSecurityInterceptor to ...intercept.method.aopalliance package</action>
       <action dev="benalex" type="update">Documentation improvements</action>
+      <action dev="benalex" type="update">Test coverage improvements</action>
     </release>
     <release version="0.6.1" date="2004-09-24"/>
       <action dev="benalex" type="update">Resolved to use http://apr.apache.org/versioning.html for future versioning</action>
