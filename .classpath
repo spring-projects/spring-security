@@ -53,5 +53,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-orm-1.1.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-web-1.1.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-webmvc-1.1.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.8.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>
