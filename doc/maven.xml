@@ -64,6 +64,43 @@
 		<ant:zip zipfile="${maven.build.dir}/acegi-security-${pom.currentVersion}.zip">
 		  <ant:zipfileset dir="${maven.build.dir}/zip"/>
 		</ant:zip>
+
+
+		<!-- Source release ZIP does not include an acegi-security-xx directory,
+		     to ease IDE integration when used directly as a ZIP file. -->
+		<ant:mkdir dir="${maven.build.dir}/zip-src"/>
+		
+		<ant:copy todir="${maven.build.dir}/zip-src">
+			<ant:fileset dir="${basedir}/../">
+				<ant:include name="license.txt"/>
+				<ant:include name="notice.txt"/>
+				<ant:include name="src-readme.txt"/>
+				<ant:include name="project.xml"/>
+			</ant:fileset>
+			<ant:fileset dir="${basedir}/../core/src/main/java">
+				<ant:include name="**/*"/>
+			</ant:fileset>
+			<ant:fileset dir="${basedir}/../adapters/cas/src/main/java">
+				<ant:include name="**/*"/>
+			</ant:fileset>
+			<ant:fileset dir="${basedir}/../adapters/catalina/src/main/java">
+				<ant:include name="**/*"/>
+			</ant:fileset>
+			<ant:fileset dir="${basedir}/../adapters/jboss/src/main/java">
+				<ant:include name="**/*"/>
+			</ant:fileset>
+			<ant:fileset dir="${basedir}/../adapters/jetty/src/main/java">
+				<ant:include name="**/*"/>
+			</ant:fileset>
+			<ant:fileset dir="${basedir}/../adapters/resin/src/main/java">
+				<ant:include name="**/*"/>
+			</ant:fileset>
+		</ant:copy>
+
+		<ant:zip zipfile="${maven.build.dir}/acegi-security-${pom.currentVersion}-src.zip">
+		  <ant:zipfileset dir="${maven.build.dir}/zip-src"/>
+		</ant:zip>
+
 	</goal>
 
 	<goal name="acegideploy">
