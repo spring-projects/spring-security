@@ -220,7 +220,12 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
         return validateConfigAttributes;
     }
 
-    public void afterPropertiesSet() {
+    public void afterPropertiesSet() throws Exception {
+        if (getSecureObjectClass() == null) {
+            throw new IllegalArgumentException(
+                "Subclass must provide a non-null response to getSecureObjectClass()");
+        }
+
         if (this.authenticationManager == null) {
             throw new IllegalArgumentException(
                 "An AuthenticationManager is required");
@@ -238,6 +243,31 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
         if (this.obtainObjectDefinitionSource() == null) {
             throw new IllegalArgumentException(
                 "An ObjectDefinitionSource is required");
+        }
+
+        if (!this.obtainObjectDefinitionSource().supports(getSecureObjectClass())) {
+            throw new IllegalArgumentException(
+                "ObjectDefinitionSource does not support secure object class: "
+                + getSecureObjectClass());
+        }
+
+        if (!this.runAsManager.supports(getSecureObjectClass())) {
+            throw new IllegalArgumentException(
+                "RunAsManager does not support secure object class: "
+                + getSecureObjectClass());
+        }
+
+        if (!this.accessDecisionManager.supports(getSecureObjectClass())) {
+            throw new IllegalArgumentException(
+                "AccessDecisionManager does not support secure object class: "
+                + getSecureObjectClass());
+        }
+
+        if ((this.afterInvocationManager != null)
+            && !this.afterInvocationManager.supports(getSecureObjectClass())) {
+            throw new IllegalArgumentException(
+                "AfterInvocationManager does not support secure object class: "
+                + getSecureObjectClass());
         }
 
         if (this.validateConfigAttributes) {
@@ -280,44 +310,6 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                         + set.toString());
                 }
             }
-        }
-
-        if (getSecureObjectClass() == null) {
-            throw new IllegalArgumentException(
-                "Subclass must provide a non-null response to getSecureObjectClass()");
-        }
-
-        if (!this.accessDecisionManager.supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
-                "AccessDecisionManager does not support secure object class: "
-                + getSecureObjectClass());
-        }
-
-        boolean result = this.obtainObjectDefinitionSource().supports(getSecureObjectClass());
-
-        if (!result) {
-            throw new IllegalArgumentException(
-                "ObjectDefinitionSource does not support secure object class: "
-                + getSecureObjectClass());
-        }
-
-        if (!this.runAsManager.supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
-                "RunAsManager does not support secure object class: "
-                + getSecureObjectClass());
-        }
-
-        if ((this.afterInvocationManager != null)
-            && !this.afterInvocationManager.supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
-                "AfterInvocationManager does not support secure object class: "
-                + getSecureObjectClass());
-        }
-
-        if (!this.obtainObjectDefinitionSource().supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
-                "ObjectDefinitionSource does not support secure object class: "
-                + getSecureObjectClass());
         }
     }
 
@@ -405,12 +397,10 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                 authenticated = this.authenticationManager.authenticate(context
                         .getAuthentication());
             } catch (AuthenticationException authenticationException) {
-                if (this.context != null) {
-                    AuthenticationFailureEvent event = new AuthenticationFailureEvent(object,
-                            attr, context.getAuthentication(),
-                            authenticationException);
-                    this.context.publishEvent(event);
-                }
+                AuthenticationFailureEvent event = new AuthenticationFailureEvent(object,
+                        attr, context.getAuthentication(),
+                        authenticationException);
+                this.context.publishEvent(event);
 
                 throw authenticationException;
             }
@@ -428,11 +418,9 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
             try {
                 this.accessDecisionManager.decide(authenticated, object, attr);
             } catch (AccessDeniedException accessDeniedException) {
-                if (this.context != null) {
-                    AuthorizationFailureEvent event = new AuthorizationFailureEvent(object,
-                            attr, authenticated, accessDeniedException);
-                    this.context.publishEvent(event);
-                }
+                AuthorizationFailureEvent event = new AuthorizationFailureEvent(object,
+                        attr, authenticated, accessDeniedException);
+                this.context.publishEvent(event);
 
                 throw accessDeniedException;
             }
@@ -441,11 +429,9 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                 logger.debug("Authorization successful");
             }
 
-            if (this.context != null) {
-                AuthorizedEvent event = new AuthorizedEvent(object, attr,
-                        authenticated);
-                this.context.publishEvent(event);
-            }
+            AuthorizedEvent event = new AuthorizedEvent(object, attr,
+                    authenticated);
+            this.context.publishEvent(event);
 
             // Attempt to run as a different user
             Authentication runAs = this.runAsManager.buildRunAs(authenticated,
@@ -476,9 +462,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                 logger.debug("Public object - authentication not attempted");
             }
 
-            if (this.context != null) {
-                this.context.publishEvent(new PublicInvocationEvent(object));
-            }
+            this.context.publishEvent(new PublicInvocationEvent(object));
 
             // Set Authentication object (if it exists) to be unauthenticated
             if ((ContextHolder.getContext() != null)
@@ -519,11 +503,9 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
         ConfigAttributeDefinition configAttribs) {
         AuthenticationCredentialsNotFoundException exception = new AuthenticationCredentialsNotFoundException(reason);
 
-        if (this.context != null) {
-            AuthenticationCredentialsNotFoundEvent event = new AuthenticationCredentialsNotFoundEvent(secureObject,
-                    configAttribs, exception);
-            this.context.publishEvent(event);
-        }
+        AuthenticationCredentialsNotFoundEvent event = new AuthenticationCredentialsNotFoundEvent(secureObject,
+                configAttribs, exception);
+        this.context.publishEvent(event);
 
         throw exception;
     }
