@@ -1,11 +1,13 @@
 package net.sf.acegisecurity.providers.x509;
 
 import net.sf.acegisecurity.providers.AuthenticationProvider;
+import net.sf.acegisecurity.providers.x509.cache.NullX509UserCache;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.BadCredentialsException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -16,8 +18,10 @@ import java.security.cert.X509Certificate;
  * <p>
  * The request will typically originate from
  * {@link net.sf.acegisecurity.ui.x509.X509ProcessingFilter}).
+ * </p>
  *
  * @author Luke Taylor
+ * @version $Id$
  */
 public class X509AuthenticationProvider implements AuthenticationProvider,
     InitializingBean {
@@ -28,6 +32,7 @@ public class X509AuthenticationProvider implements AuthenticationProvider,
     //~ Instance fields ========================================================
 
     private X509AuthoritiesPopulator x509AuthoritiesPopulator;
+    private X509UserCache userCache = new NullX509UserCache();
 
     //~ Methods ================================================================
 
@@ -35,10 +40,13 @@ public class X509AuthenticationProvider implements AuthenticationProvider,
         this.x509AuthoritiesPopulator = x509AuthoritiesPopulator;
     }
 
+    public void setX509UserCache(X509UserCache cache) {
+        this.userCache = cache;
+    }
+
     public void afterPropertiesSet() throws Exception {
-        if(x509AuthoritiesPopulator == null) {
-            throw new IllegalArgumentException("An X509AuthoritiesPopulator must be set");
-        }
+        Assert.notNull(userCache, "An x509UserCache must be set");
+        Assert.notNull(x509AuthoritiesPopulator, "An X509AuthoritiesPopulator must be set");
     }
 
     /**
@@ -71,13 +79,15 @@ public class X509AuthenticationProvider implements AuthenticationProvider,
             throw new BadCredentialsException("Certificate is null.");
         }
 
-        // TODO: Cache
+        UserDetails user = userCache.getUserFromCache(clientCertificate);
 
-        logger.debug("Authenticating with certificate " + clientCertificate);
+        if(user == null) {
+            logger.debug("Authenticating with certificate " + clientCertificate);
+            user = x509AuthoritiesPopulator.getUserDetails(clientCertificate);
+            userCache.putUserInCache(clientCertificate, user);
+        }
 
-        UserDetails userDetails = x509AuthoritiesPopulator.getUserDetails(clientCertificate);
-
-        return new X509AuthenticationToken(userDetails, clientCertificate, userDetails.getAuthorities());
+        return new X509AuthenticationToken(user, clientCertificate, user.getAuthorities());
     }
 
     public boolean supports(Class authentication) {
