@@ -58,6 +58,10 @@ public class PrincipalAcegiUserTokenTests extends TestCase {
         assertEquals("my_password".hashCode(), token.getKeyHash());
     }
 
+    public void testNoArgsConstructor() {
+        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken();
+    }
+
     public void testObjectsEquals() throws Exception {
         PrincipalAcegiUserToken token1 = new PrincipalAcegiUserToken("my_password",
                 "Test", "Password",
