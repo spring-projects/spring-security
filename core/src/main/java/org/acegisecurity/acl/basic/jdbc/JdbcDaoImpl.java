@@ -60,7 +60,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
 
     public static final String RECIPIENT_USED_FOR_INHERITENCE_MARKER = "___INHERITENCE_MARKER_ONLY___";
     public static final String DEF_ACLS_BY_OBJECT_IDENTITY_QUERY = "SELECT RECIPIENT, MASK FROM acl_permission WHERE acl_object_identity = ?";
-    public static final String DEF_OBJECT_PROPERTIES_QUERY = "SELECT ID, OBJECT_IDENTITY, ACL_CLASS, PARENT.OBJECT_IDENTITY as PARENT_OBJECT_IDENTITY FROM acl_object_identity LEFT OUTER JOIN acl_object_identity as PARENT ON acl_object_identity.parent_object=parent.id WHERE parent.id=acl_object_identity.parent_object and object_identity = ?";
+    public static final String DEF_OBJECT_PROPERTIES_QUERY = "SELECT CHILD.ID, CHILD.OBJECT_IDENTITY, CHILD.ACL_CLASS, PARENT.OBJECT_IDENTITY as PARENT_OBJECT_IDENTITY FROM acl_object_identity as CHILD LEFT OUTER JOIN acl_object_identity as PARENT ON CHILD.parent_object=parent.id WHERE CHILD.object_identity = ?";
     private static final Log logger = LogFactory.getLog(JdbcDaoImpl.class);
 
     //~ Instance fields ========================================================
@@ -259,6 +259,90 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
     //~ Inner Classes ==========================================================
 
     /**
+     * Used to hold details of a domain object instance's properties, or an
+     * individual ACL entry.
+     * 
+     * <P>
+     * Not all properties will be set. The actual properties set will depend on
+     * which <code>MappingSqlQuery</code> creates the object.
+     * </p>
+     * 
+     * <P>
+     * Does not enforce <code>null</code>s or empty <code>String</code>s as
+     * this is performed by the <code>MappingSqlQuery</code> objects (or
+     * preferably the backend RDBMS via schema constraints).
+     * </p>
+     */
+    protected final class AclDetailsHolder {
+        private AclObjectIdentity aclObjectIdentity;
+        private AclObjectIdentity aclObjectParentIdentity;
+        private Class aclClass;
+        private Object recipient;
+        private int foreignKeyId;
+        private int mask;
+
+        /**
+         * Record details of an individual ACL entry (usually from the
+         * ACL_PERMISSION table)
+         *
+         * @param recipient the recipient
+         * @param mask the integer to be masked
+         */
+        public AclDetailsHolder(Object recipient, int mask) {
+            this.recipient = recipient;
+            this.mask = mask;
+        }
+
+        /**
+         * Record details of a domain object instance's properties (usually
+         * from the ACL_OBJECT_IDENTITY table)
+         *
+         * @param foreignKeyId used by the
+         *        <code>AclsByObjectIdentityMapping</code> to locate the
+         *        individual ACL entries
+         * @param aclObjectIdentity the object identity of the domain object
+         *        instance
+         * @param aclObjectParentIdentity the object identity of the domain
+         *        object instance's parent
+         * @param aclClass the class of which a new instance which should be
+         *        created for each individual ACL entry (or an inheritence
+         *        "holder" class if there are no ACL entries)
+         */
+        public AclDetailsHolder(int foreignKeyId,
+            AclObjectIdentity aclObjectIdentity,
+            AclObjectIdentity aclObjectParentIdentity, Class aclClass) {
+            this.foreignKeyId = foreignKeyId;
+            this.aclObjectIdentity = aclObjectIdentity;
+            this.aclObjectParentIdentity = aclObjectParentIdentity;
+            this.aclClass = aclClass;
+        }
+
+        public Class getAclClass() {
+            return aclClass;
+        }
+
+        public AclObjectIdentity getAclObjectIdentity() {
+            return aclObjectIdentity;
+        }
+
+        public AclObjectIdentity getAclObjectParentIdentity() {
+            return aclObjectParentIdentity;
+        }
+
+        public int getForeignKeyId() {
+            return foreignKeyId;
+        }
+
+        public int getMask() {
+            return mask;
+        }
+
+        public Object getRecipient() {
+            return recipient;
+        }
+    }
+
+    /**
      * Query object to look up individual ACL entries.
      * 
      * <P>
@@ -357,90 +441,6 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
             String id = identity.substring(delim + 1);
 
             return new NamedEntityObjectIdentity(classname, id);
-        }
-    }
-
-    /**
-     * Used to hold details of a domain object instance's properties, or an
-     * individual ACL entry.
-     * 
-     * <P>
-     * Not all properties will be set. The actual properties set will depend on
-     * which <code>MappingSqlQuery</code> creates the object.
-     * </p>
-     * 
-     * <P>
-     * Does not enforce <code>null</code>s or empty <code>String</code>s as
-     * this is performed by the <code>MappingSqlQuery</code> objects (or
-     * preferably the backend RDBMS via schema constraints).
-     * </p>
-     */
-    protected final class AclDetailsHolder {
-        private AclObjectIdentity aclObjectIdentity;
-        private AclObjectIdentity aclObjectParentIdentity;
-        private Class aclClass;
-        private Object recipient;
-        private int foreignKeyId;
-        private int mask;
-
-        /**
-         * Record details of an individual ACL entry (usually from the
-         * ACL_PERMISSION table)
-         *
-         * @param recipient the recipient
-         * @param mask the integer to be masked
-         */
-        public AclDetailsHolder(Object recipient, int mask) {
-            this.recipient = recipient;
-            this.mask = mask;
-        }
-
-        /**
-         * Record details of a domain object instance's properties (usually
-         * from the ACL_OBJECT_IDENTITY table)
-         *
-         * @param foreignKeyId used by the
-         *        <code>AclsByObjectIdentityMapping</code> to locate the
-         *        individual ACL entries
-         * @param aclObjectIdentity the object identity of the domain object
-         *        instance
-         * @param aclObjectParentIdentity the object identity of the domain
-         *        object instance's parent
-         * @param aclClass the class of which a new instance which should be
-         *        created for each individual ACL entry (or an inheritence
-         *        "holder" class if there are no ACL entries)
-         */
-        public AclDetailsHolder(int foreignKeyId,
-            AclObjectIdentity aclObjectIdentity,
-            AclObjectIdentity aclObjectParentIdentity, Class aclClass) {
-            this.foreignKeyId = foreignKeyId;
-            this.aclObjectIdentity = aclObjectIdentity;
-            this.aclObjectParentIdentity = aclObjectParentIdentity;
-            this.aclClass = aclClass;
-        }
-
-        public Class getAclClass() {
-            return aclClass;
-        }
-
-        public AclObjectIdentity getAclObjectIdentity() {
-            return aclObjectIdentity;
-        }
-
-        public AclObjectIdentity getAclObjectParentIdentity() {
-            return aclObjectParentIdentity;
-        }
-
-        public int getForeignKeyId() {
-            return foreignKeyId;
-        }
-
-        public int getMask() {
-            return mask;
-        }
-
-        public Object getRecipient() {
-            return recipient;
         }
     }
 }
