@@ -36,14 +36,14 @@
   <h2>History</h2>
   <p>Acegi Security started out as a method interceptor for Spring IoC container
   managed beans. Typically such beans provide services layer functions.
-  Over time Acegi Security grew to offer authentication services, ThreadLocal management,
+  Over time Acegi Security grew to offer authentication services, <code>ThreadLocal</code> management,
   web request filtering, extra AOP support,
   ACL features, additional authentication mechanisms and so on (for those interested,
-  see our <a href="changes-report.html">change log</a>.</p>
+  see our <a href="changes-report.html">change log</a>).</p>
 
   <h2>Why Use Spring</h2>
   <p>There's plenty written about why the
-  <a href="http://www.springframework.com">Spring Framework</a> 
+  <a href="http://www.springframework.org">Spring Framework</a> 
   is a good fit for modern applications. If you're not familiar with the benefits
   Spring offers, please take a few minutes to learn more about it. In numerous
   situations Spring will save you many months (or even years) of development time.
@@ -60,7 +60,7 @@
   avoid its use by writing equivalent getter, setter and lifecycle invocation processes
   in standard Java code. This is a natural consequence of the Spring way of development,
   which emphasises framework independence (it is <i>not</i> because we think there are good
-  good reasons people would <i>not</i> use Spring).</p>
+  reasons people would <i>not</i> use Spring).</p>
   
   <p>If it sounds too hard (it's not) or counter-productive (it is) to replace Spring's IoC
   services, don't forget you can always deploy Acegi Security and the Spring
@@ -86,7 +86,7 @@
   <h1>Conclusion</h1>
   
   <p>In summary, we recommend you take a look at Spring and consider using it in your
-  applications. Irrespective of whether you do or not, we strongly recommend you use it
+  applications. Irrespective of whether you do so or not, we strongly recommend you use it
   for configuration and lifecycle management of Acegi Security. If that is also not desired,
   Acegi Security can easily be executed without Spring at all, providing you implement
   similar IoC services. Acegi Security has very minimal dependencies directly on Spring,
