@@ -23,6 +23,9 @@ import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpSession;
 import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
 
+import java.util.List;
+import java.util.Vector;
+
 
 /**
  * Tests {@link HttpSessionIntegrationFilter}.
@@ -115,6 +118,19 @@ public class HttpSessionIntegrationFilterTests extends TestCase {
         assertEquals(principal, result);
     }
 
+    public void testDetectsInvalidAdditionalAttributes() {
+        HttpSessionIntegrationFilter filter = new HttpSessionIntegrationFilter();
+        List list = new Vector();
+        list.add(new Integer(4));
+
+        try {
+            filter.setAdditionalAttributes(list);
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+    }
+
     public void testHandlesIfHttpRequestIsNullForSomeReason() {
         HttpSessionIntegrationFilter filter = new HttpSessionIntegrationFilter();
         assertEquals(null, filter.extractFromContainer(null));
@@ -131,5 +147,53 @@ public class HttpSessionIntegrationFilterTests extends TestCase {
         assertEquals(null,
             filter.extractFromContainer(
                 new MockHttpServletRequest(null, new MockHttpSession())));
+    }
+
+    public void testSettingEmptyListForAdditionalAttributesIsAcceptable() {
+        HttpSessionIntegrationFilter filter = new HttpSessionIntegrationFilter();
+        filter.setAdditionalAttributes(new Vector());
+        assertTrue(filter.getAdditionalAttributes() != null);
+    }
+
+    public void testSettingNullForAdditionalAttributesIsAcceptable() {
+        HttpSessionIntegrationFilter filter = new HttpSessionIntegrationFilter();
+        filter.setAdditionalAttributes(null);
+        assertNull(filter.getAdditionalAttributes());
+    }
+
+    public void testUpdatesAdditionalAttributes() {
+        // Build a mock session containing the authenticated user
+        PrincipalAcegiUserToken principal = new PrincipalAcegiUserToken("key",
+                "someone", "password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")});
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY,
+            principal);
+
+        // Check our attributes are not presently set
+        assertNull(session.getAttribute("SOME_EXTRA_ATTRIBUTE_1"));
+        assertNull(session.getAttribute("SOME_EXTRA_ATTRIBUTE_2"));
+
+        // Generate filter
+        HttpSessionIntegrationFilter filter = new HttpSessionIntegrationFilter();
+        List list = new Vector();
+        list.add("SOME_EXTRA_ATTRIBUTE_1");
+        list.add("SOME_EXTRA_ATTRIBUTE_2");
+        filter.setAdditionalAttributes(list);
+
+        // Confirm filter can extract required credentials from session
+        Object result = filter.extractFromContainer(new MockHttpServletRequest(
+                    null, session));
+
+        if (!(result instanceof PrincipalAcegiUserToken)) {
+            fail("Should have returned PrincipalAcegiUserToken");
+        }
+
+        PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) result;
+        assertEquals(principal, result);
+
+        // Now double-check it updated our earlier set additionalAttributes
+        assertEquals(principal, session.getAttribute("SOME_EXTRA_ATTRIBUTE_1"));
+        assertEquals(principal, session.getAttribute("SOME_EXTRA_ATTRIBUTE_2"));
     }
 }

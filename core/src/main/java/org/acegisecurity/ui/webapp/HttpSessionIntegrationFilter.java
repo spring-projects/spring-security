@@ -18,6 +18,9 @@ package net.sf.acegisecurity.ui.webapp;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.ui.AbstractIntegrationFilter;
 
+import java.util.Iterator;
+import java.util.List;
+
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -53,6 +56,13 @@ import javax.servlet.http.HttpSession;
  * request.
  * </p>
  * 
+ * <P>
+ * The filter can also copy the <code>Authentication</code> object to any
+ * number of additional <code>HttpSession</code> attributes. To use this
+ * capability, provide <code>String</code>s indicating the additional
+ * attribute name(s) to {@link #setAdditionalAttributes(List)}.
+ * </p>
+ * 
  * <p>
  * See {@link AbstractIntegrationFilter} for further information.
  * </p>
@@ -65,7 +75,20 @@ public class HttpSessionIntegrationFilter extends AbstractIntegrationFilter {
 
     public static final String ACEGI_SECURITY_AUTHENTICATION_KEY = "ACEGI_SECURITY_AUTHENTICATION";
 
+    //~ Instance fields ========================================================
+
+    private List additionalAttributes = null;
+
     //~ Methods ================================================================
+
+    public void setAdditionalAttributes(List additionalAttributes) {
+        validateList(additionalAttributes);
+        this.additionalAttributes = additionalAttributes;
+    }
+
+    public List getAdditionalAttributes() {
+        return additionalAttributes;
+    }
 
     public void commitToContainer(ServletRequest request,
         Authentication authentication) {
@@ -75,6 +98,7 @@ public class HttpSessionIntegrationFilter extends AbstractIntegrationFilter {
             if (httpSession != null) {
                 httpSession.setAttribute(ACEGI_SECURITY_AUTHENTICATION_KEY,
                     authentication);
+                updateOtherLocations(httpSession, authentication);
             }
         }
     }
@@ -87,11 +111,43 @@ public class HttpSessionIntegrationFilter extends AbstractIntegrationFilter {
                 Object authObject = httpSession.getAttribute(ACEGI_SECURITY_AUTHENTICATION_KEY);
 
                 if (authObject instanceof Authentication) {
+                    updateOtherLocations(httpSession,
+                        (Authentication) authObject);
+
                     return authObject;
                 }
             }
         }
 
         return null;
+    }
+
+    private void updateOtherLocations(HttpSession session,
+        Authentication authentication) {
+        if (additionalAttributes == null) {
+            return;
+        }
+
+        Iterator iter = additionalAttributes.iterator();
+
+        while (iter.hasNext()) {
+            String attribute = (String) iter.next();
+            session.setAttribute(attribute, authentication);
+        }
+    }
+
+    private void validateList(List newAdditionalAttributes) {
+        if (newAdditionalAttributes != null) {
+            Iterator iter = newAdditionalAttributes.iterator();
+
+            while (iter.hasNext()) {
+                Object objectToTest = iter.next();
+
+                if (!(objectToTest instanceof String)) {
+                    throw new IllegalArgumentException(
+                        "List of additional attributes can only contains Strings!");
+                }
+            }
+        }
     }
 }
