@@ -50,6 +50,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
 
     public static final String ACEGI_SECURITY_FORM_USERNAME_KEY = "j_username";
     public static final String ACEGI_SECURITY_FORM_PASSWORD_KEY = "j_password";
+    public static final String ACEGI_SECURITY_LAST_USERNAME_KEY = "ACEGI_SECURITY_LAST_USERNAME";
 
     //~ Methods ================================================================
 
@@ -80,6 +81,10 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
 
         // Allow subclasses to set the "details" property
         setDetails(request, authRequest);
+
+        // Place the last username attempted into HttpSession for views
+        request.getSession().setAttribute(ACEGI_SECURITY_LAST_USERNAME_KEY,
+            username);
 
         return this.getAuthenticationManager().authenticate(authRequest);
     }
