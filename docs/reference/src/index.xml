@@ -1205,7 +1205,7 @@
           <literal>JaasPasswordCallbackHandler</literal>. Each of these
           callback handlers implement
           <literal>JaasAuthenticationCallbackHandler</literal>. In most cases
-          these callback handlers can simply be used without understand the
+          these callback handlers can simply be used without understanding the
           internal mechanics. For those needing full control over the callback
           behavior, internally <literal>JaasAutheticationProvider</literal>
           wraps these <literal>JaasAuthenticationCallbackHandler</literal>s
