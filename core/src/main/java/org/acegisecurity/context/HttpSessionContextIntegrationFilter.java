@@ -76,13 +76,13 @@ import javax.servlet.http.HttpSession;
  * similar clients that will never present the same <code>jsessionid</code>
  * etc), the  {@link #setAllowSessionCreation(boolean)} should be set to
  * <code>false</code>. Only do this if you really need to conserve server
- * memory and ensure all classes using the <code>ContextHolder</code>
- * are designed to have no persistence of the <code>Context</code> between web
+ * memory and ensure all classes using the <code>ContextHolder</code> are
+ * designed to have no persistence of the <code>Context</code> between web
  * requests.
  * </p>
  * 
  * <p>
- * This filter MUST be executed BEFORE any authentication processing mechanisms.
+ * This filter MUST be executed BEFORE any authentication procesing mechanisms.
  * Authentication processing mechanisms (eg BASIC, CAS processing filters etc)
  * expect the <code>ContextHolder</code> to contain a valid
  * <code>SecureContext</code> by the time they execute.
@@ -166,12 +166,15 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean,
             }
 
             HttpSession httpSession = null;
+            boolean httpSessionExistedAtStartOfRequest = false;
 
             try {
                 httpSession = ((HttpServletRequest) request).getSession(false);
             } catch (IllegalStateException ignored) {}
 
             if (httpSession != null) {
+                httpSessionExistedAtStartOfRequest = true;
+
                 Object contextObject = httpSession.getAttribute(ACEGI_SECURITY_CONTEXT_KEY);
 
                 if (contextObject != null) {
@@ -213,6 +216,11 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean,
                 }
             }
 
+            // Make the HttpSession null, as we want to ensure we don't keep
+            // a reference to the HttpSession laying around in case the
+            // chain.doFilter() invalidates it.
+            httpSession = null;
+
             // Proceed with chain
             chain.doFilter(request, response);
 
@@ -221,8 +229,15 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean,
                 httpSession = ((HttpServletRequest) request).getSession(false);
             } catch (IllegalStateException ignored) {}
 
+            if ((httpSession == null) && httpSessionExistedAtStartOfRequest) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "HttpSession is now null, but was not null at start of request; session was invalidated, so do not create a new session");
+                }
+            }
+
             // Generate a HttpSession only if we need to
-            if (httpSession == null) {
+            if ((httpSession == null) && !httpSessionExistedAtStartOfRequest) {
                 if (!allowSessionCreation) {
                     if (logger.isDebugEnabled()) {
                         logger.debug(

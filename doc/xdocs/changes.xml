@@ -26,11 +26,14 @@
   </properties>
   <body>
     <release version="0.8.1" date="In CVS">
+      <action dev="benalex" type="add">X509 (certificate-based) authentication support</action>
+      <action dev="benalex" type="update">ContextHolderAwareRequestWrapper methods returns null if user is anonymous</action>
+      <action dev="benalex" type="update">AbstractBasicAclEntry improved compatibility with Hibernate</action>
       <action dev="benalex" type="fix">SecurityEnforcementFilter caused NullPointerException when anonymous authentication used with BasicProcessingFilterEntryPoint</action>
       <action dev="benalex" type="fix">FilterChainProxy now supports replacement of ServletRequest and ServetResponse by Filter beans</action>
       <action dev="benalex" type="fix">Corrected Authz parsing of whitespace in GrantedAuthoritys</action>
-      <action dev="benalex" type="update">ContextHolderAwareRequestWrapper methods returns null if user is anonymous</action>
-      <action dev="benalex" type="update">AbstractBasicAclEntry improved compatibility with Hibernate</action>
+      <action dev="benalex" type="fix">TokenBasedRememberMeServices now respects expired users, expired credentials and disabled users</action>
+      <action dev="benalex" type="fix">HttpSessionContextIntegrationFilter now handles HttpSession invalidation without redirection</action>
     </release>
     <release version="0.8.0" date="2005-03-03">
       <action dev="benalex" type="add">Added Digest Authentication support (RFC 2617 and RFC 2069)</action>
