@@ -48,12 +48,22 @@ public class User {
      *        is enabled
      *
      * @throws IllegalArgumentException if a <code>null</code> value was passed
+     *         either as a parameter or as an element in the
+     *         <code>GrantedAuthority[]</code> array
      */
     public User(String username, String password, boolean enabled,
         GrantedAuthority[] authorities) throws IllegalArgumentException {
         if ((username == null) || (password == null) || (authorities == null)) {
             throw new IllegalArgumentException(
                 "Cannot pass null values to constructor");
+        }
+
+        for (int i = 0; i < authorities.length; i++) {
+            if (authorities[i] == null) {
+                throw new IllegalArgumentException("Granted authority element "
+                    + i
+                    + " is null - GrantedAuthority[] cannot contain any null elements");
+            }
         }
 
         this.username = username;
