@@ -97,13 +97,14 @@ import java.util.Set;
  * <li>
  * The concrete subclass will re-call the
  * <code>AbstractSecurityInterceptor</code> via the {@link
- * #afterInvocation(InterceptorStatusToken)} method.
+ * #afterInvocation(InterceptorStatusToken, Object)} method.
  * </li>
  * <li>
  * If the <code>RunAsManager</code> replaced the <code>Authentication</code>
  * object, return the <code>ContextHolder</code> to the object that existed
  * after the call to <code>AuthenticationManager</code>.
  * </li>
+ * 
  * <li>
  * If an <code>AfterInvocationManager</code> is defined, invoke the invocation
  * manager and allow it to replace the object due to be returned to the
