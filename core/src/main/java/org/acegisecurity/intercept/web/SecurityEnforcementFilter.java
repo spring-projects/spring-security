@@ -17,7 +17,7 @@ package net.sf.acegisecurity.intercept.web;
 
 import net.sf.acegisecurity.AccessDeniedException;
 import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
+import net.sf.acegisecurity.ui.AbstractProcessingFilter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,8 +45,8 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
- * If a {@link AuthenticationException} is detected, the filter will redirect
- * to the <code>loginFormUrl</code>. This allows common handling of
+ * If a {@link AuthenticationException} is detected, the filter will launch the
+ * <code>authenticationEntryPoint</code>. This allows common handling of
  * authentication failures originating from any subclass of {@link
  * net.sf.acegisecurity.intercept.AbstractSecurityInterceptor}.
  * </p>
@@ -156,7 +156,7 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
                     + fi.getRequestUrl());
             }
 
-            ((HttpServletRequest) request).getSession().setAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
+            ((HttpServletRequest) request).getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
                 fi.getRequestUrl());
             authenticationEntryPoint.commence(request, response);
         } catch (AccessDeniedException accessDenied) {
