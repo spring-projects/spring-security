@@ -22,8 +22,7 @@
    xmlns:j="jelly:core"
    xmlns:ant="jelly:ant"
    xmlns:util="jelly:util"
-   xmlns:maven="jelly:maven"
-  >
+   xmlns:maven="jelly:maven">
 
     <!-- =========== Set root dir =========== -->
 
@@ -39,29 +38,5 @@
     <ant:dirname property="rootdirname" file="${rootdir}/project.xml"/>
     <j:set var="rootdir">${rootdirname}</j:set>
     <echo>Using root dir: ${rootdir}</echo>
-
-
-   <!--
-    |
-    | Override the default clover-setup task from the clover plugin
-    |
-    -->
-    <postGoal name="clover:on">
-
-       <ant:clover-setup
-           initstring="${basedir}/target/clover/database/clover_coverage.db"
-           flushpolicy="interval"
-           flushinterval="500">
-
-         <ant:fileset dir="${maven.src.dir}">
-            <exclude name="**/*Exception.java"/>
-         </ant:fileset>
-
-<!--         <statementContext id="nolog" regexp="^if \(logger.*\).*}"/>
-         <statementContext id="nojbosslog" regexp="^if \(super.logger.*\).*}"/>
--->
-
-       </ant:clover-setup>
-    </postGoal>
 
 </project>
