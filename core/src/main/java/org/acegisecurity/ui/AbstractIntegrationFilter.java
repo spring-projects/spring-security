@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ public abstract class AbstractIntegrationFilter implements InitializingBean,
     //~ Static fields/initializers =============================================
 
     protected static final Log logger = LogFactory.getLog(AbstractIntegrationFilter.class);
-    private static final String FILTER_APPLIED = "__acegi_integration_fitlerapplied";
+    private static final String FILTER_APPLIED = "__acegi_integration_filterapplied";
 
     //~ Instance fields ========================================================
 
@@ -134,8 +134,8 @@ public abstract class AbstractIntegrationFilter implements InitializingBean,
 
             if (extracted instanceof Authentication) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug(
-                        "Authentication added to ContextHolder from container");
+                    logger.debug("Authentication '" + extracted
+                        + "' added to ContextHolder from container");
                 }
 
                 Authentication auth = (Authentication) extracted;
@@ -172,14 +172,16 @@ public abstract class AbstractIntegrationFilter implements InitializingBean,
             // Remove authentication information
             if ((ContextHolder.getContext() != null)
                 && ContextHolder.getContext() instanceof SecureContext) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(
-                        "Updating container with new Authentication object, and then removing Authentication from ContextHolder");
-                }
-
                 // Get context holder
                 SecureContext secureContext = (SecureContext) ContextHolder
                     .getContext();
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "Updating container with new Authentication object ('"
+                        + secureContext.getAuthentication()
+                        + "'), and then removing Authentication from ContextHolder");
+                }
 
                 // Update container with new Authentication object (may have been updated during method invocation)
                 this.commitToContainer(request,
