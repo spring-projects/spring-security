@@ -88,4 +88,6 @@
 		<property name="forceHttps"><value>false</value></property>
 	</bean>
 
+	<bean id="autoIntegrationFilter" class="net.sf.acegisecurity.ui.AutoIntegrationFilter" />
+
 </beans>

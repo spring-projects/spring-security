@@ -50,6 +50,8 @@
 		<property name="realmName"><value>Contacts Realm</value></property>
 	</bean>
 
+	<bean id="autoIntegrationFilter" class="net.sf.acegisecurity.ui.AutoIntegrationFilter" />
+
 	<bean id="casAuthenticationProvider" class="net.sf.acegisecurity.providers.cas.CasAuthenticationProvider">
 		<property name="casAuthoritiesPopulator"><ref bean="casAuthoritiesPopulator"/></property>
 		<property name="casProxyDecider"><ref bean="casProxyDecider"/></property>

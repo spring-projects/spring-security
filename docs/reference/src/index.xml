@@ -1856,13 +1856,22 @@ public boolean supports(Class clazz);</programlisting></para>
 
         <para><programlisting>&lt;filter&gt;
   &lt;filter-name&gt;Acegi Security System for Spring Auto Integration Filter&lt;/filter-name&gt;
-  &lt;filter-class&gt;net.sf.acegisecurity.ui.AutoIntegrationFilter&lt;/filter-class&gt;
+  &lt;filter-class&gt;net.sf.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
+  &lt;init-param&gt;
+    &lt;param-name&gt;targetClass&lt;/param-name&gt;
+    &lt;param-value&gt;net.sf.acegisecurity.ui.AutoIntegrationFilter&lt;/param-value&gt;
+  &lt;/init-param&gt;
 &lt;/filter&gt;
 
 &lt;filter-mapping&gt;
   &lt;filter-name&gt;Acegi Security System for Spring Auto Integration Filter&lt;/filter-name&gt;
   &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
 &lt;/filter-mapping&gt;</programlisting></para>
+
+        <para>You will also need to add the following line to your application
+        context:</para>
+
+        <para><programlisting>&lt;bean id="autoIntegrationFilter" class="net.sf.acegisecurity.ui.AutoIntegrationFilter" /&gt;</programlisting></para>
 
         <para>Once in the <literal>ContextHolder</literal>, the standard Acegi
         Security System for Spring classes can be used. Because

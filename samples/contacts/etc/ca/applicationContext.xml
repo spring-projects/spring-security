@@ -59,6 +59,8 @@
 		<property name="realmName"><value>Contacts Realm</value></property>
 	</bean>
 
+	<bean id="autoIntegrationFilter" class="net.sf.acegisecurity.ui.AutoIntegrationFilter" />
+
 	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~~~~ -->
 
 	<!-- An access decision voter that reads ROLE_* configuaration settings -->
