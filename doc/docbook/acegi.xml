@@ -193,7 +193,8 @@
 
         <para><mediaobject>
             <imageobject role="html">
-              <imagedata align="center" fileref="images/SecurityInterception.gif"
+              <imagedata align="center"
+                         fileref="images/SecurityInterception.gif"
                          format="GIF" />
             </imageobject>
 
@@ -344,7 +345,8 @@
 
         <para><mediaobject>
             <imageobject role="html">
-              <imagedata align="center" fileref="images/Context.gif" format="GIF" />
+              <imagedata align="center" fileref="images/Context.gif"
+                         format="GIF" />
             </imageobject>
 
             <caption>
@@ -1716,7 +1718,8 @@ public boolean supports(Class clazz);</programlisting></para>
 
         <para><mediaobject>
             <imageobject role="html">
-              <imagedata align="center" fileref="images/AccessDecisionVoting.gif"
+              <imagedata align="center"
+                         fileref="images/AccessDecisionVoting.gif"
                          format="GIF" />
             </imageobject>
 
@@ -3795,7 +3798,8 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
         <para><mediaobject>
             <imageobject role="html">
-              <imagedata align="center" fileref="images/ACLSecurity.gif" format="GIF" />
+              <imagedata align="center" fileref="images/ACLSecurity.gif"
+                         format="GIF" />
             </imageobject>
 
             <caption>
@@ -4156,6 +4160,99 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
         WebApplicationContextUtils.getWebApplicationContext(ServletContext)</literal>,
         so you should configure a <literal>ContextLoaderListener</literal> in
         <literal>web.xml</literal>.</para>
+
+        <para>There is a lifecycle issue to consider when hosting
+        <literal>Filter</literal>s in an IoC container instead of a servlet
+        container. Specifically, which container should be responsible for
+        calling the <literal>Filter</literal>'s "startup" and "shutdown"
+        methods? It is noted that the order of initialization and destruction
+        of a <literal>Filter</literal> can vary by servlet container, and this
+        can cause problems if one <literal>Filter</literal> depends on
+        configuration settings established by an earlier initialized
+        <literal>Filter</literal>. The Spring IoC container on the other hand
+        has more comprehensive lifecycle/IoC interfaces (such as
+        <literal>InitializingBean</literal>,
+        <literal>DisposableBean</literal>, <literal>BeanNameAware</literal>,
+        <literal>ApplicationContextAware</literal> and many others) as well as
+        a well-understood interface contract, predictable method invocation
+        ordering, autowiring support, and even options to avoid implementing
+        Spring interfaces (eg the <literal>destroy-method</literal> attribute
+        in Spring XML). For this reason we recommend the use of Spring
+        lifecycle services instead of servlet container lifecycle services
+        wherever possible. By default <literal>FilterToBeanProxy</literal>
+        will not delegate <literal>init(FilterConfig)</literal> and
+        <literal>destroy()</literal> methods through to the proxied bean. If
+        you do require such invocations to be delegated, set the
+        <literal>lifecycle</literal> initialization parameter to
+        <literal>servlet-container-managed</literal>.</para>
+      </sect2>
+
+      <sect2 id="security-filters-filterchainproxy">
+        <title>FilterChainProxy</title>
+
+        <para>Whilst <literal>FilterToBeanProxy</literal> is a very useful
+        class, the problem is that the lines of code required for
+        <literal>&lt;filter&gt;</literal> and
+        <literal>&lt;filter-mapping&gt;</literal> entries in
+        <literal>web.xml</literal> explodes when using more than a few
+        filters. To overcome this issue, Acegi Security provides a
+        <literal>FilterChainProxy</literal> class. It is wired using a
+        <literal>FilterToBeanProxy</literal> (just like in the example above),
+        but the target class is
+        <literal>net.sf.acegisecurity.util.FilterChainProxy</literal>. The
+        filter chain is then declared in the application context, using code
+        such as this:</para>
+
+        <para><programlisting>&lt;bean id="filterChainProxy" class="net.sf.acegisecurity.util.FilterChainProxy"&gt;
+  &lt;property name="filterInvocationDefinitionSource"&gt;
+    &lt;value&gt;
+      CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+      PATTERN_TYPE_APACHE_ANT
+      /webServices/**=basicProcessingFilter,httpSessionIntegrationFilter,securityEnforcementFilter
+      /**=authenticationProcessingFilter,httpSessionIntegrationFilter,securityEnforcementFilter
+    &lt;/value&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>You may notice similarities with the way
+        <literal>SecurityEnforcementFilter</literal> is declared. Both regular
+        expressions and Ant Paths are supported, and the most specific URIs
+        appear first. At runtime the <literal>FilterChainProxy</literal> will
+        locate the first URI pattern that matches the current web request.
+        Each of the corresponding configuration attributes represent the name
+        of a bean defined in the application context. The filters will then be
+        invoked in the order they are specified, with standard
+        <literal>FilterChain</literal> behaviour being respected (a
+        <literal>Filter</literal> can elect not to proceed with the chain if
+        it wishes to end processing).</para>
+
+        <para>As you can see, <literal>FitlerChainProxy</literal> requires the
+        duplication of filter names for different request patterns (in the
+        above example, <literal>httpSessionIntegrationFilter</literal> and
+        <literal>securityEnforcementFilter</literal> are duplicated). This
+        design decision was made to enable <literal>FilterChainProxy</literal>
+        to specify different <literal>Filter</literal> invocation orders for
+        different URI patterns, and also to improve both the expressiveness
+        (in terms of regular expressions, Ant Paths, and any custom
+        <literal>FilterInvocationDefinitionSource</literal> implementations)
+        and clarity of which <literal>Filter</literal>s should be
+        invoked.</para>
+
+        <para>In relation to lifecycle issues, the
+        <literal>FilterChainProxy</literal> will always delegate
+        <literal>init(FilterConfig)</literal> and <literal>destroy()</literal>
+        methods through to the underlaying <literal>Filter</literal>s if such
+        methods are called against <literal>FilterChainProxy</literal> itself.
+        In this case, <literal>FilterChainProxy</literal> guarantees to only
+        initialize and destroy each <literal>Filter</literal> once,
+        irrespective of how many times it is declared by the
+        <literal>FilterInvocationDefinitionSource</literal>. You control the
+        overall choice as to whether these methods are called or not via the
+        <literal>lifecycle</literal> initialization parameter of the
+        <literal>FilterToBeanProxy</literal> that proxies
+        <literal>FilterChainProxy</literal>. As discussed above, by default
+        any servlet container lifecycle invocations are not delegated through
+        to <literal>FilterChainProxy</literal>.</para>
       </sect2>
 
       <sect2 id="security-filters-order">
@@ -4201,8 +4298,13 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
         </orderedlist>
 
         <para>All of the above filters use
-        <literal>FilterToBeanProxy</literal>, which is discussed in the
-        previous section.</para>
+        <literal>FilterToBeanProxy</literal> or
+        <literal>FilterChainProxy</literal>, which is discussed in the
+        previous sections. It is recommended that a single
+        <literal>FilterToBeProxy</literal> proxy through to a single
+        <literal>FilterChainProxy</literal> for each application, with that
+        <literal>FilterChainProxy</literal> defining all of the Acegi Security
+        <literal>Filter</literal>s.</para>
 
         <para>If you're using SiteMesh, ensure the Acegi Security filters
         execute before the SiteMesh filters are called. This enables the
