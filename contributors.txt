@@ -24,6 +24,8 @@ contributions to the Acegi Security System for Spring project:
 
 * Wesley Hall contributed patches to authentication exception handling.
 
+* Scott Evans contributed improvements to the tablig package.
+
 * Anyone else I've forgotten (please let me know so I can correct this).
 
 Plus of course all the people who use the project and provide feedback, bug
