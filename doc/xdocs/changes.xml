@@ -51,10 +51,135 @@
       <action dev="benalex" type="update">Documentation improvements</action>
     </release>
     <release version="0.6.1" date="2004-09-24"/>
+      <action dev="benalex" type="update">Resolved to use http://apr.apache.org/versioning.html for future versioning</action>
+      <action dev="benalex" type="add">Added additional DaoAuthenticationProvider event when user not found</action>
+      <action dev="benalex" type="add">Added Authentication.getDetails() to DaoAuthenticationProvider response</action>
+      <action dev="benalex" type="add">Added DaoAuthenticationProvider.hideUserNotFoundExceptions (default=true)</action>
+      <action dev="benalex" type="add">Added PasswordAuthenticationProvider for password-validating DAOs (eg LDAP)</action>
+      <action dev="benalex" type="add">Added FilterToBeanProxy compatibility with ContextLoaderServlet (lazy inits)</action>
+      <action dev="benalex" type="add">Added convenience methods to ConfigAttributeDefinition</action>
+      <action dev="benalex" type="update">Improved sample applications' bean reference notation</action>
+      <action dev="benalex" type="update">Clarified contract for ObjectDefinitionSource.getAttributes(Object)</action>
+      <action dev="benalex" type="update">Extracted removeUserFromCache(String) to UserCache interface</action>
+      <action dev="benalex" type="update">Improved ConfigAttributeEditor so it trims preceding and trailing spaces</action>
+      <action dev="benalex" type="update">Refactored UsernamePasswordAuthenticationToken.getDetails() to Object</action>
+      <action dev="benalex" type="fix">Fixed MethodDefinitionAttributes to implement ObjectDefinitionSource change</action>
+      <action dev="benalex" type="fix">Fixed EH-CACHE-based caching implementation behaviour when cache exists</action>
+      <action dev="benalex" type="fix">Fixed Ant "release" target not including project.properties</action>
+      <action dev="benalex" type="fix">Fixed GrantedAuthorityEffectiveAclsResolver if null ACLs provided to method</action>
+      <action dev="benalex" type="update">Documentation improvements</action>
     <release version="0.6"   date="2004-08-08"/>
+      <action dev="benalex" type="add">Added domain object instance access control list (ACL) packages</action>
+      <action dev="benalex" type="add">Added feature so DaoAuthenticationProvider returns User in Authentication</action>
+      <action dev="benalex" type="add">Added AbstractIntegrationFilter.secureContext property for custom contexts</action>
+      <action dev="benalex" type="add">Added stack trace logging to SecurityEnforcementFilter</action>
+      <action dev="benalex" type="add">Added exception-specific target URLs to AbstractProcessingFilter</action>
+      <action dev="benalex" type="add">Added JdbcDaoImpl hook so subclasses can insert custom granted authorities</action>
+      <action dev="raykrueger" type="add">Added AuthenticationProvider that wraps JAAS login modules</action>
+      <action dev="fbos" type="add">Added support for EL expressions in the authz tag library</action>
+      <action dev="benalex" type="add">Added failed Authentication object to AuthenticationExceptions</action>
+      <action dev="benalex" type="add">Added signed JARs to all official release builds (see readme.txt)</action>
+      <action dev="benalex" type="add">Added remote client authentication validation package</action>
+      <action dev="benalex" type="add">Added protected sendAccessDeniedError method to SecurityEnforcementFilter</action>
+      <action dev="benalex" type="update">Updated Authentication to be serializable (Weblogic support)</action>
+      <action dev="benalex" type="update">Updated JAR to Spring 1.1 RC 1</action>
+      <action dev="benalex" type="update">Updated to Clover 1.3</action>
+      <action dev="benalex" type="update">Updated to HSQLDB version 1.7.2 Release Candidate 6D</action>
+      <action dev="benalex" type="update">Refactored User to net.sf.acegisecurity.UserDetails interface</action>
+      <action dev="benalex" type="update">Refactored CAS package to store UserDetails in CasAuthenticationToken</action>
+      <action dev="benalex" type="update">Improved organisation of DaoAuthenticationProvider to facilitate subclassing</action>
+      <action dev="benalex" type="update">Improved test coverage (now 98.3%)</action>
+      <action dev="benalex" type="update">Improved JDBC-based tests to use in-memory database rather than filesystem</action>
+      <action dev="benalex" type="update">Fixed Linux compatibility issues (directory case sensitivity etc)</action>
+      <action dev="benalex" type="update">Fixed AbstractProcessingFilter to handle servlet spec container differences</action>
+      <action dev="benalex" type="update">Fixed AbstractIntegrationFilter to resolve a Weblogic compatibility issue</action>
+      <action dev="benalex" type="fix">Fixed CasAuthenticationToken if proxy granting ticket callback not requested</action>
+      <action dev="benalex" type="fix">Fixed EH-CACHE handling on web context refresh</action>
+      <action dev="benalex" type="update">Documentation improvements</action>
     <release version="0.5.1" date="2004-06-05"/>
+      <action dev="benalex" type="add">Added samples/quick-start</action>
+      <action dev="benalex" type="add">Added NullRunAsManager and made default for AbstractSecurityInterceptor</action>
+      <action dev="benalex" type="add">Added event notification (see net.sf.acegisecurity.providers.dao.event)</action>
+      <action dev="benalex" type="update">Updated JAR to Spring 1.0.2</action>
+      <action dev="benalex" type="update">Updated JAR to Commons Attributes CVS snapshot from Spring 1.0.2 release</action>
+      <action dev="benalex" type="update">Updated GrantedAuthorityImpl to be serializable (JBoss support)</action>
+      <action dev="benalex" type="update">Updated Authentication interface to present extra details for a request</action>
+      <action dev="benalex" type="update">Updated Authentication interface to subclass java.security.Principal</action>
+      <action dev="benalex" type="update">Refactored DaoAuthenticationProvider caching (refer to reference docs)</action>
+      <action dev="benalex" type="update">Improved HttpSessionIntegrationFilter to manage additional attributes</action>
+      <action dev="benalex" type="update">Improved URL encoding during redirects</action>
+      <action dev="benalex" type="fix">Fixed issue with hot deploy of EhCacheBasedTicketCache (used with CAS)</action>
+      <action dev="fbos" type="fix">Fixed issue with NullPointerExceptions in taglib</action>
+      <action dev="benalex" type="update">Removed DaoAuthenticationToken and session-based caching</action>
+      <action dev="benalex" type="update">Documentation improvements</action>
+      <action dev="benalex" type="update">Upgrade Note: DaoAuthenticationProvider no longer has a "key" property</action>
     <release version="0.5"   date="2004-04-28"/>
+      <action dev="benalex" type="add">Added single sign on support via Yale Central Authentication Service (CAS)</action>
+      <action dev="benalex" type="add">Added full support for HTTP Basic Authentication</action>
+      <action dev="benalex" type="add">Added caching for DaoAuthenticationProvider successful authentications</action>
+      <action dev="benalex" type="add">Added Burlap and Hessian remoting to Contacts sample application</action>
+      <action dev="colins" type="add">Added pluggable password encoders including plaintext, SHA and MD5</action>
+      <action dev="benalex" type="add">Added pluggable salt sources to enhance security of hashed passwords</action>
+      <action dev="benalex" type="add">Added FilterToBeanProxy to obtain filters from Spring application context</action>
+      <action dev="colins" type="add">Added support for prepending strings to roles created by JdbcDaoImpl</action>
+      <action dev="colins" type="add">Added support for user definition of SQL statements used by JdbcDaoImpl</action>
+      <action dev="colins" type="add">Added definable prefixes to avoid expectation of "ROLE_" GrantedAuthoritys</action>
+      <action dev="benalex" type="add">Added pluggable AuthenticationEntryPoints to SecurityEnforcementFilter</action>
+      <action dev="benalex" type="add">Added Apache Ant path syntax support to SecurityEnforcementFilter</action>
+      <action dev="benalex" type="add">Added filter to automate web channel requirements (eg HTTPS redirection)</action>
+      <action dev="benalex" type="update">Updated JAR to Spring 1.0.1</action>
+      <action dev="benalex" type="update">Updated several classes to use absolute (not relative) redirection URLs</action>
+      <action dev="benalex" type="update">Refactored filters to use Spring application context lifecycle support</action>
+      <action dev="benalex" type="update">Improved constructor detection of nulls in User and other key objects</action>
+      <action dev="benalex" type="fix">Fixed FilterInvocation.getRequestUrl() to also include getPathInfo()</action>
+      <action dev="benalex" type="fix">Fixed Contacts sample application <A></A> tags</action>
+      <action dev="benalex" type="update">Established acegisecurity-developer mailing list</action>
+      <action dev="benalex" type="update">Documentation improvements</action>
     <release version="0.4"   date="2004-04-03"/>
+      <action dev="benalex" type="add">Added HTTP session authentication as an alternative to container adapters</action>
+      <action dev="benalex" type="add">Added HTTP request security interceptor (offers considerable flexibility)</action>
+      <action dev="fbos" type="add">Added security taglib</action>
+      <action dev="benalex" type="add">Added Clover test coverage instrumentation (currently 97.2%)</action>
+      <action dev="benalex" type="add">Added support for Catalina (Tomcat) 4.1.30 to in-container integration tests</action>
+      <action dev="benalex" type="add">Added HTML test and summary reporting to in-container integration tests</action>
+      <action dev="benalex" type="update">Updated JARs to Spring Framework release 1.0, with associated AOP changes</action>
+      <action dev="benalex" type="update">Updated to Apache License version 2.0</action>
+      <action dev="benalex" type="update">Updated copyright with permission of past contributors</action>
+      <action dev="benalex" type="update">Refactored unit tests to use mock objects and focus on a single class each</action>
+      <action dev="benalex" type="update">Refactored many classes to enable insertion of mock objects during testing</action>
+      <action dev="benalex" type="update">Refactored core classes to ease support of new secure object types</action>
+      <action dev="benalex" type="update">Changed package layout to better describe the role of contained items</action>
+      <action dev="benalex" type="update">Changed the extractor to extract additional classes from JBoss and Catalina</action>
+      <action dev="benalex" type="update">Changed Jetty container adapter configuration (see reference documentation)</action>
+      <action dev="benalex" type="update">Improved AutoIntegrationFilter handling of deployments without JBoss JARs</action>
+      <action dev="benalex" type="fix">Fixed case handling support in data access object authentication provider</action>
+      <action dev="benalex" type="update">Documentation improvements</action>
     <release version="0.3"   date="2004-03-18"/>
+      <action dev="benalex" type="add">Added "in container" unit test system for container adapters and sample app</action>
+      <action dev="benalex" type="add">Added library extractor tool to reduce the "with deps" ZIP release sizes</action>
+      <action dev="benalex" type="add">Added unit test to the attributes sample</action>
+      <action dev="benalex" type="add">Added Jalopy source formatting</action>
+      <action dev="benalex" type="update">Modified all files to use net.sf.acegisecurity namespace</action>
+      <action dev="benalex" type="update">Renamed springsecurity.xml to acegisecurity.xml for consistency</action>
+      <action dev="benalex" type="update">Reduced length of ZIP and JAR filenames</action>
+      <action dev="benalex" type="update">Clarified licenses and sources for all included libraries</action>
+      <action dev="benalex" type="update">Updated documentation to reflect new file and package names</action>
+      <action dev="benalex" type="update">Setup Sourceforge.net project and added to CVS etc</action>
+    <release version="0.2"   date="2004-03-10"/>
+      <action dev="benalex" type="add">Added Commons Attributes support and sample (thanks to Cameron Braid)</action>
+      <action dev="benalex" type="add">Added JBoss container adapter</action>
+      <action dev="benalex" type="add">Added Resin container adapter</action>
+      <action dev="benalex" type="add">Added JDBC DAO authentication provider</action>
+      <action dev="benalex" type="add">Added several filter implementations for container adapter integration</action>
+      <action dev="benalex" type="add">Added SecurityInterceptor startup time validation of ConfigAttributes</action>
+      <action dev="benalex" type="add">Added more unit tests</action>
+      <action dev="benalex" type="update">Refactored ConfigAttribute to interface and added concrete implementation</action>
+      <action dev="benalex" type="update">Enhanced diagnostics information provided by sample application debug.jsp</action>
+      <action dev="benalex" type="update">Modified sample application for wider container portability (Resin, JBoss)</action>
+      <action dev="benalex" type="fix">Fixed switch block in voting decision manager implementations</action>
+      <action dev="benalex" type="update">Removed Spring MVC interceptor for container adapter integration</action>
+      <action dev="benalex" type="update">Documentation improvements</action>
+    <release version="0.1"   date="2004-03-03"/>
+      <action dev="benalex" type="add">Initial public release</action>
   </body>
 </document>
