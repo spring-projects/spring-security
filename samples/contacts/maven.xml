@@ -36,4 +36,16 @@
         </ant:copy>
     </postGoal>
 
+	<goal name="run" prereqs="java:compile,java:jar-resources">
+		<ant:java dir="client" classname="sample.contact.ClientApplication" fork="true" >
+			<ant:sysproperty key="username" value="${username}"/>
+			<ant:sysproperty key="password" value="${password}"/>
+			<ant:sysproperty key="nrOfCalls" value="${nrOfCalls}"/>
+			<ant:classpath>
+				<ant:path refid="maven.dependency.classpath"/>
+				<ant:pathelement path="${maven.build.dest} "/>
+			</ant:classpath>
+		</ant:java>
+	</goal>
+
 </project>
