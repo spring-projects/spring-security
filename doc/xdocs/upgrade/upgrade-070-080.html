@@ -36,6 +36,10 @@ applications:
     
     <li>Added AccessDeniedException to the SecurityEncorcementFilter.sendAccessDeniedError method signature.<br><br></li>
 
+    <li>The Authentication.getDetails() no longer returns simply the IP address used for authentication.
+    It now returns a WebAuthenticationDetails instance, which contains the IP address, session information,
+    and can be extended to store further details.<br><br></li>
+
     </ul>
 
 </body>
