@@ -5,7 +5,7 @@
   $Id$
 -->
 
-<project name="minimal" basedir="." default="usage">
+<project name="contacts-sample" basedir="." default="usage">
 
 	<property file="build.properties"/>
 	<property file="project.properties"/>
@@ -28,8 +28,7 @@
 	<target name="usage">
 		<echo message=""/>
 		<echo message="Contacts sample application build file"/>
-		<echo message="*** Make sure you've copied the required JAR files to the lib directory."/>
-		<echo message="*** See lib/readme.txt for more information."/>
+		<echo message="*** Make sure you've followed the instructions for your container in the reference documentation."/>
 		<echo message="------------------------------------------------------"/>
 		<echo message=""/>
 		<echo message="Available targets are:"/>
@@ -57,7 +56,7 @@
 			<src path="${src.dir}"/>
 			<classpath refid="qa-portalpath"/>
 		</javac>
-		
+
 		<copy todir="${build.dir}">
 			<fileset dir="${src.dir}">
 				<include name="*.properties"/>
@@ -84,43 +83,31 @@
    </target>
 
    <target name="warfile" depends="build" description="Build the web application archives">
+
 		<mkdir dir="${dist.dir}"/>
-		
-		<!-- Temporary staging directory for libs -->
-		<delete dir="${war.dir}/WEB-INF/lib"/>
-		<mkdir dir="${war.dir}/WEB-INF/lib"/>
-		
-     	<!-- Copy required libs into temporary staging directory -->
-     	<copy todir="${war.dir}/WEB-INF/lib">
-			<fileset dir="${lib.dir}/jakarta-taglibs">
-				<include name="standard.jar"/>
-			</fileset>
-			<fileset dir="${lib.dir}/j2ee">
-				<include name="jstl.jar"/>
-			</fileset>
-     	</copy>
-     
+        <delete file="${dist.dir}/${name}.war"/>
+
 		<war warfile="${dist.dir}/${name}.war" webxml="${war.dir}/WEB-INF/web.xml">
 			<!-- Include the JSPs and other documents -->
 			<fileset dir="war" excludes="WEB-INF/**"/>
-			
+
 			<!-- Bring in Spring-specific XML configuration files -->
 			<webinf dir="${war.dir}/WEB-INF">
 				<!-- We separately include these -->
 				<exclude name="web.xml"/>
-				<exclude name="lib/**"/>
 			</webinf>
-			
+
 			<!-- Include the compiled classes -->
 			<classes dir="${build.dir}"/>
 
-			<!-- Include the temporary staging directory for libs -->
-  	 		<lib dir = "${war.dir}/WEB-INF/lib"/>
+			<!-- Include required libraries -->
+			<lib dir="${lib.dir}/jakarta-commons" includes="*.jar" excludes="*logging*"/>
+			<lib dir="${lib.dir}/jakarta-taglibs" includes="*.jar"/>
+			<lib dir="${lib.dir}/hsqldb" includes="*.jar"/>
+			<lib dir="${lib.dir}/j2ee" includes="jstl.jar"/>
+			<lib dir="${dist.lib.dir}" includes="acegi-security-taglib.jar"/>
 		</war>
-		
-		<!-- Remove temporary staging directory -->
-		<delete dir="${war.dir}/WEB-INF/lib"/>
-		
+
    </target>
 
    <target name="javadoc" description="Generate Javadocs.">
