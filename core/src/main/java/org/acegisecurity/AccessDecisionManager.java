@@ -15,9 +15,6 @@
 
 package net.sf.acegisecurity;
 
-import org.aopalliance.intercept.MethodInvocation;
-
-
 /**
  * Makes a final access control (authorization) decision.
  *
@@ -31,32 +28,43 @@ public interface AccessDecisionManager {
      * Resolves an access control decision for the passed parameters.
      *
      * @param authentication the caller invoking the method
-     * @param invocation the method being called
-     * @param config the configuration attributes associated with the method
-     *        being invoked
+     * @param object the secured object being called
+     * @param config the configuration attributes associated with the secured
+     *        object being invoked
      *
      * @throws AccessDeniedException if access is denied
      */
-    public void decide(Authentication authentication,
-        MethodInvocation invocation, ConfigAttributeDefinition config)
-        throws AccessDeniedException;
+    public void decide(Authentication authentication, Object object,
+        ConfigAttributeDefinition config) throws AccessDeniedException;
 
     /**
      * Indicates whether this <code>AccessDecisionManager</code> is able to
      * process authorization requests presented with the passed
      * <code>ConfigAttribute</code>.
-     *
+     * 
      * <p>
-     * This allows the <code>SecurityInterceptor</code> to check every
+     * This allows the <code>AbstractSecurityInterceptor</code> to check every
      * configuration attribute can be consumed by the configured
      * <code>AccessDecisionManager</code> and/or <code>RunAsManager</code>.
      * </p>
      *
      * @param attribute a configuration attribute that has been configured
-     *        against the <code>SecurityInterceptor</code>
+     *        against the <code>AbstractSecurityInterceptor</code>
      *
      * @return true if this <code>AccessDecisionManager</code> can support the
      *         passed configuration attribute
      */
     public boolean supports(ConfigAttribute attribute);
+
+    /**
+     * Indicates whether the <code>AccessDecisionManager</code> implementation
+     * is able to provide access control decisions for the indicated secured
+     * object type.
+     *
+     * @param clazz the class that is being queried
+     *
+     * @return <code>true</code> if the implementation can process the
+     *         indicated class
+     */
+    public boolean supports(Class clazz);
 }

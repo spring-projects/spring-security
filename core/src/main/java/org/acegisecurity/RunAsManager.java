@@ -15,21 +15,19 @@
 
 package net.sf.acegisecurity;
 
-import org.aopalliance.intercept.MethodInvocation;
-
-
 /**
- * Creates a new temporary {@link Authentication} object for the current method
- * invocation only.
+ * Creates a new temporary {@link Authentication} object for the current secure
+ * object invocation only.
  * 
  * <P>
  * This interface permits implementations to replace the
- * <code>Authentication</code> object that applies to the current method
- * invocation only. The {@link SecurityInterceptor} will replace the
- * <code>Authentication</code> object held in the  {@link
- * net.sf.acegisecurity.context.SecureContext} for the duration of the method
- * invocation only, returning it to the original  <code>Authentication</code>
- * object when the method invocation completes.
+ * <code>Authentication</code> object that applies to the current secure
+ * object invocation only. The {@link
+ * net.sf.acegisecurity.intercept.AbstractSecurityInterceptor} will replace
+ * the <code>Authentication</code> object held in the  {@link
+ * net.sf.acegisecurity.context.SecureContext} for the duration of the secure
+ * object callback only, returning it to the original
+ * <code>Authentication</code> object when the callback ends.
  * </p>
  * 
  * <P>
@@ -49,8 +47,8 @@ import org.aopalliance.intercept.MethodInvocation;
  * <p>
  * It is expected implementations will provide a corresponding concrete
  * <code>Authentication</code> and <code>AuthenticationProvider</code> so that
- * the replacement <code>Authentication</code> object can be  authenticated.
- * Some form of security will need to be implemented to prevent to ensure the
+ * the replacement <code>Authentication</code> object can be authenticated.
+ * Some form of security will need to be implemented to ensure the
  * <code>AuthenticationProvider</code> only accepts
  * <code>Authentication</code> objects created by an authorized concrete
  * implementation of <code>RunAsManager</code>.
@@ -64,34 +62,46 @@ public interface RunAsManager {
 
     /**
      * Returns a replacement <code>Authentication</code> object for the current
-     * method invocation, or <code>null</code> if replacement not required.
+     * secure object invocation, or <code>null</code> if replacement not
+     * required.
      *
-     * @param authentication the caller invoking the method
-     * @param invocation the method being called
-     * @param config the configuration attributes associated with the method
-     *        being invoked
+     * @param authentication the caller invoking the secure object
+     * @param object the secured object being called
+     * @param config the configuration attributes associated with the secure
+     *        object being invoked
      *
-     * @return a replacement object to be used for duration of the method
-     *         invocation
+     * @return a replacement object to be used for duration of the secure
+     *         object invocation, or <code>null</code> if the
+     *         <code>Authentication</code> should be left as is
      */
     public Authentication buildRunAs(Authentication authentication,
-        MethodInvocation invocation, ConfigAttributeDefinition config);
+        Object object, ConfigAttributeDefinition config);
 
     /**
      * Indicates whether this <code>RunAsManager</code> is able to process the
      * passed <code>ConfigAttribute</code>.
      * 
      * <p>
-     * This allows the <code>SecurityInterceptor</code> to check every
+     * This allows the <code>AbstractSecurityInterceptor</code> to check every
      * configuration attribute can be consumed by the configured
      * <code>AccessDecisionManager</code> and/or <code>RunAsManager</code>.
      * </p>
      *
      * @param attribute a configuration attribute that has been configured
-     *        against the <code>SecurityInterceptor</code>
+     *        against the <code>AbstractSecurityInterceptor</code>
      *
-     * @return true if this <code>RunAsManager</code> can support the passed
-     *         configuration attribute
+     * @return <code>true</code> if this <code>RunAsManager</code> can support
+     *         the passed configuration attribute
      */
     public boolean supports(ConfigAttribute attribute);
+
+    /**
+     * Indicates whether the <code>RunAsManager</code> implementation is able
+     * to provide run-as replacement for the indicated secure object type.
+     *
+     * @param clazz the class that is being queried
+     *
+     * @return true if the implementation can process the indicated class
+     */
+    public boolean supports(Class clazz);
 }
