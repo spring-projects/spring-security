@@ -71,10 +71,12 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
 
         MockHttpServletRequest request = new MockHttpServletRequest(
                 "/some_path");
+        request.setContextPath("/bigWebApp");
+
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         ep.afterPropertiesSet();
         ep.commence(request, response);
-        assertEquals("/hello", response.getRedirect());
+        assertEquals("/bigWebApp/hello", response.getRedirect());
     }
 }
