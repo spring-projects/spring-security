@@ -42,26 +42,126 @@ import javax.sql.DataSource;
 
 
 /**
- * Retrieves user details from a JDBC location provided by the bean context.
+ * <p>
+ * Retrieves user details (username, password, enabled flag, and authorities)
+ * from a JDBC location.
+ * </p>
+ * 
+ * <p>
+ * A default database structure is assumed, which most users of this class will
+ * need to override, if using an existing scheme. This may be done by setting
+ * the default query strings used, or if that does not provide enough
+ * flexibility, setting the  actual {@link MappingSqlQuery} instances used to
+ * query the database.
+ * </p>
  *
  * @author Ben Alex
+ * @author colin sampaleanu
  * @version $Id$
  */
 public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
     //~ Static fields/initializers =============================================
 
+    public static final String DEF_USERS_BY_USERNAME_QUERY = "SELECT username,password,enabled FROM users WHERE username = ?";
+    public static final String DEF_AUTHORITIES_BY_USERNAME_QUERY = "SELECT username,authority FROM authorities WHERE username = ?";
     private static final Log logger = LogFactory.getLog(JdbcDaoSupport.class);
 
     //~ Instance fields ========================================================
 
-    protected AuthoritiesByUsernameQuery authoritiesByUsernameQuery;
-    protected UsersByUsernameQuery usersByUsernameQuery;
+    protected MappingSqlQuery authoritiesByUsernameMapping;
+    protected MappingSqlQuery usersByUsernameMapping;
+    protected String authoritiesByUsernameQuery;
+    protected String usersByUsernameQuery;
+
+    //~ Constructors ===========================================================
+
+    public JdbcDaoImpl() {
+        usersByUsernameQuery = DEF_USERS_BY_USERNAME_QUERY;
+        authoritiesByUsernameQuery = DEF_AUTHORITIES_BY_USERNAME_QUERY;
+    }
 
     //~ Methods ================================================================
 
+    /**
+     * Allows the default MappingSqlQuery used for retrieving authorities by
+     * username to be overriden. This may be used when overriding the query
+     * string alone is inadequate. Note that there is no point in setting this
+     * property and also  specifying a query string, since there will be no
+     * way for the instance set by this property to get at the query string.
+     * As such, the MappingSqlQuery should be self contained.
+     *
+     * @param authoritiesByUsernameQuery The authoritiesByUsernameQuery to set.
+     */
+    public void setAuthoritiesByUsernameMapping(
+        MappingSqlQuery authoritiesByUsernameQuery) {
+        this.authoritiesByUsernameMapping = authoritiesByUsernameQuery;
+    }
+
+    public MappingSqlQuery getAuthoritiesByUsernameMapping() {
+        return authoritiesByUsernameMapping;
+    }
+
+    /**
+     * Allows the default query string used to retrieve authorities based on
+     * username to be overriden, if default table or column names need to be
+     * changed. The default query is {@link
+     * #DEF_AUTHORITIES_BY_USERNAME_QUERY}; when modifying this query, ensure
+     * that all returned columns are mapped back to the same column names as
+     * in the default query.
+     *
+     * @param queryString The query string to set
+     */
+    public void setAuthoritiesByUsernameQuery(String queryString) {
+        authoritiesByUsernameQuery = queryString;
+    }
+
+    public String getAuthoritiesByUsernameQuery() {
+        return authoritiesByUsernameQuery;
+    }
+
+    /**
+     * Allows the default MappingSqlQuery used for retrieving users by username
+     * to be overriden. This may be used when overriding the query string
+     * alone is inadequate. Note that there is no point in setting this
+     * property and also  specifying a query string, since there will be no
+     * way for the instance set by this property to get at the query string.
+     * As such, the MappingSqlQuery should be self contained.
+     *
+     * @param usersByUsernameQuery The MappingSqlQuery to set.
+     */
+    public void setUsersByUsernameMapping(MappingSqlQuery usersByUsernameQuery) {
+        this.usersByUsernameMapping = usersByUsernameQuery;
+    }
+
+    public MappingSqlQuery getUsersByUsernameMapping() {
+        return usersByUsernameMapping;
+    }
+
+    /**
+     * Allows the default query string used to retrieve users based on username
+     * to be overriden, if default table or column names need to be changed.
+     * The default query is {@link #DEF_USERS_BY_USERNAME_QUERY}; when
+     * modifying this query, ensure that all returned columns are mapped back
+     * to the same column names as in the default query. If the 'enabled'
+     * column does not exist in the source db, a permanent true value for this
+     * column may be returned by using a query similar to <br>
+     * <pre>
+     * "SELECT username,password,'true' as enabled FROM users WHERE username = ?"
+     * </pre>
+     *
+     * @param usersByUsernameQueryString The query string to set
+     */
+    public void setUsersByUsernameQuery(String usersByUsernameQueryString) {
+        this.usersByUsernameQuery = usersByUsernameQueryString;
+    }
+
+    public String getUsersByUsernameQuery() {
+        return usersByUsernameQuery;
+    }
+
     public User loadUserByUsername(String username)
         throws UsernameNotFoundException, DataAccessException {
-        List users = usersByUsernameQuery.execute(username);
+        List users = usersByUsernameMapping.execute(username);
 
         if (users.size() == 0) {
             throw new UsernameNotFoundException("User not found");
@@ -69,13 +169,13 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
 
         User user = (User) users.get(0); // contains no GrantedAuthority[]
 
-        List dbAuths = authoritiesByUsernameQuery.execute(user.getUsername());
+        List dbAuths = authoritiesByUsernameMapping.execute(user.getUsername());
 
         if (dbAuths.size() == 0) {
             throw new UsernameNotFoundException("User has no GrantedAuthority");
         }
 
-        GrantedAuthority[] arrayAuths = {new GrantedAuthorityImpl("demo")};
+        GrantedAuthority[] arrayAuths = {};
         arrayAuths = (GrantedAuthority[]) dbAuths.toArray(arrayAuths);
 
         return new User(user.getUsername(), user.getPassword(),
@@ -83,8 +183,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
     }
 
     protected void initDao() throws ApplicationContextException {
-        usersByUsernameQuery = new UsersByUsernameQuery(getDataSource());
-        authoritiesByUsernameQuery = new AuthoritiesByUsernameQuery(getDataSource());
+        usersByUsernameMapping = new UsersByUsernameMapping(getDataSource());
+        authoritiesByUsernameMapping = new AuthoritiesByUsernameMapping(getDataSource());
     }
 
     //~ Inner Classes ==========================================================
@@ -92,10 +192,9 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
     /**
      * Query object to look up a user's authorities.
      */
-    protected static class AuthoritiesByUsernameQuery extends MappingSqlQuery {
-        protected AuthoritiesByUsernameQuery(DataSource ds) {
-            super(ds,
-                "SELECT username,authority FROM authorities WHERE username = ?");
+    protected class AuthoritiesByUsernameMapping extends MappingSqlQuery {
+        protected AuthoritiesByUsernameMapping(DataSource ds) {
+            super(ds, authoritiesByUsernameQuery);
             declareParameter(new SqlParameter(Types.VARCHAR));
             compile();
         }
@@ -112,10 +211,9 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
     /**
      * Query object to look up a user.
      */
-    protected static class UsersByUsernameQuery extends MappingSqlQuery {
-        protected UsersByUsernameQuery(DataSource ds) {
-            super(ds,
-                "SELECT username,password,enabled FROM users WHERE username = ?");
+    protected class UsersByUsernameMapping extends MappingSqlQuery {
+        protected UsersByUsernameMapping(DataSource ds) {
+            super(ds, usersByUsernameQuery);
             declareParameter(new SqlParameter(Types.VARCHAR));
             compile();
         }
