@@ -231,6 +231,9 @@
       <artifactId>log4j</artifactId>
       <version>1.2.8</version>
       <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
