@@ -1,3 +1,14 @@
 <project>
     <extend>${basedir}/../project.xml</extend>
+    <dependencies>
+        <dependency>
+            <groupId>acegi</groupId>
+            <artifactId>acegi-security</artifactId>
+            <version>0.7-SNAPSHOT</version>
+            <url>http://acegisecurity.sourceforge.net</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+    </dependencies>
 </project>
