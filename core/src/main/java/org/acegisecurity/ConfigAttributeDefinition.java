@@ -74,6 +74,19 @@ public class ConfigAttributeDefinition {
         this.configAttributes.add(newConfigAttribute);
     }
 
+    /**
+     * Indicates whether the specified <code>ConfigAttribute</code> is
+     * contained within this <code>ConfigAttributeDefinition</code>.
+     *
+     * @param configAttribute the attribute to locate
+     *
+     * @return <code>true</code> if the specified <code>ConfigAttribute</code>
+     *         is contained, <code>false</code> otherwise
+     */
+    public boolean contains(ConfigAttribute configAttribute) {
+        return configAttributes.contains(configAttribute);
+    }
+
     public boolean equals(Object obj) {
         if (obj instanceof ConfigAttributeDefinition) {
             ConfigAttributeDefinition test = (ConfigAttributeDefinition) obj;
@@ -100,6 +113,16 @@ public class ConfigAttributeDefinition {
         }
 
         return false;
+    }
+
+    /**
+     * Returns the number of <code>ConfigAttribute</code>s defined by this
+     * <code>ConfigAttributeDefinition</code>.
+     *
+     * @return the number of <code>ConfigAttribute</code>s contained
+     */
+    public int size() {
+        return configAttributes.size();
     }
 
     public String toString() {

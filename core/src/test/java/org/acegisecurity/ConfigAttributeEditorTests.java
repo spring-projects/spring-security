@@ -64,6 +64,12 @@ public class ConfigAttributeEditorTests extends TestCase {
         }
 
         assertEquals(5, position);
+
+        assertEquals(5, result.size());
+
+        assertTrue(result.contains(new SecurityConfig("HELLO")));
+        assertTrue(result.contains(new SecurityConfig("TOMORROW")));
+        assertFalse(result.contains(new SecurityConfig("FOOBAR")));
     }
 
     public void testEmptyStringReturnsNull() {
