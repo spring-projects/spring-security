@@ -63,6 +63,28 @@ public class LoggerListener implements ApplicationListener {
             }
         }
 
+        if (event instanceof AuthenticationFailureCredentialsExpiredEvent) {
+            AuthenticationFailureCredentialsExpiredEvent authEvent = (AuthenticationFailureCredentialsExpiredEvent) event;
+
+            if (logger.isWarnEnabled()) {
+                logger.warn(
+                    "Authentication failed due to account credentials have been expired for user: "
+                    + authEvent.getUser().getUsername() + "; details: "
+                    + authEvent.getAuthentication().getDetails());
+            }
+        }
+
+        if (event instanceof AuthenticationFailureAccountExpiredEvent) {
+            AuthenticationFailureAccountExpiredEvent authEvent = (AuthenticationFailureAccountExpiredEvent) event;
+
+            if (logger.isWarnEnabled()) {
+                logger.warn(
+                    "Authentication failed due to account having expired for user: "
+                    + authEvent.getUser().getUsername() + "; details: "
+                    + authEvent.getAuthentication().getDetails());
+            }
+        }
+
         if (event instanceof AuthenticationFailureUsernameNotFoundEvent) {
             AuthenticationFailureUsernameNotFoundEvent authEvent = (AuthenticationFailureUsernameNotFoundEvent) event;
 
