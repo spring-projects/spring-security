@@ -89,8 +89,6 @@ BE SURE TO CHECK REPORTS DIRECTORY FOR RESULTS OF TESTS!
 
 	<target name="tests" depends="clean,unzip,tests-jetty,tests-catalina,tests-jboss"
 		description="Run all integration tests">
-		<property name="jboss-${jboss.version}.errored" value="1"/>
-		<property name="jakarta-tomcat-${tomcat-4.1.version}.failed" value="1"/>
 		<condition property="anyerrors" value="true">
 			<or>
 				<isset property="jetty-${jetty.version}.errored"/>
