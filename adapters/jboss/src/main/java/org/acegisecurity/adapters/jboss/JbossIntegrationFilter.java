@@ -78,17 +78,6 @@ public class JbossIntegrationFilter extends AbstractIntegrationFilter {
             while (principals.hasNext()) {
                 Principal p = (Principal) principals.next();
 
-                if (p == null) {
-                    if (super.logger.isDebugEnabled()) {
-                        super.logger.debug("Found null Principal in container");
-                    }
-                } else {
-                    if (super.logger.isDebugEnabled()) {
-                        super.logger.debug("Found Principal in container ("
-                            + p.getClass().getName() + ") : " + p.getName());
-                    }
-                }
-
                 if (p instanceof Authentication) {
                     return p;
                 }
