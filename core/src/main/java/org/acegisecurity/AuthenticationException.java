@@ -57,7 +57,7 @@ public abstract class AuthenticationException extends AcegiSecurityException {
 
     //~ Methods ================================================================
 
-    public void setAuthentication(Authentication authentication) {
+    void setAuthentication(Authentication authentication) {
         this.authentication = authentication;
     }
 
