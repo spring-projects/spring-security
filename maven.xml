@@ -1,7 +1,32 @@
 <project
    xmlns:j="jelly:core"
+   xmlns:ant="jelly:ant"
    xmlns:maven="jelly:maven"
   >
+
+   <!--
+    |
+    | Override the default clover-setup task from the clover plugin
+    |
+    -->
+    <postGoal name="clover:on">
+
+       <ant:clover-setup
+           initstring="${basedir}/target/clover/database/clover_coverage.db"
+           flushpolicy="interval"
+           flushinterval="500">
+
+         <ant:fileset dir="${maven.src.dir}">
+            <exclude name="**/*Exception.java"/>
+         </ant:fileset>
+
+<!--         <statementContext id="nolog" regexp="^if \(logger.*\).*}"/>
+         <statementContext id="nojbosslog" regexp="^if \(super.logger.*\).*}"/>
+-->
+
+       </ant:clover-setup>
+    </postGoal>
+
 
    <!--
     |
@@ -14,7 +39,7 @@
       <!--
        | The Acegi Security Tag Library JAR
        -->
-      <jar jarfile="${maven.build.dir}/acegi-taglib-${pom.currentVersion}.jar">
+      <ant:jar jarfile="${maven.build.dir}/acegi-taglib-${pom.currentVersion}.jar">
          <fileset dir="${maven.build.dest}">
             <include name="net/sf/acegisecurity/taglibs/**"/>
             <exclude name="**/*.tld"/>
@@ -25,7 +50,7 @@
             <attribute name="Acegi-Security-System-version" value="${pom.currentVersion}"/>
             <attribute name="Sealed" value="true"/>
          </manifest>
-      </jar>
+      </ant:jar>
 
       <!--
        | The class that has catalina.jar dependencies and thus belongs in
