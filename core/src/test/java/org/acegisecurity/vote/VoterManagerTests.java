@@ -27,6 +27,9 @@ import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.util.List;
+import java.util.Vector;
+
 
 /**
  * Tests voter decision managers.
@@ -61,8 +64,54 @@ public class VoterManagerTests extends TestCase {
         junit.textui.TestRunner.run(VoterManagerTests.class);
     }
 
+    public void testAbstractAccessDecisionManagerSetter()
+        throws Exception {
+        AffirmativeBased affirmative = new AffirmativeBased();
+        affirmative.setAllowIfAllAbstainDecisions(false);
+        assertTrue(!affirmative.isAllowIfAllAbstainDecisions());
+        affirmative.setAllowIfAllAbstainDecisions(true);
+        assertTrue(affirmative.isAllowIfAllAbstainDecisions());
+    }
+
+    public void testAbstractAccessDecisionManagerVoterListHandling()
+        throws Exception {
+        XVoter x = new XVoter();
+        List xVoterList = new Vector();
+        xVoterList.add(x);
+
+        AffirmativeBased affirmative = new AffirmativeBased();
+        affirmative.setDecisionVoters(xVoterList);
+
+        try {
+            affirmative.setDecisionVoters(null);
+            fail("Should have thrown IllegalArgumentException as list null");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+
+        List sampleList = new Vector();
+
+        try {
+            affirmative.setDecisionVoters(sampleList);
+            fail("Should have thrown IllegalArgumentException as list empty");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+
+        sampleList.add(x); // valid (is AccessDecisionVoter)
+        sampleList.add("Hello world"); // invalid (not AccessDecisionVoter)
+
+        try {
+            affirmative.setDecisionVoters(sampleList);
+            fail(
+                "Should have thrown IllegalArgumentException as list has invalid entries");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+    }
+
     public void testAffirmative() throws Exception {
-        AccessDecisionManager mgr = (AccessDecisionManager) ctx.getBean(
+        AffirmativeBased mgr = (AffirmativeBased) ctx.getBean(
                 "affirmativeBased");
         ConfigAttributeDefinition config;
         TestingAuthenticationToken auth;
@@ -70,6 +119,24 @@ public class VoterManagerTests extends TestCase {
         auth = new TestingAuthenticationToken("test", "test",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_1"), new GrantedAuthorityImpl(
                         "ROLE_2"), new GrantedAuthorityImpl("ROLE_MAGIC")});
+
+        // Check if we'd be given access, even with a definite deny vote
+        config = new ConfigAttributeDefinition();
+        config.addConfigAttribute(new SecurityConfig("ROLE_2")); // grant
+        config.addConfigAttribute(new SecurityConfig("DENY_FOR_SURE")); // deny
+        mgr.decide(auth, null, config);
+        assertTrue(true);
+
+        // Check if we'd be denied access, with only one definite deny vote
+        config = new ConfigAttributeDefinition();
+        config.addConfigAttribute(new SecurityConfig("DENY_FOR_SURE")); // deny
+
+        try {
+            mgr.decide(auth, null, config);
+            fail("Should have thrown AccessDeniedException");
+        } catch (AccessDeniedException expected) {
+            assertTrue(true);
+        }
 
         // Check if we'd get access if ROLE_2 was all that is acceptable
         config = new ConfigAttributeDefinition();
@@ -132,17 +199,50 @@ public class VoterManagerTests extends TestCase {
         } catch (AccessDeniedException expected) {
             assertTrue(true);
         }
+
+        // Check if we'd be denied access if all abstained
+        config = new ConfigAttributeDefinition();
+        config.addConfigAttribute(new SecurityConfig("NONE_WILL_VOTE")); // abstain
+
+        try {
+            mgr.decide(auth, null, config);
+            fail("Should have thrown AccessDeniedException");
+        } catch (AccessDeniedException expected) {
+            assertTrue(true);
+        }
+
+        // Now check it works given we approve access if all abstain
+        mgr.setAllowIfAllAbstainDecisions(true);
+        mgr.decide(auth, null, config);
+        assertTrue(true);
     }
 
     public void testConsensus() throws Exception {
-        AccessDecisionManager mgr = (AccessDecisionManager) ctx.getBean(
-                "consensusBased");
+        ConsensusBased mgr = (ConsensusBased) ctx.getBean("consensusBased");
         ConfigAttributeDefinition config;
         TestingAuthenticationToken auth;
 
         auth = new TestingAuthenticationToken("test", "test",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_1"), new GrantedAuthorityImpl(
                         "ROLE_2"), new GrantedAuthorityImpl("ROLE_MAGIC")});
+
+        // Check if we'd be given access, even with a definite deny vote
+        config = new ConfigAttributeDefinition();
+        config.addConfigAttribute(new SecurityConfig("ROLE_2")); // grant
+        config.addConfigAttribute(new SecurityConfig("DENY_FOR_SURE")); // deny
+        mgr.decide(auth, null, config);
+        assertTrue(true);
+
+        // Check if we'd be denied access, with only one definite deny vote
+        config = new ConfigAttributeDefinition();
+        config.addConfigAttribute(new SecurityConfig("DENY_FOR_SURE")); // deny
+
+        try {
+            mgr.decide(auth, null, config);
+            fail("Should have thrown AccessDeniedException");
+        } catch (AccessDeniedException expected) {
+            assertTrue(true);
+        }
 
         // Check if we'd get access if ROLE_2 was all that is acceptable
         config = new ConfigAttributeDefinition();
@@ -205,17 +305,59 @@ public class VoterManagerTests extends TestCase {
         } catch (AccessDeniedException expected) {
             assertTrue(true);
         }
+
+        // Check if we'd get denied access if equal votes, after changing setting
+        assertTrue(mgr.isAllowIfEqualGrantedDeniedDecisions()); // check default
+        mgr.setAllowIfEqualGrantedDeniedDecisions(false);
+        config = new ConfigAttributeDefinition();
+        config.addConfigAttribute(new SecurityConfig("ROLE_1")); // grant
+        config.addConfigAttribute(new SecurityConfig("DENY_FOR_SURE")); // deny
+
+        try {
+            mgr.decide(auth, null, config);
+            fail("Should have thrown AccessDeniedException");
+        } catch (AccessDeniedException expected) {
+            assertTrue(true);
+        }
+
+        // Check if we'd be denied access if all abstained
+        config = new ConfigAttributeDefinition();
+        config.addConfigAttribute(new SecurityConfig("NONE_WILL_VOTE")); // abstain
+
+        try {
+            mgr.decide(auth, null, config);
+            fail("Should have thrown AccessDeniedException");
+        } catch (AccessDeniedException expected) {
+            assertTrue(true);
+        }
+
+        // Now check it works given we approve access if all abstain
+        mgr.setAllowIfAllAbstainDecisions(true);
+        mgr.decide(auth, null, config);
+        assertTrue(true);
     }
 
     public void testUnanimous() throws Exception {
-        AccessDecisionManager mgr = (AccessDecisionManager) ctx.getBean(
-                "unanimousBased");
+        UnanimousBased mgr = (UnanimousBased) ctx.getBean("unanimousBased");
         ConfigAttributeDefinition config;
         TestingAuthenticationToken auth;
 
         auth = new TestingAuthenticationToken("test", "test",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_1"), new GrantedAuthorityImpl(
                         "ROLE_2"), new GrantedAuthorityImpl("ROLE_MAGIC")});
+
+        // Check if we'd be denied access, with only one definite deny vote and many affirmative
+        config = new ConfigAttributeDefinition();
+        config.addConfigAttribute(new SecurityConfig("DENY_FOR_SURE")); // deny
+        config.addConfigAttribute(new SecurityConfig("ROLE_2")); // grant
+        config.addConfigAttribute(new SecurityConfig("ROLE_1")); // grant
+
+        try {
+            mgr.decide(auth, null, config);
+            fail("Should have thrown AccessDeniedException");
+        } catch (AccessDeniedException expected) {
+            assertTrue(true);
+        }
 
         // Check if we'd get access if ROLE_2 was all that is required
         config = new ConfigAttributeDefinition();
@@ -272,5 +414,21 @@ public class VoterManagerTests extends TestCase {
         } catch (AccessDeniedException expected) {
             assertTrue(true);
         }
+
+        // Check if we'd be denied access if all abstained
+        config = new ConfigAttributeDefinition();
+        config.addConfigAttribute(new SecurityConfig("NONE_WILL_VOTE")); // abstain
+
+        try {
+            mgr.decide(auth, null, config);
+            fail("Should have thrown AccessDeniedException");
+        } catch (AccessDeniedException expected) {
+            assertTrue(true);
+        }
+
+        // Now check it works given we approve access if all abstain
+        mgr.setAllowIfAllAbstainDecisions(true);
+        mgr.decide(auth, null, config);
+        assertTrue(true);
     }
 }

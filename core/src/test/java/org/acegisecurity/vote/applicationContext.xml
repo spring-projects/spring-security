@@ -19,11 +19,15 @@
 	<!-- An access decision voter that reads YYYY configuaration settings -->
 	<bean id="yVoter" class="net.sf.acegisecurity.vote.YVoter"/>
 
+	<!-- An access decision voter that reads DENY_FOR_SURE configuaration settings -->
+	<bean id="denyVoter" class="net.sf.acegisecurity.vote.DenyVoter"/>
+
 	<bean id="unanimousBased" class="net.sf.acegisecurity.vote.UnanimousBased">
    		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
 		<property name="decisionVoters">
 		  <list>
 		    <ref bean="roleVoter"/>
+		    <ref bean="denyVoter"/>
 		    <ref bean="xVoter"/>
 		    <ref bean="yVoter"/>
 		  </list>
@@ -35,6 +39,7 @@
 		<property name="decisionVoters">
 		  <list>
 		    <ref bean="roleVoter"/>
+		    <ref bean="denyVoter"/>
 		    <ref bean="xVoter"/>
 		    <ref bean="yVoter"/>
 		  </list>
@@ -47,6 +52,7 @@
 		<property name="decisionVoters">
 		  <list>
 		    <ref bean="roleVoter"/>
+		    <ref bean="denyVoter"/>
 		    <ref bean="xVoter"/>
 		    <ref bean="yVoter"/>
 		  </list>
