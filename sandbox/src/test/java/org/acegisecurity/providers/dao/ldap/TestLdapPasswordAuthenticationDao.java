@@ -32,6 +32,7 @@ import org.springframework.dao.DataAccessException;
 public class TestLdapPasswordAuthenticationDao extends TestCase {
     //~ Static fields/initializers =============================================
 
+    static String PORT = "389";
     static String HOSTNAME = "ntserver";
     static String HOST_IP = "192.168.1.1";
     static String ROOT_CONTEXT = "DC=issa,DC=cz";
@@ -61,7 +62,7 @@ public class TestLdapPasswordAuthenticationDao extends TestCase {
     }
 
     public void testAuthenticationInvalidHost() {
-        dao.setHost("xxx");
+        dao.setURL("ldap://xxx/");
 
         try {
             UserDetails user = dao.loadUserByUsernameAndPassword(USERNAME,
@@ -86,7 +87,7 @@ public class TestLdapPasswordAuthenticationDao extends TestCase {
     }
 
     public void testAuthenticationInvalidPort() {
-        dao.setPort(123);
+        dao.setURL("ldap://" + HOSTNAME + ":123");
 
         try {
             UserDetails user = dao.loadUserByUsernameAndPassword(USERNAME,
@@ -102,8 +103,7 @@ public class TestLdapPasswordAuthenticationDao extends TestCase {
     public void testAuthenticationInvalidRolesAttribute() {
 //		dao.setRolesAttribute("xxx");
         try {
-            UserDetails user = dao.loadUserByUsernameAndPassword(USERNAME,
-                    PASSWORD);
+            UserDetails user = dao.loadUserByUsernameAndPassword(USERNAME, PASSWORD);
             fail();
         } catch (BadCredentialsException ex) {
             assertEquals("The user has no granted authorities or the rolesAttribute is invalid",
@@ -163,7 +163,8 @@ public class TestLdapPasswordAuthenticationDao extends TestCase {
     }
 
     public void testAuthenticationValidWithIpHost() {
-        dao.setHost(HOST_IP);
+        //dao.setHost(HOST_IP);
+        dao.setURL("ldap://" + HOST_IP + ":" + PORT);
 
         UserDetails user = dao.loadUserByUsernameAndPassword(USERNAME, PASSWORD);
         assertEquals(USERNAME, user.getUsername());
@@ -177,9 +178,10 @@ public class TestLdapPasswordAuthenticationDao extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         dao = new LdapPasswordAuthenticationDao();
-        dao.setHost(HOSTNAME); // ldap://lojza:389/DC=elcom,DC=cz
-        dao.setPort(389);
-        dao.setRootContext(ROOT_CONTEXT);
+        //dao.setHost(HOSTNAME); // ldap://lojza:389/DC=elcom,DC=cz
+        //dao.setPort(389);
+        dao.setURL("ldap://" + HOSTNAME + ":" + PORT);
+        dao.setRootContext(ROOT_CONTEXT);   //Depending on server this can be confusing...
         dao.setUserContext(USER_CONTEXT);
 
         //	dao.setRolesAttribute(ROLES_ATTRIBUTE);
