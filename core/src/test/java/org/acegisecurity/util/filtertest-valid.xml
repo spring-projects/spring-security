@@ -21,17 +21,7 @@
 
 <beans>
 
-	<bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
-  		<property name="userMap">
-			<value>
-				marissa=koala,ROLE_TELLER,ROLE_SUPERVISOR
-				dianne=emu,ROLE_TELLER
-				scott=wombat,ROLE_TELLER
-				peter=opal,disabled,ROLE_TELLER
-			</value>
-		</property>
-	</bean>
-	
-	<!-- FilterSecurityInterceptor deliberately missing to cause error -->
+	<bean id="mockFilter" class="net.sf.acegisecurity.util.MockFilter"/>
 
+	<bean id="mockNotAFilter" class="net.sf.acegisecurity.util.MockNotAFilter"/>
 </beans>

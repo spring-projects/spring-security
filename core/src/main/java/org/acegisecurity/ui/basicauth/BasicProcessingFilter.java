@@ -25,15 +25,9 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.beans.factory.InitializingBean;
 
 import java.io.IOException;
-
-import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -87,62 +81,43 @@ import javax.servlet.http.HttpServletResponse;
  * sent with a request, it should return a 403 (forbidden) response.</I>".
  * </p>
  * 
- * <p>
- * This filter works with an {@link AuthenticationManager} which is used to
- * process each authentication request. By default, at init time, the filter
- * will use Spring's {@link
- * WebApplicationContextUtils#getWebApplicationContext(ServletContext sc)}
- * method to obtain an ApplicationContext instance, inside which must be a
- * configured AuthenticationManager instance. In the case where it is
- * desirable for  this filter to instantiate its own ApplicationContext
- * instance from which to obtain the AuthenticationManager, the location of
- * the config for this context may be specified with the optional
- * <code>contextConfigLocation</code> init param.
+ * <P>
+ * <B>Do not use this class directly.</B> Instead configure
+ * <code>web.xml</code> to use the {@link
+ * net.sf.acegisecurity.util.FilterToBeanProxy}.
  * </p>
- * 
- * <p>
- * To use this filter, it is necessary to specify the following filter
- * initialization parameters:
- * </p>
- * 
- * <ul>
- * <li>
- * <code>contextConfigLocation</code> (optional, normally not used), indicates
- * the path to an application context that contains an {@link
- * AuthenticationManager} which should be used to process each authentication
- * request. If not specified, {@link
- * WebApplicationContextUtils#getWebApplicationContext(ServletContext sc)}
- * will be used to obtain the context.
- * </li>
- * </ul>
- * 
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class BasicProcessingFilter implements Filter {
+public class BasicProcessingFilter implements Filter, InitializingBean {
     //~ Static fields/initializers =============================================
 
-    /**
-     * Name of (optional) servlet filter parameter that can specify the config
-     * location for a new ApplicationContext used to config this filter.
-     */
-    public static final String CONFIG_LOCATION_PARAM = "contextConfigLocation";
     private static final Log logger = LogFactory.getLog(BasicProcessingFilter.class);
 
     //~ Instance fields ========================================================
 
-    private ApplicationContext ctx;
     private AuthenticationManager authenticationManager;
-    private boolean ourContext = false;
 
     //~ Methods ================================================================
 
-    public void destroy() {
-        if (ourContext && ctx instanceof ConfigurableApplicationContext) {
-            ((ConfigurableApplicationContext) ctx).close();
+    public void setAuthenticationManager(
+        AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
+
+    public AuthenticationManager getAuthenticationManager() {
+        return authenticationManager;
+    }
+
+    public void afterPropertiesSet() throws Exception {
+        if (this.authenticationManager == null) {
+            throw new IllegalArgumentException(
+                "An AuthenticationManager is required");
         }
     }
+
+    public void destroy() {}
 
     public void doFilter(ServletRequest request, ServletResponse response,
         FilterChain chain) throws IOException, ServletException {
@@ -208,42 +183,5 @@ public class BasicProcessingFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    public void init(FilterConfig filterConfig) throws ServletException {
-        String appContextLocation = filterConfig.getInitParameter(CONFIG_LOCATION_PARAM);
-
-        if ((appContextLocation != null) && (appContextLocation.length() > 0)) {
-            ourContext = true;
-
-            if (Thread.currentThread().getContextClassLoader().getResource(appContextLocation) == null) {
-                throw new ServletException("Cannot locate "
-                    + appContextLocation);
-            }
-        }
-
-        try {
-            if (!ourContext) {
-                ctx = WebApplicationContextUtils
-                    .getRequiredWebApplicationContext(filterConfig
-                        .getServletContext());
-            } else {
-                ctx = new ClassPathXmlApplicationContext(appContextLocation);
-            }
-        } catch (RuntimeException e) {
-            throw new ServletException(
-                "Error obtaining/creating ApplicationContext for config. Must be stored in ServletContext, or optionally '"
-                + CONFIG_LOCATION_PARAM
-                + "' param may be used to allow creation of new context by this filter. See root error for additional details",
-                e);
-        }
-
-        Map beans = ctx.getBeansOfType(AuthenticationManager.class, true, true);
-
-        if (beans.size() == 0) {
-            throw new ServletException(
-                "Bean context must contain at least one bean of type AuthenticationManager");
-        }
-
-        String beanName = (String) beans.keySet().iterator().next();
-        authenticationManager = (AuthenticationManager) beans.get(beanName);
-    }
+    public void init(FilterConfig arg0) throws ServletException {}
 }

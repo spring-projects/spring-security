@@ -26,24 +26,20 @@
 
     <filter>
         <filter-name>Acegi Authentication Processing Filter</filter-name>
-        <filter-class>net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter</filter-class>
+        <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
         <init-param>
-            <param-name>authenticationFailureUrl</param-name>
-            <param-value>/acegilogin.jsp?login_error=1</param-value>
-        </init-param>
-        <init-param>
-              <param-name>defaultTargetUrl</param-name>
-              <param-value>/</param-value>
-        </init-param>
-        <init-param>
-            <param-name>filterProcessUrl</param-name>
-            <param-value>/j_acegi_security_check</param-value>
+            <param-name>targetClass</param-name>
+            <param-value>net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter</param-value>
         </init-param>
     </filter>
 
     <filter>
         <filter-name>Acegi HTTP BASIC Authorization Filter</filter-name>
-        <filter-class>net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter</filter-class>
+        <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
+        <init-param>
+            <param-name>targetClass</param-name>
+            <param-value>net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter</param-value>
+        </init-param>
     </filter>
 
     <filter>
@@ -53,10 +49,10 @@
 
     <filter>
         <filter-name>Acegi HTTP Request Security Filter</filter-name>
-        <filter-class>net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter</filter-class>
+        <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
         <init-param>
-            <param-name>loginFormUrl</param-name>
-            <param-value>/acegilogin.jsp</param-value>
+            <param-name>targetClass</param-name>
+            <param-value>net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter</param-value>
         </init-param>
     </filter>
 

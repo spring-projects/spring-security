@@ -45,6 +45,10 @@
      	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
 	</bean>
 
+	<bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
+		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+	</bean>
+
 	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~~~~ -->
 
 	<!-- An access decision voter that reads ROLE_* configuaration settings -->
@@ -125,6 +129,18 @@
 
 	<!-- ===================== HTTP REQUEST SECURITY ==================== -->
 
+	<bean id="authenticationProcessingFilter" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
+		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+		<property name="authenticationFailureUrl"><value>/acegilogin.jsp?login_error=1</value></property>
+		<property name="defaultTargetUrl"><value>/</value></property>
+		<property name="filterProcessesUrl"><value>/j_acegi_security_check</value></property>
+	</bean>
+
+	<bean id="securityEnforcementFilter" class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter">
+		<property name="filterSecurityInterceptor"><ref bean="filterInvocationInterceptor"/></property>
+		<property name="loginFormUrl"><value>/acegilogin.jsp</value></property>
+	</bean>
+
 	<bean id="httpRequestAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
    		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
 		<property name="decisionVoters">
@@ -134,11 +150,9 @@
 		</property>
 	</bean>
 
-	<!-- The FilterSecurityInterceptor is called by the web.xml-defined SecurityEnforcementFilter.
-	     Note the order that entries are placed against the objectDefinitionSource is critical.
+	<!-- Note the order that entries are placed against the objectDefinitionSource is critical.
 	     The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
 	     Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
-	
 	<bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
     	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
     	<property name="accessDecisionManager"><ref bean="httpRequestAccessDecisionManager"/></property>

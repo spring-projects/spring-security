@@ -23,15 +23,9 @@ import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.beans.factory.InitializingBean;
 
 import java.io.IOException;
-
-import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -70,21 +64,7 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
- * This filter works with an {@link AuthenticationManager} which is used to
- * process each authentication request. By default, at init time, the filter
- * will use Spring's {@link
- * WebApplicationContextUtils#getWebApplicationContext(ServletContext sc)}
- * method to obtain an ApplicationContext instance, inside which must be a
- * configured AuthenticationManager instance. In the case where it is
- * desirable for  this filter to instantiate its own ApplicationContext
- * instance from which to obtain the AuthenticationManager, the location of
- * the config for this context may be specified with the optional
- * <code>contextConfigLocation</code> init param.
- * </p>
- * 
- * <p>
- * To use this filter, it is necessary to specify the following filter
- * initialization parameters:
+ * To use this filter, it is necessary to specify the following properties:
  * </p>
  * 
  * <ul>
@@ -104,29 +84,21 @@ import javax.servlet.http.HttpServletResponse;
  * respond to. This parameter is optional, and defaults to
  * <code>/j_acegi_security_check</code>.
  * </li>
- * <li>
- * <code>contextConfigLocation</code> (optional, normally not used), indicates
- * the path to an application context that contains an {@link
- * AuthenticationManager} which should be used to process each authentication
- * request. If not specified, {@link
- * WebApplicationContextUtils#getWebApplicationContext(ServletContext sc)}
- * will be used to obtain the context.
- * </li>
  * </ul>
  * 
+ * <P>
+ * <B>Do not use this class directly.</B> Instead configure
+ * <code>web.xml</code> to use the {@link
+ * net.sf.acegisecurity.util.FilterToBeanProxy}.
+ * </p>
  *
  * @author Ben Alex
  * @author Colin Sampaleanu
  * @version $Id$
  */
-public class AuthenticationProcessingFilter implements Filter {
+public class AuthenticationProcessingFilter implements Filter, InitializingBean {
     //~ Static fields/initializers =============================================
 
-    /**
-     * Name of (optional) servlet filter parameter that can specify the config
-     * location for a new ApplicationContext used to config this filter.
-     */
-    public static final String CONFIG_LOCATION_PARAM = "contextConfigLocation";
     public static final String ACEGI_SECURITY_TARGET_URL_KEY = "ACEGI_SECURITY_TARGET_URL";
     public static final String ACEGI_SECURITY_FORM_USERNAME_KEY = "j_username";
     public static final String ACEGI_SECURITY_FORM_PASSWORD_KEY = "j_password";
@@ -135,7 +107,6 @@ public class AuthenticationProcessingFilter implements Filter {
 
     //~ Instance fields ========================================================
 
-    private ApplicationContext ctx;
     private AuthenticationManager authenticationManager;
 
     /** Where to redirect the browser to if authentication fails */
@@ -151,16 +122,67 @@ public class AuthenticationProcessingFilter implements Filter {
      * The URL destination that this filter intercepts and processes (usually
      * <code>/j_acegi_security_check</code>)
      */
-    private String filterProcessesUrl;
-    private boolean ourContext = false;
+    private String filterProcessesUrl = "/j_acegi_security_check";
 
     //~ Methods ================================================================
 
-    public void destroy() {
-        if (ourContext && ctx instanceof ConfigurableApplicationContext) {
-            ((ConfigurableApplicationContext) ctx).close();
+    public void setAuthenticationFailureUrl(String authenticationFailureUrl) {
+        this.authenticationFailureUrl = authenticationFailureUrl;
+    }
+
+    public String getAuthenticationFailureUrl() {
+        return authenticationFailureUrl;
+    }
+
+    public void setAuthenticationManager(
+        AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
+
+    public AuthenticationManager getAuthenticationManager() {
+        return authenticationManager;
+    }
+
+    public void setDefaultTargetUrl(String defaultTargetUrl) {
+        this.defaultTargetUrl = defaultTargetUrl;
+    }
+
+    public String getDefaultTargetUrl() {
+        return defaultTargetUrl;
+    }
+
+    public void setFilterProcessesUrl(String filterProcessesUrl) {
+        this.filterProcessesUrl = filterProcessesUrl;
+    }
+
+    public String getFilterProcessesUrl() {
+        return filterProcessesUrl;
+    }
+
+    public void afterPropertiesSet() throws Exception {
+        if ((filterProcessesUrl == null) || "".equals(filterProcessesUrl)) {
+            throw new IllegalArgumentException(
+                "filterProcessesUrl must be specified");
+        }
+
+        if ((defaultTargetUrl == null) || "".equals(defaultTargetUrl)) {
+            throw new IllegalArgumentException(
+                "defaultTargetUrl must be specified");
+        }
+
+        if ((authenticationFailureUrl == null)
+            || "".equals(authenticationFailureUrl)) {
+            throw new IllegalArgumentException(
+                "authenticationFailureUrl must be specified");
+        }
+
+        if (authenticationManager == null) {
+            throw new IllegalArgumentException(
+                "authenticationManager must be specified");
         }
     }
+
+    public void destroy() {}
 
     public void doFilter(ServletRequest request, ServletResponse response,
         FilterChain chain) throws IOException, ServletException {
@@ -245,63 +267,5 @@ public class AuthenticationProcessingFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    public void init(FilterConfig filterConfig) throws ServletException {
-        String appContextLocation = filterConfig.getInitParameter(CONFIG_LOCATION_PARAM);
-
-        if ((appContextLocation != null) && (appContextLocation.length() > 0)) {
-            ourContext = true;
-
-            if (Thread.currentThread().getContextClassLoader().getResource(appContextLocation) == null) {
-                throw new ServletException("Cannot locate "
-                    + appContextLocation);
-            }
-        }
-
-        defaultTargetUrl = filterConfig.getInitParameter("defaultTargetUrl");
-
-        if ((defaultTargetUrl == null) || "".equals(defaultTargetUrl)) {
-            throw new ServletException("defaultTargetUrl must be specified");
-        }
-
-        authenticationFailureUrl = filterConfig.getInitParameter(
-                "authenticationFailureUrl");
-
-        if ((authenticationFailureUrl == null)
-            || "".equals(authenticationFailureUrl)) {
-            throw new ServletException(
-                "authenticationFailureUrl must be specified");
-        }
-
-        filterProcessesUrl = filterConfig.getInitParameter("filterProcessesUrl");
-
-        if ((filterProcessesUrl == null) || "".equals(filterProcessesUrl)) {
-            filterProcessesUrl = "/j_acegi_security_check";
-        }
-
-        try {
-            if (!ourContext) {
-                ctx = WebApplicationContextUtils
-                    .getRequiredWebApplicationContext(filterConfig
-                        .getServletContext());
-            } else {
-                ctx = new ClassPathXmlApplicationContext(appContextLocation);
-            }
-        } catch (RuntimeException e) {
-            throw new ServletException(
-                "Error obtaining/creating ApplicationContext for config. Must be stored in ServletContext, or optionally '"
-                + CONFIG_LOCATION_PARAM
-                + "' param may be used to allow creation of new context by this filter. See root error for additional details",
-                e);
-        }
-
-        Map beans = ctx.getBeansOfType(AuthenticationManager.class, true, true);
-
-        if (beans.size() == 0) {
-            throw new ServletException(
-                "Bean context must contain at least one bean of type AuthenticationManager");
-        }
-
-        String beanName = (String) beans.keySet().iterator().next();
-        authenticationManager = (AuthenticationManager) beans.get(beanName);
-    }
+    public void init(FilterConfig filterConfig) throws ServletException {}
 }

@@ -182,6 +182,7 @@
 				<include name="net/sf/acegisecurity/runas/**"/>
 				<include name="net/sf/acegisecurity/vote/**"/>
 				<include name="net/sf/acegisecurity/ui/**"/>
+				<include name="net/sf/acegisecurity/util/**"/>
 				<include name="net/sf/acegisecurity/intercept/**"/>
 				<include name="net/sf/acegisecurity/adapters/*"/>
 				<include name="net/sf/acegisecurity/adapters/catalina/*"/>
@@ -202,6 +203,7 @@
 				<include name="net/sf/acegisecurity/runas/**"/>
 				<include name="net/sf/acegisecurity/vote/**"/>
 				<include name="net/sf/acegisecurity/ui/**"/>
+				<include name="net/sf/acegisecurity/util/**"/>
 				<include name="net/sf/acegisecurity/intercept/**"/>
 				<include name="net/sf/acegisecurity/adapters/*"/>
 				<include name="net/sf/acegisecurity/adapters/jetty/*"/>
@@ -221,6 +223,7 @@
 				<include name="net/sf/acegisecurity/runas/**"/>
 				<include name="net/sf/acegisecurity/vote/**"/>
 				<include name="net/sf/acegisecurity/ui/**"/>
+				<include name="net/sf/acegisecurity/util/**"/>
 				<include name="net/sf/acegisecurity/intercept/**"/>
 				<include name="net/sf/acegisecurity/adapters/*"/>
 				<include name="net/sf/acegisecurity/adapters/jboss/*"/>
@@ -240,6 +243,7 @@
 				<include name="net/sf/acegisecurity/runas/**"/>
 				<include name="net/sf/acegisecurity/vote/**"/>
 				<include name="net/sf/acegisecurity/ui/**"/>
+				<include name="net/sf/acegisecurity/util/**"/>
 				<include name="net/sf/acegisecurity/intercept/**"/>
 				<include name="net/sf/acegisecurity/adapters/*"/>
 				<include name="net/sf/acegisecurity/adapters/resin/*"/>
@@ -258,7 +262,6 @@
 		<zip zipfile="${dist.dir}/${acegi-security-src.zip}">
 			<fileset dir="${src.dir}">
 				<include name="net/sf/acegisecurity/**"/>
-				<include name="net/sf/acegisecurity/context/**"/>
 			</fileset>
 		</zip>
 	</target>

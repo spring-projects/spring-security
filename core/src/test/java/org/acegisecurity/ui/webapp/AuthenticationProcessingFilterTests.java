@@ -18,10 +18,14 @@ package net.sf.acegisecurity.ui.webapp;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockFilterConfig;
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpServletResponse;
 import net.sf.acegisecurity.MockHttpSession;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.IOException;
 
@@ -100,19 +104,20 @@ public class AuthenticationProcessingFilterTests extends TestCase {
             "WRONG_PASSWORD");
         request.setServletPath("/j_acegi_security_check");
 
+        // Launch an application context and access our bean
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
+        AuthenticationProcessingFilter filter = (AuthenticationProcessingFilter) ctx
+            .getBean("authenticationProcessingFilter");
+
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
-        config.setInitParmeter("defaultTargetUrl", "/");
-        config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
 
         // Setup our expectation that the filter chain will not be invoked, as we redirect to authenticationFailureUrl
         MockFilterChain chain = new MockFilterChain(false);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Test
-        AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         System.out.println(response.getRedirect());
@@ -129,22 +134,25 @@ public class AuthenticationProcessingFilterTests extends TestCase {
             "marissa");
         request.setParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY,
             "koala");
-        request.setServletPath("/j_my_security_check");
+        request.setServletPath("/j_THIS_IS_MY_security_check");
+
+        // Launch an application context and access our bean
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
+        AuthenticationProcessingFilter filter = (AuthenticationProcessingFilter) ctx
+            .getBean("authenticationProcessingFilter");
+
+        // Must override the XML defined authenticationProcessesUrl
+        filter.setFilterProcessesUrl("/j_THIS_IS_MY_security_check");
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
-        config.setInitParmeter("defaultTargetUrl", "/");
-        config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
-        config.setInitParmeter("filterProcessesUrl", "/j_my_security_check");
 
         // Setup our expectation that the filter chain will not be invoked, as we redirect to defaultTargetUrl
         MockFilterChain chain = new MockFilterChain(false);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Test
-        AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/", response.getRedirect());
@@ -154,6 +162,21 @@ public class AuthenticationProcessingFilterTests extends TestCase {
              .toString());
     }
 
+    public void testGettersSetters() {
+        AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
+        filter.setAuthenticationFailureUrl("/x");
+        assertEquals("/x", filter.getAuthenticationFailureUrl());
+
+        filter.setAuthenticationManager(new MockAuthenticationManager());
+        assertTrue(filter.getAuthenticationManager() != null);
+
+        filter.setDefaultTargetUrl("/default");
+        assertEquals("/default", filter.getDefaultTargetUrl());
+
+        filter.setFilterProcessesUrl("/p");
+        assertEquals("/p", filter.getFilterProcessesUrl());
+    }
+
     public void testIgnoresAnyServletPathOtherThanFilterProcessesUrl()
         throws Exception {
         // Setup our HTTP request
@@ -161,18 +184,19 @@ public class AuthenticationProcessingFilterTests extends TestCase {
                 new MockHttpSession());
         request.setServletPath("/j_some_other_url");
 
+        // Launch an application context and access our bean
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
+        AuthenticationProcessingFilter filter = (AuthenticationProcessingFilter) ctx
+            .getBean("authenticationProcessingFilter");
+
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
-        config.setInitParmeter("defaultTargetUrl", "/");
-        config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
 
         // Setup our expectation that the filter chain will be invoked, as should just proceed with chain
         MockFilterChain chain = new MockFilterChain(true);
 
         // Test
-        AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
         executeFilterInContainerSimulator(config, filter, request,
             new MockHttpServletResponse(), chain);
     }
@@ -188,19 +212,20 @@ public class AuthenticationProcessingFilterTests extends TestCase {
             "koala");
         request.setServletPath("/j_acegi_security_check");
 
+        // Launch an application context and access our bean
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
+        AuthenticationProcessingFilter filter = (AuthenticationProcessingFilter) ctx
+            .getBean("authenticationProcessingFilter");
+
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
-        config.setInitParmeter("defaultTargetUrl", "/");
-        config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
 
         // Setup our expectation that the filter chain will not be invoked, as we redirect to defaultTargetUrl
         MockFilterChain chain = new MockFilterChain(false);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Test
-        AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/", response.getRedirect());
@@ -220,19 +245,20 @@ public class AuthenticationProcessingFilterTests extends TestCase {
             null);
         request.setServletPath("/j_acegi_security_check");
 
+        // Launch an application context and access our bean
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
+        AuthenticationProcessingFilter filter = (AuthenticationProcessingFilter) ctx
+            .getBean("authenticationProcessingFilter");
+
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
-        config.setInitParmeter("defaultTargetUrl", "/");
-        config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
 
         // Setup our expectation that the filter chain will not be invoked, as we redirect to defaultTargetUrl
         MockFilterChain chain = new MockFilterChain(false);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Test
-        AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/failed.jsp", response.getRedirect());
@@ -249,138 +275,88 @@ public class AuthenticationProcessingFilterTests extends TestCase {
             "koala");
         request.setServletPath("/j_acegi_security_check");
 
+        // Launch an application context and access our bean
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
+        AuthenticationProcessingFilter filter = (AuthenticationProcessingFilter) ctx
+            .getBean("authenticationProcessingFilter");
+
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
-        config.setInitParmeter("defaultTargetUrl", "/");
-        config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
 
         // Setup our expectation that the filter chain will not be invoked, as we redirect to defaultTargetUrl
         MockFilterChain chain = new MockFilterChain(false);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Test
-        AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/failed.jsp", response.getRedirect());
         assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) == null);
     }
 
-    public void testStartupDetectsInvalidcontextConfigLocation()
+    public void testStartupDetectsInvalidAuthenticationFailureUrl()
         throws Exception {
-        MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("defaultTargetUrl", "/");
-        config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-invalid.xml");
-
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
+        filter.setAuthenticationManager(new MockAuthenticationManager());
+        filter.setDefaultTargetUrl("/");
+        filter.setFilterProcessesUrl("/j_acegi_security_check");
 
         try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertEquals("Bean context must contain at least one bean of type AuthenticationManager",
-                expected.getMessage());
-        }
-    }
-
-    public void testStartupDetectsMissingAppContext() throws Exception {
-        MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("defaultTargetUrl", "/");
-        config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
-
-        AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
-
-        try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertTrue(expected.getMessage().startsWith("Error obtaining/creating ApplicationContext for config."));
-        }
-
-        config.setInitParmeter("contextConfigLocation", "");
-
-        try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertTrue(expected.getMessage().startsWith("Error obtaining/creating ApplicationContext for config."));
-        }
-    }
-
-    public void testStartupDetectsMissingAuthenticationFailureUrl()
-        throws Exception {
-        MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
-        config.setInitParmeter("defaultTargetUrl", "/");
-
-        AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
-
-        try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertEquals("authenticationFailureUrl must be specified",
-                expected.getMessage());
-        }
-
-        config.setInitParmeter("authenticationFailureUrl", "");
-
-        try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
+            filter.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
             assertEquals("authenticationFailureUrl must be specified",
                 expected.getMessage());
         }
     }
 
-    public void testStartupDetectsMissingDefaultTargetUrl()
+    public void testStartupDetectsInvalidAuthenticationManager()
         throws Exception {
-        MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
-
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
+        filter.setAuthenticationFailureUrl("/failed.jsp");
+        filter.setDefaultTargetUrl("/");
+        filter.setFilterProcessesUrl("/j_acegi_security_check");
 
         try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertEquals("defaultTargetUrl must be specified",
+            filter.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("authenticationManager must be specified",
                 expected.getMessage());
         }
+    }
 
-        config.setInitParmeter("defaultTargetUrl", "");
+    public void testStartupDetectsInvalidDefaultTargetUrl()
+        throws Exception {
+        AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
+        filter.setAuthenticationFailureUrl("/failed.jsp");
+        filter.setAuthenticationManager(new MockAuthenticationManager());
+        filter.setFilterProcessesUrl("/j_acegi_security_check");
 
         try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
+            filter.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
             assertEquals("defaultTargetUrl must be specified",
                 expected.getMessage());
         }
     }
 
-    public void testStartupDetectsMissingInvalidcontextConfigLocation()
+    public void testStartupDetectsInvalidFilterProcessesUrl()
         throws Exception {
-        MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("defaultTargetUrl", "/");
-        config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
-        config.setInitParmeter("contextConfigLocation", "DOES_NOT_EXIST");
-
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
+        filter.setAuthenticationFailureUrl("/failed.jsp");
+        filter.setAuthenticationManager(new MockAuthenticationManager());
+        filter.setDefaultTargetUrl("/");
+        filter.setFilterProcessesUrl(null);
 
         try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertTrue(expected.getMessage().startsWith("Cannot locate"));
+            filter.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("filterProcessesUrl must be specified",
+                expected.getMessage());
         }
     }
 
@@ -395,19 +371,20 @@ public class AuthenticationProcessingFilterTests extends TestCase {
             "koala");
         request.setServletPath("/j_acegi_security_check");
 
+        // Launch an application context and access our bean
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
+        AuthenticationProcessingFilter filter = (AuthenticationProcessingFilter) ctx
+            .getBean("authenticationProcessingFilter");
+
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
-        config.setInitParmeter("defaultTargetUrl", "/");
-        config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
 
         // Setup our expectation that the filter chain will not be invoked, as we redirect to authenticationFailureUrl
         MockFilterChain chain = new MockFilterChain(false);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Test
-        AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/", response.getRedirect());
@@ -440,19 +417,20 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         request.getSession().setAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
             "/my-destination");
 
+        // Launch an application context and access our bean
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
+        AuthenticationProcessingFilter filter = (AuthenticationProcessingFilter) ctx
+            .getBean("authenticationProcessingFilter");
+
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
-        config.setInitParmeter("defaultTargetUrl", "/");
-        config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
 
         // Setup our expectation that the filter chain will not be invoked, as we redirect to defaultTargetUrl
         MockFilterChain chain = new MockFilterChain(false);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Test
-        AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/my-destination", response.getRedirect());

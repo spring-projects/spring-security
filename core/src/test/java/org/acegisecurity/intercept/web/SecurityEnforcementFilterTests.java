@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.AccessDeniedException;
 import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.MockFilterConfig;
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpServletResponse;
 import net.sf.acegisecurity.MockHttpSession;
@@ -75,9 +74,11 @@ public class SecurityEnforcementFilterTests extends TestCase {
                 false);
 
         // Test
+        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
+        filter.setFilterSecurityInterceptor(interceptor);
+        filter.setLoginFormUrl("/login.jsp");
+
         MockHttpServletResponse response = new MockHttpServletResponse();
-        SecurityEnforcementFilter filter = new MockSecurityEnforcementFilter(interceptor,
-                "/login.jsp");
         filter.doFilter(request, response, chain);
         assertEquals(403, response.getError());
     }
@@ -108,6 +109,16 @@ public class SecurityEnforcementFilterTests extends TestCase {
         }
     }
 
+    public void testGettersSetters() {
+        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
+        filter.setFilterSecurityInterceptor(new MockFilterSecurityInterceptor(
+                false, false));
+        assertTrue(filter.getFilterSecurityInterceptor() != null);
+
+        filter.setLoginFormUrl("/u");
+        assertEquals("/u", filter.getLoginFormUrl());
+    }
+
     public void testRedirectedToLoginFormAndSessionShowsOriginalTargetWhenAuthenticationException()
         throws Exception {
         // Setup our HTTP request
@@ -123,93 +134,42 @@ public class SecurityEnforcementFilterTests extends TestCase {
                 true);
 
         // Test
+        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
+        filter.setFilterSecurityInterceptor(interceptor);
+        filter.setLoginFormUrl("/login.jsp");
+        filter.afterPropertiesSet();
+
         MockHttpServletResponse response = new MockHttpServletResponse();
-        SecurityEnforcementFilter filter = new MockSecurityEnforcementFilter(interceptor,
-                "/login.jsp");
         filter.doFilter(request, response, chain);
         assertEquals("/login.jsp", response.getRedirect());
         assertEquals("/secure/page.html",
             request.getSession().getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
     }
 
-    public void testStartupDetectsInvalidcontextConfigLocation()
+    public void testStartupDetectsMissingFilterSecurityInterceptor()
         throws Exception {
-        MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("loginFormUrl", "/login.jsp");
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/intercept/web/securityfiltertest-invalid.xml");
-
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
+        filter.setLoginFormUrl("/login.jsp");
 
         try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertEquals("Bean context must contain at least one bean of type FilterSecurityInterceptor",
+            filter.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("filterSecurityInterceptor must be specified",
                 expected.getMessage());
-        }
-    }
-
-    public void testStartupDetectsMissingAppContext() throws Exception {
-        MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("loginFormUrl", "/login.jsp");
-
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
-
-        try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertTrue(expected.getMessage().startsWith("Error obtaining/creating ApplicationContext for config."));
-        }
-
-        config.setInitParmeter("contextConfigLocation", "");
-
-        try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertTrue(expected.getMessage().startsWith("Error obtaining/creating ApplicationContext for config."));
-        }
-    }
-
-    public void testStartupDetectsMissingInvalidcontextConfigLocation()
-        throws Exception {
-        MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("loginFormUrl", "/login.jsp");
-        config.setInitParmeter("contextConfigLocation", "DOES_NOT_EXIST");
-
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
-
-        try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertTrue(expected.getMessage().startsWith("Cannot locate"));
         }
     }
 
     public void testStartupDetectsMissingLoginFormUrl()
         throws Exception {
-        MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/intercept/web/securityfiltertest-valid.xml");
-
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
+        filter.setFilterSecurityInterceptor(new MockFilterSecurityInterceptor(
+                false, false));
 
         try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertEquals("loginFormUrl must be specified", expected.getMessage());
-        }
-
-        config.setInitParmeter("loginFormUrl", "");
-
-        try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
+            filter.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
             assertEquals("loginFormUrl must be specified", expected.getMessage());
         }
     }
@@ -228,22 +188,19 @@ public class SecurityEnforcementFilterTests extends TestCase {
                 false);
 
         // Test
+        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
+        filter.setFilterSecurityInterceptor(interceptor);
+        filter.setLoginFormUrl("/login.jsp");
+
         MockHttpServletResponse response = new MockHttpServletResponse();
-        SecurityEnforcementFilter filter = new MockSecurityEnforcementFilter(interceptor,
-                "/login.jsp");
         filter.doFilter(request, response, chain);
     }
 
     public void testSuccessfulStartupAndShutdownDown()
         throws Exception {
-        MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/intercept/web/securityfiltertest-valid.xml");
-        config.setInitParmeter("loginFormUrl", "/login.jsp");
-
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
 
-        filter.init(config);
+        filter.init(null);
         filter.destroy();
         assertTrue(true);
     }
@@ -296,19 +253,6 @@ public class SecurityEnforcementFilterTests extends TestCase {
             }
 
             fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
-        }
-    }
-
-    private class MockSecurityEnforcementFilter
-        extends SecurityEnforcementFilter {
-        public MockSecurityEnforcementFilter(
-            FilterSecurityInterceptor securityInterceptor, String loginFormUrl) {
-            super.securityInterceptor = securityInterceptor;
-            super.loginFormUrl = loginFormUrl;
-        }
-
-        private MockSecurityEnforcementFilter() {
-            super();
         }
     }
 }

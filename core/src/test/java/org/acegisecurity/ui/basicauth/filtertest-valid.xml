@@ -21,6 +21,7 @@
 
 <beans>
 
+	<!-- Data access object which stores authentication information -->
 	<bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
   		<property name="userMap">
 			<value>
@@ -32,10 +33,12 @@
 		</property>
 	</bean>
 	
+	<!-- Authentication provider that queries our data access object  -->
 	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
      	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
 	</bean>
 
+	<!-- The authentication manager that iterates through our only authentication provider -->
 	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
 		<property name="providers">
 		  <list>
@@ -43,32 +46,9 @@
 		  </list>
 		</property>
 	</bean>
-	
-	<bean id="runAsManager" class="net.sf.acegisecurity.runas.RunAsManagerImpl">
-     	<property name="key"><value>my_run_as_password</value></property>
- 	</bean>
-	
-	<bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
 
-	<bean id="accessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
-   		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
-		<property name="decisionVoters">
-		  <list>
-		    <ref bean="roleVoter"/>
-		  </list>
-		</property>
-	</bean>
-
-	<bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
-	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-	<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
-	<property name="runAsManager"><ref bean="runAsManager"/></property>
-		<property name="objectDefinitionSource">
-		<value>
-			\A/secure/super.*\Z=ROLE_WE_DONT_HAVE
-			\A/secure/.*\Z=ROLE_SUPERVISOR,ROLE_TELLER
-		</value>
-	</property>
+	<bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
+		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
 	</bean>
 
 </beans>

@@ -47,4 +47,11 @@
 		</property>
 	</bean>
 
+	<bean id="authenticationProcessingFilter" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
+		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+		<property name="authenticationFailureUrl"><value>/failed.jsp</value></property>
+		<property name="defaultTargetUrl"><value>/</value></property>
+		<property name="filterProcessesUrl"><value>/j_acegi_security_check</value></property>
+	</bean>
+
 </beans>

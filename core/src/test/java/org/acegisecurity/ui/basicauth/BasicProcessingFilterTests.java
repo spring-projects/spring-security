@@ -18,6 +18,7 @@ package net.sf.acegisecurity.ui.basicauth;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockFilterConfig;
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpServletResponse;
@@ -25,6 +26,9 @@ import net.sf.acegisecurity.MockHttpSession;
 import net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter;
 
 import org.apache.commons.codec.binary.Base64;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.IOException;
 
@@ -102,21 +106,30 @@ public class BasicProcessingFilterTests extends TestCase {
                 null, new MockHttpSession());
         request.setServletPath("/some_file.html");
 
+        // Launch an application context and access our bean
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/ui/basicauth/filtertest-valid.xml");
+        BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
+                "basicProcessingFilter");
+
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
 
         // Setup our expectation that the filter chain will be invoked
         MockFilterChain chain = new MockFilterChain(true);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Test
-        BasicProcessingFilter filter = new BasicProcessingFilter();
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
         assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) == null);
+    }
+
+    public void testGettersSetters() {
+        BasicProcessingFilter filter = new BasicProcessingFilter();
+        filter.setAuthenticationManager(new MockAuthenticationManager());
+        assertTrue(filter.getAuthenticationManager() != null);
     }
 
     public void testInvalidBasicAuthorizationTokenIsIgnored()
@@ -131,17 +144,20 @@ public class BasicProcessingFilterTests extends TestCase {
                 null, new MockHttpSession());
         request.setServletPath("/some_file.html");
 
+        // Launch an application context and access our bean
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/ui/basicauth/filtertest-valid.xml");
+        BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
+                "basicProcessingFilter");
+
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
 
         // Setup our expectation that the filter chain will be invoked
         MockFilterChain chain = new MockFilterChain(true);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Test
-        BasicProcessingFilter filter = new BasicProcessingFilter();
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
@@ -159,17 +175,20 @@ public class BasicProcessingFilterTests extends TestCase {
                 null, new MockHttpSession());
         request.setServletPath("/some_file.html");
 
+        // Launch an application context and access our bean
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/ui/basicauth/filtertest-valid.xml");
+        BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
+                "basicProcessingFilter");
+
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
 
         // Setup our expectation that the filter chain will be invoked
         MockFilterChain chain = new MockFilterChain(true);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Test
-        BasicProcessingFilter filter = new BasicProcessingFilter();
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
@@ -189,74 +208,35 @@ public class BasicProcessingFilterTests extends TestCase {
                 null, new MockHttpSession());
         request.setServletPath("/some_file.html");
 
+        // Launch an application context and access our bean
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/ui/basicauth/filtertest-valid.xml");
+        BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
+                "basicProcessingFilter");
+
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
 
         // Setup our expectation that the filter chain will be invoked
         MockFilterChain chain = new MockFilterChain(true);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Test
-        BasicProcessingFilter filter = new BasicProcessingFilter();
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
         assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) == null);
     }
 
-    public void testStartupDetectsInvalidContextConfigLocation()
+    public void testStartupDetectsMissingAuthenticationManager()
         throws Exception {
-        MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-invalid.xml");
-
-        BasicProcessingFilter filter = new BasicProcessingFilter();
-
         try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertEquals("Bean context must contain at least one bean of type AuthenticationManager",
+            BasicProcessingFilter filter = new BasicProcessingFilter();
+            filter.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("An AuthenticationManager is required",
                 expected.getMessage());
-        }
-    }
-
-    public void testStartupDetectsMissingAppContext() throws Exception {
-        MockFilterConfig config = new MockFilterConfig();
-
-        BasicProcessingFilter filter = new BasicProcessingFilter();
-
-        try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertTrue(expected.getMessage().startsWith("Error obtaining/creating ApplicationContext for config."));
-        }
-
-        config.setInitParmeter("contextConfigLocation", "");
-
-        try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertTrue(expected.getMessage().startsWith("Error obtaining/creating ApplicationContext for config."));
-        }
-    }
-
-    public void testStartupDetectsMissingInvalidContextConfigLocation()
-        throws Exception {
-        MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation", "DOES_NOT_EXIST");
-
-        BasicProcessingFilter filter = new BasicProcessingFilter();
-
-        try {
-            filter.init(config);
-            fail("Should have thrown ServletException");
-        } catch (ServletException expected) {
-            assertTrue(expected.getMessage().startsWith("Cannot locate"));
         }
     }
 
@@ -272,17 +252,20 @@ public class BasicProcessingFilterTests extends TestCase {
                 null, new MockHttpSession());
         request.setServletPath("/some_file.html");
 
+        // Launch an application context and access our bean
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/ui/basicauth/filtertest-valid.xml");
+        BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
+                "basicProcessingFilter");
+
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
 
         // Setup our expectation that the filter chain will be invoked
         MockFilterChain chain = new MockFilterChain(true);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Test
-        BasicProcessingFilter filter = new BasicProcessingFilter();
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
@@ -306,7 +289,6 @@ public class BasicProcessingFilterTests extends TestCase {
         response = new MockHttpServletResponse();
 
         // Test
-        filter = new BasicProcessingFilter();
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
@@ -325,17 +307,20 @@ public class BasicProcessingFilterTests extends TestCase {
                 null, new MockHttpSession());
         request.setServletPath("/some_file.html");
 
+        // Launch an application context and access our bean
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/ui/basicauth/filtertest-valid.xml");
+        BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
+                "basicProcessingFilter");
+
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("contextConfigLocation",
-            "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
 
         // Setup our expectation that the filter chain will not be invoked, as we get a 403 forbidden response
         MockFilterChain chain = new MockFilterChain(false);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Test
-        BasicProcessingFilter filter = new BasicProcessingFilter();
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 

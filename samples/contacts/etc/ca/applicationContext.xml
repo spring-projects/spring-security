@@ -50,6 +50,10 @@
      	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
 	</bean>
 
+	<bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
+		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+	</bean>
+
 	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~~~~ -->
 
 	<!-- An access decision voter that reads ROLE_* configuaration settings -->
