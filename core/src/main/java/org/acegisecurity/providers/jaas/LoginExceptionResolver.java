@@ -28,7 +28,7 @@ import javax.security.auth.login.LoginException;
  * the LoginExceptionResolver implementation would return a {@link
  * net.sf.acegisecurity.BadCredentialsException}.
  *
- * @author $author$
+ * @author Ray Krueger
  * @version $Revision$
  */
 public interface LoginExceptionResolver {

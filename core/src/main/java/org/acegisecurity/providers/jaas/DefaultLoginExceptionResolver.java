@@ -25,7 +25,7 @@ import javax.security.auth.login.LoginException;
  * This LoginExceptionResolver simply wraps the LoginException with an
  * AuthenticationServiceException.
  *
- * @author $author$
+ * @author Ray Krueger
  * @version $Revision$
  */
 public class DefaultLoginExceptionResolver implements LoginExceptionResolver {
