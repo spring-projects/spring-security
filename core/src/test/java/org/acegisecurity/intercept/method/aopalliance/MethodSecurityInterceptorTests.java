@@ -28,7 +28,6 @@ import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.ITargetObject;
 import net.sf.acegisecurity.MockAccessDecisionManager;
 import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.MockMethodInvocation;
 import net.sf.acegisecurity.MockRunAsManager;
 import net.sf.acegisecurity.RunAsManager;
 import net.sf.acegisecurity.context.ContextHolder;
@@ -246,7 +245,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
             si.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("AccessDecisionManager does not support MethodInvocation",
+            assertEquals("AccessDecisionManager does not support secure object class: interface org.aopalliance.intercept.MethodInvocation",
                 expected.getMessage());
         }
     }
@@ -255,12 +254,16 @@ public class MethodSecurityInterceptorTests extends TestCase {
         throws Throwable {
         MethodSecurityInterceptor interceptor = new MethodSecurityInterceptor();
         interceptor.setObjectDefinitionSource(new MockObjectDefinitionSourceWhichOnlySupportsStrings());
+        interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
+        interceptor.setAuthenticationManager(new MockAuthenticationManager());
+        interceptor.setRunAsManager(new MockRunAsManager());
 
         try {
-            interceptor.invoke(new MockMethodInvocation());
+            interceptor.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertTrue(expected.getMessage().startsWith("ObjectDefinitionSource does not support objects of type"));
+            assertEquals("ObjectDefinitionSource does not support secure object class: interface org.aopalliance.intercept.MethodInvocation",
+                expected.getMessage());
         }
     }
 
@@ -286,7 +289,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
             si.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("RunAsManager does not support MethodInvocation",
+            assertEquals("RunAsManager does not support secure object class: interface org.aopalliance.intercept.MethodInvocation",
                 expected.getMessage());
         }
     }
@@ -430,8 +433,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
     private class MockObjectDefinitionSourceWhichOnlySupportsStrings
         extends AbstractMethodDefinitionSource {
         public Iterator getConfigAttributeDefinitions() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
+            return null;
         }
 
         public boolean supports(Class clazz) {

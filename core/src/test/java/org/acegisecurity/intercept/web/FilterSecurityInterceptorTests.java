@@ -101,7 +101,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
             interceptor.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("AccessDecisionManager does not support FilterInvocation",
+            assertEquals("AccessDecisionManager does not support secure object class: class net.sf.acegisecurity.intercept.web.FilterInvocation",
                 expected.getMessage());
         }
     }
@@ -133,7 +133,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
             interceptor.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("RunAsManager does not support FilterInvocation",
+            assertEquals("RunAsManager does not support secure object class: class net.sf.acegisecurity.intercept.web.FilterInvocation",
                 expected.getMessage());
         }
     }
