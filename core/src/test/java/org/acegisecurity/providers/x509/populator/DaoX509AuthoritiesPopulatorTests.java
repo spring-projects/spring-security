@@ -8,6 +8,7 @@ import net.sf.acegisecurity.providers.x509.X509TestUtils;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.BadCredentialsException;
 import org.springframework.dao.DataAccessException;
 
 import java.security.cert.X509Certificate;
@@ -32,6 +33,28 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
         super.setUp();
     }
 
+    public void testRequiresDao() throws Exception {
+        DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
+        try {
+            populator.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch(IllegalArgumentException failed) {
+            // ignored
+        }
+    }
+
+    public void testInvalidRegexFails() throws Exception {
+        DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
+        populator.setAuthenticationDao(new MockAuthenticationDaoMatchesNameOrEmail());
+        populator.setSubjectDNRegex("CN=(.*?,"); // missing closing bracket on group
+        try {
+            populator.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch(IllegalArgumentException failed) {
+            // ignored
+        }
+    }
+
     public void testDefaultCNPatternMatch() throws Exception{
         X509Certificate cert = X509TestUtils.buildTestCertificate();
         DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
@@ -49,6 +72,36 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
         populator.setSubjectDNRegex("emailAddress=(.*?),");
         populator.afterPropertiesSet();
         populator.getUserDetails(cert);
+    }
+
+    public void testPatternWithNoGroupFails() throws Exception {
+        X509Certificate cert = X509TestUtils.buildTestCertificate();
+        DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
+
+        populator.setAuthenticationDao(new MockAuthenticationDaoMatchesNameOrEmail());
+        populator.setSubjectDNRegex("CN=.*?,");
+        populator.afterPropertiesSet();
+        try {
+            populator.getUserDetails(cert);
+            fail("Should have thrown IllegalArgumentException for regexp without group");
+        } catch (IllegalArgumentException e) {
+            // ignored
+        }
+    }
+
+    public void testMatchOnShoeSizeFieldInDNFails() throws Exception {
+        X509Certificate cert = X509TestUtils.buildTestCertificate();
+        DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
+
+        populator.setAuthenticationDao(new MockAuthenticationDaoMatchesNameOrEmail());
+        populator.setSubjectDNRegex("shoeSize=(.*?),");
+        populator.afterPropertiesSet();
+        try {
+            populator.getUserDetails(cert);
+            fail("Should have thrown BadCredentialsException.");
+        } catch (BadCredentialsException failed) {
+            // ignored
+        }
     }
 
     //~ Inner Classes ==========================================================

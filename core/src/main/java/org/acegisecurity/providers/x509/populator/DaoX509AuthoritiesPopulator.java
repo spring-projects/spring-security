@@ -54,10 +54,6 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
         this.authenticationDao = authenticationDao;
     }
 
-    public AuthenticationDao getAuthenticationDao() {
-        return authenticationDao;
-    }
-
     /**
      * Sets the regular expression which will by used to extract the user name
      * from the certificate's Subject DN.
