@@ -21,7 +21,7 @@ in this release. You can do so using the following command:
 
     "jarsigner -verify -verbose -certs jar_file_name"
 
-Of course, replace the jar_file_name with "dist/acegi-security.jar" or the
+Of course, replace the jar_file_name with "acegi-security-XXXXX.jar" or the
 appropriate path to the Acegi Security JAR to be validated.
 
 Until further notice, all Acegi Security official releases are signed by:
@@ -37,31 +37,28 @@ are provided below) for further assistance.
 BUILDING
 -------------------------------------------------------------------------------
 
-Acegi Security is built using Maven. Please check building instructions at
-http://acegisecurity.sourceforge.net
+Acegi Security is built using Maven. Please read the "Building with Maven" page
+at http://acegisecurity.sourceforge.net. This page is also included in the
+/docs directory of official release ZIPs.
 
 -------------------------------------------------------------------------------
 QUICK START
 -------------------------------------------------------------------------------
 
-Copy samples/contact/dist/contacts.war into your container webapps directory.
-Then visit http://localhost:8080/contacts/ and click "Manage". The Acegi
-Security System for Spring secures this small application by protecting both
-the method invocations of business objects, and also the HTTP URLs.
+We recommend you visit http://acegisecurity.sourceforge.net and read the
+"Suggested Steps" page. This page is also included in the /docs directory of
+official release ZIPs.
 
 -------------------------------------------------------------------------------
 DOCUMENTATION
 -------------------------------------------------------------------------------
 
-Please refer to the Reference Guide and JavaDocs at http://acegisecurity.sourceforge.net.
+http://acegisecurity.sourceforge.net has a wide range of articles about Acegi
+security, including links to external resources. A copy of this web site is
+included in the /docs directory of official release ZIPs.
 
--------------------------------------------------------------------------------
-ADDING ACEGI SECURITY TO YOUR OWN APPLICATION
--------------------------------------------------------------------------------
-
-Take a look in samples/quick-start. There we give you the fragments to add to
-your existing web.xml and applicationContext.xml, along with a couple of files
-that need to be added to your WAR file.
+Be sure to read the Reference Guide, which is available from the web site (and
+/docs directory as described above). Every class also has thorough JavaDocs.
 
 -------------------------------------------------------------------------------
 OBTAINING SUPPORT

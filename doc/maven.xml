@@ -25,6 +25,78 @@
    xmlns:maven="jelly:maven"
   >
 
+	<goal name="acegizip">
+		<ant:mkdir dir="${maven.build.dir}/zip/acegi-security-${pom.currentVersion}"/>
+		
+		<ant:copy todir="${maven.build.dir}/zip/acegi-security-${pom.currentVersion}">
+			<ant:fileset dir="${basedir}/../">
+				<ant:include name="license.txt"/>
+				<ant:include name="notice.txt"/>
+				<ant:include name="readme.txt"/>
+				<ant:include name="project.xml"/>
+			</ant:fileset>
+			<ant:fileset dir="${basedir}/../samples/contacts/target">
+				<ant:include name="*-filter.war"/>
+			</ant:fileset>
+			<ant:fileset dir="${basedir}/../core/target/">
+				<ant:include name="*.jar"/>
+			</ant:fileset>
+			<ant:fileset dir="${basedir}/../adapters/cas/target">
+				<ant:include name="*.jar"/>
+			</ant:fileset>
+			<ant:fileset dir="${basedir}/../adapters/catalina/target">
+				<ant:include name="*.jar"/>
+			</ant:fileset>
+			<ant:fileset dir="${basedir}/../adapters/jboss/target">
+				<ant:include name="*.jar"/>
+			</ant:fileset>
+			<ant:fileset dir="${basedir}/../adapters/jetty/target">
+				<ant:include name="*.jar"/>
+			</ant:fileset>
+			<ant:fileset dir="${basedir}/../adapters/resin/target">
+				<ant:include name="*.jar"/>
+			</ant:fileset>
+			<ant:fileset dir="${maven.build.dir}/">
+				<ant:include name="docs/**"/>
+			</ant:fileset>
+		</ant:copy>
+
+		<ant:zip zipfile="${maven.build.dir}/acegi-security-${pom.currentVersion}.zip">
+		  <ant:zipfileset dir="${maven.build.dir}/zip"/>
+		</ant:zip>
+	</goal>
+
+	<goal name="acegideploy">
+		<echo>
+-----------------------------------------------------------
+         ACEGI SECURITY OFFICIAL RELEASE ZIP CREATION
+-----------------------------------------------------------
+
+First check the following are valid build properties:
+
+  	Using keystore...: ${signature.keystore}
+  	Using storepass..: ${signature.storepass}
+  	Using alias......: ${signature.alias}
+
+The procedure to generate an official release ZIP is:
+
+	1. cd ACEGI_SECURITY/docs
+	2. maven clean multiproject:clean multiproject:artifact
+	3. maven multiproject:site
+	4. maven acegizip
+	5. check ACEGI_SECURITY/target/*.zip looks correct
+	6. maven site:sshdeploy
+	7. ftp the ACEGI_SECURITY/target/*.zip to SourceForge
+	8. release the FTPed file via the File Release System
+
+Failure to follow this procedure will cause out-of-date
+content (or missing content) in the official release ZIP.
+
+It would be nice if a single goal could do all this, but
+Maven throws an OutOfMemoryError. :-(
+		</echo>
+  	</goal>
+
     <postGoal name="sdocbook:prepare-filesystem">
         <j:set var="unzipped" value="false" />
         <util:available file="${maven.sdocbook.generated.fo}">
