@@ -1,6 +1,7 @@
 <project>
     <extend>${basedir}/../project.xml</extend>
     <artifactId>acegi-security-catalina</artifactId>
+    <name>Acegi Security System for Spring - Catalina adapter</name>
     <dependencies>
         <dependency>
             <groupId>tomcat</groupId>

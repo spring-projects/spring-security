@@ -1,6 +1,7 @@
 <project>
     <extend>${basedir}/../project.xml</extend>
     <artifactId>acegi-security-jboss</artifactId>
+    <name>Acegi Security System for Spring - JBoss adapter</name>
     <dependencies>
         <dependency>
             <groupId>jboss</groupId>

@@ -1,6 +1,7 @@
 <project>
     <extend>${basedir}/../project.xml</extend>
     <artifactId>acegi-security-resin</artifactId>
+    <name>Acegi Security System for Spring - Resin adapter</name>
     <dependencies>
         <dependency>
             <groupId>resin</groupId>

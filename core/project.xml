@@ -1,4 +1,5 @@
 <project>
     <extend>${basedir}/../project.xml</extend>
     <artifactId>acegi-security</artifactId>
+    <name>Acegi Security System for Spring</name>
 </project>

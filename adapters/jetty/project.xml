@@ -1,6 +1,7 @@
 <project>
     <extend>${basedir}/../project.xml</extend>
     <artifactId>acegi-security-jetty</artifactId>
+    <name>Acegi Security System for Spring - Jetty adapter</name>
     <dependencies>
         <dependency>
             <groupId>jetty</groupId>

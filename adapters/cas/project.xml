@@ -1,6 +1,7 @@
 <project>
     <extend>${basedir}/../project.xml</extend>
     <artifactId>acegi-security-cas</artifactId>
+    <name>Acegi Security System for Spring - CAS adapter</name>
     <dependencies>
         <dependency>
             <groupId>cas</groupId>

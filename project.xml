@@ -1,6 +1,5 @@
 <project>
     <pomVersion>3</pomVersion>
-    <name>Acegi Security System for Spring</name>
     <groupId>acegi</groupId>
     <currentVersion>0.7-SNAPSHOT</currentVersion>
     <package>net.sf.acegisecurity</package>
