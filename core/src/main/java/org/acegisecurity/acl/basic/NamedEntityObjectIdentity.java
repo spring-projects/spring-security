@@ -74,12 +74,12 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
         Class clazz = object.getClass();
 
         try {
-            Method id = clazz.getMethod("getId", null);
-            Object result = id.invoke(object, null);
+            Method method = clazz.getMethod("getId", null);
+            Object result = method.invoke(object, null);
             this.id = result.toString();
         } catch (NoSuchMethodException nsme) {
-            throw new IllegalArgumentException(
-                "object does not provide a getId() method");
+            throw new IllegalArgumentException("Object of class '" + clazz
+                + "' does not provide the required getId() method: " + object);
         }
     }
 
