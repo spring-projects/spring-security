@@ -26,7 +26,10 @@ import javax.servlet.ServletException;
 import java.security.cert.X509Certificate;
 
 /**
+ * Tests {@link net.sf.acegisecurity.ui.x509.X509ProcessingFilter}.
+ *
  * @author Luke Taylor
+ * @version $Id$
  */
 public class X509ProcessingFilterTests extends TestCase {
     //~ Constructors ===========================================================
@@ -147,7 +150,7 @@ public class X509ProcessingFilterTests extends TestCase {
         assertNull(result);
     }
 
-    public void testWithNoCertificate() throws Exception {
+    public void testAuthenticationIsNullWithNoCertificate() throws Exception {
         MockHttpSession session = new MockHttpSession();
         MockHttpServletRequest request = new MockHttpServletRequest(null, session);
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -169,7 +172,7 @@ public class X509ProcessingFilterTests extends TestCase {
     }
 
 
-    public void testWithExistingSecurityContext() throws Exception {
+    public void testDoesNothingWithExistingSecurityContext() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest(null, new MockHttpSession());
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain chain = new MockFilterChain(true);
