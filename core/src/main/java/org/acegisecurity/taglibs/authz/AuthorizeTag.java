@@ -124,7 +124,7 @@ public class AuthorizeTag extends TagSupport {
 
         while (tokenizer.hasMoreTokens()) {
             String role = tokenizer.nextToken();
-            requiredAuthorities.add(new GrantedAuthorityImpl(role));
+            requiredAuthorities.add(new GrantedAuthorityImpl(role.trim()));
         }
 
         return requiredAuthorities;

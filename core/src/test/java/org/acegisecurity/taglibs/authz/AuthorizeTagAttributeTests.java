@@ -63,6 +63,30 @@ public class AuthorizeTagAttributeTests extends TestCase {
             Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 
+    public void testAssertsIfNotGrantedIgnoresWhitespaceInAttribute()
+        throws JspException {
+        authorizeTag.setIfAnyGranted(
+            "\tROLE_SUPERVISOR  \t, \r\n\t ROLE_TELLER ");
+        assertEquals("allows request - principal has ROLE_SUPERVISOR",
+            Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+    }
+
+    public void testIfAllGrantedIgnoresWhitespaceInAttribute()
+        throws JspException {
+        authorizeTag.setIfAllGranted(
+            "\nROLE_SUPERVISOR\t,ROLE_RESTRICTED\t\n\r ");
+        assertEquals("allows request - principal has ROLE_RESTRICTED "
+            + "and ROLE_SUPERVISOR", Tag.EVAL_BODY_INCLUDE,
+            authorizeTag.doStartTag());
+    }
+
+    public void testIfNotGrantedIgnoresWhitespaceInAttribute()
+        throws JspException {
+        authorizeTag.setIfNotGranted(" \t  ROLE_TELLER \r");
+        assertEquals("allows request - principal does not have ROLE_TELLER",
+            Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+    }
+
     protected void setUp() throws Exception {
         super.setUp();
 
