@@ -38,8 +38,8 @@ public class GrantedAuthorityImpl implements GrantedAuthority {
         this.role = role;
     }
 
-    private GrantedAuthorityImpl() {
-        super();
+    protected GrantedAuthorityImpl() {
+        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ================================================================

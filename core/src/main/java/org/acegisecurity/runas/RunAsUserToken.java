@@ -47,8 +47,8 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
         this.originalAuthentication = originalAuthentication;
     }
 
-    private RunAsUserToken() {
-        super();
+    protected RunAsUserToken() {
+        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ================================================================

@@ -32,8 +32,8 @@ public class SecurityConfig implements ConfigAttribute {
         this.attrib = config;
     }
 
-    private SecurityConfig() {
-        super();
+    protected SecurityConfig() {
+        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ================================================================

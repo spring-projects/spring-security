@@ -44,7 +44,7 @@ public class PrincipalAcegiUserToken extends AbstractAdapterAuthenticationToken
     }
 
     protected PrincipalAcegiUserToken() {
-        super();
+        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ================================================================

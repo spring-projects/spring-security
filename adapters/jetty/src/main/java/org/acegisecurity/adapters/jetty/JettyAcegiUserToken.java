@@ -44,7 +44,7 @@ public class JettyAcegiUserToken extends AbstractAdapterAuthenticationToken
     }
 
     protected JettyAcegiUserToken() {
-        super();
+        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ================================================================
