@@ -83,9 +83,10 @@ public class ReflectionSaltSourceTests extends TestCase {
         assertEquals("getUsername", saltSource.getUserPropertyToUse());
     }
 
-    public void testNormalOperation() {
+    public void testNormalOperation() throws Exception {
         ReflectionSaltSource saltSource = new ReflectionSaltSource();
         saltSource.setUserPropertyToUse("getUsername");
+        saltSource.afterPropertiesSet();
 
         User user = new User("scott", "wombat", true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("HOLDER")});

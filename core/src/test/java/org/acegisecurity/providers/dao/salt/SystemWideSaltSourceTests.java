@@ -62,9 +62,10 @@ public class SystemWideSaltSourceTests extends TestCase {
         assertEquals("helloWorld", saltSource.getSystemWideSalt());
     }
 
-    public void testNormalOperation() {
+    public void testNormalOperation() throws Exception {
         SystemWideSaltSource saltSource = new SystemWideSaltSource();
         saltSource.setSystemWideSalt("helloWorld");
+        saltSource.afterPropertiesSet();
         assertEquals("helloWorld", saltSource.getSalt(null));
     }
 }
