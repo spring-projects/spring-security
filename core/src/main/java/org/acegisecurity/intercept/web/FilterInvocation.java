@@ -81,11 +81,21 @@ public class FilterInvocation {
         return chain;
     }
 
+    /**
+     * Indicates the URL that the user agent used for this request.
+     * 
+     * <P>
+     * The returned URL does <b>not</b> reflect the port number determined from
+     * a {@link net.sf.acegisecurity.util.PortResolver}.
+     * </p>
+     *
+     * @return the full URL of this request
+     */
     public String getFullRequestUrl() {
-        return getHttpRequest().getRequestURL().toString()
-        + ((getHttpRequest().getQueryString() == null) ? ""
-                                                       : ("?"
-        + getHttpRequest().getQueryString()));
+        return getHttpRequest().getScheme() + "://"
+        + getHttpRequest().getServerName() + ":"
+        + getHttpRequest().getServerPort() + getHttpRequest().getContextPath()
+        + getRequestUrl();
     }
 
     public HttpServletRequest getHttpRequest() {
@@ -103,9 +113,10 @@ public class FilterInvocation {
     public String getRequestUrl() {
         String pathInfo = getHttpRequest().getPathInfo();
         String queryString = getHttpRequest().getQueryString();
-        
-        return getHttpRequest().getServletPath() + (pathInfo == null ? "" : pathInfo)
-                + (queryString == null ? "" : ("?" + queryString));
+
+        return getHttpRequest().getServletPath()
+        + ((pathInfo == null) ? "" : pathInfo)
+        + ((queryString == null) ? "" : ("?" + queryString));
     }
 
     public ServletResponse getResponse() {

@@ -69,7 +69,12 @@ public class FilterInvocationTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest(null, null);
         request.setServletPath("/HelloWorld");
         request.setPathInfo("/some/more/segments.html");
-        request.setRequestURL("http://www.example.com/mycontext/HelloWorld/some/more/segments.html");
+        request.setServerName("www.example.com");
+        request.setScheme("http");
+        request.setServerPort(80);
+        request.setContextPath("/mycontext");
+        request.setRequestURL(
+            "http://www.example.com/mycontext/HelloWorld/some/more/segments.html");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
@@ -80,8 +85,9 @@ public class FilterInvocationTests extends TestCase {
         assertEquals(response, fi.getHttpResponse());
         assertEquals(chain, fi.getChain());
         assertEquals("/HelloWorld/some/more/segments.html", fi.getRequestUrl());
-        assertEquals("FilterInvocation: URL: /HelloWorld/some/more/segments.html", fi.toString());
-        assertEquals("http://www.example.com/mycontext/HelloWorld/some/more/segments.html",
+        assertEquals("FilterInvocation: URL: /HelloWorld/some/more/segments.html",
+            fi.toString());
+        assertEquals("http://www.example.com:80/mycontext/HelloWorld/some/more/segments.html",
             fi.getFullRequestUrl());
     }
 
@@ -161,6 +167,10 @@ public class FilterInvocationTests extends TestCase {
     public void testStringMethodsWithAQueryString() {
         MockHttpServletRequest request = new MockHttpServletRequest("foo=bar");
         request.setServletPath("/HelloWorld");
+        request.setServerName("www.example.com");
+        request.setScheme("http");
+        request.setServerPort(80);
+        request.setContextPath("/mycontext");
         request.setRequestURL("http://www.example.com/mycontext/HelloWorld");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -168,13 +178,17 @@ public class FilterInvocationTests extends TestCase {
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         assertEquals("/HelloWorld?foo=bar", fi.getRequestUrl());
         assertEquals("FilterInvocation: URL: /HelloWorld?foo=bar", fi.toString());
-        assertEquals("http://www.example.com/mycontext/HelloWorld?foo=bar",
+        assertEquals("http://www.example.com:80/mycontext/HelloWorld?foo=bar",
             fi.getFullRequestUrl());
     }
 
     public void testStringMethodsWithoutAnyQueryString() {
         MockHttpServletRequest request = new MockHttpServletRequest(null, null);
         request.setServletPath("/HelloWorld");
+        request.setServerName("www.example.com");
+        request.setScheme("http");
+        request.setServerPort(80);
+        request.setContextPath("/mycontext");
         request.setRequestURL("http://www.example.com/mycontext/HelloWorld");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -182,7 +196,7 @@ public class FilterInvocationTests extends TestCase {
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         assertEquals("/HelloWorld", fi.getRequestUrl());
         assertEquals("FilterInvocation: URL: /HelloWorld", fi.toString());
-        assertEquals("http://www.example.com/mycontext/HelloWorld",
+        assertEquals("http://www.example.com:80/mycontext/HelloWorld",
             fi.getFullRequestUrl());
     }
 
