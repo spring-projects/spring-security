@@ -64,6 +64,14 @@
             <role>Developer</role>
          </roles>
       </developer>
+      <developer>
+         <name>Ray Krueger</name>
+         <id>raykrueger</id>
+         <email>raykrueger at users.sourceforge.net</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
    </developers>
 
    <dependencies>
