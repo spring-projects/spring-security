@@ -45,6 +45,7 @@
       <action dev="benalex" type="add">Added AbstractProcessingFilter property to always use defaultTargetUrl</action>
       <action dev="benalex" type="update">Improved BasicAclProvider to only respond to specified ACL object requests</action>
       <action dev="benalex" type="update">Refactored MethodDefinitionSource to work with Method, not MethodInvocation</action>
+      <action dev="benalex" type="update">Refactored AbstractFilterInvocationDefinitionSource to work with URL Strings alone</action>
       <action dev="benalex" type="update">Refactored AbstractSecurityInterceptor to better support other AOP libraries</action>
       <action dev="benalex" type="update">Improved performance of JBoss container adapter (see reference docs)</action>
       <action dev="benalex" type="update">Made DaoAuthenticationProvider detect null in Authentication.principal</action>

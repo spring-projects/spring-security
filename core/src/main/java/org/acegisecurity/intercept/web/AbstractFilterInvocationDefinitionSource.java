@@ -42,15 +42,9 @@ public abstract class AbstractFilterInvocationDefinitionSource
                 "Object must be a FilterInvocation");
         }
 
-        return this.lookupAttributes((FilterInvocation) object);
-    }
+        String url = ((FilterInvocation) object).getRequestUrl();
 
-    public boolean supports(Class clazz) {
-        if (FilterInvocation.class.isAssignableFrom(clazz)) {
-            return true;
-        } else {
-            return false;
-        }
+        return this.lookupAttributes(url);
     }
 
     /**
@@ -62,10 +56,27 @@ public abstract class AbstractFilterInvocationDefinitionSource
      * Provided so subclasses need only to provide one basic method to properly
      * interface with the <code>FilterInvocationDefinitionSource</code>.
      * </p>
+     * 
+     * <P>
+     * Public visiblity so that tablibs or other view helper classes can access
+     * the <code>ConfigAttributeDefinition</code> applying to a given URI
+     * pattern without needing to construct a mock
+     * <code>FilterInvocation</code> and retrieving the attibutes via the
+     * {@link #getAttributes(Object)} method.
+     * </p>
+     *
+     * @param url the URI to retrieve configuration attributes for
      *
      * @return the <code>ConfigAttributeDefinition</code> that applies to the
      *         specified <code>FilterInvocation</code>
      */
-    protected abstract ConfigAttributeDefinition lookupAttributes(
-        FilterInvocation filterInvocation);
+    public abstract ConfigAttributeDefinition lookupAttributes(String url);
+
+    public boolean supports(Class clazz) {
+        if (FilterInvocation.class.isAssignableFrom(clazz)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

@@ -99,18 +99,15 @@ public class PathBasedFilterInvocationDefinitionMap
         }
     }
 
-    protected ConfigAttributeDefinition lookupAttributes(
-        FilterInvocation filterInvocation) {
+    public ConfigAttributeDefinition lookupAttributes(String url) {
         Iterator iter = requestMap.iterator();
-
-        String url = filterInvocation.getRequestUrl();
 
         if (convertUrlToLowercaseBeforeComparison) {
             url = url.toLowerCase();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Converted URL to lowercase, from: '"
-                    + filterInvocation.getRequest() + "'; to: '" + url + "'");
+                logger.debug("Converted URL to lowercase, from: '" + url
+                    + "'; to: '" + url + "'");
             }
         }
 

@@ -117,20 +117,17 @@ public class RegExpBasedFilterInvocationDefinitionMap
         }
     }
 
-    protected ConfigAttributeDefinition lookupAttributes(
-        FilterInvocation filterInvocation) {
+    public ConfigAttributeDefinition lookupAttributes(String url) {
         PatternMatcher matcher = new Perl5Matcher();
 
         Iterator iter = requestMap.iterator();
-
-        String url = filterInvocation.getRequestUrl();
 
         if (convertUrlToLowercaseBeforeComparison) {
             url = url.toLowerCase();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Converted URL to lowercase, from: '"
-                    + filterInvocation.getRequest() + "'; to: '" + url + "'");
+                logger.debug("Converted URL to lowercase, from: '" + url
+                    + "'; to: '" + url + "'");
             }
         }
 

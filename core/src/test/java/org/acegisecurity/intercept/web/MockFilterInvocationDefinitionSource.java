@@ -81,8 +81,7 @@ public class MockFilterInvocationDefinitionSource
         }
     }
 
-    protected ConfigAttributeDefinition lookupAttributes(
-        FilterInvocation filterInvocation) {
+    public ConfigAttributeDefinition lookupAttributes(String url) {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 }

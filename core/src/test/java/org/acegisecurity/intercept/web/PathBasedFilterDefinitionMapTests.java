@@ -79,7 +79,8 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         FilterInvocation fi = new FilterInvocation(req,
                 new MockHttpServletResponse(), new MockFilterChain());
 
-        ConfigAttributeDefinition response = map.lookupAttributes(fi);
+        ConfigAttributeDefinition response = map.lookupAttributes(fi
+                .getRequestUrl());
         assertEquals(def, response);
     }
 
@@ -98,7 +99,8 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         FilterInvocation fi = new FilterInvocation(req,
                 new MockHttpServletResponse(), new MockFilterChain());
 
-        ConfigAttributeDefinition response = map.lookupAttributes(fi);
+        ConfigAttributeDefinition response = map.lookupAttributes(fi
+                .getRequestUrl());
         assertEquals(null, response);
     }
 
@@ -117,7 +119,8 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         FilterInvocation fi = new FilterInvocation(req,
                 new MockHttpServletResponse(), new MockFilterChain());
 
-        ConfigAttributeDefinition response = map.lookupAttributes(fi);
+        ConfigAttributeDefinition response = map.lookupAttributes(fi
+                .getRequestUrl());
         assertEquals(def, response);
     }
 }
