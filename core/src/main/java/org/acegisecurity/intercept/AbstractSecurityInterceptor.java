@@ -127,8 +127,8 @@ import java.util.Set;
  * <code>InterceptorStatusToken</code> which is subsequently re-presented to
  * the <code>AbstractSecurityInterceptor</code> after the secure object has
  * been executed. The <code>AbstractSecurityInterceptor</code> will take no
- * further action when its {@link #afterInvocation(InterceptorStatusToken)} is
- * called.
+ * further action when its {@link #afterInvocation(InterceptorStatusToken,
+ * Object)} is called.
  * </li>
  * </ol>
  * 
