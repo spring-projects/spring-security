@@ -47,6 +47,11 @@
 
 	<bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
 		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+		<property name="authenticationEntryPoint"><ref bean="basicProcessingFilterEntryPoint"/></property>
+	</bean>
+
+	<bean id="basicProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
+		<property name="realmName"><value>Contacts Realm</value></property>
 	</bean>
 
 	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~~~~ -->
@@ -138,6 +143,10 @@
 
 	<bean id="securityEnforcementFilter" class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter">
 		<property name="filterSecurityInterceptor"><ref bean="filterInvocationInterceptor"/></property>
+		<property name="authenticationEntryPoint"><ref bean="authenticationProcessingFilterEntryPoint"/></property>
+	</bean>
+
+	<bean id="authenticationProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
 		<property name="loginFormUrl"><value>/acegilogin.jsp</value></property>
 	</bean>
 

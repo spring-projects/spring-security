@@ -18,6 +18,7 @@ package net.sf.acegisecurity.ui.basicauth;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationManager;
+import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter;
 
@@ -63,9 +64,9 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
- * Requests containing BASIC authentication headers are generally created by
- * remoting protocol libraries.  This filter is intended to process requests
- * made by such libraries.
+ * This filter can be used to provide BASIC authentication services to both
+ * remoting protocol clients (such as Hessian and SOAP) as well as standard
+ * user agents (such as Internet Explorer and Netscape).
  * </p>
  * 
  * <P>
@@ -75,10 +76,9 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
- * If authentication fails, a <code>HttpServletResponse.SC_FORBIDDEN</code>
- * (403 error) response is sent. This is consistent with RFC 1945, Section 11,
- * which states, "<I>If the server does not wish to accept the credentials
- * sent with a request, it should return a 403 (forbidden) response.</I>".
+ * If authentication fails, an {@link AuthenticationEntryPoint} implementation
+ * is called. Usually this should be {@link BasicProcessingFilterEntryPoint},
+ * which will prompt the user to authenticate again via BASIC authentication.
  * </p>
  * 
  * <P>
@@ -97,9 +97,19 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
 
     //~ Instance fields ========================================================
 
+    private AuthenticationEntryPoint authenticationEntryPoint;
     private AuthenticationManager authenticationManager;
 
     //~ Methods ================================================================
+
+    public void setAuthenticationEntryPoint(
+        AuthenticationEntryPoint authenticationEntryPoint) {
+        this.authenticationEntryPoint = authenticationEntryPoint;
+    }
+
+    public AuthenticationEntryPoint getAuthenticationEntryPoint() {
+        return authenticationEntryPoint;
+    }
 
     public void setAuthenticationManager(
         AuthenticationManager authenticationManager) {
@@ -114,6 +124,11 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
         if (this.authenticationManager == null) {
             throw new IllegalArgumentException(
                 "An AuthenticationManager is required");
+        }
+
+        if (this.authenticationEntryPoint == null) {
+            throw new IllegalArgumentException(
+                "An AuthenticationEntryPoint is required");
         }
     }
 
@@ -166,7 +181,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                         + " failed: " + failed.toString());
                 }
 
-                ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN); // 403
+                authenticationEntryPoint.commence(request, response);
 
                 return;
             }

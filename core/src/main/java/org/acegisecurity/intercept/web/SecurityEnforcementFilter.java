@@ -59,8 +59,7 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
- * To use this filter, it is necessary to specify the following filter
- * initialization parameters:
+ * To use this filter, it is necessary to specify the following properties:
  * </p>
  * 
  * <ul>
@@ -70,8 +69,9 @@ import javax.servlet.http.HttpServletResponse;
  * to.
  * </li>
  * <li>
- * <code>loginFormUrl</code> indicates the URL that should be used for
- * redirection if an <code>AuthenticationException</code> is detected.
+ * <code>authenticationEntryPoint</code> indicates the handler that should
+ * commence the authentication process if an
+ * <code>AuthenticationException</code> is detected.
  * </li>
  * </ul>
  * 
@@ -92,15 +92,19 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
 
     //~ Instance fields ========================================================
 
-    protected FilterSecurityInterceptor filterSecurityInterceptor;
-
-    /**
-     * The URL that should be used for redirection if an
-     * <code>AuthenticationException</code> is detected.
-     */
-    protected String loginFormUrl;
+    private AuthenticationEntryPoint authenticationEntryPoint;
+    private FilterSecurityInterceptor filterSecurityInterceptor;
 
     //~ Methods ================================================================
+
+    public void setAuthenticationEntryPoint(
+        AuthenticationEntryPoint authenticationEntryPoint) {
+        this.authenticationEntryPoint = authenticationEntryPoint;
+    }
+
+    public AuthenticationEntryPoint getAuthenticationEntryPoint() {
+        return authenticationEntryPoint;
+    }
 
     public void setFilterSecurityInterceptor(
         FilterSecurityInterceptor filterSecurityInterceptor) {
@@ -111,17 +115,10 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
         return filterSecurityInterceptor;
     }
 
-    public void setLoginFormUrl(String loginFormUrl) {
-        this.loginFormUrl = loginFormUrl;
-    }
-
-    public String getLoginFormUrl() {
-        return loginFormUrl;
-    }
-
     public void afterPropertiesSet() throws Exception {
-        if ((loginFormUrl == null) || "".equals(loginFormUrl)) {
-            throw new IllegalArgumentException("loginFormUrl must be specified");
+        if (authenticationEntryPoint == null) {
+            throw new IllegalArgumentException(
+                "authenticationEntryPoint must be specified");
         }
 
         if (filterSecurityInterceptor == null) {
@@ -161,8 +158,7 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
 
             ((HttpServletRequest) request).getSession().setAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
                 fi.getRequestUrl());
-            ((HttpServletResponse) response).sendRedirect(((HttpServletRequest) request)
-                .getContextPath() + loginFormUrl);
+            authenticationEntryPoint.commence(request, response);
         } catch (AccessDeniedException accessDenied) {
             if (logger.isDebugEnabled()) {
                 logger.debug(

@@ -18,7 +18,9 @@ package net.sf.acegisecurity;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
@@ -35,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 public class MockHttpServletResponse implements HttpServletResponse {
     //~ Instance fields ========================================================
 
+    private Map headersMap = new HashMap();
     private String redirect;
     private int error;
 
@@ -74,6 +77,16 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     public void setHeader(String arg0, String arg1) {
         throw new UnsupportedOperationException("mock method not implemented");
+    }
+
+    public String getHeader(String arg0) {
+        Object result = headersMap.get(arg0);
+
+        if (result != null) {
+            return (String) headersMap.get(arg0);
+        } else {
+            return null;
+        }
     }
 
     public void setIntHeader(String arg0, int arg1) {
@@ -117,7 +130,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     public void addHeader(String arg0, String arg1) {
-        throw new UnsupportedOperationException("mock method not implemented");
+        headersMap.put(arg0, arg1);
     }
 
     public void addIntHeader(String arg0, int arg1) {

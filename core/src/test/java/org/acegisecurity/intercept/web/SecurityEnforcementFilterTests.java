@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.AccessDeniedException;
 import net.sf.acegisecurity.BadCredentialsException;
+import net.sf.acegisecurity.MockAuthenticationEntryPoint;
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpServletResponse;
 import net.sf.acegisecurity.MockHttpSession;
@@ -76,7 +77,8 @@ public class SecurityEnforcementFilterTests extends TestCase {
         // Test
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
         filter.setFilterSecurityInterceptor(interceptor);
-        filter.setLoginFormUrl("/login.jsp");
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
+                "/login.jsp"));
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
@@ -115,8 +117,9 @@ public class SecurityEnforcementFilterTests extends TestCase {
                 false, false));
         assertTrue(filter.getFilterSecurityInterceptor() != null);
 
-        filter.setLoginFormUrl("/u");
-        assertEquals("/u", filter.getLoginFormUrl());
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
+                "/login.jsp"));
+        assertTrue(filter.getAuthenticationEntryPoint() != null);
     }
 
     public void testRedirectedToLoginFormAndSessionShowsOriginalTargetWhenAuthenticationException()
@@ -136,7 +139,8 @@ public class SecurityEnforcementFilterTests extends TestCase {
         // Test
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
         filter.setFilterSecurityInterceptor(interceptor);
-        filter.setLoginFormUrl("/login.jsp");
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
+                "/login.jsp"));
         filter.afterPropertiesSet();
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -146,21 +150,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
             request.getSession().getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
     }
 
-    public void testStartupDetectsMissingFilterSecurityInterceptor()
-        throws Exception {
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
-        filter.setLoginFormUrl("/login.jsp");
-
-        try {
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("filterSecurityInterceptor must be specified",
-                expected.getMessage());
-        }
-    }
-
-    public void testStartupDetectsMissingLoginFormUrl()
+    public void testStartupDetectsMissingAuthenticationEntryPoint()
         throws Exception {
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
         filter.setFilterSecurityInterceptor(new MockFilterSecurityInterceptor(
@@ -170,7 +160,23 @@ public class SecurityEnforcementFilterTests extends TestCase {
             filter.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("loginFormUrl must be specified", expected.getMessage());
+            assertEquals("authenticationEntryPoint must be specified",
+                expected.getMessage());
+        }
+    }
+
+    public void testStartupDetectsMissingFilterSecurityInterceptor()
+        throws Exception {
+        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
+                "/login.jsp"));
+
+        try {
+            filter.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("filterSecurityInterceptor must be specified",
+                expected.getMessage());
         }
     }
 
@@ -190,7 +196,8 @@ public class SecurityEnforcementFilterTests extends TestCase {
         // Test
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
         filter.setFilterSecurityInterceptor(interceptor);
-        filter.setLoginFormUrl("/login.jsp");
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
+                "/login.jsp"));
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);

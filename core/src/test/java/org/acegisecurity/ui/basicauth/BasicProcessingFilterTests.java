@@ -18,6 +18,7 @@ package net.sf.acegisecurity.ui.basicauth;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.MockAuthenticationEntryPoint;
 import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockFilterConfig;
 import net.sf.acegisecurity.MockHttpServletRequest;
@@ -130,6 +131,10 @@ public class BasicProcessingFilterTests extends TestCase {
         BasicProcessingFilter filter = new BasicProcessingFilter();
         filter.setAuthenticationManager(new MockAuthenticationManager());
         assertTrue(filter.getAuthenticationManager() != null);
+
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
+                "sx"));
+        assertTrue(filter.getAuthenticationEntryPoint() != null);
     }
 
     public void testInvalidBasicAuthorizationTokenIsIgnored()
@@ -228,10 +233,25 @@ public class BasicProcessingFilterTests extends TestCase {
         assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) == null);
     }
 
+    public void testStartupDetectsMissingAuthenticationEntryPoint()
+        throws Exception {
+        try {
+            BasicProcessingFilter filter = new BasicProcessingFilter();
+            filter.setAuthenticationManager(new MockAuthenticationManager());
+            filter.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("An AuthenticationEntryPoint is required",
+                expected.getMessage());
+        }
+    }
+
     public void testStartupDetectsMissingAuthenticationManager()
         throws Exception {
         try {
             BasicProcessingFilter filter = new BasicProcessingFilter();
+            filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
+                    "x"));
             filter.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
@@ -293,7 +313,7 @@ public class BasicProcessingFilterTests extends TestCase {
             chain);
 
         assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) == null);
-        assertEquals(403, response.getError());
+        assertEquals(401, response.getError());
     }
 
     public void testWrongPasswordReturnsForbidden() throws Exception {
@@ -325,7 +345,7 @@ public class BasicProcessingFilterTests extends TestCase {
             chain);
 
         assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) == null);
-        assertEquals(403, response.getError());
+        assertEquals(401, response.getError());
     }
 
     private void executeFilterInContainerSimulator(FilterConfig filterConfig,
