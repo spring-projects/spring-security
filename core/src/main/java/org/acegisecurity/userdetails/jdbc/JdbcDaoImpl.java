@@ -179,11 +179,24 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
         }
 
         GrantedAuthority[] arrayAuths = {};
+
+        addCustomAuthorities(user.getUsername(), dbAuths);
+
         arrayAuths = (GrantedAuthority[]) dbAuths.toArray(arrayAuths);
 
         return new User(user.getUsername(), user.getPassword(),
             user.isEnabled(), arrayAuths);
     }
+
+    /**
+     * Allows subclasses to add their own granted authorities to the list to be
+     * returned in the <code>User</code>.
+     *
+     * @param username the username, for use by finder methods 
+     * @param authorities the current granted authorities, as populated from
+     *        the <code>authoritiesByUsername</code> mapping
+     */
+    protected void addCustomAuthorities(String username, List authorities) {}
 
     protected void initDao() throws ApplicationContextException {
         initMappingSqlQueries();
