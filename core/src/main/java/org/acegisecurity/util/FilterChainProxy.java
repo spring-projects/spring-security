@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,111 +15,113 @@
 
 package net.sf.acegisecurity.util;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
 import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
+import net.sf.acegisecurity.intercept.web.FilterInvocation;
 import net.sf.acegisecurity.intercept.web.FilterInvocationDefinitionSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.BeanFactoryUtils;
+
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+
 import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.context.ApplicationContextAware;
+
+import java.io.IOException;
+
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
 
 /**
- * Delegates <code>Filter</code> requests to a Spring-managed bean.
+ * Delegates <code>Filter</code> requests to a list of Spring-managed beans.
+ * 
  * <p>
- * This class acts as a proxy on behalf of a target <code>Filter</code> that
- * is defined in the Spring bean context. It is necessary to specify which
- * target <code>Filter</code> should be proxied as a filter initialization
- * parameter.
- * </p>
- * <p>
- * On filter initialisation, the class will use Spring's {@link
- * WebApplicationContextUtils#getWebApplicationContext(ServletContext sc)}
- * method to obtain an <code>ApplicationContext</code> instance. It will
- * expect to find the target <code>Filter</code> in this
- * <code>ApplicationContext</code>.
- * </p>
- * <p>
- * To use this filter, it is necessary to specify <b>one </b> of the following
- * filter initialization parameters:
- * </p>
- * <ul>
- * <li><code>targetClass</code> indicates the class of the target
- * <code>Filter</code> defined in the bean context. The only requirements are
- * that this target class implements the <code>javax.servlet.Filter</code>
- * interface and at least one instance is available in the
- * <code>ApplicationContext</code>.</li>
- * <li><code>targetBean</code> indicates the bean name of the target class.
- * </li>
- * </ul>
- * If both initialization parameters are specified, <code>targetBean</code>
- * takes priority.
- * <P>
- * An additional initialization parameter, <code>init</code>, is also
- * supported. If set to "<code>lazy</code>" the initialization will take
- * place on the first HTTP request, rather than at filter creation time. This
- * makes it possible to use <code>FilterToBeanProxy</code> with the Spring
- * <code>ContextLoaderServlet</code>. Where possible you should not use this
- * initialization parameter, instead using <code>ContextLoaderListener</code>.
+ * The <code>FilterChainProxy</code> is loaded via a standard {@link
+ * net.sf.acegisecurity.util.FilterToBeanProxy} declaration in
+ * <code>web.xml</code>. <code>FilterChainProxy</code> will then pass {@link
+ * #init(FilterConfig)}, {@link #destroy()}, {@link #doInit()} and {@link
+ * #doFilter(ServletRequest, ServletResponse, FilterChain)} invocations
+ * through to each <code>Filter</code> defined against
+ * <code>FilterChainProxy</code>.
  * </p>
  * 
-// * <pre>
-// * &lt;bean id=&quot;filterChain&quot; class=&quot;net.sf.acegisecurity.FilterChain&quot;&gt;
-// *   &lt;property name=&quot;filters&quot;&gt;
-// *   &lt;value&gt;
-// *     channelProcessingFilter=/*
-// *     authenticationProcessingFilter=/*
-// *     basicProcessingFilter=/*
-// *     sessionIntegrationFilter=/*
-// *     securityEnforcementFilter=/*
-// *   &lt;/value&gt;
-// *   &lt;/property&gt;
-// * &lt;/bean&gt;
-// * </pre>
+ * <p>
+ * <code>FilterChainProxy</code> is configured using a standard {@link
+ * net.sf.acegisecurity.intercept.web.FilterInvocationDefinitionSource}. Each
+ * possible URI pattern that <code>FilterChainProxy</code> should service must
+ * be entered. The first matching URI pattern located by
+ * <code>FilterInvocationDefinitionSource</code> for a given request will be
+ * used to define all of the <code>Filter</code>s that apply to that request.
+ * NB: This means you must put most specific URI patterns at the top of the
+ * list, and ensure all <code>Filter</code>s that should apply for a given URI
+ * pattern are entered against the respective entry. The
+ * <code>FilterChainProxy</code> will not iterate the remainder of the URI
+ * patterns to locate additional <code>Filter</code>s.  The
+ * <code>FilterInvocationDefinitionSource</code> described the applicable URI
+ * pattern to fire the filter chain, followed by a list of configuration
+ * attributes. Each configuration attribute's {@link
+ * net.sf.acegisecurity.ConfigAttribute#getAttribute()} corresponds to a bean
+ * name that is available from the application context.
+ * </p>
  * 
+ * <p>
+ * <code>FilterChainProxy</code> respects normal handling of
+ * <code>Filter</code>s that elect not to call {@link
+ * javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
+ * javax.servlet.ServletResponse, javax.servlet.FilterChain)}, in that the
+ * remainder of the origial or <code>FilterChainProxy</code>-declared filter
+ * chain will not be called.
+ * </p>
+ * 
+ * <p>
+ * It is particularly noted the <code>Filter</code> lifecycle mismatch between
+ * the servlet container and IoC container. As per {@link
+ * net.sf.acegisecurity.util.FilterToBeanProxy} JavaDocs, we recommend you
+ * allow the IoC container to manage lifecycle instead of the servlet
+ * container. By default the <code>FilterToBeanProxy</code> will never call
+ * this class' {@link #init(FilterConfig)} and {@link #destroy()} methods,
+ * meaning each of the filters defined against
+ * <code>FilterInvocationDefinitionSource</code> will not be called. If you do
+ * need your filters to be initialized and destroyed, please set the
+ * <code>lifecycle</code> initialization parameter against the
+ * <code>FilterToBeanProxy</code> to specify servlet container lifecycle
+ * management.
+ * </p>
+ *
  * @author Carlos Sanchez
+ * @author Ben Alex
  * @version $Id$
  */
-public class FilterChainProxy
-    implements Filter, InitializingBean
-{
+public class FilterChainProxy implements Filter, InitializingBean,
+    ApplicationContextAware {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(FilterChainProxy.class);
 
-    //~ Instance fields
-    // ========================================================
+    //~ Instance fields ========================================================
 
-    private Filter delegate;
-
-    private List filters;
-
-    private FilterConfig filterConfig;
-
-    private boolean initialized = false;
-
+    private ApplicationContext applicationContext;
     private FilterInvocationDefinitionSource filterInvocationDefinitionSource;
 
-    //~ Methods
-    // ================================================================
+    //~ Methods ================================================================
+
+    public void setApplicationContext(ApplicationContext applicationContext)
+        throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 
     public void setFilterInvocationDefinitionSource(
         FilterInvocationDefinitionSource filterInvocationDefinitionSource) {
@@ -130,119 +132,185 @@ public class FilterChainProxy
         return filterInvocationDefinitionSource;
     }
 
-    public void destroy()
-    {
-        Iterator it = filters.iterator();
-        while ( it.hasNext() )
-        {
-            Filter filter = (Filter) it.next();
-            if ( filter != null )
-            {
-                filter.destroy();
-            }
-        }
-    }
-
-    public void doFilter( ServletRequest request, ServletResponse response, FilterChain chain ) throws IOException,
-        ServletException
-    {
-        if ( !initialized )
-        {
-            doInit();
-        }
-
-        Iterator it = filters.iterator();
-        while ( it.hasNext() )
-        {
-            Filter filter = (Filter) it.next();
-            filter.doFilter( request, response, chain );
-        }
-    }
-
-    public void init( FilterConfig filterConfig ) throws ServletException
-    {
-        this.filterConfig = filterConfig;
-
-        String strategy = filterConfig.getInitParameter( "init" );
-
-        if ( (strategy != null) && strategy.toLowerCase().equals( "lazy" ) )
-        {
-            return;
-        }
-
-        doInit();
-    }
-
-    /**
-     * Allows test cases to override where application context obtained from.
-     * 
-     * @param filterConfig
-     *            which can be used to find the <code>ServletContext</code>
-     * @return the Spring application context
-     */
-    protected ApplicationContext getContext( FilterConfig filterConfig )
-    {
-        return WebApplicationContextUtils.getRequiredWebApplicationContext( filterConfig.getServletContext() );
-    }
-
-    private void doInit() throws ServletException
-    {
-        initialized = true;
-        
-        Iterator it = filters.iterator();
-        while ( it.hasNext() )
-        {
-            Filter filter = (Filter) it.next();
-            filter.init( filterConfig );
-        }
-
-    }
-
     public void afterPropertiesSet() throws Exception {
         if (filterInvocationDefinitionSource == null) {
             throw new IllegalArgumentException(
                 "filterInvocationDefinitionSource must be specified");
         }
 
-        Iterator iter = this.filterInvocationDefinitionSource
-            .getConfigAttributeDefinitions();
-
-        if (iter == null) {
-            if (logger.isWarnEnabled()) {
-                logger.warn(
-                    "Could not validate configuration attributes as the FilterInvocationDefinitionSource did not return a ConfigAttributeDefinition Iterator");
-            }
-
-            return;
-        }
-
-        Set set = new HashSet();
-
-        while (iter.hasNext()) {
-            ConfigAttributeDefinition def = (ConfigAttributeDefinition) iter
-                .next();
-            Iterator attributes = def.getConfigAttributes();
-
-            while (attributes.hasNext()) {
-                ConfigAttribute attr = (ConfigAttribute) attributes.next();
-            }
-        }
-
-        if (set.size() == 0) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Validated configuration attributes");
-            }
-        } else {
+        if (this.filterInvocationDefinitionSource.getConfigAttributeDefinitions() == null) {
             throw new IllegalArgumentException(
-                "Unsupported configuration attributes: " + set.toString());
-        }
-        
-        iter = filterInvocationDefinitionSource.getConfigAttributeDefinitions();
-        while ( iter.hasNext() )
-        {
-            ConfigAttributeDefinition element = (ConfigAttributeDefinition) iter.next();
-            Iterator configAttributes = element.getConfigAttributes();
+                "FilterChainProxy requires the FitlerInvocationDefinitionSource to return a non-null response to getConfigAttributeDefinitions()");
         }
     }
 
+    public void destroy() {
+        Filter[] filters = obtainAllDefinedFilters();
+
+        for (int i = 0; i < filters.length; i++) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(
+                    "Destroying Filter defined in ApplicationContext: '"
+                    + filters[i].toString() + "'");
+            }
+
+            filters[i].destroy();
+        }
+    }
+
+    public void doFilter(ServletRequest request, ServletResponse response,
+        FilterChain chain) throws IOException, ServletException {
+        FilterInvocation fi = new FilterInvocation(request, response, chain);
+
+        ConfigAttributeDefinition cad = this.filterInvocationDefinitionSource
+            .getAttributes(fi);
+
+        if (cad == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(fi.getRequestUrl() + " has no matching filters");
+            }
+
+            chain.doFilter(request, response);
+        } else {
+            Filter[] filters = obtainAllDefinedFilters(cad);
+
+            VirtualFilterChain virtualFilterChain = new VirtualFilterChain(fi,
+                    filters);
+            virtualFilterChain.doFilter(fi.getRequest(), fi.getResponse());
+        }
+    }
+
+    public void init(FilterConfig filterConfig) throws ServletException {
+        Filter[] filters = obtainAllDefinedFilters();
+
+        for (int i = 0; i < filters.length; i++) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(
+                    "Initializing Filter defined in ApplicationContext: '"
+                    + filters[i].toString() + "'");
+            }
+
+            filters[i].init(filterConfig);
+        }
+    }
+
+    /**
+     * Obtains all of the <b>unique</b><code>Filter</code> instances registered
+     * against the <code>FilterInvocationDefinitionSource</code>.
+     * 
+     * <p>
+     * This is useful in ensuring a <code>Filter</code> is not initialized or
+     * destroyed twice.
+     * </p>
+     *
+     * @return all of the <code>Filter</code> instances in the application
+     *         context for which there has been an entry against the
+     *         <code>FilterInvocationDefinitionSource</code> (only one entry
+     *         is included in the array for each <code>Filter</code> that
+     *         actually exists in application context, even if a given
+     *         <code>Filter</code> is defined multiples times by the
+     *         <code>FilterInvocationDefinitionSource</code>)
+     */
+    private Filter[] obtainAllDefinedFilters() {
+        Iterator cads = this.filterInvocationDefinitionSource
+            .getConfigAttributeDefinitions();
+        Set list = new LinkedHashSet();
+
+        while (cads.hasNext()) {
+            ConfigAttributeDefinition attribDef = (ConfigAttributeDefinition) cads
+                .next();
+            Filter[] filters = obtainAllDefinedFilters(attribDef);
+
+            for (int i = 0; i < filters.length; i++) {
+                list.add(filters[i]);
+            }
+        }
+
+        return (Filter[]) list.toArray(new Filter[] {null});
+    }
+
+    /**
+     * Obtains all of the <code>Filter</code> instances registered against the
+     * specified <code>ConfigAttributeDefinition</code>.
+     *
+     * @param configAttributeDefinition for which we want to obtain associated
+     *        <code>Filter</code>s
+     *
+     * @return the <code>Filter</code>s against the specified
+     *         <code>ConfigAttributeDefinition</code>
+     *
+     * @throws IllegalArgumentException if a configuration attribute provides a
+     *         <code>null</code> return value from the {@link
+     *         ConfigAttribute#getAttribute()} method
+     */
+    private Filter[] obtainAllDefinedFilters(
+        ConfigAttributeDefinition configAttributeDefinition) {
+        List list = new Vector();
+        Iterator attributes = configAttributeDefinition.getConfigAttributes();
+
+        while (attributes.hasNext()) {
+            ConfigAttribute attr = (ConfigAttribute) attributes.next();
+            String filterName = attr.getAttribute();
+
+            if (filterName == null) {
+                throw new IllegalArgumentException("Configuration attribute: '"
+                    + attr
+                    + "' returned null to the getAttribute() method, which is invalid when used with FilterChainProxy");
+            }
+
+            list.add(this.applicationContext.getBean(filterName, Filter.class));
+        }
+
+        return (Filter[]) list.toArray(new Filter[] {null});
+    }
+
+    //~ Inner Classes ==========================================================
+
+    /**
+     * A <code>FilterChain</code> that records whether or not {@link
+     * FilterChain#doFilter(javax.servlet.ServletRequest,
+     * javax.servlet.ServletResponse)} is called.
+     * 
+     * <p>
+     * This <code>FilterChain</code> is used by <code>FilterChainProxy</code>
+     * to determine if the next <code>Filter</code> should be called or not.
+     * </p>
+     */
+    private class VirtualFilterChain implements FilterChain {
+        private FilterInvocation fi;
+        private Filter[] additionalFilters;
+        private int currentPosition = 0;
+
+        public VirtualFilterChain(FilterInvocation filterInvocation,
+            Filter[] additionalFilters) {
+            this.fi = filterInvocation;
+            this.additionalFilters = additionalFilters;
+        }
+
+        private VirtualFilterChain() {}
+
+        public void doFilter(ServletRequest arg0, ServletResponse arg1)
+            throws IOException, ServletException {
+            if (currentPosition == additionalFilters.length) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(fi.getRequestUrl()
+                        + " reached end of additional filter chain; proceeding with original chain");
+                }
+
+                fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+            } else {
+                currentPosition++;
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug(fi.getRequestUrl() + " at position "
+                        + currentPosition + " of " + additionalFilters.length
+                        + " in additional filter chain; firing Filter: '"
+                        + additionalFilters[currentPosition - 1] + "'");
+                }
+
+                additionalFilters[currentPosition - 1].doFilter(fi.getRequest(),
+                    fi.getResponse(), this);
+            }
+        }
+    }
 }

@@ -23,21 +23,19 @@
 
 	<bean id="mockFilter" class="net.sf.acegisecurity.util.MockFilter"/>
 
+	<bean id="mockFilter2" class="net.sf.acegisecurity.util.MockFilter"/>
+
 	<bean id="mockNotAFilter" class="net.sf.acegisecurity.util.MockNotAFilter"/>
 
 	<bean id="filterChain" class="net.sf.acegisecurity.util.FilterChainProxy">
       <property name="filterInvocationDefinitionSource">
          <value>
-                /*=mockFilter
+		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+		    PATTERN_TYPE_APACHE_ANT
+            /foo/**=mockFilter
+            /some/other/path/**=mockFilter
          </value>
       </property>
-<!--
-        <property name="filters">
-            <value>
-                /*=mockFilter
-            </value>
-        </property>
--->
     </bean>
 
 </beans>
