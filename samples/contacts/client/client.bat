@@ -1,1 +1,0 @@
-%JAVA_HOME%/bin/java -cp ../../../lib/aop-alliance/aopalliance.jar;../../../lib/caucho/hessian.jar;../../../lib/caucho/burlap.jar;../../../lib/jakarta-commons/commons-collections.jar;../../../lib/jakarta-commons/commons-logging.jar;../../../lib/spring/spring.jar;contacts.jar sample.contact.ClientApplication %1 %2 %3
