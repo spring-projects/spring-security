@@ -72,6 +72,15 @@ public interface Authentication extends Principal {
     public Object getCredentials();
 
     /**
+     * Stores additional details about the authentication request. These might
+     * be an IP address, certificate serial number etc.
+     *
+     * @return additional details about the authentication request, or
+     *         <code>null</code> if not used
+     */
+    public Object getDetails();
+
+    /**
      * The identity of the principal being authenticated. This is usually a
      * username. Callers are expected to populate the principal.
      *

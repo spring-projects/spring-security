@@ -27,6 +27,16 @@ import net.sf.acegisecurity.Authentication;
 public abstract class AbstractAuthenticationToken implements Authentication {
     //~ Methods ================================================================
 
+    /**
+     * Subclasses should override if they wish to provide additional details
+     * about the authentication event.
+     *
+     * @return always <code>null</code>
+     */
+    public Object getDetails() {
+        return null;
+    }
+
     public String getName() {
         return this.getPrincipal().toString();
     }
@@ -68,6 +78,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
         sb.append("Username: " + this.getPrincipal() + "; ");
         sb.append("Password: [PROTECTED]; ");
         sb.append("Authenticated: " + this.isAuthenticated() + "; ");
+        sb.append("Details: " + this.getDetails() + "; ");
 
         if (this.getAuthorities() != null) {
             sb.append("Granted Authorities: ");

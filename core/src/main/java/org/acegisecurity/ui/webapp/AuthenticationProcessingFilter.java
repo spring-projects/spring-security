@@ -77,6 +77,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username,
                 password);
+        authRequest.setDetails(request.getRemoteAddr());
 
         return this.getAuthenticationManager().authenticate(authRequest);
     }

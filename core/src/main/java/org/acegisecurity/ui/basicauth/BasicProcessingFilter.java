@@ -169,6 +169,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
 
             UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username,
                     password);
+            authRequest.setDetails(httpRequest.getRemoteAddr());
 
             Authentication authResult;
 
