@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <extend>${basedir}/../project.xml</extend>
+  <artifactId>acegi-security-doc</artifactId>
+  <name>Acegi Security System for Spring - Documentation</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>maven-plugins</groupId>
+      <artifactId>maven-sdocbook-plugin</artifactId>
+      <version>1.4-SNAPSHOT</version>
+      <type>plugin</type>
+    </dependency>
+
+    <!-- docbook -->
+    <dependency>
+      <groupId>docbook</groupId>
+      <artifactId>docbook-xsl</artifactId>
+      <version>1.66.1</version>
+      <url>http://docbook.sourceforge.net</url>
+      <type>zip</type>
+    </dependency>
+  </dependencies>
+</project>
+
