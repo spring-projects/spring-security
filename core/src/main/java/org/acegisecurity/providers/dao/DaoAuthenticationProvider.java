@@ -22,10 +22,17 @@ import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.providers.AuthenticationProvider;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureDisabledEvent;
+import net.sf.acegisecurity.providers.dao.event.AuthenticationFailurePasswordEvent;
+import net.sf.acegisecurity.providers.dao.event.AuthenticationSuccessEvent;
 import net.sf.acegisecurity.providers.encoding.PasswordEncoder;
 import net.sf.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import org.springframework.dao.DataAccessException;
 
@@ -56,14 +63,23 @@ import java.util.Date;
  * <code>UsernamePasswordAuthenticationToken</code>. This avoids complications
  * if the user changes their password during the session.
  * </p>
+ * 
+ * <P>
+ * If an application context is detected (which is automatically the case when
+ * the bean is started within a Spring container), application events will be
+ * published to the context. See {@link
+ * net.sf.acegisecurity.providers.dao.event.AuthenticationEvent} for further
+ * information.
+ * </p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class DaoAuthenticationProvider implements AuthenticationProvider,
-    InitializingBean {
+    InitializingBean, ApplicationContextAware {
     //~ Instance fields ========================================================
 
+    private ApplicationContext ctx;
     private AuthenticationDao authenticationDao;
     private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
     private SaltSource saltSource;
@@ -71,6 +87,11 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
     private long refreshTokenInterval = 60000; // 60 seconds
 
     //~ Methods ================================================================
+
+    public void setApplicationContext(ApplicationContext applicationContext)
+        throws BeansException {
+        this.ctx = applicationContext;
+    }
 
     public void setAuthenticationDao(AuthenticationDao authenticationDao) {
         this.authenticationDao = authenticationDao;
@@ -175,6 +196,15 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             throw new AuthenticationServiceException(repositoryProblem
                 .getMessage(), repositoryProblem);
         }
+        
+        if (!user.isEnabled()) {
+            if (this.ctx != null) {
+                ctx.publishEvent(new AuthenticationFailureDisabledEvent(
+                        authentication, user));
+            }
+
+            throw new DisabledException("User is disabled");
+        }
 
         if (!(authentication instanceof DaoAuthenticationToken)) {
             // Must validate credentials, as this is not simply a token refresh
@@ -186,16 +216,21 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
             if (!passwordEncoder.isPasswordValid(user.getPassword(),
                     authentication.getCredentials().toString(), salt)) {
+                if (this.ctx != null) {
+                    ctx.publishEvent(new AuthenticationFailurePasswordEvent(
+                            authentication, user));
+                }
+
                 throw new BadCredentialsException("Bad credentials presented");
             }
         }
 
-        if (!user.isEnabled()) {
-            throw new DisabledException("User is disabled");
-        }
-
         Date expiry = new Date(new Date().getTime()
                 + this.getRefreshTokenInterval());
+
+        if (this.ctx != null) {
+            ctx.publishEvent(new AuthenticationSuccessEvent(authentication, user));
+        }
 
         return new DaoAuthenticationToken(this.getKey(), expiry,
             user.getUsername(), user.getPassword(), user.getAuthorities());

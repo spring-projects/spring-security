@@ -46,6 +46,9 @@
 		<property name="key"><value>my_password</value></property>
 	</bean>
 
+	<!-- Automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->
+	<bean id="loggerListener" class="net.sf.acegisecurity.providers.dao.event.LoggerListener"/>
+
 	<bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
 		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
 		<property name="authenticationEntryPoint"><ref bean="basicProcessingFilterEntryPoint"/></property>

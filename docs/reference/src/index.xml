@@ -7,7 +7,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>0.5</releaseinfo>
+    <releaseinfo>0.51</releaseinfo>
 
     <authorgroup>
       <author>
@@ -76,7 +76,9 @@
           <listitem>
             <para>An <literal>Authentication</literal> object which holds the
             principal, credentials and the authorities granted to the
-            principal.</para>
+            principal. The object can also store additional information
+            associated with an authentication request, such as the source
+            TCP/IP address.</para>
           </listitem>
 
           <listitem>
@@ -950,6 +952,63 @@
         <literal>AuthenticationManager</literal> or
         <literal>AuthenticationProvider</literal> implementation if it were
         desired.</para>
+      </sect2>
+
+      <sect2 id="security-authentication-provider-in-memory">
+        <title>Event Publishing</title>
+
+        <para>The <literal>DaoAuthenticationProvider</literal> automatically
+        obtains the <literal>ApplicationContext</literal> it is running in at
+        startup time. This allows the provider to publish events through the
+        standard Spring event framework. Three types of event messages are
+        published:</para>
+
+        <itemizedlist spacing="compact">
+          <listitem>
+            <para><literal>AuthenticationSuccessEvent</literal> is published
+            when an authentication request is successful.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>AuthenticationFailureDisabledEvent</literal> is
+            published when an authentication request is unsuccessful because
+            the returned <literal>User</literal> is disabled. This is normally
+            the case when an account is locked.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>AuthenticationFailurePasswordEvent</literal> is
+            published when an authentication request is unsuccessful because
+            the presented password did not match that in the
+            <literal>User</literal>.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Each event contains two objects: the
+        <literal>Authentication</literal> object that represented the
+        authentication request, and the <literal>User</literal> object that
+        was found in response to the authentication request. The
+        <literal>Authentication</literal> interface provides a
+        <literal>getDetails()</literal> method which often includes
+        information that event consumers may find useful (eg the TCP/IP
+        address that the authentication request originated from).</para>
+
+        <para>As per standard Spring event handling, you can receive these
+        events by adding a bean to the application context which implements
+        the <literal>ApplicationListener</literal> interface. Included with
+        Acegi Security is a <literal>LoggerListener</literal> class which
+        receives these events and publishes their details to Commons Logging.
+        Refer to the JavaDocs for <literal>LoggerListener</literal> for
+        details on the logging priorities used for different message
+        types.</para>
+
+        <para>This event publishing system enables you to implement account
+        locking and record authentication event history. This might be of
+        interest to application users, who can be advised of the times and
+        source IP address of all unsuccessful password attempts (and account
+        lockouts) since their last successful login. Such capabilities are
+        simple to implement and greatly improve the security of your
+        application.</para>
       </sect2>
 
       <sect2 id="security-authentication-provider-in-memory">
