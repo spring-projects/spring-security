@@ -10,8 +10,10 @@ applications:
   WebApplicationContextUtils.getApplicationContext() method. Refer to the
   reference documentation to see the new configuration of filters.
 
-- SecurityEnforcementFilter now requires an AuthenticationEntryPoint.
-  Refer to the reference documentation to see the alternatives available.
+- SecurityEnforcementFilter now requires an AuthenticationEntryPoint
+  and PortResolver. Refer to the reference documentation to see the
+  alternatives AuthenticationEntryPoint implementations available. Simply
+  use the PortResolverImpl for the PortResolver requirement.
 
 - Any of your login or login failure pages that previously referred to
   AuthenticationProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY
