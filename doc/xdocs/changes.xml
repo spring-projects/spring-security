@@ -60,7 +60,7 @@
       <action dev="benalex" type="update">Documentation improvements</action>
       <action dev="benalex" type="update">Test coverage improvements</action>
     </release>
-    <release version="0.6.1" date="2004-09-24"/>
+    <release version="0.6.1" date="2004-09-24">
       <action dev="benalex" type="update">Resolved to use http://apr.apache.org/versioning.html for future versioning</action>
       <action dev="benalex" type="add">Added additional DaoAuthenticationProvider event when user not found</action>
       <action dev="benalex" type="add">Added Authentication.getDetails() to DaoAuthenticationProvider response</action>
@@ -78,7 +78,8 @@
       <action dev="benalex" type="fix">Fixed Ant "release" target not including project.properties</action>
       <action dev="benalex" type="fix">Fixed GrantedAuthorityEffectiveAclsResolver if null ACLs provided to method</action>
       <action dev="benalex" type="update">Documentation improvements</action>
-    <release version="0.6"   date="2004-08-08"/>
+    </release>
+    <release version="0.6"   date="2004-08-08">
       <action dev="benalex" type="add">Added domain object instance access control list (ACL) packages</action>
       <action dev="benalex" type="add">Added feature so DaoAuthenticationProvider returns User in Authentication</action>
       <action dev="benalex" type="add">Added AbstractIntegrationFilter.secureContext property for custom contexts</action>
@@ -106,7 +107,8 @@
       <action dev="benalex" type="fix">Fixed CasAuthenticationToken if proxy granting ticket callback not requested</action>
       <action dev="benalex" type="fix">Fixed EH-CACHE handling on web context refresh</action>
       <action dev="benalex" type="update">Documentation improvements</action>
-    <release version="0.5.1" date="2004-06-05"/>
+    </release>
+    <release version="0.5.1" date="2004-06-05">
       <action dev="benalex" type="add">Added samples/quick-start</action>
       <action dev="benalex" type="add">Added NullRunAsManager and made default for AbstractSecurityInterceptor</action>
       <action dev="benalex" type="add">Added event notification (see net.sf.acegisecurity.providers.dao.event)</action>
@@ -123,7 +125,8 @@
       <action dev="benalex" type="update">Removed DaoAuthenticationToken and session-based caching</action>
       <action dev="benalex" type="update">Documentation improvements</action>
       <action dev="benalex" type="update">Upgrade Note: DaoAuthenticationProvider no longer has a "key" property</action>
-    <release version="0.5"   date="2004-04-28"/>
+    </release>
+    <release version="0.5" date="2004-04-28">
       <action dev="benalex" type="add">Added single sign on support via Yale Central Authentication Service (CAS)</action>
       <action dev="benalex" type="add">Added full support for HTTP Basic Authentication</action>
       <action dev="benalex" type="add">Added caching for DaoAuthenticationProvider successful authentications</action>
@@ -145,7 +148,8 @@
       <action dev="benalex" type="fix">Fixed Contacts sample application <A></A> tags</action>
       <action dev="benalex" type="update">Established acegisecurity-developer mailing list</action>
       <action dev="benalex" type="update">Documentation improvements</action>
-    <release version="0.4"   date="2004-04-03"/>
+    </release>
+    <release version="0.4" date="2004-04-03">
       <action dev="benalex" type="add">Added HTTP session authentication as an alternative to container adapters</action>
       <action dev="benalex" type="add">Added HTTP request security interceptor (offers considerable flexibility)</action>
       <action dev="fbos" type="add">Added security taglib</action>
@@ -164,7 +168,8 @@
       <action dev="benalex" type="update">Improved AutoIntegrationFilter handling of deployments without JBoss JARs</action>
       <action dev="benalex" type="fix">Fixed case handling support in data access object authentication provider</action>
       <action dev="benalex" type="update">Documentation improvements</action>
-    <release version="0.3"   date="2004-03-18"/>
+    </release>
+    <release version="0.3" date="2004-03-18">
       <action dev="benalex" type="add">Added "in container" unit test system for container adapters and sample app</action>
       <action dev="benalex" type="add">Added library extractor tool to reduce the "with deps" ZIP release sizes</action>
       <action dev="benalex" type="add">Added unit test to the attributes sample</action>
@@ -175,7 +180,8 @@
       <action dev="benalex" type="update">Clarified licenses and sources for all included libraries</action>
       <action dev="benalex" type="update">Updated documentation to reflect new file and package names</action>
       <action dev="benalex" type="update">Setup Sourceforge.net project and added to CVS etc</action>
-    <release version="0.2"   date="2004-03-10"/>
+    </release>
+    <release version="0.2"   date="2004-03-10">
       <action dev="benalex" type="add">Added Commons Attributes support and sample (thanks to Cameron Braid)</action>
       <action dev="benalex" type="add">Added JBoss container adapter</action>
       <action dev="benalex" type="add">Added Resin container adapter</action>
@@ -189,7 +195,9 @@
       <action dev="benalex" type="fix">Fixed switch block in voting decision manager implementations</action>
       <action dev="benalex" type="update">Removed Spring MVC interceptor for container adapter integration</action>
       <action dev="benalex" type="update">Documentation improvements</action>
-    <release version="0.1"   date="2004-03-03"/>
+    </release>
+    <release version="0.1"   date="2004-03-03">
       <action dev="benalex" type="add">Initial public release</action>
+    </release>
   </body>
 </document>
