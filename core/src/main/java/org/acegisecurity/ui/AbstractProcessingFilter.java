@@ -18,15 +18,9 @@ package net.sf.acegisecurity.ui;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.AuthenticationServiceException;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.CredentialsExpiredException;
-import net.sf.acegisecurity.DisabledException;
-import net.sf.acegisecurity.LockedException;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContext;
 import net.sf.acegisecurity.context.security.SecureContextUtils;
-import net.sf.acegisecurity.providers.cas.ProxyUntrustedException;
 import net.sf.acegisecurity.ui.rememberme.NullRememberMeServices;
 import net.sf.acegisecurity.ui.rememberme.RememberMeServices;
 
@@ -39,12 +33,9 @@ import org.springframework.util.Assert;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import java.util.Properties;
+
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -95,9 +86,33 @@ import javax.servlet.http.HttpServletResponse;
  * </li>
  * </ul>
  * 
+ * <p>
+ * To configure this filter to redirect to specfic pages as the result of
+ * specific {@link AuthenticationException}s you can do the following.
+ * Configure the <code>exceptionMappings</code> property in your application
+ * xml. This property is a java.util.Properties object that maps a
+ * fully-qualified exception class name to a redirection url target.<br>
+ * For example:<br>
+ * <code> &lt;property name="exceptionMappings"&gt;<br>
+ * &nbsp;&nbsp;&lt;props&gt;<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&lt;prop&gt; key="net.sf.acegisecurity.BadCredentialsException"&gt;/bad_credentials.jsp&lt;/prop&gt;<br>
+ * &nbsp;&nbsp;&lt;/props&gt;<br>
+ * &lt;/property&gt;<br>
+ * </code><br>
+ * The example above would redirect all {@link
+ * net.sf.acegisecurity.BadCredentialsException}s thrown, to a page in the
+ * web-application called /bad_credentials.jsp.
+ * </p>
+ * 
+ * <p>
+ * Any {@link AuthenticationException} thrown that cannot be matched in the
+ * <code>exceptionMappings</code> will be redirected to the
+ * <code>authenticationFailureUrl</code>
+ * </p>
  *
  * @author Ben Alex
  * @author colin sampaleanu
+ * @author Ray Krueger
  * @version $Id$
  */
 public abstract class AbstractProcessingFilter implements Filter,
@@ -111,41 +126,11 @@ public abstract class AbstractProcessingFilter implements Filter,
     //~ Instance fields ========================================================
 
     private AuthenticationManager authenticationManager;
+    private Properties exceptionMappings = new Properties();
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
-
-    /**
-     * Where to redirect the browser if authentication fails due to incorrect
-     * credentials
-     */
-    private String authenticationCredentialCheckFailureUrl;
-
-    /**
-     * Where to redirect the browser if authentication fails due to the users
-     * account being disabled
-     */
-    private String authenticationDisabledFailureUrl;
 
     /** Where to redirect the browser to if authentication fails */
     private String authenticationFailureUrl;
-
-    /**
-     * Where to redirect the browser if authentication fails due to the users
-     * account being locked
-     */
-    private String authenticationLockedFailureUrl;
-
-    /**
-     * Where to redirect the browser if authentication fails due to the user's
-     * proxy being considered untrusted
-     */
-    private String authenticationProxyUntrustedFailureUrl;
-
-    /**
-     * Where to redirect the browser if authentication fails due to failure of
-     * the authentication service
-     */
-    private String authenticationServiceFailureUrl;
-    private String credentialsExpiredFailureUrl;
 
     /**
      * Where to redirect the browser to if authentication is successful but
@@ -201,6 +186,14 @@ public abstract class AbstractProcessingFilter implements Filter,
      */
     public abstract String getDefaultFilterProcessesUrl();
 
+    public void setExceptionMappings(Properties exceptionMappings) {
+        this.exceptionMappings = exceptionMappings;
+    }
+
+    public Properties getExceptionMappings() {
+        return new Properties(exceptionMappings);
+    }
+
     public void setRememberMeServices(RememberMeServices rememberMeServices) {
         this.rememberMeServices = rememberMeServices;
     }
@@ -222,39 +215,12 @@ public abstract class AbstractProcessingFilter implements Filter,
     public abstract Authentication attemptAuthentication(
         HttpServletRequest request) throws AuthenticationException;
 
-    public void setAuthenticationCredentialCheckFailureUrl(
-        String authenticationCredentialCheckFailureUrl) {
-        this.authenticationCredentialCheckFailureUrl = authenticationCredentialCheckFailureUrl;
-    }
-
-    public String getAuthenticationCredentialCheckFailureUrl() {
-        return authenticationCredentialCheckFailureUrl;
-    }
-
-    public void setAuthenticationDisabledFailureUrl(
-        String authenticationDisabledFailureUrl) {
-        this.authenticationDisabledFailureUrl = authenticationDisabledFailureUrl;
-    }
-
-    public String getAuthenticationDisabledFailureUrl() {
-        return authenticationDisabledFailureUrl;
-    }
-
     public void setAuthenticationFailureUrl(String authenticationFailureUrl) {
         this.authenticationFailureUrl = authenticationFailureUrl;
     }
 
     public String getAuthenticationFailureUrl() {
         return authenticationFailureUrl;
-    }
-
-    public void setAuthenticationLockedFailureUrl(
-        String authenticationLockedFailureUrl) {
-        this.authenticationLockedFailureUrl = authenticationLockedFailureUrl;
-    }
-
-    public String getAuthenticationLockedFailureUrl() {
-        return authenticationLockedFailureUrl;
     }
 
     public void setAuthenticationManager(
@@ -264,33 +230,6 @@ public abstract class AbstractProcessingFilter implements Filter,
 
     public AuthenticationManager getAuthenticationManager() {
         return authenticationManager;
-    }
-
-    public void setAuthenticationProxyUntrustedFailureUrl(
-        String authenticationProxyUntrustedFailureUrl) {
-        this.authenticationProxyUntrustedFailureUrl = authenticationProxyUntrustedFailureUrl;
-    }
-
-    public String getAuthenticationProxyUntrustedFailureUrl() {
-        return authenticationProxyUntrustedFailureUrl;
-    }
-
-    public void setAuthenticationServiceFailureUrl(
-        String authenticationServiceFailureUrl) {
-        this.authenticationServiceFailureUrl = authenticationServiceFailureUrl;
-    }
-
-    public String getAuthenticationServiceFailureUrl() {
-        return authenticationServiceFailureUrl;
-    }
-
-    public void setCredentialsExpiredFailureUrl(
-        String credentialsExpiredFailureUrl) {
-        this.credentialsExpiredFailureUrl = credentialsExpiredFailureUrl;
-    }
-
-    public String getCredentialsExpiredFailureUrl() {
-        return credentialsExpiredFailureUrl;
     }
 
     public void setDefaultTargetUrl(String defaultTargetUrl) {
@@ -403,8 +342,10 @@ public abstract class AbstractProcessingFilter implements Filter,
         HttpServletResponse response) throws IOException {}
 
     /**
+     * <p>
      * Indicates whether this filter should attempt to process a login request
      * for the current invocation.
+     * </p>
      * 
      * <p>
      * Subclasses may override for special requirements, such as Tapestry
@@ -474,37 +415,9 @@ public abstract class AbstractProcessingFilter implements Filter,
             logger.debug("Updated ContextHolder to contain null Authentication");
         }
 
-        String failureUrl = authenticationFailureUrl;
-
-        if (failed instanceof AuthenticationServiceException
-            && (authenticationServiceFailureUrl != null)) {
-            failureUrl = authenticationServiceFailureUrl;
-        }
-
-        if (failed instanceof BadCredentialsException
-            && (this.authenticationCredentialCheckFailureUrl != null)) {
-            failureUrl = authenticationCredentialCheckFailureUrl;
-        }
-
-        if (failed instanceof DisabledException
-            && (authenticationDisabledFailureUrl != null)) {
-            failureUrl = authenticationDisabledFailureUrl;
-        }
-
-        if (failed instanceof LockedException
-            && (authenticationLockedFailureUrl != null)) {
-            failureUrl = authenticationLockedFailureUrl;
-        }
-
-        if (failed instanceof ProxyUntrustedException
-            && (authenticationProxyUntrustedFailureUrl != null)) {
-            failureUrl = authenticationProxyUntrustedFailureUrl;
-        }
-
-        if (failed instanceof CredentialsExpiredException
-            && (credentialsExpiredFailureUrl != null)) {
-            failureUrl = credentialsExpiredFailureUrl;
-        }
+        String failureUrl = exceptionMappings.getProperty(failed.getClass()
+                                                                .getName(),
+                authenticationFailureUrl);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Authentication request failed: " + failed.toString());

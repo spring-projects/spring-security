@@ -17,15 +17,7 @@ package net.sf.acegisecurity.ui;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.MockFilterConfig;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
+import net.sf.acegisecurity.*;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContextImpl;
 import net.sf.acegisecurity.context.security.SecureContextUtils;
@@ -34,12 +26,9 @@ import net.sf.acegisecurity.ui.rememberme.TokenBasedRememberMeServices;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import java.util.Properties;
+
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -115,7 +104,25 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Test
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
+
         assertEquals("/myApp/failed.jsp", response.getRedirect());
+        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+
+        //Prepare again, this time using the exception mapping
+        filter = new MockAbstractProcessingFilter(new AccountExpiredException(
+                    "You're account is expired"));
+        filter.setAuthenticationFailureUrl("/myApp/failed.jsp");
+
+        Properties exceptionMappings = filter.getExceptionMappings();
+        exceptionMappings.setProperty(AccountExpiredException.class.getName(),
+            "/myApp/accountExpired.jsp");
+        filter.setExceptionMappings(exceptionMappings);
+
+        // Test
+        executeFilterInContainerSimulator(config, filter, request, response,
+            chain);
+
+        assertEquals("/myApp/accountExpired.jsp", response.getRedirect());
         assertNull(SecureContextUtils.getSecureContext().getAuthentication());
     }
 
@@ -168,25 +175,8 @@ public class AbstractProcessingFilterTests extends TestCase {
         filter.setFilterProcessesUrl("/p");
         assertEquals("/p", filter.getFilterProcessesUrl());
 
-        filter.setAuthenticationCredentialCheckFailureUrl("/foo");
-        assertEquals("/foo", filter.getAuthenticationCredentialCheckFailureUrl());
-
-        filter.setAuthenticationDisabledFailureUrl("/dis");
-        assertEquals("/dis", filter.getAuthenticationDisabledFailureUrl());
-
         filter.setAuthenticationFailureUrl("/fail");
         assertEquals("/fail", filter.getAuthenticationFailureUrl());
-
-        filter.setAuthenticationLockedFailureUrl("/locked");
-        assertEquals("/locked", filter.getAuthenticationLockedFailureUrl());
-
-        filter.setAuthenticationProxyUntrustedFailureUrl("/proxy");
-        assertEquals("/proxy",
-            filter.getAuthenticationProxyUntrustedFailureUrl());
-
-        filter.setAuthenticationServiceFailureUrl("/serviceFailure");
-        assertEquals("/serviceFailure",
-            filter.getAuthenticationServiceFailureUrl());
     }
 
     public void testIgnoresAnyServletPathOtherThanFilterProcessesUrl()
