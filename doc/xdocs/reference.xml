@@ -38,8 +38,17 @@
               <a href="docbook/index.html">Reference Guide HTML</a>
             </td>
             <td>
-              The original docbook-generated reference. This is a good place to start if you want
+              This is a good place to start if you want
               to use the Acegi Security System to secure your applications.
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <a href="docbook/index-all.html">Reference Guide HTML Single Page</a>
+            </td>
+            <td>
+              The reference guide in a single html page.
             </td>
           </tr>
 
