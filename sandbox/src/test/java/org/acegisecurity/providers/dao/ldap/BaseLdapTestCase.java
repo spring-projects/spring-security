@@ -1,5 +1,7 @@
 package net.sf.acegisecurity.providers.dao.ldap;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -15,6 +17,20 @@ public class BaseLdapTestCase extends TestCase {
     // static finalizers, they'd be nice, as LdapTestHelper 
     // never seems to get the chance to cleanup after itself
 	protected static LdapTestHelper ldapTestHelper = new LdapTestHelper();
+    
+    static {
+        //InputStream in = BaseLdapTestCase.class.getResourceAsStream("net/sf/acegisecurity/providers/dao/ldap/test-data.ldif");
+        /* InputStream in = ldapTestHelper.getClass().getResourceAsStream("test-data.ldif");
+        try {
+            ldapTestHelper.importLDIF(in);
+        } catch (Exception x) {
+            x.printStackTrace();
+            ldapTestHelper.shutdownServer();
+            ldapTestHelper = null;
+            throw new RuntimeException("Server initialization failed.");
+        } */
+        DirContentsInitializer.initialize( ldapTestHelper.getServerContext() );
+    }
 	
 	protected DirContext getClientContext() throws NamingException {
 		Hashtable env = new Hashtable();
