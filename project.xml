@@ -1,4 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * ========================================================================
+ * 
+ * Copyright 2004 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * ========================================================================
+-->
+
 <project>
   <pomVersion>3</pomVersion>
   <groupId>acegisecurity</groupId>
@@ -7,14 +28,17 @@
   <description>Acegi Security System for Spring</description>
   <shortDescription>Acegi Security System for Spring</shortDescription>
   <url>http://acegisecurity.sourceforge.net/</url>
+
   <siteAddress>shell.sourceforge.net</siteAddress>
   <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs</siteDirectory>
   <distributionSite>shell.sourceforge.net</distributionSite>
   <distributionDirectory>/home/groups/a/ac/acegisecurity/htdocs/maven</distributionDirectory>
+
   <repository>
     <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
     <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/</url>
   </repository>
+
   <mailingLists>
     <mailingList>
       <name>Acegi Developer List</name>
@@ -25,11 +49,17 @@
       <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=30287</archive>
     </mailingList>
   </mailingLists>
+
   <developers>
     <developer>
       <name>Ben Alex</name>
       <id>benalex</id>
       <email>benalex at users.sourceforge.net</email>
+      <organization>Acegi Technology Pty Limited (http://www.acegi.com.au)</organization>
+      <roles>
+        <role>Original developer</role>
+        <role>Project leader</role>
+      </roles>
     </developer>
     <developer>
       <name>Francois Beausoleil</name>
@@ -42,6 +72,15 @@
       <email>colinml1 at exis.com</email>
     </developer>
     <developer>
+      <name>Carlos Sanchez</name>
+      <id>carlossg</id>
+      <email>carlossg at users.sourceforge.net</email>
+      <roles>
+        <role>Maven support</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
       <name>Luke Taylor</name>
       <id>luke_t</id>
       <email>luke at monkeymachine.ltd.uk</email>
@@ -52,12 +91,64 @@
       <email>raykrueger at users.sourceforge.net</email>
     </developer>
   </developers>
+
+  <contributors>
+    <contributor>
+      <name>Cameron Braid</name>
+      <id>CameronBraid</id>
+      <roles>
+        <role>Commons Attributes configuration support</role>
+      </roles>
+    </contributor>
+    <contributor>
+      <name>Patrick Burleson</name>
+      <roles>
+        <role>weblogic support</role>
+      </roles>
+    </contributor>
+    <contributor>
+      <name>Wesley Hall</name>
+      <roles>
+        <role>Authentication exception handling</role>
+      </roles>
+    </contributor>
+    <contributor>
+      <name>Scott Evans</name>
+      <roles>
+        <role>Taglib improvements</role>
+      </roles>
+    </contributor>
+    <contributor>
+      <name>Travis Gregg</name>
+      <roles>
+        <role>Fix to EH-CACHE usage after web context refresh</role>
+      </roles>
+    </contributor>
+    <contributor>
+      <name>Karel Miarka</name>
+      <roles>
+        <role>Fix for EH-CACHE NPEs, additional event handling for DaoAuthenticationProvider, and the PasswordAuthenticationProvider-related (including LDAP DAO) classes</role>
+      </roles>
+    </contributor>
+    <contributor>
+      <name>James Monaghan</name>
+      <roles>
+        <role>AcegiRemoteInvocation support classes</role>
+      </roles>
+    </contributor>
+    <contributor>
+      <name>Andrew Petro</name>
+      <roles>
+        <role>Documentation</role>
+      </roles>
+    </contributor>
+  </contributors>
+
   <dependencies>
     <dependency>
       <groupId>ehcache</groupId>
       <artifactId>ehcache</artifactId>
       <version>0.7</version>
-      <type>jar</type>
       <url>http://ehcache.sourceforge.net</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -67,7 +158,6 @@
       <groupId>aopalliance</groupId>
       <artifactId>aopalliance</artifactId>
       <version>1.0</version>
-      <type>jar</type>
       <url>http://aopalliance.sourceforge.net</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -77,7 +167,6 @@
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
       <version>1.2</version>
-      <type>jar</type>
       <url>http://jakarta.apache.org/commons</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -87,7 +176,6 @@
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
       <version>3.0</version>
-      <type>jar</type>
       <url>http://jakarta.apache.org/commons</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -97,7 +185,6 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0</version>
-      <type>jar</type>
       <url>http://jakarta.apache.org/commons</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -107,7 +194,6 @@
       <groupId>jstl</groupId>
       <artifactId>jstl</artifactId>
       <version>1.0.2</version>
-      <type>jar</type>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
@@ -116,13 +202,11 @@
       <groupId>servletapi</groupId>
       <artifactId>servletapi</artifactId>
       <version>2.3</version>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
       <version>2.0.7</version>
-      <type>jar</type>
       <url>http://jakarta.apache.org/oro/</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -132,18 +216,15 @@
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>1.7.2-rc6c</version>
-      <type>jar</type>
       <url>http://hsqldb.sourceforge.net/</url>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-    <!-- maven plugins -->
     <dependency>
       <groupId>springframework</groupId>
       <artifactId>spring-core</artifactId>
       <version>1.1.2</version>
-      <type>jar</type>
       <url>http://www.springframework.org</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -153,7 +234,6 @@
       <groupId>springframework</groupId>
       <artifactId>spring-dao</artifactId>
       <version>1.1.2</version>
-      <type>jar</type>
       <url>http://www.springframework.org</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -163,7 +243,6 @@
       <groupId>springframework</groupId>
       <artifactId>spring-orm</artifactId>
       <version>1.1.2</version>
-      <type>jar</type>
       <url>http://www.springframework.org</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -173,7 +252,6 @@
       <groupId>springframework</groupId>
       <artifactId>spring-context</artifactId>
       <version>1.1.2</version>
-      <type>jar</type>
       <url>http://www.springframework.org</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -183,7 +261,6 @@
       <groupId>springframework</groupId>
       <artifactId>spring-aop</artifactId>
       <version>1.1.2</version>
-      <type>jar</type>
       <url>http://www.springframework.org</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -193,7 +270,6 @@
       <groupId>springframework</groupId>
       <artifactId>spring-web</artifactId>
       <version>1.1.2</version>
-      <type>jar</type>
       <url>http://www.springframework.org</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -203,14 +279,12 @@
       <groupId>springframework</groupId>
       <artifactId>spring-mock</artifactId>
       <version>1.1.2</version>
-      <type>jar</type>
       <url>http://www.springframework.org</url>
     </dependency>
     <dependency>
       <groupId>commons-attributes</groupId>
       <artifactId>commons-attributes-api</artifactId>
       <version>2.1</version>
-      <type>jar</type>
       <url>http://jakarta.apache.org/commons</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -220,14 +294,12 @@
       <groupId>commons-attributes</groupId>
       <artifactId>commons-attributes-compiler</artifactId>
       <version>2.1</version>
-      <type>jar</type>
       <url>http://jakarta.apache.org/commons</url>
     </dependency>
     <dependency>
       <groupId>taglibs</groupId>
       <artifactId>standard</artifactId>
       <version>1.0.4</version>
-      <type>jar</type>
       <url>http://jakarta.apache.org/taglibs/</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -237,7 +309,6 @@
       <groupId>cas</groupId>
       <artifactId>casclient</artifactId>
       <version>2.0.11</version>
-      <type>jar</type>
       <url>http://www.yale.edu/tp/cas</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -247,7 +318,6 @@
       <groupId>aspectj</groupId>
       <artifactId>aspectjrt</artifactId>
       <version>1.2</version>
-      <type>jar</type>
       <url>http://www.eclipse.org/aspectj</url>
       <properties>
         <war.bundle>true</war.bundle>
@@ -288,6 +358,13 @@
     </unitTest>
     <resources>
       <resource>
+        <directory>${rootdir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>notice.txt</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>${basedir}/src/main/resources</directory>
         <includes>
           <include>**/**</include>
@@ -298,9 +375,12 @@
   </build>
   <reports>
     <report>maven-changelog-plugin</report>
-    <report>maven-developer-activity-plugin</report>
-    <report>maven-file-activity-plugin</report>
+    <report>maven-changes-plugin</report>
     <report>maven-checkstyle-plugin</report>
+    <report>maven-clover-plugin</report>
+    <report>maven-developer-activity-plugin</report>
+    <report>maven-faq-plugin</report>
+    <report>maven-file-activity-plugin</report>
     <report>maven-javadoc-plugin</report>
     <report>maven-jdepend-plugin</report>
     <report>maven-junit-report-plugin</report>
@@ -309,11 +389,43 @@
     <report>maven-pmd-plugin</report>
     <report>maven-simian-plugin</report>
     <report>maven-tasklist-plugin</report>
-    <report>maven-faq-plugin</report>
-    <report>maven-clover-plugin</report>
+
     <report>maven-findbugs-plugin</report>
     <report>maven-statcvs-plugin</report>
   </reports>
-  <properties />
+  
+  <versions>
+    <version>
+      <id>0.3</id>
+      <name>0.3</name>
+      <tag>release_0_3</tag>
+    </version>
+    <version>
+      <id>0.4</id>
+      <name>0.4</name>
+      <tag>release_0_4</tag>
+    </version>
+    <version>
+      <id>0.5</id>
+      <name>0.5</name>
+      <tag>release_0_5</tag>
+    </version>
+    <version>
+      <id>0.5.1</id>
+      <name>0.5.1</name>
+      <tag>release_0_51</tag>
+    </version>
+    <version>
+      <id>0.6</id>
+      <name>0.6</name>
+      <tag>release_0_6</tag>
+    </version>
+    <version>
+      <id>0.6.1</id>
+      <name>0.6.1</name>
+      <tag>release_0_6_1</tag>
+    </version>
+  </versions>
+
 </project>
 
