@@ -270,7 +270,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     public boolean isRequestedSessionIdValid() {
-        throw new UnsupportedOperationException("mock method not implemented");
+        return true;
     }
 
     public void setScheme(String scheme) {

@@ -92,7 +92,8 @@ public class HttpSessionIntegrationFilter extends AbstractIntegrationFilter {
 
     public void commitToContainer(ServletRequest request,
         Authentication authentication) {
-        if (request instanceof HttpServletRequest) {
+        if (request instanceof HttpServletRequest
+            && ((HttpServletRequest) request).isRequestedSessionIdValid()) {
             HttpSession httpSession = ((HttpServletRequest) request).getSession();
 
             if (httpSession != null) {
