@@ -25,6 +25,8 @@ import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import net.sf.acegisecurity.providers.dao.salt.SystemWideSaltSource;
+import net.sf.acegisecurity.providers.encoding.ShaPasswordEncoder;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -158,6 +160,42 @@ public class DaoAuthenticationProviderTests extends TestCase {
         assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
     }
 
+    public void testAuthenticatesWhenASaltIsUsed() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa",
+                "koala");
+
+        SystemWideSaltSource salt = new SystemWideSaltSource();
+        salt.setSystemWideSalt("SYSTEM_SALT_VALUE");
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissaWithSalt());
+        provider.setSaltSource(salt);
+
+        Authentication result = provider.authenticate(token);
+
+        if (!(result instanceof UsernamePasswordAuthenticationToken)) {
+            fail(
+                "Should have returned instance of UsernamePasswordAuthenticationToken");
+        }
+
+        UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
+        assertEquals("marissa", castResult.getPrincipal());
+        assertEquals("koala", castResult.getCredentials());
+        assertEquals("ROLE_ONE", castResult.getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
+    }
+
+    public void testGettersSetters() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(new ShaPasswordEncoder());
+        assertEquals(ShaPasswordEncoder.class,
+            provider.getPasswordEncoder().getClass());
+
+        provider.setSaltSource(new SystemWideSaltSource());
+        assertEquals(SystemWideSaltSource.class,
+            provider.getSaltSource().getClass());
+    }
+
     public void testStartupFailsIfNoAuthenticationDao()
         throws Exception {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -201,6 +239,21 @@ public class DaoAuthenticationProviderTests extends TestCase {
             throws UsernameNotFoundException, DataAccessException {
             if ("marissa".equals(username)) {
                 return new User("marissa", "koala", true,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                            "ROLE_TWO")});
+            } else {
+                throw new UsernameNotFoundException("Could not find: "
+                    + username);
+            }
+        }
+    }
+
+    private class MockAuthenticationDaoUserMarissaWithSalt
+        implements AuthenticationDao {
+        public User loadUserByUsername(String username)
+            throws UsernameNotFoundException, DataAccessException {
+            if ("marissa".equals(username)) {
+                return new User("marissa", "koala{SYSTEM_SALT_VALUE}", true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
             } else {
