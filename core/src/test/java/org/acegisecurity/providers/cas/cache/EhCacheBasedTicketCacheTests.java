@@ -68,6 +68,8 @@ public class EhCacheBasedTicketCacheTests extends TestCase {
         // Check it doesn't return values for null or unknown service tickets
         assertNull(cache.getByTicketId(null));
         assertNull(cache.getByTicketId("UNKNOWN_SERVICE_TICKET"));
+
+        cache.destroy();
     }
 
     public void testGettersSetters() {
