@@ -1,373 +1,364 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-
 <project>
-   <pomVersion>3</pomVersion>
-   <id>acegi-security</id>
-   <name>Acegi Security System for Spring</name>
-   <groupId>acegi</groupId>
-   <currentVersion>0.6-SNAPSHOT</currentVersion>
-   <package>net.sf.acegisecurity</package>
-   <!--logo>http://acegisecurity.sourceforge.net/logo.gif</logoi-->
-   <description>Acegi Security System for Spring</description>
-   <shortDescription>Acegi Security System for Spring</shortDescription>
-   <url>http://acegisecurity.sourceforge.net/</url>
-   <siteDirectory>/srv/www/htdocs/acegi</siteDirectory>
-
-   <repository>
-      <!-- connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection-->
-      <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
-      <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/</url>
-   </repository>
-
-   <mailingLists>
-      <mailingList>
-         <name>Acegi Developer List</name>
-         <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=40659</archive>
-      </mailingList>
-      <mailingList>
-         <name>Spring User List</name>
-         <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=30287</archive>
-      </mailingList>
-   </mailingLists>
-
-   <developers>
-      <developer>
-         <name>Ben Alex</name>
-         <id>benalex</id>
-         <email>benalex at users.sourceforge.net</email>
-         <roles>
-            <role>Project Admin</role>'
-            <role>Developer</role>
-         </roles>
-      </developer>
-      <developer>
-         <name>Francois Beausoleil</name>
-         <id>fbos</id>
-         <email>fbos at users.sourceforge.net</email>
-         <roles>
-            <role>Developer</role>
-         </roles>
-      </developer>
-      <developer>
-         <name>Colin Sampaleanu</name>
-         <id>colins</id>
-         <email>colinml1 at exis.com</email>
-         <roles>
-            <role>Developer</role>
-         </roles>
-      </developer>
-      <developer>
-         <name>Luke Taylor</name>
-         <id>luke_t</id>
-         <email>luke at monkeymachine.ltd.uk</email>
-         <roles>
-            <role>Developer</role>
-         </roles>
-      </developer>
-      <developer>
-         <name>Ray Krueger</name>
-         <id>raykrueger</id>
-         <email>raykrueger at users.sourceforge.net</email>
-         <roles>
-            <role>Developer</role>
-         </roles>
-      </developer>
-   </developers>
-
-   <dependencies>
-
-      <dependency>
-         <groupId>ehcache</groupId>
-         <artifactId>ehcache</artifactId>
-         <version>0.7</version>
-         <url>http://ehcache.sourceforge.net</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <!-- Spring dependencies -->
-      <dependency>
-         <groupId>springframework</groupId>
-         <artifactId>spring-core</artifactId>
-         <version>1.0.1</version>
-         <url>http://www.springframework.org</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <dependency>
-         <groupId>springframework</groupId>
-         <artifactId>spring-dao</artifactId>
-         <version>1.0.1</version>
-         <url>http://www.springframework.org</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <dependency>
-         <groupId>springframework</groupId>
-         <artifactId>spring-orm</artifactId>
-         <version>1.0.1</version>
-         <url>http://www.springframework.org</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <dependency>
-         <groupId>springframework</groupId>
-         <artifactId>spring-context</artifactId>
-         <version>1.0.1</version>
-         <url>http://www.springframework.org</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <dependency>
-         <groupId>springframework</groupId>
-         <artifactId>spring-aop</artifactId>
-         <version>1.0.1</version>
-         <url>http://www.springframework.org</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <dependency>
-         <groupId>springframework</groupId>
-         <artifactId>spring-web</artifactId>
-         <version>1.0.1</version>
-         <url>http://www.springframework.org</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <dependency>
-         <groupId>springframework</groupId>
-         <artifactId>spring-mock</artifactId>
-         <version>1.0.1</version>
-         <url>http://www.springframework.org</url>
-      </dependency>
-
-      <dependency>
-         <groupId>aopalliance</groupId>
-         <artifactId>aopalliance</artifactId>
-         <version>1.0</version>
-         <url>http://aopalliance.sourceforge.net</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <dependency>
-         <groupId>commons-attributes</groupId>
-         <artifactId>commons-attributes-api</artifactId>
-         <version>2.1</version>
-         <url>http://jakarta.apache.org/commons</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <dependency>
-         <groupId>commons-attributes</groupId>
-         <artifactId>commons-attributes-compiler</artifactId>
-         <version>2.1</version>
-         <url>http://jakarta.apache.org/commons</url>
-      </dependency>
-
-      <dependency>
-         <groupId>commons-codec</groupId>
-         <artifactId>commons-codec</artifactId>
-         <version>1.2</version>
-         <url>http://jakarta.apache.org/commons</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <dependency>
-         <groupId>commons-collections</groupId>
-         <artifactId>commons-collections</artifactId>
-         <version>3.0</version>
-         <url>http://jakarta.apache.org/commons</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <dependency>
-         <groupId>commons-logging</groupId>
-         <artifactId>commons-logging</artifactId>
-         <version>1.0</version>
-         <url>http://jakarta.apache.org/commons</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <dependency>
-         <groupId>taglibs</groupId>
-         <artifactId>standard</artifactId>
-         <version>1.0.4</version>
-         <url>http://jakarta.apache.org/taglibs/</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <dependency>
-         <groupId>jstl</groupId>
-         <artifactId>jstl</artifactId>
-         <version>1.0.2</version>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <dependency>
-         <groupId>servletapi</groupId>
-         <artifactId>servletapi</artifactId>
-         <version>2.3</version>
-      </dependency>
-
-     <dependency>
-         <groupId>oro</groupId>
-         <artifactId>oro</artifactId>
-         <version>2.0.7</version>
-         <url>http://jakarta.apache.org/oro/</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <dependency>
-         <groupId>hsqldb</groupId>
-         <artifactId>hsqldb</artifactId>
-         <version>1.7.2-rc6c</version>
-         <url>http://hsqldb.sourceforge.net/</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <dependency>
-         <groupId>cas</groupId>
-         <artifactId>cas</artifactId>
-         <version>2.0.12-beta3</version>
-         <url>http://www.yale.edu/tp/cas</url>
-      </dependency>
-
-      <dependency>
-         <groupId>cas</groupId>
-         <artifactId>casclient</artifactId>
-         <version>2.0.10</version>
-         <url>http://www.yale.edu/tp/cas</url>
-         <properties>
-            <war.bundle>true</war.bundle>
-         </properties>
-      </dependency>
-
-      <!-- Container Integration -->
-
-      <dependency>
-         <groupId>jboss</groupId>
-         <artifactId>jboss-jmx</artifactId>
-         <version>3.2.1</version>
-      </dependency>
-
-      <dependency>
-         <groupId>jboss</groupId>
-         <artifactId>jboss-common</artifactId>
-         <version>3.2.3</version>
-      </dependency>
-
-      <dependency>
-         <groupId>jboss</groupId>
-         <artifactId>jbosssx</artifactId>
-         <version>3.2.3</version>
-      </dependency>
-
-      <dependency>
-         <groupId>tomcat</groupId>
-         <artifactId>catalina</artifactId>
-         <version>4.1.9</version>
-      </dependency>
-
-      <dependency>
-         <groupId>jetty</groupId>
-         <artifactId>org.mortbay.jetty</artifactId>
-         <version>4.2.20</version>
-      </dependency>
-
-      <!-- Extracted -->
-
-      <dependency>
-         <groupId>acegi</groupId>
-         <artifactId>resin-extracted</artifactId>
-         <version>unknown</version>
-      </dependency>
-
-   </dependencies>
-
-
-   <build>
-      <sourceDirectory>${basedir}/src</sourceDirectory>
-      <unitTestSourceDirectory>${basedir}/test</unitTestSourceDirectory>
-
-      <!-- Unit test cases -->
-      <unitTest>
-         <includes>
-            <include>**/*Tests.java</include>
-         </includes>
-         <resources>
-            <resource>
-               <directory>${basedir}/test</directory>
-                  <includes>
-                     <include>**/**</include>
-                  </includes>
-                 <excludes>
-                    <exclude>**/*.java</exclude>
-                 </excludes>
-            </resource>
-         </resources>
-      </unitTest>
-
-      <!-- Jar resources -->
-      <resources>
-         <resource>
-            <directory>${basedir}/src/conf</directory>
+    <pomVersion>3</pomVersion>
+    <name>Acegi Security System for Spring</name>
+    <groupId>acegi</groupId>
+    <currentVersion>0.6-SNAPSHOT</currentVersion>
+    <package>net.sf.acegisecurity</package>
+    <description>Acegi Security System for Spring</description>
+    <shortDescription>Acegi Security System for Spring</shortDescription>
+    <url>http://acegisecurity.sourceforge.net/</url>
+    <siteDirectory>/srv/www/htdocs/acegi</siteDirectory>
+    <repository>
+        <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
+        <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/</url>
+    </repository>
+    <mailingLists>
+        <mailingList>
+            <name>Acegi Developer List</name>
+            <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=40659</archive>
+        </mailingList>
+        <mailingList>
+            <name>Spring User List</name>
+            <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=30287</archive>
+        </mailingList>
+    </mailingLists>
+    <developers>
+        <developer>
+            <name>Ben Alex</name>
+            <id>benalex</id>
+            <email>benalex at users.sourceforge.net</email>
+            <roles>
+                <role>Developer</role>
+                <role>Project Admin</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Francois Beausoleil</name>
+            <id>fbos</id>
+            <email>fbos at users.sourceforge.net</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Colin Sampaleanu</name>
+            <id>colins</id>
+            <email>colinml1 at exis.com</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Luke Taylor</name>
+            <id>luke_t</id>
+            <email>luke at monkeymachine.ltd.uk</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Ray Krueger</name>
+            <id>raykrueger</id>
+            <email>raykrueger at users.sourceforge.net</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+    <dependencies>
+        <dependency>
+            <groupId>ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>0.7</version>
+            <type>jar</type>
+            <url>http://ehcache.sourceforge.net</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>1.1</version>
+            <type>jar</type>
+            <url>http://www.springframework.org</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>springframework</groupId>
+            <artifactId>spring-dao</artifactId>
+            <version>1.1</version>
+            <type>jar</type>
+            <url>http://www.springframework.org</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>1.1</version>
+            <type>jar</type>
+            <url>http://www.springframework.org</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>1.1</version>
+            <type>jar</type>
+            <url>http://www.springframework.org</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>1.1</version>
+            <type>jar</type>
+            <url>http://www.springframework.org</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>1.1</version>
+            <type>jar</type>
+            <url>http://www.springframework.org</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>springframework</groupId>
+            <artifactId>spring-mock</artifactId>
+            <version>1.0.1</version>
+            <jar>${basedir}/lib/spring/spring-mock.jar</jar>
+            <type>jar</type>
+            <url>http://www.springframework.org</url>
+            <properties/>
+        </dependency>
+        <dependency>
+            <groupId>aopalliance</groupId>
+            <artifactId>aopalliance</artifactId>
+            <version>1.0</version>
+            <type>jar</type>
+            <url>http://aopalliance.sourceforge.net</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>commons-attributes</groupId>
+            <artifactId>commons-attributes-api</artifactId>
+            <version>2.1</version>
+            <type>jar</type>
+            <url>http://jakarta.apache.org/commons</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>commons-attributes</groupId>
+            <artifactId>commons-attributes-compiler</artifactId>
+            <version>2.1</version>
+            <type>jar</type>
+            <url>http://jakarta.apache.org/commons</url>
+            <properties/>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.2</version>
+            <type>jar</type>
+            <url>http://jakarta.apache.org/commons</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.0</version>
+            <type>jar</type>
+            <url>http://jakarta.apache.org/commons</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.0</version>
+            <type>jar</type>
+            <url>http://jakarta.apache.org/commons</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>standard</artifactId>
+            <version>1.0.4</version>
+            <type>jar</type>
+            <url>http://jakarta.apache.org/taglibs/</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.0.2</version>
+            <type>jar</type>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>servletapi</groupId>
+            <artifactId>servletapi</artifactId>
+            <version>2.3</version>
+            <type>jar</type>
+            <properties/>
+        </dependency>
+        <dependency>
+            <groupId>oro</groupId>
+            <artifactId>oro</artifactId>
+            <version>2.0.7</version>
+            <type>jar</type>
+            <url>http://jakarta.apache.org/oro/</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>1.7.2-rc6c</version>
+            <type>jar</type>
+            <url>http://hsqldb.sourceforge.net/</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>cas</groupId>
+            <artifactId>cas</artifactId>
+            <version>2.0.12-beta3</version>
+            <jar>${basedir}/lib/cas/cas-2.0.12-beta3.jar</jar>
+            <type>jar</type>
+            <url>http://www.yale.edu/tp/cas</url>
+            <properties/>
+        </dependency>
+        <dependency>
+            <groupId>cas</groupId>
+            <artifactId>casclient</artifactId>
+            <version>2.0.10</version>
+            <jar>${basedir}/lib/cas/casclient-2.0.10.jar</jar>
+            <type>jar</type>
+            <url>http://www.yale.edu/tp/cas</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jboss-jmx</artifactId>
+            <version>3.2.1</version>
+            <type>jar</type>
+            <properties/>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jboss-common</artifactId>
+            <version>3.2.3</version>
+            <type>jar</type>
+            <properties/>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jbosssx</artifactId>
+            <version>3.2.3</version>
+            <type>jar</type>
+            <properties/>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>catalina</artifactId>
+            <version>4.1.9</version>
+            <type>jar</type>
+            <properties/>
+        </dependency>
+        <dependency>
+            <groupId>jetty</groupId>
+            <artifactId>org.mortbay.jetty</artifactId>
+            <version>4.2.20</version>
+            <type>jar</type>
+            <properties/>
+        </dependency>
+        <dependency>
+            <groupId>acegi</groupId>
+            <artifactId>resin-extracted</artifactId>
+            <version>unknown</version>
+            <jar>${basedir}/lib/extracted/resin/resin-extracted.jar</jar>
+            <type>jar</type>
+            <properties/>
+        </dependency>
+    </dependencies>
+    <build>
+        <sourceDirectory>${basedir}/src</sourceDirectory>
+        <unitTestSourceDirectory>${basedir}/test</unitTestSourceDirectory>
+        <unitTest>
             <includes>
-               <include>**/**</include>
+                <include>**/*Tests.java</include>
             </includes>
-         </resource>
-      </resources>
-
-   </build>
-
-   <reports>
-      <report>maven-changelog-plugin</report>
-      <report>maven-developer-activity-plugin</report>
-      <report>maven-file-activity-plugin</report>
-      <report>maven-checkstyle-plugin</report>
-      <report>maven-statcvs-plugin</report>
-      <report>maven-javadoc-plugin</report>
-      <report>maven-jdepend-plugin</report>
-      <report>maven-junit-report-plugin</report>
-      <report>maven-jxr-plugin</report>
-      <report>maven-license-plugin</report>
-      <report>maven-pmd-plugin</report>
-      <report>maven-tasklist-plugin</report>
-      <report>maven-simian-plugin</report>
-      <report>maven-faq-plugin</report>
-      <!--report>maven-jcoverage-plugin</report-->
-      <report>maven-clover-plugin</report>
-   </reports>
-
+            <resources>
+                <resource>
+                    <directory>${basedir}/test</directory>
+                    <includes>
+                        <include>**/**</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/*.java</exclude>
+                    </excludes>
+                    <filtering>false</filtering>
+                </resource>
+            </resources>
+        </unitTest>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/conf</directory>
+                <includes>
+                    <include>**/**</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+    </build>
+    <reports>
+        <report>maven-changelog-plugin</report>
+        <report>maven-developer-activity-plugin</report>
+        <report>maven-file-activity-plugin</report>
+        <report>maven-checkstyle-plugin</report>
+        <report>maven-statcvs-plugin</report>
+        <report>maven-javadoc-plugin</report>
+        <report>maven-jdepend-plugin</report>
+        <report>maven-junit-report-plugin</report>
+        <report>maven-jxr-plugin</report>
+        <report>maven-license-plugin</report>
+        <report>maven-pmd-plugin</report>
+        <report>maven-tasklist-plugin</report>
+        <report>maven-simian-plugin</report>
+        <report>maven-faq-plugin</report>
+        <report>maven-clover-plugin</report>
+    </reports>
+    <properties/>
 </project>
-
