@@ -131,6 +131,7 @@ Maven throws an OutOfMemoryError. :-(
         <j:set var="maven.sdocbook.generated.html" value="${maven.build.dir}/generated-docbooks/html-chunk"/>
         <j:set var="chunk" value="true"/>
         <attainGoal name="sdocbook:generate-html"/>
+        <j:set var="chunk" value="false"/>
     </goal>
     <postGoal name="sdocbook">
         <attainGoal name="sdocbook:generate-htmlchunk"/>
