@@ -166,7 +166,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         }
 
         UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
-        assertEquals("marissa", castResult.getPrincipal());
+        assertEquals(User.class, castResult.getPrincipal().getClass());
         assertEquals("koala", castResult.getCredentials());
         assertEquals("ROLE_ONE", castResult.getAuthorities()[0].getAuthority());
         assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
@@ -192,7 +192,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         }
 
         UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
-        assertEquals("marissa", castResult.getPrincipal());
+        assertEquals(User.class, castResult.getPrincipal().getClass());
 
         // We expect original credentials user submitted to be returned
         assertEquals("koala", castResult.getCredentials());

@@ -24,6 +24,7 @@ import net.sf.acegisecurity.MockFilterConfig;
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpServletResponse;
 import net.sf.acegisecurity.MockHttpSession;
+import net.sf.acegisecurity.providers.dao.User;
 import net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter;
 
 import org.apache.commons.codec.binary.Base64;
@@ -199,8 +200,8 @@ public class BasicProcessingFilterTests extends TestCase {
 
         assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) != null);
         assertEquals("marissa",
-            ((Authentication) request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY)).getPrincipal()
-             .toString());
+            ((User) ((Authentication) request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY)).getPrincipal())
+             .getUsername());
     }
 
     public void testOtherAuthorizationSchemeIsIgnored()
@@ -291,8 +292,8 @@ public class BasicProcessingFilterTests extends TestCase {
 
         assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) != null);
         assertEquals("marissa",
-            ((Authentication) request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY)).getPrincipal()
-             .toString());
+                ((User) ((Authentication) request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY)).getPrincipal())
+                 .getUsername());
 
         // NOW PERFORM FAILED AUTHENTICATION
         // Setup our HTTP request

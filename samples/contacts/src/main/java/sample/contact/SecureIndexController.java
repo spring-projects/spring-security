@@ -20,6 +20,7 @@ import net.sf.acegisecurity.AuthenticationCredentialsNotFoundException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.SecureContext;
+import net.sf.acegisecurity.providers.dao.User;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -74,10 +75,17 @@ public class SecureIndexController implements Controller, InitializingBean {
                 + "SecureContext");
         }
 
-        final Authentication currentUser = secureContext.getAuthentication();
+        // Lookup username. As we must accommodate DaoAuthenticationProvider,
+        // CAS and container based authentication, we take care with casting
+        Authentication auth = secureContext.getAuthentication();
+        String username = auth.getPrincipal().toString();
+
+        if (auth.getPrincipal() instanceof User) {
+            username = ((User) auth.getPrincipal()).getUsername();
+        }
 
         boolean supervisor = false;
-        GrantedAuthority[] granted = currentUser.getAuthorities();
+        GrantedAuthority[] granted = auth.getAuthorities();
 
         for (int i = 0; i < granted.length; i++) {
             if (granted[i].getAuthority().equals("ROLE_SUPERVISOR")) {
@@ -85,13 +93,12 @@ public class SecureIndexController implements Controller, InitializingBean {
             }
         }
 
-        Contact[] myContacts = contactManager.getAllByOwner(currentUser.getPrincipal()
-                                                                       .toString());
+        Contact[] myContacts = contactManager.getAllByOwner(username);
 
         Map model = new HashMap();
         model.put("contacts", myContacts);
         model.put("supervisor", new Boolean(supervisor));
-        model.put("user", currentUser.getPrincipal().toString());
+        model.put("user", username);
 
         return new ModelAndView("index", "model", model);
     }

@@ -36,6 +36,7 @@
 	<!-- Authentication provider that queries our data access object  -->
 	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
      	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
+     	<property name="forcePrincipalAsString"><value>true</value></property>
 	</bean>
 
 	<!-- The authentication manager that iterates through our only authentication provider -->

@@ -15,8 +15,10 @@
 
 package sample.contact;
 
+import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.SecureContext;
+import net.sf.acegisecurity.providers.dao.User;
 
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;
@@ -54,8 +56,14 @@ public class WebContactAddController extends SimpleFormController {
     public ModelAndView onSubmit(Object command) throws ServletException {
         String name = ((WebContact) command).getName();
         String email = ((WebContact) command).getEmail();
-        String owner = ((SecureContext) ContextHolder.getContext()).getAuthentication()
-                        .getPrincipal().toString();
+
+        Authentication auth = ((SecureContext) ContextHolder.getContext())
+            .getAuthentication();
+        String owner = auth.getPrincipal().toString();
+
+        if (auth.getPrincipal() instanceof User) {
+            owner = ((User) auth.getPrincipal()).getUsername();
+        }
 
         Contact contact = new Contact(contactManager.getNextId(), name, email,
                 owner);

@@ -20,6 +20,8 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpServletResponse;
 
+import java.net.URLEncoder;
+
 
 /**
  * Tests {@link CasProcessingFilterEntryPoint}.
@@ -99,8 +101,11 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
 
         ep.afterPropertiesSet();
         ep.commence(request, response);
-        assertEquals("https://cas/login?service=https://mycompany.com/bigWebApp/j_acegi_cas_security_check",
-            response.getRedirect());
+
+        assertEquals("https://cas/login?service="
+            + URLEncoder.encode(
+                "https://mycompany.com/bigWebApp/j_acegi_cas_security_check",
+                "UTF-8"), response.getRedirect());
     }
 
     public void testNormalOperationWithRenewTrue() throws Exception {

@@ -7,7 +7,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>0.51</releaseinfo>
+    <releaseinfo>0.6</releaseinfo>
 
     <authorgroup>
       <author>
@@ -946,10 +946,24 @@
         increased the complexity of the <literal>AuthenticationDao</literal>
         interface. For instance, a method would be required to increase the
         count of unsuccessful authentication attempts. Such functionality
-        could be easily provided in a new
-        <literal>AuthenticationManager</literal> or
-        <literal>AuthenticationProvider</literal> implementation if it were
-        desired.</para>
+        could be easily provided by leveraging the application event
+        publishing features discussed below.</para>
+
+        <para><literal>DaoAuthenticationProvider</literal> returns an
+        <literal>Authentication</literal> object which in turn has its
+        <literal>principal</literal> property set. The principal will be
+        either a <literal>String</literal> (which is essentially the username)
+        or a <literal>User</literal> object (which was looked up from the
+        <literal>AuthenticationDao</literal>). By default the
+        <literal>User</literal> is returned, as this enables applications to
+        subclass <literal>User</literal> and add extra properties potentially
+        of use in applications, such as the user's full name, email address
+        etc. If using container adapters, or if your applications were written
+        to operate with <literal>String</literal>s (as was the case for
+        releases prior to Acegi Security 0.6), you should set the
+        <literal>DaoAuthenticationProvider.forcePrincipalAsString</literal>
+        property to <literal>true</literal> in your application
+        context.</para>
       </sect2>
 
       <sect2 id="security-authentication-provider-events">
@@ -1927,6 +1941,11 @@ public boolean supports(Class clazz);</programlisting></para>
         provided below. Once installed, please take the time to try the sample
         application to ensure your container adapter is properly
         configured.</para>
+
+        <para>When using container adapters with the
+        <literal>DaoAuthenticationProvider</literal>, ensure you set its
+        <literal>forcePrincipalAsString</literal> property to
+        <literal>true</literal>.</para>
       </sect2>
 
       <sect2 id="security-container-adapters-catalina">
@@ -2497,7 +2516,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <literal>PasswordHandler</literal> will do).</para>
 
         <para>To install, you will need to download and extract the CAS server
-        archive. We used version 2.0.12 Beta 3. There will be a
+        archive. We used version 2.0.12. There will be a
         <literal>/web</literal> directory in the root of the deployment. Copy
         an <literal>applicationContext.xml</literal> containing your
         <literal>AuthenticationManager</literal> as well as the
