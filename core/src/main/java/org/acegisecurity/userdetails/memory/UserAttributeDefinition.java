@@ -18,8 +18,8 @@ package net.sf.acegisecurity.providers.dao.memory;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
+import java.util.Vector;
 
 
 /**
@@ -32,7 +32,7 @@ import java.util.Set;
 public class UserAttributeDefinition {
     //~ Instance fields ========================================================
 
-    private Set authorities = new HashSet();
+    private List authorities = new Vector();
     private String password;
     private boolean enabled = true;
 
