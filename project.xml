@@ -2,6 +2,7 @@
     <pomVersion>3</pomVersion>
     <name>Acegi Security System for Spring</name>
     <groupId>acegi</groupId>
+    <artifactId>acegi-security</artifactId>
     <currentVersion>0.7-SNAPSHOT</currentVersion>
     <package>net.sf.acegisecurity</package>
     <description>Acegi Security System for Spring</description>
@@ -139,8 +140,7 @@
         <dependency>
             <groupId>springframework</groupId>
             <artifactId>spring-mock</artifactId>
-            <version>1.0.1</version>
-            <jar>${basedir}/lib/spring/spring-mock.jar</jar>
+            <version>1.1</version>
             <type>jar</type>
             <url>http://www.springframework.org</url>
             <properties/>
@@ -252,8 +252,7 @@
         <dependency>
             <groupId>cas</groupId>
             <artifactId>cas</artifactId>
-            <version>2.0.12-beta3</version>
-            <jar>${basedir}/lib/cas/cas-2.0.12-beta3.jar</jar>
+            <version>2.0.12</version>
             <type>jar</type>
             <url>http://www.yale.edu/tp/cas</url>
             <properties/>
@@ -261,8 +260,7 @@
         <dependency>
             <groupId>cas</groupId>
             <artifactId>casclient</artifactId>
-            <version>2.0.10</version>
-            <jar>${basedir}/lib/cas/casclient-2.0.10.jar</jar>
+            <version>2.0.11</version>
             <type>jar</type>
             <url>http://www.yale.edu/tp/cas</url>
             <properties>
@@ -308,7 +306,6 @@
             <groupId>acegi</groupId>
             <artifactId>resin-extracted</artifactId>
             <version>unknown</version>
-            <jar>${basedir}/lib/extracted/resin/resin-extracted.jar</jar>
             <type>jar</type>
             <properties/>
         </dependency>
