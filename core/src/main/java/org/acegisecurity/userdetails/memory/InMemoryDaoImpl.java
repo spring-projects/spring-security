@@ -54,12 +54,6 @@ public class InMemoryDaoImpl implements AuthenticationDao, InitializingBean {
 
     public User loadUserByUsername(String username)
         throws UsernameNotFoundException, DataAccessException {
-        User result = userMap.getUser(username);
-
-        if (result == null) {
-            throw new UsernameNotFoundException("User could not be found");
-        }
-
-        return result;
+        return userMap.getUser(username);
     }
 }
