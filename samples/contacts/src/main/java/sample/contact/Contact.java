@@ -15,13 +15,16 @@
 
 package sample.contact;
 
+import java.io.Serializable;
+
+
 /**
  * Represents a contact.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class Contact {
+public class Contact implements Serializable {
     //~ Instance fields ========================================================
 
     private Integer id;
