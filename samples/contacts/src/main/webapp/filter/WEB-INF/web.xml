@@ -58,6 +58,11 @@
 		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
 	</listener>
 
+    <!--
+        The HttpSessionEventPublisher will publish
+        HttpSessionCreatedEvent and HttpSessionDestroyedEvent
+        to the WebApplicationContext
+    -->
     <listener>
         <listener-class>net.sf.acegisecurity.ui.session.HttpSessionEventPublisher</listener-class>
     </listener>

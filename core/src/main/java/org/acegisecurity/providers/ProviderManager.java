@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,16 @@ import java.util.List;
 
 /**
  * Iterates an {@link Authentication} request through a list of {@link
- * AuthenticationProvider}s.
+ * AuthenticationProvider}s. Can optionally be configured with a {@link
+ * ConcurrentSessionController} to limit the number of sessions a user can
+ * have.
  *
  * @author Ben Alex
  * @author Wesley Hall
+ * @author Ray Krueger
  * @version $Id$
+ *
+ * @see ConcurrentSessionController
  */
 public class ProviderManager extends AbstractAuthenticationManager
     implements InitializingBean {
@@ -44,6 +49,7 @@ public class ProviderManager extends AbstractAuthenticationManager
 
     //~ Instance fields ========================================================
 
+    private ConcurrentSessionController sessionController = new NullConcurrentSessionController();
     private List providers;
 
     //~ Methods ================================================================
@@ -82,6 +88,29 @@ public class ProviderManager extends AbstractAuthenticationManager
         return this.providers;
     }
 
+    /**
+     * Set the {@link ConcurrentSessionController} to be used for limiting
+     * user's sessions.  The {@link NullConcurrentSessionController} is used
+     * by default
+     *
+     * @param sessionController {@link ConcurrentSessionController}
+     */
+    public void setSessionController(
+        ConcurrentSessionController sessionController) {
+        this.sessionController = sessionController;
+    }
+
+    /**
+     * The configured {@link ConcurrentSessionController} is returned or the
+     * {@link NullConcurrentSessionController} if a specific one has not been
+     * set.
+     *
+     * @return{@link ConcurrentSessionController} instance
+     */
+    public ConcurrentSessionController getSessionController() {
+        return sessionController;
+    }
+
     public void afterPropertiesSet() throws Exception {
         checkIfValidList(this.providers);
     }
@@ -117,6 +146,8 @@ public class ProviderManager extends AbstractAuthenticationManager
 
         Class toTest = authentication.getClass();
 
+        sessionController.beforeAuthentication(authentication);
+
         while (iter.hasNext()) {
             AuthenticationProvider provider = (AuthenticationProvider) iter
                 .next();
@@ -128,6 +159,8 @@ public class ProviderManager extends AbstractAuthenticationManager
                 Authentication result = provider.authenticate(authentication);
 
                 if (result != null) {
+                    sessionController.afterAuthentication(authentication, result);
+
                     return result;
                 }
             }

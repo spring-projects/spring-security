@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,7 @@ package net.sf.acegisecurity.providers;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationServiceException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.*;
 
 import java.util.List;
 import java.util.Vector;
@@ -108,6 +104,19 @@ public class ProviderManagerTests extends TestCase {
         assertEquals("Password", castResult.getCredentials());
         assertEquals("ROLE_ONE", castResult.getAuthorities()[0].getAuthority());
         assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
+    }
+
+    public void testConcurrentSessionControllerConfiguration()
+        throws Exception {
+        ProviderManager target = new ProviderManager();
+
+        //The NullConcurrentSessionController should be the default
+        assertNotNull(target.getSessionController());
+        assertTrue(target.getSessionController() instanceof NullConcurrentSessionController);
+
+        ConcurrentSessionControllerImpl impl = new ConcurrentSessionControllerImpl();
+        target.setSessionController(impl);
+        assertEquals(impl, target.getSessionController());
     }
 
     public void testStartupFailsIfProviderListDoesNotContainingProviders()

@@ -26,7 +26,11 @@ applications:
 	SecureContext (and its implementation). These classes were moved as part of refactorings aimed at
 	improving the simplicity of the project's design.<br><br></li>
 
-    <li>The JaasAuthenticationCallbackHandler interface has had it's setAuthentication method removed. The handle method now takes both the Callback and Authentication objects as arguments.<br><br></li>
+	<li>If you wish to use the new ConcurrentSessionController you must declare the HttpSessionEventPublisher context listener in your
+	web.xml<br><br></li>
+
+    <li>The JaasAuthenticationCallbackHandler interface has had it's setAuthentication method removed.
+    The handle method now takes both the Callback and Authentication objects as arguments.<br><br></li>
     
     <li>Added AuthenticationException to the AutenticationEntryPoint.commence method signature.<br><br></li>
     
