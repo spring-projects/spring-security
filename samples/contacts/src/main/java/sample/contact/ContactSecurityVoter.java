@@ -55,8 +55,23 @@ public class ContactSecurityVoter implements AccessDecisionVoter {
         }
     }
 
-    public int vote(Authentication authentication, MethodInvocation invocation,
+    public boolean supports(Class clazz) {
+        if (MethodInvocation.class.isAssignableFrom(clazz)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public int vote(Authentication authentication, Object object,
         ConfigAttributeDefinition config) {
+        if ((object == null) || !this.supports(object.getClass())) {
+            throw new IllegalArgumentException(
+                "Does not support the presented Object type");
+        }
+
+        MethodInvocation invocation = (MethodInvocation) object;
+
         int result = ACCESS_ABSTAIN;
         Iterator iter = config.getConfigAttributes();
 
