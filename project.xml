@@ -258,38 +258,39 @@
          </properties>
       </dependency>
 
+      <!-- Container Integration -->
+
+      <dependency>
+         <groupId>jboss</groupId>
+         <artifactId>jboss-jmx</artifactId>
+         <version>3.2.1</version>
+      </dependency>
+
+      <dependency>
+         <groupId>jboss</groupId>
+         <artifactId>jboss-common</artifactId>
+         <version>3.2.3</version>
+      </dependency>
+
+      <dependency>
+         <groupId>jboss</groupId>
+         <artifactId>jbosssx</artifactId>
+         <version>3.2.3</version>
+      </dependency>
+
+      <dependency>
+         <groupId>tomcat</groupId>
+         <artifactId>catalina</artifactId>
+         <version>4.1.9</version>
+      </dependency>
+
+      <dependency>
+         <groupId>jetty</groupId>
+         <artifactId>org.mortbay.jetty</artifactId>
+         <version>4.2.20</version>
+      </dependency>
 
       <!-- Extracted -->
-
-      <dependency>
-         <groupId>acegi</groupId>
-         <artifactId>catalina-extracted</artifactId>
-         <version>unknown</version>
-      </dependency>
-
-      <dependency>
-         <groupId>acegi</groupId>
-         <artifactId>jmx-extracted</artifactId>
-         <version>unknown</version>
-      </dependency>
-
-      <dependency>
-         <groupId>acegi</groupId>
-         <artifactId>jboss-common-extracted</artifactId>
-         <version>unknown</version>
-      </dependency>
-
-      <dependency>
-         <groupId>acegi</groupId>
-         <artifactId>jbosssx-extracted</artifactId>
-         <version>unknown</version>
-      </dependency>
-
-      <dependency>
-         <groupId>acegi</groupId>
-         <artifactId>org.mortbay.jetty-extracted</artifactId>
-         <version>unknown</version>
-      </dependency>
 
       <dependency>
          <groupId>acegi</groupId>
