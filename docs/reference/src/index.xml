@@ -887,6 +887,13 @@
               This is discussed further in the CAS Single Sign On
               section.</para>
             </listitem>
+
+            <listitem>
+              <para><literal>JaasAuthenticationProvider</literal> is able to
+              delegate authentication requests to a JAAS
+              <literal>LoginModule</literal>. This is discussed further
+              below.</para>
+            </listitem>
           </itemizedlist></para>
       </sect2>
 
@@ -1124,6 +1131,130 @@
         included in the distribution. This will load a new database server
         instance that will service requests made to the URL indicated in the
         bean context configuration shown above.</para>
+      </sect2>
+
+      <sect2 id="security-authentication-provider-jaas">
+        <title>JAAS Authentication</title>
+
+        <para>Acegi Security provides a package able to delegate
+        authentication requests to the Java Authentication and Authorization
+        Service (JAAS). This package is discussed in detail below.</para>
+
+        <para>Central to JAAS operation are login configuration files. To
+        learn more about JAAS login configuration files, consult the JAAS
+        reference documentation available from Sun Microsystems. We expect you
+        to have a basic understanding of JAAS and its login configuration file
+        syntax in order to understand this section.</para>
+
+        <sect3>
+          <title>JaasAuthenticationProvider</title>
+
+          <para>The <literal>JaasAuthenticationProvider</literal> attempts to
+          authenticate a user’s principal and credentials through JAAS.
+          </para>
+
+          <para>Let’s assume we have a JAAS login configuration file,
+          <literal>/WEB-INF/login.conf</literal>, with the following
+          contents:</para>
+
+          <para><programlisting>JAASTest {
+  sample.SampleLoginModule required;
+};</programlisting></para>
+
+          <para>Like all Acegi Security beans, the
+          <literal>JaasAuthenticationProvider</literal> is configured via the
+          application context. The following definitions would correspond to
+          the above JAAS login configuration file:</para>
+
+          <para><programlisting>&lt;bean id="jaasAuthenticationProvider" class="net.sf.acegisecurity.providers.jaas.JaasAuthenticationProvider"&gt;
+  &lt;property name="loginConfig"&gt;
+    &lt;value&gt;/WEB-INF/login.conf&lt;/value&gt;
+  &lt;/property&gt;
+  &lt;property name="loginContextName"&gt;
+    &lt;value&gt;JAASTest&lt;/value&gt;
+  &lt;/property&gt;
+  &lt;property name="callbackHandlers"&gt;
+    &lt;list&gt;
+      &lt;bean class="net.sf.acegisecurity.providers.jaas.JaasNameCallbackHandler"/&gt;
+      &lt;bean class="net.sf.acegisecurity.providers.jaas.JaasPasswordCallbackHandler"/&gt;
+    &lt;/list&gt;
+  &lt;/property&gt;
+  &lt;property name="authorityGranters"&gt;
+    &lt;list&gt;
+      &lt;bean class="net.sf.acegisecurity.providers.jaas.TestAuthorityGranter"/&gt;
+    &lt;/list&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+          <para>The <literal>CallbackHandler</literal>s and
+          <literal>AuthorityGranter</literal>s are discussed below.</para>
+        </sect3>
+
+        <sect3>
+          <title>Callbacks</title>
+
+          <para>Most JAAS <literal>LoginModule</literal>s require a callback
+          of some sort. These callbacks are usually used to obtain the
+          username and password from the user. In an Acegi Security
+          deployment, Acegi Security is responsible for this user interaction
+          (typically via a reference to a
+          <literal>ContextHolder</literal>-managed
+          <literal>Authentication</literal> object). The JAAS package for
+          Acegi Security provides two default callback handlers,
+          <literal>JaasNameCallbackHandler</literal> and
+          <literal>JaasPasswordCallbackHandler</literal>. Each of these
+          callback handlers implement
+          <literal>JaasAuthenticationCallbackHandler</literal>. In most cases
+          these callback handlers can simply be used without understand the
+          internal mechanics. For those needing full control over the callback
+          behavior, internally <literal>JaasAutheticationProvider</literal>
+          wraps these <literal>JaasAuthenticationCallbackHandler</literal>s
+          with an <literal>InternalCallbackHandler</literal>. The
+          <literal>InternalCallbackHandler</literal> is the class that
+          actually implements JAAS’ normal <literal>CallbackHandler</literal>
+          interface. Any time that the JAAS <literal>LoginModule</literal> is
+          used, it is passed a list of application context configured
+          <literal>InternalCallbackHandler</literal>s. If the
+          <literal>LoginModule</literal> requests a callback against the
+          <literal>InternalCallbackHandler</literal>s, the callback is in-turn
+          passed to the <literal>JaasAuthenticationCallbackHandler</literal>s
+          being wrapped.</para>
+        </sect3>
+
+        <sect3>
+          <title>AuthorityGranters</title>
+
+          <para>JAAS works with principals. Even “roles” are represented as
+          principals in JAAS. Acegi Security, on the other hand, works with
+          <literal>Authentication</literal> objects. Each
+          <literal>Authentication</literal> object contains a single
+          principal, and multiple <literal>GrantedAuthority</literal>[]s. To
+          facilitate mapping between these different concepts, the Acegi
+          Security JAAS package includes an
+          <literal>AuthorityGranter</literal> interface. An
+          <literal>AuthorityGranter</literal> is responsible for inspecting a
+          JAAS principal and returning a <literal>String</literal>. The
+          <literal>JaasAuthenticationProvider</literal> then creates a
+          <literal>JaasGrantedAuthority</literal> (which implements Acegi
+          Security’s <literal>GrantedAuthority</literal> interface) containing
+          both the <literal>AuthorityGranter</literal>-returned
+          <literal>String</literal> and the JAAS principal that the
+          <literal>AuthorityGranter</literal> was passed. The
+          <literal>JaasAuthenticationProvider</literal> obtains the JAAS
+          principals by firstly successfully authenticating the user’s
+          credentials using the JAAS <literal>LoginModule</literal>, and then
+          accessing the <literal>LoginContext</literal> it returns. A call to
+          <literal>LoginContext.getSubject().getPrincipals()</literal> is
+          made, with each resulting principal passed to each
+          <literal>AuthorityGranter</literal> defined against the
+          <literal>JaasAuthenticationProvider.setAuthorityGranters(List)</literal>
+          property. Acegi Security does not include any production
+          <literal>AuthorityGranter</literal>s given every JAAS principal has
+          an implementation-specific meaning. However, there is a
+          <literal>TestAuthorityGranter</literal> in the unit tests that
+          demonstrates a simple <literal>AuthorityGranter</literal>
+          implementation.</para>
+        </sect3>
       </sect2>
 
       <sect2 id="security-authentication-recommendations">
