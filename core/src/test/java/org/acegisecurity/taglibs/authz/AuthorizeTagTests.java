@@ -100,19 +100,6 @@ public class AuthorizeTagTests extends TestCase {
             Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 
-    public void testUsesAllAuthoritiesToDetermineAccess() {
-        authorizeTag.setIfAllGranted("ROLE_SUPERVISOR,ROLE_BANKER");
-        authorizeTag.setIfAnyGranted("ROLE_BANKER");
-        authorizeTag.setIfNotGranted("ROLE_RESTRICTED");
-
-        currentUser = new TestingAuthenticationToken("abc", "123",
-                new GrantedAuthority[] {new GrantedAuthorityImpl(
-                        "ROLE_SUPERVISOR"), new GrantedAuthorityImpl(
-                        "ROLE_BANKER"), new GrantedAuthorityImpl(
-                        "ROLE_RESTRICTED"),});
-        context.setAuthentication(currentUser);
-    }
-
     protected void setUp() throws Exception {
         super.setUp();
 
