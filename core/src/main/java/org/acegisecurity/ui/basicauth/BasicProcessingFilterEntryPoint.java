@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,6 @@ public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         httpResponse.addHeader("WWW-Authenticate",
             "Basic realm=\"" + realmName + "\"");
-        httpResponse.sendError(401);
+        httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED); // 401
     }
 }

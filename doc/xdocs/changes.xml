@@ -37,6 +37,7 @@
       <action dev="benalex" type="fix">Contacts sample web.xml no longer expect Log4j to be in classpath</action>
       <action dev="raykrueger" type="update">JaasAuthenticatinProvider now uses System.property "java.security.auth.login.config"</action>
       <action dev="raykrueger" type="update">JaasAuthenticationCallbackHandler Authentication is passed to handle method setAuthenticatoin removed</action>
+      <action dev="benalex" type="update">Use static HttpServletResponse.SC_UNAUTHORIZED instead of 401 HTTP response code</action>
     </release>
     <release version="0.7.0" date="2005-01-16">
       <action dev="carlossg" type="add">Major CVS repository restructure to support Maven and eliminate libraries</action>
