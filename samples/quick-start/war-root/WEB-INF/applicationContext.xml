@@ -32,7 +32,6 @@
 	<bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
     	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
     	<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
-    	<property name="runAsManager"><ref bean="runAsManager"/></property>
  		<property name="objectDefinitionSource">
 			<value>
 			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -50,18 +49,9 @@
 		<property name="key"><value>my_password</value></property>
 	</bean>
 
-	<bean id="runAsManager" class="net.sf.acegisecurity.runas.RunAsManagerImpl">
-     	<property name="key"><value>my_run_as_password</value></property>
- 	</bean>
-
-	<bean id="runAsAuthenticationProvider" class="net.sf.acegisecurity.runas.RunAsImplAuthenticationProvider">
-     	<property name="key"><value>my_run_as_password</value></property>
- 	</bean>
-
 	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
 		<property name="providers">
 		  <list>
-		    <ref bean="runAsAuthenticationProvider"/>
 		    <ref bean="daoAuthenticationProvider"/>
 		  </list>
 		</property>

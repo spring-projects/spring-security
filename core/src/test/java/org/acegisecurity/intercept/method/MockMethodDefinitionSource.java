@@ -57,7 +57,7 @@ public class MockMethodDefinitionSource extends AbstractMethodDefinitionSource {
 
         ConfigAttributeDefinition def3 = new ConfigAttributeDefinition();
         def3.addConfigAttribute(new SecurityConfig("MOCK_UPPER"));
-        def3.addConfigAttribute(new SecurityConfig("RUN_AS"));
+        def3.addConfigAttribute(new SecurityConfig("RUN_AS_"));
         list.add(def3);
 
         if (includeInvalidAttributes) {

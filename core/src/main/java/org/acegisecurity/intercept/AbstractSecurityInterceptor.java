@@ -25,6 +25,7 @@ import net.sf.acegisecurity.RunAsManager;
 import net.sf.acegisecurity.context.Context;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.SecureContext;
+import net.sf.acegisecurity.runas.NullRunAsManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -124,7 +125,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean {
 
     private AccessDecisionManager accessDecisionManager;
     private AuthenticationManager authenticationManager;
-    private RunAsManager runAsManager;
+    private RunAsManager runAsManager = new NullRunAsManager();
     private boolean validateConfigAttributes = true;
 
     //~ Methods ================================================================

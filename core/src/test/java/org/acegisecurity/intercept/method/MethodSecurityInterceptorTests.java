@@ -36,6 +36,7 @@ import net.sf.acegisecurity.context.SecureContext;
 import net.sf.acegisecurity.context.SecureContextImpl;
 import net.sf.acegisecurity.intercept.SecurityInterceptorCallback;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import net.sf.acegisecurity.runas.RunAsManagerImpl;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -336,7 +337,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
     public void testStartupCheckForMethodDefinitionSource() {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
         si.setAccessDecisionManager(new MockAccessDecisionManager());
-        si.setRunAsManager(new MockRunAsManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
 
         try {
@@ -352,6 +352,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
+        si.setRunAsManager(null); // Overriding the default
 
         si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
 
@@ -366,8 +367,8 @@ public class MethodSecurityInterceptorTests extends TestCase {
     public void testValidationFailsIfInvalidAttributePresented() {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
         si.setAccessDecisionManager(new MockAccessDecisionManager());
-        si.setRunAsManager(new MockRunAsManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
+        si.setRunAsManager(new RunAsManagerImpl());
 
         assertTrue(si.isValidateConfigAttributes()); // check default
         si.setObjectDefinitionSource(new MockMethodDefinitionSource(true, true));
@@ -384,7 +385,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
     public void testValidationNotAttemptedIfIsValidateConfigAttributesSetToFalse() {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
         si.setAccessDecisionManager(new MockAccessDecisionManager());
-        si.setRunAsManager(new MockRunAsManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
 
         assertTrue(si.isValidateConfigAttributes()); // check default
