@@ -5,8 +5,10 @@ Changes in version 0.6 (2004-xx-xx)
 * Added AbstractIntegrationFilter.secureContext property for custom contexts
 * Added stack trace logging to SecurityEnforcementFilter
 * Updated Authentication to be serializable (Weblogic support)
+* Updated to Clover 1.3
 * Refactored User to UserDetails interface
 * Improved organisation of DaoAuthenticationProvider to facilitate subclassing
+* Improved test coverage (now 98.3%)
 * Fixed Linux compatibility issues (directory case sensitivity etc)
 * Fixed AbstractProcessingFilter to handle servlet spec container differences
 * Fixed CasAuthenticationToken if proxy granting ticket callback not requested

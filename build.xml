@@ -411,6 +411,8 @@
 		       <exclude name="**/*TargetObject.java"/>
 		       <exclude name="**/Mock*.java"/>
 		    </files>
+			<statementContext id="nolog" regexp="^if \(logger.*\).*}"/>
+			<statementContext id="nojbosslog" regexp="^if \(super.logger.*\).*}"/>
 		</clover-setup>
 
 	</target>
@@ -439,7 +441,7 @@
 
 	    <clover-report>
 	        <current outfile="${target.clover.html.dir}" title="Acegi Security System for Spring" summary="true">
-	           <format type="html"/>
+	           <format type="html" filter="nolog,nojbosslog" />
 	        </current>
 	    </clover-report>
 
