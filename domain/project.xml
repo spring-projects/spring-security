@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <extend>${basedir}/../project.xml</extend>
+  <pomVersion>3</pomVersion>
+  <artifactId>acegi-security-domain</artifactId>
+  <name>Acegi Security System for Spring - Domain Object Support</name>
+  <groupId>acegisecurity</groupId>
+  <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs/multiproject/acegi-security-domain</siteDirectory>
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
+    <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/domain/</url>
+  </repository>
+  <dependencies>
+    <dependency>
+      <groupId>hibernate</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>2.1.8</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.0</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>1.6.1</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>acegisecurity</groupId>
+      <artifactId>acegi-security</artifactId>
+      <version>0.8.2-SNAPSHOT</version>
+      <type>jar</type>
+    </dependency>
+  </dependencies>
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/../</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>notice.txt</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+    </resources>
+  </build>
+</project>
+

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="samples/attributes/src/main/java"/>
+	<classpathentry kind="src" path="domain/src/main/java"/>
+	<classpathentry kind="src" path="domain/src/main/resource"/>
+	<classpathentry kind="src" path="domain/src/test/java"/>
+	<classpathentry kind="src" path="domain/src/test/resources"/>
 	<classpathentry kind="src" path="adapters/catalina/src/main/resources"/>
 	<classpathentry kind="src" path="samples/attributes/src/main/resources"/>
 	<classpathentry kind="src" path="samples/attributes/src/test/java"/>
@@ -53,5 +57,8 @@
 	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/ehcache/jars/ehcache-1.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jspapi/jars/jsp-api-2.0.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-2.1.8.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.0.jar"/>
+	<classpathentry sourcepath="DIST_BASE/commons-beanutils-1.6.1-src/src/java" kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.6.1.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>
