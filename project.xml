@@ -481,6 +481,11 @@
       <name>0.8.0</name>
       <tag>release_0_8_0</tag>
     </version>
+    <version>
+      <id>0.8.1</id>
+      <name>0.8.1</name>
+      <tag>release_0_8_1</tag>
+    </version>
   </versions>
 </project>
 
