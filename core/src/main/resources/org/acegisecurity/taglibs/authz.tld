@@ -50,4 +50,56 @@
 			</description>
 		</attribute>
 	</tag>
+
+	<tag>
+		<name>authentication</name>
+		<tag-class>net.sf.acegisecurity.taglibs.authz.AuthenticationTag</tag-class>
+		<description>
+            Allows access to the current Authentication object.
+		</description>
+
+		<attribute>
+			<name>operation</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+                Must be "principal", for a String representation of the
+				username. An attribute to aid in future extension of the tag.
+			</description>
+		</attribute>
+	</tag>
+
+
+	<tag>
+		<name>acl</name>
+		<tag-class>net.sf.acegisecurity.taglibs.authz.AclTag</tag-class>
+		<description>
+            Allows inclusion of a tag body if the current Authentication
+			has one of the specified permissions to the presented
+			domain object instance. This tag uses the first AclManager
+			it locates via
+			WebApplicationContextUtils.getRequiredWebApplicationContext(HttpServletContext).
+		</description>
+
+		<attribute>
+			<name>hasPermission</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+                A comma separated list of integers, each representing a
+				required bit mask permission from a subclass of
+				net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry.
+			</description>
+		</attribute>
+		<attribute>
+			<name>domainObject</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+                The actual domain object instance for which permissions
+				are being evaluated.
+			</description>
+		</attribute>
+	</tag>
+
 </taglib>
