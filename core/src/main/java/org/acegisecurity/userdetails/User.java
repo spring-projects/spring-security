@@ -46,17 +46,24 @@ public class User {
      * @param authorities the authorities that should be granted to the caller
      *        if they presented the correct username and password and the user
      *        is enabled
+     *
+     * @throws IllegalArgumentException if a <code>null</code> value was passed
      */
     public User(String username, String password, boolean enabled,
-        GrantedAuthority[] authorities) {
+        GrantedAuthority[] authorities) throws IllegalArgumentException {
+        if ((username == null) || (password == null) || (authorities == null)) {
+            throw new IllegalArgumentException(
+                "Cannot pass null values to constructor");
+        }
+
         this.username = username;
         this.password = password;
         this.enabled = enabled;
         this.authorities = authorities;
     }
 
-    private User() {
-        super();
+    protected User() {
+        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ================================================================
