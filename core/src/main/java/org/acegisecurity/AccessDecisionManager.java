@@ -45,7 +45,8 @@ public interface AccessDecisionManager {
      * <p>
      * This allows the <code>AbstractSecurityInterceptor</code> to check every
      * configuration attribute can be consumed by the configured
-     * <code>AccessDecisionManager</code> and/or <code>RunAsManager</code>.
+     * <code>AccessDecisionManager</code> and/or <code>RunAsManager</code>
+     * and/or <code>AfterInvocationManager</code>.
      * </p>
      *
      * @param attribute a configuration attribute that has been configured

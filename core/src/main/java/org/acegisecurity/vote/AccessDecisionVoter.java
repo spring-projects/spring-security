@@ -46,13 +46,14 @@ public interface AccessDecisionVoter {
      * on the passed <code>ConfigAttribute</code>.
      * 
      * <p>
-     * This allows the <code>SecurityInterceptor</code> to check every
+     * This allows the <code>AbstractSecurityInterceptor</code> to check every
      * configuration attribute can be consumed by the configured
-     * <code>AccessDecisionManager</code> and/or <code>RunAsManager</code>.
+     * <code>AccessDecisionManager</code> and/or <code>RunAsManager</code>
+     * and/or <code>AccessDecisionManager</code>.
      * </p>
      *
      * @param attribute a configuration attribute that has been configured
-     *        against the <code>SecurityInterceptor</code>
+     *        against the <code>AbstractSecurityInterceptor</code>
      *
      * @return true if this <code>AccessDecisionVoter</code> can support the
      *         passed configuration attribute
