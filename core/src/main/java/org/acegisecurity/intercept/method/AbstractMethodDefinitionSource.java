@@ -64,6 +64,14 @@ public abstract class AbstractMethodDefinitionSource
      * Provided so subclasses need only to provide one basic method to properly
      * interface with the <code>MethodDefinitionSource</code>.
      * </p>
+     * 
+     * <p>
+     * Returns <code>null</code> if there are no matching attributes for the
+     * method invocation.
+     * </p>
+     *
+     * @param mi the method being invoked for which configuration attributes
+     *        should be looked up
      *
      * @return the <code>ConfigAttributeDefinition</code> that applies to the
      *         specified <code>MethodInvocation</code>
