@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.SecureContext;
+
+import java.security.Principal;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -86,6 +88,22 @@ public class ContextHolderAwareRequestWrapper extends HttpServletRequestWrapper 
      */
     public boolean isUserInRole(String role) {
         return isGranted(role);
+    }
+
+    /**
+     * Returns the <code>Authentication</code> (which is a subclass of
+     * <code>Principal</code>), or <code>null</code> if unavailable.
+     *
+     * @return the <code>Authentication</code>, or <code>null</code>
+     */
+    public Principal getUserPrincipal() {
+        Authentication auth = getAuthentication();
+
+        if ((auth == null) || (auth.getPrincipal() == null)) {
+            return null;
+        }
+
+        return auth;
     }
 
     private Authentication getAuthentication() {

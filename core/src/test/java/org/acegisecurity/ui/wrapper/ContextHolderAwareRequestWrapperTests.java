@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,7 @@ public class ContextHolderAwareRequestWrapperTests extends TestCase {
         assertEquals("marissa", wrapper.getRemoteUser());
         assertTrue(wrapper.isUserInRole("ROLE_FOO"));
         assertFalse(wrapper.isUserInRole("ROLE_NOT_GRANTED"));
+        assertEquals(auth, wrapper.getUserPrincipal());
 
         ContextHolder.setContext(null);
     }
@@ -93,6 +94,7 @@ public class ContextHolderAwareRequestWrapperTests extends TestCase {
         assertFalse(wrapper.isUserInRole("ROLE_NOT_GRANTED"));
         assertTrue(wrapper.isUserInRole("ROLE_FOOBAR"));
         assertTrue(wrapper.isUserInRole("ROLE_HELLO"));
+        assertEquals(auth, wrapper.getUserPrincipal());
 
         ContextHolder.setContext(null);
     }
@@ -106,6 +108,7 @@ public class ContextHolderAwareRequestWrapperTests extends TestCase {
                     "/"));
         assertNull(wrapper.getRemoteUser());
         assertFalse(wrapper.isUserInRole("ROLE_ANY"));
+        assertNull(wrapper.getUserPrincipal());
 
         ContextHolder.setContext(null);
     }
@@ -117,6 +120,7 @@ public class ContextHolderAwareRequestWrapperTests extends TestCase {
                     "/"));
         assertNull(wrapper.getRemoteUser());
         assertFalse(wrapper.isUserInRole("ROLE_ANY"));
+        assertNull(wrapper.getUserPrincipal());
     }
 
     public void testNullPrincipalHandling() throws Exception {
@@ -133,6 +137,7 @@ public class ContextHolderAwareRequestWrapperTests extends TestCase {
         assertNull(wrapper.getRemoteUser());
         assertFalse(wrapper.isUserInRole("ROLE_HELLO")); // principal is null, so reject
         assertFalse(wrapper.isUserInRole("ROLE_FOOBAR")); // principal is null, so reject
+        assertNull(wrapper.getUserPrincipal());
 
         ContextHolder.setContext(null);
     }
