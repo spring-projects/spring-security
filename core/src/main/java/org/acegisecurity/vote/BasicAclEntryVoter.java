@@ -330,22 +330,20 @@ public class BasicAclEntryVoter implements AccessDecisionVoter,
     }
 
     private Object getDomainObjectInstance(Object secureObject) {
-        if (secureObject instanceof MethodInvocation) {
-            MethodInvocation invocation = (MethodInvocation) secureObject;
+        MethodInvocation invocation = (MethodInvocation) secureObject;
 
-            for (int i = 0; i < invocation.getArguments().length; i++) {
-                Class argClass = invocation.getArguments()[i].getClass();
+        // Check if this MethodInvocation provides the required argument
+        Method method = invocation.getMethod();
+        Class[] params = method.getParameterTypes();
 
-                if (processDomainObjectClass.isAssignableFrom(argClass)) {
-                    return invocation.getArguments()[i];
-                }
+        for (int i = 0; i < params.length; i++) {
+            if (processDomainObjectClass.isAssignableFrom(params[i])) {
+                return invocation.getArguments()[i];
             }
-
-            throw new AuthorizationServiceException("MethodInvocation: "
-                + invocation + " did not provide any argument of type: "
-                + processDomainObjectClass);
         }
 
-        return null; // should never happen
+        throw new AuthorizationServiceException("MethodInvocation: "
+            + invocation + " did not provide any argument of type: "
+            + processDomainObjectClass);
     }
 }
