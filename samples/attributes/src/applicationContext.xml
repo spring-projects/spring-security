@@ -75,20 +75,23 @@
 	
 	<bean id="bankService" class="sample.attributes.BankServiceImpl"/>
 	
-	<bean id="autoProxyCreator" class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
-		<!-- names of the interceptors that will be applied by the proxy -->
-        <property name="interceptorNames">
-            <list>
-                <value>securityInterceptor</value>
-            </list>
-        </property>
+	<!--
+		This bean is a postprocessor that will automatically apply relevant advisors
+		to any bean in child factories.
+	-->
+	<bean id="autoproxy" 
+		class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
+	</bean>
 
-		<!-- the bean names to automatically generate proxies for -->
-        <property name="beanNames">
-            <list>
-                <idref local="bankService"/>
-            </list>
-        </property>
-    </bean>
+	<!--
+		AOP advisor that will automatically wire the MethodSecurityInterceptor (above)
+		into BankServiceImpl (above). The configuration attributes used are obtained
+		from the securityInterceptor.objectDefinitionSouce, which in the
+		above configuration is a Commons Attributes-based source.
+	-->
+	<bean id="methodSecurityAdvisor"
+		class="net.sf.acegisecurity.intercept.method.MethodDefinitionSourceAdvisor"
+		autowire="constructor" >
+	</bean>
 
 </beans>

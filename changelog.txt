@@ -1,3 +1,8 @@
+Changes in version 0.7 (2004-xx-xx)
+-----------------------------------
+
+* Added MethodDefinitionSourceAdvisor for performance and autoproxying
+
 Changes in version 0.6.1 (2004-09-25)
 -------------------------------------
 
