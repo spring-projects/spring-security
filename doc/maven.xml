@@ -58,4 +58,8 @@
 
     </postGoal>
 
+    <preGoal name="site">
+        <attainGoal name="sdocbook"/>
+    </preGoal>
+
 </project>
