@@ -25,7 +25,8 @@ import org.apache.commons.codec.digest.DigestUtils;
  * </p>
  * 
  * <p>
- * A null password is encoded to the same value as an empty ("") password.
+ * If a <code>null</code> password is presented, it will be treated as an empty
+ * <code>String</code> ("") password.
  * </p>
  *
  * @author colin sampaleanu
@@ -35,9 +36,6 @@ public class ShaPasswordEncoder extends BaseDigestPasswordEncoder
     implements PasswordEncoder {
     //~ Methods ================================================================
 
-    /* (non-Javadoc)
-     * @see net.sf.acegisecurity.providers.dao.PasswordEncoder#isPasswordValid(java.lang.String, java.lang.String, java.lang.Object)
-     */
     public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
         String pass1 = "" + encPass;
         String pass2 = encodeInternal("" + rawPass);
@@ -45,9 +43,6 @@ public class ShaPasswordEncoder extends BaseDigestPasswordEncoder
         return pass1.equals(pass2);
     }
 
-    /* (non-Javadoc)
-     * @see net.sf.acegisecurity.providers.dao.PasswordEncoder#encodePassword(java.lang.String, java.lang.Object)
-     */
     public String encodePassword(String rawPass, Object salt) {
         return encodeInternal("" + rawPass);
     }

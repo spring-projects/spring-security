@@ -15,12 +15,9 @@
 
 package net.sf.acegisecurity.providers.encoding;
 
-import net.sf.acegisecurity.providers.encoding.*;
-
-
 /**
  * <p>
- * Convenience base for Digest password encoders
+ * Convenience base for digest password encoders.
  * </p>
  *
  * @author colin sampaleanu

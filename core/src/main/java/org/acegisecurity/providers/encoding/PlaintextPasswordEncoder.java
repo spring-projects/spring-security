@@ -31,8 +31,11 @@ public class PlaintextPasswordEncoder implements PasswordEncoder {
     //~ Methods ================================================================
 
     /**
-     * Indicates whether the password comparison is case sensitive. Defaults to
-     * <code>false</code>, meaning an exact case match is required.
+     * Indicates whether the password comparison is case sensitive.
+     * 
+     * <P>
+     * Defaults to <code>false</code>, meaning an exact case match is required.
+     * </p>
      *
      * @param ignorePasswordCase set to <code>true</code> for less stringent
      *        comparison
@@ -45,9 +48,6 @@ public class PlaintextPasswordEncoder implements PasswordEncoder {
         return ignorePasswordCase;
     }
 
-    /* (non-Javadoc)
-     * @see net.sf.acegisecurity.providers.dao.PasswordEncoder#isPasswordValid(java.lang.String, java.lang.String, java.lang.Object)
-     */
     public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
         String pass1 = "" + encPass;
         String pass2 = "" + rawPass;
@@ -59,9 +59,6 @@ public class PlaintextPasswordEncoder implements PasswordEncoder {
         }
     }
 
-    /* (non-Javadoc)
-     * @see net.sf.acegisecurity.providers.dao.PasswordEncoder#encodePassword(java.lang.String, java.lang.Object)
-     */
     public String encodePassword(String rawPass, Object salt) {
         return rawPass;
     }
