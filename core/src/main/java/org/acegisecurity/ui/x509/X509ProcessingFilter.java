@@ -4,13 +4,22 @@ import net.sf.acegisecurity.ui.AbstractProcessingFilter;
 import net.sf.acegisecurity.ui.WebAuthenticationDetails;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
+import net.sf.acegisecurity.AuthenticationManager;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.security.SecureContextUtils;
 import net.sf.acegisecurity.providers.x509.X509AuthenticationToken;
+import net.sf.acegisecurity.providers.x509.X509AuthenticationProvider;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.*;
 import java.security.cert.X509Certificate;
+import java.io.IOException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Processes the X.509 certificate submitted by a client - typically
@@ -33,20 +42,42 @@ import java.security.cert.X509Certificate;
  *
  * @author Luke Taylor
  */
-public class X509ProcessingFilter extends AbstractProcessingFilter {
+public class X509ProcessingFilter implements Filter, InitializingBean {
+    //~ Static fields/initializers =============================================
 
-    public String getDefaultFilterProcessesUrl() {
-        return "/*";
+    private static final Log logger = LogFactory.getLog(X509ProcessingFilter.class);
+
+    private AuthenticationManager authenticationManager;
+
+
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
     }
 
-    /**
-     * X.509 authentication doesn't have a specific login URL, so the default implementation
-     * using <code>endsWith</code> isn't adequate.
-     *
-     */
-    protected boolean requiresAuthentication(HttpServletRequest request,
-        HttpServletResponse response) {
-        return true; // for the time being. Should probably do a pattern match on the URL
+    public void afterPropertiesSet() throws Exception {
+        if(authenticationManager == null)
+            throw new IllegalArgumentException("An AuthenticationManager must be set");
+    }
+
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+        if (!(request instanceof HttpServletRequest)) {
+            throw new ServletException("Can only process HttpServletRequest");
+        }
+
+        if (!(response instanceof HttpServletResponse)) {
+            throw new ServletException("Can only process HttpServletResponse");
+        }
+
+
+        SecureContext ctx = SecureContextUtils.getSecureContext();
+
+        logger.debug("Checking secure context: " + ctx);
+        if(ctx.getAuthentication() == null) {
+            attemptAuthentication((HttpServletRequest)request);
+
+        }
+
+        filterChain.doFilter(request, response);
     }
 
     /**
@@ -62,6 +93,7 @@ public class X509ProcessingFilter extends AbstractProcessingFilter {
 
         if(certs != null && certs.length > 0) {
             clientCertificate = certs[0];
+            logger.debug("Authenticating with certificate " + clientCertificate);
         } else {
             logger.warn("No client certificate found in Request.");
         }
@@ -71,6 +103,13 @@ public class X509ProcessingFilter extends AbstractProcessingFilter {
 
         // authRequest.setDetails(new WebAuthenticationDetails(request));
 
-        return this.getAuthenticationManager().authenticate(authRequest);
+        return authenticationManager.authenticate(authRequest);
     }
+
+    public void init(FilterConfig filterConfig) throws ServletException { }
+
+
+    public void destroy() { }
+
+
 }
