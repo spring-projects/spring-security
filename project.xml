@@ -149,26 +149,6 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>resin</groupId>
-      <artifactId>resin</artifactId>
-      <version>3.0.9</version>
-      <type>jar</type>
-      <url>http://www.caucho.com</url>
-      <properties>
-        <war.bundle>false</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>retroweaver</groupId>
-      <artifactId>retroweaver</artifactId>
-      <version>1.0fcs</version>
-      <type>jar</type>
-      <url>http://retroweaver.sourceforge.net</url>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
       <groupId>aopalliance</groupId>
       <artifactId>aopalliance</artifactId>
       <version>1.0</version>
