@@ -105,7 +105,11 @@ public class HttpSessionIntegrationFilter extends AbstractIntegrationFilter {
 
     public Object extractFromContainer(ServletRequest request) {
         if (request instanceof HttpServletRequest) {
-            HttpSession httpSession = ((HttpServletRequest) request).getSession();
+            HttpSession httpSession = null;
+
+            try {
+                httpSession = ((HttpServletRequest) request).getSession();
+            } catch (IllegalStateException ignored) {}
 
             if (httpSession != null) {
                 Object authObject = httpSession.getAttribute(ACEGI_SECURITY_AUTHENTICATION_KEY);
