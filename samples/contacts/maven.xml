@@ -8,6 +8,9 @@
     </goal>
     
     <goal name="multiwar:multiwar">
+    	<!-- needed otherwise first custom artifact (cas) doesn't get built) -->
+        <attainGoal name="acegisecurity:war"/>
+
         <!-- cas war -->
         <j:set var="webapp" value="cas"/>
         <attainGoal name="acegisecurity:war"/>
@@ -19,6 +22,9 @@
         <!-- filter war -->
         <j:set var="webapp" value="filter"/>
         <attainGoal name="acegisecurity:war"/>
+		
+		<!-- delete generic artifact (we only want our three custom WARs) -->
+	    <ant:delete file="${maven.war.build.dir}/${pom.artifactId}.war"/>
     </goal>
     
     <goal name="acegisecurity:war">
