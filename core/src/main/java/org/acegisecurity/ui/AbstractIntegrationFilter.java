@@ -67,8 +67,14 @@ import javax.servlet.ServletResponse;
  * SecureContext}, one will be created. The created object will be of the
  * instance defined by the {@link #setSecureContext(Class)} method.
  * </p>
+ * 
+ * <P>
+ * This filter will only execute once per request, to resolve servlet container
+ * (specifically Weblogic) incompatibilities.
+ * </p>
  *
  * @author Ben Alex
+ * @author Patrick Burleson
  * @version $Id$
  */
 public abstract class AbstractIntegrationFilter implements InitializingBean,
@@ -76,6 +82,7 @@ public abstract class AbstractIntegrationFilter implements InitializingBean,
     //~ Static fields/initializers =============================================
 
     protected static final Log logger = LogFactory.getLog(AbstractIntegrationFilter.class);
+    private static final String FILTER_APPLIED = "__acegi_integration_fitlerapplied";
 
     //~ Instance fields ========================================================
 
@@ -114,68 +121,78 @@ public abstract class AbstractIntegrationFilter implements InitializingBean,
 
     public void doFilter(ServletRequest request, ServletResponse response,
         FilterChain chain) throws IOException, ServletException {
-        // Populate authentication information
-        Object extracted = this.extractFromContainer(request);
-
-        if (extracted instanceof Authentication) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "Authentication added to ContextHolder from container");
+        if ((request != null) && (request.getAttribute(FILTER_APPLIED) != null)) {
+            // ensure that filter is only applied once per request
+            chain.doFilter(request, response);
+        } else {
+            if (request != null) {
+                request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
             }
 
-            Authentication auth = (Authentication) extracted;
+            // Populate authentication information
+            Object extracted = this.extractFromContainer(request);
 
-            // Get or create existing SecureContext
-            SecureContext sc = null;
-
-            if ((ContextHolder.getContext() == null)
-                || !(ContextHolder.getContext() instanceof SecureContext)) {
-                try {
-                    sc = (SecureContext) this.secureContext.newInstance();
-                } catch (InstantiationException ie) {
-                    throw new ServletException(ie);
-                } catch (IllegalAccessException iae) {
-                    throw new ServletException(iae);
+            if (extracted instanceof Authentication) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "Authentication added to ContextHolder from container");
                 }
+
+                Authentication auth = (Authentication) extracted;
+
+                // Get or create existing SecureContext
+                SecureContext sc = null;
+
+                if ((ContextHolder.getContext() == null)
+                    || !(ContextHolder.getContext() instanceof SecureContext)) {
+                    try {
+                        sc = (SecureContext) this.secureContext.newInstance();
+                    } catch (InstantiationException ie) {
+                        throw new ServletException(ie);
+                    } catch (IllegalAccessException iae) {
+                        throw new ServletException(iae);
+                    }
+                } else {
+                    sc = (SecureContext) ContextHolder.getContext();
+                }
+
+                // Add Authentication to SecureContext, and save
+                sc.setAuthentication(auth);
+                ContextHolder.setContext((Context) sc);
             } else {
-                sc = (SecureContext) ContextHolder.getContext();
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "Authentication not added to ContextHolder (could not extract an authentication object from the container which is an instance of Authentication)");
+                }
             }
 
-            // Add Authentication to SecureContext, and save
-            sc.setAuthentication(auth);
-            ContextHolder.setContext((Context) sc);
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "Authentication not added to ContextHolder (could not extract an authentication object from the container which is an instance of Authentication)");
-            }
-        }
+            // Proceed with chain
+            chain.doFilter(request, response);
 
-        // Proceed with chain
-        chain.doFilter(request, response);
+            // Remove authentication information
+            if ((ContextHolder.getContext() != null)
+                && ContextHolder.getContext() instanceof SecureContext) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "Updating container with new Authentication object, and then removing Authentication from ContextHolder");
+                }
 
-        // Remove authentication information
-        if ((ContextHolder.getContext() != null)
-            && ContextHolder.getContext() instanceof SecureContext) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "Updating container with new Authentication object, and then removing Authentication from ContextHolder");
-            }
+                // Get context holder
+                SecureContext secureContext = (SecureContext) ContextHolder
+                    .getContext();
 
-            // Get context holder
-            SecureContext secureContext = (SecureContext) ContextHolder
-                .getContext();
+                // Update container with new Authentication object (may have been updated during method invocation)
+                this.commitToContainer(request,
+                    secureContext.getAuthentication());
 
-            // Update container with new Authentication object (may have been updated during method invocation)
-            this.commitToContainer(request, secureContext.getAuthentication());
-
-            // Remove authentication information from ContextHolder
-            secureContext.setAuthentication(null);
-            ContextHolder.setContext((Context) secureContext);
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "ContextHolder does not contain any authentication information");
+                // Remove authentication information from ContextHolder
+                secureContext.setAuthentication(null);
+                ContextHolder.setContext((Context) secureContext);
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "ContextHolder does not contain any authentication information");
+                }
             }
         }
     }

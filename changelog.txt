@@ -12,6 +12,7 @@ Changes in version 0.6 (2004-xx-xx)
 * Improved test coverage (now 98.3%)
 * Fixed Linux compatibility issues (directory case sensitivity etc)
 * Fixed AbstractProcessingFilter to handle servlet spec container differences
+* Fixed AbstractIntegrationFilter to resolve a Weblogic compatibility issue
 * Fixed CasAuthenticationToken if proxy granting ticket callback not requested
 * Documentation improvements
 
