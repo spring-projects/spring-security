@@ -61,13 +61,13 @@ public class X509AuthenticationProvider implements AuthenticationProvider,
             return null;
         }
 
-        if(logger.isDebugEnabled())
+        if (logger.isDebugEnabled()) {
             logger.debug("X509 authentication request: " + authentication);
+        }
 
         X509Certificate clientCertificate = (X509Certificate)authentication.getCredentials();
 
         if(clientCertificate == null) {
-            //logger.debug("Certificate is null. Returning null Authentication.");
             throw new BadCredentialsException("Certificate is null.");
         }
 
@@ -75,7 +75,6 @@ public class X509AuthenticationProvider implements AuthenticationProvider,
 
         logger.debug("Authenticating with certificate " + clientCertificate);
 
-        // Lookup user details for the given certificate
         UserDetails userDetails = x509AuthoritiesPopulator.getUserDetails(clientCertificate);
 
         return new X509AuthenticationToken(userDetails, clientCertificate, userDetails.getAuthorities());
