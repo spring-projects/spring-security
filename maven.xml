@@ -179,11 +179,18 @@
             <ant:unzip dest="${maven.build.dir}"
                 src="${pom.getDependencyPath('docbook:docbook-xsl')}"/>
                 
-            <!-- use a custom stylesheet -->
+            <!-- use a custom fo stylesheet -->
             <move file="${maven.sdocbook.stylesheets.dir}/fo/docbook.xsl"
                 tofile="${maven.sdocbook.stylesheets.dir}/fo/docbook-bak.xsl"/>
             <copy file="${maven.sdocbook.src.dir}/styles/fo/docbook.xsl"
                 todir="${maven.sdocbook.stylesheets.dir}/fo"/>
+
+            <!-- use a custom html stylesheet -->
+            <move file="${maven.sdocbook.stylesheets.dir}/html/docbook.xsl"
+                tofile="${maven.sdocbook.stylesheets.dir}/html/docbook-bak.xsl"/>
+            <copy file="${maven.sdocbook.src.dir}/styles/html/docbook.xsl"
+                todir="${maven.sdocbook.stylesheets.dir}/html"/>
+
             <copy todir="${maven.sdocbook.stylesheets.dir}">
                 <fileset dir="${maven.sdocbook.src.dir}/images"/>
             </copy>

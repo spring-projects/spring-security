@@ -14,7 +14,7 @@
 -->
 
 <!DOCTYPE xsl:stylesheet [
-    <!ENTITY db_xsl_path        "../lib/docbook-xsl/">
+    <!ENTITY db_xsl_bak        "docbook-bak.xsl">
     <!ENTITY callout_gfx_path   "../images/callouts/">
     <!ENTITY admon_gfx_path     "../images/admons/">
 ]>
@@ -24,7 +24,7 @@
                 xmlns="http://www.w3.org/TR/xhtml1/transitional"
                 exclude-result-prefixes="#default">
                 
-<xsl:import href="&db_xsl_path;/html/docbook.xsl"/>
+<xsl:import href="&db_xsl_bak;"/>
 
 <!--###################################################
                      HTML Settings
