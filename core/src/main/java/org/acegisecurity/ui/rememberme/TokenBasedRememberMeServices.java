@@ -222,6 +222,18 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
                             return null;
                         }
 
+                        // Immediately reject if the user is not allowed to login
+                        if (!userDetails.isAccountNonExpired()
+                            || !userDetails.isCredentialsNonExpired()
+                            || !userDetails.isEnabled()) {
+                            cancelCookie(request, response,
+                                "Cookie token[0] contained username '"
+                                + cookieTokens[0]
+                                + "' but account has expired, credentials have expired, or user is disabled");
+
+                            return null;
+                        }
+
                         // Check signature of token matches remaining details
                         // Must do this after user lookup, as we need the DAO-derived password
                         // If efficiency was a major issue, just add in a UserCache implementation,
