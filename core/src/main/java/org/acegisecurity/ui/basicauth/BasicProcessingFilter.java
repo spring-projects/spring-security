@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationManager;
 import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import net.sf.acegisecurity.ui.WebAuthenticationDetails;
 import net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter;
 
 import org.apache.commons.codec.binary.Base64;
@@ -168,7 +169,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
 
             UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username,
                     password);
-            authRequest.setDetails(httpRequest.getRemoteAddr());
+            authRequest.setDetails(new WebAuthenticationDetails(httpRequest));
 
             Authentication authResult;
 

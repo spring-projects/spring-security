@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.ui.AbstractProcessingFilter;
+import net.sf.acegisecurity.ui.WebAuthenticationDetails;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -66,7 +67,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
     public Authentication attemptAuthentication(HttpServletRequest request)
         throws AuthenticationException {
         String username = request.getParameter(ACEGI_SECURITY_FORM_USERNAME_KEY);
-        String password = request.getParameter(ACEGI_SECURITY_FORM_PASSWORD_KEY);
+        String password = obtainPassword(request);
 
         if (username == null) {
             username = "";
@@ -93,8 +94,8 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
 
     /**
      * Provided so that subclasses may configure what is put into the
-     * authentication request's details property. Default implementation
-     * simply sets the IP address of the servlet request.
+     * authentication request's details property. The default implementation
+     * simply constructs {@link WebAuthenticationDetails}.
      *
      * @param request that an authentication request is being created for
      * @param authRequest the authentication request object that should have
@@ -102,6 +103,28 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
      */
     protected void setDetails(HttpServletRequest request,
         UsernamePasswordAuthenticationToken authRequest) {
-        authRequest.setDetails(request.getRemoteAddr());
+        authRequest.setDetails(new WebAuthenticationDetails(request));
+    }
+
+    /**
+     * Enables subclasses to override the composition of the password, such as
+     * by including additional values and a separator.
+     * 
+     * <p>
+     * This might be used for example if a postcode/zipcode was required in
+     * addition to the password. A delimiter such as a pipe (|) should be used
+     * to separate the password and extended value(s). The
+     * <code>AuthenticationDao</code> will need to generate the expected
+     * password in a corresponding manner.
+     * </p>
+     *
+     * @param request so that request attributes can be retrieved
+     *
+     * @return the password that will be presented in the
+     *         <code>Authentication</code> request token to the
+     *         <code>AuthenticationManager</code>
+     */
+    protected String obtainPassword(HttpServletRequest request) {
+        return request.getParameter(ACEGI_SECURITY_FORM_PASSWORD_KEY);
     }
 }

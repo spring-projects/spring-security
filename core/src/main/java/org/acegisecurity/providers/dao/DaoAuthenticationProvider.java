@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -345,9 +345,7 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
      * Creates a successful {@link Authentication} object.
      * 
      * <P>
-     * Protected so subclasses can override. This might be required if multiple
-     * credentials need to be placed into a custom <code>Authentication</code>
-     * object, such as a password as well as a ZIP code.
+     * Protected so subclasses can override.
      * </p>
      * 
      * <P>

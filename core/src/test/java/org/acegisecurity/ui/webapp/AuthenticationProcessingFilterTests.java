@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpSession;
+import net.sf.acegisecurity.ui.WebAuthenticationDetails;
 
 
 /**
@@ -72,7 +73,8 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
         Authentication result = filter.attemptAuthentication(request);
         assertTrue(result != null);
-        assertEquals("127.0.0.1", result.getDetails());
+        assertEquals("127.0.0.1",
+            ((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
     }
 
     public void testNullPasswordHandledGracefully() throws Exception {
