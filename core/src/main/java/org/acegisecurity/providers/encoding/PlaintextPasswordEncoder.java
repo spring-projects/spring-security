@@ -19,11 +19,18 @@ package net.sf.acegisecurity.providers.encoding;
  * <p>
  * Plaintext implementation of PasswordEncoder.
  * </p>
+ * 
+ * <P>
+ * As callers may wish to extract the password and salts separately from the
+ * encoded password, the salt must not contain reserved characters
+ * (specifically '{' and '}').
+ * </p>
  *
  * @author colin sampaleanu
+ * @author Ben Alex
  * @version $Id$
  */
-public class PlaintextPasswordEncoder implements PasswordEncoder {
+public class PlaintextPasswordEncoder extends BasePasswordEncoder {
     //~ Instance fields ========================================================
 
     private boolean ignorePasswordCase = false;
@@ -49,8 +56,12 @@ public class PlaintextPasswordEncoder implements PasswordEncoder {
     }
 
     public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-        String pass1 = "" + encPass;
-        String pass2 = "" + rawPass;
+        String pass1 = encPass + "";
+
+        // Strict delimiters is false because pass2 never persisted anywhere
+        // and we want to avoid unnecessary exceptions as a result (the
+        // authentication will fail as the encodePassword never allows them)
+        String pass2 = mergePasswordAndSalt(rawPass, salt, false);
 
         if (!ignorePasswordCase) {
             return pass1.equals(pass2);
@@ -60,6 +71,28 @@ public class PlaintextPasswordEncoder implements PasswordEncoder {
     }
 
     public String encodePassword(String rawPass, Object salt) {
-        return rawPass;
+        return mergePasswordAndSalt(rawPass, salt, true);
+    }
+
+    /**
+     * Demerges the previously {@link #encodePassword(String,
+     * Object)}<code>String</code>.
+     * 
+     * <P>
+     * The resulting array is guaranteed to always contain two elements. The
+     * first is the password, and the second is the salt.
+     * </p>
+     * 
+     * <P>
+     * Throws an exception if <code>null</code> or an empty <code>String</code>
+     * is passed to the method.
+     * </p>
+     *
+     * @param password from {@link #encodePassword(String, Object)}
+     *
+     * @return an array containing the password and salt
+     */
+    public String[] obtainPasswordAndSalt(String password) {
+        return demergePasswordAndSalt(password);
     }
 }

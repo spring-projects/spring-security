@@ -28,8 +28,13 @@ import org.apache.commons.codec.digest.DigestUtils;
  * If a <code>null</code> password is presented, it will be treated as an empty
  * <code>String</code> ("") password.
  * </p>
+ * 
+ * <P>
+ * As SHA is a one-way hash, the salt can contain any characters.
+ * </p>
  *
  * @author colin sampaleanu
+ * @author Ben Alex
  * @version $Id$
  */
 public class ShaPasswordEncoder extends BaseDigestPasswordEncoder
@@ -38,13 +43,13 @@ public class ShaPasswordEncoder extends BaseDigestPasswordEncoder
 
     public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
         String pass1 = "" + encPass;
-        String pass2 = encodeInternal("" + rawPass);
+        String pass2 = encodeInternal(mergePasswordAndSalt(rawPass, salt, false));
 
         return pass1.equals(pass2);
     }
 
     public String encodePassword(String rawPass, Object salt) {
-        return encodeInternal("" + rawPass);
+        return encodeInternal(mergePasswordAndSalt(rawPass, salt, false));
     }
 
     private String encodeInternal(String input) {

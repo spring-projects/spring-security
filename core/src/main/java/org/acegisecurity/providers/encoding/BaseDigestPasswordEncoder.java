@@ -23,7 +23,7 @@ package net.sf.acegisecurity.providers.encoding;
  * @author colin sampaleanu
  * @version $Id$
  */
-public abstract class BaseDigestPasswordEncoder implements PasswordEncoder {
+public abstract class BaseDigestPasswordEncoder extends BasePasswordEncoder {
     //~ Instance fields ========================================================
 
     private boolean encodeHashAsBase64 = false;
