@@ -28,19 +28,20 @@ import java.util.Iterator;
 
 /**
  * Tests {@link FilterInvocationDefinitionSourceEditor} and its associated
- * default {@link RegExpBasedFilterInvocationDefinitionMap}.
+ * {@link PathBasedFilterInvocationDefinitionMap}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
+public class FilterInvocationDefinitionSourceEditorWithPathsTests
+    extends TestCase {
     //~ Constructors ===========================================================
 
-    public FilterInvocationDefinitionSourceEditorTests() {
+    public FilterInvocationDefinitionSourceEditorWithPathsTests() {
         super();
     }
 
-    public FilterInvocationDefinitionSourceEditorTests(String arg0) {
+    public FilterInvocationDefinitionSourceEditorWithPathsTests(String arg0) {
         super(arg0);
     }
 
@@ -51,15 +52,25 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
     }
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(FilterInvocationDefinitionSourceEditorTests.class);
+        junit.textui.TestRunner.run(FilterInvocationDefinitionSourceEditorWithPathsTests.class);
+    }
+
+    public void testAntPathDirectiveIsDetected() {
+        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
+        editor.setAsText(
+            "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
+
+        FilterInvocationDefinitionMap map = (FilterInvocationDefinitionMap) editor
+            .getValue();
+        assertTrue(map instanceof PathBasedFilterInvocationDefinitionMap);
     }
 
     public void testConvertUrlToLowercaseDefaultSettingUnchangedByEditor() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText(
-            "\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
+            "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
             .getValue();
         assertFalse(map.isConvertUrlToLowercaseBeforeComparison());
     }
@@ -67,50 +78,19 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
     public void testConvertUrlToLowercaseSettingApplied() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText(
-            "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON\r\n\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
+            "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON\r\nPATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
             .getValue();
         assertTrue(map.isConvertUrlToLowercaseBeforeComparison());
-    }
-
-    public void testDefaultIsRegularExpression() {
-        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
-        editor.setAsText(
-            "\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
-
-        FilterInvocationDefinitionMap map = (FilterInvocationDefinitionMap) editor
-            .getValue();
-        assertTrue(map instanceof RegExpBasedFilterInvocationDefinitionMap);
-    }
-
-    public void testEmptyStringReturnsEmptyMap() {
-        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
-        editor.setAsText("");
-
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
-            .getValue();
-        assertEquals(0, map.getMapSize());
-    }
-
-    public void testInvalidRegularExpressionsDetected()
-        throws Exception {
-        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
-
-        try {
-            editor.setAsText("*=SOME_ROLE");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("Malformed regular expression: *",
-                expected.getMessage());
-        }
     }
 
     public void testIterator() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText(
-            "\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
+            "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
             .getValue();
         Iterator iter = map.getConfigAttributeDefinitions();
         int counter = 0;
@@ -125,9 +105,10 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
 
     public void testMapReturnsNullWhenNoMatchFound() throws Exception {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
-        editor.setAsText("\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE,ANOTHER_ROLE");
+        editor.setAsText(
+            "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
             .getValue();
 
         MockHttpServletRequest httpRequest = new MockHttpServletRequest(null,
@@ -144,37 +125,28 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
     public void testMultiUrlParsing() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText(
-            "\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
+            "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
             .getValue();
         assertEquals(2, map.getMapSize());
     }
 
     public void testNoArgsConstructor() {
         try {
-            new RegExpBasedFilterInvocationDefinitionMap().new EntryHolder();
+            new PathBasedFilterInvocationDefinitionMap().new EntryHolder();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
     }
 
-    public void testNullReturnsEmptyMap() {
-        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
-        editor.setAsText(null);
-
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
-            .getValue();
-        assertEquals(0, map.getMapSize());
-    }
-
     public void testOrderOfEntriesIsPreservedOrderA() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText(
-            "\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE,ANOTHER_ROLE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
+            "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/**=ROLE_WE_DONT_HAVE,ANOTHER_ROLE\r\n/secure/**=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
             .getValue();
 
         // Test ensures we match the first entry, not the second
@@ -196,9 +168,9 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
     public void testOrderOfEntriesIsPreservedOrderB() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText(
-            "\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER\r\n\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE,ANOTHER_ROLE");
+            "PATTERN_TYPE_APACHE_ANT\r\n/secure/**=ROLE_SUPERVISOR,ROLE_TELLER\r\n/secure/super/**=ROLE_WE_DONT_HAVE");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
             .getValue();
 
         MockHttpServletRequest httpRequest = new MockHttpServletRequest(null,
@@ -218,9 +190,10 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
 
     public void testSingleUrlParsing() throws Exception {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
-        editor.setAsText("\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE,ANOTHER_ROLE");
+        editor.setAsText(
+            "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE,ANOTHER_ROLE");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
             .getValue();
 
         MockHttpServletRequest httpRequest = new MockHttpServletRequest(null,
@@ -241,9 +214,9 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
     public void testWhitespaceAndCommentsAndLinesWithoutEqualsSignsAreIgnored() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText(
-            "         \\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE,ANOTHER_ROLE      \r\n   \r\n     \r\n   // comment line  \r\n   \\A/testing.*\\Z=ROLE_TEST   \r\n");
+            "         PATTERN_TYPE_APACHE_ANT\r\n    /secure/super/*=ROLE_WE_DONT_HAVE\r\n    /secure/*=ROLE_SUPERVISOR,ROLE_TELLER      \r\n   \r\n     \r\n   // comment line  \r\n    \r\n");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
             .getValue();
         assertEquals(2, map.getMapSize());
     }

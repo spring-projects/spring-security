@@ -562,7 +562,7 @@
   &lt;property name="objectDefinitionSource"&gt;
     &lt;value&gt;
       CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-      \A/secure/super.*\Z=ROLE_WE_DONT_HAVE
+      \A/secure/super/.*\Z=ROLE_WE_DONT_HAVE
       \A/secure/.*\Z=ROLE_SUPERVISOR,ROLE_TELLER
     &lt;/value&gt;
   &lt;/property&gt;
@@ -611,23 +611,48 @@
         created by the property editor,
         <literal>FilterInvocationDefinitionSource</literal>, matches
         configuration attributes against <literal>FilterInvocations</literal>
-        based on regular expression evaluation of the request URL. It works
-        down the list in the order they are defined. Thus it is important that
-        more specific regular expressions are defined higher in the list than
-        less specific regular expressions. This is reflected in our example
-        above, where the more specific <literal>/secure/super</literal>
+        based on expression evaluation of the request URL. Two standard
+        expression syntaxes are supported. The default is to treat all
+        expressions as regular expressions. Alternatively, the presence of a
+        <literal>PATTERN_TYPE_APACHE_ANT</literal> directive will cause all
+        expressions to be treated as Apache Ant paths. It is not possible to
+        mix expression syntaxes within the same definition. For example, the
+        earlier configuration could be generated using Apache Ant paths as
+        follows: </para>
+
+        <para><programlisting>&lt;bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
+  &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+  &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
+  &lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
+  &lt;property name="objectDefinitionSource"&gt;
+    &lt;value&gt;
+      CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+      PATTERN_TYPE_APACHE_ANT
+      /secure/super/**=ROLE_WE_DONT_HAVE
+      /secure/**=ROLE_SUPERVISOR,ROLE_TELLER
+    &lt;/value&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>Irrespective of the type of expression syntax used, expressions
+        are always evaluated in the order they are defined. Thus it is
+        important that more specific expressions are defined higher in the
+        list than less specific expressions. This is reflected in our example
+        above, where the more specific <literal>/secure/super/</literal>
         pattern appears higher than the less specific
-        <literal>/super</literal> pattern. If they were reversed, the
-        <literal>/super</literal> pattern would always match and the
-        /<literal>secure/super</literal> pattern would never be evaluated. The
-        special keyword
+        <literal>/super/</literal> pattern. If they were reversed, the
+        <literal>/super/</literal> pattern would always match and the
+        <literal>/secure/super/</literal> pattern would never be evaluated.
+        </para>
+
+        <para>The special keyword
         <literal>CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON</literal> causes
         the <literal>FilterInvocationDefinitionSource</literal> to
         automatically convert a request URL to lowercase before comparison
-        against the regular expressions. Whilst by default the case of the
-        request URL is not converted, it is generally recommended to use
+        against the expressions. Whilst by default the case of the request URL
+        is not converted, it is generally recommended to use
         <literal>CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON</literal> and
-        write each regular expression assuming lowercase.</para>
+        write each expression assuming lowercase.</para>
 
         <para>As with other security interceptors, the
         <literal>validateConfigAttributes</literal> property is observed. When

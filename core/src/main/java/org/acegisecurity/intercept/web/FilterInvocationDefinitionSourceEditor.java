@@ -31,11 +31,21 @@ import java.io.StringReader;
 
 
 /**
- * Property editor to assist with the setup of  {@link
+ * Property editor to assist with the setup of a {@link
  * FilterInvocationDefinitionSource}.
  * 
  * <p>
- * The class creates and populates a {@link FilterInvocationDefinitionMap}.
+ * The class creates and populates a {@link
+ * RegExpBasedFilterInvocationDefinitionMap} or {@link
+ * PathBasedFilterInvocationDefinitionMap} (depending on the type of patterns
+ * presented).
+ * </p>
+ * 
+ * <P>
+ * By default the class treats presented patterns as regular expressions. If
+ * the keyword <code>PATTERN_TYPE_APACHE_ANT</code> is present (case
+ * sensitive), patterns will be treated as Apache Ant paths rather than
+ * regular expressions.
  * </p>
  *
  * @author Ben Alex
@@ -50,11 +60,20 @@ public class FilterInvocationDefinitionSourceEditor
     //~ Methods ================================================================
 
     public void setAsText(String s) throws IllegalArgumentException {
-        FilterInvocationDefinitionMap source = new FilterInvocationDefinitionMap();
+        FilterInvocationDefinitionMap source = new RegExpBasedFilterInvocationDefinitionMap();
 
         if ((s == null) || "".equals(s)) {
-            // Leave value in property editor null
+            // Leave target object empty
         } else {
+            // Check if we need to override the default definition map
+            if (s.lastIndexOf("PATTERN_TYPE_APACHE_ANT") != -1) {
+                source = new PathBasedFilterInvocationDefinitionMap();
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug(("Detected PATTERN_TYPE_APACHE_ANT directive; using Apache Ant style path expressions"));
+                }
+            }
+
             BufferedReader br = new BufferedReader(new StringReader(s));
             int counter = 0;
             String line;

@@ -48,7 +48,7 @@ import javax.servlet.ServletResponse;
 
 
 /**
- * Tests {@link FiltSecurityInterceptor}.
+ * Tests {@link FilterSecurityInterceptor}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -77,7 +77,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
     public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass() {
         FilterSecurityInterceptor interceptor = new FilterSecurityInterceptor();
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
-        interceptor.setObjectDefinitionSource(new FilterInvocationDefinitionMap());
+        interceptor.setObjectDefinitionSource(new RegExpBasedFilterInvocationDefinitionMap());
         interceptor.setRunAsManager(new MockRunAsManager());
 
         interceptor.setAccessDecisionManager(new AccessDecisionManager() {
@@ -110,7 +110,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         FilterSecurityInterceptor interceptor = new FilterSecurityInterceptor();
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
-        interceptor.setObjectDefinitionSource(new FilterInvocationDefinitionMap());
+        interceptor.setObjectDefinitionSource(new RegExpBasedFilterInvocationDefinitionMap());
 
         interceptor.setRunAsManager(new RunAsManager() {
                 public boolean supports(Class clazz) {
@@ -143,7 +143,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
 
-        FilterInvocationDefinitionMap fidp = new FilterInvocationDefinitionMap();
+        RegExpBasedFilterInvocationDefinitionMap fidp = new RegExpBasedFilterInvocationDefinitionMap();
         interceptor.setObjectDefinitionSource(fidp);
         interceptor.setRunAsManager(new MockRunAsManager());
         interceptor.afterPropertiesSet();
