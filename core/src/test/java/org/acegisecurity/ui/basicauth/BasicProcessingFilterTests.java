@@ -24,7 +24,7 @@ import net.sf.acegisecurity.MockFilterConfig;
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpServletResponse;
 import net.sf.acegisecurity.MockHttpSession;
-import net.sf.acegisecurity.providers.dao.UserDetails;
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter;
 
 import org.apache.commons.codec.binary.Base64;

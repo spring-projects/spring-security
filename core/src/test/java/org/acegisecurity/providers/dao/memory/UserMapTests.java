@@ -19,8 +19,8 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.dao.User;
-import net.sf.acegisecurity.providers.dao.UserDetails;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 
 

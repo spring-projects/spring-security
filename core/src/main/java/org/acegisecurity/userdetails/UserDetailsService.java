@@ -15,6 +15,8 @@
 
 package net.sf.acegisecurity.providers.dao;
 
+import net.sf.acegisecurity.UserDetails;
+
 import org.springframework.dao.DataAccessException;
 
 

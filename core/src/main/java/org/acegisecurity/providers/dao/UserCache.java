@@ -15,6 +15,9 @@
 
 package net.sf.acegisecurity.providers.dao;
 
+import net.sf.acegisecurity.UserDetails;
+
+
 /**
  * Provides a cache of {@link User} objects.
  * 

@@ -18,7 +18,7 @@ package sample.contact;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.providers.dao.UserDetails;
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.vote.AccessDecisionVoter;
 
 import org.aopalliance.intercept.MethodInvocation;

@@ -13,15 +13,23 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao;
+package net.sf.acegisecurity;
 
-import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.providers.dao.User;
 
 import java.io.Serializable;
 
 
 /**
- * Provides core user information required by the package.
+ * Provides core user information.
+ * 
+ * <P>
+ * Implementations are not used directly by Acegi Security for security
+ * purposes. They simply store user information which is later encapsulated
+ * into {@link Authentication} objects. This allows non-security related user
+ * information (such as email addresses, telephone numbers etc) to be stored
+ * in a convenient location.
+ * </p>
  * 
  * <P>
  * Concrete implementations must take particular care to ensure the non-null

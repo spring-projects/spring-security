@@ -15,8 +15,8 @@
 
 package net.sf.acegisecurity.providers.dao.memory;
 
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.dao.User;
-import net.sf.acegisecurity.providers.dao.UserDetails;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.apache.commons.logging.Log;

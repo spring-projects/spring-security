@@ -16,9 +16,9 @@
 package sample.contact;
 
 import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.SecureContext;
-import net.sf.acegisecurity.providers.dao.UserDetails;
 
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;

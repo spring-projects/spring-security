@@ -20,6 +20,7 @@ import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationServiceException;
 import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.DisabledException;
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.AuthenticationProvider;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.cache.NullUserCache;

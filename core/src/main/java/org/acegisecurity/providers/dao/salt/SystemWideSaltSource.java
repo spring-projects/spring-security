@@ -15,9 +15,9 @@
 
 package net.sf.acegisecurity.providers.dao.salt;
 
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.dao.SaltSource;
 import net.sf.acegisecurity.providers.dao.User;
-import net.sf.acegisecurity.providers.dao.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
 

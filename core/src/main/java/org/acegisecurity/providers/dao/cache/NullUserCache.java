@@ -15,8 +15,8 @@
 
 package net.sf.acegisecurity.providers.dao.cache;
 
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.dao.UserCache;
-import net.sf.acegisecurity.providers.dao.UserDetails;
 
 
 /**

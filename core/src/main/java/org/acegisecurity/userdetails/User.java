@@ -16,6 +16,7 @@
 package net.sf.acegisecurity.providers.dao;
 
 import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.UserDetails;
 
 
 /**

@@ -18,9 +18,9 @@ package sample.contact;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationCredentialsNotFoundException;
 import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.SecureContext;
-import net.sf.acegisecurity.providers.dao.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
 

@@ -23,6 +23,7 @@ import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.cache.EhCacheBasedUserCache;

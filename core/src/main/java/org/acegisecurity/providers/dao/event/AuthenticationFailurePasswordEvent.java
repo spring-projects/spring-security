@@ -16,7 +16,7 @@
 package net.sf.acegisecurity.providers.dao.event;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.providers.dao.UserDetails;
+import net.sf.acegisecurity.UserDetails;
 
 
 /**

@@ -15,6 +15,9 @@
 
 package net.sf.acegisecurity.providers.dao;
 
+import net.sf.acegisecurity.UserDetails;
+
+
 /**
  * Provides alternative sources of the salt to use for encoding passwords.
  *

@@ -17,7 +17,7 @@ package net.sf.acegisecurity.providers.dao.jdbc;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.providers.dao.UserDetails;
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.springframework.core.io.ClassPathResource;
@@ -166,6 +166,20 @@ public class JdbcDaoTests extends TestCase {
         }
     }
 
+    private DataSource makeDataSource() throws Exception {
+        ClassPathResource dbScript = new ClassPathResource(
+                "acegisecuritytest.script");
+        String path = dbScript.getFile().getParentFile().getAbsolutePath();
+
+        DriverManagerDataSource ds = new DriverManagerDataSource();
+        ds.setDriverClassName("org.hsqldb.jdbcDriver");
+        ds.setUrl("jdbc:hsqldb:" + path + File.separator + "acegisecuritytest");
+        ds.setUsername("sa");
+        ds.setPassword("");
+
+        return ds;
+    }
+
     private JdbcDaoImpl makePopulatedJdbcDao() throws Exception {
         JdbcDaoImpl dao = new JdbcDaoImpl();
         dao.setDataSource(makeDataSource());
@@ -182,20 +196,6 @@ public class JdbcDaoTests extends TestCase {
         dao.afterPropertiesSet();
 
         return dao;
-    }
-
-    private DataSource makeDataSource()
-        throws Exception {
-        ClassPathResource dbScript = new ClassPathResource("acegisecuritytest.script");
-        String path = dbScript.getFile().getParentFile().getAbsolutePath();
-
-        DriverManagerDataSource ds = new DriverManagerDataSource();
-        ds.setDriverClassName("org.hsqldb.jdbcDriver");
-        ds.setUrl("jdbc:hsqldb:" + path + File.separator + "acegisecuritytest");
-        ds.setUsername("sa");
-        ds.setPassword("");
-
-        return ds;
     }
 
     //~ Inner Classes ==========================================================
