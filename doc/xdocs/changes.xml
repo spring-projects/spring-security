@@ -33,6 +33,7 @@
       <action dev="benalex" type="update">User now accepted blank passwords (null passwords still rejected)</action>
       <action dev="benalex" type="update">ContextHolderAwareRequestWrapper now provides a getUserPrincipal() method</action>
       <action dev="benalex" type="update">HttpSessionIntegrationFilter no longer creates a HttpSession unnecessarily</action>
+      <action dev="benalex" type="update">FilterSecurityInterceptor now only executes once per request (improves performance with SiteMesh)</action>
       <action dev="benalex" type="fix">Contacts sample web.xml no longer expect Log4j to be in classpath</action>
       <action dev="raykrueger" type="update">JaasAuthenticatinProvider now uses System.property "java.security.auth.login.config"</action>
       <action dev="raykrueger" type="update">JaasAuthenticationCallbackHandler Authentication is passed to handle method setAuthenticatoin removed</action>

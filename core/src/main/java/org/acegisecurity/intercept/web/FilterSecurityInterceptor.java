@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,10 @@ import net.sf.acegisecurity.intercept.ObjectDefinitionSource;
  * @version $Id$
  */
 public class FilterSecurityInterceptor extends AbstractSecurityInterceptor {
+    //~ Static fields/initializers =============================================
+
+    private static final String FILTER_APPLIED = "__acegi_filterSecurityInterceptor_filterApplied";
+
     //~ Instance fields ========================================================
 
     private FilterInvocationDefinitionSource objectDefinitionSource;
@@ -64,12 +68,23 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor {
     }
 
     public void invoke(FilterInvocation fi) throws Throwable {
-        InterceptorStatusToken token = super.beforeInvocation(fi);
-
-        try {
+        if ((fi.getRequest() != null)
+            && (fi.getRequest().getAttribute(FILTER_APPLIED) != null)) {
+            // filter already applied to this request, so don't re-do security checking
             fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
-        } finally {
-            super.afterInvocation(token, null);
+        } else {
+            // first time this request being called, so perform security checking
+            if (fi.getRequest() != null) {
+                fi.getRequest().setAttribute(FILTER_APPLIED, Boolean.TRUE);
+            }
+
+            InterceptorStatusToken token = super.beforeInvocation(fi);
+
+            try {
+                fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+            } finally {
+                super.afterInvocation(token, null);
+            }
         }
     }
 

@@ -49,6 +49,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     //~ Instance fields ========================================================
 
     private HttpSession session = new MockHttpSession();
+    private Map attribMap = new HashMap();
     private Map headersMap = new HashMap();
     private Map paramMap = new HashMap();
     private Principal principal;
@@ -86,11 +87,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
     //~ Methods ================================================================
 
     public void setAttribute(String arg0, Object arg1) {
-        throw new UnsupportedOperationException("mock method not implemented");
+        this.attribMap.put(arg0, arg1);
     }
 
     public Object getAttribute(String arg0) {
-        throw new UnsupportedOperationException("mock method not implemented");
+        return this.attribMap.get(arg0);
     }
 
     public Enumeration getAttributeNames() {
