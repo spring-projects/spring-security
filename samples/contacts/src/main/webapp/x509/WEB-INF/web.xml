@@ -103,14 +103,5 @@
       <taglib-uri>/spring</taglib-uri>
       <taglib-location>/WEB-INF/spring.tld</taglib-location>
   	</taglib>
-
-    <login-config>
-        <auth-method>CLIENT-CERT</auth-method>
-    </login-config>
-
-    <security-constraint>
-        <web-resource-collection>/*</web-resource-collection>
-        <user-data-constraint>CONFIDENTIAL</user-data-constraint>
-    </security-constraint>
-
+    
 </web-app>
