@@ -17,14 +17,17 @@ package net.sf.acegisecurity.providers.x509.populator;
 
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.UserDetails;
+import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.providers.dao.AuthenticationDao;
 import net.sf.acegisecurity.providers.x509.X509AuthoritiesPopulator;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oro.text.regex.*;
 
 import java.security.cert.X509Certificate;
+
 
 
 /**
@@ -42,7 +45,8 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
     //~ Instance fields ========================================================
 
     private AuthenticationDao authenticationDao;
-    private String userPattern;
+    private String subjectDNRegex = "CN=(.*?),";
+    private Pattern subjectDNPattern;
 
     //~ Methods ================================================================
 
@@ -54,16 +58,56 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
         return authenticationDao;
     }
 
+    /**
+     * Sets the regular expression which will by used to extract the user name
+     * from the certificate's Subject DN.
+     * <p>
+     * It should contain a single group; for example the default expression
+     * "CN=(.*?)," matches the common name field. So "CN=Jimi Hendrix, OU=..."
+     * will give a user name of "Jimi Hendrix".
+     * </p>
+     * <p>
+     * The matches are case insensitive. So "emailAddress=(.*?)," will match
+     * "EMAILADDRESS=jimi@hendrix.org, CN=..." giving a user name "jimi@hendrix.org"
+     * </p>
+     *
+     * @param subjectDNRegex the regular expression to find in the subject
+     */
+    public void setSubjectDNRegex(String subjectDNRegex) {
+        this.subjectDNRegex = subjectDNRegex;
+    }
+
     public UserDetails getUserDetails(X509Certificate clientCert)
         throws AuthenticationException {
-        logger.debug("Populating authorities for " + clientCert.getSubjectDN().getName());
-        return this.authenticationDao.loadUserByUsername("marissa"/*clientCert.getSubjectDN().getName()*/);
+
+        String subjectDN = clientCert.getSubjectDN().getName();
+        PatternMatcher matcher = new Perl5Matcher();
+
+        if(!matcher.contains(subjectDN , subjectDNPattern)) {
+            throw new BadCredentialsException("No matching pattern was found in subjectDN: " + subjectDN);
+        }
+
+        MatchResult match = matcher.getMatch();
+        if(match.groups() != 2) { // 2 = 1 + the entire match
+            throw new IllegalArgumentException("Regular expression must contain a single group ");
+        }
+        String userName = match.group(1);
+
+        return this.authenticationDao.loadUserByUsername(userName);
     }
 
     public void afterPropertiesSet() throws Exception {
         if (this.authenticationDao == null) {
-            throw new IllegalArgumentException(
-                "An authenticationDao must be set");
+            throw new IllegalArgumentException("An authenticationDao must be set");
+        }
+
+        Perl5Compiler compiler = new Perl5Compiler();
+
+        try {
+            subjectDNPattern = compiler.compile(subjectDNRegex,
+                    Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.CASE_INSENSITIVE_MASK);
+        } catch (MalformedPatternException mpe) {
+            throw new IllegalArgumentException("Malformed regular expression: " + subjectDNRegex);
         }
     }
 }
