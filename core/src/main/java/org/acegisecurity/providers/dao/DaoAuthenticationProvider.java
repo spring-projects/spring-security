@@ -231,10 +231,8 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             principalToReturn = user.getUsername();
         }
 
-        // Ensure we return the original credentials the user supplied,
-        // so subsequent attempts are successful even with encoded passwords
-        return new UsernamePasswordAuthenticationToken(principalToReturn,
-            authentication.getCredentials(), user.getAuthorities());
+        return createSuccessAuthentication(principalToReturn, authentication,
+            user);
     }
 
     public boolean supports(Class authentication) {
@@ -246,6 +244,21 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
         }
     }
 
+    /**
+     * Indicates whether the supplied <code>Authentication</code> object
+     * provided appropriate credentials. This method can be called several
+     * times throughout a single authentication request.
+     * 
+     * <P>
+     * Protected so subclasses can override.
+     * </p>
+     *
+     * @param authentication that was presented to the
+     *        <code>DaoAuthenticationProvider</code> for validation
+     * @param user that was loaded by the <code>AuthenticationDao</code>
+     *
+     * @return a boolean indicating whether the credentials were correct
+     */
     protected boolean isPasswordCorrect(Authentication authentication,
         UserDetails user) {
         Object salt = null;
@@ -256,6 +269,37 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
         return passwordEncoder.isPasswordValid(user.getPassword(),
             authentication.getCredentials().toString(), salt);
+    }
+
+    /**
+     * Creates a successful {@link Authentication} object.
+     * 
+     * <P>
+     * Protected so subclasses can override. This might be required if multiple
+     * credentials need to be placed into a custom <code>Authentication</code>
+     * object, such as a password as well as a ZIP code.
+     * </p>
+     * 
+     * <P>
+     * Subclasses will usually store the original credentials the user supplied
+     * (not salted or encoded passwords) in the returned
+     * <code>Authentication</code> object.
+     * </p>
+     *
+     * @param principal that should be the principal in the returned object
+     *        (defined by the {@link #forcePrincipalAsString} property)
+     * @param authentication that was presented to the
+     *        <code>DaoAuthenticationProvider</code> for validation
+     * @param user that was loaded by the <code>AuthenticationDao</code>
+     *
+     * @return the successful authentication token
+     */
+    protected Authentication createSuccessAuthentication(Object principal,
+        Authentication authentication, UserDetails user) {
+        // Ensure we return the original credentials the user supplied,
+        // so subsequent attempts are successful even with encoded passwords
+        return new UsernamePasswordAuthenticationToken(principal,
+            authentication.getCredentials(), user.getAuthorities());
     }
 
     private UserDetails getUserFromBackend(String username) {
