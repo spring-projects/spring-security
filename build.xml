@@ -110,6 +110,7 @@
 
 	<target name="fulljar" depends="build,initdist" description="Create JAR file with all Acegi Security System for Spring classes">
 		<delete file="${dist.dir}/${acegi-security.jar}"/>
+		<delete file="${dist.dir}/${acegi-taglib.jar}"/>
 
 		<!-- An all classes JAR file, which is provided for compiling web apps
 		only (at runtime all classes should be from web container) -->
