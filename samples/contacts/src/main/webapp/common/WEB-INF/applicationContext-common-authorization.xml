@@ -78,10 +78,10 @@
    </bean>
 
    <bean id="basicAclProvider" class="net.sf.acegisecurity.acl.basic.BasicAclProvider">
-      <property name="basicAclDao"><ref local="basicAclDao"/></property>
+      <property name="basicAclDao"><ref local="basicAclExtendedDao"/></property>
    </bean>
 
-   <bean id="basicAclDao" class="net.sf.acegisecurity.acl.basic.jdbc.JdbcDaoImpl">
+   <bean id="basicAclExtendedDao" class="net.sf.acegisecurity.acl.basic.jdbc.JdbcExtendedDaoImpl">
       <property name="dataSource"><ref bean="dataSource"/></property>
    </bean>
 

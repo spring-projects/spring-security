@@ -15,8 +15,6 @@
 
 package sample.contact;
 
-import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
-
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.object.MappingSqlQuery;
@@ -40,15 +38,11 @@ import javax.sql.DataSource;
 public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
     //~ Instance fields ========================================================
 
-    private AclObjectIdentityByObjectIdentityQuery aclObjectIdentityByObjectIdentityQuery;
-    private AclObjectIdentityInsert aclObjectIdentityInsert;
     private ContactDelete contactDelete;
     private ContactInsert contactInsert;
     private ContactUpdate contactUpdate;
     private ContactsAllQuery contactsAllQuery;
     private ContactsByIdQuery contactsByIdQuery;
-    private PermissionDelete permissionDelete;
-    private PermissionInsert permissionInsert;
     private PrincipalsAllQuery principalsAllQuery;
     private RolesAllQuery rolesAllQuery;
 
@@ -68,23 +62,8 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         contactInsert.insert(contact);
     }
 
-    public Integer createAclObjectIdentity(Contact contact) {
-        return new Integer(aclObjectIdentityInsert.insert(makeObjectIdentity(
-                    contact), null, SimpleAclEntry.class.getName()));
-    }
-
-    public void createPermission(Integer aclObjectIdentity, String recipient,
-        int permission) {
-        permissionInsert.insert(aclObjectIdentity, recipient,
-            new Integer(permission));
-    }
-
     public void delete(Integer contactId) {
         contactDelete.delete(contactId);
-    }
-
-    public void deletePermission(Integer aclObjectIdentity, String recipient) {
-        permissionDelete.delete(aclObjectIdentity, recipient);
     }
 
     public List findAll() {
@@ -99,17 +78,6 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         return rolesAllQuery.execute();
     }
 
-    public Integer lookupAclObjectIdentity(Contact contact) {
-        List list = aclObjectIdentityByObjectIdentityQuery.execute(makeObjectIdentity(
-                    contact));
-
-        if (list.size() == 0) {
-            return null;
-        } else {
-            return (Integer) list.get(0);
-        }
-    }
-
     public void update(Contact contact) {
         contactUpdate.update(contact);
     }
@@ -118,14 +86,10 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         contactInsert = new ContactInsert(getDataSource());
         contactUpdate = new ContactUpdate(getDataSource());
         contactDelete = new ContactDelete(getDataSource());
-        aclObjectIdentityInsert = new AclObjectIdentityInsert(getDataSource());
-        permissionInsert = new PermissionInsert(getDataSource());
-        permissionDelete = new PermissionDelete(getDataSource());
         contactsAllQuery = new ContactsAllQuery(getDataSource());
         principalsAllQuery = new PrincipalsAllQuery(getDataSource());
         rolesAllQuery = new RolesAllQuery(getDataSource());
         contactsByIdQuery = new ContactsByIdQuery(getDataSource());
-        aclObjectIdentityByObjectIdentityQuery = new AclObjectIdentityByObjectIdentityQuery(getDataSource());
     }
 
     private String makeObjectIdentity(Contact contact) {

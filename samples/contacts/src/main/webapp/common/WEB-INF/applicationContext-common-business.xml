@@ -66,6 +66,7 @@
 
    <bean id="contactManagerTarget" class="sample.contact.ContactManagerBackend">
 	   <property name="contactDao"><ref local="contactDao"/></property>
+	   <property name="basicAclExtendedDao"><ref bean="basicAclExtendedDao"/></property>
    </bean>
 
 </beans>

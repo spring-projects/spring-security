@@ -31,45 +31,13 @@ public interface ContactDao {
 
     public void create(Contact contact);
 
-    /**
-     * Creates an acl_object_identity for the specified Contact.
-     *
-     * @param contact to create an entry for
-     *
-     * @return the acl_object_identity identifier
-     */
-    public Integer createAclObjectIdentity(Contact contact);
-
-    /**
-     * Given an acl_object_identitiy identifier, grant the specified recipient
-     * read access to the object identified.
-     *
-     * @param aclObjectIdentity to assign the read permission against
-     * @param recipient receiving the permission
-     * @param permission to assign
-     */
-    public void createPermission(Integer aclObjectIdentity, String recipient,
-        int permission);
-
     public void delete(Integer contactId);
-
-    public void deletePermission(Integer aclObjectIdentity, String recipient);
 
     public List findAll();
 
     public List findAllPrincipals();
 
     public List findAllRoles();
-
-    /**
-     * Obtains the acl_object_identity for the specified Contact.
-     *
-     * @param contact to locate an acl_object_identity for
-     *
-     * @return the acl_object_identity identifier or <code>null</code> if not
-     *         found
-     */
-    public Integer lookupAclObjectIdentity(Contact contact);
 
     public void update(Contact contact);
 }

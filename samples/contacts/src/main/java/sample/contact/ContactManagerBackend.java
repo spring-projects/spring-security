@@ -15,6 +15,9 @@
 
 package sample.contact;
 
+import net.sf.acegisecurity.acl.basic.AclObjectIdentity;
+import net.sf.acegisecurity.acl.basic.BasicAclExtendedDao;
+import net.sf.acegisecurity.acl.basic.NamedEntityObjectIdentity;
 import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.SecureContext;
@@ -34,6 +37,7 @@ import java.util.Random;
 public class ContactManagerBackend implements ContactManager, InitializingBean {
     //~ Instance fields ========================================================
 
+    private BasicAclExtendedDao basicAclExtendedDao;
     private ContactDao contactDao;
     private int counter = 100;
 
@@ -48,6 +52,14 @@ public class ContactManagerBackend implements ContactManager, InitializingBean {
         list.addAll(contactDao.findAllRoles());
 
         return list;
+    }
+
+    public void setBasicAclExtendedDao(BasicAclExtendedDao basicAclExtendedDao) {
+        this.basicAclExtendedDao = basicAclExtendedDao;
+    }
+
+    public BasicAclExtendedDao getBasicAclExtendedDao() {
+        return basicAclExtendedDao;
     }
 
     public Contact getById(Integer id) {
@@ -77,14 +89,20 @@ public class ContactManagerBackend implements ContactManager, InitializingBean {
 
     public void addPermission(Contact contact, String recipient,
         Integer permission) {
-        Integer aclObjectIdentity = contactDao.lookupAclObjectIdentity(contact);
-        contactDao.createPermission(aclObjectIdentity, recipient,
-            permission.intValue());
+        SimpleAclEntry simpleAclEntry = new SimpleAclEntry();
+        simpleAclEntry.setAclObjectIdentity(makeObjectIdentity(contact));
+        simpleAclEntry.setMask(permission.intValue());
+        simpleAclEntry.setRecipient(recipient);
+        basicAclExtendedDao.create(simpleAclEntry);
     }
 
     public void afterPropertiesSet() throws Exception {
         if (contactDao == null) {
             throw new IllegalArgumentException("contactDao required");
+        }
+
+        if (basicAclExtendedDao == null) {
+            throw new IllegalArgumentException("basicAclExtendedDao required");
         }
     }
 
@@ -94,18 +112,19 @@ public class ContactManagerBackend implements ContactManager, InitializingBean {
         contactDao.create(contact);
 
         // Grant the current principal access to the contact 
-        Integer aclObjectIdentity = contactDao.createAclObjectIdentity(contact);
-        contactDao.createPermission(aclObjectIdentity, getUsername(),
-            SimpleAclEntry.ADMINISTRATION);
+        addPermission(contact, getUsername(),
+            new Integer(SimpleAclEntry.ADMINISTRATION));
     }
 
     public void delete(Contact contact) {
         contactDao.delete(contact.getId());
+
+        // Delete the ACL information as well
+        basicAclExtendedDao.delete(makeObjectIdentity(contact));
     }
 
     public void deletePermission(Contact contact, String recipient) {
-        Integer aclObjectIdentity = contactDao.lookupAclObjectIdentity(contact);
-        contactDao.deletePermission(aclObjectIdentity, recipient);
+        basicAclExtendedDao.delete(makeObjectIdentity(contact), recipient);
     }
 
     public void update(Contact contact) {
@@ -115,5 +134,10 @@ public class ContactManagerBackend implements ContactManager, InitializingBean {
     protected String getUsername() {
         return ((SecureContext) ContextHolder.getContext()).getAuthentication()
                 .getPrincipal().toString();
+    }
+
+    private AclObjectIdentity makeObjectIdentity(Contact contact) {
+        return new NamedEntityObjectIdentity(contact.getClass().getName(),
+            contact.getId().toString());
     }
 }
