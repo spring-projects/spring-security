@@ -55,10 +55,13 @@ public class SecureContextImplTests extends TestCase {
         context.setAuthentication(auth);
         context.validate();
         assertEquals(auth, context.getAuthentication());
+        assertTrue(context.toString().lastIndexOf("marissa") != -1);
     }
 
     public void testSecureContextDetectsMissingAuthenticationObject() {
         SecureContext context = new SecureContextImpl();
+
+        assertTrue(context.toString().lastIndexOf("Null authentication") != -1);
 
         try {
             context.validate();

@@ -39,6 +39,19 @@ public class SecureContextImpl extends ContextImpl implements SecureContext {
         return this.authentication;
     }
 
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(super.toString());
+
+        if (this.authentication == null) {
+            sb.append(": Null authentication");
+        } else {
+            sb.append(": Authentication: " + this.authentication);
+        }
+
+        return sb.toString();
+    }
+
     public void validate() throws ContextInvalidException {
         super.validate();
 
