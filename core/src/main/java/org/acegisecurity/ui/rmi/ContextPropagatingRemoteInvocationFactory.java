@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.remoting;
+package net.sf.acegisecurity.ui.rmi;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -22,16 +22,25 @@ import org.springframework.remoting.support.RemoteInvocationFactory;
 
 
 /**
- * DOCUMENT ME!
+ * Called by a client-side instance of
+ * <code>org.springframework.remoting.rmi.RmiProxyFactoryBean</code> when it
+ * wishes to create a remote invocation.
+ * 
+ * <P>
+ * Set an instance of this bean against the above class'
+ * <code>remoteInvocationFactory</code> property.
+ * </p>
  *
  * @author James Monaghan
+ * @author Ben Alex
  * @version $Id$
  */
-public class AcegiRemoteInvocationFactory implements RemoteInvocationFactory {
+public class ContextPropagatingRemoteInvocationFactory
+    implements RemoteInvocationFactory {
     //~ Methods ================================================================
 
     public RemoteInvocation createRemoteInvocation(
         MethodInvocation methodInvocation) {
-        return new AcegiRemoteInvocation(methodInvocation);
+        return new ContextPropagatingRemoteInvocation(methodInvocation);
     }
 }
