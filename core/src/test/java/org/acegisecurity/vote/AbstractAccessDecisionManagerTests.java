@@ -23,8 +23,6 @@ import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.SecurityConfig;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 import java.util.List;
 import java.util.Vector;
 
@@ -62,6 +60,17 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
         assertTrue(!mock.isAllowIfAllAbstainDecisions()); // default
         mock.setAllowIfAllAbstainDecisions(true);
         assertTrue(mock.isAllowIfAllAbstainDecisions()); // changed
+    }
+
+    public void testDelegatesSupportsClassRequests() throws Exception {
+        MockDecisionManagerImpl mock = new MockDecisionManagerImpl();
+        List list = new Vector();
+        list.add(new DenyVoter());
+        list.add(new MockStringOnlyVoter());
+        mock.setDecisionVoters(list);
+
+        assertTrue(mock.supports(new String().getClass()));
+        assertTrue(!mock.supports(new Integer(7).getClass()));
     }
 
     public void testDelegatesSupportsRequests() throws Exception {
@@ -133,6 +142,11 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
         }
     }
 
+    public void testRoleVoterAlwaysReturnsTrueToSupports() {
+        RoleVoter rv = new RoleVoter();
+        assertTrue(rv.supports(String.class));
+    }
+
     public void testWillNotStartIfDecisionVotersNotSet()
         throws Exception {
         MockDecisionManagerImpl mock = new MockDecisionManagerImpl();
@@ -148,10 +162,30 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
     //~ Inner Classes ==========================================================
 
     private class MockDecisionManagerImpl extends AbstractAccessDecisionManager {
-        public void decide(Authentication authentication,
-            MethodInvocation invocation, ConfigAttributeDefinition config)
-            throws AccessDeniedException {
+        public void decide(Authentication authentication, Object object,
+            ConfigAttributeDefinition config) throws AccessDeniedException {
             return;
+        }
+    }
+
+    private class MockStringOnlyVoter implements AccessDecisionVoter {
+        public boolean supports(Class clazz) {
+            if (String.class.isAssignableFrom(clazz)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public boolean supports(ConfigAttribute attribute) {
+            throw new UnsupportedOperationException(
+                "mock method not implemented");
+        }
+
+        public int vote(Authentication authentication, Object object,
+            ConfigAttributeDefinition config) {
+            throw new UnsupportedOperationException(
+                "mock method not implemented");
         }
     }
 }

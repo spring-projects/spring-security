@@ -15,8 +15,6 @@
 
 package net.sf.acegisecurity;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 import java.util.Iterator;
 
 
@@ -31,7 +29,7 @@ public class MockRunAsManager implements RunAsManager {
     //~ Methods ================================================================
 
     public Authentication buildRunAs(Authentication authentication,
-        MethodInvocation invocation, ConfigAttributeDefinition config) {
+        Object object, ConfigAttributeDefinition config) {
         Iterator iter = config.getConfigAttributes();
 
         while (iter.hasNext()) {
@@ -54,5 +52,9 @@ public class MockRunAsManager implements RunAsManager {
         } else {
             return false;
         }
+    }
+
+    public boolean supports(Class clazz) {
+        return true;
     }
 }

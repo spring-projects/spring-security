@@ -17,6 +17,7 @@ package net.sf.acegisecurity.adapters;
 
 import junit.framework.TestCase;
 
+import net.sf.acegisecurity.*;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 
@@ -54,7 +55,7 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
                 "someone", "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")});
         Object result = filter.extractFromContainer(new MockHttpServletRequest(
-                    principal));
+                    principal, null));
 
         if (!(result instanceof PrincipalAcegiUserToken)) {
             fail("Should have returned PrincipalAcegiUserToken");
@@ -72,6 +73,6 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
     public void testHandlesIfThereIsNoPrincipal() {
         HttpRequestIntegrationFilter filter = new HttpRequestIntegrationFilter();
         assertEquals(null,
-            filter.extractFromContainer(new MockHttpServletRequest(null)));
+            filter.extractFromContainer(new MockHttpServletRequest(null, null)));
     }
 }

@@ -15,8 +15,6 @@
 
 package net.sf.acegisecurity;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 import java.util.Iterator;
 
 
@@ -30,9 +28,8 @@ import java.util.Iterator;
 public class MockAccessDecisionManager implements AccessDecisionManager {
     //~ Methods ================================================================
 
-    public void decide(Authentication authentication,
-        MethodInvocation invocation, ConfigAttributeDefinition config)
-        throws AccessDeniedException {
+    public void decide(Authentication authentication, Object object,
+        ConfigAttributeDefinition config) throws AccessDeniedException {
         Iterator iter = config.getConfigAttributes();
 
         while (iter.hasNext()) {
@@ -58,5 +55,9 @@ public class MockAccessDecisionManager implements AccessDecisionManager {
         } else {
             return false;
         }
+    }
+
+    public boolean supports(Class clazz) {
+        return true;
     }
 }

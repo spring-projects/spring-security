@@ -19,8 +19,6 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 import java.util.Iterator;
 
 
@@ -50,7 +48,11 @@ public class DenyAgainVoter implements AccessDecisionVoter {
         }
     }
 
-    public int vote(Authentication authentication, MethodInvocation invocation,
+    public boolean supports(Class clazz) {
+        return true;
+    }
+
+    public int vote(Authentication authentication, Object object,
         ConfigAttributeDefinition config) {
         Iterator iter = config.getConfigAttributes();
 

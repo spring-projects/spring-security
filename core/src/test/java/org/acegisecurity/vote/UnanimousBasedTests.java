@@ -65,7 +65,7 @@ public class UnanimousBasedTests extends TestCase {
         config.addConfigAttribute(new SecurityConfig("DENY_FOR_SURE")); // deny
 
         try {
-            mgr.decide(auth, null, config);
+            mgr.decide(auth, new Object(), config);
             fail("Should have thrown AccessDeniedException");
         } catch (AccessDeniedException expected) {
             assertTrue(true);
@@ -80,7 +80,7 @@ public class UnanimousBasedTests extends TestCase {
         ConfigAttributeDefinition config = new ConfigAttributeDefinition();
         config.addConfigAttribute(new SecurityConfig("ROLE_2")); // grant
 
-        mgr.decide(auth, null, config);
+        mgr.decide(auth, new Object(), config);
         assertTrue(true);
     }
 
@@ -93,7 +93,7 @@ public class UnanimousBasedTests extends TestCase {
         config.addConfigAttribute(new SecurityConfig("ROLE_WE_DO_NOT_HAVE")); // deny
 
         try {
-            mgr.decide(auth, null, config);
+            mgr.decide(auth, new Object(), config);
             fail("Should have thrown AccessDeniedException");
         } catch (AccessDeniedException expected) {
             assertTrue(true);
@@ -111,7 +111,7 @@ public class UnanimousBasedTests extends TestCase {
         config.addConfigAttribute(new SecurityConfig("IGNORED_BY_ALL")); // abstain
 
         try {
-            mgr.decide(auth, null, config);
+            mgr.decide(auth, new Object(), config);
             fail("Should have thrown AccessDeniedException");
         } catch (AccessDeniedException expected) {
             assertTrue(true);
@@ -128,7 +128,7 @@ public class UnanimousBasedTests extends TestCase {
         ConfigAttributeDefinition config = new ConfigAttributeDefinition();
         config.addConfigAttribute(new SecurityConfig("IGNORED_BY_ALL")); // abstain
 
-        mgr.decide(auth, null, config);
+        mgr.decide(auth, new Object(), config);
         assertTrue(true);
     }
 
@@ -141,7 +141,7 @@ public class UnanimousBasedTests extends TestCase {
         config.addConfigAttribute(new SecurityConfig("ROLE_1")); // grant
         config.addConfigAttribute(new SecurityConfig("ROLE_2")); // grant
 
-        mgr.decide(auth, null, config);
+        mgr.decide(auth, new Object(), config);
         assertTrue(true);
     }
 

@@ -53,6 +53,11 @@ public class RunAsManagerImplTests extends TestCase {
         junit.textui.TestRunner.run(RunAsManagerImplTests.class);
     }
 
+    public void testAlwaysSupportsClass() {
+        RunAsManagerImpl runAs = new RunAsManagerImpl();
+        assertTrue(runAs.supports(String.class));
+    }
+
     public void testDoesNotReturnAdditionalAuthoritiesIfCalledWithoutARunAsSetting()
         throws Exception {
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
@@ -65,7 +70,8 @@ public class RunAsManagerImplTests extends TestCase {
         RunAsManagerImpl runAs = new RunAsManagerImpl();
         runAs.setKey("my_password");
 
-        Authentication resultingToken = runAs.buildRunAs(inputToken, null, def);
+        Authentication resultingToken = runAs.buildRunAs(inputToken,
+                new Object(), def);
         assertEquals(null, resultingToken);
     }
 
@@ -81,7 +87,8 @@ public class RunAsManagerImplTests extends TestCase {
         RunAsManagerImpl runAs = new RunAsManagerImpl();
         runAs.setKey("my_password");
 
-        Authentication resultingToken = runAs.buildRunAs(inputToken, null, def);
+        Authentication resultingToken = runAs.buildRunAs(inputToken,
+                new Object(), def);
 
         if (!(resultingToken instanceof RunAsUserToken)) {
             fail("Should have returned a RunAsUserToken");

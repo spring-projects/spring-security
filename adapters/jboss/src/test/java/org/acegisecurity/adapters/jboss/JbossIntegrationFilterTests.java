@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.adapters.MockHttpServletRequest;
+import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.adapters.MockPrincipal;
 import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
 
@@ -69,7 +69,7 @@ public class JbossIntegrationFilterTests extends TestCase {
                     makeIntoSubject(principal)));
 
         Object result = filter.extractFromContainer(new MockHttpServletRequest(
-                    null));
+                    null, null));
 
         if (!(result instanceof PrincipalAcegiUserToken)) {
             fail("Should have returned PrincipalAcegiUserToken");
@@ -83,28 +83,28 @@ public class JbossIntegrationFilterTests extends TestCase {
         JbossIntegrationFilter filter = new MockJbossIntegrationFilter(new MockInitialContext(
                     "THIS_IS_NOT_A_SUBJECT"));
         assertEquals(null,
-            filter.extractFromContainer(new MockHttpServletRequest(null)));
+            filter.extractFromContainer(new MockHttpServletRequest(null, null)));
     }
 
     public void testReturnsNullIfInitialContextHasNullPrincipal() {
         JbossIntegrationFilter filter = new MockJbossIntegrationFilter(new MockInitialContext(
                     makeIntoSubject(null)));
         assertEquals(null,
-            filter.extractFromContainer(new MockHttpServletRequest(null)));
+            filter.extractFromContainer(new MockHttpServletRequest(null, null)));
     }
 
     public void testReturnsNullIfInitialContextHasNullSubject() {
         JbossIntegrationFilter filter = new MockJbossIntegrationFilter(new MockInitialContext(
                     null));
         assertEquals(null,
-            filter.extractFromContainer(new MockHttpServletRequest(null)));
+            filter.extractFromContainer(new MockHttpServletRequest(null, null)));
     }
 
     public void testReturnsNullIfInitialContextIsNull() {
         JbossIntegrationFilter filter = new MockJbossIntegrationFilter(null);
 
         Object result = filter.extractFromContainer(new MockHttpServletRequest(
-                    null));
+                    null, null));
         assertEquals(null, filter.extractFromContainer(null));
     }
 
@@ -112,7 +112,7 @@ public class JbossIntegrationFilterTests extends TestCase {
         JbossIntegrationFilter filter = new MockJbossIntegrationFilter(new MockInitialContext(
                     makeIntoSubject(new MockPrincipal())));
         assertEquals(null,
-            filter.extractFromContainer(new MockHttpServletRequest(null)));
+            filter.extractFromContainer(new MockHttpServletRequest(null, null)));
     }
 
     public void testTestingObjectReturnsInitialContext()
