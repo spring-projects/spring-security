@@ -99,24 +99,24 @@ Maven throws an OutOfMemoryError. :-(
 
     <postGoal name="sdocbook:prepare-filesystem">
     
-      <maven:get var="maven.sdocbook.stylesheets.dir"
-        plugin="maven-sdocbook-plugin"
-        property="maven.sdocbook.stylesheets.dir"/>
+        <maven:get var="maven.sdocbook.stylesheets.dir"
+            plugin="maven-sdocbook-plugin"
+            property="maven.sdocbook.stylesheets.dir"/>
 
-            <!-- use a custom fo stylesheet -->
-            <copy todir="${maven.sdocbook.stylesheets.dir}/fo">
-                <fileset dir="${maven.sdocbook.src.dir}/styles/fo"/>
-            </copy>
+        <!-- use a custom fo stylesheet -->
+        <copy todir="${maven.sdocbook.stylesheets.dir}/fo">
+            <fileset dir="${maven.sdocbook.src.dir}/styles/fo"/>
+        </copy>
 
-            <!-- use a custom html stylesheet -->
-            <copy todir="${maven.sdocbook.stylesheets.dir}/html">
-                <fileset dir="${maven.sdocbook.src.dir}/styles/html"/>
-            </copy>
+        <!-- use a custom html stylesheet -->
+        <copy todir="${maven.sdocbook.stylesheets.dir}/html">
+            <fileset dir="${maven.sdocbook.src.dir}/styles/html"/>
+        </copy>
 
-            <!-- copy images -->
-            <copy todir="${maven.sdocbook.stylesheets.dir}/images">
-                <fileset dir="${maven.sdocbook.src.dir}/images"/>
-            </copy>
+        <!-- copy images -->
+        <copy todir="${maven.sdocbook.stylesheets.dir}/images">
+            <fileset dir="${maven.sdocbook.src.dir}/images"/>
+        </copy>
 
     </postGoal>
 
