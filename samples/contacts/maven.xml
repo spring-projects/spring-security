@@ -1,0 +1,39 @@
+<project
+   xmlns:j="jelly:core"
+   xmlns:ant="jelly:ant"
+   xmlns:maven="jelly:maven">
+
+    <goal name="war">
+        <!-- cas war -->
+        <j:set var="webapp" value="cas"/>
+        <attainGoal name="acegisecurity:war"/>
+
+        <!-- ca war -->
+        <j:set var="webapp" value="ca"/>
+        <attainGoal name="acegisecurity:war"/>
+
+        <!-- filter war -->
+        <j:set var="webapp" value="filter"/>
+        <attainGoal name="acegisecurity:war"/>
+    </goal>
+    
+    <goal name="acegisecurity:war">
+        <maven:set plugin="maven-war-plugin"
+            property="maven.war.webapp.dir"
+            value="${maven.war.build.dir}/${pom.artifactId}-${webapp}"/>
+        <maven:set plugin="maven-war-plugin"
+            property="maven.war.final.name"
+            value="${pom.artifactId}-${webapp}.war"/>
+        <attainGoal name="war:war"/>
+    </goal>
+
+    <postGoal name="war:war-resources">
+        <maven:get plugin="maven-war-plugin"
+            property="maven.war.webapp.dir"
+            var="maven.war.webapp.dir"/>
+        <ant:copy todir="${maven.war.webapp.dir}" preservelastmodified="true">
+            <ant:fileset dir="${maven.war.src}/../${webapp}"/>
+        </ant:copy>
+    </postGoal>
+
+</project>
