@@ -9,7 +9,6 @@ import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContext;
 import net.sf.acegisecurity.context.security.SecureContextUtils;
 import net.sf.acegisecurity.providers.x509.X509AuthenticationToken;
-import net.sf.acegisecurity.providers.x509.X509AuthenticationProvider;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,8 +21,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
- * Processes the X.509 certificate submitted by a client - typically
- * when HTTPS is used with client-authentiction enabled.
+ * Processes the X.509 certificate submitted by a client browser
+ * when HTTPS is used with client-authentication enabled.
  * <p>
  * An {@link X509AuthenticationToken} is created with the certificate
  * as the credentials.
@@ -47,8 +46,11 @@ public class X509ProcessingFilter implements Filter, InitializingBean {
 
     private static final Log logger = LogFactory.getLog(X509ProcessingFilter.class);
 
+    //~ Instance fields ========================================================
+
     private AuthenticationManager authenticationManager;
 
+    //~ Methods ================================================================
 
     public void setAuthenticationManager(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
@@ -59,6 +61,22 @@ public class X509ProcessingFilter implements Filter, InitializingBean {
             throw new IllegalArgumentException("An AuthenticationManager must be set");
     }
 
+    /**
+     * This method first checks for an existing, non-null authentication in the
+     * secure context. If one is found it does nothing.
+     * <p>
+     * If no authentication object exists, it attempts to obtain the client
+     * authentication certificate from the request. If there is no certificate
+     * present then authentication is skipped. Otherwise a new authentication
+     * request containing the certificate will be passed to the configured
+     * {@link AuthenticationManager}.
+     * </p>
+     * <p>
+     * If authentication is successful the returned token will be stored in
+     * the secure context. Otherwise it will be set to null.
+     * In either case, the request proceeds through the filter chain.
+     * </p>
+     */
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         if (!(request instanceof HttpServletRequest)) {
             throw new ServletException("Can only process HttpServletRequest");
@@ -68,43 +86,76 @@ public class X509ProcessingFilter implements Filter, InitializingBean {
             throw new ServletException("Can only process HttpServletResponse");
         }
 
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         SecureContext ctx = SecureContextUtils.getSecureContext();
 
-        logger.debug("Checking secure context: " + ctx);
+        logger.debug("Checking secure context token: " + ctx.getAuthentication());
+
         if(ctx.getAuthentication() == null) {
-            attemptAuthentication((HttpServletRequest)request);
 
+            Authentication authResult = null;
+            X509Certificate clientCertificate = extractClientCertificate(httpRequest);
+
+            try {
+                X509AuthenticationToken authRequest = new X509AuthenticationToken(clientCertificate);
+                // authRequest.setDetails(new WebAuthenticationDetails(request));
+
+                authResult = authenticationManager.authenticate(authRequest);
+                successfulAuthentication(httpRequest, httpResponse, authResult);
+            } catch (AuthenticationException failed) {
+                unsuccessfulAuthentication(httpRequest, httpResponse, failed);
+            }
         }
-
         filterChain.doFilter(request, response);
     }
 
-    /**
-     *
-     * @param request the request containing the client certificate
-     * @return
-     * @throws AuthenticationException if the authentication manager rejects the certificate for some reason.
-     */
-    public Authentication attemptAuthentication(HttpServletRequest request) throws AuthenticationException {
+    private X509Certificate extractClientCertificate(HttpServletRequest request) {
         X509Certificate[] certs = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
 
-        X509Certificate clientCertificate = null;
-
         if(certs != null && certs.length > 0) {
-            clientCertificate = certs[0];
-            logger.debug("Authenticating with certificate " + clientCertificate);
-        } else {
-            logger.warn("No client certificate found in Request.");
+            return certs[0];
         }
-        // TODO: warning is probably superfluous, as it may get called when a non-protected URL is used and no certificate is present.
 
-        X509AuthenticationToken authRequest = new X509AuthenticationToken(clientCertificate);
+        if(logger.isDebugEnabled())
+            logger.debug("No client certificate found in request, authentication will fail.");
 
-        // authRequest.setDetails(new WebAuthenticationDetails(request));
-
-        return authenticationManager.authenticate(authRequest);
+        return null;
     }
+
+    /**
+     * Puts the <code>Authentication</code> instance returned by the authentication manager into
+     * the secure context.
+     */
+    protected void successfulAuthentication(HttpServletRequest request,
+        HttpServletResponse response, Authentication authResult)
+        throws IOException {
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Authentication success: " + authResult);
+        }
+        SecureContext sc = SecureContextUtils.getSecureContext();
+        sc.setAuthentication(authResult);
+    }
+
+    /**
+     * Ensures the authentication object in the secure context is set to null when authentication fails.
+     *
+     */
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
+        SecureContext sc = SecureContextUtils.getSecureContext();
+
+        sc.setAuthentication(null);
+        ContextHolder.setContext(sc);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Updated ContextHolder to contain null Authentication");
+        }
+
+        request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY, failed);
+    }
+
 
     public void init(FilterConfig filterConfig) throws ServletException { }
 
