@@ -13,6 +13,7 @@ To execute these tests:
 
    Jetty-4.2.18-all.zip         (see http://mortbay.jetty.org)
    jakarta-tomcat-5-0.19.zip    (see http://jakarta.apache.org/tomcat)
+   jakarta-tomcat-4-1.30.zip    (see http://jakarta.apache.org/tomcat)
    jboss-3.2.3.zip              (see http://www.jboss.org)
 
 2. Shutdown any container or service bound to port 8080.
