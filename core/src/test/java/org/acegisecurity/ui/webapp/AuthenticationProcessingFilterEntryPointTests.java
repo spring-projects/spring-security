@@ -19,8 +19,11 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpServletResponse;
+import net.sf.acegisecurity.MockPortResolver;
+import net.sf.acegisecurity.util.PortMapperImpl;
 
 import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -43,6 +46,8 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
 
     public void testDetectsMissingLoginFormUrl() throws Exception {
         AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        ep.setPortMapper(new PortMapperImpl());
+        ep.setPortResolver(new MockPortResolver(80, 443));
 
         try {
             ep.afterPropertiesSet();
@@ -52,10 +57,45 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         }
     }
 
+    public void testDetectsMissingPortMapper() throws Exception {
+        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        ep.setLoginFormUrl("xxx");
+        ep.setPortResolver(new MockPortResolver(80, 443));
+
+        try {
+            ep.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("portMapper must be specified", expected.getMessage());
+        }
+    }
+
+    public void testDetectsMissingPortResolver() throws Exception {
+        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        ep.setLoginFormUrl("xxx");
+        ep.setPortMapper(new PortMapperImpl());
+
+        try {
+            ep.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("portResolver must be specified", expected.getMessage());
+        }
+    }
+
     public void testGettersSetters() {
         AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
         ep.setLoginFormUrl("/hello");
+        ep.setPortMapper(new PortMapperImpl());
+        ep.setPortResolver(new MockPortResolver(8080, 8443));
         assertEquals("/hello", ep.getLoginFormUrl());
+        assertTrue(ep.getPortMapper() != null);
+        assertTrue(ep.getPortResolver() != null);
+
+        ep.setForceHttps(false);
+        assertFalse(ep.getForceHttps());
+        ep.setForceHttps(true);
+        assertTrue(ep.getForceHttps());
     }
 
     public void testHttpsOperation() throws Exception {
@@ -70,30 +110,40 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
 
         AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
         ep.setLoginFormUrl("/hello");
+        ep.setPortMapper(new PortMapperImpl());
         ep.setForceHttps(true);
+        ep.setPortMapper(new PortMapperImpl());
+        ep.setPortResolver(new MockPortResolver(80, 443));
         ep.afterPropertiesSet();
 
         ep.commence(request, response);
-        assertEquals("https://www.example.com:443/bigWebApp/hello",
+        assertEquals("https://www.example.com/bigWebApp/hello",
             response.getRedirect());
 
         request.setServerPort(8080);
+        ep.setPortResolver(new MockPortResolver(8080, 8443));
+        ep.commence(request, response);
+        System.out.println(response.getRedirect());
+        assertEquals("https://www.example.com:8443/bigWebApp/hello",
+            response.getRedirect());
+
+        // Now test an unusual custom HTTP:HTTPS is handled properly
+        request.setServerPort(8888);
         ep.commence(request, response);
         assertEquals("https://www.example.com:8443/bigWebApp/hello",
             response.getRedirect());
 
-        // check that unknown port leaves things as-is
-        request.setServerPort(8888);
-        ep.commence(request, response);
-        assertEquals("/bigWebApp/hello", response.getRedirect());
+        PortMapperImpl portMapper = new PortMapperImpl();
+        Map map = new HashMap();
+        map.put("8888", "9999");
+        portMapper.setPortMappings(map);
 
         ep = new AuthenticationProcessingFilterEntryPoint();
         ep.setLoginFormUrl("/hello");
+        ep.setPortMapper(new PortMapperImpl());
         ep.setForceHttps(true);
-
-        HashMap map = new HashMap();
-        map.put("8888", "9999");
-        ep.setHttpsPortMappings(map);
+        ep.setPortMapper(portMapper);
+        ep.setPortResolver(new MockPortResolver(8888, 9999));
         ep.afterPropertiesSet();
 
         ep.commence(request, response);
@@ -104,50 +154,50 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
     public void testNormalOperation() throws Exception {
         AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
         ep.setLoginFormUrl("/hello");
+        ep.setPortMapper(new PortMapperImpl());
+        ep.setPortResolver(new MockPortResolver(80, 443));
+        ep.afterPropertiesSet();
 
         MockHttpServletRequest request = new MockHttpServletRequest(
                 "/some_path");
         request.setContextPath("/bigWebApp");
+        request.setScheme("http");
+        request.setServerName("www.example.com");
+        request.setContextPath("/bigWebApp");
+        request.setServerPort(80);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         ep.afterPropertiesSet();
         ep.commence(request, response);
-        assertEquals("/bigWebApp/hello", response.getRedirect());
+        assertEquals("http://www.example.com/bigWebApp/hello",
+            response.getRedirect());
     }
 
-    public void testSetSslPortMapping() {
+    public void testOperationWhenHttpsRequestsButHttpsPortUnknown()
+        throws Exception {
         AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
-        HashMap map = new HashMap();
+        ep.setLoginFormUrl("/hello");
+        ep.setPortMapper(new PortMapperImpl());
+        ep.setPortResolver(new MockPortResolver(8888, 1234));
+        ep.setForceHttps(true);
+        ep.afterPropertiesSet();
 
-        try {
-            ep.setHttpsPortMappings(map);
-        } catch (IllegalArgumentException expected) {
-            assertEquals("must map at least one port", expected.getMessage());
-        }
+        MockHttpServletRequest request = new MockHttpServletRequest(
+                "/some_path");
+        request.setContextPath("/bigWebApp");
+        request.setScheme("http");
+        request.setServerName("www.example.com");
+        request.setContextPath("/bigWebApp");
+        request.setServerPort(8888); // NB: Port we can't resolve
 
-        map.put(new Integer(0).toString(), new Integer(443).toString());
+        MockHttpServletResponse response = new MockHttpServletResponse();
 
-        try {
-            ep.setHttpsPortMappings(map);
-        } catch (IllegalArgumentException expected) {
-            assertTrue(expected.getMessage().startsWith("one or both ports out of legal range"));
-        }
+        ep.afterPropertiesSet();
+        ep.commence(request, response);
 
-        map.clear();
-        map.put(new Integer(80).toString(), new Integer(100000).toString());
-
-        try {
-            ep.setHttpsPortMappings(map);
-        } catch (IllegalArgumentException expected) {
-            assertTrue(expected.getMessage().startsWith("one or both ports out of legal range"));
-        }
-
-        map.clear();
-        map.put(new Integer(80).toString(), new Integer(443).toString());
-        ep.setHttpsPortMappings(map);
-        map = ep.getTranslatedHttpsPortMappings();
-        assertTrue(map.size() == 1);
-        assertTrue(((Integer) map.get(new Integer(80))).equals(new Integer(443)));
+        // Response doesn't switch to HTTPS, as we didn't know HTTP port 8888 to HTTP port mapping
+        assertEquals("http://www.example.com:8888/bigWebApp/hello",
+            response.getRedirect());
     }
 }

@@ -53,13 +53,13 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private Map paramMap = new HashMap();
     private Principal principal;
     private String contextPath = "";
+    private String pathInfo; // null for no extra path
     private String queryString = null;
     private String requestURL;
     private String scheme;
     private String serverName;
     private String servletPath;
     private int serverPort;
-    private String pathInfo;   // null for no extra path
 
     //~ Constructors ===========================================================
 
@@ -197,11 +197,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
-    
     public void setPathInfo(String pathInfo) {
         this.pathInfo = pathInfo;
     }
-    
+
     public String getPathInfo() {
         return pathInfo;
     }
@@ -283,7 +282,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     public boolean isSecure() {
-        throw new UnsupportedOperationException("mock method not implemented");
+        if ("https".equals(scheme)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void setServerName(String serverName) {

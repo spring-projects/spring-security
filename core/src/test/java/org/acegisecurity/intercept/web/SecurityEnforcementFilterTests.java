@@ -23,6 +23,7 @@ import net.sf.acegisecurity.MockAuthenticationEntryPoint;
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpServletResponse;
 import net.sf.acegisecurity.MockHttpSession;
+import net.sf.acegisecurity.MockPortResolver;
 import net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
 
 import java.io.IOException;
@@ -120,6 +121,9 @@ public class SecurityEnforcementFilterTests extends TestCase {
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
                 "/login.jsp"));
         assertTrue(filter.getAuthenticationEntryPoint() != null);
+
+        filter.setPortResolver(new MockPortResolver(80, 443));
+        assertTrue(filter.getPortResolver() != null);
     }
 
     public void testRedirectedToLoginFormAndSessionShowsOriginalTargetWhenAuthenticationException()
@@ -128,6 +132,10 @@ public class SecurityEnforcementFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest(null,
                 new MockHttpSession());
         request.setServletPath("/secure/page.html");
+        request.setServerPort(80);
+        request.setScheme("http");
+        request.setServerName("www.example.com");
+        request.setContextPath("/mycontext");
         request.setRequestURL(
             "http://www.example.com/mycontext/secure/page.html");
 
@@ -143,12 +151,48 @@ public class SecurityEnforcementFilterTests extends TestCase {
         filter.setFilterSecurityInterceptor(interceptor);
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
                 "/login.jsp"));
+        filter.setPortResolver(new MockPortResolver(80, 443));
         filter.afterPropertiesSet();
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
-        assertEquals("/login.jsp", response.getRedirect());
+        assertEquals("/mycontext/login.jsp", response.getRedirect());
         assertEquals("http://www.example.com/mycontext/secure/page.html",
+            request.getSession().getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
+    }
+
+    public void testRedirectedToLoginFormAndSessionShowsOriginalTargetWithExoticPortWhenAuthenticationException()
+        throws Exception {
+        // Setup our HTTP request
+        MockHttpServletRequest request = new MockHttpServletRequest(null,
+                new MockHttpSession());
+        request.setServletPath("/secure/page.html");
+        request.setServerPort(8080);
+        request.setScheme("http");
+        request.setServerName("www.example.com");
+        request.setContextPath("/mycontext");
+        request.setRequestURL(
+            "http://www.example.com:8080/mycontext/secure/page.html");
+
+        // Setup our expectation that the filter chain will not be invoked, as access is denied
+        MockFilterChain chain = new MockFilterChain(false);
+
+        // Setup the FilterSecurityInterceptor thrown an authentication failure exceptions
+        MockFilterSecurityInterceptor interceptor = new MockFilterSecurityInterceptor(false,
+                true);
+
+        // Test
+        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
+        filter.setFilterSecurityInterceptor(interceptor);
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
+                "/login.jsp"));
+        filter.setPortResolver(new MockPortResolver(8080, 8443));
+        filter.afterPropertiesSet();
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        filter.doFilter(request, response, chain);
+        assertEquals("/mycontext/login.jsp", response.getRedirect());
+        assertEquals("http://www.example.com:8080/mycontext/secure/page.html",
             request.getSession().getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
     }
 
@@ -179,6 +223,22 @@ public class SecurityEnforcementFilterTests extends TestCase {
         } catch (IllegalArgumentException expected) {
             assertEquals("filterSecurityInterceptor must be specified",
                 expected.getMessage());
+        }
+    }
+
+    public void testStartupDetectsMissingPortResolver()
+        throws Exception {
+        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
+        filter.setFilterSecurityInterceptor(new MockFilterSecurityInterceptor(
+                false, false));
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
+                "/login.jsp"));
+
+        try {
+            filter.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("portResolver must be specified", expected.getMessage());
         }
     }
 

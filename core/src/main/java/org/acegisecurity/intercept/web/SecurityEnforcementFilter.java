@@ -18,6 +18,7 @@ package net.sf.acegisecurity.intercept.web;
 import net.sf.acegisecurity.AccessDeniedException;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.ui.AbstractProcessingFilter;
+import net.sf.acegisecurity.util.PortResolver;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -74,6 +75,10 @@ import javax.servlet.http.HttpServletResponse;
  * <code>AuthenticationException</code> is detected. Note that this may also
  * switch the current protocol from http to https for a an SSL login.
  * </li>
+ * <li>
+ * <code>portResolver</code> is used to determine the "real" port that a
+ * request was received on.
+ * </li>
  * </ul>
  * 
  * <P>
@@ -95,6 +100,7 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
 
     private AuthenticationEntryPoint authenticationEntryPoint;
     private FilterSecurityInterceptor filterSecurityInterceptor;
+    private PortResolver portResolver;
 
     //~ Methods ================================================================
 
@@ -116,6 +122,14 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
         return filterSecurityInterceptor;
     }
 
+    public void setPortResolver(PortResolver portResolver) {
+        this.portResolver = portResolver;
+    }
+
+    public PortResolver getPortResolver() {
+        return portResolver;
+    }
+
     public void afterPropertiesSet() throws Exception {
         if (authenticationEntryPoint == null) {
             throw new IllegalArgumentException(
@@ -125,6 +139,10 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
         if (filterSecurityInterceptor == null) {
             throw new IllegalArgumentException(
                 "filterSecurityInterceptor must be specified");
+        }
+
+        if (portResolver == null) {
+            throw new IllegalArgumentException("portResolver must be specified");
         }
     }
 
@@ -151,14 +169,31 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
         } catch (AuthenticationException authentication) {
             HttpServletRequest httpRequest = (HttpServletRequest) request;
 
+            int port = portResolver.getServerPort(request);
+            boolean includePort = true;
+
+            if ("http".equals(request.getScheme().toLowerCase())
+                && (port == 80)) {
+                includePort = false;
+            }
+
+            if ("https".equals(request.getScheme().toLowerCase())
+                && (port == 443)) {
+                includePort = false;
+            }
+
+            String targetUrl = request.getScheme() + "://"
+                + request.getServerName() + ((includePort) ? (":" + port) : "")
+                + httpRequest.getContextPath() + fi.getRequestUrl();
+
             if (logger.isDebugEnabled()) {
                 logger.debug(
                     "Authentication failed - adding target URL to Session: "
-                    + fi.getFullRequestUrl());
+                    + targetUrl);
             }
 
             ((HttpServletRequest) request).getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
-                fi.getFullRequestUrl());
+                targetUrl);
             authenticationEntryPoint.commence(request, response);
         } catch (AccessDeniedException accessDenied) {
             if (logger.isDebugEnabled()) {

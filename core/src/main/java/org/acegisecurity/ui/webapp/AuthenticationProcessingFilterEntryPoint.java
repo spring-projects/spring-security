@@ -16,14 +16,15 @@
 package net.sf.acegisecurity.ui.webapp;
 
 import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
+import net.sf.acegisecurity.util.PortMapper;
+import net.sf.acegisecurity.util.PortResolver;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 
 import java.io.IOException;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -43,20 +44,11 @@ import javax.servlet.http.HttpServletResponse;
  * <p>
  * By setting the <em>forceHttps</em> property to true, you may configure the
  * class to force the protocol used for the login form to be
- * <code>https</code>, even if the original intercepted request for a resource
- * used the <code>http</code> protocol. When this happens, after a successful
- * login (via https), the original resource will still be accessed as http,
- * via the original request URL. For the forced https feature to work, the
- * class must have a valid mapping from an http port in the original request
- * to an https port for the login page (the same server name will be used,
- * only the scheme and port will be changed). By default, http requests to
- * port 80 will be mapped to login page https requests on port 443 (standard
- * https port), and port 8080 will be mapped to port 8443. These mappings may
- * be customized by setting the <em>httpsPortMappings</em> property. Any
- * intercepted http request on a port which does not have a mapping will
- * result in the protocol remaining as http. Any intercepted request which is
- * already https will always result in the login page being accessed as https,
- * regardless of the state of the  <em>forceHttps</em> property.
+ * <code>HTTPS</code>, even if the original intercepted request for a resource
+ * used the <code>HTTP</code> protocol. When this happens, after a successful
+ * login (via HTTPS), the original resource will still be accessed as HTTP,
+ * via the original request URL. For the forced HTTPS feature to work, the
+ * {@link PortMapper} is consulted to determine the HTTP:HTTPS pairs.
  * </p>
  *
  * @author Ben Alex
@@ -65,19 +57,16 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class AuthenticationProcessingFilterEntryPoint
     implements AuthenticationEntryPoint, InitializingBean {
+    //~ Static fields/initializers =============================================
+
+    private static final Log logger = LogFactory.getLog(AuthenticationProcessingFilterEntryPoint.class);
+
     //~ Instance fields ========================================================
 
-    private HashMap httpsPortMappings;
+    private PortMapper portMapper;
+    private PortResolver portResolver;
     private String loginFormUrl;
     private boolean forceHttps = false;
-
-    //~ Constructors ===========================================================
-
-    public AuthenticationProcessingFilterEntryPoint() {
-        httpsPortMappings = new HashMap();
-        httpsPortMappings.put(new Integer(80), new Integer(443));
-        httpsPortMappings.put(new Integer(8080), new Integer(8443));
-    }
 
     //~ Methods ================================================================
 
@@ -88,8 +77,6 @@ public class AuthenticationProcessingFilterEntryPoint
      * <code>https</code>, then
      *
      * @param forceHttps
-     *
-     * @todo Generated comment
      */
     public void setForceHttps(boolean forceHttps) {
         this.forceHttps = forceHttps;
@@ -97,56 +84,6 @@ public class AuthenticationProcessingFilterEntryPoint
 
     public boolean getForceHttps() {
         return forceHttps;
-    }
-
-    /**
-     * <p>
-     * Set to override the default http port to https port mappings of 80:443,
-     * and  8080:8443.
-     * </p>
-     * In a Spring XML ApplicationContext, a definition would look something
-     * like this:
-     * <pre>
-     *   &lt;property name="httpsPortMapping">
-     *     &lt;map>
-     *       &lt;entry key="80">&lt;value>443&lt;/value>&lt;/entry>
-     *       &lt;entry key="8080">&lt;value>8443&lt;/value>&lt;/entry>
-     *     &lt;/map>
-     *   &lt;/property>
-     * </pre>
-     *
-     * @param newMappings A Map consisting of String keys and String values,
-     *        where for each entry the key is the string representation of an
-     *        integer http port number, and the value is the string
-     *        representation of the corresponding integer https port number.
-     *
-     * @throws IllegalArgumentException if input map does not consist of String
-     *         keys and values, each representing an integer port number in
-     *         the range 1-65535 for that mapping.
-     */
-    public void setHttpsPortMappings(HashMap newMappings) {
-        httpsPortMappings.clear();
-
-        Iterator it = newMappings.entrySet().iterator();
-
-        while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry) it.next();
-            Integer httpPort = new Integer((String) entry.getKey());
-            Integer httpsPort = new Integer((String) entry.getValue());
-
-            if ((httpPort.intValue() < 1) || (httpPort.intValue() > 65535)
-                || (httpsPort.intValue() < 1) || (httpsPort.intValue() > 65535)) {
-                throw new IllegalArgumentException(
-                    "one or both ports out of legal range: " + httpPort + ", "
-                    + httpsPort);
-            }
-
-            httpsPortMappings.put(httpPort, httpsPort);
-
-            if (httpsPortMappings.size() < 1) {
-                throw new IllegalArgumentException("must map at least one port");
-            }
-        }
     }
 
     /**
@@ -164,40 +101,79 @@ public class AuthenticationProcessingFilterEntryPoint
         return loginFormUrl;
     }
 
+    public void setPortMapper(PortMapper portMapper) {
+        this.portMapper = portMapper;
+    }
+
+    public PortMapper getPortMapper() {
+        return portMapper;
+    }
+
+    public void setPortResolver(PortResolver portResolver) {
+        this.portResolver = portResolver;
+    }
+
+    public PortResolver getPortResolver() {
+        return portResolver;
+    }
+
     public void afterPropertiesSet() throws Exception {
         if ((loginFormUrl == null) || "".equals(loginFormUrl)) {
             throw new IllegalArgumentException("loginFormUrl must be specified");
+        }
+
+        if (portMapper == null) {
+            throw new IllegalArgumentException("portMapper must be specified");
+        }
+
+        if (portResolver == null) {
+            throw new IllegalArgumentException("portResolver must be specified");
         }
     }
 
     public void commence(ServletRequest request, ServletResponse response)
         throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
+        String scheme = request.getScheme();
+        String serverName = request.getServerName();
+        int serverPort = portResolver.getServerPort(request);
         String contextPath = req.getContextPath();
 
-        String redirectUrl = contextPath + loginFormUrl;
+        boolean includePort = true;
+
+        if ("http".equals(scheme.toLowerCase()) && (serverPort == 80)) {
+            includePort = false;
+        }
+
+        if ("https".equals(scheme.toLowerCase()) && (serverPort == 443)) {
+            includePort = false;
+        }
+
+        String redirectUrl = scheme + "://" + serverName
+            + ((includePort) ? (":" + serverPort) : "") + contextPath
+            + loginFormUrl;
 
         if (forceHttps && req.getScheme().equals("http")) {
-            Integer httpPort = new Integer(req.getServerPort());
-            Integer httpsPort = (Integer) httpsPortMappings.get(httpPort);
+            Integer httpPort = new Integer(portResolver.getServerPort(request));
+            Integer httpsPort = (Integer) portMapper.lookupHttpsPort(httpPort);
 
             if (httpsPort != null) {
-                String serverName = req.getServerName();
-                redirectUrl = "https://" + serverName + ":" + httpsPort
-                    + contextPath + loginFormUrl;
+                if (httpsPort.intValue() == 443) {
+                    includePort = false;
+                } else {
+                    includePort = true;
+                }
+
+                redirectUrl = "https://" + serverName
+                    + ((includePort) ? (":" + httpsPort) : "") + contextPath
+                    + loginFormUrl;
             }
         }
 
-        ((HttpServletResponse) response).sendRedirect(redirectUrl);
-    }
+        if (logger.isDebugEnabled()) {
+            logger.debug("Redirecting to: " + redirectUrl);
+        }
 
-    /**
-     * Returns the translated (Integer -> Integer) version of the original port
-     * mapping specified via setHttpsPortMapping()
-     *
-     * @return DOCUMENT ME!
-     */
-    protected HashMap getTranslatedHttpsPortMappings() {
-        return httpsPortMappings;
+        ((HttpServletResponse) response).sendRedirect(redirectUrl);
     }
 }
