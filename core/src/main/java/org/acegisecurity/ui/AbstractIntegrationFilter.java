@@ -70,6 +70,17 @@ public abstract class AbstractIntegrationFilter implements Filter {
 
     //~ Methods ================================================================
 
+    /**
+     * Writes a new <code>Authentication</code> object to the container's
+     * well-known location, if supported the subclass.
+     *
+     * @param request which may be required by the implementing method to
+     *        access the well-known location for the current principal
+     * @param authentication the new object to be written to the container
+     */
+    public abstract void commitToContainer(ServletRequest request,
+        Authentication authentication);
+
     public void destroy() {}
 
     public void doFilter(ServletRequest request, ServletResponse response,
@@ -112,12 +123,18 @@ public abstract class AbstractIntegrationFilter implements Filter {
         if ((ContextHolder.getContext() != null)
             && ContextHolder.getContext() instanceof SecureContext) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Removing Authentication from ContextHolder");
+                logger.debug(
+                    "Updating container with new Authentication object, and then removing Authentication from ContextHolder");
             }
 
-            // Get context holder and remove authentication information
+            // Get context holder
             SecureContext secureContext = (SecureContext) ContextHolder
                 .getContext();
+
+            // Update container with new Authentication object (may have been updated during method invocation)
+            this.commitToContainer(request, secureContext.getAuthentication());
+
+            // Remove authentication information from ContextHolder
             secureContext.setAuthentication(null);
             ContextHolder.setContext((Context) secureContext);
         } else {

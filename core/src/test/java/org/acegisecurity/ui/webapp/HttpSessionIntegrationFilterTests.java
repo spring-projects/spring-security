@@ -51,6 +51,48 @@ public class HttpSessionIntegrationFilterTests extends TestCase {
         junit.textui.TestRunner.run(HttpSessionIntegrationFilterTests.class);
     }
 
+    public void testCommitFailSilentlyIfNullsProvided() {
+        HttpSessionIntegrationFilter filter = new HttpSessionIntegrationFilter();
+        filter.commitToContainer(null, null);
+        assertTrue(true);
+    }
+
+    public void testCommitOperation() {
+        // Build an Authentication object we want returned
+        PrincipalAcegiUserToken principal = new PrincipalAcegiUserToken("key",
+                "someone", "password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")});
+
+        // Build a mock request
+        MockHttpSession session = new MockHttpSession();
+        MockHttpServletRequest request = new MockHttpServletRequest(null,
+                session);
+
+        // Try to commit
+        HttpSessionIntegrationFilter filter = new HttpSessionIntegrationFilter();
+        filter.commitToContainer(request, principal);
+
+        // Check it committed the object
+        Object result = session.getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY);
+        assertEquals(principal, result);
+    }
+
+    public void testCommitOperationGracefullyIgnoredIfSessionIsNull() {
+        PrincipalAcegiUserToken principal = new PrincipalAcegiUserToken("key",
+                "someone", "password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")});
+
+        // Build a mock request
+        MockHttpSession session = null;
+        MockHttpServletRequest request = new MockHttpServletRequest(null,
+                session);
+
+        HttpSessionIntegrationFilter filter = new HttpSessionIntegrationFilter();
+        filter.commitToContainer(request, principal);
+
+        assertTrue(true);
+    }
+
     public void testCorrectOperation() {
         // Build a mock session containing the authenticated user
         PrincipalAcegiUserToken principal = new PrincipalAcegiUserToken("key",

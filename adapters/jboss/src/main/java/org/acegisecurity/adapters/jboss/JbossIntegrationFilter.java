@@ -45,6 +45,15 @@ import javax.servlet.ServletRequest;
 public class JbossIntegrationFilter extends AbstractIntegrationFilter {
     //~ Methods ================================================================
 
+    /**
+     * Not supported for this type of well-known location.
+     *
+     * @param request DOCUMENT ME!
+     * @param authentication DOCUMENT ME!
+     */
+    public void commitToContainer(ServletRequest request,
+        Authentication authentication) {}
+
     public Object extractFromContainer(ServletRequest request) {
         Subject subject = null;
 

@@ -15,6 +15,7 @@
 
 package net.sf.acegisecurity.adapters;
 
+import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.ui.AbstractIntegrationFilter;
 
 import org.apache.commons.logging.Log;
@@ -41,6 +42,15 @@ public class HttpRequestIntegrationFilter extends AbstractIntegrationFilter {
     private static final Log logger = LogFactory.getLog(HttpRequestIntegrationFilter.class);
 
     //~ Methods ================================================================
+
+    /**
+     * Not supported for this type of well-known location.
+     *
+     * @param request DOCUMENT ME!
+     * @param authentication DOCUMENT ME!
+     */
+    public void commitToContainer(ServletRequest request,
+        Authentication authentication) {}
 
     public Object extractFromContainer(ServletRequest request) {
         if (request instanceof HttpServletRequest) {

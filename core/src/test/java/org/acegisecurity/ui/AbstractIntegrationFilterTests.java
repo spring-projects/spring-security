@@ -202,6 +202,11 @@ public class AbstractIntegrationFilterTests extends TestCase {
             super();
         }
 
+        public void commitToContainer(ServletRequest request,
+            Authentication authentication) {
+            this.extractFromContainerResult = authentication;
+        }
+
         public Object extractFromContainer(ServletRequest request) {
             return this.extractFromContainerResult;
         }

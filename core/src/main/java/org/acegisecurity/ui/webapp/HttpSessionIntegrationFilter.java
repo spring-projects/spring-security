@@ -67,6 +67,18 @@ public class HttpSessionIntegrationFilter extends AbstractIntegrationFilter {
 
     //~ Methods ================================================================
 
+    public void commitToContainer(ServletRequest request,
+        Authentication authentication) {
+        if (request instanceof HttpServletRequest) {
+            HttpSession httpSession = ((HttpServletRequest) request).getSession();
+
+            if (httpSession != null) {
+                httpSession.setAttribute(ACEGI_SECURITY_AUTHENTICATION_KEY,
+                    authentication);
+            }
+        }
+    }
+
     public Object extractFromContainer(ServletRequest request) {
         if (request instanceof HttpServletRequest) {
             HttpSession httpSession = ((HttpServletRequest) request).getSession();

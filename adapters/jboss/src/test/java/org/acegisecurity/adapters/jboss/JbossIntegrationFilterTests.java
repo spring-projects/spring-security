@@ -77,6 +77,9 @@ public class JbossIntegrationFilterTests extends TestCase {
 
         PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) result;
         assertEquals(principal, result);
+
+        filter.commitToContainer(new MockHttpServletRequest(principal, null),
+            principal);
     }
 
     public void testReturnsNullIfContextReturnsSomethingOtherThanASubject() {

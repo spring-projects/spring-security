@@ -1,3 +1,9 @@
+Changes in version 0.x (2004-xx-xx)
+-----------------------------------
+
+* Added samples/quick-start
+* Fixed issue with caching of Authentication objects
+
 Changes in version 0.5 (2004-04-29)
 -----------------------------------
 

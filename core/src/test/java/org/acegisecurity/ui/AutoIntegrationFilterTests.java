@@ -17,6 +17,7 @@ package net.sf.acegisecurity.ui;
 
 import junit.framework.TestCase;
 
+import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.MockHttpServletRequest;
@@ -66,6 +67,30 @@ public class AutoIntegrationFilterTests extends TestCase {
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AutoIntegrationFilterTests.class);
+    }
+
+    public void testCommitForHttpSession() {
+        // This is the object we want to commit
+        PrincipalAcegiUserToken principal = new PrincipalAcegiUserToken("key",
+                "someone", "password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")});
+
+        // Setup the mock so AutoIntegrationFilter detects HttpSessionIntegrationFilter should be used
+        MockHttpSessionIntegrationFilter mockHttpSessionIntegrationFilter = new MockHttpSessionIntegrationFilter(new PrincipalAcegiUserToken(
+                    "x", "x", "x",
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("x")}));
+
+        // Setup the AutoIntegrationFilter to use our mock HttpSessionIntegrationFilter object
+        AutoIntegrationFilter filter = new MockAutoIntegrationFilterHttpSession(mockHttpSessionIntegrationFilter);
+
+        // Test we can commit the new object (this will override the principal with "x" in its properties)
+        filter.commitToContainer(new MockHttpServletRequest("ignored"),
+            principal);
+
+        // Test the object was indeed committed and overwrote the principal with "x" in its properties
+        assertEquals(principal,
+            mockHttpSessionIntegrationFilter.extractFromContainer(
+                new MockHttpServletRequest("ignored")));
     }
 
     public void testDetectsAuthenticationObjectInHttpRequest() {
@@ -199,6 +224,11 @@ public class AutoIntegrationFilterTests extends TestCase {
 
         private MockHttpSessionIntegrationFilter() {
             super();
+        }
+
+        public void commitToContainer(ServletRequest request,
+            Authentication authentication) {
+            this.toReturn = authentication;
         }
 
         public Object extractFromContainer(ServletRequest request) {

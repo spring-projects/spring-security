@@ -63,6 +63,9 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
 
         PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) result;
         assertEquals(principal, result);
+
+        filter.commitToContainer(new MockHttpServletRequest(principal, null),
+            principal);
     }
 
     public void testHandlesIfHttpRequestIsNullForSomeReason() {

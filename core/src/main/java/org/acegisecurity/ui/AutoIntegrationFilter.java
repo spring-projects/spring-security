@@ -57,6 +57,23 @@ import javax.servlet.http.HttpServletRequest;
 public class AutoIntegrationFilter extends AbstractIntegrationFilter {
     //~ Methods ================================================================
 
+    public void commitToContainer(ServletRequest request,
+        Authentication authentication) {
+        if (request instanceof HttpServletRequest) {
+            HttpServletRequest httpRequest = (HttpServletRequest) request;
+
+            if (getHttpSessionIntegrationFilter().extractFromContainer(request) != null) {
+                getHttpSessionIntegrationFilter().commitToContainer(request,
+                    authentication);
+
+                return;
+            }
+
+            // Do not try JbossIntegrationFilter, as commit is unsupported.
+            // Do not try HttpRequestIntegrationFilter, as commit is unsupported.
+        }
+    }
+
     public Object extractFromContainer(ServletRequest request) {
         if (request instanceof HttpServletRequest) {
             HttpServletRequest httpRequest = (HttpServletRequest) request;
