@@ -7,6 +7,7 @@ Changes in version 0.6 (2004-xx-xx)
 * Improved organisation of DaoAuthenticationProvider to facilitate subclassing
 * Fixed Linux compatibility issues (directory case sensitivity etc)
 * Fixed AbstractProcessingFilter to handle servlet spec container differences
+* Fixed CasAuthenticationToken if proxy granting ticket callback not requested
 * Documentation improvements
 
 Changes in version 0.51 (2004-06-06)
