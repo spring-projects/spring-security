@@ -154,6 +154,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
     public void testAuthenticates() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa",
                 "koala");
+        token.setDetails("192.168.0.1");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
@@ -171,6 +172,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         assertEquals("koala", castResult.getCredentials());
         assertEquals("ROLE_ONE", castResult.getAuthorities()[0].getAuthority());
         assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
+        assertEquals("192.168.0.1", castResult.getDetails());
     }
 
     public void testAuthenticatesASecondTime() {

@@ -320,9 +320,15 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
     protected Authentication createSuccessAuthentication(Object principal,
         Authentication authentication, UserDetails user) {
         // Ensure we return the original credentials the user supplied,
-        // so subsequent attempts are successful even with encoded passwords
-        return new UsernamePasswordAuthenticationToken(principal,
-            authentication.getCredentials(), user.getAuthorities());
+        // so subsequent attempts are successful even with encoded passwords.
+        // Also ensure we return the original getDetails(), so that future
+        // authentication events after cache expiry contain the details
+        UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(principal,
+                authentication.getCredentials(), user.getAuthorities());
+        result.setDetails((authentication.getDetails() != null)
+            ? authentication.getDetails().toString() : null);
+
+        return result;
     }
 
     private UserDetails getUserFromBackend(String username) {
