@@ -224,8 +224,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         }
 
         // Change permission
-        aclPermissionUpdate.update(new Integer(
-                aclDetailsHolder.getForeignKeyId()), newMask);
+        aclPermissionUpdate.update(new Integer(permissionId), newMask);
     }
 
     public void create(BasicAclEntry basicAclEntry) throws DataAccessException {
@@ -235,9 +234,9 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         // Only continue if a recipient is specifed (null recipient indicates
         // just wanted to ensure the acl_object_identity was created)
         if (basicAclEntry.getRecipient() == null) {
-        	return;
+            return;
         }
-        
+
         // Retrieve acl_object_identity record details
         AclDetailsHolder aclDetailsHolder = lookupAclDetailsHolder(basicAclEntry
                 .getAclObjectIdentity());
@@ -286,6 +285,16 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
                 aclDetailsHolder.getForeignKeyId()), recipient.toString());
     }
 
+    protected void initDao() throws ApplicationContextException {
+        super.initDao();
+        lookupPermissionIdMapping = new LookupPermissionIdMapping(getDataSource());
+        aclPermissionInsert = new AclPermissionInsert(getDataSource());
+        aclObjectIdentityInsert = new AclObjectIdentityInsert(getDataSource());
+        aclPermissionDelete = new AclPermissionDelete(getDataSource());
+        aclObjectIdentityDelete = new AclObjectIdentityDelete(getDataSource());
+        aclPermissionUpdate = new AclPermissionUpdate(getDataSource());
+    }
+
     /**
      * Responsible for covering a <code>AclObjectIdentity</code> to a
      * <code>String</code> that can be located in the RDBMS.
@@ -296,8 +305,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
      *
      * @throws IllegalArgumentException DOCUMENT ME!
      */
-    protected String convertAclObjectIdentityToString(
-        AclObjectIdentity aclObjectIdentity) {
+    String convertAclObjectIdentityToString(AclObjectIdentity aclObjectIdentity) {
         // Ensure we can process this type of AclObjectIdentity
         if (!(aclObjectIdentity instanceof NamedEntityObjectIdentity)) {
             throw new IllegalArgumentException(
@@ -309,16 +317,6 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
 
         // Compose the String we expect to find in the RDBMS
         return neoi.getClassname() + ":" + neoi.getId();
-    }
-
-    protected void initDao() throws ApplicationContextException {
-        super.initDao();
-        lookupPermissionIdMapping = new LookupPermissionIdMapping(getDataSource());
-        aclPermissionInsert = new AclPermissionInsert(getDataSource());
-        aclObjectIdentityInsert = new AclObjectIdentityInsert(getDataSource());
-        aclPermissionDelete = new AclPermissionDelete(getDataSource());
-        aclObjectIdentityDelete = new AclObjectIdentityDelete(getDataSource());
-        aclPermissionUpdate = new AclPermissionUpdate(getDataSource());
     }
 
     /**
@@ -478,7 +476,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
 
         protected void update(Integer aclPermissionId, Integer newMask)
             throws DataAccessException {
-            super.update(aclPermissionId.intValue(), newMask.intValue());
+            super.update(newMask.intValue(), aclPermissionId.intValue());
         }
     }
 
