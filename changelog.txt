@@ -19,6 +19,7 @@ Changes in version 0.6 (2004-xx-xx)
 * Fixed AbstractProcessingFilter to handle servlet spec container differences
 * Fixed AbstractIntegrationFilter to resolve a Weblogic compatibility issue
 * Fixed CasAuthenticationToken if proxy granting ticket callback not requested
+* Fixed EH-CACHE handling on web context refresh
 * Documentation improvements
 
 Changes in version 0.51 (2004-06-06)

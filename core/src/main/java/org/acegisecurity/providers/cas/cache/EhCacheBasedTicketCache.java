@@ -95,15 +95,16 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache,
 
     public void afterPropertiesSet() throws Exception {
         if (CacheManager.getInstance().cacheExists(CACHE_NAME)) {
-            CacheManager.getInstance().removeCache(CACHE_NAME);
+            // don’t remove the cache
+        } else {
+            manager = CacheManager.create();
+
+            // Cache name, max memory, overflowToDisk, eternal, timeToLive, timeToIdle
+            cache = new Cache(CACHE_NAME, Integer.MAX_VALUE, false, false,
+                    minutesToIdle * 60, minutesToIdle * 60);
+
+            manager.addCache(cache);
         }
-
-        manager = CacheManager.create();
-
-        // Cache name, max memory, overflowToDisk, eternal, timeToLive, timeToIdle
-        cache = new Cache(CACHE_NAME, Integer.MAX_VALUE, false, false,
-                minutesToIdle * 60, minutesToIdle * 60);
-        manager.addCache(cache);
     }
 
     public void destroy() throws Exception {
