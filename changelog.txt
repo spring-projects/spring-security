@@ -1,6 +1,7 @@
 Changes in version 0.6 (2004-xx-xx)
 -----------------------------------
 
+* Added domain object instance access control list (ACL) packages
 * Added feature so DaoAuthenticationProvider returns User in Authentication
 * Added AbstractIntegrationFilter.secureContext property for custom contexts
 * Added stack trace logging to SecurityEnforcementFilter
@@ -11,10 +12,12 @@ Changes in version 0.6 (2004-xx-xx)
 * Added failed Authentication object to AuthenticationExceptions
 * Updated Authentication to be serializable (Weblogic support)
 * Updated to Clover 1.3
+* Updated to HSQLDB version 1.7.2 Release Candidate 6D
 * Refactored User to net.sf.acegisecurity.UserDetails interface
 * Refactored CAS package to store UserDetails in CasAuthenticationToken
 * Improved organisation of DaoAuthenticationProvider to facilitate subclassing
 * Improved test coverage (now 98.3%)
+* Improved JDBC-based tests to use in-memory database rather than filesystem
 * Fixed Linux compatibility issues (directory case sensitivity etc)
 * Fixed AbstractProcessingFilter to handle servlet spec container differences
 * Fixed AbstractIntegrationFilter to resolve a Weblogic compatibility issue
