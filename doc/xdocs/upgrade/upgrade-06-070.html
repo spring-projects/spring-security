@@ -16,6 +16,11 @@ have written their own UserDetails implementation from scratch will need to
 add the additional two methods. Returning true to both methods will normally
 be correct.
 </li>
+<li>AutoIntegrationFilter has been removed. User should instead use
+  HttpSessionIntegrationFilter (in most cases), or HttpRequestIntegrationFilter
+  (if using most container adapters) or JbossIntegrationFilter (if using the
+  JBoss container adapter).</li>
+
 <li>MethodDefinitionMap, which is usually used by MethodSecurityInterceptor
   for its objectDefinitionSource property, has been changed. From 0.7.0, when
   MethodDefinitionMap is queried for configuration attributes associated with
