@@ -194,8 +194,10 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             }
         }
 
+        // Ensure we return the original credentials the user supplied,
+        // so subsequent attempts are successful even with encoded passwords
         return new UsernamePasswordAuthenticationToken(user.getUsername(),
-            user.getPassword(), user.getAuthorities());
+            authentication.getCredentials(), user.getAuthorities());
     }
 
     public boolean supports(Class authentication) {

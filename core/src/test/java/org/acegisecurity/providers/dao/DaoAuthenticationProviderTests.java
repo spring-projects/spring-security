@@ -193,7 +193,9 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
         assertEquals("marissa", castResult.getPrincipal());
-        assertEquals("koala{SYSTEM_SALT_VALUE}", castResult.getCredentials());
+
+        // We expect original credentials user submitted to be returned
+        assertEquals("koala", castResult.getCredentials());
         assertEquals("ROLE_ONE", castResult.getAuthorities()[0].getAuthority());
         assertEquals("ROLE_TWO", castResult.getAuthorities()[1].getAuthority());
     }

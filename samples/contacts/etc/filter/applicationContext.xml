@@ -29,21 +29,29 @@
 		  </list>
 		</property>
 	</bean>
-
+	
+	<!-- Passwords encoded using MD5, NOT in Base64 format, with null as salt
+		 Encoded password for marissa is "koala"
+		 Encoded password for dianne is "emu"
+		 Encoded password for scott is "wombat"
+		 Encoded password for peter is "opal" -->
 	<bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
   		<property name="userMap">
 			<value>
-				marissa=koala,ROLE_TELLER,ROLE_SUPERVISOR
-				dianne=emu,ROLE_TELLER
-				scott=wombat,ROLE_TELLER
-				peter=opal,disabled,ROLE_TELLER
+				marissa=a564de63c2d0da68cf47586ee05984d7,ROLE_TELLER,ROLE_SUPERVISOR
+				dianne=65d15fe9156f9c4bbffd98085992a44e,ROLE_TELLER
+				scott=2b58af6dddbd072ed27ffc86725d7d3a,ROLE_TELLER
+				peter=22b5c9accc6e1ba628cedc63a72d57f8,disabled,ROLE_TELLER
 			</value>
 		</property>
 	</bean>
+
+    <bean id="passwordEncoder" class="net.sf.acegisecurity.providers.encoding.Md5PasswordEncoder"/>
 	
 	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
      	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
      	<property name="userCache"><ref bean="userCache"/></property>
+        <property name="passwordEncoder"><ref bean="passwordEncoder"/></property>
 	</bean>
 	
 	<bean id="userCache" class="net.sf.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
