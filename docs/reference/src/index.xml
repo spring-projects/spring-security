@@ -1018,22 +1018,31 @@
           <listitem>
             <para><literal>AuthenticationFailureDisabledEvent</literal> is
             published when an authentication request is unsuccessful because
-            the returned <literal>User</literal> is disabled. This is normally
-            the case when an account is locked.</para>
+            the returned <literal>UserDetails</literal> is disabled. This is
+            normally the case when an account is locked.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>AuthenticationFailureUsernameNotFoundEvent</literal>
+            is published when an authentication request is unsuccessful
+            because the <literal>AuthenticationDao</literal> could not locate
+            the <literal>UserDetails</literal>.</para>
           </listitem>
 
           <listitem>
             <para><literal>AuthenticationFailurePasswordEvent</literal> is
             published when an authentication request is unsuccessful because
             the presented password did not match that in the
-            <literal>User</literal>.</para>
+            <literal>UserDetails</literal>.</para>
           </listitem>
         </itemizedlist>
 
         <para>Each event contains two objects: the
         <literal>Authentication</literal> object that represented the
         authentication request, and the <literal>UserDetails</literal> object
-        that was found in response to the authentication request. The
+        that was found in response to the authentication request (clearly the
+        latter will be a dummy object in the case of
+        <literal>AuthenticationFailureUsernameNotFoundEvent</literal>). The
         <literal>Authentication</literal> interface provides a
         <literal>getDetails()</literal> method which often includes
         information that event consumers may find useful (eg the TCP/IP
@@ -1150,8 +1159,7 @@
           <title>JaasAuthenticationProvider</title>
 
           <para>The <literal>JaasAuthenticationProvider</literal> attempts to
-          authenticate a user’s principal and credentials through JAAS.
-          </para>
+          authenticate a user’s principal and credentials through JAAS.</para>
 
           <para>Let’s assume we have a JAAS login configuration file,
           <literal>/WEB-INF/login.conf</literal>, with the following

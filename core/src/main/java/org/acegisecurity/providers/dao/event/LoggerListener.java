@@ -45,7 +45,8 @@ public class LoggerListener implements ApplicationListener {
             AuthenticationFailurePasswordEvent authEvent = (AuthenticationFailurePasswordEvent) event;
 
             if (logger.isWarnEnabled()) {
-                logger.warn("Authentication failed due to incorrect password for user: "
+                logger.warn(
+                    "Authentication failed due to incorrect password for user: "
                     + authEvent.getUser().getUsername() + "; details: "
                     + authEvent.getAuthentication().getDetails());
             }
@@ -57,6 +58,17 @@ public class LoggerListener implements ApplicationListener {
             if (logger.isWarnEnabled()) {
                 logger.warn(
                     "Authentication failed due to account being disabled for user: "
+                    + authEvent.getUser().getUsername() + "; details: "
+                    + authEvent.getAuthentication().getDetails());
+            }
+        }
+
+        if (event instanceof AuthenticationFailureUsernameNotFoundEvent) {
+            AuthenticationFailureUsernameNotFoundEvent authEvent = (AuthenticationFailureUsernameNotFoundEvent) event;
+
+            if (logger.isWarnEnabled()) {
+                logger.warn(
+                    "Authentication failed due to nonexistent username: "
                     + authEvent.getUser().getUsername() + "; details: "
                     + authEvent.getAuthentication().getDetails());
             }

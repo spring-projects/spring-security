@@ -20,12 +20,14 @@ import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationServiceException;
 import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.DisabledException;
+import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.AuthenticationProvider;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.cache.NullUserCache;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureDisabledEvent;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationFailurePasswordEvent;
+import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureUsernameNotFoundEvent;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationSuccessEvent;
 import net.sf.acegisecurity.providers.encoding.PasswordEncoder;
 import net.sf.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
@@ -190,7 +192,19 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
         if (user == null) {
             cacheWasUsed = false;
-            user = getUserFromBackend(username);
+
+            try {
+                user = getUserFromBackend(username);
+            } catch (BadCredentialsException ex) {
+                if (this.context != null) {
+                    context.publishEvent(new AuthenticationFailureUsernameNotFoundEvent(
+                            authentication,
+                            new User(username, "*****", false,
+                                new GrantedAuthority[0])));
+                }
+
+                throw ex;
+            }
         }
 
         if (!user.isEnabled()) {
