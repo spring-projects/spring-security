@@ -10,6 +10,7 @@ Changes in version 0.6 (2004-xx-xx)
 * Added AuthenticationProvider that wraps JAAS login modules
 * Added support for EL expressions in the authz tag library
 * Added failed Authentication object to AuthenticationExceptions
+* Added signed JARs to all official release builds (see readme.txt)
 * Updated Authentication to be serializable (Weblogic support)
 * Updated to Clover 1.3
 * Updated to HSQLDB version 1.7.2 Release Candidate 6D

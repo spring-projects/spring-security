@@ -57,6 +57,7 @@
 		<echo message="release  --> build a distribution ZIP file"/>
 		<echo message=""/>
 		<echo message="To build or test, your lib directory needs to be populated"/>
+		<echo message="To release, you require a code signing certificate setup"/>
 	</target>
 
 
@@ -324,6 +325,13 @@
 			<exclude name="project.properties"/>
 		</fileset>
 
+		<!-- To create your own free signing certificate, see http://www.dallaway.com/acad/webstart/  -->
+		<signjar lazy="true" alias="${signature.alias}" storepass="${signature.storepass}" keystore="${signature.keystore}">
+			<fileset dir="${dist.dir}">
+				<include name="*.jar"/>
+			</fileset>
+		</signjar>
+
 		<zip zipfile="${target.release.dir}/${release.zip}">
 			<zipfileset refid="main" prefix="${release.path}"/>
 		</zip>
@@ -410,6 +418,8 @@
 		       <exclude name="**/DenyAgainVoter.java"/>
 		       <exclude name="**/*TargetObject.java"/>
 		       <exclude name="**/Mock*.java"/>
+		       <exclude name="**/TestLoginModule*.java"/>
+		       <exclude name="**/SomeDomain*.java"/>
 		    </files>
 			<statementContext id="nolog" regexp="^if \(logger.*\).*}"/>
 			<statementContext id="nojbosslog" regexp="^if \(super.logger.*\).*}"/>

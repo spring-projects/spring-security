@@ -13,6 +13,27 @@ For a detailed list of features and access to the latest release, please visit
 http://acegisecurity.sourceforge.net.
 
 -------------------------------------------------------------------------------
+SIGNED JAR FILES
+-------------------------------------------------------------------------------
+
+We strongly recommend that you verify the integrity of the JAR files included
+in this release. You can do so using the following command:
+
+    "jarsigner -verify -verbose -certs jar_file_name"
+
+Of course, replace the jar_file_name with "dist/acegi-security.jar" or the
+appropriate path to the Acegi Security JAR to be validated.
+
+Until further notice, all Acegi Security official releases are signed by:
+
+  X.509, EMAILADDRESS=ben.alex@acegi.com.au, CN=Benjamin Peter Alex, GIVENNAME=Benjamin Peter, SURNAME=Alex
+  X.509, CN=Thawte Personal Freemail Issuing CA, O=Thawte Consulting (Pty) Ltd., C=ZA -->
+
+If the above certificate was not used, or the JAR was not validated, DO NOT
+USE THE JAR. Please email the acegisecurity-developers list (contact details
+are provided below) for further assistance.
+
+-------------------------------------------------------------------------------
 ANT HELP
 -------------------------------------------------------------------------------
 
