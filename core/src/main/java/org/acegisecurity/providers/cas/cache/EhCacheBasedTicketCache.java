@@ -20,36 +20,32 @@ import net.sf.acegisecurity.providers.cas.StatelessTicketCache;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.dao.DataRetrievalFailureException;
 
 
 /**
- * Caches tickets using  <A HREF="http://ehcache.sourceforge.net">EHCACHE</a>.
+ * Caches tickets using a Spring IoC defined <A
+ * HREF="http://ehcache.sourceforge.net">EHCACHE</a>.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class EhCacheBasedTicketCache implements StatelessTicketCache,
-    InitializingBean, DisposableBean {
+    InitializingBean {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(EhCacheBasedTicketCache.class);
-    private static final String CACHE_NAME = "ehCacheBasedTicketCache";
 
     //~ Instance fields ========================================================
 
     private Cache cache;
-    private CacheManager manager;
-    private int minutesToIdle = 20;
 
     //~ Methods ================================================================
 
@@ -75,41 +71,18 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache,
         }
     }
 
-    public void setMinutesToIdle(int minutesToIdle) {
-        this.minutesToIdle = minutesToIdle;
+    public void setCache(Cache cache) {
+        this.cache = cache;
     }
 
-    /**
-     * Specifies how many minutes an entry will remain in the cache from  when
-     * it was last accessed. This is effectively the session duration.
-     * 
-     * <P>
-     * Defaults to 20 minutes.
-     * </p>
-     *
-     * @return Returns the minutes an element remains in the cache
-     */
-    public int getMinutesToIdle() {
-        return minutesToIdle;
+    public Cache getCache() {
+        return cache;
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (CacheManager.getInstance().cacheExists(CACHE_NAME)) {
-            // don’t remove the cache
-            cache = CacheManager.getInstance().getCache(CACHE_NAME);
-        } else {
-            manager = CacheManager.create();
-
-            // Cache name, max memory, overflowToDisk, eternal, timeToLive, timeToIdle
-            cache = new Cache(CACHE_NAME, Integer.MAX_VALUE, false, false,
-                    minutesToIdle * 60, minutesToIdle * 60);
-
-            manager.addCache(cache);
+        if (cache == null) {
+            throw new IllegalArgumentException("cache mandatory");
         }
-    }
-
-    public void destroy() throws Exception {
-        manager.removeCache(CACHE_NAME);
     }
 
     public void putTicketInCache(CasAuthenticationToken token) {

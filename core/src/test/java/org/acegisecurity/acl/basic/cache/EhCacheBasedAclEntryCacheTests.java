@@ -17,10 +17,15 @@ package net.sf.acegisecurity.acl.basic.cache;
 
 import junit.framework.TestCase;
 
+import net.sf.acegisecurity.MockApplicationContext;
 import net.sf.acegisecurity.acl.basic.AclObjectIdentity;
 import net.sf.acegisecurity.acl.basic.BasicAclEntry;
 import net.sf.acegisecurity.acl.basic.NamedEntityObjectIdentity;
 import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
+
+import net.sf.ehcache.Cache;
+
+import org.springframework.context.ApplicationContext;
 
 
 /**
@@ -65,9 +70,7 @@ public class EhCacheBasedAclEntryCacheTests extends TestCase {
 
     public void testCacheOperation() throws Exception {
         EhCacheBasedAclEntryCache cache = new EhCacheBasedAclEntryCache();
-        cache.afterPropertiesSet();
-
-        // execute a second time to test detection of existing instance
+        cache.setCache(getCache());
         cache.afterPropertiesSet();
 
         cache.putEntriesInCache(new BasicAclEntry[] {OBJECT_100_SCOTT, OBJECT_100_MARISSA});
@@ -83,13 +86,28 @@ public class EhCacheBasedAclEntryCacheTests extends TestCase {
         assertEquals(OBJECT_200_PETER,
             cache.getEntriesFromCache(
                 new NamedEntityObjectIdentity("OBJECT", "200"))[0]);
-
-        cache.destroy();
+        assertNull(cache.getEntriesFromCache(
+                new NamedEntityObjectIdentity("OBJECT", "NOT_IN_CACHE")));
     }
 
-    public void testGettersSetters() {
+    public void testStartupDetectsMissingCache() throws Exception {
         EhCacheBasedAclEntryCache cache = new EhCacheBasedAclEntryCache();
-        cache.setMinutesToIdle(15);
-        assertEquals(15, cache.getMinutesToIdle());
+
+        try {
+            cache.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+
+        Cache myCache = getCache();
+        cache.setCache(myCache);
+        assertEquals(myCache, cache.getCache());
+    }
+
+    private Cache getCache() {
+        ApplicationContext ctx = MockApplicationContext.getContext();
+
+        return (Cache) ctx.getBean("eHCacheBackend");
     }
 }

@@ -19,8 +19,13 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.MockApplicationContext;
 import net.sf.acegisecurity.providers.cas.CasAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.User;
+
+import net.sf.ehcache.Cache;
+
+import org.springframework.context.ApplicationContext;
 
 import java.util.List;
 import java.util.Vector;
@@ -55,8 +60,8 @@ public class EhCacheBasedTicketCacheTests extends TestCase {
 
     public void testCacheOperation() throws Exception {
         EhCacheBasedTicketCache cache = new EhCacheBasedTicketCache();
+        cache.setCache(getCache());
         cache.afterPropertiesSet();
-        cache.afterPropertiesSet(); // second run for test coverage
 
         // Check it gets stored in the cache
         cache.putTicketInCache(getToken());
@@ -70,14 +75,27 @@ public class EhCacheBasedTicketCacheTests extends TestCase {
         // Check it doesn't return values for null or unknown service tickets
         assertNull(cache.getByTicketId(null));
         assertNull(cache.getByTicketId("UNKNOWN_SERVICE_TICKET"));
-
-        cache.destroy();
     }
 
-    public void testGettersSetters() {
+    public void testStartupDetectsMissingCache() throws Exception {
         EhCacheBasedTicketCache cache = new EhCacheBasedTicketCache();
-        cache.setMinutesToIdle(5);
-        assertEquals(5, cache.getMinutesToIdle());
+
+        try {
+            cache.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+
+        Cache myCache = getCache();
+        cache.setCache(myCache);
+        assertEquals(myCache, cache.getCache());
+    }
+
+    private Cache getCache() {
+        ApplicationContext ctx = MockApplicationContext.getContext();
+
+        return (Cache) ctx.getBean("eHCacheBackend");
     }
 
     private CasAuthenticationToken getToken() {

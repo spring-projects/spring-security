@@ -34,8 +34,19 @@
       <property name="passwordEncoder"><ref local="passwordEncoder"/></property>
    </bean>
 
+   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+    
+   <bean id="userCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+      <property name="cacheManager">
+         <ref local="cacheManager"/>
+      </property>
+      <property name="cacheName">
+         <value>userCache</value>
+      </property>
+   </bean>
+   
    <bean id="userCache" class="net.sf.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
-      <property name="minutesToIdle"><value>5</value></property>
+      <property name="cache"><ref local="userCacheBackend"/></property>
    </bean>
 
    <!-- Automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->

@@ -34,6 +34,15 @@ applications:
   net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor to
   net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor.
   A simple find and replace will suffice to update your application contexts.</li>
+
+<li>All of the EH-CACHE cache implementations provided with Acegi Security have
+	now been refactored to use a net.sf.ehcache.Cache obtained from
+	EhCacheManagerFactoryBean, which is included with Spring 1.1.1 and above.
+	See http://opensource.atlassian.com/confluence/spring/display/DISC/Caching+the+result+of+methods+using+Spring+and+EHCache
+	for more about this bean, or the Contacts sample application for how to
+	configure the EH-CACHE implementations provided with Acegi Security.
+	Note the "cache" property is now required, and the old internally-managed
+	cache properties have been removed.</li>
 </ul>
 </body>
 </html>

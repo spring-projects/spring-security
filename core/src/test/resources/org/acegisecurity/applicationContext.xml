@@ -26,4 +26,18 @@
    <!-- Automatically receives AuthenticationEvent messages from AbstractSecurityInterceptor -->
    <bean id="secureObjectLoggerListener" class="net.sf.acegisecurity.intercept.event.LoggerListener"/>
 
+   <!-- Setup a cache we can use in tests of the caching layer -->
+   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+   </bean>  
+
+   <bean id="eHCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+      <property name="cacheManager">
+         <ref local="cacheManager"/>
+      </property>
+      <property name="cacheName">
+         <value>testingCache</value>
+      </property>
+   </bean>
+
+
 </beans>

@@ -19,7 +19,12 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.MockApplicationContext;
 import net.sf.acegisecurity.providers.dao.User;
+
+import net.sf.ehcache.Cache;
+
+import org.springframework.context.ApplicationContext;
 
 
 /**
@@ -51,6 +56,7 @@ public class EhCacheBasedUserCacheTests extends TestCase {
 
     public void testCacheOperation() throws Exception {
         EhCacheBasedUserCache cache = new EhCacheBasedUserCache();
+        cache.setCache(getCache());
         cache.afterPropertiesSet();
 
         // Check it gets stored in the cache
@@ -65,14 +71,27 @@ public class EhCacheBasedUserCacheTests extends TestCase {
         // Check it doesn't return values for null or unknown users
         assertNull(cache.getUserFromCache(null));
         assertNull(cache.getUserFromCache("UNKNOWN_USER"));
-
-        cache.destroy();
     }
 
-    public void testGettersSetters() {
+    public void testStartupDetectsMissingCache() throws Exception {
         EhCacheBasedUserCache cache = new EhCacheBasedUserCache();
-        cache.setMinutesToIdle(15);
-        assertEquals(15, cache.getMinutesToIdle());
+
+        try {
+            cache.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+
+        Cache myCache = getCache();
+        cache.setCache(myCache);
+        assertEquals(myCache, cache.getCache());
+    }
+
+    private Cache getCache() {
+        ApplicationContext ctx = MockApplicationContext.getContext();
+
+        return (Cache) ctx.getBean("eHCacheBackend");
     }
 
     private User getUser() {

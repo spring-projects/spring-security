@@ -111,34 +111,15 @@
 
         <itemizedlist spacing="compact">
           <listitem>
-            <para>Replacing the Ant build with a Maven build. When this
-            happens the <literal>lib</literal> directory will no longer be
-            distributed in ZIP releases or hosted in CVS.</para>
-          </listitem>
-
-          <listitem>
             <para>"Remember me" functionality. Some discussion on this can be
             found at
             <literal>http://sourceforge.net/mailarchive/forum.php?thread_id=5177499&amp;forum_id=40659</literal>.</para>
           </listitem>
 
           <listitem>
-            <para>A sample web application which demonstrates the access
-            control list package.</para>
-          </listitem>
-
-          <listitem>
             <para>Implementation of an
             <literal>ObjectDefinitionSource</literal> that retrieves its
             details from a database.</para>
-          </listitem>
-
-          <listitem>
-            <para>Deprecation of Acegi Security's various EH-CACHE-based cache
-            implementations. Instead Acegi Security will provide new cache
-            implementations which use Spring Framework's new (currently in
-            CVS) <literal>EhCacheManagerFactoryBean</literal> factory. The
-            deprecated classes may be removed from the 1.0.0 release.</para>
           </listitem>
         </itemizedlist>
 
@@ -982,7 +963,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         authorities that have been granted to the principal. The principal and
         its credentials are populated by the client code, whilst the granted
         authorities are populated by the
-        <literal>AuthenticationManager</literal>. </para>
+        <literal>AuthenticationManager</literal>.</para>
 
         <para><mediaobject>
             <imageobject role="html">
@@ -1232,9 +1213,29 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
   &lt;property name="userCache"&gt;&lt;ref bean="userCache"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
+&lt;bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/&gt;
+    
+&lt;bean id="userCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean"&gt;
+  &lt;property name="cacheManager"&gt;
+    &lt;ref local="cacheManager"/&gt;
+  &lt;/property&gt;
+  &lt;property name="cacheName"&gt;
+    &lt;value&gt;userCache&lt;/value&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;
+   
 &lt;bean id="userCache" class="net.sf.acegisecurity.providers.dao.cache.EhCacheBasedUserCache"&gt;
-  &lt;property name="minutesToIdle"&gt;&lt;value&gt;5&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="cache"&gt;&lt;ref local="userCacheBackend"/&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
+
+        <para>All Acegi Security EH-CACHE implementations (including
+        <literal>EhCacheBasedUserCache</literal>) require an EH-CACHE
+        <literal>Cache</literal> object. The <literal>Cache</literal> object
+        can be obtained from wherever you like, although we recommend you use
+        Spring's factory classes as shown in the above configuration. If using
+        Spring's factory classes, please refer to the Spring documentation for
+        further details on how to optimise the cache storage location, memory
+        usage, eviction policies, timeouts etc.</para>
 
         <para>For a class to be able to provide the
         <literal>DaoAuthenticationProvider</literal> with access to an
@@ -3415,8 +3416,19 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
   &lt;!-- &lt;property name="trustStore"&gt;&lt;value&gt;/some/path/to/your/lib/security/cacerts&lt;/value&gt;&lt;/property&gt; --&gt;
 &lt;/bean&gt;
 
+&lt;bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/&gt;
+    
+&lt;bean id="ticketCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean"&gt;
+  &lt;property name="cacheManager"&gt;
+    &lt;ref local="cacheManager"/&gt;
+  &lt;/property&gt;
+  &lt;property name="cacheName"&gt;
+    &lt;value&gt;ticketCache&lt;/value&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;
+   
 &lt;bean id="statelessTicketCache" class="net.sf.acegisecurity.providers.cas.cache.EhCacheBasedTicketCache"&gt;
-  &lt;property name="minutesToIdle"&gt;&lt;value&gt;20&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="cache"&gt;&lt;ref local="ticketCacheBackend"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
 &lt;bean id="casAuthoritiesPopulator" class="net.sf.acegisecurity.providers.cas.populator.DaoCasAuthoritiesPopulator"&gt;
@@ -3785,7 +3797,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <para>The <literal>net.sf.acegisecurity.acl</literal> package is very
         simple, comprising only a handful of interfaces and a single class, as
         shown in Figure 5. It provides the basic foundation for access control
-        list (ACL) lookups. </para>
+        list (ACL) lookups.</para>
 
         <para><mediaobject>
             <imageobject role="html">
@@ -3847,7 +3859,7 @@ public AclEntry[] getAcls(java.lang.Object domainInstance, Authentication authen
         <title>Integer Masked ACLs</title>
 
         <para>Acegi Security System for Spring includes a production-quality
-        ACL provider implementation, which is shown in Figure 6. </para>
+        ACL provider implementation, which is shown in Figure 6.</para>
 
         <para><mediaobject>
             <imageobject role="html">

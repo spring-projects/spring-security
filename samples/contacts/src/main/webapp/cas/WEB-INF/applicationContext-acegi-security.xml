@@ -52,8 +52,19 @@
         <!-- <property name="trustStore"><value>/some/path/to/your/lib/security/cacerts</value></property> -->
 	</bean>
 
+    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+    
+    <bean id="ticketCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+       <property name="cacheManager">
+          <ref local="cacheManager"/>
+       </property>
+       <property name="cacheName">
+          <value>ticketCache</value>
+       </property>
+    </bean>
+   
 	<bean id="statelessTicketCache" class="net.sf.acegisecurity.providers.cas.cache.EhCacheBasedTicketCache">
-		<property name="minutesToIdle"><value>20</value></property>
+      <property name="cache"><ref local="ticketCacheBackend"/></property>
 	</bean>
 
 	<bean id="casAuthoritiesPopulator" class="net.sf.acegisecurity.providers.cas.populator.DaoCasAuthoritiesPopulator">
