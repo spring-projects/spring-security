@@ -24,6 +24,9 @@ import net.sf.acegisecurity.acl.AclManager;
 import net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry;
 import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.Iterator;
@@ -89,6 +92,10 @@ import java.util.Iterator;
  */
 public class BasicAclEntryAfterInvocationProvider
     implements AfterInvocationProvider, InitializingBean {
+    //~ Static fields/initializers =============================================
+
+    protected static final Log logger = LogFactory.getLog(BasicAclEntryAfterInvocationProvider.class);
+
     //~ Instance fields ========================================================
 
     private AclManager aclManager;
@@ -150,6 +157,10 @@ public class BasicAclEntryAfterInvocationProvider
                 if (returnedObject == null) {
                     // AclManager interface contract prohibits nulls
                     // As they have permission to null/nothing, grant access
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Return object is null, skipping");
+                    }
+
                     return null;
                 }
 
@@ -171,6 +182,13 @@ public class BasicAclEntryAfterInvocationProvider
                         // See if principal has any of the required permissions
                         for (int y = 0; y < requirePermission.length; y++) {
                             if (processableAcl.isPermitted(requirePermission[y])) {
+                                if (logger.isDebugEnabled()) {
+                                    logger.debug(
+                                        "Principal DOES have permission to return object: "
+                                        + returnedObject + " due to ACL: "
+                                        + processableAcl.toString());
+                                }
+
                                 return returnedObject;
                             }
                         }

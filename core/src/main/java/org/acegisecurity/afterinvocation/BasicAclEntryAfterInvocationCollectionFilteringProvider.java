@@ -25,6 +25,9 @@ import net.sf.acegisecurity.acl.AclManager;
 import net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry;
 import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.Collection;
@@ -95,6 +98,10 @@ import java.util.Set;
  */
 public class BasicAclEntryAfterInvocationCollectionFilteringProvider
     implements AfterInvocationProvider, InitializingBean {
+    //~ Static fields/initializers =============================================
+
+    protected static final Log logger = LogFactory.getLog(BasicAclEntryAfterInvocationCollectionFilteringProvider.class);
+
     //~ Instance fields ========================================================
 
     private AclManager aclManager;
@@ -154,6 +161,10 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
             if (this.supports(attr)) {
                 // Need to process the Collection for this invocation
                 if (returnedObject == null) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Return object is null, skipping");
+                    }
+
                     return null;
                 }
 
@@ -202,6 +213,14 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
                                     if (processableAcl.isPermitted(
                                             requirePermission[y])) {
                                         hasPermission = true;
+
+                                        if (logger.isDebugEnabled()) {
+                                            logger.debug(
+                                                "Principal is authorised for element: "
+                                                + domainObject
+                                                + " due to ACL: "
+                                                + processableAcl.toString());
+                                        }
                                     }
                                 }
                             }
@@ -210,14 +229,28 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
 
                     if (!hasPermission) {
                         removeList.add(domainObject);
+
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(
+                                "Principal is NOT authorised for element: "
+                                + domainObject);
+                        }
                     }
                 }
 
                 // Now the Iterator has ended, remove Objects from Collection
                 Iterator removeIter = removeList.iterator();
 
+                int originalSize = collection.size();
+
                 while (removeIter.hasNext()) {
                     collection.remove(removeIter.next());
+                }
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Original collection contained "
+                        + originalSize + " elements; now contains "
+                        + collection.size() + " elements");
                 }
 
                 return collection;
