@@ -30,7 +30,7 @@ package net.sf.acegisecurity;
  * method within a {@link ConfigAttributeDefinition}.
  * </p>
  *
- * @author <A HREF="mailto:ben.alex@fremerx.com">Ben Alex</A>
+ * @author Ben Alex
  * @version $Id$
  */
 public interface ConfigAttribute {
