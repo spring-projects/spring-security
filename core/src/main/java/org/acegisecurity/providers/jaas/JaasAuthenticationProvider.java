@@ -209,7 +209,8 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
     }
 
     /**
-     * DOCUMENT ME!
+     * Returns the current JaasAuthenticationCallbackHandler array, or null if
+     * none are set.
      *
      * @return the JAASAuthenticationCallbackHandlers.
      *
