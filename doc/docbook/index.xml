@@ -211,7 +211,7 @@
         <para><mediaobject>
             <imageobject role="html">
               <imagedata align="center"
-                         fileref="images/SecurityInterception.gif"
+                         fileref="SecurityInterception.gif"
                          format="GIF" />
             </imageobject>
 
@@ -362,7 +362,7 @@
 
         <para><mediaobject>
             <imageobject role="html">
-              <imagedata align="center" fileref="images/Context.gif"
+              <imagedata align="center" fileref="Context.gif"
                          format="GIF" />
             </imageobject>
 
@@ -967,7 +967,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 
         <para><mediaobject>
             <imageobject role="html">
-              <imagedata align="center" fileref="images/Authentication.gif"
+              <imagedata align="center" fileref="Authentication.gif"
                          format="GIF" />
             </imageobject>
 
@@ -1711,7 +1711,7 @@ public boolean supports(Class clazz);</programlisting></para>
         <para><mediaobject>
             <imageobject role="html">
               <imagedata align="center"
-                         fileref="images/AccessDecisionVoting.gif"
+                         fileref="AccessDecisionVoting.gif"
                          format="GIF" />
             </imageobject>
 
@@ -2049,7 +2049,7 @@ public boolean supports(Class clazz);</programlisting></para>
 
         <para><mediaobject>
             <imageobject role="html">
-              <imagedata align="center" fileref="images/AfterInvocation.gif"
+              <imagedata align="center" fileref="AfterInvocation.gif"
                          format="GIF" />
             </imageobject>
 
@@ -3801,7 +3801,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
         <para><mediaobject>
             <imageobject role="html">
-              <imagedata align="center" fileref="images/ACLSecurity.gif"
+              <imagedata align="center" fileref="ACLSecurity.gif"
                          format="GIF" />
             </imageobject>
 
@@ -3863,7 +3863,7 @@ public AclEntry[] getAcls(java.lang.Object domainInstance, Authentication authen
 
         <para><mediaobject>
             <imageobject role="html">
-              <imagedata align="center" fileref="images/BasicAclProvider.gif"
+              <imagedata align="center" fileref="BasicAclProvider.gif"
                          format="GIF" />
             </imageobject>
 
