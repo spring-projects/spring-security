@@ -670,8 +670,8 @@
         list than less specific expressions. This is reflected in our example
         above, where the more specific <literal>/secure/super/</literal>
         pattern appears higher than the less specific
-        <literal>/super/</literal> pattern. If they were reversed, the
-        <literal>/super/</literal> pattern would always match and the
+        <literal>/secure/</literal> pattern. If they were reversed, the
+        <literal>/secure/</literal> pattern would always match and the
         <literal>/secure/super/</literal> pattern would never be
         evaluated.</para>
 
@@ -1596,12 +1596,12 @@ public boolean supports(Class clazz);</programlisting></para>
           <literal>ifNotGranted="ROLE_SUPERVISOR"</literal>, or you'll be
           surprised to never see the tag's body.</para>
 
-          <para>By requiring all attributes to return true, it allows you to
+          <para>By requiring all attributes to return true, the authorize tag allows you to
           create more complex authorization scenarios. For example, you could
           declare an <literal>ifAllGranted="ROLE_SUPERVISOR"</literal> and an
           <literal>ifNotGranted="ROLE_NEWBIE_SUPERVISOR"</literal> in the same
           tag, in order to prevent new supervisors from seeing the tag body.
-          Although it would no doubt be simpler to use
+          However it would no doubt be simpler to use
           <literal>ifAllGranted="ROLE_EXPERIENCED_SUPERVISOR"</literal> rather
           than inserting NOT conditions into your design.</para>
 
@@ -1632,12 +1632,12 @@ public boolean supports(Class clazz);</programlisting></para>
           </listitem>
 
           <listitem>
-            <para>Most authorization decision rules can be easily satisfied by
-            writing an <literal>AccessDecisionVoter</literal> implementation
+            <para>Writing an <literal>AccessDecisionVoter</literal> implementation
             and using either <literal>ConsensusBased</literal>,
             <literal>AffirmativeBased</literal> or
             <literal>UnanimousBased</literal> as the
-            <literal>AccessDecisionManager</literal>.</para>
+            <literal>AccessDecisionManager</literal> may be the best approach to
+			implementing your custom access decision rules.</para>
           </listitem>
         </itemizedlist>
       </sect2>
@@ -1750,12 +1750,12 @@ public boolean supports(Class clazz);</programlisting></para>
         <para>Everything presented so far assumes one thing: the
         <literal>ContextHolder</literal> is populated with a valid
         <literal>SecureContext</literal>, which in turn contains a valid
-        <literal>Authentication</literal> object. Develolpers are free to do
+        <literal>Authentication</literal> object. Developers are free to do
         this in whichever way they like, such as directly calling the relevant
         objects at runtime. However, several classes have been provided to
         make this process transparent in many situations.</para>
 
-        <para>The <literal>net.sf.acegisecurity.ui</literal> package is design
+        <para>The <literal>net.sf.acegisecurity.ui</literal> package is designed
         to make interfacing web application user interfaces with the
         <literal>ContextHolder</literal> as simple as possible. There are two
         major steps in doing this:</para>
@@ -2453,8 +2453,10 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         into some type of backend authentication repository, such as an LDAP
         server or database.</para>
 
-        <para>If you're running an existing CAS server, you will have already
-        established a <literal>PasswordHandler</literal>. If you have not,
+        <para>If you are already running an existing CAS server instance, 
+			you will have already
+        established a <literal>PasswordHandler</literal>. If you do not
+		already have a <literal>PasswordHandler</literal>, you
         might prefer to use the Acegi Security System for Spring
         <literal>CasPasswordHandler</literal> class. This class delegates
         through to the standard Acegi Security
@@ -2513,8 +2515,8 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             redirect the user's browser to the CAS server. It will also
             indicate a <literal>service</literal> parameter, which is the
             callback URL for the Acegi Security service. For example, the URL
-            the browser is redirected to might be
-            <literal>https://my.company.com/cas/login?service=https://server3.company.com/webapp/j_acegi_cas_security_check</literal>.</para>
+            to which the browser is redirected might be
+            <literal>https://my.company.com/cas/login?service=https%3A%2F%2Fserver3.company.com%2Fwebapp%2Fj_acegi_cas_security_check</literal>.</para>
           </listitem>
 
           <listitem>
@@ -2572,7 +2574,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             to the CAS server in order to validate the service ticket. The
             <literal>CasProxyTicketValidator</literal> may also include a
             proxy callback URL, which is included in this example:
-            <literal>https://my.company.com/cas/proxyValidate?service=https://server3.company.com/webapp/j_acegi_cas_security_check&amp;ticket=ST-0-ER94xMJmn6pha35CQRoZ&amp;pgtUrl=https://server3.company.com/webapp/casProxy/receptor</literal>.</para>
+            <literal>https://my.company.com/cas/proxyValidate?service=https%3A%2F%2Fserver3.company.com%2Fwebapp%2Fj_acegi_cas_security_check&amp;ticket=ST-0-ER94xMJmn6pha35CQRoZ&amp;pgtUrl=https://server3.company.com/webapp/casProxy/receptor</literal>.</para>
           </listitem>
 
           <listitem>

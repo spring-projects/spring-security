@@ -36,6 +36,8 @@ contributions to the Acegi Security System for Spring project:
 
 * James Monaghan contributed the AcegiRemoteInvocation support classes.
 
+* Andrew Petro contributed documentation improvements.
+
 * Anyone else I've forgotten (please let me know so I can correct this).
 
 Plus of course all the people who use the project and provide feedback, bug
