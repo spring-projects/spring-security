@@ -8,5 +8,10 @@
             <artifactId>resin</artifactId>
             <version>3.0.9</version>
         </dependency>
+        <dependency>
+            <groupId>retroweaver</groupId>
+            <artifactId>retroweaver</artifactId>
+            <version>1.0fcs</version>
+        </dependency>
     </dependencies>
 </project>
