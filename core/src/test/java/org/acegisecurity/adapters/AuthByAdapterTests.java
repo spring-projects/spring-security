@@ -18,12 +18,10 @@ package net.sf.acegisecurity.adapters;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.adapters.jetty.JettyAcegiUserToken;
-import net.sf.acegisecurity.providers.ProviderNotFoundException;
+import net.sf.acegisecurity.BadCredentialsException;
+import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
 /**
@@ -33,10 +31,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * @version $Id$
  */
 public class AuthByAdapterTests extends TestCase {
-    //~ Instance fields ========================================================
-
-    private ClassPathXmlApplicationContext ctx;
-
     //~ Constructors ===========================================================
 
     public AuthByAdapterTests() {
@@ -51,33 +45,89 @@ public class AuthByAdapterTests extends TestCase {
 
     public final void setUp() throws Exception {
         super.setUp();
-        ctx = new ClassPathXmlApplicationContext(
-                "/net/sf/acegisecurity/adapters/applicationContext.xml");
     }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AuthByAdapterTests.class);
     }
 
-    public void testAdapterProvider() throws Exception {
-        AuthenticationManager authMgr = (AuthenticationManager) ctx.getBean(
-                "providerManager");
+    public void testAuthByAdapterProviderCorrectAuthenticationOperation()
+        throws Exception {
+        AuthByAdapterProvider provider = new AuthByAdapterProvider();
+        provider.setKey("my_password");
 
-        // Should authenticate as JettySpringUser is interface of AuthByAdapter
-        JettyAcegiUserToken jetty = new JettyAcegiUserToken("my_password",
-                "Test", "Password", null);
-        Authentication response = authMgr.authenticate(jetty);
-        jetty = null;
+        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("my_password",
+                "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                        "ROLE_TWO")});
+        assertTrue(provider.supports(token.getClass()));
+
+        Authentication response = provider.authenticate(token);
         assertTrue(true);
 
-        // Should fail as UsernamePassword is not interface of AuthByAdapter
-        UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken("Test",
-                "Password");
+        assertEquals(token.getCredentials(), response.getCredentials());
+        assertEquals(token.getPrincipal(), response.getPrincipal());
+        assertEquals(token.getAuthorities(), response.getAuthorities());
+
+        if (!response.getClass().equals(token.getClass())) {
+            fail("Should have returned same type of object it was given");
+        }
+
+        PrincipalAcegiUserToken castResponse = (PrincipalAcegiUserToken) response;
+        assertEquals(token.getName(), castResponse.getName());
+    }
+
+    public void testAuthByAdapterProviderNonAuthenticationMethods()
+        throws Exception {
+        AuthByAdapterProvider provider = new AuthByAdapterProvider();
 
         try {
-            Authentication response2 = authMgr.authenticate(user);
-            fail("Should have thrown ProviderNotFoundException");
-        } catch (ProviderNotFoundException expected) {
+            provider.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException as key not set");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+
+        provider.setKey("my_password");
+        provider.afterPropertiesSet();
+        assertTrue(true);
+
+        assertEquals("my_password", provider.getKey());
+    }
+
+    public void testAuthByAdapterProviderOnlyAcceptsAuthByAdapterImplementations()
+        throws Exception {
+        AuthByAdapterProvider provider = new AuthByAdapterProvider();
+        provider.setKey("my_password");
+
+        // Should fail as UsernamePassword is not interface of AuthByAdapter
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
+                "Password");
+
+        assertTrue(!provider.supports(token.getClass()));
+
+        try {
+            provider.authenticate(token);
+            fail(
+                "Should have thrown ClassCastException (supports() false response was ignored)");
+        } catch (ClassCastException expected) {
+            assertTrue(true);
+        }
+    }
+
+    public void testAuthByAdapterProviderRequiresCorrectKey()
+        throws Exception {
+        AuthByAdapterProvider provider = new AuthByAdapterProvider();
+        provider.setKey("my_password");
+
+        // Should fail as PrincipalAcegiUserToken has different key
+        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("wrong_password",
+                "Test", "Password", null);
+
+        try {
+            provider.authenticate(token);
+            fail("Should have thrown BadCredentialsException");
+        } catch (BadCredentialsException expected) {
             assertTrue(true);
         }
     }
