@@ -71,6 +71,15 @@ public class AuthorizeTagTests extends TestCase {
             Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
     }
 
+    public void testPreventsBodyOutputIfNoSecureContext()
+        throws JspException {
+        ContextHolder.setContext(null);
+        authorizeTag.setIfAnyGranted("ROLE_BANKER");
+
+        assertEquals("prevents output - no context defined", Tag.SKIP_BODY,
+            authorizeTag.doStartTag());
+    }
+
     public void testSkipsBodyIfNoAnyRolePresent() throws JspException {
         authorizeTag.setIfAnyGranted("ROLE_BANKER");
         assertEquals("unauthorized - ROLE_BANKER not in granted authorities",
