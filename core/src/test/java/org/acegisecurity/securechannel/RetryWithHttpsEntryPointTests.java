@@ -92,7 +92,6 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
 
         ep.commence(request, response);
-        System.out.println(response.getRedirect());
         assertEquals("https://www.example.com/bigWebApp/hello/pathInfo.html?open=true",
             response.getRedirect());
     }
@@ -115,7 +114,6 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
 
         ep.commence(request, response);
-        System.out.println(response.getRedirect());
         assertEquals("https://www.example.com/bigWebApp/hello",
             response.getRedirect());
     }
@@ -138,7 +136,6 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
 
         ep.commence(request, response);
-        System.out.println(response.getRedirect());
         assertEquals("/bigWebApp", response.getRedirect());
     }
 
@@ -164,7 +161,6 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
 
         ep.commence(request, response);
-        System.out.println(response.getRedirect());
         assertEquals("https://www.example.com:9999/bigWebApp/hello/pathInfo.html?open=true",
             response.getRedirect());
     }

@@ -89,8 +89,6 @@ public class BasePasswordEncoderTests extends TestCase {
         assertEquals("p{ass{w{o}rd{foo}", merged);
 
         String[] demerged = pwd.nowDemergePasswordAndSalt(merged);
-        System.out.println(demerged[0]);
-        System.out.println(demerged[1]);
 
         assertEquals("p{ass{w{o}rd", demerged[0]);
         assertEquals("foo", demerged[1]);

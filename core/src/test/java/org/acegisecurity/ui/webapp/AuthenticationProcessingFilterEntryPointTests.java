@@ -123,7 +123,6 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         request.setServerPort(8080);
         ep.setPortResolver(new MockPortResolver(8080, 8443));
         ep.commence(request, response);
-        System.out.println(response.getRedirect());
         assertEquals("https://www.example.com:8443/bigWebApp/hello",
             response.getRedirect());
 
