@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,9 +50,23 @@ import javax.naming.directory.SearchResult;
 /**
  * This is an example <code>PasswordAuthenticationDao</code> implementation
  * using LDAP service for user authentication.
+ * 
+* <p>Example use: <br/>
+*   &lt;bean id="ldapDaoImpl" class="net.sf.acegisecurity.providers.dao.ldap.LdapPasswordAuthenticationDao"&gt; <br/>
+*      &lt;property name="host"&gt;&lt;value&gt;sydney.ipov.info&lt;/value&gt;&lt;/property&gt; <br/>
+*      &lt;property name="rootContext"&gt;&lt;value&gt;dc=ipov,dc=info&lt;/value&gt;&lt;/property&gt; <br/>
+*      &lt;property name="userContext"&gt;&lt;alue&gt;ou=Users&lt;/value&gt;&lt;/property&gt; <br/>
+*      &lt;property name="userAttribute"&gt;&lt;value&gt;uid&lt;/value&gt;&lt;/property&gt; <br/>
+*   &lt;/bean&gt; <br/>
+*  ...<br/>
+*   &lt;bean id="authenticationProvider" class="net.sf.acegisecurity.providers.dao.PasswordDaoAuthenticationProvider"&gt; <br/>
+*      &lt;property name="passwordAuthenticationDao"&gt;&lt;ref local="ldapDaoImpl"/&gt;&lt;/property&gt; <br/>
+*   &lt;/bean&gt; <br/>
+* </p>
  *
  * @author Karel Miarka
  * @author Daniel Miller
+ * @author Robert Sanders
  */
 public class LdapPasswordAuthenticationDao implements PasswordAuthenticationDao {
     //~ Static fields/initializers =============================================
@@ -63,7 +77,11 @@ public class LdapPasswordAuthenticationDao implements PasswordAuthenticationDao 
     //~ Instance fields ========================================================
 
     private String host;
+
+    /** The INITIAL_CONTEXT_FACTORY for use with JNDI. */
+    private String initialContextFactory = "com.sun.jndi.ldap.LdapCtxFactory";
     private String rootContext;
+    private String userAttribute = "CN"; // ??? is this the right code??
     private String userContext = "CN=Users";
     private String[] rolesAttributes = {"memberOf"};
     private int port = 389;
@@ -80,12 +98,60 @@ public class LdapPasswordAuthenticationDao implements PasswordAuthenticationDao 
     }
 
     /**
+     * DOCUMENT ME!
+     *
+     * @return Returns the host.
+     */
+    public String getHost() {
+        return host;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param initialContextFactory The initialContextFactory to set.
+     */
+    public void setInitialContextFactory(String initialContextFactory) {
+        this.initialContextFactory = initialContextFactory;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return Returns the initialContextFactory.
+     */
+    public String getInitialContextFactory() {
+        return initialContextFactory;
+    }
+
+    /**
      * Set the port on which is running the LDAP server. <br>Default value: 389
      *
      * @param port DOCUMENT ME!
      */
     public void setPort(int port) {
         this.port = port;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return Returns the port.
+     */
+    public int getPort() {
+        return port;
+    }
+
+    public String getProviderURL() {
+        StringBuffer providerUrl = new StringBuffer();
+        providerUrl.append("ldap://");
+        providerUrl.append(this.host);
+        providerUrl.append(":");
+        providerUrl.append(this.port);
+        providerUrl.append("/");
+        providerUrl.append(this.rootContext);
+
+        return providerUrl.toString();
     }
 
     /**
@@ -111,6 +177,24 @@ public class LdapPasswordAuthenticationDao implements PasswordAuthenticationDao 
     }
 
     /**
+     * DOCUMENT ME!
+     *
+     * @param userAttribute The userAttribute to set.
+     */
+    public void setUserAttribute(String userAttribute) {
+        this.userAttribute = userAttribute;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return Returns the userAttribute.
+     */
+    public String getUserAttribute() {
+        return userAttribute;
+    }
+
+    /**
      * Set the context in which all users reside relative to the root context. <br>
      * Defalut value: "CN=Users"
      *
@@ -130,23 +214,14 @@ public class LdapPasswordAuthenticationDao implements PasswordAuthenticationDao 
 
         env.put(Context.INITIAL_CONTEXT_FACTORY,
             "com.sun.jndi.ldap.LdapCtxFactory");
-
-        StringBuffer providerUrl = new StringBuffer();
-        providerUrl.append("ldap://");
-        providerUrl.append(this.host);
-        providerUrl.append(":");
-        providerUrl.append(this.port);
-        providerUrl.append("/");
-        providerUrl.append(this.rootContext);
-
-        env.put(Context.PROVIDER_URL, providerUrl.toString());
+        env.put(Context.PROVIDER_URL, getProviderURL());
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         env.put(Context.SECURITY_PRINCIPAL, getUserPrincipal(username));
         env.put(Context.SECURITY_CREDENTIALS, password);
 
         try {
             if (log.isDebugEnabled()) {
-                log.debug("Connecting to " + providerUrl + " as "
+                log.debug("Connecting to " + getProviderURL() + " as "
                     + getUserPrincipal(username));
             }
 
@@ -293,17 +368,16 @@ public class LdapPasswordAuthenticationDao implements PasswordAuthenticationDao 
 
     /**
      * Get the <code>Context.SECURITY_PRINCIPAL</code> for the given username
-     * string. This implementation returns a string composed of the following:
-     * &lt;usernamePrefix&gt;&lt;username&gt;&lt;usernameSufix. This function
-     * may be overridden in a subclass.
+     * string. This implementation returns the userBase for JNDI / LDAP
+     * lookup.
      *
      * @param username DOCUMENT ME!
      *
      * @return DOCUMENT ME!
      */
     protected String getUserPrincipal(String username) {
-        StringBuffer principal = new StringBuffer();
-        principal.append("CN=");
+        StringBuffer principal = new StringBuffer(userAttribute);
+        principal.append("=");
         principal.append(username);
         principal.append(",");
         principal.append(this.userContext);
