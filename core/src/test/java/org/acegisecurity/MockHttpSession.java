@@ -15,13 +15,12 @@
 
 package net.sf.acegisecurity;
 
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -35,6 +34,21 @@ public class MockHttpSession implements HttpSession {
     //~ Instance fields ========================================================
 
     private Map map = new HashMap();
+    private String sessionId = "3984594856968";
+
+    /**
+     * Default constructor using default sessionId
+     */
+    public MockHttpSession() {
+    }
+
+    /**
+     * Constructor for using a specified sessionId
+     * @param sessionId
+     */
+    public MockHttpSession(String sessionId) {
+        this.sessionId = sessionId;
+    }
 
     //~ Methods ================================================================
 
@@ -55,7 +69,7 @@ public class MockHttpSession implements HttpSession {
     }
 
     public String getId() {
-        return "3984594856968";
+        return sessionId;
     }
 
     public long getLastAccessedTime() {
