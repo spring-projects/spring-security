@@ -1,3 +1,25 @@
+Changes in version 0.4 (2004-04-03)
+-----------------------------------
+
+* Added HTTP session authentication as an alternative to container adapters
+* Added HTTP request security interceptor (offers considerable flexibility)
+* Added security taglib
+* Added Clover test coverage instrumentation (currently 97.2%)
+* Added support for Catalina (Tomcat) 4.1.30 to in-container integration tests
+* Added HTML test and summary reporting to in-container integration tests
+* Updated JARs to Spring Framework release 1.0, with associated AOP changes
+* Updated to Apache License version 2.0
+* Updated copyright with permission of past contributors
+* Refactored unit tests to use mock objects and focus on a single class each
+* Refactored many classes to enable insertion of mock objects during testing
+* Refactored core classes to ease support of new secure object types
+* Changed package layout to better describe the role of contained items
+* Changed the extractor to extract additional classes from JBoss and Catalina
+* Changed Jetty container adapter configuration (see reference documentation)
+* Improved AutoIntegrationFilter handling of deployments without JBoss JARs
+* Fixed case handling support in data access object authentication provider
+* Documentation improvements
+
 Changes in version 0.3 (2004-03-16)
 -----------------------------------
 

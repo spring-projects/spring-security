@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
 "../lib/docbook-dtd/docbookx.dtd">
 <book>
@@ -7,7 +7,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>0.3</releaseinfo>
+    <releaseinfo>0.4</releaseinfo>
 
     <authorgroup>
       <author>
@@ -63,6 +63,157 @@
       The security architecture does not have a notion of roles or groups,
       which you may be familiar with from other security
       implementations.</para>
+    </sect1>
+
+    <sect1 id="security-high-level-design">
+      <title>High Level Design</title>
+
+      <sect2 id="security-high-level-design-key-components">
+        <title>Key Components</title>
+
+        <para>The Acegi Security System for Spring essentially comprises six
+        key functional parts:</para>
+
+        <itemizedlist spacing="compact">
+          <listitem>
+            <para>An <literal>Authentication</literal> object which holds the
+            principal, credentials and the authorities granted to the
+            principal.</para>
+          </listitem>
+
+          <listitem>
+            <para>A <literal>ContextHolder</literal> which holds the
+            <literal>Authentication</literal> object in a
+            <literal>ThreadLocal</literal>-bound object.</para>
+          </listitem>
+
+          <listitem>
+            <para>An <literal>AuthenticationManager</literal> to authenticate
+            the <literal>Authentication</literal> object presented via the
+            <literal>ContextHolder</literal>.</para>
+          </listitem>
+
+          <listitem>
+            <para>An <literal>AccessDecisionManager</literal> to authorize a
+            given operation.</para>
+          </listitem>
+
+          <listitem>
+            <para>A <literal>RunAsManager</literal> to optionally replace the
+            <literal>Authentication</literal> object whilst a given operation
+            is being executed.</para>
+          </listitem>
+
+          <listitem>
+            <para>A "secure object" interceptor, which coordinates the
+            authentication, authorization, run-as replacement and execution of
+            a given operation.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Secure objects refer to any type of object that can have
+        security applied to it. A secure object must provide some form of
+        callback, so that the security interceptor can transparently do its
+        work as required, and callback the object when it is time for it to
+        proceed with the requested operation. If secure objects cannot provide
+        a native callback approach, a wrapper needs to be written so this
+        becomes possible.</para>
+
+        <para>Each secure object has its own package under
+        <literal>net.sf.acegisecurity.intercept</literal>. Every other package
+        in the security system is secure object independent, in that it can
+        support any type of secure object presented.</para>
+
+        <para>Only developers contemplating an entirely new way of
+        intercepting and authorizing requests would need to use secure objects
+        directly. For example, it would be possible to build a new secure
+        object to secure calls to a messaging system that does not use
+        <literal>MethodInvocation</literal>s. Most Spring applications will
+        simply use the two currently supported secure object types
+        (<literal>MethodInvocation</literal> and
+        <literal>FilterInterceptor</literal>) with complete
+        transparency.</para>
+
+        <para>Each of the six key parts is discussed in detail throughout this
+        document.</para>
+      </sect2>
+
+      <sect2 id="security-high-level-design-supported-secure-objects">
+        <title>Supported Secure Objects</title>
+
+        <para>The Acegi Security System for Spring currently supports two
+        secure objects.</para>
+
+        <para>The first handles an AOP Alliance
+        <literal>MethodInvocation</literal>. This is the secure object type
+        used to protect Spring beans. Developers will generally use this
+        secure object type to secure their business objects. To make a
+        standard Spring-hosted bean available as a
+        <literal>MethodInvocation</literal>, the bean is simply published
+        through a <literal>ProxyFactoryBean</literal> or
+        <literal>BeanNameAutoProxyCreator</literal>. Most Spring developers
+        would already be familiar with these due to their use in transactions
+        and other areas of Spring.</para>
+
+        <para>The second type is a <literal>FilterInvocation</literal>. This
+        is an object included with the Acegi Security System for Spring. It is
+        created by an included filter and simply wraps the HTTP
+        <literal>ServletRequest</literal>, <literal>ServletResponse</literal>
+        and <literal>FilterChain</literal>. The
+        <literal>FilterInvocation</literal> enables HTTP resources to be
+        secured. Developers do not usually need to understand the mechanics of
+        how this works, because they just add the filters to their
+        <literal>web.xml</literal> and let the security system do its
+        work.</para>
+      </sect2>
+
+      <sect2 id="security-high-level-design-configuration-attributes">
+        <title>Configuration Attributes</title>
+
+        <para>Every secure object can represent an infinite number of
+        individual requests. For example, a
+        <literal>MethodInvocation</literal> can represent the invocation of
+        any method with any arguments, whilst a
+        <literal>FilterInvocation</literal> can represent any HTTP URL.</para>
+
+        <para>The Acegi Security System for Spring needs to record the
+        configuration that applies to each of these possible requests. The
+        security configuration of a request to
+        <literal>BankManager.getBalance(int accountNumber)</literal> needs to
+        be very different from the security configuration of a request to
+        <literal>BankManager.approveLoan(int applicationNumber)</literal>.
+        Similarly, the security configuration of a request to
+        <literal>http://some.bank.com/index.htm</literal> needs to be very
+        different from the security configuration of
+        <literal>http://some.bank.com/manage/timesheet.jsp</literal>.</para>
+
+        <para>To store the various security configurations associated with
+        different requests, a configuration attribute is used. At an
+        implementation level a configuration attribute is represented by the
+        <literal>ConfigAttribute</literal> interface. One concrete
+        implementation of <literal>ConfigAttribute</literal> is provided,
+        <literal>SecurityConfig</literal>, which simply stores a configuration
+        attribute as a <literal>String</literal>.</para>
+
+        <para>The collection of <literal>ConfigAttribute</literal>s associated
+        with a particular request is held in a
+        <literal>ConfigAttributeDefinition</literal>. This concrete class is
+        simply a holder of <literal>ConfigAttribute</literal>s and does
+        nothing special.</para>
+
+        <para>When a request is received by the security interceptor, it needs
+        to determine which configuration attributes apply. In other words, it
+        needs to find the <literal>ConfigAttributeDefinition</literal> which
+        applies to the request. This decision is handled by the
+        <literal>ObjectDefinitionSource</literal> interface. The main method
+        provided by this interface is <literal>public
+        ConfigAttributeDefinition getAttributes(Object object)</literal>, with
+        the <literal>Object</literal> being the secure object. Recall the
+        secure object contains details of the request, so the
+        <literal>ObjectDefinitionSource</literal> implementation will be able
+        to extract the details it requires to lookup the relevant
+        <literal>ConfigAttributeDefinition</literal>.</para>
+      </sect2>
     </sect1>
 
     <sect1 id="security-request-contexts">
@@ -144,24 +295,108 @@
     <sect1 id="security-interception">
       <title>Security Interception</title>
 
-      <sect2 id="security-interception-configuration">
-        <title>Configuration</title>
+      <sect2 id="security-interception-all-secure-objects">
+        <title>All Secure Objects</title>
 
-        <para>The security architecture is implemented by placing a properly
-        configured <literal>SecurityInterceptor</literal> into the bean
-        context, and then chaining that <literal>SecurityInterceptor</literal>
-        into a business object. This chaining is accomplished using Spring’s
-        <literal>ProxyFactoryBean</literal>, as commonly used by many other
-        parts of Spring (refer to the security test cases and sample
-        application for examples). The <literal>SecurityInterceptor</literal>
-        is configured as follows:</para>
+        <para>As described in the High Level Design section, each secure
+        object has its own security interceptor which is responsible for
+        handling each request. Handling involves a number of
+        operations:</para>
 
-        <para><programlisting>&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.SecurityInterceptor"&gt;
+        <itemizedlist spacing="compact">
+          <listitem>
+            <para>Store the configuration attributes that are associated with
+            each secure request.</para>
+          </listitem>
+
+          <listitem>
+            <para>Extract the <literal>ConfigAttributeDefinition</literal>
+            that applies to the request from the relevant
+            <literal>ObjectDefinitionSource</literal>.</para>
+          </listitem>
+
+          <listitem>
+            <para>Obtain the <literal>Authentication</literal> object from the
+            <literal>SecureContext</literal>, which is held in the
+            <literal>ContextHolder</literal>.</para>
+          </listitem>
+
+          <listitem>
+            <para>Pass the <literal>Authentication</literal> object to the
+            <literal>AuthenticationManager</literal>, update the
+            <literal>ContextHolder</literal> with the response.</para>
+          </listitem>
+
+          <listitem>
+            <para>Pass the <literal>Authentication</literal> object, the
+            <literal>ConfigAttributeDefinition</literal>, and the secure
+            object to the <literal>AccessDecisionManager</literal>.</para>
+          </listitem>
+
+          <listitem>
+            <para>Pass the <literal>Authentication</literal> object, the
+            <literal>ConfigAttributeDefinition</literal>, and the secure
+            object to the <literal>RunAsManager</literal>.</para>
+          </listitem>
+
+          <listitem>
+            <para>If the <literal>RunAsManager</literal> returns a new
+            <literal>Authentication</literal> object, update the
+            <literal>ContextHolder</literal> with it.</para>
+          </listitem>
+
+          <listitem>
+            <para>Call a secure object-specific
+            <literal>SecurityInterceptorCallback</literal> so that the request
+            execution can proceed.</para>
+          </listitem>
+
+          <listitem>
+            <para>If the <literal>RunAsManager</literal> earlier returned a
+            new <literal>Authentication</literal> object, update the
+            <literal>ContextHolder</literal> with the
+            <literal>Authentication</literal> object that was previously
+            returned by the <literal>AuthenticationManager</literal>.</para>
+          </listitem>
+
+          <listitem>
+            <para>Return any result received from the
+            <literal>SecurityInterceptorCallback</literal>.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Whilst this may seem quite involved, don't worry. Developers
+        interact with the security process by simply implementing basic
+        interfaces (such as <literal>AccessDecisionManager</literal>), which
+        are fully documented below. </para>
+
+        <para>The <literal>AbstractSecurityInterceptor</literal> handles the
+        majority of the flow listed above. Each secure object has its own
+        security interceptor which subclasses
+        <literal>AbstractSecurityInterceptor</literal>. Each of these secure
+        object-specific security interceptors are discussed below.</para>
+      </sect2>
+
+      <sect2 id="security-interception-methodinvocation">
+        <title>MethodInvocation Security Interceptor</title>
+
+        <para>To secure <literal>MethodInvocation</literal>s, developers
+        simply add a properly configured
+        <literal>MethodSecurityInterceptor</literal> into the application
+        context. Next the beans requiring security are chained into the
+        interceptor. This chaining is accomplished using Spring’s
+        <literal>ProxyFactoryBean</literal> or
+        <literal>BeanNameAutoProxyCreator</literal>, as commonly used by many
+        other parts of Spring (refer to the sample application for examples).
+        The <literal>MethodSecurityInterceptor</literal> is configured as
+        follows:</para>
+
+        <para><programlisting>&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor"&gt;
   &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;true&lt;/value&gt;&lt;/property&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
   &lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
-  &lt;property name="methodDefinitionSource"&gt;
+  &lt;property name="objectDefinitionSource"&gt;
     &lt;value&gt;
       net.sf.acegisecurity.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
       net.sf.acegisecurity.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
@@ -169,56 +404,66 @@
   &lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
 
-        <para>As shown above, the <literal>SecurityInterceptor</literal> is
-        configured with a reference to an
+        <para>As shown above, the <literal>MethodSecurityInterceptor</literal>
+        is configured with a reference to an
         <literal>AuthenticationManager</literal>,
         <literal>AccessDecisionManager</literal> and
         <literal>RunAsManager</literal>, which are each discussed in separate
-        sections below. The <literal>SecurityInterceptor</literal> is also
-        configured with "configuration attributes" that apply to different
-        method signatures. A configuration attribute is simply a
-        <literal>ConfigAttribute</literal> instance that has special meaning
-        to an <literal>AccessDecisionManager</literal> and/or
-        <literal>RunAsManager</literal>.</para>
+        sections below. The <literal>MethodSecurityInterceptor</literal> is
+        also configured with configuration attributes that apply to different
+        method signatures. A full discussion of configuration attributes is
+        provided in the High Level Design section of this document.</para>
 
-        <para>The <literal>SecurityInterceptor</literal> can be configured
-        with configuration attributes in three ways. The first is via a
-        property editor and the bean context, which is shown above. The second
-        is via defining the configuration attributes in your source code using
-        Commons Attributes. The third is via writing your own
-        <literal>MethodDefinitionSource</literal>, although this is beyond the
-        scope of this document. Irrespective of the approach used, the
-        <literal>MethodDefinitionSource</literal> is responsible for returning
-        a <literal>ConfigAttributeDefinition</literal> object that contains
-        all of the configuration attributes associated with a single secure
-        method.</para>
+        <para>The <literal>MethodSecurityInterceptor</literal> can be
+        configured with configuration attributes in three ways. The first is
+        via a property editor and the application context, which is shown
+        above. The second is via defining the configuration attributes in your
+        source code using Jakarta Commons Attributes. The third is via writing
+        your own <literal>ObjectDefinitionSource</literal>, although this is
+        beyond the scope of this document. Irrespective of the approach used,
+        the <literal>ObjectDefinitionSource</literal> is responsible for
+        returning a <literal>ConfigAttributeDefinition</literal> object that
+        contains all of the configuration attributes associated with a single
+        secure method.</para>
 
-        <para>If using the property editor approach (as shown above), commas
-        are used to delimit the different configuration attributes that apply
-        to a given method pattern. Each configuration attribute is assigned
-        into its own <literal>SecurityConfig</literal> object.
-        <literal>SecurityConfig</literal> is a concrete implementation of
-        <literal>ConfigAttribute</literal>, and simply stores the
-        configuration attribute as a <literal>String</literal>.</para>
+        <para>It should be noted that the
+        <literal>MethodSecurityInterceptor.setObjectDefinitionSource()</literal>
+        method actually expects an instance of
+        <literal>MethodDefinitionSource</literal>. This is a marker interface
+        which subclasses <literal>ObjectDefinitionSource</literal>. It simply
+        denotes the <literal>ObjectDefinitionSource</literal> understands
+        <literal>MethodInvocation</literal>s. In the interests of simplicity
+        we'll continue to refer to the
+        <literal>MethodDefinitionSource</literal> as an
+        <literal>ObjectDefinitionSource</literal>, as the distinction is of
+        little relevance to most users of the
+        <literal>MethodSecurityInterceptor</literal>.</para>
 
-        <para>If using the Commons Attributes approach, your bean context will
-        be configured differently:</para>
+        <para>If using the application context property editor approach (as
+        shown above), commas are used to delimit the different configuration
+        attributes that apply to a given method pattern. Each configuration
+        attribute is assigned into its own <literal>SecurityConfig</literal>
+        object. The <literal>SecurityConfig</literal> object is discussed in
+        the High Level Design section.</para>
+
+        <para>If using the Jakarta Commons Attributes approach, your bean
+        context will be configured differently:</para>
 
         <para><programlisting>&lt;bean id="attributes" class="org.springframework.metadata.commons.CommonsAttributes"/&gt;
-&lt;bean id="methodDefinitionSource" class="net.sf.acegisecurity.MethodDefinitionAttributes"&gt;
+&lt;bean id="objectDefinitionSource" class="net.sf.acegisecurity.intercept.method.MethodDefinitionAttributes"&gt;
   &lt;property name="attributes"&gt;&lt;ref local="attributes"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.SecurityInterceptor"&gt;
+&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor"&gt;
   &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
   &lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
-  &lt;property name="methodDefinitionSource"&gt;&lt;ref bean="methodDefinitionSource"/&gt;&lt;/property&gt;
+  &lt;property name="objectDefinitionSource"&gt;&lt;ref bean="objectDefinitionSource"/&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
 
-        <para>In addition, your source code will contain Commons Attributes
-        tags that refer to a concrete implementation of
+        <para>In addition, your source code will contain Jakarta Commons
+        Attributes tags that refer to a concrete implementation of
         <literal>ConfigAttribute</literal>. The following example uses the
         <literal>SecurityConfig</literal> implementation to represent the
         configuration attributes, and results in the same security
@@ -250,101 +495,144 @@
 
         <para>You might have noticed the
         <literal>validateConfigAttributes</literal> property in the above
-        <literal>SecurityInterceptor</literal> examples. When set to
+        <literal>MethodSecurityInterceptor</literal> examples. When set to
         <literal>true</literal> (the default), at startup time the
-        <literal>SecurityInterceptor</literal> will evaluate if the provided
-        configuration attributes are valid. It does this by checking each
-        configuration attribute can be processed by either the
+        <literal>MethodSecurityInterceptor</literal> will evaluate if the
+        provided configuration attributes are valid. It does this by checking
+        each configuration attribute can be processed by either the
         <literal>AccessDecisionManager</literal> or the
         <literal>RunAsManager</literal>. If neither of these can process a
         given configuration attribute, an exception is thrown. If using the
-        Commons Attributes method of configuration, you should set
+        Jakarta Commons Attributes method of configuration, you should set
         <literal>validateConfigAttributes</literal> to
         <literal>false</literal>.</para>
       </sect2>
 
-      <sect2 id="security-interception-runtime-processing">
-        <title>Runtime Processing</title>
+      <sect2 id="security-interception-filterinvocation">
+        <title>FilterInvocation Security Interceptor</title>
 
-        <para>At runtime the <literal>SecurityInterceptor</literal> has three
-        basic tasks: authenticate, authorize and perform any run-as
-        authentication replacement. It assesses the method pattern being
-        invoked to determine whether or not it is secure. A secure method
-        matches a method pattern defined with configuration attributes in the
-        bean context, whilst a public method is not defined in the bean
-        context.</para>
+        <para>To secure <literal>FilterInvocation</literal>s, developers need
+        to add a <literal>SecurityEnforcementFilter</literal> to their
+        <literal>web.xml</literal>. A typical configuration example is
+        provided below: <programlisting>&lt;filter&gt;
+  &lt;filter-name&gt;Acegi HTTP Request Security Filter&lt;/filter-name&gt;
+  &lt;filter-class&gt;net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter&lt;/filter-class&gt;
+  &lt;init-param&gt;
+    &lt;param-name&gt;appContextLocation&lt;/param-name&gt;
+    &lt;param-value&gt;web-filters-acegisecurity.xml&lt;/param-value&gt;
+  &lt;/init-param&gt;
+  &lt;init-param&gt;
+    &lt;param-name&gt;loginFormUrl&lt;/param-name&gt;
+    &lt;param-value&gt;/acegilogin.jsp&lt;/param-value&gt;
+  &lt;/init-param&gt;
+&lt;/filter&gt;
 
-        <para>If a public method is called,
-        <literal>SecurityInterceptor</literal> will make no effort to
-        authenticate, authorize or perform any run-as authentication
-        replacement for the request. However, should there be an
-        <literal>Authentication</literal> object in the
-        <literal>ContextHolder</literal>, it will have its authenticated
-        property set to <literal>false</literal>. Once this is handled,
-        invocation of the public method will proceed as normal.</para>
+&lt;filter-mapping&gt;
+  &lt;filter-name&gt;Acegi HTTP Request Security Filter&lt;/filter-name&gt;
+  &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;</programlisting></para>
 
-        <para>If a secure method is called,
-        <literal>SecurityInterceptor</literal> will need to extract an
-        <literal>Authentication</literal> object from the request context. As
-        discussed above, the <literal>SecurityInterceptor</literal> requires
-        the <literal>SecureContext</literal> interface be implemented on the
-        object contained in the <literal>ContextHolder</literal>. Once the
-        <literal>Authentication</literal> object is extracted from the
-        <literal>SecureContext</literal>, it will be passed to the
-        <literal>SecurityInterceptor</literal>’s
-        <literal>AuthenticationManager</literal>.</para>
+        <para>As shown above, an <literal>appContextLocation</literal>
+        indicates the location of a Spring XML application context. In the
+        example above, this file should be placed at the root of the web
+        application's classpath (in the <literal>WEB-INF/classes</literal>
+        directory). The <literal>loginFormUrl</literal> is where the filter
+        will redirect the user's browser if they request a secure HTTP
+        resource but they are not authenticated. If the user is authenticated,
+        a "403 Forbidden" response will be returned to the browser. All paths
+        are relative to the web application root.</para>
 
-        <para>The <literal>AuthenticationManager</literal> will perform
-        authentication, throwing an <literal>AuthenticationException</literal>
-        if there is a problem. If successful, the
-        <literal>AuthenticationManager</literal> will return a populated
-        <literal>Authentication</literal> object, including the authorities
-        granted to the principal. <literal>SecurityInterceptor</literal> will
-        then call its <literal>AccessDecisionManager</literal>.</para>
+        <para>The <literal>SecurityEnforcementFilter</literal> will load the
+        Spring XML application context expressed in the
+        <literal>appContextLocation</literal>. It will expect to find in this
+        application context a properly configured
+        <literal>FilterSecurityInterceptor</literal>. The configuration of the
+        <literal>FilterSecurityInterceptor</literal> is very similar to the
+        <literal>MethodSecurityInterceptor</literal>:</para>
 
-        <para>When the <literal>AccessDecisionManager</literal> is invoked by
-        the <literal>SecurityInterceptor</literal>, it will be passed
-        important information it may require to make an authorization
-        decision. This includes details of the secure method that is being
-        invoked, the authenticated principal, and the
-        <literal>ConfigAttributeDefinition</literal> (the collection of
-        configuration attributes associated with the secure method). If
-        authorization fails, the <literal>AccessDecisionManager</literal> will
-        throw an <literal>AccessDeniedException</literal>. If successful, the
-        <literal>SecurityInterceptor</literal> will then call the
-        <literal>RunAsManager</literal>.</para>
+        <para><programlisting>&lt;bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
+  &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+  &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
+  &lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
+  &lt;property name="objectDefinitionSource"&gt;
+    &lt;value&gt;
+      CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+      \A/secure/super.*\Z=ROLE_WE_DONT_HAVE
+      \A/secure/.*\Z=ROLE_SUPERVISOR,ROLE_TELLER
+    &lt;/value&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
 
-        <para>Like the <literal>AccessDecisionManager</literal>, the
-        <literal>RunAsManager</literal> is called with details of the secure
-        method being invoked, the authenticated principal, and the
-        <literal>ConfigAttributeDefinition</literal>. The
-        <literal>RunAsManager</literal> can then choose to return a
-        replacement <literal>Authentication</literal> object that should be
-        used for the request. If a replacement
-        <literal>Authentication</literal> object is returned, the
-        <literal>SecurityInterceptor</literal> will update the
-        <literal>ContextHolder</literal> for the duration of the method
-        invocation, returning to the original
-        <literal>Authentication</literal> object after the method has been
-        invoked.</para>
-      </sect2>
-
-      <sect2>
-        <title>Putting it into Context</title>
-
-        <para>The above briefly outlines that the
-        <literal>AuthenticationManager</literal>,
+        <para>Like any other security interceptor, the
+        <literal>FilterSecurityInterceptor</literal> requires a reference to
+        an <literal>AuthenticationManager</literal>,
         <literal>AccessDecisionManager</literal> and
-        <literal>RunAsManager</literal> perform the bulk of the security
-        decision making. The <literal>SecurityInterceptor</literal> simply
-        coordinates the method invocation and stores the configuration
-        attributes that are relevant to different methods. It also coordinates
-        the temporary replacement of the <literal>Authentication</literal>
-        object as a consequence of <literal>RunAsManager</literal> responses.
-        The way <literal>AuthenticationManager</literal>,
-        <literal>AccessDecisionManager</literal> and
-        <literal>RunAsManager</literal> operate is discussed in detail
-        below.</para>
+        <literal>RunAsManager</literal>, which are each discussed in separate
+        sections below. The <literal>FilterSecurityInterceptor</literal> is
+        also configured with configuration attributes that apply to different
+        HTTP URL requests. A full discussion of configuration attributes is
+        provided in the High Level Design section of this document.</para>
+
+        <para>The <literal>FilterSecurityInterceptor</literal> can be
+        configured with configuration attributes in two ways. The first is via
+        a property editor and the application context, which is shown above.
+        The second is via writing your own
+        <literal>ObjectDefinitionSource</literal>, although this is beyond the
+        scope of this document. Irrespective of the approach used, the
+        <literal>ObjectDefinitionSource</literal> is responsible for returning
+        a <literal>ConfigAttributeDefinition</literal> object that contains
+        all of the configuration attributes associated with a single secure
+        HTTP URL.</para>
+
+        <para>It should be noted that the
+        <literal>FilterSecurityInterceptor.setObjectDefinitionSource()</literal>
+        method actually expects an instance of
+        <literal>FilterInvocationDefinitionSource</literal>. This is a marker
+        interface which subclasses <literal>ObjectDefinitionSource</literal>.
+        It simply denotes the <literal>ObjectDefinitionSource</literal>
+        understands <literal>FilterInvocation</literal>s. In the interests of
+        simplicity we'll continue to refer to the
+        <literal>FilterInvocationDefinitionSource</literal> as an
+        <literal>ObjectDefinitionSource</literal>, as the distinction is of
+        little relevance to most users of the
+        <literal>FilterSecurityInterceptor</literal>.</para>
+
+        <para>If using the application context property editor approach (as
+        shown above), commas are used to delimit the different configuration
+        attributes that apply to each HTTP URL. Each configuration attribute
+        is assigned into its own <literal>SecurityConfig</literal> object. The
+        <literal>SecurityConfig</literal> object is discussed in the High
+        Level Design section. The <literal>ObjectDefinitionSource</literal>
+        created by the property editor,
+        <literal>FilterInvocationDefinitionSource</literal>, matches
+        configuration attributes against <literal>FilterInvocations</literal>
+        based on regular expression evaluation of the request URL. It works
+        down the list in the order they are defined. Thus it is important that
+        more specific regular expressions are defined higher in the list than
+        less specific regular expressions. This is reflected in our example
+        above, where the more specific <literal>/secure/super</literal>
+        pattern appears higher than the less specific
+        <literal>/super</literal> pattern. If they were reversed, the
+        <literal>/super</literal> pattern would always match and the
+        /<literal>secure/super</literal> pattern would never be evaluated. The
+        special keyword
+        <literal>CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON</literal> causes
+        the <literal>FilterInvocationDefinitionSource</literal> to
+        automatically convert a request URL to lowercase before comparison
+        against the regular expressions. Whilst by default the case of the
+        request URL is not converted, it is generally recommended to use
+        <literal>CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON</literal> and
+        write each regular expression assuming lowercase.</para>
+
+        <para>As with other security interceptors, the
+        <literal>validateConfigAttributes</literal> property is observed. When
+        set to <literal>true</literal> (the default), at startup time the
+        <literal>FilterSecurityInterceptor</literal> will evaluate if the
+        provided configuration attributes are valid. It does this by checking
+        each configuration attribute can be processed by either the
+        <literal>AccessDecisionManager</literal> or the
+        <literal>RunAsManager</literal>. If neither of these can process a
+        given configuration attribute, an exception is thrown.</para>
       </sect2>
     </sect1>
 
@@ -371,7 +659,8 @@
           <listitem>
             <para><literal>UsernamePasswordAuthenticationToken</literal>
             allows a username and password to be presented as the principal
-            and credentials respectively.</para>
+            and credentials respectively. It is also what is created by the
+            HTTP Session Authentication system.</para>
           </listitem>
 
           <listitem>
@@ -409,9 +698,10 @@
         <title>Authentication Manager</title>
 
         <para>As discussed in the Security Interception section, the
-        <literal>SecurityInterceptor</literal> extracts the
+        <literal>AbstractSecurityInterceptor</literal> extracts the
         <literal>Authentication</literal> object from the
-        <literal>SecureContext</literal>. This is then passed to an
+        <literal>SecureContext</literal> in the
+        <literal>ContextHolder</literal>. This is then passed to an
         <literal>AuthenticationManager</literal>. The
         <literal>AuthenticationManager</literal> interface is very
         simple:</para>
@@ -426,7 +716,8 @@
         <literal>GrantedAuthority</literal> objects. The
         <literal>SecurityInterceptor</literal> places the populated
         <literal>Authentication</literal> object back in the
-        <literal>SecureContext</literal>, overwriting the original
+        <literal>SecureContext</literal> in the
+        <literal>ContextHolder</literal>, overwriting the original
         <literal>Authentication</literal> object.</para>
 
         <para>The <literal>AuthenticationException</literal> has a number of
@@ -441,13 +732,13 @@
         request (eg a database was unavailable).</para>
       </sect2>
 
-      <sect2>
+      <sect2 id="security-authentication-provider">
         <title>Provider-Based Authentication</title>
 
         <para>Whilst the basic <literal>Authentication</literal> and
         <literal>AuthenticationManager</literal> interfaces enable users to
         develop their own authentication systems, users should consider using
-        the provider-based authentication packages provided in the Acegi
+        the provider-based authentication packages provided by the Acegi
         Security System for Spring. The key class,
         <literal>ProviderManager</literal>, is configured via the bean context
         with a list of <literal>AuthenticationProvider</literal>s:</para>
@@ -456,6 +747,7 @@
   &lt;property name="providers"&gt;
     &lt;list&gt;
       &lt;ref bean="daoAuthenticationProvider"/&gt;
+      &lt;ref bean="someOtherAuthenticationProvider"/&gt;
     &lt;/list&gt;
   &lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -471,7 +763,7 @@
         object.</para>
 
         <para>Note the <literal>ProviderManager</literal> may throw a
-        <literal>ProviderNotFoundException</literal> (subclass of
+        <literal>ProviderNotFoundException</literal> (a subclass of
         <literal>AuthenticationException</literal>) if it none of the
         registered <literal>AuthenticationProviders</literal> can validate the
         <literal>Authentication</literal> object.</para>
@@ -489,7 +781,9 @@
               as valid. This makes it ideal for use during unit testing, as
               you can create an <literal>Authentication</literal> object with
               precisely the <literal>GrantedAuthority</literal> objects
-              required for calling a given method.</para>
+              required for calling a given method. You definitely would not
+              register this <literal>AuthenticationProvider</literal> on a
+              production system.</para>
             </listitem>
 
             <listitem>
@@ -497,27 +791,32 @@
               authenticate a
               <literal>UsernamePasswordAuthenticationToken</literal> by
               accessing an authentication respository via a data access
-              object. This is discussed further below.</para>
+              object. This is discussed further below, as it is the main way
+              authentication is initially handled.</para>
             </listitem>
 
             <listitem>
               <para><literal>RunAsImplAuthenticationToken</literal> is able to
               authenticate a <literal>RunAsUserToken</literal>. This is
               discussed further in the Run-As Authentication Replacement
-              section.</para>
+              section. You would not register this
+              <literal>AuthenticationProvider</literal> if you were not using
+              run-as replacement.</para>
             </listitem>
 
             <listitem>
               <para><literal>AuthByAdapterProvider</literal> is able to
               authenticate any <literal>AuthByAdapter</literal> (a subclass of
               <literal>Authentication</literal> used with container adapters).
-              This is discussed further in the Container Adapters
-              section.</para>
+              This is discussed further in the Container Adapters section. You
+              would not register this
+              <literal>AuthenticationProvider</literal> if you were not using
+              container adapters.</para>
             </listitem>
           </itemizedlist></para>
       </sect2>
 
-      <sect2>
+      <sect2 id="security-authentication-provider-dao">
         <title>Data Access Object Authentication Provider</title>
 
         <para>The Acegi Security System for Spring includes a
@@ -557,12 +856,15 @@
         <para>A design decision was made not to support account locking in the
         <literal>DaoAuthenticationProvider</literal>, as doing so would have
         increased the complexity of the <literal>AuthenticationDao</literal>
-        interface. Such functionality could be easily provided in a new
+        interface. For instance, a method would be required to increase the
+        count of unsuccessful authentication attempts. Such functionality
+        could be easily provided in a new
         <literal>AuthenticationManager</literal> or
-        <literal>AuthenticationProvider</literal> implementation.</para>
+        <literal>AuthenticationProvider</literal> implementation if it were
+        desired.</para>
       </sect2>
 
-      <sect2>
+      <sect2 id="security-authentication-provider-in-memory">
         <title>In-Memory Authentication</title>
 
         <para>Whilst it is easy to use the
@@ -570,7 +872,7 @@
         <literal>AuthenticationDao</literal> implementation that extracts
         information from a persistence engine of choice, many applications do
         not require such complexity. One alternative is to configure an
-        authentication repository in the bean context itself using the
+        authentication repository in the application context itself using the
         <literal>InMemoryDaoImpl</literal>:</para>
 
         <para><programlisting>&lt;bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl"&gt;
@@ -594,12 +896,12 @@
         Any remaining tokens are treated as granted authorities, which are
         created as <literal>GrantedAuthorityImpl</literal> objects (refer to
         the Authorization section for further discussion on granted
-        authorities). Note that if a user has no password or no granted
+        authorities). Note that if a user has no password and/or no granted
         authorities, the user will not be created in the in-memory
         authentication repository.</para>
       </sect2>
 
-      <sect2>
+      <sect2 id="security-authentication-provider-jdbc">
         <title>JDBC Authentication</title>
 
         <para>The Acegi Security System for Spring also includes an
@@ -614,7 +916,6 @@
   &lt;property name="password"&gt;&lt;value&gt;&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;!-- Data access object which stores authentication information --&gt;
 &lt;bean id="jdbcDaoImpl" class="net.sf.acegisecurity.providers.dao.jdbc.JdbcDaoImpl"&gt;
   &lt;property name="dataSource"&gt;&lt;ref bean="dataSource"/&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -622,7 +923,10 @@
         <para>You can use different relational database management systems by
         modifying the <literal>DriverManagerDataSource</literal> shown above.
         Irrespective of the database used, a standard schema must be used as
-        indicated in <literal>dbinit.txt</literal>.</para>
+        indicated in <literal>dbinit.txt</literal>. Of particular note is the
+        database must return responses that treat the username as case
+        insensitive, in order to comply with the
+        <literal>AuthenticationDao</literal> contract.</para>
 
         <para>The Acegi Security System for Spring ships with a Hypersonic SQL
         instance that has the required authentication information and sample
@@ -631,27 +935,9 @@
         included in the distribution. This will load a new database server
         instance that will service requests made to the URL indicated in the
         bean context configuration shown above.</para>
-
-        <para>As discussed further in the Container Adapters section, most
-        authentication providers that perform actual authentication are
-        configured within a container adapter bean context typically called
-        <literal>acegisecurity.xml</literal>. This file by default uses the
-        in-memory DAO authentication provider. The Acegi Security System for
-        Spring includes an alternative configuration file named
-        <literal>acegisecurity-jdbc.xml</literal>, which uses the JDBC DAO
-        authentication provider. To use a JDBC authentication repository,
-        simply copy this file over the existing
-        <literal>acegisecurity.xml</literal> (or other name) being used by
-        your container. Alternatively, leave the name as
-        <literal>acegisecurity-jdbc.xml</literal> and modify your container
-        configuration file to refer to
-        <literal>acegisecurity-jdbc.xml</literal>. You will also need to copy
-        the relevant JDBC driver library to your container's
-        <literal>lib</literal> directory. If you are using Hypersonic SQL,
-        copy the <literal>hsqldb.jar</literal> file.</para>
       </sect2>
 
-      <sect2>
+      <sect2 id="security-authentication-recommendations">
         <title>Authentication Recommendations</title>
 
         <para>With the heavy use of interfaces throughout the authentication
@@ -665,9 +951,8 @@
         <itemizedlist>
           <listitem>
             <para>Use the
-            <literal>UsernamePasswordAuthenticationToken</literal> or an
-            <literal>AuthByContainer</literal> implementation where
-            possible.</para>
+            <literal>UsernamePasswordAuthenticationToken</literal>
+            implementation where possible.</para>
           </listitem>
 
           <listitem>
@@ -677,6 +962,15 @@
             <literal>DaoAuthenticationProvider</literal> along with the
             <literal>AuthenticationDao</literal>. It is the fastest and safest
             way to integrate an external database.</para>
+          </listitem>
+
+          <listitem>
+            <para>If you're using Container Adapters or a
+            <literal>RunAsManager</literal> that replaces the
+            <literal>Authentication</literal> object, ensure you have
+            registered the <literal>AuthByAdapterProvider</literal> and
+            <literal>RunAsManagerImplProvider</literal> respectively with your
+            <literal>ProviderManager</literal>.</para>
           </listitem>
 
           <listitem>
@@ -701,15 +995,15 @@
     <sect1 id="security-authorization">
       <title>Authorization</title>
 
-      <sect2>
+      <sect2 id="security-authorization-granted-authorities">
         <title>Granted Authorities</title>
 
-        <para>As briefly mentioned in the <literal>Authentication</literal>
-        section, all <literal>Authentication</literal> implementations are
-        required to store an array of <literal>GrantedAuthority</literal>
-        objects. These represent the authorities that have been granted to the
-        principal. The <literal>GrantedAuthority</literal> objects are
-        inserted into the <literal>Authentication</literal> object by the
+        <para>As briefly mentioned in the Authentication section, all
+        <literal>Authentication</literal> implementations are required to
+        store an array of <literal>GrantedAuthority</literal> objects. These
+        represent the authorities that have been granted to the principal. The
+        <literal>GrantedAuthority</literal> objects are inserted into the
+        <literal>Authentication</literal> object by the
         <literal>AuthenticationManager</literal> and are later read by
         <literal>AccessDecisionManager</literal>s when making authorization
         decisions.</para>
@@ -747,92 +1041,104 @@
         user-specified <literal>String</literal> to be converted into a
         <literal>GrantedAuthority</literal>. All
         <literal>AuthenticationProvider</literal>s included with the security
-        architecture used <literal>GrantedAuthorityImpl</literal> to populate
+        architecture use <literal>GrantedAuthorityImpl</literal> to populate
         the <literal>Authentication</literal> object.</para>
       </sect2>
 
-      <sect2>
+      <sect2 id="security-authorization-access-decision-managers">
         <title>Access Decision Managers</title>
 
         <para>The <literal>AccessDecisionManager</literal> is called by the
-        <literal>SecurityInterceptor</literal> and is responsible for making
-        final access control decisions. The
-        <literal>AccessDecisionManager</literal> interface contains two
+        <literal>AbstractSecurityInterceptor</literal> and is responsible for
+        making final access control decisions. The
+        <literal>AccessDecisionManager</literal> interface contains three
         methods:</para>
 
-        <para><programlisting>public void decide(Authentication authentication, MethodInvocation invocation, ConfigAttributeDefinition config) throws AccessDeniedException;
-public boolean supports(ConfigAttribute attribute);</programlisting></para>
+        <para><programlisting>public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config) throws AccessDeniedException;
+public boolean supports(ConfigAttribute attribute);
+public boolean supports(Class clazz);</programlisting></para>
 
         <para>As can be seen from the first method, the
         <literal>AccessDecisionManager</literal> is passed via method
         parameters all information that is likely to be of value in assessing
-        an authorization decision. In particular, passing the
-        <literal>MethodInvocation</literal> enables those arguments contained
-        in the intercepted method call to be inspected. For example, if a
-        <literal>Customer</literal> argument was passed in the intercepted
-        method call, this could be extracted from the
-        <literal>MethodInvocation</literal> and used in making an access
-        control decision. Implementations are expected to throw an
+        an authorization decision. In particular, passing the secure
+        <literal>Object</literal> enables those arguments contained in the
+        actual secure object invocation to be inspected. For example, let's
+        assume the secure object was a <literal>MethodInvocation</literal>. It
+        would be easy to query the <literal>MethodInvocation</literal> for any
+        <literal>Customer</literal> argument, and then implement some sort of
+        security logic in the <literal>AccessDecisionManager</literal> to
+        ensure the principal is permitted to operate on that customer.
+        Implementations are expected to throw an
         <literal>AccessDeniedException</literal> if access is denied.</para>
 
         <para>The <literal>supports(ConfigAttribute)</literal> method is
-        called by the <literal>SecurtyInterceptor</literal> at startup time to
-        determine if the <literal>AccessDecisionManager</literal> can process
-        the passed <literal>ConfigAttribute</literal>.</para>
+        called by the <literal>AbstractSecurityInterceptor</literal> at
+        startup time to determine if the
+        <literal>AccessDecisionManager</literal> can process the passed
+        <literal>ConfigAttribute</literal>. The
+        <literal>supports(Class)</literal> method is called by a security
+        interceptor implementation to ensure the configured
+        <literal>AccessDecisionManager</literal> supports the type of secure
+        object that the security interceptor will present.</para>
       </sect2>
 
-      <sect2>
+      <sect2 id="security-authorization-voting-decision-manager">
         <title>Voting Decision Manager</title>
 
         <para>Whilst users can implement their own
         <literal>AccessDecisionManager</literal> to control all aspects of
-        authorization, the Acegi Security System for Spring includes an
-        <literal>AccessDecisionManager</literal> implementation that is based
-        on voting. Using this approach, a series of
+        authorization, the Acegi Security System for Spring includes several
+        <literal>AccessDecisionManager</literal> implementations that are
+        based on voting. Using this approach, a series of
         <literal>AccessDecisionVoter</literal> implementations are polled on
         an authorization decision. The
         <literal>AccessDecisionManager</literal> then decides whether or not
         to throw an <literal>AccessDeniedException</literal> based on its
         assessment of the votes.</para>
 
-        <para>The <literal>AccessDecisionVoter</literal> interface has two
+        <para>The <literal>AccessDecisionVoter</literal> interface has three
         methods:</para>
 
-        <para><programlisting>public int vote(Authentication authentication, MethodInvocation invocation, ConfigAttributeDefinition config);
-public boolean supports(ConfigAttribute attribute);</programlisting></para>
+        <para><programlisting>public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config);
+public boolean supports(ConfigAttribute attribute);
+public boolean supports(Class clazz);</programlisting></para>
 
-        <para>Concrete implementations return an int, with possible values
-        being reflected in the <literal>AccessDecisionVoter</literal> static
-        fields <literal>ACCESS_ABSTAIN</literal>,
-        <literal>ACCESS_DENIED</literal> and
-        <literal>ACCESS_GRANTED</literal>. A voting implementation will return
-        <literal>ACCESS_ABSTAIN</literal> if it has no opinion on an
+        <para>Concrete implementations return an <literal>int</literal>, with
+        possible values being reflected in the
+        <literal>AccessDecisionVoter</literal> static fields
+        <literal>ACCESS_ABSTAIN</literal>, <literal>ACCESS_DENIED</literal>
+        and <literal>ACCESS_GRANTED</literal>. A voting implementation will
+        return <literal>ACCESS_ABSTAIN</literal> if it has no opinion on an
         authorization decision. If it does have an opinion, it must return
         either <literal>ACCESS_DENIED</literal> or
         <literal>ACCESS_GRANTED</literal>.</para>
 
-        <para>There are three <literal>AccessDecisionManager</literal>s
-        provided with the Acegi Security System for Spring that tally the
-        votes. The <literal>ConsensusBased</literal> implementation will grant
-        or deny access based on the consensus of non-abstain votes. Properties
-        are provided to control behavior in the event of an equality of votes
-        or if all votes are abstain. The <literal>AffirmativeBased</literal>
+        <para>There are three concrete
+        <literal>AccessDecisionManager</literal>s provided with the Acegi
+        Security System for Spring that tally the votes. The
+        <literal>ConsensusBased</literal> implementation will grant or deny
+        access based on the consensus of non-abstain votes. Properties are
+        provided to control behavior in the event of an equality of votes or
+        if all votes are abstain. The <literal>AffirmativeBased</literal>
         implementation will grant access if one or more
         <literal>ACCESS_GRANTED</literal> votes were received (ie a deny vote
         will be ignored, provided there was at least one grant vote). Like the
         <literal>ConsensusBased</literal> implementation, there is a parameter
         that controls the behavior if all voters abstain. The
-        <literal>UnanimousBased</literal> provider will deny access if there
-        was any <literal>ACCESS_DENIED</literal> result. Like the other
-        implementations, there is a parameter that controls the behaviour if
-        all voters abstain.</para>
+        <literal>UnanimousBased</literal> provider expects unanimous
+        <literal>ACCESS_GRANTED</literal> votes in order to grant access,
+        ignoring abstains. It will deny access if there is any
+        <literal>ACCESS_DENIED</literal> vote. Like the other implementations,
+        there is a parameter that controls the behaviour if all voters
+        abstain.</para>
 
         <para>It is possible to implement a custom
         <literal>AccessDecisionManager</literal> that tallies votes
         differently. For example, votes from a particular
         <literal>AccessDecisionVoter</literal> might receive additional
-        weighting, whilst a deny vote from a particular voter would have a
-        veto effect.</para>
+        weighting, whilst a deny vote from a particular voter may have a veto
+        effect.</para>
 
         <para>There is one concrete <literal>AccessDecisionVoter</literal>
         implementation provided with the Acegi Security System for Spring. The
@@ -853,35 +1159,132 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
         <para>It is possible to implement a custom
         <literal>AccessDecisionVoter</literal>. Several examples are provided
         in the Acegi Security System for Spring unit tests, including
-        <literal>BankSecurityVoter</literal> and <literal>XVoter</literal>.
-        The <literal>BankSecurityVoter</literal> abstains from voting
-        decisions where the <literal>BANKSECURITY_CUSTOMER</literal>
+        <literal>ContactSecurityVoter</literal> and
+        <literal>DenyVoter</literal>. The
+        <literal>ContactSecurityVoter</literal> abstains from voting decisions
+        where a <literal>CONTACT_OWNED_BY_CURRENT_USER</literal>
         <literal>ConfigAttribute</literal> is not found. If voting, it queries
-        the <literal>MethodInvocation</literal> to extract the account number
-        subject of the method call. It votes to grant access if the account
-        number matches a <literal>GrantedAuthority.getAuthority()</literal> of
-        <literal>ACCOUNT_xxxx</literal> where <literal>xxxx</literal> is the
-        account number subject of the method call. All of this is achieved
-        with relatively few lines of code and demonstrates the flexibility of
-        the authorization model.</para>
-
-        <para>Note that an <literal>AccessDecisionManager</literal> or
-        <literal>AccessDecisionVoter</literal> can also support complex
-        <literal>GrantedAuthority</literal> implementations that cannot
-        represent themselves as a <literal>String</literal> via the
-        <literal>getAuthority()</literal> method. In our
-        <literal>BankSecurityVoter</literal> example, we could have it ignore
-        the <literal>String</literal> representations of
-        <literal>GrantedAuthority</literal> objects but instead processed any
-        <literal>AccountHolderGrantedAuthority</literal> objects. This complex
-        granted authority could have conveyed more information than simply an
-        account number, such as the maximum amount the principal is permitted
-        to deposit. The <literal>BankSecurityVoter</literal> could then detect
-        a deposit value via the <literal>MethodInvocation</literal> and grant
-        or deny access accordingly.</para>
+        the <literal>MethodInvocation</literal> to extract the owner of the
+        <literal>Contact</literal> object that is subject of the method call.
+        It votes to grant access if the <literal>Contact</literal> owner
+        matches the principal presented in the
+        <literal>Authentication</literal> object. It could have just as easily
+        compared the <literal>Contact</literal> owner with some
+        <literal>GrantedAuthority</literal> the
+        <literal>Authentication</literal> object presented. All of this is
+        achieved with relatively few lines of code and demonstrates the
+        flexibility of the authorization model.</para>
       </sect2>
 
-      <sect2>
+      <sect2 id="security-authorization-taglib">
+        <title>Authorization Tag Library</title>
+
+        <para>The Acegi Security System for Spring comes bundled with a JSP
+        tag library that eases JSP writing. The tag library is known as
+        <literal>authz</literal>.</para>
+
+        <para>This library allows you to easy develop JSP pages which
+        reference the security environment. For example,
+        <literal>authz</literal> allows you to determine if a principal holds
+        a particular granted authority, holds a group of granted authorities,
+        or does not hold a given granted authority.</para>
+
+        <sect3>
+          <title>Usage</title>
+
+          <para>The following JSP fragment illustrates how to use the
+          <literal>authz</literal> taglib:</para>
+
+          <para><programlisting>&lt;authz:authorize ifAllGranted="ROLE_SUPERVISOR"&gt;
+  &lt;td&gt;
+    &lt;A HREF="del.htm?id=&lt;c:out value="${contact.id}"/&gt;"&gt;Del&lt;/A&gt;
+  &lt;/td&gt;
+&lt;/authz:authorize&gt;</programlisting></para>
+
+          <para>This code was copied from the Contacts sample
+          application.</para>
+
+          <para>What this code says is: if the principal has been granted
+          ROLE_SUPERVISOR, allow the tag's body to be output.</para>
+        </sect3>
+
+        <sect3>
+          <title>Installation</title>
+
+          <para>Installation is a simple matter. Simply copy the
+          <literal>acegi-security-taglib.jar</literal> file into your
+          application's <literal>WEB-INF/lib</literal> folder. The tag library
+          includes it's TLD, which makes it easier to work with JSP 1.2+
+          containers.</para>
+
+          <para>If you are using a JSP 1.1 container, you will need to declare
+          the JSP tag library in your application's <literal>web.xml</literal>
+          file, with code such as this:</para>
+
+          <para><programlisting>&lt;taglib&gt;
+       &lt;taglib-uri&gt;http://acegisecurity.sf.net/authz&lt;/taglib-uri&gt;
+       &lt;taglib-location&gt;/WEB-INF/authz.tld&lt;/taglib-location&gt;
+&lt;/taglib&gt;</programlisting></para>
+
+          <para>For JSP 1.1 containers you will also need to extract the
+          <literal>authz.tld</literal> file from the
+          <literal>acegi-security-taglib.jar</literal> file and put it into
+          your application's <literal>WEB-INF/lib</literal> folder. Use a
+          regular Zip tool, or Java's JAR utility.</para>
+        </sect3>
+
+        <sect3>
+          <title>Reference</title>
+
+          <para>The <literal>authz:authorize</literal> tag declares the
+          following attributes:</para>
+
+          <para><itemizedlist spacing="compact">
+              <listitem>
+                <para><literal>ifAllGranted</literal>: All the listed roles
+                must be granted for the tag to output its body.</para>
+              </listitem>
+
+              <listitem>
+                <para><literal>ifAnyGranted</literal>: Any of the listed roles
+                must be granted for the tag to output its body.</para>
+              </listitem>
+
+              <listitem>
+                <para><literal>ifNotGranted</literal>: None of the listed
+                roles must be granted for the tag to output its body.</para>
+              </listitem>
+            </itemizedlist></para>
+
+          <para>You'll note that in each attribute you can list multiple
+          roles. Simply separate the roles using a comma. The
+          <literal>authorize</literal> tag ignores whitespace in
+          attributes.</para>
+
+          <para>The tag library logically ANDs all of it's parameters
+          together. This means that if you combine two or more attributes, all
+          attributes must be true for the tag to output it's body. Don't add
+          an <literal>ifAllGranted="ROLE_SUPERVISOR"</literal>, followed by an
+          <literal>ifNotGranted="ROLE_SUPERVISOR"</literal>, or you'll be
+          surprised to never see the tag's body.</para>
+
+          <para>By requiring all attributes to return true, it allows you to
+          create more complex authorization scenarios. For example, you could
+          declare an <literal>ifAllGranted="ROLE_SUPERVISOR"</literal> and an
+          <literal>ifNotGranted="ROLE_NEWBIE_SUPERVISOR"</literal> in the same
+          tag, in order to prevent new supervisors from seeing the tag body.
+          Although it would no doubt be simpler to use
+          <literal>ifAllGranted="ROLE_EXPERIENCED_SUPERVISOR"</literal> rather
+          than inserting NOT conditions into your design.</para>
+
+          <para>One last item: the tag verifies the authorizations in a
+          specific order: first <literal>ifNotGranted</literal>, then
+          <literal>ifAllGranted</literal>, and finally,
+          <literal>ifAnyGranted</literal>.</para>
+        </sect3>
+      </sect2>
+
+      <sect2 id="security-authorization-recommendations">
         <title>Authorization Recommendations</title>
 
         <para>Given there are several ways to achieve similar authorization
@@ -903,172 +1306,70 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
           <listitem>
             <para>Most authorization decision rules can be easily satisfied by
             writing an <literal>AccessDecisionVoter</literal> implementation
-            and using either <literal>ConsensusBased</literal> or
-            <literal>AffirmativeBased</literal> as the
+            and using either <literal>ConsensusBased</literal>,
+            <literal>AffirmativeBased</literal> or
+            <literal>UnanimousBased</literal> as the
             <literal>AccessDecisionManager</literal>.</para>
           </listitem>
         </itemizedlist>
       </sect2>
-
-               <sect2>
-                       <title>Authorization Tag Library</title>
-
-                       <para>The Acegi Security System for Spring comes bundled with a
-             JSP tag library that eases JSP writing.</para>
-
-                       <para>This library simply wraps some bits of Java code, for
-            easy reuse.  The tag library also allows the JSP developer to
-            determine if a principal has, doesn't have or has any of a
-            specified set of roles.</para>
-
-                       <sect3>
-                               <title>Usage</title>
-
-                               <para>The following JSP fragment illustrates how to use the
-                         authz taglib:</para>
-
-                               <para>
-                                       <programlisting>&lt;authz:authorize ifAllGranted="ROLE_SUPERVISOR"&gt;
-        &lt;td&gt;
-                &lt;A HREF="del.htm?id=&lt;c:out value="${contact.id}"/&gt;"&gt;Del&lt;/A&gt;
-        &lt;/td&gt;
-&lt;/authz:authorize&gt;</programlisting>
-                               </para>
-
-                               <para>This code was copied from the Contacts sample
-                               application.</para>
-
-                                <para>What this code says is:  if the pricipal has been granted
-                               ROLE_SUPERVISOR, allow the tag's body to be output.</para>
-                       </sect3>
-
-                       <sect3>
-                               <title>Installation</title>
-
-                               <para>Installation is a simple matter-simply copy the
-                               acegi-security-taglib.jar file to your application's
-                               WEB-INF/lib folder.  The tag library includes it's TLD,
-                               which makes it easier to work with JSP 1.2+ containers.</para>
-
-                               <para>If you are using a JSP 1.1 container, you will need to
-                               declare the JSP tag library in your application's web.xml file,
-                               with code such as this:</para>
-
-                               <para>
-                                       <programlisting>&lt;taglib&gt;
-       &lt;taglib-uri&gt;http://acegisecurity.sf.net/authz&lt;/taglib-uri&gt;
-       &lt;taglib-location&gt;/WEB-INF/authz.tld&lt;/taglib-location&gt;
-&lt;/taglib&gt;</programlisting>
-                               </para>
-
-                               <para>You will also need to extract the authz.tld file from
-                               the acegi-security-taglib.jar file.  Use a regular Zip tool,
-                               or use Java's JAR utility.</para>
-                       </sect3>
-
-                       <sect3>
-                               <title>Reference</title>
-
-                               <para>The
-                                       <literal>authz:authorize</literal> tag declares the
-                                       following attributes:
-                               </para>
-
-                               <para>
-                                       <itemizedlist spacing="compact">
-                                               <listitem><para>
-                                                       <literal>ifAllGranted</literal>:  All the listed
-                                                       roles must be granted for the tag to output it's
-                                                       body.
-                                               </para></listitem>
-                                               <listitem><para>
-                                                       <literal>ifAnyGranted</literal>:  Any of the
-                                                       listed roles must be granted for the tag to output
-                                                       it's body.
-                                               </para></listitem>
-                                               <listitem><para>
-                                                       <literal>ifNotGranted</literal>:  None of the
-                                                       listed roles must be granted for the tag to output
-                                                       it's body.
-                                               </para></listitem>
-                                       </itemizedlist>
-                               </para>
-
-                               <para>You'll note that in each attribute you can list multiple
-                               roles.  Simply separate the roles using a comma.  The
-                               <literal>authorize</literal> tag ignores whitespace in
-                               attributes.</para>
-
-                               <para>The tag library logically ANDs all of it's parameters
-                               together.  This means that if you combine two or more
-                               attributes, they all must be true for the tag to output it's
-                               body.  Don't add an
-                               <literal>ifAllGranted="ROLE_SUPERVISOR"</literal>, followed by
-                               an <literal>ifNotGranted="ROLE_SUPERVISOR"</literal>, or
-                               you'll be surprised to never see the tag's body.</para>
-
-                               <para>One last item:  the tag verifies the authorizations in a
-                               specific order:  first <literal>ifNotGranted</literal>, then
-                               <literal>ifAllGranted</literal>, and finally,
-                               <literal>ifAnyGranted</literal>.
-                               </para>
-
-                               <para>This might or might not be important to you, depending
-                               on how your authorization scheme is defined, but it allows you
-                               to express concepts like:  principal is a SUPERVISOR, but not
-                               a NEWBIE_SUPERVISOR.</para>
-                       </sect3>
-               </sect2>
     </sect1>
 
-    <sect1>
+    <sect1 id="security-run-as">
       <title>Run-As Authentication Replacement</title>
 
-      <sect2>
+      <sect2 id="security-run-as-purpose">
         <title>Purpose</title>
 
-        <para>The SecurityInterceptor is able to temporarily replace the
-        <literal>Authentication</literal> object in the
-        <literal>ContextHolder</literal> during a method invocation. This only
-        occurs if the original <literal>Authentication</literal> object was
-        successfully processed by the <literal>AuthenticationManager</literal>
-        and <literal>AccessDecisionManager</literal>. The
+        <para>The <literal>AbstractSecurityInterceptor</literal> is able to
+        temporarily replace the <literal>Authentication</literal> object in
+        the <literal>SecureContext</literal> and
+        <literal>ContextHolder</literal> during the
+        <literal>SecurityInterceptorCallback</literal>. This only occurs if
+        the original <literal>Authentication</literal> object was successfully
+        processed by the <literal>AuthenticationManager</literal> and
+        <literal>AccessDecisionManager</literal>. The
         <literal>RunAsManager</literal> will indicate the replacement
-        <literal>Authentication</literal> object (if any) that should be used
-        during the method invocation.</para>
+        <literal>Authentication</literal> object, if any, that should be used
+        during the <literal>SecurityInterceptorCallback</literal>.</para>
 
         <para>By temporarily replacing the <literal>Authentication</literal>
-        object during a method invocation, the method invocation will be able
-        to call other objects which require different authentication and
-        authorization credentials. It will also be able to perform any
-        internal security checks for specific
+        object during a <literal>SecurityInterceptorCallback</literal>, the
+        secured invocation will be able to call other objects which require
+        different authentication and authorization credentials. It will also
+        be able to perform any internal security checks for specific
         <literal>GrantedAuthority</literal> objects.</para>
       </sect2>
 
-      <sect2>
+      <sect2 id="security-run-as-usage">
         <title>Usage</title>
 
         <para>A <literal>RunAsManager</literal> interface is provided by the
         Acegi Security System for Spring:</para>
 
-        <para><programlisting>public Authentication buildRunAs(Authentication authentication, MethodInvocation invocation, ConfigAttributeDefinition config);
-public boolean supports(ConfigAttribute attribute);</programlisting></para>
+        <para><programlisting>public Authentication buildRunAs(Authentication authentication, Object object, ConfigAttributeDefinition config);
+public boolean supports(ConfigAttribute attribute);
+public boolean supports(Class clazz);</programlisting></para>
 
         <para>The first method returns the <literal>Authentication</literal>
         object that should replace the existing
         <literal>Authentication</literal> object for the duration of the
         method invocation. If the method returns <literal>null</literal>, it
         indicates no replacement should be made. The second method is used by
-        the <literal>SecurityInterceptor</literal> as part of its startup
-        validation of configuration attributes.</para>
+        the <literal>AbstractSecurityInterceptor</literal> as part of its
+        startup validation of configuration attributes. The
+        <literal>supports(Class)</literal> method is called by a security
+        interceptor implementation to ensure the configured
+        <literal>RunAsManager</literal> supports the type of secure object
+        that the security interceptor will present.</para>
 
         <para>One concrete implementation of a <literal>RunAsManager</literal>
         is provided with the Acegi Security System for Spring. The
         <literal>RunAsManagerImpl</literal> class returns a replacement
         <literal>RunAsUserToken</literal> if any
         <literal>ConfigAttribute</literal> starts with
-        <literal>RUN_AS_</literal>. If any <literal>such
-        ConfigAttribute</literal> is found, the replacement
+        <literal>RUN_AS_</literal>. If any such
+        <literal>ConfigAttribute</literal> is found, the replacement
         <literal>RunAsUserToken</literal> will contain the same principal,
         credentials and granted authorities as the original
         <literal>Authentication</literal> object, along with a new
@@ -1084,14 +1385,14 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
         <para>The replacement <literal>RunAsUserToken</literal> is just like
         any other <literal>Authentication</literal> object. It needs to be
         authenticated by the <literal>AuthenticationManager</literal>,
-        probably via delegation to <literal>a suitable
-        AuthenticationProvider</literal>. The
+        probably via delegation to a suitable
+        <literal>AuthenticationProvider</literal>. The
         <literal>RunAsImplAuthenticationProvider</literal> performs such
-        authentication. It simply accepts as valid whatever
-        <literal>RunAsUserToken</literal> is presented.</para>
+        authentication. It simply accepts as valid any
+        <literal>RunAsUserToken</literal> presented.</para>
 
         <para>To ensure malicious code does not create a
-        <literal>RunAsUserToken</literal> and presents it for guaranteed
+        <literal>RunAsUserToken</literal> and present it for guaranteed
         acceptance by the <literal>RunAsImplAuthenticationProvider</literal>,
         the hash of a key is stored in all generated tokens. The
         <literal>RunAsManagerImpl</literal> and
@@ -1112,77 +1413,171 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
       </sect2>
     </sect1>
 
-    <sect1 id="security-container-adapters">
-      <title>Container Adapters</title>
+    <sect1 id="security-ui">
+      <title>User Interfacing with the ContextHolder</title>
 
-      <sect2>
-        <title>Overview</title>
+      <sect2 id="security-ui-purpose">
+        <title>Purpose</title>
 
-        <para>A very large proportion of Spring applications are web-based.
-        The Acegi Security System for Spring supports integration with
-        containers that host such applications. This integration means that
-        applications can continue to leverage the authentication and
-        authorization capabilities built into containers (such as
-        <literal>isUserInRole()</literal> and form-based or basic
-        authentication), whilst benefiting from the enhanced bean-level
-        security capabilities provided by the Acegi Security System for
-        Spring.</para>
+        <para>Everything presented so far assumes one thing: the
+        <literal>ContextHolder</literal> is populated with a valid
+        <literal>SecureContext</literal>, which in turn contains a valid
+        <literal>Authentication</literal> object. Develolpers are free to do
+        this in whichever way they like, such as directly calling the relevant
+        objects at runtime. However, several classes have been provided to
+        make this process transparent in many situations.</para>
 
-        <para>The integration between a container and the Acegi Security
-        System for Spring is achieved through an adapter. The adapter provides
-        a container-compatible user authentication provider, and often needs
-        to return a container-compatible user object.</para>
+        <para>The <literal>net.sf.acegisecurity.ui</literal> package is design
+        to make interfacing web application user interfaces with the
+        <literal>ContextHolder</literal> as simple as possible. There are two
+        major steps in doing this:</para>
 
-        <para>The adapter is instantiated by the container and is defined in a
-        container-specific configuration file. The adapter then loads a Spring
-        bean context which defines the normal authentication manager settings,
-        such as the authentication providers that can be used to authenticate
-        the request. The bean context is usually named
-        <literal>acegisecurity.xml</literal> and is placed in a
-        container-specific location.</para>
+        <para><itemizedlist spacing="compact">
+            <listitem>
+              <para>Actually authenticate the user and place the resulting
+              <literal>Authentication</literal> object in a "well-known
+              location".</para>
+            </listitem>
 
-        <para>The Acegi Security System for Spring currently supports Jetty,
-        Catalina (Tomcat), JBoss and Resin. Additional container adapters can
-        easily be written.</para>
+            <listitem>
+              <para>Extract the <literal>Authentication</literal> object from
+              the "well-known location" and place in into the
+              <literal>ContextHolder</literal> for the duration of the secure
+              object invocation.</para>
+            </listitem>
+          </itemizedlist></para>
+
+        <para>Several alternatives are available for the first step. The two
+        most supported approaches are HTTP Session Authentication, which uses
+        the <literal>HttpSession</literal> object and filters to authenticate
+        the user. The other is via Container Adapters, which allow supported
+        web containers to perform the authentication themselves. HTTP Session
+        Authentication is discussed below, whilst Container Adapters are
+        discussed in a separate section.</para>
       </sect2>
 
-      <sect2 id="security-container-adapters-configuration">
-        <title>Filter Integration</title>
+      <sect2 id="security-ui-http-session">
+        <title>HTTP Session Authentication</title>
 
-        <para>Web applications wishing to use container adapters should define
-        the standard <literal>&lt;security-constraint&gt;</literal> and
-        <literal>&lt;login-config&gt;</literal> entries in their
-        <literal>web.xml</literal> file. These will cause the container
-        authentication to occur, which will delegate to the Acegi Security
-        System for Spring provided adapter.</para>
+        <para>HTTP Session Authentication involves using the
+        <literal>AuthenticationProcessingFilter</literal> to process a login
+        form. The login form simply contains <literal>j_username</literal> and
+        <literal>j_password</literal> input fields, and posts to a URL that is
+        monitored by the filter (by default
+        <literal>j_acegi_security_check</literal>). The filter is defined in
+        <literal>web.xml</literal> as follows:</para>
 
-        <para>The adapter will return a container-compatible user object that
-        also implements the <literal>Authentication</literal> interface. The
-        container then makes this returned user object available from a
-        container-specific well-known location.</para>
+        <para><programlisting>&lt;filter&gt;
+  &lt;filter-name&gt;Acegi Authentication Processing Filter&lt;/filter-name&gt;
+  &lt;filter-class&gt;net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter&lt;/filter-class&gt;
+  &lt;init-param&gt;
+    &lt;param-name&gt;appContextLocation&lt;/param-name&gt;
+    &lt;param-value&gt;web-filters-acegisecurity.xml&lt;/param-value&gt;
+  &lt;/init-param&gt;
+  &lt;init-param&gt;
+    &lt;param-name&gt;authenticationFailureUrl&lt;/param-name&gt;
+    &lt;param-value&gt;/acegilogin.jsp?login_error=1&lt;/param-value&gt;
+  &lt;/init-param&gt;
+  &lt;init-param&gt;
+    &lt;param-name&gt;defaultTargetUrl&lt;/param-name&gt;
+    &lt;param-value&gt;/&lt;/param-value&gt;
+  &lt;/init-param&gt;
+  &lt;init-param&gt;
+    &lt;param-name&gt;filterProcessUrl&lt;/param-name&gt;
+    &lt;param-value&gt;/j_acegi_security_check&lt;/param-value&gt;
+  &lt;/init-param&gt;
+&lt;/filter&gt;
+
+&lt;filter-mapping&gt;
+  &lt;filter-name&gt;Acegi Authentication Processing Filter&lt;/filter-name&gt;
+  &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;</programlisting></para>
+
+        <para>The <literal>appContextLocation</literal> specifies the location
+        of a Spring XML application context. In the example above the root of
+        the classpath is used, so the XML file should be placed in
+        <literal>WEB-INF/classes</literal>. The
+        <literal>AuthenticationProcessingFilter</literal> will load this
+        application context, expecting to find a properly configured
+        <literal>AuthenticationManager</literal>. It will use this
+        <literal>AuthenticationManager</literal> to process each
+        authentication request. If authentication fails, the browser will be
+        redirected to the <literal>authenticationFailureUrl</literal>. The
+        <literal>AuthenticationException</literal> will be placed into the
+        <literal>HttpSession</literal> attribute indicated by
+        <literal>AuthenticationProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY</literal>,
+        enabling a reason to be provided to the user on the error page.</para>
+
+        <para>If authentication is successful, the resulting
+        <literal>Authentication</literal> object will be placed into the
+        <literal>HttpSession</literal> attribute indicated by
+        <literal>HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY</literal>.
+        This becomes the "well-known location" from which the
+        <literal>Authentication</literal> object is later extracted.</para>
+
+        <para>Once the HttpSession has been updated, the browser will need to
+        be redirected to the target URL. The target URL is usually indicated
+        by the <literal>HttpSession</literal> attribute specified by
+        <literal>AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY</literal>.
+        This attribute is automatically set by the
+        <literal>SecurityEnforcementFilter</literal> when an
+        <literal>AuthenticationException</literal> occurs, so that after login
+        is completed the user can return to what they were trying to access.
+        If for some reason the <literal>HttpSession</literal> does not
+        indicate the target URL, the browser will be redirected to the
+        <literal>defaultTargetUrl</literal> filter initialization
+        property.</para>
+
+        <para>Because this authentication approach is fully contained within a
+        single web application, HTTP Session Authentication is recommended to
+        be used instead of Container Adapters.</para>
+      </sect2>
+
+      <sect2 id="security-ui-well-known">
+        <title>Well-Known Location Integration</title>
+
+        <para>Once a web application has used either HTTP Session
+        Authentication or a Container Adapter, an
+        <literal>Authentication</literal> object will exist in a well-known
+        location. The final step in automatically integrating the user
+        interface with the backend security interceptor is to extract this
+        <literal>Authentication</literal> object from the well-known location
+        and place it into a <literal>SecureContext</literal> in the
+        <literal>ContextHolder</literal>.</para>
 
         <para>The <literal>AbstractIntegrationFilter</literal> and its
-        subclasses finalise the adapter integration. These classes are
-        standard filters, and at the start of each request they will attempt
-        to extract the <literal>Authentication</literal> object from the
-        container's well-known location. The <literal>Authentication</literal>
-        object will then be associated with the
+        subclasses provide this well-known location integration. These classes
+        are standard filters, and at the start of each request they will
+        attempt to extract the <literal>Authentication</literal> object from a
+        well-known location. The <literal>Authentication</literal> object will
+        then be added to a <literal>SecureContext</literal>, the
+        <literal>SecureContext</literal> associated with the
         <literal>ContextHolder</literal> for the duration of the request, and
-        be removed when the request is finished. Three concrete subclasses of
+        the <literal>ContextHolder</literal> be cleared when the request is
+        finished. Four concrete subclasses of
         <literal>AbstractIntegrationFilter</literal> are provided with the
         Acegi Security System for Spring:</para>
 
         <para><itemizedlist>
             <listitem>
+              <para><literal>HttpSessionIntegrationFilter</literal> is used
+              with HTTP Session Authentication, or any other approach that
+              populates the <literal>HttpSession</literal> accordingly. It
+              extracts the <literal>Authentication</literal> object from the
+              <literal>HttpSession</literal> attribute indicated by
+              <literal>HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY</literal>.</para>
+            </listitem>
+
+            <listitem>
               <para><literal>HttpRequestIntegrationFilter</literal> is used
-              with Catalina, Jetty and Resin. It extracts the authentication
-              information from
+              with Catalina, Jetty and Resin Container Adapters. It extracts
+              the authentication information from
               <literal>HttpServletRequest.getUserPrincipal()</literal>.</para>
             </listitem>
 
             <listitem>
-              <para><literal>JbossIntegrationFilter</literal> is used with
-              JBoss. It extracts the authentication from
+              <para><literal>JbossIntegrationFilter</literal> is used with the
+              JBoss Container Adapter. It extracts the authentication from
               <literal>java:comp/env/security/subject</literal>.</para>
             </listitem>
 
@@ -1190,10 +1585,23 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
               <para><literal>AutoIntegrationFilter</literal> automatically
               determines which filter to use. This makes a web application WAR
               file more portable, as the <literal>web.xml</literal> is not
-              hard-coded to a container-specific
+              hard-coded to a specific
               <literal>AbstractIntegrationFilter</literal>.</para>
             </listitem>
           </itemizedlist></para>
+
+        <para>To define the <literal>AutoIntegrationFilter</literal>
+        (recommended), simply add the following to your web.xml:</para>
+
+        <para><programlisting>&lt;filter&gt;
+  &lt;filter-name&gt;Acegi Security System for Spring Auto Integration Filter&lt;/filter-name&gt;
+  &lt;filter-class&gt;net.sf.acegisecurity.ui.AutoIntegrationFilter&lt;/filter-class&gt;
+&lt;/filter&gt;
+
+&lt;filter-mapping&gt;
+  &lt;filter-name&gt;Acegi Security System for Spring Auto Integration Filter&lt;/filter-name&gt;
+  &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;</programlisting></para>
 
         <para>Once in the <literal>ContextHolder</literal>, the standard Acegi
         Security System for Spring classes can be used. Because
@@ -1206,14 +1614,57 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
         demonstrates accessing the <literal>ContextHolder</literal>
         independent of Spring's MVC packages.</para>
       </sect2>
+    </sect1>
 
-      <sect2 id="security-container-adapters-provider">
+    <sect1 id="security-container-adapters">
+      <title>Container Adapters</title>
+
+      <sect2 id="security-container-adapters-overview">
+        <title>Overview</title>
+
+        <para>Early versions of the Acegi Security System for Spring
+        exclusively used Container Adapters for interfacing authentication
+        with end users. Whilst this worked well, it required considerable time
+        to support multiple container versions and the configuration itself
+        was relatively time-consuming for developers. For this reason the HTTP
+        Session Authentication approach was developed, and is today
+        recommended for most applications.</para>
+
+        <para>Container Adapters enable the Acegi Security System for Spring
+        to integrate directly with the containers used to host end user
+        applications. This integration means that applications can continue to
+        leverage the authentication and authorization capabilities built into
+        containers (such as <literal>isUserInRole()</literal> and form-based
+        or basic authentication), whilst benefiting from the enhanced security
+        interception capabilities provided by the Acegi Security System for
+        Spring.</para>
+
+        <para>The integration between a container and the Acegi Security
+        System for Spring is achieved through an adapter. The adapter provides
+        a container-compatible user authentication provider, and needs to
+        return a container-compatible user object.</para>
+
+        <para>The adapter is instantiated by the container and is defined in a
+        container-specific configuration file. The adapter then loads a Spring
+        application context which defines the normal authentication manager
+        settings, such as the authentication providers that can be used to
+        authenticate the request. The application context is usually named
+        <literal>acegisecurity.xml</literal> and is placed in a
+        container-specific location.</para>
+
+        <para>The Acegi Security System for Spring currently supports Jetty,
+        Catalina (Tomcat), JBoss and Resin. Additional container adapters can
+        easily be written.</para>
+      </sect2>
+
+      <sect2 id="security-container-adapters-adapter-provider">
         <title>Adapter Authentication Provider</title>
 
         <para>As is always the case, the container adapter generated
         <literal>Authentication</literal> object still needs to be
         authenticated by an <literal>AuthenticationManager</literal> when
-        requested to do so by the <literal>SecurityInterceptor</literal>. The
+        requested to do so by the
+        <literal>AbstractSecurityInterceptor</literal>. The
         <literal>AuthenticationManager</literal> needs to be certain the
         adapter-provided <literal>Authentication</literal> object is valid and
         was actually authenticated by a trusted adapter.</para>
@@ -1239,14 +1690,14 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
         authentication using providers such as
         <literal>DaoAuthenticationProvider</literal>, returning an
         <literal>AuthByAdapter</literal> instance that contains a hash code of
-        the key. Later, when an application calls a
-        <literal>SecurityInterceptor</literal> managed bean, the
-        <literal>AuthByAdapter</literal> instance in the
+        the key. Later, when an application calls a security interceptor
+        managed resource, the <literal>AuthByAdapter</literal> instance in the
+        <literal>SecureContext</literal> in the
         <literal>ContextHolder</literal> will be tested by the application's
         <literal>AuthByAdapterProvider</literal>. There is no requirement for
         additional authentication providers such as
         <literal>DaoAuthenticationProvider</literal> within the
-        application-specific bean context, as the only type of
+        application-specific application context, as the only type of
         <literal>Authentication</literal> instance that will be presented by
         the application is from the container adapter.</para>
 
@@ -1258,12 +1709,13 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
         configured.</para>
       </sect2>
 
-      <sect2>
+      <sect2 id="security-container-adapters-catalina">
         <title>Catalina (Tomcat) Installation</title>
 
-        <para>The following was tested with Jakarta Tomcat 5.0.19. We
-        automatically test the following directions using our container
-        integration test system and this version of Catalina (Tomcat).</para>
+        <para>The following was tested with Jakarta Tomcat 4.1.30 and 5.0.19.
+        We automatically test the following directions using our container
+        integration test system and these versions of Catalina
+        (Tomcat).</para>
 
         <para><literal>$CATALINA_HOME</literal> refers to the root of your
         Catalina (Tomcat) installation.</para>
@@ -1307,9 +1759,19 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
         <literal>acegi-security.jar</literal>) should be in your application's
         <literal>WEB-INF/lib</literal>. The realm name indicated in your
         <literal>web.xml</literal> does not matter with Catalina.</para>
+
+        <para>We have received reports of problems using this Container
+        Adapter with Mac OS X. A work-around is to use a script such as
+        follows:</para>
+
+        <para><programlisting>#!/bin/sh
+export CATALINA_HOME="/Library/Tomcat"
+export JAVA_HOME="/Library/Java/Home"
+cd /
+$CATALINA_HOME/bin/startup.sh</programlisting></para>
       </sect2>
 
-      <sect2>
+      <sect2 id="security-container-adapters-jetty">
         <title>Jetty Installation</title>
 
         <para>The following was tested with Jetty 4.2.18. We automatically
@@ -1328,7 +1790,7 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
       &lt;New class="net.sf.acegisecurity.adapters.jetty.JettyAcegiUserRealm"&gt;
         &lt;Arg&gt;Spring Powered Realm&lt;/Arg&gt;
         &lt;Arg&gt;my_password&lt;/Arg&gt;
-        &lt;Arg&gt;/etc/acegisecurity.xml&lt;/Arg&gt;
+        &lt;Arg&gt;etc/acegisecurity.xml&lt;/Arg&gt;
       &lt;/New&gt;
     &lt;/Arg&gt;
   &lt;/Call&gt;</programlisting></para>
@@ -1365,7 +1827,7 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
         Realm").</para>
       </sect2>
 
-      <sect2>
+      <sect2 id="security-container-adapters-joss">
         <title>JBoss Installation</title>
 
         <para>The following was tested with JBoss 3.2.3. We automatically test
@@ -1423,7 +1885,7 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
 &lt;/jboss-web&gt;</programlisting></para>
       </sect2>
 
-      <sect2>
+      <sect2 id="security-container-adapters-resin">
         <title>Resin Installation</title>
 
         <para>The following was tested with Resin 3.0.6.</para>
@@ -1485,27 +1947,40 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
     </sect1>
 
     <sect1 id="security-sample">
-      <title>Sample Application</title>
+      <title>Contacts Sample Application</title>
 
       <para>Included with the Acegi Security System for Spring is a very
       simple application that can demonstrate the basic security facilities
-      provided by the system and confirm your container adapter is properly
-      configured.</para>
+      provided by the system (and confirm your Container Adapter is properly
+      configured if you're using one).</para>
 
-      <para>To install, configure your container as described in the Container
-      Adapters section of this chapter. Do not modify
-      <literal>acegisecurity.xml</literal>. It contains a very basic in-memory
-      authentication configuration that is compatible with the sample
-      application. Next, copy the <literal>contacts.war</literal> file from
-      the Acegi Security System for Spring distribution into your container’s
+      <para>The Contacts sample application includes two deployable versions:
+      <literal>contacts.war</literal> is configured with the HTTP Session
+      Authentication approach, and does not use Container Adapters. The
+      <literal>contacts-container-adapter.war</literal> is configured to use a
+      Container Adapter. If you're just wanting to see how the sample
+      application works, please use <literal>contacts.war</literal> as it does
+      not require special configuration of your container.</para>
+
+      <para>If you are going to use the
+      <literal>contacts-container-adapter.war</literal> version, first
+      configure your container as described in the Container Adapters section
+      of this chapter. Do not modify <literal>acegisecurity.xml</literal>. It
+      contains a very basic in-memory authentication configuration that is
+      compatible with the sample application.</para>
+
+      <para>To deploy, simply copy the relevant
+      <literal>contacts.war</literal> or
+      <literal>contacts-container-adapter.war</literal> file from the Acegi
+      Security System for Spring distribution into your container’s
       <literal>webapps</literal> directory.</para>
 
       <para>After starting your container, check the application can load.
       Visit <literal>http://localhost:8080/contacts</literal> (or whichever
-      URL is appropriate for your web container). A random contact should be
-      displayed. Click "Refresh" several times and you will see different
-      contacts. The business method that provides this random contact is not
-      secured.</para>
+      URL is appropriate for your web container and the WAR you deployed). A
+      random contact should be displayed. Click "Refresh" several times and
+      you will see different contacts. The business method that provides this
+      random contact is not secured.</para>
 
       <para>Next, click "Debug". You will be prompted to authenticate, and a
       series of usernames and passwords are suggested on that page. Simply
@@ -1533,21 +2008,28 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
 
         <para>ROLE_SUPERVISOR (getAuthority(): ROLE_SUPERVISOR)</para>
 
-        <para>SUCCESS! Your container adapter appears to be properly
-        configured!</para>
+        <para>SUCCESS! Your [container adapter|web filter] appears to be
+        properly configured!</para>
       </blockquote>
 
-      <para>If you receive a different message, check you have properly
-      configured your container adapter. Refer to the instructions provided
-      above.</para>
+      <para>If you receive a different message, and deployed
+      <literal>contacts-container-adapter.war</literal>, check you have
+      properly configured your Container Adapter. Refer to the instructions
+      provided above.</para>
 
       <para>Once you successfully receive the above message, return to the
       sample application's home page and click "Manage". You can then try out
       the application. Notice that only the contacts belonging to the
       currently logged on user are displayed, and only users with
       <literal>ROLE_SUPERVISOR</literal> are granted access to delete their
-      contacts. Behind the scenes, the <literal>SecurityInterceptor</literal>
-      is securing the business objects.</para>
+      contacts. Behind the scenes, the
+      <literal>MethodSecurityInterceptor</literal> is securing the business
+      objects. If you're using <literal>contacts.war</literal>, the
+      <literal>FilterSecurityInterceptor</literal> is also securing the HTTP
+      requests. If using <literal>contacts.war</literal>, be sure to try
+      visiting <literal>http://localhost:8080/contacts/secure/super</literal>,
+      which will demonstrate access being denied by the
+      <literal>SecurityEnforcementFilter</literal>.</para>
     </sect1>
 
     <sect1 id="security-become-involved">
@@ -1566,8 +2048,9 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
 
       <itemizedlist>
         <listitem>
-          <para>Run the Ant <literal>format</literal> task to convert your
-          code into the project's consistent style</para>
+          <para>Run the Ant <literal>format</literal> task (or use a suitable
+          IDE plug-in) to convert your code into the project's consistent
+          style</para>
         </listitem>
 
         <listitem>
@@ -1586,13 +2069,14 @@ public boolean supports(ConfigAttribute attribute);</programlisting></para>
         </listitem>
 
         <listitem>
-          <para>If you have added new code, please provide suitable unit
-          tests</para>
+          <para>If you have added new code, please provide suitable unit tests
+          (use <literal>ant clover.html</literal> to view coverage)</para>
         </listitem>
 
         <listitem>
-          <para>Add a CVS <literal>$Id$</literal> tag to the JavaDocs for any
-          new class you create </para>
+          <para>Add a CVS <literal>$Id: index.xml,v 1.3 2004/04/02 21:12:25
+          fbos Exp $</literal> tag to the JavaDocs for any new class you
+          create</para>
         </listitem>
       </itemizedlist>
 
