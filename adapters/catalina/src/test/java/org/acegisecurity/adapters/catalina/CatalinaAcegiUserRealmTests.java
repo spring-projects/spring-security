@@ -261,7 +261,7 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
         throws Exception {
         CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
 
-        URL url = ClassLoader.getSystemResource(
+        URL url = Thread.currentThread().getContextClassLoader().getResource(
                 "net/sf/acegisecurity/adapters/" + fileName);
 
         if (url == null) {
