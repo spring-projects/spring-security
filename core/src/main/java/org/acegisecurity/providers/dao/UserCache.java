@@ -54,4 +54,20 @@ public interface UserCache {
      *        cache
      */
     public void putUserInCache(UserDetails user);
+
+    /**
+     * Removes the specified user from the cache. The <code>username</code> is
+     * the key used to remove the user. If the user is not found, the method
+     * should simply return (not thrown an exception).
+     * 
+     * <P>
+     * Some cache implementations may not support eviction from the cache,  in
+     * which case they should provide appropriate behaviour to alter the user
+     * in either its documentation, via an exception, or through a log
+     * message.
+     * </p>
+     *
+     * @param username to be evicted from the cache
+     */
+    public void removeUserFromCache(String username);
 }

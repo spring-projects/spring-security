@@ -354,5 +354,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         public void putUserInCache(UserDetails user) {
             cache.put(user.getUsername(), user);
         }
+
+        public void removeUserFromCache(String username) {}
     }
 }

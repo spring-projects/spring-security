@@ -53,6 +53,7 @@ public class NullUserCacheTests extends TestCase {
         NullUserCache cache = new NullUserCache();
         cache.putUserInCache(getUser());
         assertNull(cache.getUserFromCache(null));
+        cache.removeUserFromCache(null);
     }
 
     private User getUser() {

@@ -33,4 +33,6 @@ public class NullUserCache implements UserCache {
     }
 
     public void putUserInCache(UserDetails user) {}
+
+    public void removeUserFromCache(String username) {}
 }
