@@ -20,11 +20,17 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.providers.dao.UserDetails;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 
+import org.springframework.core.io.ClassPathResource;
+
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.object.MappingSqlQuery;
 
+import java.io.File;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import javax.sql.DataSource;
 
 
 /**
@@ -161,14 +167,8 @@ public class JdbcDaoTests extends TestCase {
     }
 
     private JdbcDaoImpl makePopulatedJdbcDao() throws Exception {
-        DriverManagerDataSource ds = new DriverManagerDataSource();
-        ds.setDriverClassName("org.hsqldb.jdbcDriver");
-        ds.setUrl("jdbc:hsqldb:acegisecuritytest");
-        ds.setUsername("sa");
-        ds.setPassword("");
-
         JdbcDaoImpl dao = new JdbcDaoImpl();
-        dao.setDataSource(ds);
+        dao.setDataSource(makeDataSource());
         dao.afterPropertiesSet();
 
         return dao;
@@ -176,18 +176,26 @@ public class JdbcDaoTests extends TestCase {
 
     private JdbcDaoImpl makePopulatedJdbcDaoWithRolePrefix()
         throws Exception {
-        DriverManagerDataSource ds = new DriverManagerDataSource();
-        ds.setDriverClassName("org.hsqldb.jdbcDriver");
-        ds.setUrl("jdbc:hsqldb:acegisecuritytest");
-        ds.setUsername("sa");
-        ds.setPassword("");
-
         JdbcDaoImpl dao = new JdbcDaoImpl();
-        dao.setDataSource(ds);
+        dao.setDataSource(makeDataSource());
         dao.setRolePrefix("ARBITRARY_PREFIX_");
         dao.afterPropertiesSet();
 
         return dao;
+    }
+
+    private DataSource makeDataSource()
+        throws Exception {
+        ClassPathResource dbScript = new ClassPathResource("acegisecuritytest.script");
+        String path = dbScript.getFile().getParentFile().getAbsolutePath();
+
+        DriverManagerDataSource ds = new DriverManagerDataSource();
+        ds.setDriverClassName("org.hsqldb.jdbcDriver");
+        ds.setUrl("jdbc:hsqldb:" + path + File.separator + "acegisecuritytest");
+        ds.setUsername("sa");
+        ds.setPassword("");
+
+        return ds;
     }
 
     //~ Inner Classes ==========================================================
