@@ -226,7 +226,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     public String getRemoteAddr() {
-        throw new UnsupportedOperationException("mock method not implemented");
+        return "127.0.0.1";
     }
 
     public String getRemoteHost() {
