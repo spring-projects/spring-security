@@ -519,33 +519,23 @@
 
         <para>Notice that the filter is actually a
         <literal>FilterToBeanProxy</literal>. Most of the filters used by the
-        Acegi Security System for Spring use this class . What it does is
-        delegate the <literal>Filter</literal>'s methods through to a bean
-        which is obtained from the Spring application context. This enables
-        the bean to benefit from the Spring application context lifecycle
-        support and configuration flexibility.
-        <literal>FilterToBeanProxy</literal> only requires a single
-        initialization parameter, <literal>targetClass</literal> or
-        <literal>targetBean</literal>. The <literal>targetClass</literal>
-        parameter locates the first object in the application context of the
-        specified class, whilst <literal>targetBean</literal> locates the
-        object by bean name. Like standard Spring web applications, the
-        <literal>FilterToBeanProxy</literal> accesses the application context
-        via<literal>
-        WebApplicationContextUtils.getWebApplicationContext(ServletContext)</literal>,
-        so you should configure a <literal>ContextLoaderListener</literal> in
-        <literal>web.xml</literal>.</para>
+        Acegi Security System for Spring use this class. Refer to the Filters
+        section to learn more about this bean.</para>
 
-        <para>In the application context you will need to configure three
+        <para>In the application context you will need to configure four
         beans:</para>
 
         <programlisting>&lt;bean id="securityEnforcementFilter" class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter"&gt;
   &lt;property name="filterSecurityInterceptor"&gt;&lt;ref bean="filterInvocationInterceptor"/&gt;&lt;/property&gt;
   &lt;property name="authenticationEntryPoint"&gt;&lt;ref bean="authenticationEntryPoint"/&gt;&lt;/property&gt;
+  &lt;property name="portResolver"&gt;&lt;ref bean="portResolver"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
 &lt;bean id="authenticationEntryPoint" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint"&gt;
   &lt;property name="loginFormUrl"&gt;&lt;value&gt;/acegilogin.jsp&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="forceHttps"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="portResolver"&gt;&lt;ref bean="portResolver"/&gt;&lt;/property&gt;
+  &lt;property name="portMapper"&gt;&lt;ref bean="portMapper"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
 &lt;bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
@@ -559,6 +549,12 @@
       \A/secure/.*\Z=ROLE_SUPERVISOR,ROLE_TELLER
     &lt;/value&gt;
   &lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;!-- Comment the always[Scheme]Port properties to use ServletRequest.getServerPort() --&gt;
+&lt;bean id="portResolver" class="net.sf.acegisecurity.util.PortResolverImpl"&gt;
+  &lt;property name="alwaysHttpPort"&gt;&lt;value&gt;8080&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="alwaysHttpsPort"&gt;&lt;value&gt;8443&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting>
 
         <para>The <literal>AuthenticationEntryPoint</literal> will be called
@@ -576,6 +572,21 @@
         <literal>CasProcessingFilterEntryPoint</literal> have optional
         properties related to forcing the use of HTTPS, so please refer to the
         JavaDocs if you require this.</para>
+
+        <para>The <literal>PortResolver</literal> is used to inspect a HTTP
+        request and determine the server port it was received on. Generally
+        this means using <literal>ServletRequest.getServerPort()</literal>,
+        although implementations can be forced to always return particular
+        ports (based on the transport protocol), as shown in the example
+        above. </para>
+
+        <para>The <literal>PortMapper</literal> provides information on which
+        HTTPS ports correspond to which HTTP ports. This is used by the
+        <literal>AuthenticationProcessingFilterEntryPoint</literal> and
+        several other beans. The default implementation,
+        <literal>PortMapperImpl</literal>, knows the common HTTP ports 80 and
+        8080 map to HTTPS ports 443 and 8443 respectively. You can customise
+        this mapping if desired.</para>
 
         <para>The <literal>SecurityEnforcementFilter</literal> primarily
         provides session management support and initiates authentication when
@@ -1585,9 +1596,8 @@ public boolean supports(Class clazz);</programlisting></para>
 &lt;/filter-mapping&gt;</programlisting></para>
 
         <para>For a discussion of <literal>FilterToBeanProxy</literal>, please
-        refer to the FilterInvocation Security Interceptor section. The
-        application context will need to define the
-        <literal>AuthenticationProcessingFilter</literal>:</para>
+        refer to the Filters section. The application context will need to
+        define the <literal>AuthenticationProcessingFilter</literal>:</para>
 
         <para><programlisting>&lt;bean id="authenticationProcessingFilter" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
@@ -1661,9 +1671,8 @@ public boolean supports(Class clazz);</programlisting></para>
 &lt;/filter-mapping&gt;</programlisting></para>
 
         <para>For a discussion of <literal>FilterToBeanProxy</literal>, please
-        refer to the FilterInvocation Security Interceptor section. The
-        application context will need to define the
-        <literal>BasicProcessingFilter</literal> and its required
+        refer to the Filters section. The application context will need to
+        define the <literal>BasicProcessingFilter</literal> and its required
         collaborator:</para>
 
         <para><programlisting>&lt;bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter"&gt;
@@ -2736,6 +2745,245 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <para>It is hoped you find CAS integration easy and useful with the
         Acegi Security System for Spring classes. Welcome to enterprise-wide
         single sign on!</para>
+      </sect2>
+    </sect1>
+
+    <sect1 id="security-channels">
+      <title>Channel Security</title>
+
+      <sect2 id="security-channels-overview">
+        <title>Overview</title>
+
+        <para>In addition to coordinating the authentication and authorization
+        requirements of your application, the Acegi Security System for Spring
+        is also able to ensure web requests are received using an appropriate
+        transport. If your application has many security requirements, you'll
+        probably want to use HTTPS as the transport, whilst less secure pages
+        can use the unencrypted HTTP transport.</para>
+
+        <para>An important issue in considering transport security is that of
+        session hijacking. Your web container manages a
+        <literal>HttpSession</literal> by reference to a
+        <literal>jsessionid</literal> that is sent to user agents either via a
+        cookie or URL rewriting. If the <literal>jsessionid</literal> is ever
+        sent over HTTP, there is a possibility that session identifier can be
+        intercepted and used to impersonate the user after they complete the
+        authentication process. This is because most web containers maintain
+        the same session identifier for a given user, even after they switch
+        from HTTP to HTTPS pages.</para>
+
+        <para>If session hijacking is considered too significant a risk for
+        your particular application, the only option is to use HTTPS for every
+        request. This means the <literal>jsessionid</literal> is never sent
+        across an insecure channel. You will need to ensure your
+        <literal>web.xml</literal>-defined
+        <literal>&lt;welcome-file&gt;</literal> points to a HTTPS location,
+        and the application never directs the user to a HTTP location. The
+        Acegi Security System for Spring provides a solution to assist with
+        the latter.</para>
+      </sect2>
+
+      <sect2 id="security-channels-installation">
+        <title>Configuration</title>
+
+        <para>To utilise Acegi Security's channel security services, add the
+        following lines to <literal>web.xml</literal>:</para>
+
+        <para><programlisting>&lt;filter&gt;
+  &lt;filter-name&gt;Acegi Channel Processing Filter&lt;/filter-name&gt;
+  &lt;filter-class&gt;net.sf.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
+  &lt;init-param&gt;
+    &lt;param-name&gt;targetClass&lt;/param-name&gt;
+    &lt;param-value&gt;net.sf.acegisecurity.securechannel.ChannelProcessingFilter&lt;/param-value&gt;
+  &lt;/init-param&gt;
+&lt;/filter&gt;
+
+&lt;filter-mapping&gt;
+  &lt;filter-name&gt;Acegi Channel Processing Filter&lt;/filter-name&gt;
+  &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;</programlisting></para>
+
+        <para>As usual when running <literal>FilterToBeanProxy</literal>, you
+        will also need to configure the filter in your application
+        context:</para>
+
+        <para><programlisting>&lt;bean id="channelProcessingFilter" class="net.sf.acegisecurity.securechannel.ChannelProcessingFilter"&gt;
+  &lt;property name="channelDecisionManager"&gt;&lt;ref bean="channelDecisionManager"/&gt;&lt;/property&gt;
+  &lt;property name="secureChannelEntryPoint"&gt;&lt;ref bean="secureChannelEntryPoint"/&gt;&lt;/property&gt;
+  &lt;property name="insecureChannelEntryPoint"&gt;&lt;ref bean="insecureChannelEntryPoint"/&gt;&lt;/property&gt;
+  &lt;property name="filterInvocationDefinitionSource"&gt;
+    &lt;value&gt;
+      CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+      \A/secure/.*\Z=REQUIRES_SECURE_CHANNEL
+      \A/acegilogin.jsp.*\Z=REQUIRES_SECURE_CHANNEL
+      \A/j_acegi_security_check.*\Z=REQUIRES_SECURE_CHANNEL
+      \A.*\Z=REQUIRES_INSECURE_CHANNEL
+    &lt;/value&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="channelDecisionManager" class="net.sf.acegisecurity.securechannel.ChannelDecisionManagerImpl"/&gt;
+
+&lt;bean id="secureChannelEntryPoint" class="net.sf.acegisecurity.securechannel.RetryWithHttpsEntryPoint"&gt;
+  &lt;property name="portMapper"&gt;&lt;ref bean="portMapper"/&gt;&lt;/property&gt;
+  &lt;property name="portResolver"&gt;&lt;ref bean="portResolver"/&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="insecureChannelEntryPoint" class="net.sf.acegisecurity.securechannel.RetryWithHttpEntryPoint"&gt;
+  &lt;property name="portMapper"&gt;&lt;ref bean="portMapper"/&gt;&lt;/property&gt;
+  &lt;property name="portResolver"&gt;&lt;ref bean="portResolver"/&gt;&lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>Like <literal>FilterSecurityInterceptor</literal>, Apache Ant
+        style paths are also supported by the
+        <literal>ChannelProcessingFilter</literal>.</para>
+
+        <para>The <literal>ChannelProcessingFilter</literal> operates by
+        filtering all web requests and determining the configuration
+        attributes that apply. It then delegates to the
+        <literal>ChannelDecisionManager</literal>. The default implementation,
+        <literal>ChannelDecisionManagerImpl</literal>, should suffice in most
+        cases. It simply throws a
+        <literal>SecureChannelRequiredException</literal> or
+        <literal>InsecureChannelRequiredException</literal> if the request's
+        transport channel carries too little or too much security
+        respectively. </para>
+
+        <para>The <literal>ChannelProcessingFilter</literal> will detect the
+        <literal>SecureChannelRequiredException</literal> or
+        <literal>InsecureChannelRequiredException</literal> and delegate to
+        the <literal>secureChannelEntryPoint</literal> or
+        <literal>insecureChannelEntryPoint</literal> respectively. These entry
+        points implement the <literal>ChannelEntryPoint</literal> interface,
+        which allows the implementation to perform a redirect or take similar
+        action. The included <literal>RetryWithHttpsEntryPoint</literal> and
+        <literal>RetryWithHttpEntryPoint</literal> implementations simply
+        perform a redirect.</para>
+
+        <para>Note that the redirections are absolute (eg
+        http://www.company.com:8080/app/page), not relative (eg /app/page).
+        During testing it was discovered that Internet Explorer 6 Service Pack
+        1 appears to have a bug whereby it does not respond correctly to a
+        redirection instruction which also changes the port to use.
+        Accordingly, absolute URLs are used in conjunction with the
+        <literal>PortResolver</literal> interface to overcome this issue. The
+        <literal>PortResolverImpl</literal> is the included implementation,
+        and is capable of determining the port a request was received on
+        either from the <literal>ServletRequest.getServerPort()</literal>
+        method or from properties defined in the application context. Please
+        refer to the JavaDocs for <literal>PortResolverImpl</literal> for
+        further details.</para>
+      </sect2>
+
+      <sect2 id="security-channels-usage">
+        <title>Usage</title>
+
+        <para>Once configured, using the channel security filter is very easy.
+        Simply request pages without regard to the protocol (ie HTTP or HTTPS)
+        or port (eg 80, 8080, 443, 8443 etc). Obviously you'll still need a
+        way of making the initial request (probably via the
+        <literal>web.xml</literal> <literal>&lt;welcome-file&gt;</literal> or
+        a well-known home page URL), but once this is done the filter will
+        perform redirects as defined by your application context.</para>
+      </sect2>
+    </sect1>
+
+    <sect1 id="security-filters">
+      <title>Filters</title>
+
+      <sect2 id="security-filters-overview">
+        <title>Overview</title>
+
+        <para>The Acegi Security System for Spring uses filters extensively.
+        Each filter is covered in detail in a respective section of this
+        document. This section includes information that applies to all
+        filters.</para>
+      </sect2>
+
+      <sect2 id="security-filters-filtertobeanproxy">
+        <title>FilterToBeanProxy</title>
+
+        <para>Most filters are configured using the
+        <literal>FilterToBeanProxy</literal>. An example configuration from
+        <literal>web.xml</literal> follows:</para>
+
+        <para><programlisting>&lt;filter&gt;
+  &lt;filter-name&gt;Acegi HTTP Request Security Filter&lt;/filter-name&gt;
+  &lt;filter-class&gt;net.sf.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
+  &lt;init-param&gt;
+    &lt;param-name&gt;targetClass&lt;/param-name&gt;
+    &lt;param-value&gt;net.sf.acegisecurity.ClassThatImplementsFilter&lt;/param-value&gt;
+  &lt;/init-param&gt;
+&lt;/filter&gt;</programlisting></para>
+
+        <para>Notice that the filter in <literal>web.xml</literal> is actually
+        a <literal>FilterToBeanProxy</literal>, and not the filter that will
+        actually implements the logic of the filter. What
+        <literal>FilterToBeanProxy</literal> does is delegate the
+        <literal>Filter</literal>'s methods through to a bean which is
+        obtained from the Spring application context. This enables the bean to
+        benefit from the Spring application context lifecycle support and
+        configuration flexibility. The bean must implement
+        <literal>javax.servlet.Filter</literal>.</para>
+
+        <para>The <literal>FilterToBeanProxy</literal> only requires a single
+        initialization parameter, <literal>targetClass</literal> or
+        <literal>targetBean</literal>. The <literal>targetClass</literal>
+        parameter locates the first object in the application context of the
+        specified class, whilst <literal>targetBean</literal> locates the
+        object by bean name. Like standard Spring web applications, the
+        <literal>FilterToBeanProxy</literal> accesses the application context
+        via<literal>
+        WebApplicationContextUtils.getWebApplicationContext(ServletContext)</literal>,
+        so you should configure a <literal>ContextLoaderListener</literal> in
+        <literal>web.xml</literal>.</para>
+      </sect2>
+
+      <sect2 id="security-filters-order">
+        <title>Filter Ordering</title>
+
+        <para>The order that filters are defined in <literal>web.xml</literal>
+        is important.</para>
+
+        <para>Irrespective of which filters you are actually using, the order
+        of the <literal>&lt;filter-mapping&gt;</literal>s should be as
+        follows:</para>
+
+        <orderedlist>
+          <listitem>
+            <para>Acegi Channel Processing Filter
+            (<literal>ChannelProcessingFilter</literal>)</para>
+          </listitem>
+
+          <listitem>
+            <para>Acegi Authentication Processing Filter
+            (<literal>AuthenticationProcessingFilter</literal>)</para>
+          </listitem>
+
+          <listitem>
+            <para>Acegi CAS Processing Filter
+            (<literal>CasProcessingFilter</literal>)</para>
+          </listitem>
+
+          <listitem>
+            <para>Acegi HTTP BASIC Authorization Filter
+            (<literal>BasicProcessingFilter</literal>)</para>
+          </listitem>
+
+          <listitem>
+            <para>Acegi Security System for Spring Auto Integration Filter
+            (<literal>AutoIntegrationFilter</literal>)</para>
+          </listitem>
+
+          <listitem>
+            <para>Acegi HTTP Request Security Filter
+            (<literal>SecurityEnforcementFilter</literal>)</para>
+          </listitem>
+        </orderedlist>
+
+        <para>All of the above filters use
+        <literal>FilterToBeanProxy</literal>, which is discussed in the
+        previous section.</para>
       </sect2>
     </sect1>
 

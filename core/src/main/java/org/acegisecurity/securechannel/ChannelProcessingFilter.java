@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Ensures a request is delivered over a secure channel.
+ * Ensures a web request is delivered over the required channel.
  * 
  * <p>
  * Internally uses a {@link FilterInvocation} to represent the request, so that
@@ -62,7 +62,8 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
     //~ Instance fields ========================================================
 
     private ChannelDecisionManager channelDecisionManager;
-    private ChannelEntryPoint channelEntryPoint;
+    private ChannelEntryPoint insecureChannelEntryPoint;
+    private ChannelEntryPoint secureChannelEntryPoint;
     private FilterInvocationDefinitionSource filterInvocationDefinitionSource;
 
     //~ Methods ================================================================
@@ -76,14 +77,6 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
         return channelDecisionManager;
     }
 
-    public void setChannelEntryPoint(ChannelEntryPoint channelEntryPoint) {
-        this.channelEntryPoint = channelEntryPoint;
-    }
-
-    public ChannelEntryPoint getChannelEntryPoint() {
-        return channelEntryPoint;
-    }
-
     public void setFilterInvocationDefinitionSource(
         FilterInvocationDefinitionSource filterInvocationDefinitionSource) {
         this.filterInvocationDefinitionSource = filterInvocationDefinitionSource;
@@ -91,6 +84,23 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
 
     public FilterInvocationDefinitionSource getFilterInvocationDefinitionSource() {
         return filterInvocationDefinitionSource;
+    }
+
+    public void setInsecureChannelEntryPoint(
+        ChannelEntryPoint insecureChannelEntryPoint) {
+        this.insecureChannelEntryPoint = insecureChannelEntryPoint;
+    }
+
+    public ChannelEntryPoint getInsecureChannelEntryPoint() {
+        return insecureChannelEntryPoint;
+    }
+
+    public void setSecureChannelEntryPoint(ChannelEntryPoint channelEntryPoint) {
+        this.secureChannelEntryPoint = channelEntryPoint;
+    }
+
+    public ChannelEntryPoint getSecureChannelEntryPoint() {
+        return secureChannelEntryPoint;
     }
 
     public void afterPropertiesSet() throws Exception {
@@ -104,9 +114,14 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
                 "channelDecisionManager must be specified");
         }
 
-        if (channelEntryPoint == null) {
+        if (secureChannelEntryPoint == null) {
             throw new IllegalArgumentException(
-                "channelEntryPoint must be specified");
+                "secureChannelEntryPoint must be specified");
+        }
+
+        if (insecureChannelEntryPoint == null) {
+            throw new IllegalArgumentException(
+                "insecureChannelEntryPoint must be specified");
         }
     }
 
@@ -128,20 +143,32 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
 
         if (attr != null) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Request : " + request.toString()
+                logger.debug("Request: " + fi.getFullRequestUrl()
                     + "; ConfigAttributes: " + attr.toString());
             }
 
             try {
                 channelDecisionManager.decide(fi, attr);
-            } catch (SecureChannelRequiredException channelException) {
+            } catch (SecureChannelRequiredException secureException) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Channel insufficient ("
-                        + channelException.getMessage()
-                        + "); delegating to channelEntryPoint");
+                    logger.debug("Channel insufficient security ("
+                        + secureException.getMessage()
+                        + "); delegating to secureChannelEntryPoint");
                 }
 
-                channelEntryPoint.commence(request, response);
+                secureChannelEntryPoint.commence(request, response);
+
+                return;
+            } catch (InsecureChannelRequiredException insecureException) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Channel too much security ("
+                        + insecureException.getMessage()
+                        + "); delegating to insecureChannelEntryPoint");
+                }
+
+                insecureChannelEntryPoint.commence(request, response);
+
+                return;
             }
         }
 

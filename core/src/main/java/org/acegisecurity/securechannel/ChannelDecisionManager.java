@@ -29,10 +29,11 @@ public interface ChannelDecisionManager {
     //~ Methods ================================================================
 
     /**
-     * Decided whether the presented {@link FilterInvocation} provides
-     * sufficient security based on the requested {@link
+     * Decided whether the presented {@link FilterInvocation} provides the
+     * appropriate level of channel security based on the requested {@link
      * ConfigAttributeDefinition}.
      */
     public void decide(FilterInvocation invocation,
-        ConfigAttributeDefinition config) throws SecureChannelRequiredException;
+        ConfigAttributeDefinition config)
+        throws InsecureChannelRequiredException, SecureChannelRequiredException;
 }

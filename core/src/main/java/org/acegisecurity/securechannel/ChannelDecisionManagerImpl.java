@@ -26,14 +26,31 @@ import java.util.Iterator;
 
 /**
  * <p>
- * Requires a secure channel for a web request if a  {@link
- * ConfigAttribute#getAttribute()} keyword is detected.
+ * Ensures configuration attribute requested channel security is present by
+ * review of <code>HttpServletRequest.isSecure()</code> responses.
  * </p>
  * 
  * <P>
- * The default keyword string is <Code>REQUIRES_SECURE_CHANNEL</code>, but this
- * may be overriden to any value. The <code>ConfigAttribute</code> must
- * exactly match the case of the keyword string.
+ * The class responds to two and only two case-sensitive keywords: {@link
+ * #getInsecureKeyword()} and {@link #getSecureKeyword}. If either of these
+ * keywords are detected, <code>HttpServletRequest.isSecure()</code> is used
+ * to determine the channel security offered. If the channel security differs
+ * from that requested by the keyword, the relevant exception is thrown.
+ * </p>
+ * 
+ * <P>
+ * If both the <code>secureKeyword</code> and <code>insecureKeyword</code>
+ * configuration attributes are detected, the request will be deemed to be
+ * requesting a secure channel. This is a reasonable approach, as when in
+ * doubt, the decision manager assumes the most secure outcome is desired. Of
+ * course, you <b>should</b> indicate one configuration attribute or the other
+ * (not both).
+ * </p>
+ * 
+ * <P>
+ * The default <code>secureKeyword</code> and <code>insecureKeyword</code> is
+ * <code>REQUIRES_SECURE_CHANNEL</code> and
+ * <code>REQUIRES_INSECURE_CHANNEL</code> respectively.
  * </p>
  *
  * @author Ben Alex
@@ -43,21 +60,34 @@ public class ChannelDecisionManagerImpl implements InitializingBean,
     ChannelDecisionManager {
     //~ Instance fields ========================================================
 
-    private String keyword = "REQUIRES_SECURE_CHANNEL";
+    private String insecureKeyword = "REQUIRES_INSECURE_CHANNEL";
+    private String secureKeyword = "REQUIRES_SECURE_CHANNEL";
 
     //~ Methods ================================================================
 
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
+    public void setInsecureKeyword(String insecureKeyword) {
+        this.insecureKeyword = insecureKeyword;
     }
 
-    public String getKeyword() {
-        return keyword;
+    public String getInsecureKeyword() {
+        return insecureKeyword;
+    }
+
+    public void setSecureKeyword(String secureKeyword) {
+        this.secureKeyword = secureKeyword;
+    }
+
+    public String getSecureKeyword() {
+        return secureKeyword;
     }
 
     public void afterPropertiesSet() throws Exception {
-        if ((keyword == null) || "".equals(keyword)) {
-            throw new IllegalArgumentException("keyword required");
+        if ((secureKeyword == null) || "".equals(secureKeyword)) {
+            throw new IllegalArgumentException("secureKeyword required");
+        }
+
+        if ((insecureKeyword == null) || "".equals(insecureKeyword)) {
+            throw new IllegalArgumentException("insecureKeyword required");
         }
     }
 
@@ -72,10 +102,17 @@ public class ChannelDecisionManagerImpl implements InitializingBean,
         while (iter.hasNext()) {
             ConfigAttribute attribute = (ConfigAttribute) iter.next();
 
-            if (attribute.equals(keyword)) {
+            if (attribute.equals(secureKeyword)) {
                 if (!invocation.getHttpRequest().isSecure()) {
                     throw new SecureChannelRequiredException(
                         "Request is not being made over a secure channel");
+                }
+            }
+
+            if (attribute.equals(insecureKeyword)) {
+                if (invocation.getHttpRequest().isSecure()) {
+                    throw new InsecureChannelRequiredException(
+                        "Request is being made over a secure channel when an insecure channel is required");
                 }
             }
         }

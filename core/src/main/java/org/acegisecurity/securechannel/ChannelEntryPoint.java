@@ -23,7 +23,12 @@ import javax.servlet.ServletResponse;
 
 
 /**
- * Used by {@link ChannelProcessingFilter} to launch a secure web channel.
+ * Used by {@link ChannelProcessingFilter} to launch a web channel.
+ * 
+ * <P>
+ * Depending on the implementation, a secure or insecure channel will be
+ * launched.
+ * </p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -37,12 +42,14 @@ public interface ChannelEntryPoint {
      * <P>
      * Implementations should modify the headers on the
      * <code>ServletResponse</code> as necessary to commence the user agent
-     * using the secure channel.
+     * using the implementation's supported channel type (ie secure or
+     * insecure).
      * </p>
      *
      * @param request that resulted in a
-     *        <code>SecureChannelRequiredException</code>
-     * @param response so that the user agent can begin using a secure channel
+     *        <code>SecureChannelRequiredException</code> or
+     *        <code>InsecureChannelRequiredException</code>
+     * @param response so that the user agent can begin using a new channel
      */
     public void commence(ServletRequest request, ServletResponse response)
         throws IOException, ServletException;

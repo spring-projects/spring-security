@@ -1,4 +1,4 @@
-Changes in version 0.5 (2004-xx-xx)
+Changes in version 0.5 (2004-04-28)
 -----------------------------------
 
 * Added single sign on support via Yale Central Authentication Service (CAS)
@@ -13,7 +13,9 @@ Changes in version 0.5 (2004-xx-xx)
 * Added definable prefixes to avoid expectation of "ROLE_" GrantedAuthoritys
 * Added pluggable AuthenticationEntryPoints to SecurityEnforcementFilter
 * Added Apache Ant path syntax support to SecurityEnforcementFilter
+* Added filter to automate entry into secure channels, such as HTTPS
 * Updated JAR to Spring 1.0.1
+* Updated several classes to use absolute (not relative) redirection URLs
 * Refactored filters to use Spring application context lifecycle support
 * Improved constructor detection of nulls in User and other key objects
 * Fixed FilterInvocation.getRequestUrl() to also include getPathInfo()

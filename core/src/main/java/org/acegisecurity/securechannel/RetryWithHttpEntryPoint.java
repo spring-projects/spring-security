@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Commences a secure channel by retrying the original request using HTTPS.
+ * Commences an insecure channel by retrying the original request using HTTP.
  * 
  * <P>
  * This entry point should suffice in most circumstances. However, it is not
@@ -44,11 +44,11 @@ import javax.servlet.http.HttpServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class RetryWithHttpsEntryPoint implements InitializingBean,
+public class RetryWithHttpEntryPoint implements InitializingBean,
     ChannelEntryPoint {
     //~ Static fields/initializers =============================================
 
-    private static final Log logger = LogFactory.getLog(RetryWithHttpsEntryPoint.class);
+    private static final Log logger = LogFactory.getLog(RetryWithHttpEntryPoint.class);
 
     //~ Instance fields ========================================================
 
@@ -96,18 +96,18 @@ public class RetryWithHttpsEntryPoint implements InitializingBean,
 
         String redirectUrl = contextPath;
 
-        Integer httpPort = new Integer(portResolver.getServerPort(req));
-        Integer httpsPort = portMapper.lookupHttpsPort(httpPort);
+        Integer httpsPort = new Integer(portResolver.getServerPort(req));
+        Integer httpPort = portMapper.lookupHttpPort(httpsPort);
 
-        if (httpsPort != null) {
+        if (httpPort != null) {
             boolean includePort = true;
 
-            if (httpsPort.intValue() == 443) {
+            if (httpPort.intValue() == 80) {
                 includePort = false;
             }
 
-            redirectUrl = "https://" + req.getServerName()
-                + ((includePort) ? (":" + httpsPort) : "") + contextPath
+            redirectUrl = "http://" + req.getServerName()
+                + ((includePort) ? (":" + httpPort) : "") + contextPath
                 + destination;
         }
 

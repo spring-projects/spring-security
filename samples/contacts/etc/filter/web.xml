@@ -23,8 +23,8 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>/WEB-INF/applicationContext.xml</param-value>
 	</context-param>
-
-    <filter>
+	
+   <filter>
         <filter-name>Acegi Channel Processing Filter</filter-name>
         <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
         <init-param>
@@ -64,12 +64,16 @@
             <param-value>net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter</param-value>
         </init-param>
     </filter>
-
+	
+	<!-- Remove the comments from the following <filter-mapping> if you'd
+	     like to ensure secure URLs are only available over HTTPS -->
+    <!--
     <filter-mapping>
       <filter-name>Acegi Channel Processing Filter</filter-name>
       <url-pattern>/*</url-pattern>
     </filter-mapping>
-
+	-->
+	
     <filter-mapping>
       <filter-name>Acegi Authentication Processing Filter</filter-name>
       <url-pattern>/*</url-pattern>
@@ -99,7 +103,7 @@
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
-
+	
   <!--
     - Servlet that dispatches request to registered handlers (Controller implementations).
     - Has its own application context, by default defined in "{servlet-name}-servlet.xml",
