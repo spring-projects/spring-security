@@ -94,7 +94,9 @@ public class IntrospectionManagerHibernate implements IntrospectionManager,
                                                       .keySet();
 
         for (Iterator iter = mappedClasses.iterator(); iter.hasNext();) {
-            this.validationRegistryManager.findValidator((Class) iter.next());
+            String className = (String) iter.next();
+            this.validationRegistryManager.findValidator(Class.forName(
+                    className));
         }
     }
 

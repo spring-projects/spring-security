@@ -15,6 +15,11 @@
 
 package net.sf.acegisecurity.domain.validation;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
@@ -56,17 +61,26 @@ import java.util.Map;
  * @author Ben Alex
  * @version $Id$
  */
-public class ValidationRegistryManagerImpl implements ValidationRegistryManager {
+public class ValidationRegistryManagerImpl implements ValidationRegistryManager,
+    BeanFactoryAware {
     //~ Static fields/initializers =============================================
 
     private static final String VALIDATOR_SUFFIX = "Validator";
 
     //~ Instance fields ========================================================
 
+    private AutowireCapableBeanFactory acbf;
     private Map validatorMap = new HashMap();
     private String[] validatorSearchPath;
 
     //~ Methods ================================================================
+
+    public void setBeanFactory(BeanFactory beanFactory)
+        throws BeansException {
+        Assert.isInstanceOf(AutowireCapableBeanFactory.class, beanFactory,
+            "BeanFactory must be AutowireCapableBeanFactory");
+        this.acbf = (AutowireCapableBeanFactory) beanFactory;
+    }
 
     public void setValidatorSearchPath(String[] validatorSearchPath) {
         this.validatorSearchPath = validatorSearchPath;
@@ -93,24 +107,26 @@ public class ValidationRegistryManagerImpl implements ValidationRegistryManager 
                 String suffix = "." + ClassUtils.getShortName(domainClass)
                     + VALIDATOR_SUFFIX;
 
-                for (int i = 0;
-                    (i < validatorSearchPath.length)
-                    && (validatorClass == null); i++) {
-                    validatorClass = this.findValidatorClass(validatorSearchPath[i]
-                            + suffix);
+                if (validatorSearchPath != null) {
+                    for (int i = 0;
+                        (i < validatorSearchPath.length)
+                        && (validatorClass == null); i++) {
+                        validatorClass = this.findValidatorClass(validatorSearchPath[i]
+                                + suffix);
+                    }
                 }
             }
 
-            // register the Validator in our Map, to speed up next retrieval
-            this.registerValidator(domainClass, validatorClass);
+            // if we found a Validator, register it so we speed up future retrieval
+            if (validatorClass != null) {
+                this.registerValidator(domainClass, validatorClass);
+            }
         }
 
         // Attempt to create an instance of the Validator
-        try {
-            validator = (Validator) validatorClass.newInstance();
-        } catch (ClassCastException cce) {}
-        catch (InstantiationException ie) {}
-        catch (IllegalAccessException ile) {}
+        if (validatorClass != null) {
+            validator = obtainWiredValidator(validatorClass);
+        }
 
         return validator;
     }
@@ -121,6 +137,32 @@ public class ValidationRegistryManagerImpl implements ValidationRegistryManager 
         Assert.isTrue(Validator.class.isAssignableFrom(validatorClass),
             "validatorClass must be an implementation of Validator");
         this.validatorMap.put(domainClass, validatorClass);
+    }
+
+    /**
+     * Builds a new instance of the <code>Validator</code>.
+     * 
+     * <p>
+     * By default, the <code>AutowireCapableBeanFactory</code> is used to build
+     * the instance, and autowire its bean properties. Specialised
+     * applications may wish to customise this behaviour, such as searching
+     * through the <code>ApplicationContext</code> for an existing singleton
+     * instance. This method is protected to enable such customisation.
+     * </p>
+     *
+     * @param clazz the represents the <code>Validator</code> instance required
+     *
+     * @return the requested <code>Validator</code>, fully wired with all
+     *         dependencies, or <code>null</code> if the
+     *         <code>Validator</code> could not be found or created
+     */
+    protected Validator obtainWiredValidator(Class clazz) {
+        try {
+            return (Validator) this.acbf.autowire(clazz,
+                AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
+        } catch (BeansException autowireFailure) {
+            return null;
+        }
     }
 
     private Class findValidatorClass(String validatorClassName) {
