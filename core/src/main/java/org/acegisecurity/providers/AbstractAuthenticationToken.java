@@ -27,6 +27,28 @@ import net.sf.acegisecurity.Authentication;
 public abstract class AbstractAuthenticationToken implements Authentication {
     //~ Methods ================================================================
 
+    public boolean equals(Object obj) {
+        if (obj instanceof AbstractAuthenticationToken) {
+            AbstractAuthenticationToken test = (AbstractAuthenticationToken) obj;
+
+            if (this.getAuthorities().length != test.getAuthorities().length) {
+                return false;
+            }
+
+            for (int i = 0; i < this.getAuthorities().length; i++) {
+                if (!this.getAuthorities()[i].equals(test.getAuthorities()[i])) {
+                    return false;
+                }
+            }
+
+            return (this.getPrincipal().equals(test.getPrincipal())
+            && this.getCredentials().equals(test.getCredentials())
+            && (this.isAuthenticated() == test.isAuthenticated()));
+        }
+
+        return false;
+    }
+
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append(super.toString() + ": ");

@@ -105,4 +105,14 @@ public abstract class AbstractAdapterAuthenticationToken
 
         return false;
     }
+
+	public boolean equals(Object obj) {
+        if (obj instanceof AbstractAdapterAuthenticationToken) {
+        	if (!super.equals(obj))
+        		return false;
+        	AbstractAdapterAuthenticationToken test = (AbstractAdapterAuthenticationToken) obj;
+            return (this.getKeyHash() == test.getKeyHash());
+        }
+        return false;
+    }
 }
