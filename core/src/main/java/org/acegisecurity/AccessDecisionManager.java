@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,14 @@ public interface AccessDecisionManager {
      * @param config the configuration attributes associated with the secured
      *        object being invoked
      *
-     * @throws AccessDeniedException if access is denied
+     * @throws AccessDeniedException if access is denied as the authentication
+     *         does not hold a required authority or ACL privilege
+     * @throws InsufficientAuthenticationException if access is denied as the
+     *         authentication does not provide a sufficient level of trust
      */
     public void decide(Authentication authentication, Object object,
-        ConfigAttributeDefinition config) throws AccessDeniedException;
+        ConfigAttributeDefinition config)
+        throws AccessDeniedException, InsufficientAuthenticationException;
 
     /**
      * Indicates whether this <code>AccessDecisionManager</code> is able to

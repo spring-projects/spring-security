@@ -21,7 +21,7 @@
          <value>
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 		    PATTERN_TYPE_APACHE_ANT
-            /**=httpSessionContextIntegrationFilter,authenticationProcessingFilter,basicProcessingFilter,securityEnforcementFilter
+            /**=httpSessionContextIntegrationFilter,authenticationProcessingFilter,basicProcessingFilter,anonymousProcessingFilter,securityEnforcementFilter
          </value>
       </property>
     </bean>
@@ -32,6 +32,7 @@
       <property name="providers">
          <list>
             <ref local="daoAuthenticationProvider"/>
+            <ref local="anonymousAuthenticationProvider"/>
          </list>
       </property>
    </bean>
@@ -73,6 +74,15 @@
 
    <bean id="basicProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
       <property name="realmName"><value>Contacts Realm</value></property>
+   </bean>
+
+   <bean id="anonymousProcessingFilter" class="net.sf.acegisecurity.providers.anonymous.AnonymousProcessingFilter">
+      <property name="key"><value>foobar</value></property>
+      <property name="userAttribute"><value>anonymousUser,ROLE_ANONYMOUS</value></property>
+   </bean>
+
+   <bean id="anonymousAuthenticationProvider" class="net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider">
+      <property name="key"><value>foobar</value></property>
    </bean>
 
    <bean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter">
@@ -146,33 +156,14 @@
       <property name="objectDefinitionSource">
          <value>
 			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-				\A/secure/super.*\Z=ROLE_WE_DONT_HAVE
-				\A/secure/.*\Z=ROLE_SUPERVISOR,ROLE_USER
+			    PATTERN_TYPE_APACHE_ANT
+			    /index.jsp=ROLE_ANONYMOUS,ROLE_USER
+			    /hello.htm=ROLE_ANONYMOUS,ROLE_USER
+			    /logoff.jsp=ROLE_ANONYMOUS,ROLE_USER
+			    /acegilogin.jsp=ROLE_ANONYMOUS,ROLE_USER
+				/**=ROLE_USER
          </value>
       </property>
    </bean>
-
-   <!-- BASIC Regular Expression Syntax (for beginners):
-
-        \A means the start of the string (ie the beginning of the URL)
-        \Z means the end of the string (ie the end of the URL)
-        .  means any single character
-        *  means null or any number of repetitions of the last expression (so .* means zero or more characters)
-
-        Some examples:
-
-        Expression:   \A/my/directory/.*\Z
-        Would match:    /my/directory/
-                        /my/directory/hello.html
-
-        Expression:   \A/.*\Z
-        Would match:    /hello.html
-                        /
-
-        Expression:   \A/.*/secret.html\Z
-        Would match:    /some/directory/secret.html
-                        /another/secret.html
-        Not match:      /anothersecret.html (missing required /)
-   -->
 
 </beans>

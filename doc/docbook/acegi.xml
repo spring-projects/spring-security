@@ -2485,7 +2485,7 @@ public boolean supports(Class clazz);</programlisting></para>
         <para><programlisting>base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
 
 expirationTime:   The date and time when the nonce expires, expressed in milliseconds
-key:              A private key to prevent modification of the nounce token
+key:              A private key to prevent modification of the nonce token
 </programlisting></para>
 
         <para>The <literal>DigestProcessingFilterEntryPoint</literal> has a
@@ -2548,7 +2548,7 @@ key:              A private key to prevent modification of the nounce token
         <para>The configured <literal>AuthenticationDao</literal> is needed
         because <literal>DigestProcessingFilter</literal> must have direct
         access to the clear text password of a user. Digest Authentication
-        will NOT work if you are using encoded passwords ni your DAO. The DAO
+        will NOT work if you are using encoded passwords in your DAO. The DAO
         collaborator, along with the <literal>UserCache</literal>, are
         typically shared directly with a
         <literal>DaoAuthenticationProvider</literal>. The
@@ -2556,7 +2556,7 @@ key:              A private key to prevent modification of the nounce token
         <literal>DigestProcessingFilterEntryPoint</literal>, so that
         <literal>DigestProcessingFilter</literal> can obtain the correct
         <literal>realmName</literal> and <literal>key</literal> for digest
-        calculations. </para>
+        calculations.</para>
 
         <para>Like <literal>BasicAuthenticationFilter</literal>, if
         authentication is successful an <literal>Authentication</literal>
@@ -2578,6 +2578,95 @@ key:              A private key to prevent modification of the nounce token
         invited to review RFC 2617 if you wish to explore these features in
         more detail. As far as we are aware, the Acegi Security implementation
         does comply with the minimum standards of this RFC.</para>
+      </sect2>
+
+      <sect2 id="security-ui-anonymous">
+        <title>Anonymous Authentication</title>
+
+        <para>Particularly in the case of web request URI security, sometimes
+        it is more convenient to assign configuration attributes against every
+        possible secure object invocation. Put differently, sometimes it is
+        nice to say <literal>ROLE_SOMETHING</literal> is required by default
+        and only allow certain exceptions to this rule, such as for login,
+        logout and home pages of an application. There are also other
+        situations where anonymous authentication would be desired, such as
+        when an auditing interceptor queries the
+        <literal>ContextHolder</literal> to identify which principal was
+        responsible for a given operation. Such classes can be authored with
+        more robustness if they know the <literal>ContextHolder</literal>
+        always contains an <literal>Authentication</literal> object, and never
+        <literal>null</literal>.</para>
+
+        <para>Acegi Security provides three classes that together provide an
+        anoymous authentication feature.
+        <literal>AnonymousAuthenticationToken</literal> is an implementation
+        of <literal>Authentication</literal>, and stores the
+        <literal>GrantedAuthority</literal>[]s which apply to the anonymous
+        principal. There is a corresponding
+        <literal>AnonymousAuthenticationProvider</literal>, which is chained
+        into the <literal>ProviderManager</literal> so that
+        <literal>AnonymousAuthenticationTokens</literal> are accepted.
+        Finally, there is an AnonymousProcessingFilter, which is chained after
+        the normal authentication mechanisms and automatically add an
+        <literal>AnonymousAuthenticationToken</literal> to the
+        <literal>ContextHolder</literal> if there is no existing
+        <literal>Authentication</literal> held there. The definition of the
+        filter and authentication provider appears as follows:</para>
+
+        <para><programlisting>&lt;bean id="anonymousProcessingFilter" class="net.sf.acegisecurity.providers.anonymous.AnonymousProcessingFilter"&gt;
+  &lt;property name="key"&gt;&lt;value&gt;foobar&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="userAttribute"&gt;&lt;value&gt;anonymousUser,ROLE_ANONYMOUS&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="anonymousAuthenticationProvider" class="net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider"&gt;
+  &lt;property name="key"&gt;&lt;value&gt;foobar&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>The <literal>key</literal> is shared between the filter and
+        authentication provider, so that tokens created by the former are
+        accepted by the latter. The <literal>userAttribute</literal> is
+        expressed in the form of
+        <literal>usernameInTheAuthenticationToken,grantedAuthority[,grantedAuthority]</literal>.
+        This is the same syntax as used after the equals sign for
+        <literal>InMemoryDaoImpl</literal>'s <literal>userMap</literal>
+        property.</para>
+
+        <para>As explained earlier, the benefit of anonymous authentication is
+        that all URI patterns can have security applied to them. For
+        example:</para>
+
+        <para><programlisting>&lt;bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
+  &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+  &lt;property name="accessDecisionManager"&gt;&lt;ref local="httpRequestAccessDecisionManager"/&gt;&lt;/property&gt;
+  &lt;property name="objectDefinitionSource"&gt;
+    &lt;value&gt;
+      CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+      PATTERN_TYPE_APACHE_ANT
+      /index.jsp=ROLE_ANONYMOUS,ROLE_USER
+      /hello.htm=ROLE_ANONYMOUS,ROLE_USER
+      /logoff.jsp=ROLE_ANONYMOUS,ROLE_USER
+      /acegilogin.jsp=ROLE_ANONYMOUS,ROLE_USER
+      /**=ROLE_USER
+    &lt;/value&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</programlisting>Rounding out the anonymous authentication
+        discussion is the <literal>AuthenticationTrustResolver</literal>
+        interface, with its corresponding
+        <literal>AuthenticationTrustResolverImpl</literal> implementation.
+        This interface provides an
+        <literal>isAnonymous(Authentication)</literal> method, which allows
+        interested classes to take into account this special type of
+        authentication status. The
+        <literal>SecurityEnforcementFilter</literal> uses this interface in
+        processing <literal>AccessDeniedException</literal>s. If an
+        <literal>AccessDeniedException</literal> is thrown, and the
+        authentication is of an anonymous type, instead of throwing a 403
+        (forbidden) response, the filter will instead commence the
+        <literal>AuthenticationEntryPoint</literal> so the principal can
+        authenticate properly. This is a necessary distinction, otherwise
+        principals would always be deemed "authenticated" and never be given
+        an opportunity to login via form, basic, digest or some other normal
+        authentication mechanism.</para>
       </sect2>
 
       <sect2 id="security-ui-well-known">
@@ -4391,6 +4480,13 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
             you are using it to install an Acegi Security aware
             <literal>HttpServletRequestWrapper</literal> into your servlet
             container</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>AnonymousProcessingFilter</literal>, so that if no
+            earlier authentication processing mechanism updated the
+            <literal>ContextHolder</literal>, an anonymous
+            <literal>Authentication</literal> object will be put there</para>
           </listitem>
 
           <listitem>

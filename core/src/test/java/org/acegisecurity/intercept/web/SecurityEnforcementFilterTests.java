@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,17 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.AccessDeniedException;
 import net.sf.acegisecurity.BadCredentialsException;
+import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.MockAuthenticationEntryPoint;
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpServletResponse;
 import net.sf.acegisecurity.MockHttpSession;
 import net.sf.acegisecurity.MockPortResolver;
+import net.sf.acegisecurity.context.ContextHolder;
+import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
 import net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
 
 import java.io.IOException;
@@ -62,8 +68,47 @@ public class SecurityEnforcementFilterTests extends TestCase {
         junit.textui.TestRunner.run(SecurityEnforcementFilterTests.class);
     }
 
-    public void testAccessDeniedWhenAccessDeniedException()
-        throws Exception {
+    public void testAccessDeniedWhenAnonymous() throws Exception {
+        // Setup our HTTP request
+        HttpSession session = new MockHttpSession();
+        MockHttpServletRequest request = new MockHttpServletRequest(null,
+                session);
+        request.setServletPath("/secure/page.html");
+        request.setServerPort(80);
+        request.setScheme("http");
+        request.setServerName("www.example.com");
+        request.setContextPath("/mycontext");
+        request.setRequestURL(
+            "http://www.example.com/mycontext/secure/page.html");
+
+        // Setup our expectation that the filter chain will not be invoked, as access is denied
+        MockFilterChain chain = new MockFilterChain(false);
+
+        // Setup the FilterSecurityInterceptor thrown an access denied exception
+        MockFilterSecurityInterceptor interceptor = new MockFilterSecurityInterceptor(true,
+                false);
+
+        // Setup ContextHolder, as filter needs to check if user is anonymous
+        SecureContext sc = new SecureContextImpl();
+        sc.setAuthentication(new AnonymousAuthenticationToken("ignored",
+                "ignored",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("IGNORED")}));
+        ContextHolder.setContext(sc);
+
+        // Test
+        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
+        filter.setFilterSecurityInterceptor(interceptor);
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
+                "/login.jsp"));
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        filter.doFilter(request, response, chain);
+        assertEquals("/mycontext/login.jsp", response.getRedirect());
+        assertEquals("http://www.example.com/mycontext/secure/page.html",
+            request.getSession().getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
+    }
+
+    public void testAccessDeniedWhenNonAnonymous() throws Exception {
         // Setup our HTTP request
         HttpSession session = new MockHttpSession();
         MockHttpServletRequest request = new MockHttpServletRequest(null,
@@ -76,6 +121,11 @@ public class SecurityEnforcementFilterTests extends TestCase {
         // Setup the FilterSecurityInterceptor thrown an access denied exception
         MockFilterSecurityInterceptor interceptor = new MockFilterSecurityInterceptor(true,
                 false);
+
+        // Setup ContextHolder, as filter needs to check if user is anonymous
+        SecureContext sc = new SecureContextImpl();
+        sc.setAuthentication(null);
+        ContextHolder.setContext(sc);
 
         // Test
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
@@ -279,6 +329,11 @@ public class SecurityEnforcementFilterTests extends TestCase {
         filter.init(null);
         filter.destroy();
         assertTrue(true);
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        ContextHolder.setContext(null);
     }
 
     //~ Inner Classes ==========================================================

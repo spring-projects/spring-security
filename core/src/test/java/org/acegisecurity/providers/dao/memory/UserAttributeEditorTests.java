@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,7 @@ import junit.framework.TestCase;
 
 
 /**
- * Tests {@link UserAttributeEditor} and associated {@link
- * UserAttributeDefinition}.
+ * Tests {@link UserAttributeEditor} and associated {@link UserAttribute}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -50,8 +49,7 @@ public class UserAttributeEditorTests extends TestCase {
         UserAttributeEditor editor = new UserAttributeEditor();
         editor.setAsText("password,ROLE_ONE,ROLE_TWO");
 
-        UserAttributeDefinition user = (UserAttributeDefinition) editor
-            .getValue();
+        UserAttribute user = (UserAttribute) editor.getValue();
         assertTrue(user.isValid());
         assertTrue(user.isEnabled()); // default
         assertEquals("password", user.getPassword());
@@ -64,8 +62,7 @@ public class UserAttributeEditorTests extends TestCase {
         UserAttributeEditor editor = new UserAttributeEditor();
         editor.setAsText("password,disabled,ROLE_ONE,ROLE_TWO");
 
-        UserAttributeDefinition user = (UserAttributeDefinition) editor
-            .getValue();
+        UserAttribute user = (UserAttribute) editor.getValue();
         assertTrue(user.isValid());
         assertTrue(!user.isEnabled());
         assertEquals("password", user.getPassword());
@@ -78,8 +75,7 @@ public class UserAttributeEditorTests extends TestCase {
         UserAttributeEditor editor = new UserAttributeEditor();
         editor.setAsText("");
 
-        UserAttributeDefinition user = (UserAttributeDefinition) editor
-            .getValue();
+        UserAttribute user = (UserAttribute) editor.getValue();
         assertTrue(user == null);
     }
 
@@ -87,8 +83,7 @@ public class UserAttributeEditorTests extends TestCase {
         UserAttributeEditor editor = new UserAttributeEditor();
         editor.setAsText("password,ROLE_ONE,enabled,ROLE_TWO");
 
-        UserAttributeDefinition user = (UserAttributeDefinition) editor
-            .getValue();
+        UserAttribute user = (UserAttribute) editor.getValue();
         assertTrue(user.isValid());
         assertTrue(user.isEnabled());
         assertEquals("password", user.getPassword());
@@ -101,8 +96,7 @@ public class UserAttributeEditorTests extends TestCase {
         UserAttributeEditor editor = new UserAttributeEditor();
         editor.setAsText("MALFORMED_STRING");
 
-        UserAttributeDefinition user = (UserAttributeDefinition) editor
-            .getValue();
+        UserAttribute user = (UserAttribute) editor.getValue();
         assertTrue(user == null);
     }
 
@@ -110,8 +104,7 @@ public class UserAttributeEditorTests extends TestCase {
         UserAttributeEditor editor = new UserAttributeEditor();
         editor.setAsText("disabled");
 
-        UserAttributeDefinition user = (UserAttributeDefinition) editor
-            .getValue();
+        UserAttribute user = (UserAttribute) editor.getValue();
         assertTrue(user == null);
     }
 
@@ -119,8 +112,7 @@ public class UserAttributeEditorTests extends TestCase {
         UserAttributeEditor editor = new UserAttributeEditor();
         editor.setAsText("password,enabled");
 
-        UserAttributeDefinition user = (UserAttributeDefinition) editor
-            .getValue();
+        UserAttribute user = (UserAttribute) editor.getValue();
         assertTrue(user == null);
     }
 
@@ -128,8 +120,7 @@ public class UserAttributeEditorTests extends TestCase {
         UserAttributeEditor editor = new UserAttributeEditor();
         editor.setAsText(null);
 
-        UserAttributeDefinition user = (UserAttributeDefinition) editor
-            .getValue();
+        UserAttribute user = (UserAttribute) editor.getValue();
         assertTrue(user == null);
     }
 }

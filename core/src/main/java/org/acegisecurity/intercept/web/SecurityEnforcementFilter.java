@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@ package net.sf.acegisecurity.intercept.web;
 
 import net.sf.acegisecurity.AccessDeniedException;
 import net.sf.acegisecurity.AuthenticationException;
+import net.sf.acegisecurity.AuthenticationTrustResolver;
+import net.sf.acegisecurity.AuthenticationTrustResolverImpl;
+import net.sf.acegisecurity.context.security.SecureContextUtils;
 import net.sf.acegisecurity.ui.AbstractProcessingFilter;
 import net.sf.acegisecurity.util.PortResolver;
 import net.sf.acegisecurity.util.PortResolverImpl;
@@ -25,6 +28,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -54,10 +59,13 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
- * If an {@link AccessDeniedException} is detected, the filter will respond
- * with a <code>HttpServletResponse.SC_FORBIDDEN</code> (403 error).  In
- * addition, the <code>AccessDeniedException</code> itself will be placed in
- * the <code>HttpSession</code> attribute keyed against {@link
+ * If an {@link AccessDeniedException} is detected, the filter will determine
+ * whether or not the user is an anonymous user. If they are an anonymous
+ * user, the <code>authenticationEntryPoint</code> will be launched. If they
+ * are not an anonymous user, the filter will respond with a
+ * <code>HttpServletResponse.SC_FORBIDDEN</code> (403 error).  In addition,
+ * the <code>AccessDeniedException</code> itself will be placed in the
+ * <code>HttpSession</code> attribute keyed against {@link
  * #ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY} (to allow access to the stack
  * trace etc). Again, this allows common access denied handling irrespective
  * of the originating security interceptor.
@@ -104,6 +112,7 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
     //~ Instance fields ========================================================
 
     private AuthenticationEntryPoint authenticationEntryPoint;
+    private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
     private FilterSecurityInterceptor filterSecurityInterceptor;
     private PortResolver portResolver = new PortResolverImpl();
 
@@ -116,6 +125,15 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
 
     public AuthenticationEntryPoint getAuthenticationEntryPoint() {
         return authenticationEntryPoint;
+    }
+
+    public void setAuthenticationTrustResolver(
+        AuthenticationTrustResolver authenticationTrustResolver) {
+        this.authenticationTrustResolver = authenticationTrustResolver;
+    }
+
+    public AuthenticationTrustResolver getAuthenticationTrustResolver() {
+        return authenticationTrustResolver;
     }
 
     public void setFilterSecurityInterceptor(
@@ -136,19 +154,13 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (authenticationEntryPoint == null) {
-            throw new IllegalArgumentException(
-                "authenticationEntryPoint must be specified");
-        }
-
-        if (filterSecurityInterceptor == null) {
-            throw new IllegalArgumentException(
-                "filterSecurityInterceptor must be specified");
-        }
-
-        if (portResolver == null) {
-            throw new IllegalArgumentException("portResolver must be specified");
-        }
+        Assert.notNull(authenticationEntryPoint,
+            "authenticationEntryPoint must be specified");
+        Assert.notNull(filterSecurityInterceptor,
+            "filterSecurityInterceptor must be specified");
+        Assert.notNull(portResolver, "portResolver must be specified");
+        Assert.notNull(authenticationTrustResolver,
+            "authenticationTrustResolver must be specified");
     }
 
     public void destroy() {}
@@ -172,43 +184,29 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
                 logger.debug("Chain processed normally");
             }
         } catch (AuthenticationException authentication) {
-            HttpServletRequest httpRequest = (HttpServletRequest) request;
-
-            int port = portResolver.getServerPort(request);
-            boolean includePort = true;
-
-            if ("http".equals(request.getScheme().toLowerCase())
-                && (port == 80)) {
-                includePort = false;
-            }
-
-            if ("https".equals(request.getScheme().toLowerCase())
-                && (port == 443)) {
-                includePort = false;
-            }
-
-            String targetUrl = request.getScheme() + "://"
-                + request.getServerName() + ((includePort) ? (":" + port) : "")
-                + httpRequest.getContextPath() + fi.getRequestUrl();
-
             if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "Authentication failed - adding target URL to Session: "
-                    + targetUrl, authentication);
+                logger.debug("Authentication exception occurred; redirecting to authentication entry point",
+                    authentication);
             }
 
-            ((HttpServletRequest) request).getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
-                targetUrl);
-            authenticationEntryPoint.commence(request, response, authentication);
+            sendStartAuthentication(fi, authentication);
         } catch (AccessDeniedException accessDenied) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "Access is denied - sending back forbidden response");
-            }
+            if (authenticationTrustResolver.isAnonymous(
+                    SecureContextUtils.getSecureContext().getAuthentication())) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Access is denied (user is anonymous); redirecting to authentication entry point",
+                        accessDenied);
+                }
 
-            ((HttpServletRequest) request).getSession().setAttribute(ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY,
-                accessDenied);
-            sendAccessDeniedError(request, response, accessDenied);
+                sendStartAuthentication(fi, null);
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Access is denied (user is not anonymous); sending back forbidden response",
+                        accessDenied);
+                }
+
+                sendAccessDeniedError(fi, accessDenied);
+            }
         } catch (Throwable otherException) {
             throw new ServletException(otherException);
         }
@@ -216,19 +214,43 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
 
     public void init(FilterConfig filterConfig) throws ServletException {}
 
-    /**
-     * Allows subclasses to override if required
-     *
-     * @param request
-     * @param response
-     * @param accessDenied
-     *
-     * @throws IOException
-     */
-    protected void sendAccessDeniedError(ServletRequest request,
-        ServletResponse response, AccessDeniedException accessDenied)
-        throws IOException {
-        ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN,
+    protected void sendAccessDeniedError(FilterInvocation fi,
+        AccessDeniedException accessDenied)
+        throws ServletException, IOException {
+        ((HttpServletRequest) fi.getRequest()).getSession().setAttribute(ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY,
+            accessDenied);
+        ((HttpServletResponse) fi.getResponse()).sendError(HttpServletResponse.SC_FORBIDDEN,
             accessDenied.getMessage()); // 403
+    }
+
+    protected void sendStartAuthentication(FilterInvocation fi,
+        AuthenticationException reason) throws ServletException, IOException {
+        HttpServletRequest request = (HttpServletRequest) fi.getRequest();
+
+        int port = portResolver.getServerPort(request);
+        boolean includePort = true;
+
+        if ("http".equals(request.getScheme().toLowerCase()) && (port == 80)) {
+            includePort = false;
+        }
+
+        if ("https".equals(request.getScheme().toLowerCase()) && (port == 443)) {
+            includePort = false;
+        }
+
+        String targetUrl = request.getScheme() + "://"
+            + request.getServerName() + ((includePort) ? (":" + port) : "")
+            + request.getContextPath() + fi.getRequestUrl();
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(
+                "Authentication entry point being called; target URL added to Session: "
+                + targetUrl);
+        }
+
+        ((HttpServletRequest) request).getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
+            targetUrl);
+        authenticationEntryPoint.commence(request,
+            (HttpServletResponse) fi.getResponse(), reason);
     }
 }

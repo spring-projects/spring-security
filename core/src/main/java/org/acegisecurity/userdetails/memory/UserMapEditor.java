@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,8 +91,7 @@ public class UserMapEditor extends PropertyEditorSupport {
                 // Convert value to a password, enabled setting, and list of granted authorities
                 configAttribEd.setAsText(value);
 
-                UserAttributeDefinition attr = (UserAttributeDefinition) configAttribEd
-                    .getValue();
+                UserAttribute attr = (UserAttribute) configAttribEd.getValue();
 
                 // Make a user object, assuming the properties were properly provided
                 if (attr != null) {
