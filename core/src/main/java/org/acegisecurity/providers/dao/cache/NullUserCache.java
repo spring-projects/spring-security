@@ -15,8 +15,8 @@
 
 package net.sf.acegisecurity.providers.dao.cache;
 
-import net.sf.acegisecurity.providers.dao.User;
 import net.sf.acegisecurity.providers.dao.UserCache;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 
 
 /**
@@ -28,9 +28,9 @@ import net.sf.acegisecurity.providers.dao.UserCache;
 public class NullUserCache implements UserCache {
     //~ Methods ================================================================
 
-    public User getUserFromCache(String username) {
+    public UserDetails getUserFromCache(String username) {
         return null;
     }
 
-    public void putUserInCache(User user) {}
+    public void putUserInCache(UserDetails user) {}
 }

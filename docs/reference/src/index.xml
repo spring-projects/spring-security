@@ -901,15 +901,16 @@
         <literal>SaltSource</literal> implementations are also provided:
         <literal>SystemWideSaltSource</literal> which encodes all passwords
         with the same salt, and <literal>ReflectionSaltSource</literal>, which
-        inspects a given property of the returned <literal>User</literal>
-        object to obtain the salt. Please refer to the JavaDocs for further
-        details on these optional features.</para>
+        inspects a given property of the returned
+        <literal>UserDetails</literal> object to obtain the salt. Please refer
+        to the JavaDocs for further details on these optional features.</para>
 
         <para>In addition to the properties above, the
         <literal>DaoAuthenticationProvider</literal> supports optional caching
-        of <literal>User</literal> objects. The <literal>UserCache</literal>
-        interface enables the <literal>DaoAuthenticationProvider</literal> to
-        place a <literal>User</literal> object into the cache, and retrieve it
+        of <literal>UserDetails</literal> objects. The
+        <literal>UserCache</literal> interface enables the
+        <literal>DaoAuthenticationProvider</literal> to place a
+        <literal>UserDetails</literal> object into the cache, and retrieve it
         from the cache upon subsequent authentication attempts for the same
         username. By default the <literal>DaoAuthenticationProvider</literal>
         uses the <literal>NullUserCache</literal>, which performs no caching.
@@ -931,11 +932,19 @@
         authentication repository, it must implement the
         <literal>AuthenticationDao</literal> interface:</para>
 
-        <para><programlisting>public User loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException;</programlisting></para>
+        <para><programlisting>public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException;</programlisting></para>
 
-        <para>The <literal>User</literal> object holds basic information such
-        as the username, password, granted authorities and whether the user is
-        enabled or disabled.</para>
+        <para>The <literal>UserDetails</literal> is an interface that provides
+        getters that guarantee non-null provision of basic authentication
+        information such as the username, password, granted authorities and
+        whether the user is enabled or disabled. A concrete implementation,
+        <literal>User</literal>, is also provided. Acegi Security users will
+        need to decide when writing their <literal>AuthenticationDao</literal>
+        what type of <literal>UserDetails</literal> to return. In most cases
+        <literal>User</literal> will be used directly or subclassed, although
+        special circumstances (such as object relational mappers) may require
+        users to write their own <literal>UserDetails</literal> implementation
+        from scratch.</para>
 
         <para>Given <literal>AuthenticationDao</literal> is so simple to
         implement, it should be easy for users to retrieve authentication
@@ -953,14 +962,14 @@
         <literal>Authentication</literal> object which in turn has its
         <literal>principal</literal> property set. The principal will be
         either a <literal>String</literal> (which is essentially the username)
-        or a <literal>User</literal> object (which was looked up from the
-        <literal>AuthenticationDao</literal>). By default the
-        <literal>User</literal> is returned, as this enables applications to
-        subclass <literal>User</literal> and add extra properties potentially
-        of use in applications, such as the user's full name, email address
-        etc. If using container adapters, or if your applications were written
-        to operate with <literal>String</literal>s (as was the case for
-        releases prior to Acegi Security 0.6), you should set the
+        or a <literal>UserDetails</literal> object (which was looked up from
+        the <literal>AuthenticationDao</literal>). By default the
+        <literal>UserDetails</literal> is returned, as this enables
+        applications to add extra properties potentially of use in
+        applications, such as the user's full name, email address etc. If
+        using container adapters, or if your applications were written to
+        operate with <literal>String</literal>s (as was the case for releases
+        prior to Acegi Security 0.6), you should set the
         <literal>DaoAuthenticationProvider.forcePrincipalAsString</literal>
         property to <literal>true</literal> in your application
         context.</para>
@@ -998,8 +1007,8 @@
 
         <para>Each event contains two objects: the
         <literal>Authentication</literal> object that represented the
-        authentication request, and the <literal>User</literal> object that
-        was found in response to the authentication request. The
+        authentication request, and the <literal>UserDetails</literal> object
+        that was found in response to the authentication request. The
         <literal>Authentication</literal> interface provides a
         <literal>getDetails()</literal> method which often includes
         information that event consumers may find useful (eg the TCP/IP
@@ -2455,11 +2464,12 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             contained in the <literal>TicketResponse</literal>. Acegi Security
             includes a <literal>DaoCasAuthoritiesPopulator</literal> which
             simply uses the <literal>AuthenticationDao</literal>
-            infrastructure to find the <literal>User</literal> and their
-            associated <literal>GrantedAuthority</literal>s. Note that the
-            password and enabled/disabled status of <literal>User</literal>s
-            returned by the <literal>AuthenticationDao</literal> are ignored,
-            as the CAS server is responsible for authentication decisions.
+            infrastructure to find the <literal>UserDetails</literal> and
+            their associated <literal>GrantedAuthority</literal>s. Note that
+            the password and enabled/disabled status of
+            <literal>UserDetails</literal> returned by the
+            <literal>AuthenticationDao</literal> are ignored, as the CAS
+            server is responsible for authentication decisions.
             <literal>DaoCasAuthoritiesPopulator</literal> is only concerned
             with retrieving the <literal>GrantedAuthority</literal>s.</para>
           </listitem>

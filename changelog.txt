@@ -2,7 +2,9 @@ Changes in version 0.6 (2004-xx-xx)
 -----------------------------------
 
 * Added feature so DaoAuthenticationProvider returns User in Authentication
+* Refactored User to UserDetails interface
 * Fixed Linux compatibility issues (directory case sensitivity etc)
+* Fixed AbstractProcessingFilter to handle servlet spec container differences
 * Documentation improvements
 
 Changes in version 0.51 (2004-06-06)

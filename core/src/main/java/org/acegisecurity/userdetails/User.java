@@ -17,16 +17,20 @@ package net.sf.acegisecurity.providers.dao;
 
 import net.sf.acegisecurity.GrantedAuthority;
 
-import java.io.Serializable;
-
 
 /**
  * Models core user information retieved by an {@link AuthenticationDao}.
+ * 
+ * <P>
+ * Implemented with value object semantics (immutable after construction, like
+ * a <code>String</code>). Developers may use this class directly, subclass
+ * it, or write their own {@link UserDetails} implementation from scratch.
+ * </p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class User implements Serializable {
+public class User implements UserDetails {
     //~ Instance fields ========================================================
 
     private String password;
@@ -37,7 +41,7 @@ public class User implements Serializable {
     //~ Constructors ===========================================================
 
     /**
-     * Construct the <code>User</code> with the details required by  {@link
+     * Construct the <code>User</code> with the details required by {@link
      * DaoAuthenticationProvider}.
      *
      * @param username the username presented to the
@@ -94,6 +98,10 @@ public class User implements Serializable {
     }
 
     public String getUsername() {
+        return username;
+    }
+
+    public String toString() {
         return username;
     }
 }

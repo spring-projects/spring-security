@@ -16,6 +16,7 @@
 package net.sf.acegisecurity.providers.dao.memory;
 
 import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 
 import org.springframework.beans.propertyeditors.PropertiesEditor;
 
@@ -89,7 +90,7 @@ public class UserMapEditor extends PropertyEditorSupport {
 
                 // Make a user object, assuming the properties were properly provided
                 if (attr != null) {
-                    User user = new User(username, attr.getPassword(),
+                    UserDetails user = new User(username, attr.getPassword(),
                             attr.isEnabled(), attr.getAuthorities());
                     userMap.addUser(user);
                 }

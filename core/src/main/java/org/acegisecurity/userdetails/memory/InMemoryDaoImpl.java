@@ -16,7 +16,7 @@
 package net.sf.acegisecurity.providers.dao.memory;
 
 import net.sf.acegisecurity.providers.dao.AuthenticationDao;
-import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -52,7 +52,7 @@ public class InMemoryDaoImpl implements AuthenticationDao, InitializingBean {
         }
     }
 
-    public User loadUserByUsername(String username)
+    public UserDetails loadUserByUsername(String username)
         throws UsernameNotFoundException, DataAccessException {
         return userMap.getUser(username);
     }

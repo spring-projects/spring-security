@@ -21,6 +21,7 @@ import net.sf.acegisecurity.AuthenticationServiceException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 
 
 /**
@@ -66,7 +67,7 @@ public class ReflectionSaltSourceTests extends TestCase {
         ReflectionSaltSource saltSource = new ReflectionSaltSource();
         saltSource.setUserPropertyToUse("getDoesNotExist");
 
-        User user = new User("scott", "wombat", true,
+        UserDetails user = new User("scott", "wombat", true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("HOLDER")});
 
         try {
@@ -88,7 +89,7 @@ public class ReflectionSaltSourceTests extends TestCase {
         saltSource.setUserPropertyToUse("getUsername");
         saltSource.afterPropertiesSet();
 
-        User user = new User("scott", "wombat", true,
+        UserDetails user = new User("scott", "wombat", true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("HOLDER")});
         assertEquals("scott", saltSource.getSalt(user));
     }

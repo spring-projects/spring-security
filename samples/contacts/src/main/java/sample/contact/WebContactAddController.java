@@ -18,7 +18,7 @@ package sample.contact;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.SecureContext;
-import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;
@@ -61,8 +61,8 @@ public class WebContactAddController extends SimpleFormController {
             .getAuthentication();
         String owner = auth.getPrincipal().toString();
 
-        if (auth.getPrincipal() instanceof User) {
-            owner = ((User) auth.getPrincipal()).getUsername();
+        if (auth.getPrincipal() instanceof UserDetails) {
+            owner = ((UserDetails) auth.getPrincipal()).getUsername();
         }
 
         Contact contact = new Contact(contactManager.getNextId(), name, email,

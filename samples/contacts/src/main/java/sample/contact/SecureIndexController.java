@@ -20,7 +20,7 @@ import net.sf.acegisecurity.AuthenticationCredentialsNotFoundException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.SecureContext;
-import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -80,8 +80,8 @@ public class SecureIndexController implements Controller, InitializingBean {
         Authentication auth = secureContext.getAuthentication();
         String username = auth.getPrincipal().toString();
 
-        if (auth.getPrincipal() instanceof User) {
-            username = ((User) auth.getPrincipal()).getUsername();
+        if (auth.getPrincipal() instanceof UserDetails) {
+            username = ((UserDetails) auth.getPrincipal()).getUsername();
         }
 
         boolean supervisor = false;

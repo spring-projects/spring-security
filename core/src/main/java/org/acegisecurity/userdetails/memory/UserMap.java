@@ -16,6 +16,7 @@
 package net.sf.acegisecurity.providers.dao.memory;
 
 import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.apache.commons.logging.Log;
@@ -80,7 +81,7 @@ public class UserMap {
      *
      * @throws IllegalArgumentException if a null User was passed
      */
-    public void addUser(User user) throws IllegalArgumentException {
+    public void addUser(UserDetails user) throws IllegalArgumentException {
         if (user == null) {
             throw new IllegalArgumentException("Must be a valid User");
         }

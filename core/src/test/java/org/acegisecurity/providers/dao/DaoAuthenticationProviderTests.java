@@ -261,7 +261,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
     private class MockAuthenticationDaoSimulateBackendError
         implements AuthenticationDao {
-        public User loadUserByUsername(String username)
+        public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             throw new DataRetrievalFailureException(
                 "This mock simulator is designed to fail");
@@ -269,7 +269,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
     }
 
     private class MockAuthenticationDaoUserMarissa implements AuthenticationDao {
-        public User loadUserByUsername(String username)
+        public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("marissa".equals(username)) {
                 return new User("marissa", "koala", true,
@@ -284,7 +284,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
     private class MockAuthenticationDaoUserMarissaWithSalt
         implements AuthenticationDao {
-        public User loadUserByUsername(String username)
+        public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("marissa".equals(username)) {
                 return new User("marissa", "koala{SYSTEM_SALT_VALUE}", true,
@@ -298,7 +298,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
     }
 
     private class MockAuthenticationDaoUserPeter implements AuthenticationDao {
-        public User loadUserByUsername(String username)
+        public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("peter".equals(username)) {
                 return new User("peter", "opal", false,
@@ -314,11 +314,11 @@ public class DaoAuthenticationProviderTests extends TestCase {
     private class MockUserCache implements UserCache {
         private Map cache = new HashMap();
 
-        public User getUserFromCache(String username) {
+        public UserDetails getUserFromCache(String username) {
             return (User) cache.get(username);
         }
 
-        public void putUserInCache(User user) {
+        public void putUserInCache(UserDetails user) {
             cache.put(user.getUsername(), user);
         }
     }

@@ -17,6 +17,7 @@ package net.sf.acegisecurity.providers.dao.event;
 
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 
 import org.springframework.context.ApplicationEvent;
 
@@ -44,11 +45,11 @@ import org.springframework.context.ApplicationEvent;
 public abstract class AuthenticationEvent extends ApplicationEvent {
     //~ Instance fields ========================================================
 
-    private User user;
+    private UserDetails user;
 
     //~ Constructors ===========================================================
 
-    public AuthenticationEvent(Authentication authentication, User user) {
+    public AuthenticationEvent(Authentication authentication, UserDetails user) {
         super(authentication);
 
         // No need to check authentication isn't null, as done by super
@@ -77,7 +78,7 @@ public abstract class AuthenticationEvent extends ApplicationEvent {
      *
      * @return the user
      */
-    public User getUser() {
+    public UserDetails getUser() {
         return user;
     }
 }

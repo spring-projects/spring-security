@@ -33,21 +33,22 @@ public interface UserCache {
     //~ Methods ================================================================
 
     /**
-     * Obtains a {@link User} from the cache.
+     * Obtains a {@link UserDetails} from the cache.
      *
      * @param username the {@link User#getUsername()} used to place the user in
      *        the cache
      *
-     * @return the populated <code>User</code> or <code>null</code> if the user
-     *         could not be found or if the cache entry has expired
+     * @return the populated <code>UserDetails</code> or <code>null</code> if
+     *         the user could not be found or if the cache entry has expired
      */
-    public User getUserFromCache(String username);
+    public UserDetails getUserFromCache(String username);
 
     /**
-     * Places a {@link User} in the cache. The <code>username</code> is the key
-     * used to subsequently retrieve the <code>User</code>.
+     * Places a {@link UserDetails} in the cache. The <code>username</code> is
+     * the key used to subsequently retrieve the <code>UserDetails</code>.
      *
-     * @param user the fully populated <code>User</code> to place in the cache
+     * @param user the fully populated <code>UserDetails</code> to place in the
+     *        cache
      */
-    public void putUserInCache(User user);
+    public void putUserInCache(UserDetails user);
 }

@@ -21,6 +21,7 @@ import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.providers.dao.AuthenticationDao;
 import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.springframework.dao.DataAccessException;
@@ -121,7 +122,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
             return 0;
         }
 
-        public User loadUserByUsername(String username)
+        public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             throw new DataRetrievalFailureException(
                 "This mock simulator is designed to fail");
@@ -133,7 +134,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
             return 0;
         }
 
-        public User loadUserByUsername(String username)
+        public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("marissa".equals(username)) {
                 return new User("marissa", "koala", true,

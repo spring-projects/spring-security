@@ -18,7 +18,7 @@ package sample.contact;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 import net.sf.acegisecurity.vote.AccessDecisionVoter;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -99,8 +99,8 @@ public class ContactSecurityVoter implements AccessDecisionVoter {
                 if (passedOwner != null) {
                     String username = authentication.getPrincipal().toString();
 
-                    if (authentication.getPrincipal() instanceof User) {
-                        username = ((User) authentication.getPrincipal())
+                    if (authentication.getPrincipal() instanceof UserDetails) {
+                        username = ((UserDetails) authentication.getPrincipal())
                             .getUsername();
                     }
 

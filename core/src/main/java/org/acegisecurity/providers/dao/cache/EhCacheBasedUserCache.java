@@ -15,8 +15,8 @@
 
 package net.sf.acegisecurity.providers.dao.cache;
 
-import net.sf.acegisecurity.providers.dao.User;
 import net.sf.acegisecurity.providers.dao.UserCache;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
@@ -72,7 +72,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean,
         return minutesToIdle;
     }
 
-    public User getUserFromCache(String username) {
+    public UserDetails getUserFromCache(String username) {
         Element element = null;
 
         try {
@@ -90,7 +90,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean,
         if (element == null) {
             return null;
         } else {
-            return (User) element.getValue();
+            return (UserDetails) element.getValue();
         }
     }
 
@@ -111,7 +111,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean,
         manager.removeCache(CACHE_NAME);
     }
 
-    public void putUserInCache(User user) {
+    public void putUserInCache(UserDetails user) {
         Element element = new Element(user.getUsername(), user);
 
         if (logger.isDebugEnabled()) {
@@ -121,7 +121,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean,
         cache.put(element);
     }
 
-    public void removeUserFromCache(User user) {
+    public void removeUserFromCache(UserDetails user) {
         if (logger.isDebugEnabled()) {
             logger.debug("Cache remove: " + user.getUsername());
         }

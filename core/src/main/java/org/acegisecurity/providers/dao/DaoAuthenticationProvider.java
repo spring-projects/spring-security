@@ -52,21 +52,22 @@ import org.springframework.dao.DataAccessException;
  * Upon successful validation, a
  * <code>UsernamePasswordAuthenticationToken</code> will be created and
  * returned to the caller. The token will include as its principal either a
- * <code>String</code> representation of the username, or the {@link User}
- * that was returned from the authentication repository. Using
+ * <code>String</code> representation of the username, or the {@link
+ * UserDetails} that was returned from the authentication repository. Using
  * <code>String</code> is appropriate if a container adapter is being used, as
  * it expects <code>String</code> representations of the username. Using
- * <code>User</code> is appropriate if you require access to additional
+ * <code>UserDetails</code> is appropriate if you require access to additional
  * properties of the authenticated user, such as email addresses,
  * human-friendly names etc. As container adapters are not recommended to be
- * used, and <code>User</code> provides additional flexibility, by default a
- * <code>User</code> is returned. To override this default, set the {@link
- * #setForcePrincipalAsString} to <code>true</code>.
+ * used, and <code>UserDetails</code> implementations provide additional
+ * flexibility, by default a <code>UserDetails</code> is returned. To override
+ * this default, set the {@link #setForcePrincipalAsString} to
+ * <code>true</code>.
  * </p>
  * 
  * <P>
- * Caching is handled via the <code>User</code> object being placed in the
- * {@link UserCache}. This ensures that subsequent requests with the same
+ * Caching is handled via the <code>UserDetails</code> object being placed in
+ * the {@link UserCache}. This ensures that subsequent requests with the same
  * username can be validated without needing to query the {@link
  * AuthenticationDao}. It should be noted that if a user appears to present an
  * incorrect password, the {@link AuthenticationDao} will be queried to
@@ -174,12 +175,13 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
         // Determine username
         String username = authentication.getPrincipal().toString();
 
-        if (authentication.getPrincipal() instanceof User) {
-            username = ((User) authentication.getPrincipal()).getUsername();
+        if (authentication.getPrincipal() instanceof UserDetails) {
+            username = ((UserDetails) authentication.getPrincipal())
+                .getUsername();
         }
 
         boolean cacheWasUsed = true;
-        User user = this.userCache.getUserFromCache(username);
+        UserDetails user = this.userCache.getUserFromCache(username);
 
         if (user == null) {
             cacheWasUsed = false;
@@ -244,7 +246,8 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
         }
     }
 
-    protected boolean isPasswordCorrect(Authentication authentication, User user) {
+    protected boolean isPasswordCorrect(Authentication authentication,
+        UserDetails user) {
         Object salt = null;
 
         if (this.saltSource != null) {
@@ -255,7 +258,7 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             authentication.getCredentials().toString(), salt);
     }
 
-    private User getUserFromBackend(String username) {
+    private UserDetails getUserFromBackend(String username) {
         try {
             return this.authenticationDao.loadUserByUsername(username);
         } catch (UsernameNotFoundException notFound) {

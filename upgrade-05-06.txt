@@ -23,5 +23,25 @@ applications:
       username = ((User) authentication.getPrincipal()).getUsername();
     }
 
+- The signature of AuthenticationDaos have changed. In concrete
+  implementations, modify the User to UserDetails, as shown below:
+
+    public User loadUserByUsername(String username)
+        throws UsernameNotFoundException, DataAccessException {
+
+    to:
+  
+    public UserDetails loadUserByUsername(String username)
+        throws UsernameNotFoundException, DataAccessException {
+
+  Existing concrete implementations would be returning User, which implements
+  UserDetails, so no further code changes should be required.
+
+- Similar signature changes (User -> UserDetails) are also required to any
+  custom implementations of UserCache and SaltSource.
+
+- Any custom event listeners relying on AuthenticationEvent should note a
+  UserDetails is now provided in the AuthenticationEvent (not a User).
+
 
 $Id$

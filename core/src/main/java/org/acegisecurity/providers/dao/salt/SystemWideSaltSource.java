@@ -17,6 +17,7 @@ package net.sf.acegisecurity.providers.dao.salt;
 
 import net.sf.acegisecurity.providers.dao.SaltSource;
 import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -41,7 +42,7 @@ public class SystemWideSaltSource implements SaltSource, InitializingBean {
 
     //~ Methods ================================================================
 
-    public Object getSalt(User user) {
+    public Object getSalt(UserDetails user) {
         return this.systemWideSalt;
     }
 

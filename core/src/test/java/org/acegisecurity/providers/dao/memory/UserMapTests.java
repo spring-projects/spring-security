@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 
 
@@ -51,13 +52,13 @@ public class UserMapTests extends TestCase {
     }
 
     public void testAddAndRetrieveUser() {
-        User marissa = new User("marissa", "koala", true,
+        UserDetails marissa = new User("marissa", "koala", true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")});
-        User scott = new User("scott", "wombat", true,
+        UserDetails scott = new User("scott", "wombat", true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_THREE")});
-        User peter = new User("peter", "opal", true,
+        UserDetails peter = new User("peter", "opal", true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_FOUR")});
         UserMap map = new UserMap();
@@ -84,7 +85,7 @@ public class UserMapTests extends TestCase {
     }
 
     public void testUnknownUserIsNotRetrieved() {
-        User marissa = new User("marissa", "koala", true,
+        UserDetails marissa = new User("marissa", "koala", true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")});
         UserMap map = new UserMap();

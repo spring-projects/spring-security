@@ -19,7 +19,7 @@ import net.sf.acegisecurity.AccessDeniedException;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.SecureContext;
-import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -91,8 +91,8 @@ public class ContactManagerFacade implements ContactManager, InitializingBean {
 
         String username = auth.getPrincipal().toString();
 
-        if (auth.getPrincipal() instanceof User) {
-            username = ((User) auth.getPrincipal()).getUsername();
+        if (auth.getPrincipal() instanceof UserDetails) {
+            username = ((UserDetails) auth.getPrincipal()).getUsername();
         }
 
         if (username.equals(result.getOwner())) {

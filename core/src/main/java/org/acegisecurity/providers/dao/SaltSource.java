@@ -29,7 +29,7 @@ public interface SaltSource {
      *
      * @param user from the <code>AuthenticationDao</code>
      *
-     * @return the salt to use for this <code>USer</code>
+     * @return the salt to use for this <code>UserDetails</code>
      */
-    public Object getSalt(User user);
+    public Object getSalt(UserDetails user);
 }

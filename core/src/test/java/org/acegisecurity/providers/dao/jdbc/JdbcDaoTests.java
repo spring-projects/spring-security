@@ -17,7 +17,7 @@ package net.sf.acegisecurity.providers.dao.jdbc;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -56,7 +56,7 @@ public class JdbcDaoTests extends TestCase {
 
     public void testCheckDaoAccessUserSuccess() throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
-        User user = dao.loadUserByUsername("marissa");
+        UserDetails user = dao.loadUserByUsername("marissa");
         assertEquals("marissa", user.getUsername());
         assertEquals("koala", user.getPassword());
         assertTrue(user.isEnabled());
@@ -68,7 +68,7 @@ public class JdbcDaoTests extends TestCase {
     public void testCheckDaoOnlyReturnsGrantedAuthoritiesGrantedToUser()
         throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
-        User user = dao.loadUserByUsername("scott");
+        UserDetails user = dao.loadUserByUsername("scott");
         assertEquals("ROLE_TELLER", user.getAuthorities()[0].getAuthority());
         assertEquals(1, user.getAuthorities().length);
     }
@@ -76,7 +76,7 @@ public class JdbcDaoTests extends TestCase {
     public void testCheckDaoReturnsCorrectDisabledProperty()
         throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
-        User user = dao.loadUserByUsername("peter");
+        UserDetails user = dao.loadUserByUsername("peter");
         assertTrue(!user.isEnabled());
     }
 
@@ -128,7 +128,7 @@ public class JdbcDaoTests extends TestCase {
         JdbcDaoImpl dao = makePopulatedJdbcDaoWithRolePrefix();
         assertEquals("ARBITRARY_PREFIX_", dao.getRolePrefix());
 
-        User user = dao.loadUserByUsername("marissa");
+        UserDetails user = dao.loadUserByUsername("marissa");
         assertEquals("marissa", user.getUsername());
         assertEquals("ARBITRARY_PREFIX_ROLE_TELLER",
             user.getAuthorities()[0].getAuthority());

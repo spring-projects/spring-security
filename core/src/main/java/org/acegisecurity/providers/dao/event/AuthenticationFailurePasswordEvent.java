@@ -16,7 +16,7 @@
 package net.sf.acegisecurity.providers.dao.event;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 
 
 /**
@@ -30,7 +30,7 @@ public class AuthenticationFailurePasswordEvent extends AuthenticationEvent {
     //~ Constructors ===========================================================
 
     public AuthenticationFailurePasswordEvent(Authentication authentication,
-        User user) {
+        UserDetails user) {
         super(authentication, user);
     }
 }

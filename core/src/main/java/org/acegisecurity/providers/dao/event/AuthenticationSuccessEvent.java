@@ -16,7 +16,7 @@
 package net.sf.acegisecurity.providers.dao.event;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 
 
 /**
@@ -28,7 +28,8 @@ import net.sf.acegisecurity.providers.dao.User;
 public class AuthenticationSuccessEvent extends AuthenticationEvent {
     //~ Constructors ===========================================================
 
-    public AuthenticationSuccessEvent(Authentication authentication, User user) {
+    public AuthenticationSuccessEvent(Authentication authentication,
+        UserDetails user) {
         super(authentication, user);
     }
 }

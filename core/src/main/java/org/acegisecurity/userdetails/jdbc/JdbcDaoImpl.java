@@ -19,6 +19,7 @@ import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.providers.dao.AuthenticationDao;
 import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UserDetails;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.apache.commons.logging.Log;
@@ -161,7 +162,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
         return usersByUsernameQuery;
     }
 
-    public User loadUserByUsername(String username)
+    public UserDetails loadUserByUsername(String username)
         throws UsernameNotFoundException, DataAccessException {
         List users = usersByUsernameMapping.execute(username);
 
@@ -169,7 +170,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
             throw new UsernameNotFoundException("User not found");
         }
 
-        User user = (User) users.get(0); // contains no GrantedAuthority[]
+        UserDetails user = (UserDetails) users.get(0); // contains no GrantedAuthority[]
 
         List dbAuths = authoritiesByUsernameMapping.execute(user.getUsername());
 
@@ -234,7 +235,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
             String username = rs.getString(1);
             String password = rs.getString(2);
             boolean enabled = rs.getBoolean(3);
-            User user = new User(username, password, enabled,
+            UserDetails user = new User(username, password, enabled,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("HOLDER")});
 
             return user;
