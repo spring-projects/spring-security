@@ -41,6 +41,10 @@ public class ContextHolderTests extends TestCase {
         super.setUp();
     }
 
+    public void tearDown() {
+        ContextHolder.setContext(null);
+    }
+    
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ContextHolderTests.class);
     }
