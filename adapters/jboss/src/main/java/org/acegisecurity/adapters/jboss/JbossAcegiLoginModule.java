@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
 
 package net.sf.acegisecurity.adapters.jboss;
 
+import net.sf.acegisecurity.AccountExpiredException;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.CredentialsExpiredException;
-import net.sf.acegisecurity.AccountExpiredException;
 import net.sf.acegisecurity.AuthenticationManager;
+import net.sf.acegisecurity.CredentialsExpiredException;
 import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
@@ -58,7 +58,7 @@ import javax.security.auth.login.LoginException;
  * </p>
  *
  * @author Ben Alex
- * @author Sergio Berná
+ * @author Sergio Bernï¿½
  * @version $Id$
  */
 public class JbossAcegiLoginModule extends AbstractServerLoginModule {
@@ -212,17 +212,22 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
                 if (super.log.isDebugEnabled()) {
                     super.log.debug("authentication succeded");
                 }
-            }catch(CredentialsExpiredException cee){
+            } catch (CredentialsExpiredException cee) {
                 if (super.log.isDebugEnabled()) {
                     super.log.debug("Credential has expired");
                 }
-                throw new javax.security.auth.login.CredentialExpiredException("The credential used to identify the user has expired");
-			}catch(AccountExpiredException cee){
+
+                throw new javax.security.auth.login.CredentialExpiredException(
+                    "The credential used to identify the user has expired");
+            } catch (AccountExpiredException cee) {
                 if (super.log.isDebugEnabled()) {
-                    super.log.debug("Account has expired, throwing jaas exception");
+                    super.log.debug(
+                        "Account has expired, throwing jaas exception");
                 }
-                throw new javax.security.auth.login.AccountExpiredException("The account specified in login has expired");
-			}catch (AuthenticationException failed) {
+
+                throw new javax.security.auth.login.AccountExpiredException(
+                    "The account specified in login has expired");
+            } catch (AuthenticationException failed) {
                 if (super.log.isDebugEnabled()) {
                     super.log.debug("Bad password for username=" + username);
                 }
