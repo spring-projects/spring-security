@@ -3,7 +3,7 @@
 <!--
  * ========================================================================
  * 
- * Copyright 2004 Acegi Technology Pty Limited
+ * Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,10 @@
   <body>
     <release version="0.7.1" date="CVS">
       <action dev="benalex" type="update">Made ConfigAttributeDefinition and ConfigAttribute Serializable</action>
+      <action dev="benalex" type="update">User now accepted blank passwords (null passwords still rejected)</action>
       <action dev="benalex" type="update">FilterToBeanProxy now searches hierarchical bean factories</action>
+      <action dev="benalex" type="update">Improved Tapestry support in AbstractProcessingFilter</action>
+      <action dev="benalex" type="update">User now accepted blank passwords (null passwords still rejected)</action>
       <action dev="benalex" type="fix">Contacts sample web.xml no longer expect Log4j to be in classpath</action>
       <action dev="raykrueger" type="update">JaasAuthenticatinProvider now uses System.property "java.security.auth.login.config"</action>
       <action dev="raykrueger" type="update">JaasAuthenticationCallbackHandler Authentication is passed to handle method setAuthenticatoin removed</action>
