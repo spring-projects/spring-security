@@ -26,7 +26,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>0.7.0-SNAPSHOT</releaseinfo>
+    <releaseinfo>0.7.0</releaseinfo>
 
     <authorgroup>
       <author>
@@ -106,29 +106,12 @@
         Portable Runtime Project versioning guidelines, available from
         <literal>http://apr.apache.org/versioning.html</literal>.</para>
 
-        <para>Some improvements are currently intended prior to the 1.0.0
-        release. These are:</para>
-
-        <itemizedlist spacing="compact">
-          <listitem>
-            <para>"Remember me" functionality. Some discussion on this can be
-            found at
-            <literal>http://sourceforge.net/mailarchive/forum.php?thread_id=5177499&amp;forum_id=40659</literal>.</para>
-          </listitem>
-
-          <listitem>
-            <para>Implementation of an
-            <literal>ObjectDefinitionSource</literal> that retrieves its
-            details from a database.</para>
-          </listitem>
-        </itemizedlist>
-
-        <para>Whilst this list is subject to change and not in any particular
-        order, none of the above improvements are likely to result in changes
-        to the API. The improvements are also relatively minor to implement.
-        Users of Acegi Security System for Spring should therefore be
-        comfortable depending on the current version of the project in their
-        applications.</para>
+        <para>Some minor improvements are currently intended prior to the
+        1.0.0 release, although each of these represent additional
+        functionality that will in no way modify the project's central
+        interfaces or classes. Users of Acegi Security System for Spring
+        should therefore be comfortable depending on the current version of
+        the project in their applications.</para>
       </sect2>
     </sect1>
 
@@ -2044,7 +2027,7 @@ public boolean supports(Class clazz);</programlisting></para>
         several concrete implementations that integrate with its ACL
         capabilities.</para>
 
-        <para>Figure 4 illustrates Acegi Security's
+        <para>Figure 5 illustrates Acegi Security's
         <literal>AfterInvocationManager</literal> and its concrete
         implementations.</para>
 
@@ -2055,7 +2038,7 @@ public boolean supports(Class clazz);</programlisting></para>
             </imageobject>
 
             <caption>
-              <para>Figure 4: After Invocation Implementation</para>
+              <para>Figure 5: After Invocation Implementation</para>
             </caption>
           </mediaobject></para>
 
@@ -2481,37 +2464,29 @@ public boolean supports(Class clazz);</programlisting></para>
               JBoss Container Adapter. It extracts the authentication from
               <literal>java:comp/env/security/subject</literal>.</para>
             </listitem>
-
-            <listitem>
-              <para><literal>AutoIntegrationFilter</literal> automatically
-              determines which filter to use. This makes a web application WAR
-              file more portable, as the <literal>web.xml</literal> is not
-              hard-coded to a specific
-              <literal>AbstractIntegrationFilter</literal>.</para>
-            </listitem>
           </itemizedlist></para>
 
-        <para>To define the <literal>AutoIntegrationFilter</literal>
+        <para>To define the <literal>HttpSessionIntegrationFilter</literal>
         (recommended), simply add the following to your web.xml:</para>
 
         <para><programlisting>&lt;filter&gt;
-  &lt;filter-name&gt;Acegi Security System for Spring Auto Integration Filter&lt;/filter-name&gt;
+  &lt;filter-name&gt;Acegi Security System for Spring HttpSession Integration Filter&lt;/filter-name&gt;
   &lt;filter-class&gt;net.sf.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
-    &lt;param-value&gt;net.sf.acegisecurity.ui.AutoIntegrationFilter&lt;/param-value&gt;
+    &lt;param-value&gt;net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter&lt;/param-value&gt;
   &lt;/init-param&gt;
 &lt;/filter&gt;
 
 &lt;filter-mapping&gt;
-  &lt;filter-name&gt;Acegi Security System for Spring Auto Integration Filter&lt;/filter-name&gt;
+  &lt;filter-name&gt;Acegi Security System for Spring HttpSession Integration Filter&lt;/filter-name&gt;
   &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
 &lt;/filter-mapping&gt;</programlisting></para>
 
         <para>You will also need to add the following line to your application
         context:</para>
 
-        <para><programlisting>&lt;bean id="autoIntegrationFilter" class="net.sf.acegisecurity.ui.AutoIntegrationFilter" /&gt;</programlisting></para>
+        <para><programlisting>&lt;bean id="httpSessionIntegrationFilter" class="net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter" /&gt;</programlisting></para>
 
         <para>Once in the <literal>ContextHolder</literal>, the standard Acegi
         Security System for Spring classes can be used. Because
@@ -2627,10 +2602,8 @@ public boolean supports(Class clazz);</programlisting></para>
       <sect2 id="security-container-adapters-catalina">
         <title>Catalina (Tomcat) Installation</title>
 
-        <para>The following was tested with Jakarta Tomcat 4.1.30 and 5.0.19.
-        We automatically test the following directions using our container
-        integration test system and these versions of Catalina
-        (Tomcat).</para>
+        <para>The following was tested with Jakarta Tomcat 4.1.30 and
+        5.0.19.</para>
 
         <para><literal>$CATALINA_HOME</literal> refers to the root of your
         Catalina (Tomcat) installation.</para>
@@ -2650,7 +2623,7 @@ public boolean supports(Class clazz);</programlisting></para>
         <para>Copy <literal>acegisecurity.xml</literal> into
         <literal>$CATALINA_HOME/conf</literal>.</para>
 
-        <para>Copy <literal>acegi-security-catalina.jar</literal> into
+        <para>Copy <literal>acegi-security-catalina-XX.jar</literal> into
         <literal>$CATALINA_HOME/server/lib</literal>.</para>
 
         <para>Copy the following files into
@@ -2663,10 +2636,6 @@ public boolean supports(Class clazz);</programlisting></para>
 
           <listitem>
             <para><literal>spring.jar</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>acegi-security-core.jar</literal></para>
           </listitem>
 
           <listitem>
@@ -2683,9 +2652,10 @@ public boolean supports(Class clazz);</programlisting></para>
         </itemizedlist>
 
         <para>None of the above JAR files (or
-        <literal>acegi-security.jar</literal>) should be in your application's
-        <literal>WEB-INF/lib</literal>. The realm name indicated in your
-        <literal>web.xml</literal> does not matter with Catalina.</para>
+        <literal>acegi-security-XX.jar</literal>) should be in your
+        application's <literal>WEB-INF/lib</literal>. The realm name indicated
+        in your <literal>web.xml</literal> does not matter with
+        Catalina.</para>
 
         <para>We have received reports of problems using this Container
         Adapter with Mac OS X. A work-around is to use a script such as
@@ -2701,9 +2671,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
       <sect2 id="security-container-adapters-jetty">
         <title>Jetty Installation</title>
 
-        <para>The following was tested with Jetty 4.2.18. We automatically
-        test the following directions using our container integration test
-        system and this version of Jetty.</para>
+        <para>The following was tested with Jetty 4.2.18.</para>
 
         <para><literal>$JETTY_HOME</literal> refers to the root of your Jetty
         installation.</para>
@@ -2740,7 +2708,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             </listitem>
 
             <listitem>
-              <para><literal>acegi-security-jetty-ext.jar</literal></para>
+              <para><literal>acegi-security-jetty-XX.jar</literal></para>
             </listitem>
 
             <listitem>
@@ -2757,9 +2725,9 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
           </itemizedlist></para>
 
         <para>None of the above JAR files (or
-        <literal>acegi-security.jar</literal>) should be in your application's
-        <literal>WEB-INF/lib</literal>. The realm name indicated in your
-        <literal>web.xml</literal> does matter with Jetty. The
+        <literal>acegi-security-XX.jar</literal>) should be in your
+        application's <literal>WEB-INF/lib</literal>. The realm name indicated
+        in your <literal>web.xml</literal> does matter with Jetty. The
         <literal>web.xml</literal> must express the same
         <literal>&lt;realm-name&gt;</literal> as your
         <literal>jetty.xml</literal> (in the example above, "Spring Powered
@@ -2769,9 +2737,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
       <sect2 id="security-container-adapters-joss">
         <title>JBoss Installation</title>
 
-        <para>The following was tested with JBoss 3.2.6. We automatically test
-        the following directions using our container integration test system
-        and this version of JBoss.</para>
+        <para>The following was tested with JBoss 3.2.6.</para>
 
         <para><literal>$JBOSS_HOME</literal> refers to the root of your JBoss
         installation.</para>
@@ -2852,7 +2818,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             </listitem>
 
             <listitem>
-              <para><literal>acegi-security-jboss-lib.jar</literal></para>
+              <para><literal>acegi-security-jboss-XX.jar</literal></para>
             </listitem>
 
             <listitem>
@@ -2869,11 +2835,12 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
           </itemizedlist></para>
 
         <para>None of the above JAR files (or
-        <literal>acegi-security.jar</literal>) should be in your application's
-        <literal>WEB-INF/lib</literal>. The realm name indicated in your
-        <literal>web.xml</literal> does not matter with JBoss. However, your
-        web application's <literal>WEB-INF/jboss-web.xml</literal> must
-        express the same <literal>&lt;security-domain&gt;</literal> as your
+        <literal>acegi-security-XX.jar</literal>) should be in your
+        application's <literal>WEB-INF/lib</literal>. The realm name indicated
+        in your <literal>web.xml</literal> does not matter with JBoss.
+        However, your web application's
+        <literal>WEB-INF/jboss-web.xml</literal> must express the same
+        <literal>&lt;security-domain&gt;</literal> as your
         <literal>login-config.xml</literal>. For example, to match the above
         example, your <literal>jboss-web.xml</literal> would look like
         this:</para>
@@ -2914,7 +2881,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             </listitem>
 
             <listitem>
-              <para><literal>acegi-security-resin-lib.jar</literal></para>
+              <para><literal>acegi-security-resin-XX.jar</literal></para>
             </listitem>
 
             <listitem>
@@ -2948,8 +2915,8 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 &lt;/web-app&gt;</programlisting></para>
 
         <para>With the basic configuration provided above, none of the JAR
-        files listed (or <literal>acegi-security.jar</literal>) should be in
-        your application's <literal>WEB-INF/lib</literal>. The realm name
+        files listed (or <literal>acegi-security-XX.jar</literal>) should be
+        in your application's <literal>WEB-INF/lib</literal>. The realm name
         indicated in your <literal>web.xml</literal> does not matter with
         Resin, as the relevant authentication class is indicated by the
         <literal>&lt;authenticator&gt;</literal> setting.</para>
@@ -3802,7 +3769,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
         <para>The <literal>net.sf.acegisecurity.acl</literal> package is very
         simple, comprising only a handful of interfaces and a single class, as
-        shown in Figure 5. It provides the basic foundation for access control
+        shown in Figure 6. It provides the basic foundation for access control
         list (ACL) lookups.</para>
 
         <para><mediaobject>
@@ -3811,7 +3778,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             </imageobject>
 
             <caption>
-              <para>Figure 5: Access Control List Manager</para>
+              <para>Figure 6: Access Control List Manager</para>
             </caption>
           </mediaobject></para>
 
@@ -3864,7 +3831,7 @@ public AclEntry[] getAcls(java.lang.Object domainInstance, Authentication authen
         <title>Integer Masked ACLs</title>
 
         <para>Acegi Security System for Spring includes a production-quality
-        ACL provider implementation, which is shown in Figure 6.</para>
+        ACL provider implementation, which is shown in Figure 7.</para>
 
         <para><mediaobject>
             <imageobject role="html">
@@ -3873,7 +3840,7 @@ public AclEntry[] getAcls(java.lang.Object domainInstance, Authentication authen
             </imageobject>
 
             <caption>
-              <para>Figure 6: Basic ACL Manager</para>
+              <para>Figure 7: Basic ACL Manager</para>
             </caption>
           </mediaobject></para>
 
@@ -4231,33 +4198,30 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
       provided by the system (and confirm your Container Adapter is properly
       configured if you're using one).</para>
 
-      <para>The Contacts sample application includes two deployable versions:
-      <literal>contacts.war</literal> is configured with the HTTP Session
-      Authentication approach, and does not use Container Adapters. The
-      <literal>contacts-container-adapter.war</literal> is configured to use a
-      Container Adapter. If you're just wanting to see how the sample
-      application works, please use <literal>contacts.war</literal> as it does
-      not require special configuration of your container.</para>
+      <para>If you build from CVS, the Contacts sample application includes
+      three deployable versions:
+      <literal>acegi-security-sample-contacts-filter.war</literal> is
+      configured with the HTTP Session Authentication approach. The
+      <literal><literal>acegi-security-sample-contacts-ca.war</literal></literal>
+      is configured to use a Container Adapter. Finally,
+      <literal>acegi-security-sample-contacts-cas.war</literal> is designed to
+      work with a Yale CAS server. If you're just wanting to see how the
+      sample application works, please use
+      <literal><literal>acegi-security-sample-contacts-filter.war</literal></literal>
+      as it does not require special configuration of your container. This is
+      also the artifact included in ofiical release ZIPs.</para>
 
-      <para>If you are going to use the
-      <literal>contacts-container-adapter.war</literal> version, first
-      configure your container as described in the Container Adapters section
-      of this chapter. Do not modify <literal>acegisecurity.xml</literal>. It
-      contains a very basic in-memory authentication configuration that is
-      compatible with the sample application.</para>
-
-      <para>To deploy, simply copy the relevant
-      <literal>contacts.war</literal> or
-      <literal>contacts-container-adapter.war</literal> file from the Acegi
+      <para>To deploy, simply copy the relevant WAR file from the Acegi
       Security System for Spring distribution into your container’s
       <literal>webapps</literal> directory.</para>
 
       <para>After starting your container, check the application can load.
-      Visit <literal>http://localhost:8080/contacts</literal> (or whichever
-      URL is appropriate for your web container and the WAR you deployed). A
-      random contact should be displayed. Click "Refresh" several times and
-      you will see different contacts. The business method that provides this
-      random contact is not secured.</para>
+      Visit
+      <literal>http://localhost:</literal><literal><literal>8080/</literal>acegi-security-sample-contacts-filter</literal>
+      (or whichever URL is appropriate for your web container and the WAR you
+      deployed). A random contact should be displayed. Click "Refresh" several
+      times and you will see different contacts. The business method that
+      provides this random contact is not secured.</para>
 
       <para>Next, click "Debug". You will be prompted to authenticate, and a
       series of usernames and passwords are suggested on that page. Simply
@@ -4290,45 +4254,46 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
       </blockquote>
 
       <para>If you receive a different message, and deployed
-      <literal>contacts-container-adapter.war</literal>, check you have
-      properly configured your Container Adapter. Refer to the instructions
-      provided above.</para>
+      <literal>acegi-security-sample-contacts-ca.war</literal>, check you have
+      properly configured your Container Adapter as described elsewhere in
+      this reference guide.</para>
 
       <para>Once you successfully receive the above message, return to the
       sample application's home page and click "Manage". You can then try out
-      the application. Notice that only the contacts belonging to the
+      the application. Notice that only the contacts available to the
       currently logged on user are displayed, and only users with
       <literal>ROLE_SUPERVISOR</literal> are granted access to delete their
       contacts. Behind the scenes, the
       <literal>MethodSecurityInterceptor</literal> is securing the business
-      objects. If you're using <literal>contacts.war</literal>, the
+      objects. If you're using
+      <literal><literal>acegi-security-sample-contacts-filter.war</literal></literal>
+      or <literal>acegi-security-sample-contacts-cas.war</literal>, the
       <literal>FilterSecurityInterceptor</literal> is also securing the HTTP
-      requests. If using <literal>contacts.war</literal>, be sure to try
-      visiting <literal>http://localhost:8080/contacts/secure/super</literal>,
-      which will demonstrate access being denied by the
-      <literal>SecurityEnforcementFilter</literal>.</para>
+      requests. If using either of these WARs, be sure to try visiting
+      <literal>http://localhost:8080/contacts/secure/super</literal>, which
+      will demonstrate access being denied by the
+      <literal>SecurityEnforcementFilter</literal>. Note the sample
+      application enables you to modify the access control lists associated
+      with different contacts. Be sure to give this a try and understand how
+      it works by reviewing the sample application's application context XML
+      files.</para>
 
       <para>The Contacts sample application also include a
       <literal>client</literal> directory. Inside you will find a small
-      application that queries the backend business objects using the Hessian
-      and Burlap protocols. This demonstrates how to use the Acegi Security
+      application that queries the backend business objects using several web
+      services protocols. This demonstrates how to use the Acegi Security
       System for Spring for authentication with Spring remoting protocols. To
       try this client, ensure your servlet container is still running the
       Contacts sample application, and then execute <literal>client marissa
-      marissa koala</literal>. The command-line parameters respectively
-      represent the owner of the contacts to extract, the username to use, and
-      the password to use. Note that you may need to edit
-      <literal>client.properties</literal> to use a different target URL. To
-      see that security does indeed work, try running <literal>client scott
-      marissa koala</literal>, which will try to obtain
-      <literal>scott</literal>'s contacts when authenticating as
-      <literal>marissa</literal>. To see it work properly, use <literal>client
-      scott scott wombat</literal>.</para>
+      koala</literal>. The command-line parameters respectively represent the
+      username to use, and the password to use. Note that you may need to edit
+      <literal>client.properties</literal> to use a different target
+      URL.</para>
 
       <para>Please note the sample application's <literal>client</literal>
       does not currently support CAS. You can still give it a try, though, if
-      you're ambitious: try <literal>client scott _cas_stateless_
-      YOUR-SERVICE-TICKET-ID-FOR-SCOTT</literal>.</para>
+      you're ambitious: try <literal>client _cas_stateless_
+      YOUR-SERVICE-TICKET-ID</literal>.</para>
     </sect1>
 
     <sect1 id="security-become-involved">
@@ -4347,29 +4312,19 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
 
       <itemizedlist>
         <listitem>
-          <para>Run the Ant <literal>format</literal> task (or use a suitable
-          IDE plug-in) to convert your code into the project's consistent
-          style</para>
+          <para>Use a suitable IDE Jalopy plug-in to convert your code into
+          the project's consistent style</para>
         </listitem>
 
         <listitem>
-          <para>Ensure your code does not break any unit tests (run the Ant
-          <literal>tests</literal> target)</para>
-        </listitem>
-
-        <listitem>
-          <para>Please use the container integration test system to test your
-          code in the project's officially supported containers</para>
-        </listitem>
-
-        <listitem>
-          <para>When writing a new container adapter, expand the container
-          integration test system to properly test it</para>
+          <para>Ensure your code does not break any unit tests (run the Maven
+          <literal>test:test</literal> goal)</para>
         </listitem>
 
         <listitem>
           <para>If you have added new code, please provide suitable unit tests
-          (use <literal>ant clover.html</literal> to view coverage)</para>
+          (use the Maven <literal>clover:html-report</literal> to view
+          coverage)</para>
         </listitem>
 
         <listitem>
@@ -4387,15 +4342,6 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
           create</para>
         </listitem>
       </itemizedlist>
-
-      <para>Mentioned above is our container integration test system, which
-      aims to test the Acegi Security System for Spring container adapters
-      with current, production versions of each container. Some containers
-      might not be supported due to difficulties with starting or stopping the
-      container within an Ant target. You will need to download the container
-      release files as specified in the integration test
-      <literal>readme.txt</literal> file. These files are intentionally
-      excluded from CVS due to their large size.</para>
     </sect1>
 
     <sect1 id="security-further">
