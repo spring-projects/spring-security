@@ -149,7 +149,7 @@
     <contributor>
       <name>James Monaghan</name>
       <roles>
-        <role>AcegiRemoteInvocation support classes</role>
+        <role>ContextPropagatingRemoteInvocation support classes</role>
       </roles>
     </contributor>
     <contributor>
@@ -164,7 +164,8 @@
     <dependency>
       <groupId>ehcache</groupId>
       <artifactId>ehcache</artifactId>
-      <version>0.7</version>
+      <version>0.9</version>
+      <type>jar</type>
       <url>http://ehcache.sourceforge.net</url>
       <properties>
         <war.bundle>true</war.bundle>
