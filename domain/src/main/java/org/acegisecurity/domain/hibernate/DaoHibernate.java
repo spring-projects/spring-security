@@ -46,6 +46,7 @@ import java.util.List;
  * {@link Dao} implementation that uses Hibernate for persistence.
  *
  * @author Ben Alex
+ * @author Matthew Porter
  * @version $Id$
  */
 public class DaoHibernate extends HibernateDaoSupport implements Dao,
@@ -74,12 +75,9 @@ public class DaoHibernate extends HibernateDaoSupport implements Dao,
 
     public PersistableEntity createOrUpdate(PersistableEntity value) {
         Assert.notNull(value);
+        getHibernateTemplate().saveOrUpdate(value);
 
-        if (value.getInternalId() == null) {
-            return create(value);
-        } else {
-            return update(value);
-        }
+        return readId(value.getInternalId());
     }
 
     public void delete(PersistableEntity value) {
