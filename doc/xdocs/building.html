@@ -32,7 +32,7 @@
   <p>This project uses <a href="http://maven.apache.org">Maven</a> as project manager
 	and build tool.	We recommend you to install Maven 1.0.2 or greater before trying
 	the following. <b>Note there are workarounds at the bottom of this page.</b></p>
-  <p>To checkout Acegi Security from CVS, execute the following command on a
+  <p>To ancheckout Acegi Security from CVS, execute the following command on a
 	single line:</p>
   <ol>
     <pre>maven scm:checkout-project
@@ -77,15 +77,17 @@
 	If you'd like a local copy, simply execute:
   <ol>
 	<pre>cd $ACEGI_SECURITY/doc</pre>
+	<pre>maven -Dpassword= changelog:create-cvspass</pre>
 	<pre>maven    multiproject:clean multiproject:site
 	-Dmaven.jar.override=on 
 	-Dmaven.jar.clover-ant=1.3.3_01 
-	-Dmaven.scm.cvs.root=:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity
 </pre>
   </ol>
-  <p>If you're an Acegi Security developer, you can omit the
-	<code>maven.scm.cvs.root</code> property, as your SourceForge login will be used
-	along with CVS-over-SSH (see workaround discussion below if you have problems).</p>
+  <p>As per the
+	<a href="http://maven.apache.org/reference/plugins/changelog/">Maven Changelog Plugin Documentation</a>,
+	you must tell the plugin the "anonymous CVS pserver" password is blank. This is
+	why there is the "create-cvspass" command shown above. You should only need to
+	do this once.</p>
 
   <h2>Memory and Clover Workarounds</h2>
   <p>If you get an <code>OutOfMemoryError</code>, simply execute the following before
@@ -109,24 +111,24 @@
 
   <p>Another possible problem is related to CVS-over-SSH ("ext" in CVSROOT) appearing to freeze.
 	The following instructions assume you're an Acegi Security developer who has CVS access
-	to the project, as if you're not then you shouldn't be trying to use CVS-over-SSH
-	(the instructions above detail how to execute the "site" and "checkout" commands
-	anonymously via "pserver").</p>
+	to the project, as if you're not then you shouldn't be trying to use CVS-over-SSH.
+	The instructions above all relate to goals which use the default, anonymous
+	pserver CVS repository.</p>
 	
-  <p>First check your
+  <p>If you really need authenticated SSH-based access, first check your
 	<code>$ACEGI_SECURITY/build.properties</code> contains a
 	<code>maven.username</code> equal to your SourceForge username. If your Maven CVS
-	commands still don't work, test you have automatic CVS-over-SSH access operational
+	or SSH commands still don't work, test you have automatic CVS-over-SSH access operational
 	by executing the following command:</p>
   <ol>
 	<pre>cvs -d :ext:YOUR_SOURCEFORGE_USERNAME@cvs.sourceforge.net:/cvsroot/acegisecurity</pre>
   </ol>
   
-  <p>If this CVS command doesn't work (without requiring any interaction such as password
-	entry), you probably need to review your CVS setup.
-	This will vary depending on your CVS client.</p>
+  <p>If this CVS command executes without requiring any interaction such as password
+	entry, you're ready to proceed. If it fails (or requires a password entry), you 
+	probably need to review your CVS setup. This varies depending on your CVS client.</p>
 	
-  <p>One Windows-based command line CVS-over-SSH-with-auto-login combination that 
+  <p>One Windows-based command line CVS-over-SSH-with-auto-login setup that 
 	works very well is to install 
 	<a href="http://www.cvsnt.com/">CVSNT</a> (which has a CVS client console utility)
 	and 
@@ -139,17 +141,14 @@
 	One issue with the SourceForge instructions is they forget to mention how to
 	tell the CVS command-line client to use <code>plink.exe</code>, which is PuTTY's SSH command-line
 	version. The solution is to execute 
-	<code>set CVS_RSH=C:\Program Files\putty\plinkk.exe</code>
+	<code>set CVS_RSH=C:\Program Files\putty\plink.exe</code>
 	(or whatever path is appropriate to plink) before running the CVS command line.
 	In fairness, the SourceForge instructions target the Windows front-end to CVS, whilst
 	we need the command-line version to work.</p>
 	
-  <p>If your CVS is working, try the <code>maven-changelog-plugin</code> on its
-	own by executing the following command:</p>
-  <ol>
-	<pre>cd $ACEGI_SECURITY/</pre>
-	<pre>maven maven-changelog-plugin:report</pre>
-  </ol>
+  <p>It is worth noting that as the Maven project uses the anonymous pserver
+	repository for most operations, these setup instructions really only apply if
+	doing something like deploying the site over SSH etc.</p>
 	
 </body>
 </html>

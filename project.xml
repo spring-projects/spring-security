@@ -21,7 +21,7 @@
 <project>
   <pomVersion>3</pomVersion>
   <groupId>acegisecurity</groupId>
-  <currentVersion>0.7-SNAPSHOT</currentVersion>
+  <currentVersion>0.7.0-SNAPSHOT</currentVersion>
   <package>net.sf.acegisecurity</package>
   <description>Acegi Security System for Spring</description>
   <shortDescription>Acegi Security System for Spring</shortDescription>
@@ -38,6 +38,7 @@
   <distributionSite>shell.sourceforge.net</distributionSite>
   <distributionDirectory>/home/groups/a/ac/acegisecurity/htdocs/maven</distributionDirectory>
   <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
     <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
     <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/</url>
   </repository>
