@@ -71,7 +71,8 @@ import javax.servlet.http.HttpServletResponse;
  * <li>
  * <code>authenticationEntryPoint</code> indicates the handler that should
  * commence the authentication process if an
- * <code>AuthenticationException</code> is detected.
+ * <code>AuthenticationException</code> is detected. Note that this may also
+ * switch the current protocol from http to https for a an SSL login.
  * </li>
  * </ul>
  * 

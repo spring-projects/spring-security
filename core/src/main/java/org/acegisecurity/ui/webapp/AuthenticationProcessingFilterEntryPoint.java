@@ -20,6 +20,9 @@ import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -33,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
  * authentication via the {@link AuthenticationProcessingFilter}.
  *
  * @author Ben Alex
+ * @author colin sampaleanu
  * @version $Id$
  */
 public class AuthenticationProcessingFilterEntryPoint
@@ -44,8 +48,18 @@ public class AuthenticationProcessingFilterEntryPoint
      * can be found.
      */
     private String loginFormUrl;
+    
+    private boolean forceSsl = false;
+    
+    private HashMap sslPortMapping;
 
     //~ Methods ================================================================
+    
+    public AuthenticationProcessingFilterEntryPoint() {
+        sslPortMapping = new HashMap();
+        sslPortMapping.put(new Integer(80), new Integer(443));
+        sslPortMapping.put(new Integer(8080), new Integer(8443));
+    }
 
     public void setLoginFormUrl(String loginFormUrl) {
         this.loginFormUrl = loginFormUrl;
@@ -63,7 +77,54 @@ public class AuthenticationProcessingFilterEntryPoint
 
     public void commence(ServletRequest request, ServletResponse response)
         throws IOException, ServletException {
-        ((HttpServletResponse) response).sendRedirect(((HttpServletRequest) request)
-            .getContextPath() + loginFormUrl);
+        
+        HttpServletRequest req = (HttpServletRequest) request;
+        String contextPath = req.getContextPath(); 
+        
+        String redirectUrl =  contextPath + loginFormUrl;
+        
+        if (forceSsl && req.getScheme().equals("http")) {
+            Integer httpPort = new Integer(req.getServerPort());
+            Integer httpsPort = (Integer) sslPortMapping.get(httpPort);
+            if (httpsPort != null ) {
+                String serverName = req.getServerName();
+                redirectUrl = "https://" + serverName + ":" + httpsPort + contextPath
+                        + loginFormUrl;
+            }
+        }
+        
+        ((HttpServletResponse) response).sendRedirect(redirectUrl);
+    }
+    
+    public void setForceSsl(boolean forceSsl) {
+        this.forceSsl = forceSsl;
+    }
+    public boolean isForceSsl() {
+        return forceSsl;
+    }
+
+    /**
+     * @throws IllegalArgumentException if input map does not consist of String keys
+     * and values, each representing an integer port number for one mapping.
+     */
+    public void setSslPortMapping(HashMap sslPortMapping) {
+        this.sslPortMapping.clear();
+        Iterator it = sslPortMapping.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry entry = (Map.Entry) it.next();
+            Integer httpPort = new Integer((String)entry.getKey());
+            Integer httpsPort = new Integer((String)entry.getKey());
+            if (httpPort.intValue() < 1 || httpPort.intValue() > 65535 ||
+                    httpsPort.intValue() < 1 || httpsPort.intValue() > 65535)
+                throw new IllegalArgumentException("one or both ports out of legal range: "
+                        + httpPort + ", " + httpsPort);
+            sslPortMapping.put(httpPort, httpsPort);
+            if (sslPortMapping.size() < 1)
+                throw new IllegalArgumentException("Must map at least one port");
+        }
+        
+    }
+    public HashMap getSslPortMapping() {
+        return sslPortMapping;
     }
 }
