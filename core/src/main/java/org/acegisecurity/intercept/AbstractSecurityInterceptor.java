@@ -488,14 +488,14 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
     }
 
     /**
-     * Helper method which generates an exception contained the passed reason,
+     * Helper method which generates an exception containing the passed reason,
      * and publishes an event to the application context.
      * 
      * <P>
      * Always throws an exception.
      * </p>
      *
-     * @param reason to be provided in the exceptiond detail
+     * @param reason to be provided in the exception detail
      * @param secureObject that was being called
      * @param configAttribs that were defined for the secureObject
      */
