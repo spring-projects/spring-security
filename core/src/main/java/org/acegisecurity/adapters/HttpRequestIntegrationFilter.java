@@ -15,6 +15,8 @@
 
 package net.sf.acegisecurity.adapters;
 
+import net.sf.acegisecurity.ui.AbstractIntegrationFilter;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

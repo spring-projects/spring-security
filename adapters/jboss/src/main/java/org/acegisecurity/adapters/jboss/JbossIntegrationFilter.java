@@ -16,7 +16,7 @@
 package net.sf.acegisecurity.adapters.jboss;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.adapters.AbstractIntegrationFilter;
+import net.sf.acegisecurity.ui.AbstractIntegrationFilter;
 
 import java.security.Principal;
 
