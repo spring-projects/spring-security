@@ -25,7 +25,13 @@ import net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry;
 
 import org.aopalliance.intercept.MethodInvocation;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.InitializingBean;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import java.util.Iterator;
 
@@ -120,10 +126,15 @@ import java.util.Iterator;
  */
 public class BasicAclEntryVoter implements AccessDecisionVoter,
     InitializingBean {
+    //~ Static fields/initializers =============================================
+
+    private static final Log logger = LogFactory.getLog(BasicAclEntryVoter.class);
+
     //~ Instance fields ========================================================
 
     private AclManager aclManager;
     private Class processDomainObjectClass;
+    private String internalMethod;
     private String processConfigAttribute;
     private int[] requirePermission;
 
@@ -135,6 +146,27 @@ public class BasicAclEntryVoter implements AccessDecisionVoter,
 
     public AclManager getAclManager() {
         return aclManager;
+    }
+
+    public void setInternalMethod(String internalMethod) {
+        this.internalMethod = internalMethod;
+    }
+
+    /**
+     * Optionally specifies a method of the domain object that will be used to
+     * obtain a contained domain object. That contained domain object will be
+     * used for the ACL evaluation. This is useful if a domain object contains
+     * a parent that an ACL evaluation should be targeted for, instead of the
+     * child domain object (which perhaps is being created and as such does
+     * not yet have any ACL permissions)
+     *
+     * @return <code>null</code> to use the domain object, or the name of a
+     *         method (that requires no arguments) that should be invoked to
+     *         obtain an <code>Object</code> which will be the domain object
+     *         used for ACL evaluation
+     */
+    public String getInternalMethod() {
+        return internalMethod;
     }
 
     public void setProcessConfigAttribute(String processConfigAttribute) {
@@ -220,6 +252,48 @@ public class BasicAclEntryVoter implements AccessDecisionVoter,
                 // If domain object is null, vote to abstain
                 if (domainObject == null) {
                     return AccessDecisionVoter.ACCESS_ABSTAIN;
+                }
+
+                // Evaluate if we are required to use an inner domain object
+                if ((internalMethod != null) && !"".equals(internalMethod)) {
+                    try {
+                        Class clazz = domainObject.getClass();
+                        Method method = clazz.getMethod(internalMethod, null);
+                        domainObject = method.invoke(domainObject, null);
+                    } catch (NoSuchMethodException nsme) {
+                        throw new AuthorizationServiceException(
+                            "Object of class '" + domainObject.getClass()
+                            + "' does not provide the requested internalMethod: "
+                            + internalMethod);
+                    } catch (IllegalAccessException iae) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("IllegalAccessException", iae);
+
+                            if (iae.getCause() != null) {
+                                logger.debug("Cause: "
+                                    + iae.getCause().getMessage(),
+                                    iae.getCause());
+                            }
+                        }
+
+                        throw new AuthorizationServiceException(
+                            "Problem invoking internalMethod: "
+                            + internalMethod + " for object: " + domainObject);
+                    } catch (InvocationTargetException ite) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("InvocationTargetException", ite);
+
+                            if (ite.getCause() != null) {
+                                logger.debug("Cause: "
+                                    + ite.getCause().getMessage(),
+                                    ite.getCause());
+                            }
+                        }
+
+                        throw new AuthorizationServiceException(
+                            "Problem invoking internalMethod: "
+                            + internalMethod + " for object: " + domainObject);
+                    }
                 }
 
                 // Obtain the ACLs applicable to the domain object
