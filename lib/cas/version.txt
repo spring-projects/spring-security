@@ -1,2 +1,0 @@
-CAS Server 2.0.12 beta 3
-CAS Client 2.0.10

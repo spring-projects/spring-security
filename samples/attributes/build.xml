@@ -45,7 +45,7 @@
 		</fileset>
 		<fileset dir="${lib.dir}">
 			<include name="**/spring.jar"/>
-			<include name="**/aopalliance.jar"/>
+			<include name="**/aopalliance-*.jar"/>
 			<include name="**/commons-logging.jar"/>
 			<include name="**/commons-attributes-api-SNAPSHOT.jar"/>
 			<include name="**/commons-collections.jar"/>

@@ -147,7 +147,7 @@
 			<!-- Include required libraries -->
 			<lib dir="${lib.dir}/jakarta-taglibs" includes="*.jar"/>
 			<lib dir="${lib.dir}/spring" includes="spring.jar"/>
-			<lib dir="${lib.dir}/aop-alliance" includes="aopalliance.jar"/>
+			<lib dir="${lib.dir}/aopalliance" includes="aopalliance-*.jar"/>
 			<lib dir="${lib.dir}/regexp" includes="jakarta-oro.jar"/>
 			<lib dir="${lib.dir}/j2ee" includes="jstl.jar"/>
 			<lib dir="${lib.dir}/caucho" includes="*.jar"/>
@@ -198,7 +198,7 @@
 			<!-- Include required libraries -->
 			<lib dir="${lib.dir}/jakarta-taglibs" includes="*.jar"/>
 			<lib dir="${lib.dir}/spring" includes="spring.jar"/>
-			<lib dir="${lib.dir}/aop-alliance" includes="aopalliance.jar"/>
+			<lib dir="${lib.dir}/aopalliance" includes="aopalliance-*.jar"/>
 			<lib dir="${lib.dir}/regexp" includes="jakarta-oro.jar"/>
 			<lib dir="${lib.dir}/j2ee" includes="jstl.jar"/>
 			<lib dir="${lib.dir}/caucho" includes="*.jar"/>

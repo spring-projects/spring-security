@@ -6,7 +6,6 @@
 	<classpathentry kind="src" path="samples/attributes/src"/>
 	<classpathentry kind="src" path="integration-test/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/aop-alliance/aopalliance.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-commons/commons-logging.jar"/>
 	<classpathentry kind="lib" path="lib/j2ee/servlet.jar"/>
 	<classpathentry kind="lib" path="lib/junit/junit.jar"/>
@@ -21,8 +20,9 @@
 	<classpathentry kind="lib" path="lib/regexp/jakarta-oro.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-commons/commons-codec.jar"/>
 	<classpathentry kind="lib" path="lib/hsqldb/hsqldb.jar"/>
-	<classpathentry kind="lib" path="lib/cas/cas.jar"/>
-	<classpathentry kind="lib" path="lib/cas/casclient.jar"/>
 	<classpathentry kind="lib" path="lib/ehcache/ehcache.jar"/>
+	<classpathentry kind="lib" path="lib/aopalliance/aopalliance-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/cas/cas-2.0.12-beta3.jar"/>
+	<classpathentry kind="lib" path="lib/cas/casclient-2.0.10.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>
