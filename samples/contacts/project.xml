@@ -1,6 +1,6 @@
 <project>
     <extend>${basedir}/../project.xml</extend>
-    <artifactId>acegi-sample-contacts</artifactId>
+    <artifactId>acegi-security-sample-contacts</artifactId>
     <name>Acegi Security System for Spring - Contacts sample</name>
   <dependencies>
     <dependency>
