@@ -3,7 +3,7 @@
 <project>
   <extend>${basedir}/../project.xml</extend>
   <artifactId>acegi-security-doc</artifactId>
-  <name>Acegi Security System for Spring - Documentation</name>
+  <name>Acegi Security System for Spring</name>
 
   <dependencies>
     <dependency>
