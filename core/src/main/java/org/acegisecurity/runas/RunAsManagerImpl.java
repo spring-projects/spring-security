@@ -26,9 +26,9 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.beans.factory.InitializingBean;
 
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
+import java.util.Vector;
 
 
 /**
@@ -73,7 +73,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 
     public Authentication buildRunAs(Authentication authentication,
         MethodInvocation invocation, ConfigAttributeDefinition config) {
-        Set newAuthorities = new HashSet();
+        List newAuthorities = new Vector();
         Iterator iter = config.getConfigAttributes();
 
         while (iter.hasNext()) {
