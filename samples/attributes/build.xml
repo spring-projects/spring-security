@@ -1,12 +1,28 @@
 <?xml version="1.0"?>
+<!--
+ * Copyright 2004 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
+ * $Id$
+-->
 
 <!--
   Build file for the "attributes" sample application.
   
   Demonstrates how to compile an application that has the security
   configuration defined by Commons Attributes in its Java source code.
-  
-  $Id$
 -->
 
 <project name="attributes" default="all" basedir=".">
@@ -111,7 +127,7 @@
    <target name="all" depends="clean, attribute-compiler, compile-classes, tests"  description="Builds from scratch and runs tests"/>
 	
    <target name="execute" description="Runs application (assumes has been built)">
-		<java fork="true" qa-portalpathref="qa-portalpath" classname="sample.attributes.Main"/>
+		<java fork="true" classpathref="qa-portalpath" classname="sample.attributes.Main"/>
    </target>
 
    <target name="release" depends="all" description="Builds a clean release file"/>
