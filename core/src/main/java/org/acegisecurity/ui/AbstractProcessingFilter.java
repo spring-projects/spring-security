@@ -18,6 +18,11 @@ package net.sf.acegisecurity.ui;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationManager;
+import net.sf.acegisecurity.AuthenticationServiceException;
+import net.sf.acegisecurity.BadCredentialsException;
+import net.sf.acegisecurity.DisabledException;
+import net.sf.acegisecurity.LockedException;
+import net.sf.acegisecurity.providers.cas.ProxyUntrustedException;
 import net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter;
 
 import org.apache.commons.logging.Log;
@@ -95,8 +100,38 @@ public abstract class AbstractProcessingFilter implements Filter,
 
     private AuthenticationManager authenticationManager;
 
+    /**
+     * Where to redirect the browser if authentication fails due to incorrect
+     * credentials
+     */
+    private String authenticationCredentialCheckFailureUrl;
+
+    /**
+     * Where to redirect the browser if authentication fails due to the users
+     * account being disabled
+     */
+    private String authenticationDisabledFailureUrl;
+
     /** Where to redirect the browser to if authentication fails */
     private String authenticationFailureUrl;
+
+    /**
+     * Where to redirect the browser if authentication fails due to the users
+     * account being locked
+     */
+    private String authenticationLockedFailureUrl;
+
+    /**
+     * Where to redirect the browser if authentication fails due to the user's
+     * proxy being considered untrusted
+     */
+    private String authenticationProxyUntrustedFailureUrl;
+
+    /**
+     * Where to redirect the browser if authentication fails due to failure of
+     * the authentication service
+     */
+    private String authenticationServiceFailureUrl;
 
     /**
      * Where to redirect the browser to if authentication is successful but
@@ -133,12 +168,39 @@ public abstract class AbstractProcessingFilter implements Filter,
     public abstract Authentication attemptAuthentication(
         HttpServletRequest request) throws AuthenticationException;
 
+    public void setAuthenticationCredentialCheckFailureUrl(
+        String authenticationCredentialCheckFailureUrl) {
+        this.authenticationCredentialCheckFailureUrl = authenticationCredentialCheckFailureUrl;
+    }
+
+    public String getAuthenticationCredentialCheckFailureUrl() {
+        return authenticationCredentialCheckFailureUrl;
+    }
+
+    public void setAuthenticationDisabledFailureUrl(
+        String authenticationDisabledFailureUrl) {
+        this.authenticationDisabledFailureUrl = authenticationDisabledFailureUrl;
+    }
+
+    public String getAuthenticationDisabledFailureUrl() {
+        return authenticationDisabledFailureUrl;
+    }
+
     public void setAuthenticationFailureUrl(String authenticationFailureUrl) {
         this.authenticationFailureUrl = authenticationFailureUrl;
     }
 
     public String getAuthenticationFailureUrl() {
         return authenticationFailureUrl;
+    }
+
+    public void setAuthenticationLockedFailureUrl(
+        String authenticationLockedFailureUrl) {
+        this.authenticationLockedFailureUrl = authenticationLockedFailureUrl;
+    }
+
+    public String getAuthenticationLockedFailureUrl() {
+        return authenticationLockedFailureUrl;
     }
 
     public void setAuthenticationManager(
@@ -148,6 +210,24 @@ public abstract class AbstractProcessingFilter implements Filter,
 
     public AuthenticationManager getAuthenticationManager() {
         return authenticationManager;
+    }
+
+    public void setAuthenticationProxyUntrustedFailureUrl(
+        String authenticationProxyUntrustedFailureUrl) {
+        this.authenticationProxyUntrustedFailureUrl = authenticationProxyUntrustedFailureUrl;
+    }
+
+    public String getAuthenticationProxyUntrustedFailureUrl() {
+        return authenticationProxyUntrustedFailureUrl;
+    }
+
+    public void setAuthenticationServiceFailureUrl(
+        String authenticationServiceFailureUrl) {
+        this.authenticationServiceFailureUrl = authenticationServiceFailureUrl;
+    }
+
+    public String getAuthenticationServiceFailureUrl() {
+        return authenticationServiceFailureUrl;
     }
 
     public void setDefaultTargetUrl(String defaultTargetUrl) {
@@ -216,6 +296,33 @@ public abstract class AbstractProcessingFilter implements Filter,
                 authResult = attemptAuthentication(httpRequest);
             } catch (AuthenticationException failed) {
                 // Authentication failed
+                String failureUrl = authenticationFailureUrl;
+
+                if (failed instanceof AuthenticationServiceException
+                    && (authenticationServiceFailureUrl != null)) {
+                    failureUrl = authenticationServiceFailureUrl;
+                }
+
+                if (failed instanceof BadCredentialsException
+                    && (this.authenticationCredentialCheckFailureUrl != null)) {
+                    failureUrl = authenticationCredentialCheckFailureUrl;
+                }
+
+                if (failed instanceof DisabledException
+                    && (authenticationDisabledFailureUrl != null)) {
+                    failureUrl = authenticationDisabledFailureUrl;
+                }
+
+                if (failed instanceof LockedException
+                    && (authenticationLockedFailureUrl != null)) {
+                    failureUrl = authenticationLockedFailureUrl;
+                }
+
+                if (failed instanceof ProxyUntrustedException
+                    && (authenticationProxyUntrustedFailureUrl != null)) {
+                    failureUrl = authenticationProxyUntrustedFailureUrl;
+                }
+
                 if (logger.isDebugEnabled()) {
                     logger.debug("Authentication request failed: "
                         + failed.toString());
@@ -226,7 +333,7 @@ public abstract class AbstractProcessingFilter implements Filter,
                 httpRequest.getSession().setAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY,
                     null);
                 httpResponse.sendRedirect(httpResponse.encodeRedirectURL(httpRequest
-                        .getContextPath() + authenticationFailureUrl));
+                        .getContextPath() + failureUrl));
 
                 return;
             }

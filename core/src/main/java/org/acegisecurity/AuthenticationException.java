@@ -24,6 +24,14 @@ package net.sf.acegisecurity;
  * @version $Id$
  */
 public abstract class AuthenticationException extends AcegiSecurityException {
+    //~ Instance fields ========================================================
+
+    /**
+     * The authentication that related to this exception (may be
+     * <code>null</code>)
+     */
+    private Authentication authentication;
+
     //~ Constructors ===========================================================
 
     /**
@@ -45,5 +53,15 @@ public abstract class AuthenticationException extends AcegiSecurityException {
      */
     public AuthenticationException(String msg) {
         super(msg);
+    }
+
+    //~ Methods ================================================================
+
+    public void setAuthentication(Authentication authentication) {
+        this.authentication = authentication;
+    }
+
+    public Authentication getAuthentication() {
+        return authentication;
     }
 }
