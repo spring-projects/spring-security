@@ -55,6 +55,7 @@ public class AbstractAuthenticationTokenTests extends TestCase {
                         "ROLE_TWO")});
         assertEquals("Test", token.getPrincipal());
         assertEquals("Password", token.getCredentials());
+        assertEquals("Test", token.getName());
     }
 
     public void testObjectsEquals() throws Exception {

@@ -15,6 +15,9 @@
 
 package net.sf.acegisecurity;
 
+import java.security.Principal;
+
+
 /**
  * Represents an authentication request.
  * 
@@ -30,7 +33,7 @@ package net.sf.acegisecurity;
  * @author Ben Alex
  * @version $Id$
  */
-public interface Authentication {
+public interface Authentication extends Principal {
     //~ Methods ================================================================
 
     public void setAuthenticated(boolean isAuthenticated);
