@@ -47,8 +47,8 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
         this.authorities = authorities;
     }
 
-    private TestingAuthenticationToken() {
-        super();
+    protected TestingAuthenticationToken() {
+        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ================================================================

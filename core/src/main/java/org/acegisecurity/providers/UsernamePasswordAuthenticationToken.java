@@ -56,8 +56,8 @@ public class UsernamePasswordAuthenticationToken
         this.authorities = authorities;
     }
 
-    private UsernamePasswordAuthenticationToken() {
-        super();
+    protected UsernamePasswordAuthenticationToken() {
+        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ================================================================
