@@ -72,6 +72,14 @@ public class ReflectionSaltSource implements SaltSource, InitializingBean {
         }
     }
 
+    /**
+     * The method name to call to obtain the salt. If your
+     * <code>UserDetails</code> contains a <code>UserDetails.getSalt()</code>
+     * method, you should set this property to <code>getSalt</code>.
+     *
+     * @param userPropertyToUse the name of the <b>getter</b> to call to obtain
+     *        the salt from the <code>UserDetails</code>
+     */
     public void setUserPropertyToUse(String userPropertyToUse) {
         this.userPropertyToUse = userPropertyToUse;
     }
