@@ -57,7 +57,7 @@ public class StringSplitUtils {
                 "Delimiter can only be one character in length");
         }
 
-        int offset = toSplit.indexOf('=');
+        int offset = toSplit.indexOf(delimiter);
 
         if (offset < 0) {
             return null;

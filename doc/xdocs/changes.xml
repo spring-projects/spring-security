@@ -35,6 +35,7 @@
       <action dev="fbos" type="fix">Corrected Authz parsing of whitespace in GrantedAuthoritys</action>
       <action dev="benalex" type="fix">TokenBasedRememberMeServices now respects expired users, expired credentials and disabled users</action>
       <action dev="benalex" type="fix">HttpSessionContextIntegrationFilter now handles HttpSession invalidation without redirection</action>
+      <action dev="benalex" type="fix">StringSplitUtils.split() ignored delimiter argument</action>
     </release>
     <release version="0.8.0" date="2005-03-03">
       <action dev="benalex" type="add">Added Digest Authentication support (RFC 2617 and RFC 2069)</action>

@@ -137,4 +137,12 @@ public class StringSplitUtilsTests extends TestCase {
             assertTrue(true);
         }
     }
+
+    public void testSplitWorksWithDifferentDelimiters() {
+        assertEquals(2, StringSplitUtils.split("18/marissa", "/").length);
+        assertNull(StringSplitUtils.split("18/marissa", "!"));
+
+        // only guarantees to split at FIRST delimiter, not EACH delimiter
+        assertEquals(2, StringSplitUtils.split("18|marissa|foo|bar", "|").length);
+    }
 }
