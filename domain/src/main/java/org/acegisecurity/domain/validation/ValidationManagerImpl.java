@@ -35,6 +35,7 @@ import java.util.Vector;
  * Default implementation of {@link ValidationManager}.
  *
  * @author Ben Alex
+ * @author Matthew E. Porter
  * @version $Id$
  */
 public class ValidationManagerImpl implements InitializingBean,
@@ -43,7 +44,7 @@ public class ValidationManagerImpl implements InitializingBean,
 
     protected final Log logger = LogFactory.getLog(getClass());
     private IntrospectionManager introspectionManager;
-    private List validators;
+    private ValidationRegistryManager validationRegistryManager = new ValidationRegistryManagerImpl();
     private boolean strictValidation = true;
 
     //~ Methods ================================================================
@@ -60,7 +61,7 @@ public class ValidationManagerImpl implements InitializingBean,
     /**
      * Indicates whether a {@link ValidatorNotFoundException} should be thrown
      * if any domain object does not have a corresponding
-     * <code>Validator</code> defined against the {@link #validators}.
+     * <code>Validator</code>.
      * 
      * <p>
      * Defaults to <code>true</code>. This is a reasonable default, as callers
@@ -80,37 +81,18 @@ public class ValidationManagerImpl implements InitializingBean,
         return strictValidation;
     }
 
-    /**
-     * Sets the {@link Validator} objects to be used.
-     *
-     * @param newList that should be used for validation.
-     */
-    public void setValidators(List newList) {
-        Assert.notNull(newList, "A list of Validators is required");
-        Assert.isTrue(newList.size() > 0,
-            "At least one Validator must be defined");
-
-        Iterator iter = newList.iterator();
-
-        while (iter.hasNext()) {
-            Object currentObject = null;
-            currentObject = iter.next();
-            Assert.isInstanceOf(Validator.class, currentObject,
-                "Validator '" + currentObject
-                + "' must be an instance of Validator");
-        }
-
-        this.validators = newList;
+    public void setValidationRegistryManager(
+        ValidationRegistryManager validationRegistryManager) {
+        this.validationRegistryManager = validationRegistryManager;
     }
 
-    public List getValidators() {
-        return this.validators;
+    public ValidationRegistryManager getValidationRegistryManager() {
+        return validationRegistryManager;
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(validators, "A list of Validators is required");
-        Assert.isTrue(validators.size() > 0,
-            "At least one Validator must be defined");
+        Assert.notNull(validationRegistryManager,
+            "A ValidationRegistryManager is required");
         Assert.notNull(introspectionManager,
             "An IntrospectionManager is required");
     }
@@ -133,7 +115,7 @@ public class ValidationManagerImpl implements InitializingBean,
         Assert.notNull(domainObject,
             "Cannot validate a null domain object, as unable to getClass()");
 
-        // Construct a list of objects to be validated and add self
+        // Construct a list of objects to be validated and adds self
         List allObjects = new Vector();
         allObjects.add(domainObject);
 
@@ -197,18 +179,14 @@ public class ValidationManagerImpl implements InitializingBean,
         throws ValidatorNotFoundException {
         Assert.notNull(clazz, "Class cannot be null");
 
-        Iterator iter = validators.iterator();
+        Validator validator = this.validationRegistryManager.findValidator(clazz);
 
-        while (iter.hasNext()) {
-            Validator validator = (Validator) iter.next();
-
-            if (validator.supports(clazz)) {
-                return validator;
-            }
+        if (validator == null) {
+            throw new ValidatorNotFoundException(
+                "No Validator found for class '" + clazz + "'");
         }
 
-        throw new ValidatorNotFoundException("No Validator found for class '"
-            + clazz + "'");
+        return validator;
     }
 
     /**
