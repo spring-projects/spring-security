@@ -54,10 +54,13 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
- * If an {@link AccessDeniedException} is detected, the filter will response
- * with a <code>HttpServletResponse.SC_FORBIDDEN</code> (403 error). Again,
- * this allows common access denied handling irrespective of the originating
- * security interceptor.
+ * If an {@link AccessDeniedException} is detected, the filter will respond
+ * with a <code>HttpServletResponse.SC_FORBIDDEN</code> (403 error).  In
+ * addition, the <code>AccessDeniedException</code> itself will be placed in
+ * the <code>HttpSession</code> attribute keyed against {@link
+ * #ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY} (to allow access to the stack
+ * trace etc). Again, this allows common access denied handling irrespective
+ * of the originating security interceptor.
  * </p>
  * 
  * <p>
@@ -96,6 +99,7 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(SecurityEnforcementFilter.class);
+    public static final String ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY = "ACEGI_SECURITY_403_EXCEPTION";
 
     //~ Instance fields ========================================================
 
@@ -202,6 +206,8 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
                     "Access is denied - sending back forbidden response");
             }
 
+            ((HttpServletRequest) request).getSession().setAttribute(ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY,
+                accessDenied);
             sendAccessDeniedError(request, response);
         } catch (Throwable otherException) {
             throw new ServletException(otherException);

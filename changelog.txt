@@ -6,6 +6,7 @@ Changes in version 0.7 (2004-xx-xx)
 * Added MethodDefinitionSourceAdvisor for performance and autoproxying
 * Added MethodDefinitionMap querying of interfaces defined by secure objects
 * Added AuthenticationProcessingFilter.setDetails for use by subclasses
+* Added 403-causing exception to HttpSession via SecurityEnforcementFilter
 * Refactored MethodDefinitionSource to work with Method, not MethodInvocation
 * Refactored AbstractSecurityInterceptor to better support other AOP libraries
 * Fixed AbstractProcessingFitler to use removeAttribute (JRun compatibility)

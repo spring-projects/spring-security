@@ -32,6 +32,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpSession;
 
 
 /**
@@ -64,8 +65,9 @@ public class SecurityEnforcementFilterTests extends TestCase {
     public void testAccessDeniedWhenAccessDeniedException()
         throws Exception {
         // Setup our HTTP request
+        HttpSession session = new MockHttpSession();
         MockHttpServletRequest request = new MockHttpServletRequest(null,
-                new MockHttpSession());
+                session);
         request.setServletPath("/secure/page.html");
 
         // Setup our expectation that the filter chain will not be invoked, as access is denied
@@ -84,6 +86,10 @@ public class SecurityEnforcementFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
         assertEquals(403, response.getError());
+        assertEquals(AccessDeniedException.class,
+            session.getAttribute(
+                SecurityEnforcementFilter.ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY)
+                   .getClass());
     }
 
     public void testDoFilterWithNonHttpServletRequestDetected()
