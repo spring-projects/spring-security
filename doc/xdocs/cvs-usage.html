@@ -1,0 +1,82 @@
+<!--
+ * ========================================================================
+ * 
+ * Copyright 2004 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * ========================================================================
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>CVS usage</title>
+<h1>CVS instructions for all modules</h1>
+<p>This instructions are general, check the module documentation if you need concrete instructions. </p>
+<p><em>modulename</em> can be for example:</p>
+<ul>
+  <li>acegisecurity <em>(this will check out all modules) </em></li>
+  <li>acegisecurity/core/</li>
+  <li>acegisecurity/adapters/cas</li>
+</ul>
+<h2>Web Access</h2>
+<p>
+          <a href="http://cvs.sourceforge.net/viewcvs.py/acegisecurity">http://cvs.sourceforge.net/viewcvs.py/acegisecurity</a>
+</p><h2>Anonymous Access with Maven</h2>
+<p> This project's CVS repository can be checked out through anonymous (pserver) CVS with the following instruction on a single line. </p>
+<pre>maven scm:checkout-project
+    -Dmaven.scm.method=cvs
+    -Dmaven.scm.cvs.module=modulename
+    -Dmaven.scm.cvs.root=:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity
+    -Dmaven.scm.checkout.dir=acegisecurity</pre>
+<h2>Anonymous CVS Access</h2>
+<p>
+          This project's CVS repository can be checked out through anonymous (pserver)
+          CVS with the following instruction set.
+          When prompted for a password for anonymous, simply press the Enter key.
+</p><p>
+          cvs -d :pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity login
+          <br>
+          cvs -z3 -d :pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity co <em>modulename</em> </p>
+        <p>
+          Updates from within the module's directory do not need the -d parameter.
+        </p><h2>Developer Access with Maven</h2>
+        <p> Only project developers can access the CVS tree via this method. Substitute <b>username</b> with the proper value. </p>
+            <pre>maven scm:checkout-project
+    -Dmaven.scm.method=cvs
+    -Dmaven.scm.cvs.module=modulename
+    -Dmaven.scm.cvs.root=:ext:username@cvs.sourceforge.net:/cvsroot/acegisecurity
+    -Dmaven.scm.checkout.dir=acegisecurity
+    -Dmaven.scm.cvs.rsh=ssh</pre>
+            <p> Remember to replace 'username' with your actual username on cvs.sourceforge.net.<br />
+    Also change <code>ssh</code> in <code>maven.scm.cvs.rsh=ssh</code> to the name of your ssh executable. </p>
+        <h2>Developer CVS Access via SSH</h2>
+        <p>
+          Only project developers can access the CVS tree via this method.
+          SSH must be installed on your client machine. Substitute   
+          <b>username</b> with the proper value. Enter your site password when prompted.
+        </p>
+<p>
+          export CVS_RSH=ssh
+          <br>
+  cvs -z3 -d :ext:username@cvs.sourceforge.net:/cvsroot/acegisecurity co <em>modulename</em> </p>
+        <p>
+          Remember to replace 'username' with your actual username on cvs.sourceforge.net.
+        </p><h2>CVS Access behind a firewall</h2>
+        <p>
+          For those developers who are stuck behind a corporate
+          firewall, <a href="http://cvsgrab.sourceforge.net/">CVSGrab</a>
+          can use the viewcvs web interface to checkout the source code.
+        </p>
+</html>

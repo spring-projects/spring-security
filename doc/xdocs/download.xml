@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 
 <!--
  * ========================================================================
@@ -21,12 +21,19 @@
 -->
 
 <document>
+
   <properties>
-    <title>Acegi security changes</title>
+    <title>Downloading Acegi</title>
   </properties>
+
   <body>
-    <release version="0.7-SNAPSHOT" date="in CVS">
-      <action dev="carlos" type="add">Migrated to Maven</action>
-    </release>
+    <section name="Downloading Acegi">
+
+      <p>
+         You can download the latest release from the
+         <a href="http://sourceforge.net/project/showfiles.php?group_id=104215">Sourceforge project site</a>.
+      </p>
+
+    </section>
   </body>
 </document>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * ========================================================================
+ * 
+ * Copyright 2004 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * ========================================================================
+-->
+
+<document>
+  <properties>
+    <title>Acegi security changes</title>
+  </properties>
+  <body>
+    <release version="0.7-SNAPSHOT" date="in CVS">
+      <action dev="carlossg" type="add">Major CVS repository restructure to support Maven and eliminate libraries</action>
+      <action dev="benalex" type="update">Major improvements to Contacts sample application (now demos ACL security)</action>
+      <action dev="benalex" type="add">Added AfterInvocationManager to mutate objects return from invocations</action>
+      <action dev="benalex" type="add">Added BasicAclEntryAfterInvocationProvider to ACL evaluate returned Object</action>
+      <action dev="benalex" type="add">Added BasicAclEntryAfterInvocationCollectionFilteringProvider</action>
+      <action dev="benalex" type="add">Added security propagation during RMI invocations (from sandbox)</action>
+      <action dev="benalex" type="add">Added security propagation for Spring's HTTP invoker</action>
+      <action dev="benalex" type="add">Added BasicAclEntryVoter, which votes based on AclManager permissions</action>
+      <action dev="benalex" type="add">Added AspectJ support (especially useful for instance-level security)</action>
+      <action dev="benalex" type="add">Added MethodDefinitionSourceAdvisor for performance and autoproxying</action>
+      <action dev="benalex" type="add">Added MethodDefinitionMap querying of interfaces defined by secure objects</action>
+      <action dev="benalex" type="add">Added AuthenticationProcessingFilter.setDetails for use by subclasses</action>
+      <action dev="benalex" type="add">Added 403-causing exception to HttpSession via SecurityEnforcementFilter</action>
+      <action dev="benalex" type="add">Added net.sf.acegisecurity.intercept.event package</action>
+      <action dev="benalex" type="add">Added BasicAclExtendedDao interface and JdbcExtendedDaoImpl for ACL CRUD</action>
+      <action dev="benalex" type="add">Added additional remoting protocol demonstrations to Contacts sample</action>
+      <action dev="benalex" type="update">Improved BasicAclProvider to only respond to specified ACL object requests</action>
+      <action dev="benalex" type="update">Refactored MethodDefinitionSource to work with Method, not MethodInvocation</action>
+      <action dev="benalex" type="update">Refactored AbstractSecurityInterceptor to better support other AOP libraries</action>
+      <action dev="benalex" type="fix">Fixed AbstractProcessingFilter to use removeAttribute (JRun compatibility)</action>
+      <action dev="benalex" type="fix">Fixed GrantedAuthorityEffectiveAclResolver support of UserDetails principals</action>
+      <action dev="benalex" type="update">Moved MethodSecurityInterceptor to ...intercept.method.aopalliance package</action>
+      <action dev="benalex" type="update">Documentation improvements</action>
+    </release>
+    <release version="0.6.1" date="2004-09-24"/>
+    <release version="0.6"   date="2004-08-08"/>
+    <release version="0.5.1" date="2004-06-05"/>
+    <release version="0.5"   date="2004-04-28"/>
+    <release version="0.4"   date="2004-04-03"/>
+    <release version="0.3"   date="2004-03-18"/>
+  </body>
+</document>
