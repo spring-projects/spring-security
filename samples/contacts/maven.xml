@@ -23,6 +23,10 @@
         <!-- filter war -->
         <j:set var="webapp" value="filter"/>
         <attainGoal name="acegisecurity:war"/>
+
+        <!-- x509 war -->
+        <j:set var="webapp" value="x509"/>
+        <attainGoal name="acegisecurity:war"/>
 		
 		<!-- delete generic artifact (we only want our three custom WARs) -->
 	    <ant:delete file="${maven.war.build.dir}/${pom.artifactId}.war"/>
