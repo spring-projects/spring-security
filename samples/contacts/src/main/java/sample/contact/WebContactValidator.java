@@ -35,12 +35,16 @@ public class WebContactValidator implements Validator {
     public void validate(Object obj, Errors errors) {
         WebContact wc = (WebContact) obj;
 
-        if ((wc.getName() == null) || (wc.getName().length() < 3)) {
-            errors.rejectValue("name", "not-used", null, "Name is required.");
+        if ((wc.getName() == null) || (wc.getName().length() < 3)
+            || (wc.getName().length() > 50)) {
+            errors.rejectValue("name", "err.name",
+                "Name 3-50 characters is required.");
         }
 
-        if ((wc.getEmail() == null) || (wc.getEmail().length() < 3)) {
-            errors.rejectValue("email", "not-used", null, "Email is required.");
+        if ((wc.getEmail() == null) || (wc.getEmail().length() < 3)
+            || (wc.getEmail().length() > 50)) {
+            errors.rejectValue("email", "err.email",
+                "Email 3-50 characters is required.");
         }
     }
 }

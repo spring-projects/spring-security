@@ -15,15 +15,18 @@
 
 package sample.contact;
 
+import net.sf.acegisecurity.acl.AclEntry;
+import net.sf.acegisecurity.acl.AclManager;
+
 import org.springframework.beans.factory.InitializingBean;
 
+import org.springframework.web.bind.RequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
 import java.io.IOException;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -32,17 +35,26 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Controller for secure index page.
+ * Controller for "administer" index page.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class SecureIndexController implements Controller, InitializingBean {
+public class AdminPermissionController implements Controller, InitializingBean {
     //~ Instance fields ========================================================
 
+    private AclManager aclManager;
     private ContactManager contactManager;
 
     //~ Methods ================================================================
+
+    public void setAclManager(AclManager aclManager) {
+        this.aclManager = aclManager;
+    }
+
+    public AclManager getAclManager() {
+        return aclManager;
+    }
 
     public void setContactManager(ContactManager contact) {
         this.contactManager = contact;
@@ -57,22 +69,24 @@ public class SecureIndexController implements Controller, InitializingBean {
             throw new IllegalArgumentException(
                 "A ContactManager implementation is required");
         }
+
+        if (aclManager == null) {
+            throw new IllegalArgumentException(
+                "An aclManager implementation is required");
+        }
     }
 
     public ModelAndView handleRequest(HttpServletRequest request,
         HttpServletResponse response) throws ServletException, IOException {
-        List myContactsList = contactManager.getAll();
-        Contact[] myContacts;
+        int id = RequestUtils.getRequiredIntParameter(request, "contactId");
 
-        if (myContactsList.size() == 0) {
-            myContacts = null;
-        } else {
-            myContacts = (Contact[]) myContactsList.toArray(new Contact[] {});
-        }
+        Contact contact = contactManager.getById(new Integer(id));
+        AclEntry[] acls = aclManager.getAcls(contact);
 
         Map model = new HashMap();
-        model.put("contacts", myContacts);
+        model.put("contact", contact);
+        model.put("acls", acls);
 
-        return new ModelAndView("index", "model", model);
+        return new ModelAndView("adminPermission", "model", model);
     }
 }

@@ -17,6 +17,7 @@ package sample.contact;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import org.springframework.web.bind.RequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
@@ -28,7 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Controller to delete a contact page.
+ * Controller to delete a contact.
  *
  * @author Ben Alex
  * @version $Id$
@@ -57,8 +58,8 @@ public class DeleteController implements Controller, InitializingBean {
 
     public ModelAndView handleRequest(HttpServletRequest request,
         HttpServletResponse response) throws ServletException, IOException {
-        Integer id = new Integer(request.getParameter("id"));
-        Contact contact = contactManager.getById(id);
+        int id = RequestUtils.getRequiredIntParameter(request, "contactId");
+        Contact contact = contactManager.getById(new Integer(id));
         contactManager.delete(contact);
 
         return new ModelAndView("deleted", "contact", contact);

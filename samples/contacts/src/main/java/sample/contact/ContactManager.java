@@ -15,8 +15,11 @@
 
 package sample.contact;
 
+import java.util.List;
+
+
 /**
- * Iterface for the application's business object.
+ * Interface for the application's services layer.
  *
  * @author Ben Alex
  * @version $Id$
@@ -24,15 +27,20 @@ package sample.contact;
 public interface ContactManager {
     //~ Methods ================================================================
 
-    public Contact[] getAllByOwner(String owner);
+    public List getAll();
+
+    public List getAllRecipients();
 
     public Contact getById(Integer id);
 
-    public Integer getNextId();
-
     public Contact getRandomContact();
+
+    public void addPermission(Contact contact, String recipient,
+        Integer permission);
+
+    public void create(Contact contact);
 
     public void delete(Contact contact);
 
-    public void save(Contact contact);
+    public void deletePermission(Contact contact, String recipient);
 }

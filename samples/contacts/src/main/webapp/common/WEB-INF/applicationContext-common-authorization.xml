@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Application context containing authentication beans.
+  -
+  - Used by all artifacts.
+  -
+  - $Id$
+  -->
+
+<beans>
+
+   <!-- ~~~~~~~~~~~~~~~~~~ "BEFORE INVOCATION" AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~ -->
+
+   <!-- An access decision voter that reads ROLE_* configuration settings -->
+   <bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
+
+   <!-- An access decision voter that reads ACL_CONTACT_READ configuration settings -->
+   <bean id="aclContactReadVoter" class="net.sf.acegisecurity.vote.BasicAclEntryVoter">
+      <property name="processConfigAttribute"><value>ACL_CONTACT_READ</value></property>
+      <property name="processDomainObjectClass"><value>sample.contact.Contact</value></property>
+      <property name="aclManager"><ref local="aclManager"/></property>
+      <property name="requirePermission">
+		<list>
+		    <value>1</value>  <!-- SimpleAclEntry.ADMINISTER -->
+		    <value>2</value>  <!-- SimpleAclEntry.READ -->
+		</list>
+      </property>
+   </bean>
+
+   <!-- An access decision voter that reads ACL_CONTACT_DELETE configuration settings -->
+   <bean id="aclContactDeleteVoter" class="net.sf.acegisecurity.vote.BasicAclEntryVoter">
+      <property name="processConfigAttribute"><value>ACL_CONTACT_DELETE</value></property>
+      <property name="processDomainObjectClass"><value>sample.contact.Contact</value></property>
+      <property name="aclManager"><ref local="aclManager"/></property>
+      <property name="requirePermission">
+		<list>
+		    <value>1</value>  <!-- SimpleAclEntry.ADMINISTER -->
+		    <value>16</value> <!-- SimpleAclEntry.DELETE -->
+		</list>
+      </property>
+   </bean>
+
+   <!-- An access decision voter that reads ACL_CONTACT_ADMIN configuration settings -->
+   <bean id="aclContactAdminVoter" class="net.sf.acegisecurity.vote.BasicAclEntryVoter">
+      <property name="processConfigAttribute"><value>ACL_CONTACT_ADMIN</value></property>
+      <property name="processDomainObjectClass"><value>sample.contact.Contact</value></property>
+      <property name="aclManager"><ref local="aclManager"/></property>
+      <property name="requirePermission">
+		<list>
+		    <value>1</value>  <!-- SimpleAclEntry.ADMINISTER -->
+		</list>
+      </property>
+   </bean>
+
+   <!-- An access decision manager used by the business objects -->
+   <bean id="businessAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
+      <property name="allowIfAllAbstainDecisions"><value>false</value></property>
+      <property name="decisionVoters">
+         <list>
+            <ref local="roleVoter"/>
+            <ref local="aclContactReadVoter"/>
+            <ref local="aclContactDeleteVoter"/>
+            <ref local="aclContactAdminVoter"/>
+         </list>
+      </property>
+   </bean>
+
+   <!-- ========= ACCESS CONTROL LIST LOOKUP MANAGER DEFINITIONS ========= -->
+
+   <bean id="aclManager" class="net.sf.acegisecurity.acl.AclProviderManager">
+      <property name="providers">
+         <list>
+            <ref local="basicAclProvider"/>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="basicAclProvider" class="net.sf.acegisecurity.acl.basic.BasicAclProvider">
+      <property name="basicAclDao"><ref local="basicAclDao"/></property>
+   </bean>
+
+   <bean id="basicAclDao" class="net.sf.acegisecurity.acl.basic.jdbc.JdbcDaoImpl">
+      <property name="dataSource"><ref bean="dataSource"/></property>
+   </bean>
+
+   <!-- ============== "AFTER INTERCEPTION" AUTHORIZATION DEFINITIONS =========== -->
+
+   <bean id="afterInvocationManager" class="net.sf.acegisecurity.afterinvocation.AfterInvocationProviderManager">
+      <property name="providers">
+         <list>
+            <ref local="afterAclRead"/>
+            <ref local="afterAclCollectionRead"/>
+         </list>
+      </property>
+   </bean>
+   
+   <!-- Processes AFTER_ACL_COLLECTION_READ configuration settings -->
+   <bean id="afterAclCollectionRead" class="net.sf.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationCollectionFilteringProvider">
+      <property name="aclManager"><ref local="aclManager"/></property>
+      <property name="requirePermission">
+		<list>
+		    <value>1</value>  <!-- SimpleAclEntry.ADMINISTER -->
+		    <value>2</value>  <!-- SimpleAclEntry.READ -->
+		</list>
+      </property>
+   </bean>
+   
+   <!-- Processes AFTER_ACL_READ configuration settings -->
+   <bean id="afterAclRead" class="net.sf.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationProvider">
+      <property name="aclManager"><ref local="aclManager"/></property>
+      <property name="requirePermission">
+		<list>
+		    <value>1</value>  <!-- SimpleAclEntry.ADMINISTER -->
+		    <value>2</value>  <!-- SimpleAclEntry.READ -->
+		</list>
+      </property>
+   </bean>
+
+
+   <!-- ================= METHOD INVOCATION AUTHORIZATION ==================== -->
+
+   <!-- getRandomContact() is public.
+	
+	    The create, getAll, getById etc have ROLE_USER to ensure user is
+		authenticated (all users hold ROLE_USER in this application).
+		
+		The delete and update methods don't need a ROLE_USER as they will
+		ensure the user is authenticated via their ACL_CONTACT_DELETE or
+		ACL_CONTACT_READ attribute, which also ensures the user has permission
+		to the Contact presented as a method argument.
+	-->
+   <bean id="contactManagerSecurity" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
+      <property name="authenticationManager"><ref bean="authenticationManager"/></property>
+      <property name="accessDecisionManager"><ref local="businessAccessDecisionManager"/></property>
+      <property name="afterInvocationManager"><ref local="afterInvocationManager"/></property>
+      <property name="objectDefinitionSource">
+         <value>
+				sample.contact.ContactManager.create=ROLE_USER
+				sample.contact.ContactManager.getAllRecipients=ROLE_USER
+				sample.contact.ContactManager.getAll=ROLE_USER,AFTER_ACL_COLLECTION_READ
+				sample.contact.ContactManager.getById=ROLE_USER,AFTER_ACL_READ
+				sample.contact.ContactManager.delete=ACL_CONTACT_DELETE
+				sample.contact.ContactManager.deletePermission=ACL_CONTACT_ADMIN
+				sample.contact.ContactManager.addPermission=ACL_CONTACT_ADMIN
+         </value>
+      </property>
+   </bean>
+
+</beans>

@@ -15,159 +15,105 @@
 
 package sample.contact;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
+import net.sf.acegisecurity.context.ContextHolder;
+import net.sf.acegisecurity.context.SecureContext;
+
+import org.springframework.beans.factory.InitializingBean;
+
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.Vector;
 
 
 /**
- * Backend business object that manages the contacts.
- * 
- * <P>
- * As a backend, it never faces the public callers. It is always accessed via
- * the {@link ContactManagerFacade}.
- * </p>
- * 
- * <P>
- * This facade approach is not really necessary in this application, and is
- * done simply to demonstrate granting additional authorities via the
- * <code>RunAsManager</code>.
- * </p>
+ * Concrete implementation of {@link ContactManager}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class ContactManagerBackend implements ContactManager {
+public class ContactManagerBackend implements ContactManager, InitializingBean {
     //~ Instance fields ========================================================
 
-    private Map contacts;
-
-    //~ Constructors ===========================================================
-
-    public ContactManagerBackend() {
-        this.contacts = new HashMap();
-        save(new Contact(this.getNextId(), "John Smith", "john@somewhere.com",
-                "marissa"));
-        save(new Contact(this.getNextId(), "Michael Citizen",
-                "michael@xyz.com", "marissa"));
-        save(new Contact(this.getNextId(), "Joe Bloggs", "joe@demo.com",
-                "marissa"));
-        save(new Contact(this.getNextId(), "Karen Sutherland",
-                "karen@sutherland.com", "dianne"));
-        save(new Contact(this.getNextId(), "Mitchell Howard",
-                "mitchell@abcdef.com", "dianne"));
-        save(new Contact(this.getNextId(), "Rose Costas", "rose@xyz.com",
-                "scott"));
-        save(new Contact(this.getNextId(), "Amanda Smith", "amanda@abcdef.com",
-                "scott"));
-    }
+    private ContactDao contactDao;
+    private int counter = 100;
 
     //~ Methods ================================================================
 
-    /**
-     * Security system expects ROLE_RUN_AS_SERVER
-     *
-     * @param owner DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
-    public Contact[] getAllByOwner(String owner) {
-        List list = new Vector();
-        Iterator iter = this.contacts.keySet().iterator();
-
-        while (iter.hasNext()) {
-            Integer contactId = (Integer) iter.next();
-            Contact contact = (Contact) this.contacts.get(contactId);
-
-            if (contact.getOwner().equals(owner)) {
-                list.add(contact);
-            }
-        }
-
-        if (list.size() == 0) {
-            return null;
-        } else {
-            return (Contact[]) list.toArray(new Contact[list.size()]);
-        }
+    public List getAll() {
+        return contactDao.findAll();
     }
 
-    /**
-     * Security system expects ROLE_RUN_AS_SERVER
-     *
-     * @param id DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
+    public List getAllRecipients() {
+        List list = contactDao.findAllPrincipals();
+        list.addAll(contactDao.findAllRoles());
+
+        return list;
+    }
+
     public Contact getById(Integer id) {
-        return (Contact) this.contacts.get(id);
+        return contactDao.getById(id);
+    }
+
+    public void setContactDao(ContactDao contactDao) {
+        this.contactDao = contactDao;
+    }
+
+    public ContactDao getContactDao() {
+        return contactDao;
     }
 
     /**
-     * Public method
-     *
-     * @return DOCUMENT ME!
-     */
-    public Integer getNextId() {
-        int max = 0;
-        Iterator iter = this.contacts.keySet().iterator();
-
-        while (iter.hasNext()) {
-            Integer id = (Integer) iter.next();
-
-            if (id.intValue() > max) {
-                max = id.intValue();
-            }
-        }
-
-        return new Integer(max + 1);
-    }
-
-    /**
-     * This is a public method, meaning a client could call this method
-     * directly (ie not via a facade). If this was an issue, the public method
-     * on the facade should not be public but secure. Quite possibly an
-     * AnonymousAuthenticationToken and associated provider could be used on a
-     * secure method, thus allowing a RunAsManager to protect the backend.
+     * This is a public method.
      *
      * @return DOCUMENT ME!
      */
     public Contact getRandomContact() {
         Random rnd = new Random();
-        int getNumber = rnd.nextInt(this.contacts.size()) + 1;
-        Iterator iter = this.contacts.keySet().iterator();
-        int i = 0;
+        List contacts = contactDao.findAll();
+        int getNumber = rnd.nextInt(contacts.size());
 
-        while (iter.hasNext()) {
-            i++;
+        return (Contact) contacts.get(getNumber);
+    }
 
-            Integer id = (Integer) iter.next();
+    public void addPermission(Contact contact, String recipient,
+        Integer permission) {
+        Integer aclObjectIdentity = contactDao.lookupAclObjectIdentity(contact);
+        contactDao.createPermission(aclObjectIdentity, recipient,
+            permission.intValue());
+    }
 
-            if (i == getNumber) {
-                return (Contact) this.contacts.get(id);
-            }
+    public void afterPropertiesSet() throws Exception {
+        if (contactDao == null) {
+            throw new IllegalArgumentException("contactDao required");
         }
-
-        return null;
     }
 
-    /**
-     * Security system expects ROLE_RUN_AS_SERVER
-     *
-     * @param contact DOCUMENT ME!
-     */
+    public void create(Contact contact) {
+        // Create the Contact itself
+        contact.setId(new Integer(counter++));
+        contactDao.create(contact);
+
+        // Grant the current principal access to the contact 
+        Integer aclObjectIdentity = contactDao.createAclObjectIdentity(contact);
+        contactDao.createPermission(aclObjectIdentity, getUsername(),
+            SimpleAclEntry.ADMINISTRATION);
+    }
+
     public void delete(Contact contact) {
-        this.contacts.remove(contact.getId());
+        contactDao.delete(contact.getId());
     }
 
-    /**
-     * Security system expects ROLE_RUN_AS_SERVER
-     *
-     * @param contact DOCUMENT ME!
-     */
-    public void save(Contact contact) {
-        this.contacts.put(contact.getId(), contact);
+    public void deletePermission(Contact contact, String recipient) {
+        Integer aclObjectIdentity = contactDao.lookupAclObjectIdentity(contact);
+        contactDao.deletePermission(aclObjectIdentity, recipient);
+    }
+
+    public void update(Contact contact) {
+        contactDao.update(contact);
+    }
+
+    protected String getUsername() {
+        return ((SecureContext) ContextHolder.getContext()).getAuthentication()
+                .getPrincipal().toString();
     }
 }

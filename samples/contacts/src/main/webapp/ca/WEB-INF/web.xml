@@ -3,73 +3,65 @@
 
 <!--
   - Contacts web application
+  -
+  - web.xml for "ca" artifact only.
+  -
   - $Id$
-  - File will be copied into WAR's WEB-INF directory if using container adapter
   -->
 
 <web-app>
 
     <display-name>Contacts Sample Application</display-name>
     
-	<description>
-    	Example of an application secured using Acegi Security System for Spring.
-    </description>
-
 	<!--
 	  - Location of the XML file that defines the root application context
 	  - Applied by ContextLoaderListener.
 	  -->
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>/WEB-INF/applicationContext.xml</param-value>
+		<param-value>
+			/WEB-INF/applicationContext-acegi-security.xml
+			/WEB-INF/applicationContext-common-business.xml
+			/WEB-INF/applicationContext-common-authorization.xml
+		</param-value>
+	</context-param>
+	
+	<context-param>
+		<param-name>log4jConfigLocation</param-name>
+		<param-value>/WEB-INF/classes/log4j.properties</param-value>
 	</context-param>
 
+	<!-- Obtains Authentication from HttpServletRequest.getPrincipal(),
+		 and puts it into ContextHolder for request duration -->
     <filter>
-        <filter-name>Acegi HTTP BASIC Authorization Filter</filter-name>
+        <filter-name>Acegi Security System for Spring HttpRequest Integration Filter</filter-name>
         <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
         <init-param>
             <param-name>targetClass</param-name>
-            <param-value>net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter</param-value>
-        </init-param>
-    </filter>
-
-    <filter>
-        <filter-name>Acegi Security System for Spring Auto Integration Filter</filter-name>
-        <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
-        <init-param>
-            <param-name>targetClass</param-name>
-            <param-value>net.sf.acegisecurity.ui.AutoIntegrationFilter</param-value>
+            <param-value>net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter</param-value>
         </init-param>
     </filter>
 
     <filter-mapping>
-      <filter-name>Acegi HTTP BASIC Authorization Filter</filter-name>
+      <filter-name>Acegi Security System for Spring HttpRequest Integration Filter</filter-name>
       <url-pattern>/*</url-pattern>
     </filter-mapping>
-
-    <filter-mapping>
-      <filter-name>Acegi Security System for Spring Auto Integration Filter</filter-name>
-      <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
+    
 	<!--
-	  - Loads the root application context of this web app at startup,
-	  - by default from "/WEB-INF/applicationContext.xml".
-	  - Use WebApplicationContextUtils.getWebApplicationContext(servletContext)
-	  - to access it anywhere in the web application, outside of the framework.
+	  - Loads the root application context of this web app at startup.
+	  - The application context is then available via 
+	  - WebApplicationContextUtils.getWebApplicationContext(servletContext).
     -->
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
 
+    <listener>
+		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+	</listener>
+	
   <!--
-    - Servlet that dispatches request to registered handlers (Controller implementations).
-    - Has its own application context, by default defined in "{servlet-name}-servlet.xml",
-    - i.e. "contacts-servlet.xml".
-    -
-    - A web app can contain any number of such servlets.
-    - Note that this web app does not have a shared root application context,
-    - therefore the DispatcherServlet contexts do not have a common parent.
+	- Provides core MVC application controller. See contacts-servlet.xml.
     -->
 	<servlet>
 		<servlet-name>contacts</servlet-name>
@@ -77,25 +69,20 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
+  <!--
+    - Provides web services endpoint. See caucho-servlet.xml.
+    -->
 	<servlet>
 		<servlet-name>caucho</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
 
-  <!--
-    - Maps the contacts dispatcher to /*.
-    -
-   -->
 	<servlet-mapping>
     	<servlet-name>contacts</servlet-name>
     	<url-pattern>*.htm</url-pattern>
  	</servlet-mapping>
   
-  <!--
-	- Dispatcher servlet mapping for HTTP remoting via the Caucho protocols,
-	- i.e. Hessian and Burlap (see caucho-servlet.xml for the controllers).
-   -->
 	<servlet-mapping>
 		<servlet-name>caucho</servlet-name>
 		<url-pattern>/caucho/*</url-pattern>
@@ -117,7 +104,7 @@
          <url-pattern>/secure/*</url-pattern>
       </web-resource-collection>
       <auth-constraint>
-         <role-name>ROLE_TELLER</role-name>
+         <role-name>ROLE_USER</role-name>
 	     <role-name>ROLE_SUPERVISOR</role-name>
       </auth-constraint>
     </security-constraint>
@@ -145,7 +132,7 @@
       <role-name>ROLE_SUPERVISOR</role-name>
     </security-role>
     <security-role>
-      <role-name>ROLE_TELLER</role-name>
+      <role-name>ROLE_USER</role-name>
     </security-role>    
 
 </web-app>

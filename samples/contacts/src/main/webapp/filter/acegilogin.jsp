@@ -1,7 +1,6 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core' %>
 <%@ page import="net.sf.acegisecurity.ui.AbstractProcessingFilter" %>
 <%@ page import="net.sf.acegisecurity.AuthenticationException" %>
-<%-- This page will be copied into WAR's root directory if NOT using container adapter --%>
 
 <html>
   <head>
@@ -11,11 +10,12 @@
   <body>
     <h1>Login</h1>
 
-	<P>If you've used the standard springsecurity.xml, try these users:
+	<P>Valid users:
 	<P>
-	<P>username <b>marissa</b>, password <b>koala</b> (granted ROLE_SUPERVISOR)
-	<P>username <b>dianne</b>, password <b>emu</b> (not a supervisor)
-	<p>username <b>scott</b>, password <b>wombat</b> (not a supervisor)
+	<P>username <b>marissa</b>, password <b>koala</b>
+	<P>username <b>dianne</b>, password <b>emu</b>
+	<p>username <b>scott</b>, password <b>wombat</b>
+	<p>username <b>peter</b>, password <b>opal</b> (user disabled)
 	<p>
 	
     <%-- this form-login-page form is also used as the 

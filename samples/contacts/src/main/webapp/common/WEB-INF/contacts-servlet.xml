@@ -3,6 +3,7 @@
 
 <!--
   - Application context definition for "contacts" DispatcherServlet.
+  -
   - $Id$
   -->
 
@@ -22,6 +23,16 @@
     	<property name="contactManager"><ref bean="contactManager"/></property>
  	</bean>
 
+    <bean id="adminPermissionController" class="sample.contact.AdminPermissionController">
+    	<property name="contactManager"><ref bean="contactManager"/></property>
+    	<property name="aclManager"><ref bean="aclManager"/></property>
+ 	</bean>
+
+    <bean id="deletePermissionController" class="sample.contact.DeletePermissionController">
+    	<property name="contactManager"><ref bean="contactManager"/></property>
+    	<property name="aclManager"><ref bean="aclManager"/></property>
+ 	</bean>
+
     <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
         <property name="mappings">
             <props>
@@ -29,17 +40,35 @@
                 <prop key="/secure/add.htm">secureAddForm</prop>
                 <prop key="/secure/index.htm">secureIndexController</prop>
                 <prop key="/secure/del.htm">secureDeleteController</prop>
+                <prop key="/secure/adminPermission.htm">adminPermissionController</prop>
+                <prop key="/secure/deletePermission.htm">deletePermissionController</prop>
+                <prop key="/secure/addPermission.htm">addPermissionForm</prop>
 			</props>
         </property>
     </bean>
 
     <bean id="addValidator" class="sample.contact.WebContactValidator"/>
+    
+	<bean id="addPermissionValidator" class="sample.contact.AddPermissionValidator"/>
+
     <bean id="secureAddForm" class="sample.contact.WebContactAddController">
         <property name="sessionForm"><value>true</value></property>
         <property name="commandName"><value>webContact</value></property>
         <property name="commandClass"><value>sample.contact.WebContact</value></property>
         <property name="validator"><ref bean="addValidator"/></property>
         <property name="formView"><value>add</value></property>
+        <property name="successView"><value>index.htm</value></property>
+        <property name="contactManager">
+            <ref bean="contactManager"/>
+        </property>
+    </bean>
+
+    <bean id="addPermissionForm" class="sample.contact.AddPermissionController">
+        <property name="sessionForm"><value>true</value></property>
+        <property name="commandName"><value>addPermission</value></property>
+        <property name="commandClass"><value>sample.contact.AddPermission</value></property>
+        <property name="validator"><ref bean="addPermissionValidator"/></property>
+        <property name="formView"><value>addPermission</value></property>
         <property name="successView"><value>index.htm</value></property>
         <property name="contactManager">
             <ref bean="contactManager"/>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Application context containing authentication, channel
+  - security and web URI beans.
+  -
+  - Only used by "ca" artifact.
+  -
+  - $Id$
+  -->
+
+<beans>
+
+   <!-- ======================== AUTHENTICATION ======================= -->
+
+	<!-- We could also have a daoAuthenticationProvider in order to
+		 process BASIC authentication requests, but this has been
+		 left out given container adapters aren't recommended and
+		 it would increase the number of bean declarations required -->
+   <bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+      <property name="providers">
+         <list>
+		    <ref local="authByAdapterProvider"/>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="authByAdapterProvider" class="net.sf.acegisecurity.adapters.AuthByAdapterProvider">
+  		<property name="key"><value>my_password</value></property>
+   </bean>
+
+   <bean id="httpRequestIntegrationFilter" class="net.sf.acegisecurity.adapters.HttpRequestIntegrationFilter"/>
+
+	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
+	
+				<!-- Implement by servlet specification -->
+
+	<!-- ===================== HTTP REQUEST SECURITY ==================== -->
+
+				<!-- Implement by servlet specification -->
+
+</beans>

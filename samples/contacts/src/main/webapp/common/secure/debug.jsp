@@ -27,21 +27,20 @@ if (context != null) { %>
 			if (auth instanceof AuthByAdapter) { %>
 				<BR><B>SUCCESS! Your container adapter appears to be properly configured!</B><BR><BR>
 <%			} else { %>
-				<BR><B>SUCCESS! Your web filter appears to be properly configured!</B><BR>
+				<BR><B>SUCCESS! Your web filters appear to be properly configured!</B><BR>
 <%			}
 			
 		} else { %>
 			Authentication object is null.<BR>
-			This is an error and your container adapter will not operate properly until corrected.<BR><BR>
+			This is an error and your Acegi Security application will not operate properly until corrected.<BR><BR>
 <%		}
 	} else { %>
 		<B>ContextHolder does not contain a SecureContext.</B><BR>
-		This is an error and your container adapter will not operate properly until corrected.<BR><BR>
+		This is an error and your Acegi Security application will not operate properly until corrected.<BR><BR>
 <%	}
 } else { %>
 	<B>ContextHolder on ContextHolder is null.</B><BR>
-	This indicates improper setup of the container adapter. Refer to the reference documentation.<BR>
-	Also ensure the correct subclass of AbstractMvcIntegrationInterceptor is being used for your container.<BR>
+	This indicates improper setup of the Acegi Security application. Refer to the reference documentation.<BR>
 <%}
 %>
 

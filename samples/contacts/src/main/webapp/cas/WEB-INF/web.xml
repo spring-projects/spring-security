@@ -3,17 +3,33 @@
 
 <!--
   - Contacts web application
+  -
+  - web.xml for "cas" artifact only.
+  -
   - $Id$
-  - File will be copied into WAR's WEB-INF directory if NOT using container adapter
   -->
 
 <web-app>
 
     <display-name>Contacts Sample Application</display-name>
     
-	<description>
-    	Example of an application secured using Acegi Security System for Spring.
-    </description>
+	<!--
+	  - Location of the XML file that defines the root application context
+	  - Applied by ContextLoaderListener.
+	  -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			/WEB-INF/applicationContext-acegi-security.xml
+			/WEB-INF/applicationContext-common-business.xml
+			/WEB-INF/applicationContext-common-authorization.xml
+		</param-value>
+	</context-param>
+	
+	<context-param>
+		<param-name>log4jConfigLocation</param-name>
+		<param-value>/WEB-INF/classes/log4j.properties</param-value>
+	</context-param>
 
 	<!-- Required for CAS ProxyTicketReceptor servlet. This is the
 	     URL to CAS' "proxy" actuator, where a PGT and TargetService can
@@ -24,15 +40,6 @@
         <param-value>http://localhost:8433/cas/proxy</param-value>
     </context-param>
 
-	<!--
-	  - Location of the XML file that defines the root application context
-	  - Applied by ContextLoaderListener.
-	  -->
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>/WEB-INF/applicationContext.xml</param-value>
-	</context-param>
-
    <filter>
         <filter-name>Acegi Channel Processing Filter</filter-name>
         <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
@@ -42,6 +49,7 @@
         </init-param>
     </filter>
 
+	<!-- Responds to HTTP POSTs to j_acegi_cas_security_check URI -->
     <filter>
         <filter-name>Acegi CAS Processing Filter</filter-name>
         <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
@@ -51,6 +59,7 @@
         </init-param>
     </filter>
 
+	<!-- Responds to HTTP requests with a BASIC (RFC 1945) authentication header -->
     <filter>
         <filter-name>Acegi HTTP BASIC Authorization Filter</filter-name>
         <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
@@ -60,15 +69,21 @@
         </init-param>
     </filter>
 
+	<!-- Obtains Authentication from HttpSession attribute, puts it into
+		 ContextHolder for request duration, proceeds with request, then
+		 copies Authentication from ContextHolder back into HttpSession -->
     <filter>
-        <filter-name>Acegi Security System for Spring Auto Integration Filter</filter-name>
+        <filter-name>Acegi Security System for Spring HttpSession Integration Filter</filter-name>
         <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
         <init-param>
             <param-name>targetClass</param-name>
-            <param-value>net.sf.acegisecurity.ui.AutoIntegrationFilter</param-value>
+            <param-value>net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter</param-value>
         </init-param>
     </filter>
 
+	<!-- Provides HTTP request URL security, and also catches
+		 AcegiSecurityExceptions and sends 403 errors (if access denied)
+		 or commences an authentication mechanism as appropriate -->
     <filter>
         <filter-name>Acegi HTTP Request Security Filter</filter-name>
         <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
@@ -77,12 +92,12 @@
             <param-value>net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter</param-value>
         </init-param>
     </filter>
-
+	
     <filter-mapping>
       <filter-name>Acegi Channel Processing Filter</filter-name>
       <url-pattern>/*</url-pattern>
     </filter-mapping>
-
+	
     <filter-mapping>
       <filter-name>Acegi CAS Processing Filter</filter-name>
       <url-pattern>/*</url-pattern>
@@ -94,7 +109,7 @@
     </filter-mapping>
 
     <filter-mapping>
-      <filter-name>Acegi Security System for Spring Auto Integration Filter</filter-name>
+      <filter-name>Acegi Security System for Spring HttpSession Integration Filter</filter-name>
       <url-pattern>/*</url-pattern>
     </filter-mapping>
     
@@ -104,23 +119,20 @@
     </filter-mapping>
 
 	<!--
-	  - Loads the root application context of this web app at startup,
-	  - by default from "/WEB-INF/applicationContext.xml".
-	  - Use WebApplicationContextUtils.getWebApplicationContext(servletContext)
-	  - to access it anywhere in the web application, outside of the framework.
+	  - Loads the root application context of this web app at startup.
+	  - The application context is then available via 
+	  - WebApplicationContextUtils.getWebApplicationContext(servletContext).
     -->
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
 
+    <listener>
+		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+	</listener>
+	
   <!--
-    - Servlet that dispatches request to registered handlers (Controller implementations).
-    - Has its own application context, by default defined in "{servlet-name}-servlet.xml",
-    - i.e. "contacts-servlet.xml".
-    -
-    - A web app can contain any number of such servlets.
-    - Note that this web app does not have a shared root application context,
-    - therefore the DispatcherServlet contexts do not have a common parent.
+	- Provides core MVC application controller. See contacts-servlet.xml.
     -->
 	<servlet>
 		<servlet-name>contacts</servlet-name>
@@ -128,42 +140,23 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
+  <!--
+    - Provides web services endpoint. See caucho-servlet.xml.
+    -->
 	<servlet>
 		<servlet-name>caucho</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
-	
-	<!-- CAS servlet which receives a proxy-granting ticket from the CAS
-	     server. THIS CAN BE REMOVED IF THE APPLICATION DOESN'T NEED TO 
-	     ACT AS A PROXY -->
-	<servlet>
-		<servlet-name>casproxy</servlet-name>
-		<servlet-class>edu.yale.its.tp.cas.proxy.ProxyTicketReceptor</servlet-class>
-		<load-on-startup>3</load-on-startup>
-	</servlet>
 
-  <!--
-    - Maps the contacts dispatcher to /*.
-    -
-   -->
 	<servlet-mapping>
     	<servlet-name>contacts</servlet-name>
     	<url-pattern>*.htm</url-pattern>
  	</servlet-mapping>
   
-  <!--
-	- Dispatcher servlet mapping for HTTP remoting via the Caucho protocols,
-	- i.e. Hessian and Burlap (see caucho-servlet.xml for the controllers).
-   -->
 	<servlet-mapping>
 		<servlet-name>caucho</servlet-name>
 		<url-pattern>/caucho/*</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>casproxy</servlet-name>
-		<url-pattern>/casProxy/*</url-pattern>
 	</servlet-mapping>
 
  	<welcome-file-list>
@@ -174,5 +167,5 @@
       <taglib-uri>/spring</taglib-uri>
       <taglib-location>/WEB-INF/spring.tld</taglib-location>
   	</taglib>
-  
+
 </web-app>

@@ -25,12 +25,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 
 /**
  * Demonstrates accessing the {@link ContactManager} via remoting protocols.
- *
+ * 
  * <P>
  * Based on Spring's JPetStore sample, written by Juergen Hoeller.
  * </p>
@@ -92,32 +93,34 @@ public class ClientApplication {
                 System.out.println("Found; Trying to setPassword(String) to "
                     + password);
             } catch (NoSuchMethodException ignored) {}
-             catch (IllegalAccessException ignored) {}
-             catch (InvocationTargetException ignored) {}
+            catch (IllegalAccessException ignored) {}
+            catch (InvocationTargetException ignored) {}
 
             stopWatch.start(beanName);
 
-            Contact[] contacts = null;
+            List contacts = null;
 
             for (int i = 0; i < nrOfCalls; i++) {
-                contacts = remoteContactManager.getAllByOwner(forOwner);
+                contacts = remoteContactManager.getAll();
             }
 
             stopWatch.stop();
 
-            if (contacts.length != 0) {
-                for (int i = 0; i < contacts.length; i++) {
-                    System.out.println("Contact " + i + ": "
-                        + contacts[i].toString());
+            if (contacts.size() == 0) {
+                Iterator listIterator = contacts.iterator();
+
+                while (listIterator.hasNext()) {
+                    Contact contact = (Contact) listIterator.next();
+                    System.out.println("Contact: " + contact.toString());
                 }
             } else {
-                System.out.println("No contacts found belonging to owner");
+                System.out.println(
+                    "No contacts found which this user has permission to");
             }
 
             System.out.println();
+            System.out.println(stopWatch.prettyPrint());
         }
-
-        System.out.println(stopWatch.prettyPrint());
     }
 
     public static void main(String[] args) {

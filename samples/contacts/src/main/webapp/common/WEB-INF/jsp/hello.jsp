@@ -4,28 +4,42 @@
 <head><title>Contacts Security Demo</title></head>
 <body>
 <h1>Contacts Security Demo</h1>
-<p>This is a very simple application to demonstrate the Acegi Security System for Spring.
-The application manages contacts, partitioned based on the user that owns them.
-Users may only manage their own contacts, and only users with ROLE_SUPERVISOR
-are allowed to delete their contacts. It also demonstrates how to configure
-server-side secure objects so they can only be accessed via a public facade.
+<P>Contacts demonstrates the following central Acegi Security capabilities:
+<ul>
+<li><b>Role-based security</b>. Each principal is a member of certain roles,
+    which are used to restrict access to certain secure objects.</li>
+<li><b>Domain object instance security</b>. The <code>Contact</code>, the
+    main domain object in the application, has an access control list (ACL)
+    that indicates who is allowed read, administer and delete the object.</li>
+<li><b>Method invocation security</b>. The <code>ContactManager</code> service
+   layer bean has a number of secured (protected) and public (unprotected)
+   methods.</li>
+<li><b>Web request security</b>. The <code>/secure</code> URI path is protected
+   by Acegi Security from principals not holding the 
+   <code>ROLE_USER</code> granted authority.</li>
+<li><b>Security unaware application objects</b>. None of the objects
+   are aware of the security being implemented by Acegi Security. *</li>
+<li><b>Security taglib usage</b>. All of the JSPs use Acegi Security's
+   taglib to evaluate security information. *</li>
+<li><b>Fully declarative security</b>. Every capability is configured in 
+   the application context using standard Acegi Security classes. *</li>
+<li><b>Database-sourced security data</b>. All of the user, role and ACL
+   information is obtained from an in-memory JDBC-compliant database.</li>
+</ul>
 
-<P>If you deployed the contacts-container-adapter.war file, the application
-automatically extracts the principal from the web container (which should be 
-configured with a suitable Acegi Security System for Spring adapter). If
-you're using the standard contacts.war file, the application is entirely
-self-contained and you don't need to do anything special with your web
-container. If you're using the contacts-cas.war file, please review the
-setup in samples/contacts/etc/cas/applicationContext.xml for your CAS server
-and if necessary rebuild using the Contacts application's build.xml.
+* As the application provides an "ACL Administration" use case, those
+classes are necessarily aware of security. But no business use cases are.
 
-<P>This application also demonstrates a public method, which is used to select
-the random contact that is shown below:
-<P>
+<p>Please excuse the lack of look 'n' feel polish in this application.
+It is about security, after all! :-)
+
+<p>To demonstrate a public method on <code>ContactManager</code>,
+here's a random <code>Contact</code>:
+<p>
 <code>
 <c:out value="${contact}"/>
 </code>
-<p>
+<p>Get started by clicking "Manage"...
 <p><A HREF="<c:url value="secure/index.htm"/>">Manage</a>
 <A HREF="<c:url value="secure/debug.jsp"/>">Debug</a>
 </body>

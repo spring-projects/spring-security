@@ -17,10 +17,6 @@ package sample.contact;
 
 /**
  * Represents a contact.
- * 
- * <P>
- * <code>id</code> and <code>owner</code> are immutable.
- * </p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -31,20 +27,15 @@ public class Contact {
     private Integer id;
     private String email;
     private String name;
-    private String owner;
 
     //~ Constructors ===========================================================
 
-    public Contact(Integer id, String name, String email, String owner) {
-        this.id = id;
+    public Contact(String name, String email) {
         this.name = name;
         this.email = email;
-        this.owner = owner;
     }
 
-    private Contact() {
-        super();
-    }
+    public Contact() {}
 
     //~ Methods ================================================================
 
@@ -64,6 +55,10 @@ public class Contact {
      */
     public String getEmail() {
         return email;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     /**
@@ -93,22 +88,12 @@ public class Contact {
         return name;
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return Returns the owner.
-     */
-    public String getOwner() {
-        return owner;
-    }
-
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append(super.toString() + ": ");
         sb.append("Id: " + this.getId() + "; ");
         sb.append("Name: " + this.getName() + "; ");
-        sb.append("Email: " + this.getEmail() + "; ");
-        sb.append("Owner: " + this.getOwner());
+        sb.append("Email: " + this.getEmail());
 
         return sb.toString();
     }

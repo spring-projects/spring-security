@@ -1,7 +1,6 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core' %>
 <%@ page import="net.sf.acegisecurity.ui.AbstractProcessingFilter" %>
 <%@ page import="net.sf.acegisecurity.AuthenticationException" %>
-<%-- This page will be copied into WAR's root directory if using CAS --%>
 
 <html>
   <head>

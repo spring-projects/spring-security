@@ -15,18 +15,9 @@
 
 package sample.contact;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.SecureContext;
-
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 import org.springframework.web.servlet.view.RedirectView;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -57,20 +48,8 @@ public class WebContactAddController extends SimpleFormController {
         String name = ((WebContact) command).getName();
         String email = ((WebContact) command).getEmail();
 
-        Authentication auth = ((SecureContext) ContextHolder.getContext())
-            .getAuthentication();
-        String owner = auth.getPrincipal().toString();
-
-        if (auth.getPrincipal() instanceof UserDetails) {
-            owner = ((UserDetails) auth.getPrincipal()).getUsername();
-        }
-
-        Contact contact = new Contact(contactManager.getNextId(), name, email,
-                owner);
-        contactManager.save(contact);
-
-        Map myModel = new HashMap();
-        myModel.put("now", new Date());
+        Contact contact = new Contact(name, email);
+        contactManager.create(contact);
 
         return new ModelAndView(new RedirectView(getSuccessView()));
     }

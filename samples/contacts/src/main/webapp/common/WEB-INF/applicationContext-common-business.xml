@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Application context containing business beans.
+  -
+  - Used by all artifacts.
+  -
+  - $Id$
+  -->
+
+<beans>
+
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName">
+            <value>org.hsqldb.jdbcDriver</value>
+        </property>
+        <property name="url">
+            <value>jdbc:hsqldb:mem:contacts</value>
+        </property>
+        <property name="username">
+            <value>sa</value>
+        </property>
+        <property name="password">
+            <value></value>
+        </property>
+    </bean>
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource"><ref local="dataSource"/></property>
+	</bean>
+	
+	<bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+    	<property name="transactionManager"><ref bean="transactionManager"/></property>
+		<property name="transactionAttributeSource">
+			<value>
+				sample.contact.ContactManager.create=PROPAGATION_REQUIRED
+				sample.contact.ContactManager.getAllRecipients=PROPAGATION_REQUIRED,readOnly
+				sample.contact.ContactManager.getAll=PROPAGATION_REQUIRED,readOnly
+				sample.contact.ContactManager.getById=PROPAGATION_REQUIRED,readOnly
+				sample.contact.ContactManager.delete=PROPAGATION_REQUIRED
+				sample.contact.ContactManager.deletePermission=PROPAGATION_REQUIRED
+				sample.contact.ContactManager.addPermission=PROPAGATION_REQUIRED
+			</value>
+		</property>
+	</bean>
+
+   <bean id="dataSourcePopulator" class="sample.contact.DataSourcePopulator">
+	   <property name="dataSource"><ref local="dataSource"/></property>
+   </bean>
+   
+   <bean id="contactDao" class="sample.contact.ContactDaoSpring">
+	   <property name="dataSource"><ref local="dataSource"/></property>
+   </bean>
+
+   <bean id="contactManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+      <property name="proxyInterfaces"><value>sample.contact.ContactManager</value></property>
+      <property name="interceptorNames">
+         <list>
+            <idref local="transactionInterceptor"/>
+            <idref bean="contactManagerSecurity"/>
+            <idref local="contactManagerTarget"/>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="contactManagerTarget" class="sample.contact.ContactManagerBackend">
+	   <property name="contactDao"><ref local="contactDao"/></property>
+   </bean>
+
+</beans>
