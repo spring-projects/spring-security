@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="samples/attributes/src/main/java"/>
+	<classpathentry kind="src" path="adapters/catalina/src/main/resources"/>
 	<classpathentry kind="src" path="adapters/cas/src/test/resources"/>
 	<classpathentry kind="src" path="adapters/cas/src/main/resources"/>
 	<classpathentry kind="src" path="core/src/main/resources"/>

@@ -65,7 +65,7 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
         throws Exception {
         try {
             CatalinaAcegiUserRealm adapter = makeAdapter(
-                    "adaptertest-invalid.xml");
+                    "catalinaAdapterTest-invalid.xml");
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -139,7 +139,8 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
     }
 
     public void testAdapterStartsUpSuccess() throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter("adaptertest-valid.xml");
+        CatalinaAcegiUserRealm adapter = makeAdapter(
+                "catalinaAdapterTest-valid.xml");
         assertTrue(true);
     }
 
@@ -156,19 +157,22 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
 
     public void testAuthenticationFailsForIncorrectPassword()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter("adaptertest-valid.xml");
+        CatalinaAcegiUserRealm adapter = makeAdapter(
+                "catalinaAdapterTest-valid.xml");
         assertEquals(null, adapter.authenticate("marissa", "kangaroo"));
     }
 
     public void testAuthenticationFailsForIncorrectUserName()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter("adaptertest-valid.xml");
+        CatalinaAcegiUserRealm adapter = makeAdapter(
+                "catalinaAdapterTest-valid.xml");
         assertEquals(null, adapter.authenticate("melissa", "koala"));
     }
 
     public void testAuthenticationUsingByteArrayForCredentials()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter("adaptertest-valid.xml");
+        CatalinaAcegiUserRealm adapter = makeAdapter(
+                "catalinaAdapterTest-valid.xml");
         byte[] credentials = {'k', 'o', 'a', 'l', 'a'};
         Principal result = adapter.authenticate("marissa", credentials);
 
@@ -188,7 +192,8 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
 
     public void testAuthenticationUsingStringForCredentials()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter("adaptertest-valid.xml");
+        CatalinaAcegiUserRealm adapter = makeAdapter(
+                "catalinaAdapterTest-valid.xml");
         Principal result = adapter.authenticate("marissa", "koala");
 
         if (!(result instanceof PrincipalAcegiUserToken)) {
@@ -207,13 +212,15 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
 
     public void testAuthenticationWithNullPasswordHandledGracefully()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter("adaptertest-valid.xml");
+        CatalinaAcegiUserRealm adapter = makeAdapter(
+                "catalinaAdapterTest-valid.xml");
         assertEquals(null, adapter.authenticate("marissa", (String) null));
     }
 
     public void testAuthenticationWithNullUserNameHandledGracefully()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter("adaptertest-valid.xml");
+        CatalinaAcegiUserRealm adapter = makeAdapter(
+                "catalinaAdapterTest-valid.xml");
         assertEquals(null, adapter.authenticate(null, "koala"));
     }
 
