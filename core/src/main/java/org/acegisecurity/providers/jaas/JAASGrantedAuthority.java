@@ -5,15 +5,16 @@ import net.sf.acegisecurity.GrantedAuthorityImpl;
 import java.security.Principal;
 
 /**
- * Insert comments here...
+ * Extends GrantedAuthorityImpl to hold the principal that an AuthorityGranter justified as a reason to grant this Authority.
  * <br>
  *
  * @author Ray Krueger
  * @version $Id$
+ * @see AuthorityGranter
  */
 public class JAASGrantedAuthority extends GrantedAuthorityImpl {
 
-    Principal principal;
+    private Principal principal;
 
     public JAASGrantedAuthority(String role, Principal principal) {
         super(role);

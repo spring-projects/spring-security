@@ -3,7 +3,7 @@ package net.sf.acegisecurity.providers.jaas.event;
 import net.sf.acegisecurity.Authentication;
 
 /**
- * Insert comments here...
+ * Fired when LoginContext.login throws a LoginException, or if any other exception is thrown during that time.
  * <br>
  *
  * @author Ray Krueger
