@@ -21,8 +21,6 @@ to the project have some ideas on where they could potentially add value.
   login page with Authentication being j_username etc, container logs user in
   and redirects to original secured page as per normal)
 
-- Unit tests for JDBC authentication provider
-
 - Web application to administer the JDBC authentication repository, so people
   don't need to write their own or rely on RDBMS tools to manage users etc
 
