@@ -26,7 +26,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>0.7-SNAPSHOT</releaseinfo>
+    <releaseinfo>0.7.0-SNAPSHOT</releaseinfo>
 
     <authorgroup>
       <author>
@@ -73,7 +73,7 @@
       <title>Introduction</title>
 
       <para>The Acegi Security System for Spring provides authentication and
-      authorization capabilities for Spring-powered projects, with full
+      authorization capabilities for Spring-powered projects, with optional
       integration with popular web containers. The security architecture was
       designed from the ground up using "The Spring Way" of development, which
       includes using bean contexts, interceptors and interface-driven
@@ -91,8 +91,9 @@
       <para>Throughout the Acegi Security System for Spring, the user, system
       or agent that needs to be authenticated is referred to as a "principal".
       The security architecture does not have a notion of roles or groups,
-      which you may be familiar with from other security
-      implementations.</para>
+      which you may be familiar with from other security implementations,
+      although equivalent functionality is fully accommodated by Acegi
+      Security.</para>
 
       <sect2 id="security-introduction-status">
         <title>Current Status</title>
@@ -156,7 +157,16 @@
       <sect2 id="security-high-level-design-key-components">
         <title>Key Components</title>
 
-        <para>The Acegi Security System for Spring essentially comprises seven
+        <para>Most enterprise applications have four basic security
+        requirements. First, they need to be able to authenticate a principal.
+        Second, they need to be able to secure web requests. Third, enterprise
+        applications need to be able to secure services layer methods.
+        Finally, quite often an enterprise application will need to secure
+        domain object instances. Acegi Security provides a comprehensive
+        framework for achieving all of these four common enterprise
+        application security requirements.</para>
+
+        <para>The Acegi Security System for Spring essentially comprises eight
         key functional parts:</para>
 
         <itemizedlist spacing="compact">
@@ -193,23 +203,51 @@
 
           <listitem>
             <para>A "secure object" interceptor, which coordinates the
-            authentication, authorization, run-as replacement and execution of
-            a given operation.</para>
+            authentication, authorization, run-as replacement, after
+            invocation handling and execution of a given operation.</para>
+          </listitem>
+
+          <listitem>
+            <para>An <literal>AfterInvocationManager</literal> which can
+            modify an <literal>Object</literal> returned from a "secure
+            object" invocation, such as removing <literal>Collection</literal>
+            elements a principal does not have authority to access.</para>
           </listitem>
 
           <listitem>
             <para>An acess control list (ACL) management package, which can be
-            used to obtain ACLs for domain object instances.</para>
+            used to obtain the ACLs applicable for domain object
+            instances.</para>
           </listitem>
         </itemizedlist>
 
-        <para>Secure objects refer to any type of object that can have
-        security applied to it. A secure object must provide some form of
-        callback, so that the security interceptor can transparently do its
-        work as required, and callback the object when it is time for it to
-        proceed with the requested operation. If secure objects cannot provide
-        a native callback approach, a wrapper needs to be written so this
-        becomes possible.</para>
+        <para>A "secure object" interceptor executes most of the Acegi
+        Security key classes and in doing so delivers the framework's major
+        features. Given its importance, Figure 1 shows the key relationships
+        and concrete implementations of
+        <literal>AbstractSecurityInterceptor</literal>.</para>
+
+        <para><mediaobject>
+            <imageobject role="html">
+              <imagedata align="center"
+                         fileref="images/SecurityInterception.gif"
+                         format="GIF" />
+            </imageobject>
+
+            <caption>
+              <para>Figure 1: The key "secure object" model</para>
+            </caption>
+          </mediaobject></para>
+
+        <para>Each "secure object" interceptor (hereinafter called a "security
+        interceptor") works with a particular type of "secure object". So,
+        what is a secure object? Secure objects refer to any type of object
+        that can have security applied to it. A secure object must provide
+        some form of callback, so that the security interceptor can
+        transparently do its work as required, and callback the object when it
+        is time for it to proceed with the requested operation. If secure
+        objects cannot provide a native callback approach, a wrapper needs to
+        be written so this becomes possible.</para>
 
         <para>Each secure object has its own package under
         <literal>net.sf.acegisecurity.intercept</literal>. Every other package
@@ -221,20 +259,21 @@
         directly. For example, it would be possible to build a new secure
         object to secure calls to a messaging system that does not use
         <literal>MethodInvocation</literal>s. Most Spring applications will
-        simply use the three currently supported secure object types
-        (<literal>MethodInvocation</literal>, <literal>JoinPoint</literal> and
+        simply use the three currently supported secure object types (AOP
+        Alliance <literal>MethodInvocation</literal>, AspectJ
+        <literal>JoinPoint</literal> and web request
         <literal>FilterInterceptor</literal>) with complete
         transparency.</para>
 
-        <para>Each of the seven key parts is discussed in detail throughout
-        this document.</para>
+        <para>Each of the eight key parts of Acegi Security are discussed in
+        detail throughout this document.</para>
       </sect2>
 
       <sect2 id="security-high-level-design-supported-secure-objects">
         <title>Supported Secure Objects</title>
 
-        <para>The Acegi Security System for Spring currently supports three
-        secure objects.</para>
+        <para>As shown in the base of Figure 1, the Acegi Security System for
+        Spring currently supports three secure objects.</para>
 
         <para>The first handles an AOP Alliance
         <literal>MethodInvocation</literal>. This is the secure object type
@@ -339,6 +378,17 @@
         held in a <literal>ThreadLocal</literal>. The Acegi Security System
         for Spring uses the request context to pass around the authentication
         request and response.</para>
+
+        <para><mediaobject>
+            <imageobject role="html">
+              <imagedata align="center" fileref="images/Context.gif"
+                         format="GIF" />
+            </imageobject>
+
+            <caption>
+              <para>Figure 2: The ContextHolder</para>
+            </caption>
+          </mediaobject></para>
 
         <para>A request context is a concrete implementation of the
         <literal>Context</literal> interface, which exposes a single
@@ -454,19 +504,28 @@
           </listitem>
 
           <listitem>
-            <para>Return any result received from the secure object
-            execution.</para>
+            <para>If an <literal>AfterInvocationManager</literal> is defined,
+            pass it the result of the secure object execution so that it may
+            throw an <literal>AccessDeniedException</literal> or mutate the
+            returned object if required.</para>
+          </listitem>
+
+          <listitem>
+            <para>Return any result received from the
+            <literal>AfterInvocationManager</literal>, or if no
+            <literal>AfterInvocationManager</literal> is defined, simply
+            return the result provided by the secure object execution.</para>
           </listitem>
         </orderedlist>
 
         <para>Whilst this may seem quite involved, don't worry. Developers
         interact with the security process by simply implementing basic
         interfaces (such as <literal>AccessDecisionManager</literal>), which
-        are fully documented below.</para>
+        are fully discussed below.</para>
 
         <para>The <literal>AbstractSecurityInterceptor</literal> handles the
-        majority of the flow listed above. Each secure object has its own
-        security interceptor which subclasses
+        majority of the flow listed above. As shown in Figure 1, each secure
+        object has its own security interceptor which subclasses
         <literal>AbstractSecurityInterceptor</literal>. Each of these secure
         object-specific security interceptors are discussed below.</para>
       </sect2>
@@ -495,6 +554,7 @@
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
   &lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
+  &lt;property name="afterInvocationManager"&gt;&lt;ref bean="afterInvocationManager"/&gt;&lt;/property&gt;
   &lt;property name="objectDefinitionSource"&gt;
     &lt;value&gt;
       net.sf.acegisecurity.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
@@ -508,8 +568,10 @@
         <literal>AuthenticationManager</literal>,
         <literal>AccessDecisionManager</literal> and
         <literal>RunAsManager</literal>, which are each discussed in separate
-        sections below. The <literal>MethodSecurityInterceptor</literal> is
-        also configured with configuration attributes that apply to different
+        sections below. In this case we've also defined an
+        <literal>AfterInvocationManager</literal>, although this is entirely
+        optional. The <literal>MethodSecurityInterceptor</literal> is also
+        configured with configuration attributes that apply to different
         method signatures. A full discussion of configuration attributes is
         provided in the High Level Design section of this document.</para>
 
@@ -635,6 +697,7 @@
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
   &lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
+  &lt;property name="afterInvocationManager"&gt;&lt;ref bean="afterInvocationManager"/&gt;&lt;/property&gt;
   &lt;property name="objectDefinitionSource"&gt;
     &lt;value&gt;
       net.sf.acegisecurity.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
@@ -784,7 +847,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         Spring: <literal>AuthenticationProcessingFilterEntryPoint</literal>
         for commencing a form-based authentication,
         <literal>BasicProcessingFilterEntryPoint</literal> for commencing a
-        Http Basic authentication process, and
+        HTTP Basic authentication process, and
         <literal>CasProcessingFilterEntryPoint</literal> for commencing a Yale
         Central Authentication Service (CAS) login. The
         <literal>AuthenticationProcessingFilterEntryPoint</literal> and
@@ -919,8 +982,21 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         authorities that have been granted to the principal. The principal and
         its credentials are populated by the client code, whilst the granted
         authorities are populated by the
-        <literal>AuthenticationManager</literal>. The Acegi Security System
-        for Spring includes several concrete <literal>Authentication</literal>
+        <literal>AuthenticationManager</literal>. </para>
+
+        <para><mediaobject>
+            <imageobject role="html">
+              <imagedata align="center" fileref="images/Authentication.gif"
+                         format="GIF" />
+            </imageobject>
+
+            <caption>
+              <para>Figure 3: Key Authentication Architecture</para>
+            </caption>
+          </mediaobject></para>
+
+        <para>As shown in Figure 3, the Acegi Security System for Spring
+        includes several concrete <literal>Authentication</literal>
         implementations:</para>
 
         <itemizedlist spacing="compact">
@@ -1177,7 +1253,10 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <literal>User</literal> will be used directly or subclassed, although
         special circumstances (such as object relational mappers) may require
         users to write their own <literal>UserDetails</literal> implementation
-        from scratch.</para>
+        from scratch. <literal>UserDetails</literal> is often used to store
+        additional principal-related properties (such as their telephone
+        number and email address), so they can be easily used by web
+        views.</para>
 
         <para>Given <literal>AuthenticationDao</literal> is so simple to
         implement, it should be easy for users to retrieve authentication
@@ -1626,7 +1705,21 @@ public boolean supports(Class clazz);</programlisting></para>
         <literal>AccessDecisionManager</literal> to control all aspects of
         authorization, the Acegi Security System for Spring includes several
         <literal>AccessDecisionManager</literal> implementations that are
-        based on voting. Using this approach, a series of
+        based on voting. Figure 4 illustrates the relevant classes.</para>
+
+        <para><mediaobject>
+            <imageobject role="html">
+              <imagedata align="center"
+                         fileref="images/AccessDecisionVoting.gif"
+                         format="GIF" />
+            </imageobject>
+
+            <caption>
+              <para>Figure 4: Voting Decision Manager</para>
+            </caption>
+          </mediaobject></para>
+
+        <para>Using this approach, a series of
         <literal>AccessDecisionVoter</literal> implementations are polled on
         an authorization decision. The
         <literal>AccessDecisionManager</literal> then decides whether or not
@@ -1676,12 +1769,12 @@ public boolean supports(Class clazz);</programlisting></para>
         weighting, whilst a deny vote from a particular voter may have a veto
         effect.</para>
 
-        <para>There is one concrete <literal>AccessDecisionVoter</literal>
-        implementation provided with the Acegi Security System for Spring. The
-        <literal>RoleVoter</literal> class will vote if any ConfigAttribute
-        begins with <literal>ROLE_</literal>. It will vote to grant access if
-        there is a <literal>GrantedAuthority</literal> which returns a
-        <literal>String</literal> representation (via the
+        <para>There are two concrete <literal>AccessDecisionVoter</literal>
+        implementations provided with the Acegi Security System for Spring.
+        The <literal>RoleVoter</literal> class will vote if any
+        ConfigAttribute begins with <literal>ROLE_</literal>. It will vote to
+        grant access if there is a <literal>GrantedAuthority</literal> which
+        returns a <literal>String</literal> representation (via the
         <literal>getAuthority()</literal> method) exactly equal to one or more
         <literal>ConfigAttributes</literal> starting with
         <literal>ROLE_</literal>. If there is no exact match of any
@@ -1692,7 +1785,61 @@ public boolean supports(Class clazz);</programlisting></para>
         <literal>RoleVoter</literal> is case sensitive on comparisons as well
         as the <literal>ROLE_</literal> prefix.</para>
 
-        <para>It is possible to implement a custom
+        <para>BasicAclEntryVoter is the other concrete voter included with
+        Acegi Security. It integrates with Acegi Security's
+        <literal>AclManager</literal> (discussed later). This voter is
+        designed to have multiple instances in the same application context,
+        such as:</para>
+
+        <para><programlisting>&lt;bean id="aclContactReadVoter" class="net.sf.acegisecurity.vote.BasicAclEntryVoter"&gt;
+  &lt;property name="processConfigAttribute"&gt;&lt;value&gt;ACL_CONTACT_READ&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="processDomainObjectClass"&gt;&lt;value&gt;sample.contact.Contact&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
+  &lt;property name="requirePermission"&gt;
+    &lt;list&gt;
+      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ"/&gt;
+    &lt;/list&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="aclContactDeleteVoter" class="net.sf.acegisecurity.vote.BasicAclEntryVoter"&gt;
+  &lt;property name="processConfigAttribute"&gt;&lt;value&gt;ACL_CONTACT_DELETE&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="processDomainObjectClass"&gt;&lt;value&gt;sample.contact.Contact&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
+  &lt;property name="requirePermission"&gt;
+    &lt;list&gt;
+      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.DELETE"/&gt;
+    &lt;/list&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>In the above example, you'd define
+        <literal>ACL_CONTACT_READ</literal> or
+        <literal>ACL_CONTACT_DELETE</literal> against some methods on a
+        <literal>MethodSecurityInterceptor</literal> or
+        <literal>AspectJSecurityInterceptor</literal>. When those methods are
+        invoked, the above applicable voter defined above would vote to grant
+        or deny access. The voter would look at the method invocation to
+        locate the first argument of type
+        <literal>sample.contact.Contact</literal>, and then pass that
+        <literal>Contact</literal> to the <literal>AclManager</literal>. The
+        <literal>AclManager</literal> will then return an access control list
+        (ACL) that applies to the current <literal>Authentication</literal>.
+        Assuming that ACL contains one of the listed
+        <literal>requirePermission</literal>s, the voter will vote to grant
+        access. If the ACL does not contain one of the permissions defined
+        against the voter, the voter will vote to deny access.
+        <literal>BasicAclEntryVoter</literal> is an important class as it
+        allows you to build truly complex applications with domain object
+        security entirely defined in the application context. If you're
+        interested in learning more about Acegi Security's ACL capabilities
+        and how best to apply them, please see the ACL and "After Invocation"
+        sections of this reference guide, and the Contacts sample
+        application.</para>
+
+        <para>It is also possible to implement a custom
         <literal>AccessDecisionVoter</literal>. Several examples are provided
         in the Acegi Security System for Spring unit tests, including
         <literal>ContactSecurityVoter</literal> and
@@ -1713,23 +1860,39 @@ public boolean supports(Class clazz);</programlisting></para>
       </sect2>
 
       <sect2 id="security-authorization-taglib">
-        <title>Authorization Tag Library</title>
+        <title>Authorization-Related Tag Libraries</title>
 
-        <para>The Acegi Security System for Spring comes bundled with a JSP
-        tag library that eases JSP writing. The tag library is known as
-        <literal>authz</literal>.</para>
+        <para>The Acegi Security System for Spring comes bundled with several
+        JSP tag libraries that eases JSP writing. The tag libraries are known
+        as <literal>authz</literal> and provide a range of different
+        services.</para>
 
-        <para>This library allows you to easy develop JSP pages which
-        reference the security environment. For example,
-        <literal>authz</literal> allows you to determine if a principal holds
-        a particular granted authority, holds a group of granted authorities,
-        or does not hold a given granted authority.</para>
+        <para>All taglib classes are included in the core
+        <literal>acegi-security-xx.jar</literal> file, with the
+        <literal>authz.tld</literal> located in the JAR's
+        <literal>META-INF</literal> directory. This means for JSP 1.2+ web
+        containers you can simply include the JAR in the WAR's
+        <literal>WEB-INF/lib</literal> directory and it will be available. If
+        you're using a JSP 1.1 container, you'll need to declare the JSP
+        taglib in your <literal>web.xml file</literal>, and include
+        <literal>authz.tld</literal> in the <literal>WEB-INF/lib</literal>
+        directory. The following fragment is added to
+        <literal>web.xml</literal>:</para>
+
+        <para><programlisting>&lt;taglib&gt;
+       &lt;taglib-uri&gt;http://acegisecurity.sf.net/authz&lt;/taglib-uri&gt;
+       &lt;taglib-location&gt;/WEB-INF/authz.tld&lt;/taglib-location&gt;
+&lt;/taglib&gt;</programlisting></para>
 
         <sect3>
-          <title>Usage</title>
+          <title>AuthorizeTag</title>
+
+          <para><literal>AuthorizeTag</literal> is used to include content if
+          the current principal holds certain
+          <literal>GrantedAuthority</literal>s.</para>
 
           <para>The following JSP fragment illustrates how to use the
-          <literal>authz</literal> taglib:</para>
+          <literal>AuthorizeTag</literal>:</para>
 
           <para><programlisting>&lt;authz:authorize ifAllGranted="ROLE_SUPERVISOR"&gt;
   &lt;td&gt;
@@ -1737,40 +1900,8 @@ public boolean supports(Class clazz);</programlisting></para>
   &lt;/td&gt;
 &lt;/authz:authorize&gt;</programlisting></para>
 
-          <para>This code was copied from the Contacts sample
-          application.</para>
-
-          <para>What this code says is: if the principal has been granted
-          ROLE_SUPERVISOR, allow the tag's body to be output.</para>
-        </sect3>
-
-        <sect3>
-          <title>Installation</title>
-
-          <para>Installation is a simple matter. Simply copy the
-          <literal>acegi-security-taglib.jar</literal> file into your
-          application's <literal>WEB-INF/lib</literal> folder. The tag library
-          includes it's TLD, which makes it easier to work with JSP 1.2+
-          containers.</para>
-
-          <para>If you are using a JSP 1.1 container, you will need to declare
-          the JSP tag library in your application's <literal>web.xml</literal>
-          file, with code such as this:</para>
-
-          <para><programlisting>&lt;taglib&gt;
-       &lt;taglib-uri&gt;http://acegisecurity.sf.net/authz&lt;/taglib-uri&gt;
-       &lt;taglib-location&gt;/WEB-INF/authz.tld&lt;/taglib-location&gt;
-&lt;/taglib&gt;</programlisting></para>
-
-          <para>For JSP 1.1 containers you will also need to extract the
-          <literal>authz.tld</literal> file from the
-          <literal>acegi-security-taglib.jar</literal> file and put it into
-          your application's <literal>WEB-INF/lib</literal> folder. Use a
-          regular Zip tool, or Java's JAR utility.</para>
-        </sect3>
-
-        <sect3>
-          <title>Reference</title>
+          <para>This tag would cause the tag's body to be output if the
+          principal has been granted ROLE_SUPERVISOR.</para>
 
           <para>The <literal>authz:authorize</literal> tag declares the
           following attributes:</para>
@@ -1819,6 +1950,50 @@ public boolean supports(Class clazz);</programlisting></para>
           <literal>ifAllGranted</literal>, and finally,
           <literal>ifAnyGranted</literal>.</para>
         </sect3>
+
+        <sect3>
+          <title>AuthenticationTag</title>
+
+          <para><literal>AuthenticationTag</literal> is used to simply output
+          the current principal to the web page.</para>
+
+          <para>The following JSP fragment illustrates how to use the
+          <literal>AuthenticationTag</literal>:</para>
+
+          <para><programlisting>&lt;authz:authentication operation="principal"/&gt;</programlisting></para>
+
+          <para>This tag would cause the principal's name to be output. The
+          taglib properly supports the various types of principals that can
+          exist in the <literal>Authentication</literal> object, such as a
+          <literal>String</literal> or <literal>UserDetails</literal>
+          instance.</para>
+
+          <para>The "operation" attribute must always be "principal". This may
+          be expanded in the future, such as obtaining other
+          <literal>Authentication</literal>-related properties such as email
+          address or telephone numbers.</para>
+        </sect3>
+
+        <sect3>
+          <title>AclTag</title>
+
+          <para><literal>AclTag</literal> is used to include content if the
+          current principal has a ACL to the indicated domain object.</para>
+
+          <para>The following JSP fragment illustrates how to use the
+          <literal>AclTag</literal>:</para>
+
+          <para><programlisting>&lt;authz:acl domainObject="${contact}" hasPermission="16,1"&gt;
+  &lt;td&gt;&lt;A HREF="&lt;c:url value="del.htm"&gt;&lt;c:param name="contactId" value="${contact.id}"/&gt;&lt;/c:url&gt;"&gt;Del&lt;/A&gt;&lt;/td&gt;
+&lt;/authz:acl&gt;</programlisting></para>
+
+          <para>This tag would cause the tag's body to be output if the
+          principal holds either permission 16 or permission 1 for the
+          "contact" domain object. The numbers are actually integers that are
+          used with <literal>AbstractBasicAclEntry</literal> bit masking.
+          Please refer tro the ACL section of this reference guide to
+          understand more about the ACL capabilities of Acegi Security.</para>
+        </sect3>
       </sect2>
 
       <sect2 id="security-authorization-recommendations">
@@ -1852,6 +2027,115 @@ public boolean supports(Class clazz);</programlisting></para>
       </sect2>
     </sect1>
 
+    <sect1 id="afterinvocation">
+      <title>After Invocation Handling</title>
+
+      <sect2 id="afterinvocation-overview">
+        <title>Overview</title>
+
+        <para>Whilst the <literal>AccessDecisionManager</literal> is called by
+        the <literal>AbstractSecurityInterceptor</literal> before proceeding
+        with the secure object invocation, some applications need a way of
+        modifying the object actually returned by the secure object
+        invocation. Whilst you could easily implement your own AOP concern to
+        achieve this, Acegi Security provides a convenient hook that has
+        several concrete implementations that integrate with its ACL
+        capabilities.</para>
+
+        <para>Figure 4 illustrates Acegi Security's
+        <literal>AfterInvocationManager</literal> and its concrete
+        implementations.</para>
+
+        <para><mediaobject>
+            <imageobject role="html">
+              <imagedata align="center" fileref="images/AfterInvocation.gif"
+                         format="GIF" />
+            </imageobject>
+
+            <caption>
+              <para>Figure 4: After Invocation Implementation</para>
+            </caption>
+          </mediaobject></para>
+
+        <para>Like many other parts of Acegi Security,
+        <literal>AfterInvocationManager</literal> has a single concrete
+        implementation, <literal>AfterInvocationProvider</literal>, which
+        polls a list of <literal>AfterInvocationProvider</literal>s. Each
+        <literal>AfterInvocationProvider</literal> is allowed to modify the
+        return object or throw an <literal>AccessDeniedException</literal>.
+        Indeed multiple providers can modify the object, as the result of the
+        previous provider is passed to the next in the list. Let's now
+        consider our ACL-aware implementations of
+        <literal>AfterInvocationProvider</literal>.</para>
+      </sect2>
+
+      <sect2 id="afterinvocation-acl-aware">
+        <title>ACL-Aware AfterInvocationProviders</title>
+
+        <para>A common services layer method we've all written at one stage or
+        another looks like this:</para>
+
+        <para><programlisting>public Contact getById(Integer id);</programlisting></para>
+
+        <para>Quite often, only principals with permission to read the
+        <literal>Contact</literal> should be allowed to obtain it. In this
+        situation the <literal>AccessDecisionManager</literal> approach
+        provided by the <literal>AbstractSecurityInterceptor</literal> will
+        not suffice. This is because the identity of the
+        <literal>Contact</literal> is all that is available before the secure
+        object is invoked. The
+        <literal>BasicAclAfterInvocationProvider</literal> delivers a
+        solution, and is configured as follows:</para>
+
+        <para><programlisting>&lt;bean id="afterAclRead" class="net.sf.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationProvider"&gt;
+  &lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
+  &lt;property name="requirePermission"&gt;
+    &lt;list&gt;
+      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ"/&gt;
+    &lt;/list&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>In the above example, the <literal>Contact</literal> will be
+        retrieved and passed to the
+        <literal>BasicAclEntryAfterInvocationProvider</literal>. The provider
+        will thrown an <literal>AccessDeniedException</literal> if one of the
+        listed <literal>requirePermission</literal>s is not held by the
+        <literal>Authentication</literal>. The
+        <literal>BasicAclEntryAfterInvocationProvider</literal> queries the
+        <literal>AclManager</literal> to determine the ACL that applies for
+        this domain object to this <literal>Authentication</literal>.</para>
+
+        <para>Similar to the
+        <literal>BasicAclEntryAfterInvocationProvider</literal> is
+        <literal>BasicAclEntryAfterInvocationCollectionFilteringProvider</literal>.
+        It is designed to remove <literal>Collection</literal> elements for
+        which a principal does not have access. It never thrown an
+        <literal>AccessDeniedException</literal> - simply silently removes the
+        offending elements. The provider is configured as follows:</para>
+
+        <para><programlisting>&lt;bean id="afterAclCollectionRead" class="net.sf.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationCollectionFilteringProvider"&gt;
+  &lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
+  &lt;property name="requirePermission"&gt;
+    &lt;list&gt;
+      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ"/&gt;
+    &lt;/list&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>As you can imagine, the returned <literal>Object</literal> must
+        be a <literal>Collection</literal> for this provider to operate. It
+        will remove any element if the <literal>AclManager</literal> indicates
+        the <literal>Authentication</literal> does not hold one of the listed
+        <literal>requirePermission</literal>s.</para>
+
+        <para>The Contacts sample application demonstrates these two
+        <literal>AfterInvocationProvider</literal>s.</para>
+      </sect2>
+    </sect1>
+
     <sect1 id="security-run-as">
       <title>Run-As Authentication Replacement</title>
 
@@ -1875,7 +2159,11 @@ public boolean supports(Class clazz);</programlisting></para>
         secured invocation will be able to call other objects which require
         different authentication and authorization credentials. It will also
         be able to perform any internal security checks for specific
-        <literal>GrantedAuthority</literal> objects.</para>
+        <literal>GrantedAuthority</literal> objects. Because Acegi Security
+        provides a number of helper classes that automatically configure
+        remoting protocols based on the contents of the
+        <literal>ContextHolder</literal>, these run-as replacements are
+        particularly useful when calling remote web services.</para>
       </sect2>
 
       <sect2 id="security-run-as-usage">
@@ -1962,12 +2250,12 @@ public boolean supports(Class clazz);</programlisting></para>
         <literal>Authentication</literal> object. Developers are free to do
         this in whichever way they like, such as directly calling the relevant
         objects at runtime. However, several classes have been provided to
-        make this process transparent in many situations.</para>
+        make this process transparent in many situations. We call these
+        classes "authentication mechanisms".</para>
 
-        <para>The <literal>net.sf.acegisecurity.ui</literal> package is
-        designed to make interfacing web application user interfaces with the
-        <literal>ContextHolder</literal> as simple as possible. There are two
-        major steps in doing this:</para>
+        <para>The <literal>net.sf.acegisecurity.ui</literal> package provides
+        authentication mechanisms for web applications. There are two major
+        steps in doing this:</para>
 
         <para><itemizedlist spacing="compact">
             <listitem>
@@ -1985,18 +2273,19 @@ public boolean supports(Class clazz);</programlisting></para>
           </itemizedlist></para>
 
         <para>There are several alternatives are available for the first step,
-        which will be briefly discussed in this chapter. The most popular
-        approach is HTTP Session Authentication, which uses the
-        <literal>HttpSession</literal> object and filters to authenticate the
-        user. Another approach is HTTP Basic Authentication, which allows
-        clients to use HTTP headers to present authentication information to
-        the Acegi Security System for Spring. Alternatively, you can also use
-        Yale Central Authentication Service (CAS) for enterprise-wide single
-        sign on. The final approach is via Container Adapters, which allow
-        supported web containers to perform the authentication themselves.
-        HTTP Session and Basic Authentication is discussed below, whilst CAS
-        and Container Adapters are discussed in separate sections of this
-        document.</para>
+        which will be briefly discussed in this chapter. The most popular (and
+        almost always recommended) approach is HTTP Session Authentication,
+        which uses the <literal>HttpSession</literal> object and filters to
+        authenticate the user. Another approach (commonly use with web
+        services) is HTTP Basic Authentication, which allows clients to use
+        HTTP headers to present authentication information to the Acegi
+        Security System for Spring. Alternatively, you can also use Yale
+        Central Authentication Service (CAS) for enterprise-wide single sign
+        on. The final (generally unrecommended) approach is via Container
+        Adapters, which allow supported web containers to perform the
+        authentication themselves. HTTP Session and Basic Authentication is
+        discussed below, whilst CAS and Container Adapters are discussed in
+        separate sections of this document.</para>
       </sect2>
 
       <sect2 id="security-ui-http-session">
@@ -2485,7 +2774,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         installation.</para>
 
         <para>There are two different ways of making spring context available
-        to the Jboss integration classes. </para>
+        to the Jboss integration classes.</para>
 
         <para>The first approach is by editing your
         <literal>$JBOSS_HOME/server/your_config/conf/login-config.xml</literal>
@@ -3412,9 +3701,6 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
       <sect2 id="acls-overview">
         <title>Overview</title>
 
-        <para>THIS FEATURE WAS ADDED IN VERSION 0.6. WE WELCOME YOUR COMMENTS
-        AND IMPROVEMENTS.</para>
-
         <para>Complex applications often will find the need to define access
         permissions not simply at a web request or method invocation level.
         Instead, security decisions need to comprise both who
@@ -3497,9 +3783,22 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <title>The net.sf.acegisecurity.acl Package</title>
 
         <para>The <literal>net.sf.acegisecurity.acl</literal> package is very
-        simple, comprising only a handful of interfaces and a single class. It
-        provides the basic foundation for access control list (ACL) lookups.
-        The central interface is <literal>AclManager</literal>, which is
+        simple, comprising only a handful of interfaces and a single class, as
+        shown in Figure 5. It provides the basic foundation for access control
+        list (ACL) lookups. </para>
+
+        <para><mediaobject>
+            <imageobject role="html">
+              <imagedata align="center" fileref="images/ACLSecurity.gif"
+                         format="GIF" />
+            </imageobject>
+
+            <caption>
+              <para>Figure 5: Access Control List Manager</para>
+            </caption>
+          </mediaobject></para>
+
+        <para>The central interface is <literal>AclManager</literal>, which is
         defined by two methods:</para>
 
         <para><programlisting>public AclEntry[] getAcls(java.lang.Object domainInstance);
@@ -3548,12 +3847,25 @@ public AclEntry[] getAcls(java.lang.Object domainInstance, Authentication authen
         <title>Integer Masked ACLs</title>
 
         <para>Acegi Security System for Spring includes a production-quality
-        ACL provider implementation. The implementation is based on integer
-        masking, which is commonly used for ACL permissions given its
-        flexibility and speed. Anyone who has used Unix's
-        <literal>chmod</literal> command will know all about this type of
-        permission masking (eg <literal>chmod 777</literal>). You'll find the
-        classes and interfaces for the integer masking ACL package under
+        ACL provider implementation, which is shown in Figure 6. </para>
+
+        <para><mediaobject>
+            <imageobject role="html">
+              <imagedata align="center" fileref="images/BasicAclProvider.gif"
+                         format="GIF" />
+            </imageobject>
+
+            <caption>
+              <para>Figure 6: Basic ACL Manager</para>
+            </caption>
+          </mediaobject></para>
+
+        <para>The implementation is based on integer masking, which is
+        commonly used for ACL permissions given its flexibility and speed.
+        Anyone who has used Unix's <literal>chmod</literal> command will know
+        all about this type of permission masking (eg <literal>chmod
+        777</literal>). You'll find the classes and interfaces for the integer
+        masking ACL package under
         <literal>net.sf.acegisecurity.acl.basic</literal>.</para>
 
         <para>Extending the <literal>AclEntry</literal> interface is a
@@ -3620,9 +3932,12 @@ public java.lang.Object getRecipient();</programlisting></para>
 
         <para>Acegi Security includes a single <literal>BasicAclDao</literal>
         implementation called <literal>JdbcDaoImpl</literal>. As implied by
-        the name, it accesses ACL information from a JDBC database. The
-        default database schema and some sample data will aid in understanding
-        its function:</para>
+        the name, <literal>JdbcDaoImpl</literal> accesses ACL information from
+        a JDBC database. There is also an extended version of this DAO,
+        <literal>JdbcExtendedDaoImpl</literal>, which provides CRUD operations
+        on the JDBC database, although we won't discuss these features here.
+        The default database schema and some sample data will aid in
+        understanding its function:</para>
 
         <para><programlisting>CREATE TABLE acl_object_identity (
      id IDENTITY NOT NULL,
