@@ -39,6 +39,7 @@
       <action dev="raykrueger" type="update">JaasAuthenticationCallbackHandler Authentication is passed to handle method setAuthentication removed</action>
       <action dev="raykrueger" type="update">Added AuthenticationException to the AutenticationEntryPoint.commence method signature</action>
       <action dev="raykrueger" type="update">Added AccessDeniedException to the SecurityEncorcementFilter.sendAccessDeniedError method signature</action>
+      <action dev="benalex" type="fix">Correct issue with JdbcDaoImpl default SQL query not using consistent case sensitivity</action>
     </release>
     <release version="0.7.0" date="2005-01-16">
       <action dev="carlossg" type="add">Major CVS repository restructure to support Maven and eliminate libraries</action>

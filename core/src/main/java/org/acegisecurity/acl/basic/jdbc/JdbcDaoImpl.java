@@ -60,7 +60,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
 
     public static final String RECIPIENT_USED_FOR_INHERITENCE_MARKER = "___INHERITENCE_MARKER_ONLY___";
     public static final String DEF_ACLS_BY_OBJECT_IDENTITY_QUERY = "SELECT RECIPIENT, MASK FROM acl_permission WHERE acl_object_identity = ?";
-    public static final String DEF_OBJECT_PROPERTIES_QUERY = "SELECT CHILD.ID, CHILD.OBJECT_IDENTITY, CHILD.ACL_CLASS, PARENT.OBJECT_IDENTITY as PARENT_OBJECT_IDENTITY FROM acl_object_identity as CHILD LEFT OUTER JOIN acl_object_identity as PARENT ON CHILD.parent_object=parent.id WHERE CHILD.object_identity = ?";
+    public static final String DEF_OBJECT_PROPERTIES_QUERY = "SELECT CHILD.ID, CHILD.OBJECT_IDENTITY, CHILD.ACL_CLASS, PARENT.OBJECT_IDENTITY as PARENT_OBJECT_IDENTITY FROM acl_object_identity as CHILD LEFT OUTER JOIN acl_object_identity as PARENT ON CHILD.parent_object=PARENT.id WHERE CHILD.object_identity = ?";
     private static final Log logger = LogFactory.getLog(JdbcDaoImpl.class);
 
     //~ Instance fields ========================================================
