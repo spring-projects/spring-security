@@ -57,7 +57,11 @@
 	<listener>
 		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
 	</listener>
-	 
+
+    <listener>
+        <listener-class>net.sf.acegisecurity.ui.session.HttpSessionEventPublisher</listener-class>
+    </listener>
+
   <!--
 	- Provides core MVC application controller. See contacts-servlet.xml.
     -->
