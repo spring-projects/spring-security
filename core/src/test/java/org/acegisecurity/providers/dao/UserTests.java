@@ -120,6 +120,7 @@ public class UserTests extends TestCase {
             user.getAuthorities()[0]);
         assertEquals(new GrantedAuthorityImpl("ROLE_TWO"),
             user.getAuthorities()[1]);
+        assertTrue(user.toString().indexOf("marissa") != -1);
     }
 
     public void testUserIsEnabled() throws Exception {

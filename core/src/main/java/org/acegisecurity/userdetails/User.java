@@ -185,6 +185,29 @@ public class User implements UserDetails {
     }
 
     public String toString() {
-        return username;
+        StringBuffer sb = new StringBuffer();
+        sb.append(super.toString() + ": ");
+        sb.append("Username: " + this.username + "; ");
+        sb.append("Password: [PROTECTED]; ");
+        sb.append("Enabled: " + this.enabled + "; ");
+        sb.append("AccountNonExpired: " + this.accountNonExpired + "; ");
+        sb.append("credentialsNonExpired: " + this.credentialsNonExpired + "; ");
+        sb.append("AccountNonLocked: " + this.accountNonLocked + "; ");
+
+        if (this.getAuthorities() != null) {
+            sb.append("Granted Authorities: ");
+
+            for (int i = 0; i < this.getAuthorities().length; i++) {
+                if (i > 0) {
+                    sb.append(", ");
+                }
+
+                sb.append(this.getAuthorities()[i].toString());
+            }
+        } else {
+            sb.append("Not granted any authorities");
+        }
+
+        return sb.toString();
     }
 }

@@ -30,6 +30,7 @@
       <action dev="benalex" type="update">UserDetails now advises locked accounts, with corresponding DaoAuthenticationProvider events and enforcement</action>
       <action dev="benalex" type="update">ContextHolderAwareRequestWrapper methods returns null if user is anonymous</action>
       <action dev="benalex" type="update">AbstractBasicAclEntry improved compatibility with Hibernate</action>
+      <action dev="benalex" type="update">User now provides a more useful toString() method</action>
       <action dev="benalex" type="fix">SecurityEnforcementFilter caused NullPointerException when anonymous authentication used with BasicProcessingFilterEntryPoint</action>
       <action dev="benalex" type="fix">FilterChainProxy now supports replacement of ServletRequest and ServetResponse by Filter beans</action>
       <action dev="fbos" type="fix">Corrected Authz parsing of whitespace in GrantedAuthoritys</action>
