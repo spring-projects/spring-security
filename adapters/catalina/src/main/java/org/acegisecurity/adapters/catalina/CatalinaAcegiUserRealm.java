@@ -243,6 +243,6 @@ public class CatalinaAcegiUserRealm extends RealmBase {
 
         String beanName = (String) beans.keySet().iterator().next();
         authenticationManager = (AuthenticationManager) beans.get(beanName);
-        logger.info("CatalinaSpringUserRealm Started");
+        logger.info("CatalinaAcegiUserRealm Started");
     }
 }
