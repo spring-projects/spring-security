@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <extend>${basedir}/../project.xml</extend>
-  <pomVersion>3</pomVersion>
   <dependencies>
     <dependency>
       <groupId>acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
       <version>0.7-SNAPSHOT</version>
-      <type>jar</type>
       <url>http://acegisecurity.sourceforge.net</url>
       <properties>
         <war.bundle>true</war.bundle>
