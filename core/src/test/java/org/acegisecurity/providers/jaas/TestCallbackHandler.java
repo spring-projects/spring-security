@@ -14,7 +14,7 @@ import java.io.IOException;
  * @author Ray Krueger
  * @version $Id$
  */
-public class TestCallbackHandler implements JAASAuthenticationCallbackHandler {
+public class TestCallbackHandler implements JaasAuthenticationCallbackHandler {
 
     Authentication auth;
 
