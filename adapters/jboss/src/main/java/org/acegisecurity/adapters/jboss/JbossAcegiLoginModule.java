@@ -17,6 +17,8 @@ package net.sf.acegisecurity.adapters.jboss;
 
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
+import net.sf.acegisecurity.CredentialsExpiredException;
+import net.sf.acegisecurity.AccountExpiredException;
 import net.sf.acegisecurity.AuthenticationManager;
 import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
@@ -210,7 +212,17 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
                 if (super.log.isDebugEnabled()) {
                     super.log.debug("authentication succeded");
                 }
-            } catch (AuthenticationException failed) {
+            }catch(CredentialsExpiredException cee){
+                if (super.log.isDebugEnabled()) {
+                    super.log.debug("Credential has expired");
+                }
+                throw new javax.security.auth.login.CredentialExpiredException("The credential used to identify the user has expired");
+			}catch(AccountExpiredException cee){
+                if (super.log.isDebugEnabled()) {
+                    super.log.debug("Account has expired, throwing jaas exception");
+                }
+                throw new javax.security.auth.login.AccountExpiredException("The account specified in login has expired");
+			}catch (AuthenticationException failed) {
                 if (super.log.isDebugEnabled()) {
                     super.log.debug("Bad password for username=" + username);
                 }
