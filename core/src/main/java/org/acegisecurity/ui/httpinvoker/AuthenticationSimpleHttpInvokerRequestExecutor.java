@@ -74,30 +74,39 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor
         throws IOException, AuthenticationCredentialsNotFoundException {
         super.prepareConnection(con, contentLength);
 
-        if ((ContextHolder.getContext() == null)
-            || !(ContextHolder.getContext() instanceof SecureContext)) {
-            throw new AuthenticationCredentialsNotFoundException(
-                "ContextHolder is null or does not contain a SecureContext");
-        }
+        if ((ContextHolder.getContext() != null)
+            && (ContextHolder.getContext() instanceof SecureContext)) {
+            Authentication auth = ((SecureContext) ContextHolder.getContext())
+                .getAuthentication();
 
-        Authentication auth = ((SecureContext) ContextHolder.getContext())
-            .getAuthentication();
+            if ((auth != null) && (auth.getPrincipal() != null)
+                && (auth.getCredentials() != null)) {
+                String base64 = auth.getPrincipal().toString() + ":"
+                    + auth.getCredentials().toString();
+                con.setRequestProperty("Authorization",
+                    "Basic "
+                    + new String(Base64.encodeBase64(base64.getBytes())));
 
-        if ((auth == null) || (auth.getPrincipal() == null)
-            || (auth.getCredentials() == null)) {
-            throw new AuthenticationCredentialsNotFoundException(
-                "The Authentication contained in the ContextHolder is null or the principal and/or credentials properties are null");
-        }
-
-        String base64 = auth.getPrincipal().toString() + ":"
-            + auth.getCredentials().toString();
-        con.setRequestProperty("Authorization",
-            "Basic " + new String(Base64.encodeBase64(base64.getBytes())));
-
-        if (logger.isDebugEnabled()) {
-            logger.debug(
-                "HttpInvocation now presenting via BASIC authentication ContextHolder-derived: "
-                + auth.toString());
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "HttpInvocation now presenting via BASIC authentication ContextHolder-derived: "
+                        + auth.toString());
+                }
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "Unable to set BASIC authentication header as ContextHolder: "
+                        + ContextHolder.getContext()
+                        + "; did not provide valid Authentication: " + auth);
+                }
+            }
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug(
+                    "Unable to set BASIC authentication header as ContextHolder: "
+                    + ContextHolder.getContext()
+                    + "; does not provide a SecureContext");
+            }
         }
     }
 }

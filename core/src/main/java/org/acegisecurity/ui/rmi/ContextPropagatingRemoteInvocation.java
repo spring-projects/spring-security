@@ -70,8 +70,7 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
         context = ContextHolder.getContext();
 
         if (logger.isDebugEnabled()) {
-            logger.debug("RemoteInvocation now has context of: "
-                + context.toString());
+            logger.debug("RemoteInvocation now has context of: " + context);
         }
     }
 
@@ -95,7 +94,7 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
         ContextHolder.setContext(context);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Set ContextHolder to contain: " + context.toString());
+            logger.debug("Set ContextHolder to contain: " + context);
         }
 
         Object result = super.invoke(targetObject);
