@@ -30,10 +30,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import org.springframework.core.io.ResourceLoader;
-
 import java.io.File;
-import java.io.IOException;
 
 import java.security.Principal;
 import java.security.cert.X509Certificate;
