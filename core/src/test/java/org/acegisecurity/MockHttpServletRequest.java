@@ -48,8 +48,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
     //~ Instance fields ========================================================
 
     private HttpSession session;
-    private Map paramMap = new HashMap();
     private Map headersMap = new HashMap();
+    private Map paramMap = new HashMap();
     private Principal principal;
     private String contextPath = "";
     private String queryString = null;
@@ -66,14 +66,15 @@ public class MockHttpServletRequest implements HttpServletRequest {
         this.queryString = queryString;
     }
 
-    private MockHttpServletRequest() {
-        super();
-    }
-
-    public MockHttpServletRequest(Map headers, Principal principal, HttpSession session) {
+    public MockHttpServletRequest(Map headers, Principal principal,
+        HttpSession session) {
         this.headersMap = headers;
         this.principal = principal;
         this.session = session;
+    }
+
+    private MockHttpServletRequest() {
+        super();
     }
 
     //~ Methods ================================================================

@@ -95,7 +95,7 @@ public abstract class AbstractContactsTests extends TestCase {
             contactManager.getRandomContact();
             fail("Should have thrown RemoteAccessException");
         } catch (RemoteAccessException exception) {
-             assertTrue(true);
+            assertTrue(true);
         }
     }
 

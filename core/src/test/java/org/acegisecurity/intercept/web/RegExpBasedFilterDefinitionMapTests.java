@@ -25,8 +25,8 @@ import net.sf.acegisecurity.SecurityConfig;
 
 
 /**
- * Tests parts of {@link RegExpBasedFilterInvocationDefinitionMap} not tested by {@link
- * FilterInvocationDefinitionSourceEditorTests}.
+ * Tests parts of {@link RegExpBasedFilterInvocationDefinitionMap} not tested
+ * by {@link FilterInvocationDefinitionSourceEditorTests}.
  *
  * @author Ben Alex
  * @version $Id$

@@ -16,8 +16,8 @@
 package sample.contact;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.AuthenticationCredentialsNotFoundException;
+import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.SecureContext;
 
@@ -67,10 +67,11 @@ public class SecureIndexController implements Controller, InitializingBean {
     public ModelAndView handleRequest(HttpServletRequest request,
         HttpServletResponse response) throws ServletException, IOException {
         SecureContext secureContext = ((SecureContext) ContextHolder.getContext());
+
         if (null == secureContext) {
             throw new AuthenticationCredentialsNotFoundException(
-                    "Authentication credentials were not found in the " +
-                    "SecureContext");
+                "Authentication credentials were not found in the "
+                + "SecureContext");
         }
 
         final Authentication currentUser = secureContext.getAuthentication();

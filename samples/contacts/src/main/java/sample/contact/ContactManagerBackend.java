@@ -25,12 +25,12 @@ import java.util.Vector;
 
 /**
  * Backend business object that manages the contacts.
- *
+ * 
  * <P>
  * As a backend, it never faces the public callers. It is always accessed via
  * the {@link ContactManagerFacade}.
  * </p>
- *
+ * 
  * <P>
  * This facade approach is not really necessary in this application, and is
  * done simply to demonstrate granting additional authorities via the
