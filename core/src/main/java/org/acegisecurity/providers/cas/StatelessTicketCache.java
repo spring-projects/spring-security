@@ -20,11 +20,11 @@ package net.sf.acegisecurity.providers.cas;
  * 
  * <p>
  * When a service ticket or proxy ticket is validated against the CAS server,
- * it is unable to be used again. Most types of callers  are stateful and are
+ * it is unable to be used again. Most types of callers are stateful and are
  * associated with a given <code>HttpSession</code>. This allows the
  * affirmative CAS validation outcome to be stored in the
  * <code>HttpSession</code>, meaning the removal of the ticket from the CAS
- * server is not an issue issue.
+ * server is not an issue.
  * </p>
  * 
  * <P>
@@ -51,8 +51,8 @@ package net.sf.acegisecurity.providers.cas;
  * </p>
  * 
  * <P>
- * Implementations should provide a reasonable timeout on stored entries,  such
- * that the stateless caller are not required to unnecessarily acquire  fresh
+ * Implementations should provide a reasonable timeout on stored entries, such
+ * that the stateless caller are not required to unnecessarily acquire fresh
  * CAS service tickets or proxy tickets.
  * </p>
  *
