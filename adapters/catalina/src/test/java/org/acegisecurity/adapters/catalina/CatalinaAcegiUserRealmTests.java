@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.adapters.MockPrincipal;
 import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
 
 import org.apache.catalina.LifecycleException;
@@ -279,14 +280,5 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
         adapter.startForTest();
 
         return adapter;
-    }
-
-    //~ Inner Classes ==========================================================
-
-    private class MockPrincipal implements Principal {
-        public String getName() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
     }
 }
