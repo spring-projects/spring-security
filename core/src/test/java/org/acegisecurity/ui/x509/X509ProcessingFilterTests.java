@@ -42,6 +42,10 @@ public class X509ProcessingFilterTests extends TestCase {
         super.setUp();
     }
 
+    public void tearDown() {
+        ContextHolder.setContext(null);
+    }
+
     public void testNormalOperation() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest(null, new MockHttpSession());
         MockHttpServletResponse response = new MockHttpServletResponse();
