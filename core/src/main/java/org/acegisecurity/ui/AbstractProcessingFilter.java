@@ -311,83 +311,110 @@ public abstract class AbstractProcessingFilter implements Filter,
                 logger.debug("Request is to process authentication");
             }
 
+            onPreAuthentication(httpRequest, httpResponse);
+
             Authentication authResult;
 
             try {
                 authResult = attemptAuthentication(httpRequest);
             } catch (AuthenticationException failed) {
                 // Authentication failed
-                String failureUrl = authenticationFailureUrl;
-
-                if (failed instanceof AuthenticationServiceException
-                    && (authenticationServiceFailureUrl != null)) {
-                    failureUrl = authenticationServiceFailureUrl;
-                }
-
-                if (failed instanceof BadCredentialsException
-                    && (this.authenticationCredentialCheckFailureUrl != null)) {
-                    failureUrl = authenticationCredentialCheckFailureUrl;
-                }
-
-                if (failed instanceof DisabledException
-                    && (authenticationDisabledFailureUrl != null)) {
-                    failureUrl = authenticationDisabledFailureUrl;
-                }
-
-                if (failed instanceof LockedException
-                    && (authenticationLockedFailureUrl != null)) {
-                    failureUrl = authenticationLockedFailureUrl;
-                }
-
-                if (failed instanceof ProxyUntrustedException
-                    && (authenticationProxyUntrustedFailureUrl != null)) {
-                    failureUrl = authenticationProxyUntrustedFailureUrl;
-                }
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Authentication request failed: "
-                        + failed.toString());
-                }
-
-                httpRequest.getSession().setAttribute(ACEGI_SECURITY_LAST_EXCEPTION_KEY,
-                    failed);
-                httpRequest.getSession().removeAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY);
-                httpResponse.sendRedirect(httpResponse.encodeRedirectURL(httpRequest
-                        .getContextPath() + failureUrl));
+                unsuccessfulAuthentication(httpRequest, httpResponse, failed);
 
                 return;
             }
 
             // Authentication success
-            if (logger.isDebugEnabled()) {
-                logger.debug("Authentication success: " + authResult.toString());
-            }
-
-            httpRequest.getSession().setAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY,
-                authResult);
-
-            String targetUrl = (String) httpRequest.getSession().getAttribute(ACEGI_SECURITY_TARGET_URL_KEY);
-            httpRequest.getSession().removeAttribute(ACEGI_SECURITY_TARGET_URL_KEY);
-
-            if (alwaysUseDefaultTargetUrl == true) {
-                targetUrl = null;
-            }
-
-            if (targetUrl == null) {
-                targetUrl = httpRequest.getContextPath() + defaultTargetUrl;
-            }
-
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "Redirecting to target URL from HTTP Session (or default): "
-                    + targetUrl);
-            }
-
-            httpResponse.sendRedirect(httpResponse.encodeRedirectURL(targetUrl));
+            successfulAuthentication(httpRequest, httpResponse, authResult);
 
             return;
         }
 
         chain.doFilter(request, response);
+    }
+
+    protected void onPreAuthentication(HttpServletRequest request,
+        HttpServletResponse response) throws IOException {}
+
+    protected void onSuccessfulAuthentication(HttpServletRequest request,
+        HttpServletResponse response) throws IOException {}
+
+    protected void onUnsuccessfulAuthentication(HttpServletRequest request,
+        HttpServletResponse response) throws IOException {}
+
+    protected void successfulAuthentication(HttpServletRequest request,
+        HttpServletResponse response, Authentication authResult)
+        throws IOException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Authentication success: " + authResult.toString());
+        }
+
+        request.getSession().setAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY,
+            authResult);
+
+        String targetUrl = (String) request.getSession().getAttribute(ACEGI_SECURITY_TARGET_URL_KEY);
+        request.getSession().removeAttribute(ACEGI_SECURITY_TARGET_URL_KEY);
+
+        if (alwaysUseDefaultTargetUrl == true) {
+            targetUrl = null;
+        }
+
+        if (targetUrl == null) {
+            targetUrl = request.getContextPath() + defaultTargetUrl;
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(
+                "Redirecting to target URL from HTTP Session (or default): "
+                + targetUrl);
+        }
+
+        onSuccessfulAuthentication(request, response);
+
+        response.sendRedirect(response.encodeRedirectURL(targetUrl));
+    }
+
+    protected void unsuccessfulAuthentication(HttpServletRequest request,
+        HttpServletResponse response, AuthenticationException failed)
+        throws IOException {
+        String failureUrl = authenticationFailureUrl;
+
+        if (failed instanceof AuthenticationServiceException
+            && (authenticationServiceFailureUrl != null)) {
+            failureUrl = authenticationServiceFailureUrl;
+        }
+
+        if (failed instanceof BadCredentialsException
+            && (this.authenticationCredentialCheckFailureUrl != null)) {
+            failureUrl = authenticationCredentialCheckFailureUrl;
+        }
+
+        if (failed instanceof DisabledException
+            && (authenticationDisabledFailureUrl != null)) {
+            failureUrl = authenticationDisabledFailureUrl;
+        }
+
+        if (failed instanceof LockedException
+            && (authenticationLockedFailureUrl != null)) {
+            failureUrl = authenticationLockedFailureUrl;
+        }
+
+        if (failed instanceof ProxyUntrustedException
+            && (authenticationProxyUntrustedFailureUrl != null)) {
+            failureUrl = authenticationProxyUntrustedFailureUrl;
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Authentication request failed: " + failed.toString());
+        }
+
+        request.getSession().setAttribute(ACEGI_SECURITY_LAST_EXCEPTION_KEY,
+            failed);
+        request.getSession().removeAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY);
+
+        onUnsuccessfulAuthentication(request, response);
+
+        response.sendRedirect(response.encodeRedirectURL(request.getContextPath()
+                + failureUrl));
     }
 }
