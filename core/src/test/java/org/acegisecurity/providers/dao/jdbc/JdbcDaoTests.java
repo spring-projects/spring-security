@@ -21,6 +21,10 @@ import net.sf.acegisecurity.providers.dao.User;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.jdbc.object.MappingSqlQuery;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 
 /**
@@ -76,6 +80,21 @@ public class JdbcDaoTests extends TestCase {
         assertTrue(!user.isEnabled());
     }
 
+    public void testGettersSetters() {
+        JdbcDaoImpl dao = new JdbcDaoImpl();
+        dao.setAuthoritiesByUsernameQuery("SELECT * FROM FOO");
+        assertEquals("SELECT * FROM FOO", dao.getAuthoritiesByUsernameQuery());
+
+        dao.setUsersByUsernameQuery("SELECT USERS FROM FOO");
+        assertEquals("SELECT USERS FROM FOO", dao.getUsersByUsernameQuery());
+
+        dao.setAuthoritiesByUsernameMapping(new MockMappingSqlQuery());
+        assertTrue(dao.getAuthoritiesByUsernameMapping() != null);
+
+        dao.setUsersByUsernameMapping(new MockMappingSqlQuery());
+        assertTrue(dao.getUsersByUsernameMapping() != null);
+    }
+
     public void testLookupFailsIfUserHasNoGrantedAuthorities()
         throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
@@ -107,6 +126,8 @@ public class JdbcDaoTests extends TestCase {
 
     public void testRolePrefixWorks() throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDaoWithRolePrefix();
+        assertEquals("ARBITRARY_PREFIX_", dao.getRolePrefix());
+
         User user = dao.loadUserByUsername("marissa");
         assertEquals("marissa", user.getUsername());
         assertEquals("ARBITRARY_PREFIX_ROLE_TELLER",
@@ -167,5 +188,14 @@ public class JdbcDaoTests extends TestCase {
         dao.afterPropertiesSet();
 
         return dao;
+    }
+
+    //~ Inner Classes ==========================================================
+
+    private class MockMappingSqlQuery extends MappingSqlQuery {
+        protected Object mapRow(ResultSet arg0, int arg1)
+            throws SQLException {
+            return null;
+        }
     }
 }
