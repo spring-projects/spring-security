@@ -29,8 +29,105 @@
 <body>
   <h1>Frequently Asked Questions</h1>
   
+  <h2>What is Acegi Security?</h2>
+  <p>Acegi Security is an open source project that provide comprehensive authentication
+	and authorisation services for enterprise applications based on
+	<a href="http://www.springframework.org">The Spring Framework</a>.
+	Acegi Security can authenticate using a variety of pluggable providers, and
+	can authorise both web requests and method invocations.
+	Acegi Security provides an integrated security approach across
+	these various targets, and also offers access control list (ACL) capabilities to
+	enable individual domain object instances to be secured. At an implementation
+	level, Acegi Security is managed through Spring's inversion of control and 
+	lifecycle services,	and actually enforces security using interception through
+	servlet Filters and Java AOP frameworks. In terms of AOP framework support, Acegi
+	Security currently supports AOP Alliance (which is what the
+	Spring IoC container uses internally) and AspectJ, although additional frameworks
+	can be easily supported.</p>
+
+  <h2>Why not just use web.xml security?</h2>
+  <p>Let's assuming you're developing an enterprise application based on Spring.
+	There are four security concerns you typically need to address: authentication,
+	web request security, service layer security (ie your methods that implement
+	business logic), and domain object instance security (ie different domain objects
+	have different permissions). With these typical requirements in mind:
+	<ol>
+		<li><b>Authentication</b>: The servlet specification provides an approach
+			to authentication. However, you will need to configure the container 
+			to perform authentication which typically requires editing of
+			container-specific "realm" settings. This makes a non-portable
+			configuration, and if you need to write an actual Java class to implement 
+			the container's authentication interface, it becomes even more non-portable.
+			With Acegi Security you achieve complete portability - right down to the 
+			WAR level. Also, Acegi Security offers a choice of production-proven
+			authentication providers and mechanisms, meaning you can switch your 
+			authentication approaches at deployment time. This is particularly
+			valuable for software vendors writing products that need to work in
+			an unknown target environment.<br><br></li>
+		<li><b>Web request security:</b> The servlet specification provides an
+			approach to secure your request URIs. However, these URIs can only be
+			expressed in the servlet specification's own limited URI path format.
+			Acegi Security provides a far more comprehensive approach. For instance,
+			you can use Ant paths or regular expressions, you can consider parts of the
+			URI other than simply the requested page (eg you can consider request
+			parameters), and you can implement your own runtime source of configuration
+			data. This means your web request security can be dynamically changed during
+			the actual execution of your webapp.<br><br></li>
+		<li><b>Service layer and domain object security:</b> The absence of support 
+			in the servlet specification for services layer security or domain object 
+			instance security represent serious limitations for multi-tiered 
+			applications. Typically developers either ignore these requirements, or
+			implement security logic within their MVC controller code (or even worse,
+			inside the views). There are serious disadvantages with this approach:<br><br>
+				<ol>
+					<li><i>Separation of concerns:</i> Authorization is a 
+						crosscutting concern and should be implemented as such. 
+						MVC controllers or views implementing authorization code 
+						makes it more difficult to test both the controller and 
+						authorization logic, more difficult to debug, and will 
+						often lead to code duplication.</li>
+					<li><i>Support for rich clients and web services:</i> If an 
+						additional client type must ultimately be supported, any 
+						authorization code embedded within the web layer is 
+						non-reusable. It should be considered that Spring remoting 
+						exporters only export service layer beans (not MVC 
+						controllers). As such authorization logic needs to be 
+						located in the services layer to support a multitude of 
+						client types.</li>
+					<li><i>Layering issues:</i> An MVC controller or view is simply 
+						the incorrect architectural layer to implement authorization 
+						decisions concerning services layer methods or domain object 
+						instances. Whilst the Principal may be passed to the services 
+						layer to enable it to make the authorization decision, doing 
+						so would introduce an additional argument on every services 
+						layer method. A more elegant approach is to use a ThreadLocal 
+						to hold the Principal, although this would likely increase 
+						development time to a point where it would become more e
+						conomical (on a cost-benefit basis) to simply use a dedicated 
+						security framework.</li>
+					<li><i>Authorisation code quality:</i> It is often said of web 
+						frameworks that they "make it easier to do the right things, 
+						and harder to do the wrong things". Security frameworks are 
+						the same, because they are designed in an abstract manner for 
+						a wide range of purposes. Writing your own authorization code 
+						from scratch does not provide the "design check" a framework 
+						would offer, and in-house authorization code will typically 
+						lack the improvements that emerge from widespread deployment, 
+						peer review and new versions.
+				</ol>
+				</li>
+	</ol>
+	For simple applications, servlet specification may just be enough.
+	Although when considered within the context of web container portability, 
+	configuration requirements, limited web request security flexibility, and 
+	non-existent services layer and domain object instance security, it becomes 
+	clear why developers often look to alternative solutions.
+	</p>
+
   <h2>How do you pronounce "Acegi"?</h2>
-  <p><i>Ah-see-gee</i>. Said quickly, without emphasis on any part.</p>
+  <p><i>Ah-see-gee</i>. Said quickly, without emphasis on any part.
+	Acegi isn't an acronym, name of a Greek God or anything similarly
+	impressive - it's just letters #1, #3, #5, #7 and #9 of the alphabet.</p>
 
   <h2>Is it called "Acegi" or "Acegi Security"?</h2>
   <p>It's official name is <i>Acegi Security System for Spring</i>,
@@ -39,7 +136,7 @@
 	as that gets confused with the name of the company that maintains Acegi
 	Security.</p>
 
-  <h2>Why catches 80% of users reporting problems?</h2>
+  <h2>What catches 80% of users reporting problems?</h2>
   <p>80% of support questions are because people have not defined
 	the necessary filters in <code>web.xml</code>, or the filters are being
 	mapped in the incorrect order. Check the 
@@ -54,11 +151,6 @@
 	<code>GrantedAuthority[]</code>s. We suggest you write the
 	<code>UserDetails</code> object generated by your <code>AuthenticationDao</code>
 	to the log and check it looks correct.</p>
-
-  <h2>How do I store custom properties, like a user's email address?</h2>
-  <p>In most cases write an <code>AuthenticationDao</code> which returns
-	a subclass of <code>User</code>. Alternatively, write your own
-	<code>UserDetails</code> implementation from scratch and return that.</p>
 
   <h2>I need some help. What files should I post?</h2>
   <p>The most important things to post with any support requests on the
@@ -81,6 +173,11 @@
 		log4j.appender.stdout.layout.ConversionPattern=%d %p %c - %m%n
 		
 		log4j.category.net.sf.acegisecurity=DEBUG</pre>
+
+  <h2>How do I store custom properties, like a user's email address?</h2>
+  <p>In most cases write an <code>AuthenticationDao</code> which returns
+	a subclass of <code>User</code>. Alternatively, write your own
+	<code>UserDetails</code> implementation from scratch and return that.</p>
 
   <h2>Why doesn't Acegi Security use JAAS?</h2>
   <p>Acegi Security targets <i>enterprise applications</i>, which are typically

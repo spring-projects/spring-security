@@ -25,10 +25,8 @@
         href="http://apr.apache.org/versioning.html">Apache APR Project 
         Versioning Guidelines</A> so you can identify backward 
         compatibility.<BR><BR>
-        <LI><B>Easy to use:</B> View our samples/quick-start directory for XML 
-        you can simply copy and paste into applicationContext.xml and web.xml. 
-        From there it's easy to customise Acegi Security to your unique security 
-        needs.<BR><BR>
+        <LI><B>Fast results:</B> View our <a href="suggested.html">Suggested Steps</a>
+        for the fastest way to develop complex, security-compliant applications.<BR><BR>
         <LI><B>Enterprise-wide single sign on:</B> Using Yale University's open 
         source <A href="http://www.yale.edu/tp/auth/">Central Authentication 
         Service</A> (CAS), the Acegi Security System for Spring can participate 
@@ -61,6 +59,11 @@
         parameter on method being invoked....). This package gives you this 
         flexibility without adding security code to your Spring business 
         objects.<BR><BR>
+        <LI><B>After invocation security:</B> Acegi Security can not only protect
+		methods from being invoked in the first place, but it can also
+		deal with the Objects returned from the methods. Included implementations 
+		of after invocation security can throw an exception or mutate the returned
+		object based on ACLs.<BR><BR>
         <LI><B>Secures your HTTP requests as well:</B> In addition to securing 
         your beans, the project also secures your HTTP requests. No longer is it 
         necessary to rely on web.xml security constraints. Best of all, your 
@@ -81,7 +84,8 @@
         BASIC authentication requests as per RFC 1945.<BR><BR>
         <LI><B>Convenient security taglib:</B> Your JSP files can use our taglib 
         to ensure that protected content like links and messages are only 
-        displayed to users holding the appropriate granted authorities.<BR><BR>
+        displayed to users holding the appropriate granted authorities. The taglib
+		also fully integrates with Acegi Security's ACL services.<BR><BR>
         <LI><B>Application context or attribute-based configuration:</B> You 
         select the method used to configure your security environment. The 
         project supports configuration via Spring application contexts as well 
@@ -93,15 +97,15 @@
         anywhere you like.<BR><BR>
         <LI><B>Event support:</B> Building upon Spring's 
         <CODE>ApplicationEvent</CODE> services, you can write your own listeners 
-        for login, invalid password and account disabled events. This enables 
-        you to implement account lockout and audit log systems, with complete 
-        decoupling from Acegi Security code.<BR><BR>
+        for authentication-related events, along with authorisation-related events.
+		This enables you to implement account lockout and audit log systems, with
+		complete decoupling from Acegi Security code.<BR><BR>
         <LI><B>Easy integration with existing databases:</B> Our implementations 
         have been designed to make it very easy to use your existing 
-        authentication schema and data (without modification).<BR><BR>
-        <LI><B>Caching:</B> Use our <A 
-        href="http://ehcache.sourceforge.net/">EHCACHE</A> wrapper to cache your 
-        authentication information, or plug in your own cache implementation. 
+        authentication schema and data (without modification). Of course,
+		you can also provide your own Data Access Object if you wish.<BR><BR>
+        <LI><B>Caching:</B> Acegi Security integrates with Spring's <A 
+        href="http://ehcache.sourceforge.net/">EHCACHE</A> factory. 
         This flexibility means your database (or other authentication 
         repository) is not repeatedly queried for authentication 
         information.<BR><BR>
@@ -127,13 +131,18 @@
         request or bean invocation. This enables you to build public-facing 
         object tiers with different security configurations than your backend 
         objects.<BR><BR>
+        <LI><B>Transparent security propagation:</B> Acegi Security can automatically
+		transfer its core authentication information from one machine to another,
+		using a variety of protocols including RMI and Spring's HttpInvoker.<BR><BR>
+        <LI><B>Compatible with HttpServletRequest.getRemoteUser():</B> Even though
+		Acegi Security can deliver authentication using a range of pluggable mechanisms
+		(most of which require no web container configuration), we allow you to access
+		the resulting Authentication object via the getRemoteUser() method.<BR><BR>
         <LI><B>Unit tests:</B> A must-have of any quality security project, unit 
-        tests are included. Clover coverage is currently 98.3%.<BR><BR>
-        <LI><B>Container integration tests:</B> To ensure the security project 
-        properly operates with major container versions, we provide an 
-        integration test system that deploys those containers from scratch and 
-        fully tests our sample web application from the perspective of a HTTP 
-        client.<BR><BR>
+        tests are included. Our unit test coverage is very high, as shown in the
+		<a href="multiproject/acegi-security/clover/index.html">coverage report</a>.<BR><BR>
+        <LI><B>Built by Maven:</B> This assists you in effectively reusing the Acegi
+		Security artifacts in your own Maven-based projects.<BR><BR>
         <LI><B>Supports your own unit tests:</B> We provide a number of classes 
         that assist with your own unit testing of secured business objects. For 
         example, you can change the authentication identity and its associated 
@@ -143,7 +152,8 @@
         and code quality improvements that emerge from peer review.<BR><BR>
         <LI><B>Thorough documentation:</B> All APIs are fully documented using 
         JavaDoc, with a 40+ page reference guide providing an easy-to-follow 
-        introduction.<BR><BR>
+        introduction. More documentation is provided on this web site, as
+		shown in the left hand navigation sidebar.<BR><BR>
         <LI><B>Apache license.</B><BR><BR></LI></UL><BR><B>
       <HR>
 

@@ -56,7 +56,7 @@
 	declarations or the stock-standard <code>web.xml</code>). The main
 	XML files to review are
 	<a target="_blank" class="newWindow" href="http://cvs.sourceforge.net/viewcvs.py/acegisecurity/acegisecurity/samples/contacts/src/main/webapp/filter/WEB-INF/applicationContext-acegi-security.xml?view=auto">applicationContext-acegi-security.xml</a> (from the filter webapp),
-	<a target="_blank" class="newWindow" href="http://cvs.sourceforge.net/viewcvs.py/acegisecurity/acegisecurity/samples/contacts/src/main/webapp/common/WEB-INF/applicationContext-common-authorization.xml?view=auto">applicationContext-common-authorization.xml</a>,
+	<a target="_blank" class="newWindow" href="http://cvs.sourceforge.net/viewcvs.py/acegisecurity/acegisecurity/samples/contacts/src/main/webapp/common/WEB-INF/applicationContext-common-authorisation.xml?view=auto">applicationContext-common-authorisation.xml</a>,
 	<a target="_blank" class="newWindow" href="http://cvs.sourceforge.net/viewcvs.py/acegisecurity/acegisecurity/samples/contacts/src/main/webapp/common/WEB-INF/applicationContext-common-business.xml?view=auto">applicationContext-common-business.xml</a> (just note we add <code>contactManagerSecurity</code> to the services layer target bean), and
 	<a target="_blank" class="newWindow" href="http://cvs.sourceforge.net/viewcvs.py/acegisecurity/acegisecurity/samples/contacts/src/main/webapp/filter/WEB-INF/web.xml?view=auto">web.xml</a> (from the filter webapp).
 	The XML definitions are comprehensively discussed in the
@@ -64,7 +64,7 @@
 	<br><br>
 		
 	To gain the most from reviewing these XML files, we suggest you start by understanding how
-	authentication takes place. There's not much point knowing all about authorization until authentication is
+	authentication takes place. There's not much point knowing all about authorisation until authentication is
 	really clear, especially the interaction between the <code>ContextHolder</code>, the
 	authentication mechanism (such as <code>AuthenticationProcessingFilter</code>), the
 	authentication commencement process (specifically <code>SecurityEnforcementFilter</code> and
@@ -111,7 +111,10 @@
 	where you would need to cross the highest and most difficult bridges first, to check they
 	are actually possible).<br><br>
 	
-	If you've followed the steps above, and refer back to the reference guide, forums, and FAQ
+	If you've followed the steps above, and refer back to the 
+	<a href="reference.html">Reference Guide</a>, 
+	<a href="http://www.springframework.org">forums</a>, and 
+	<a href="faq.html">FAQ</a>
 	for help, you'll find it pretty easy to implement Acegi Security in your application.
 	Most importantly, you'll be using a security framework that offers you complete container
 	portability, flexibility, and community support - without needing to write and maintain your
