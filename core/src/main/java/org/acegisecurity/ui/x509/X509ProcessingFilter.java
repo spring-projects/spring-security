@@ -93,15 +93,15 @@ public class X509ProcessingFilter implements Filter, InitializingBean {
 
         logger.debug("Checking secure context token: " + ctx.getAuthentication());
 
-        if(ctx.getAuthentication() == null) {
+        if (ctx.getAuthentication() == null) {
 
             Authentication authResult = null;
             X509Certificate clientCertificate = extractClientCertificate(httpRequest);
 
             try {
                 X509AuthenticationToken authRequest = new X509AuthenticationToken(clientCertificate);
-                // authRequest.setDetails(new WebAuthenticationDetails(request));
 
+                authRequest.setDetails(new WebAuthenticationDetails(httpRequest));
                 authResult = authenticationManager.authenticate(authRequest);
                 successfulAuthentication(httpRequest, httpResponse, authResult);
             } catch (AuthenticationException failed) {
@@ -114,12 +114,13 @@ public class X509ProcessingFilter implements Filter, InitializingBean {
     private X509Certificate extractClientCertificate(HttpServletRequest request) {
         X509Certificate[] certs = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
 
-        if(certs != null && certs.length > 0) {
+        if (certs != null && certs.length > 0) {
             return certs[0];
         }
 
-        if(logger.isDebugEnabled())
-            logger.debug("No client certificate found in request, authentication will fail.");
+        if (logger.isDebugEnabled()) {
+            logger.debug("No client certificate found in request.");
+        }
 
         return null;
     }
@@ -128,8 +129,7 @@ public class X509ProcessingFilter implements Filter, InitializingBean {
      * Puts the <code>Authentication</code> instance returned by the authentication manager into
      * the secure context.
      */
-    protected void successfulAuthentication(HttpServletRequest request,
-        HttpServletResponse response, Authentication authResult)
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, Authentication authResult)
         throws IOException {
 
         if (logger.isDebugEnabled()) {
@@ -156,11 +156,8 @@ public class X509ProcessingFilter implements Filter, InitializingBean {
         request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY, failed);
     }
 
-
     public void init(FilterConfig filterConfig) throws ServletException { }
 
-
     public void destroy() { }
-
 
 }
