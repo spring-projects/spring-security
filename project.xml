@@ -1,8 +1,8 @@
 <project>
     <pomVersion>3</pomVersion>
+    <artifactId>acegi-security</artifactId>
     <name>Acegi Security System for Spring</name>
     <groupId>acegi</groupId>
-    <artifactId>acegi-security</artifactId>
     <currentVersion>0.7-SNAPSHOT</currentVersion>
     <package>net.sf.acegisecurity</package>
     <description>Acegi Security System for Spring</description>
@@ -306,7 +306,16 @@
             <groupId>acegi</groupId>
             <artifactId>resin-extracted</artifactId>
             <version>unknown</version>
+            <jar>${basedir}/lib/extracted/resin/resin-extracted.jar</jar>
             <type>jar</type>
+            <properties/>
+        </dependency>
+        <dependency>
+            <groupId>aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.2</version>
+            <type>jar</type>
+            <url>http://eclipse.org/aspectj/</url>
             <properties/>
         </dependency>
     </dependencies>

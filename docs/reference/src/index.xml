@@ -7,7 +7,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>0.6.1</releaseinfo>
+    <releaseinfo>0.7</releaseinfo>
 
     <authorgroup>
       <author>
@@ -202,8 +202,8 @@
         directly. For example, it would be possible to build a new secure
         object to secure calls to a messaging system that does not use
         <literal>MethodInvocation</literal>s. Most Spring applications will
-        simply use the two currently supported secure object types
-        (<literal>MethodInvocation</literal> and
+        simply use the three currently supported secure object types
+        (<literal>MethodInvocation</literal>, <literal>JoinPoint</literal> and
         <literal>FilterInterceptor</literal>) with complete
         transparency.</para>
 
@@ -214,7 +214,7 @@
       <sect2 id="security-high-level-design-supported-secure-objects">
         <title>Supported Secure Objects</title>
 
-        <para>The Acegi Security System for Spring currently supports two
+        <para>The Acegi Security System for Spring currently supports three
         secure objects.</para>
 
         <para>The first handles an AOP Alliance
@@ -224,12 +224,24 @@
         standard Spring-hosted bean available as a
         <literal>MethodInvocation</literal>, the bean is simply published
         through a <literal>ProxyFactoryBean</literal> or
-        <literal>BeanNameAutoProxyCreator</literal>. Most Spring developers
-        would already be familiar with these due to their use in transactions
-        and other areas of Spring.</para>
+        <literal>BeanNameAutoProxyCreator</literal> or
+        <literal>DefaultAdvisorAutoProxyCreator</literal>. Most Spring
+        developers would already be familiar with these due to their use in
+        transactions and other areas of Spring.</para>
 
-        <para>The second type is a <literal>FilterInvocation</literal>. This
-        is an object included with the Acegi Security System for Spring. It is
+        <para>The second type is an AspectJ <literal>JoinPoint</literal>.
+        AspectJ has a particular use in securing domain object instances, as
+        these are most often managed outside the Spring bean container. By
+        using AspectJ, standard constructs such as <literal>new
+        Person();</literal> can be used and full security will be applied to
+        them by Acegi Security. The
+        <literal>AspectJSecurityInterceptor</literal> is still managed by
+        Spring, which creates the aspect singleton and wires it with the
+        appropriate authentication managers, access decision managers and so
+        on.</para>
+
+        <para>The third type is a <literal>FilterInvocation</literal>. This is
+        an object included with the Acegi Security System for Spring. It is
         created by an included filter and simply wraps the HTTP
         <literal>ServletRequest</literal>, <literal>ServletResponse</literal>
         and <literal>FilterChain</literal>. The
@@ -410,9 +422,8 @@
           </listitem>
 
           <listitem>
-            <para>Call a secure object-specific
-            <literal>SecurityInterceptorCallback</literal> so that the request
-            execution can proceed.</para>
+            <para>Proceed with the request execution of the secure
+            object.</para>
           </listitem>
 
           <listitem>
@@ -424,8 +435,8 @@
           </listitem>
 
           <listitem>
-            <para>Return any result received from the
-            <literal>SecurityInterceptorCallback</literal>.</para>
+            <para>Return any result received from the secure object
+            execution.</para>
           </listitem>
         </orderedlist>
 
@@ -441,8 +452,8 @@
         object-specific security interceptors are discussed below.</para>
       </sect2>
 
-      <sect2 id="security-interception-methodinvocation">
-        <title>MethodInvocation Security Interceptor</title>
+      <sect2 id="security-interception-aopalliance">
+        <title>AOP Alliance (MethodInvocation) Security Interceptor</title>
 
         <para>To secure <literal>MethodInvocation</literal>s, developers
         simply add a properly configured
@@ -452,10 +463,15 @@
         <literal>ProxyFactoryBean</literal> or
         <literal>BeanNameAutoProxyCreator</literal>, as commonly used by many
         other parts of Spring (refer to the sample application for examples).
-        The <literal>MethodSecurityInterceptor</literal> is configured as
+        Alternatively, Acegi Security provides a
+        <literal>MethodDefinitionSourceAdvisor</literal> which may be used
+        with Spring's <literal>DefaultAdvisorAutoProxyCreator</literal> to
+        automatically chain the security interceptor in front of any beans
+        defined against the <literal>MethodSecurityInterceptor</literal>. The
+        <literal>MethodSecurityInterceptor</literal> itself is configured as
         follows:</para>
 
-        <para><programlisting>&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor"&gt;
+        <para><programlisting>&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
   &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;true&lt;/value&gt;&lt;/property&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
@@ -570,6 +586,124 @@
         Jakarta Commons Attributes method of configuration, you should set
         <literal>validateConfigAttributes</literal> to
         <literal>false</literal>.</para>
+      </sect2>
+
+      <sect2 id="security-interception-aspectj">
+        <title>AspectJ (JoinPoint) Security Interceptor</title>
+
+        <para>The AspectJ security interceptor is very similar to the AOP
+        Alliance security interceptor discussed in the previous section.
+        Indeed we will only discuss the differences in this section.</para>
+
+        <para>The AspectJ interceptor is named
+        <literal>AspectJSecurityInterceptor</literal>. Unlike the AOP Alliance
+        security interceptor, which relies on the Spring application context
+        to weave in the security interceptor via proxying, the
+        <literal>AspectJSecurityInterceptor</literal> is weaved in via the
+        AspectJ compiler. It would not be uncommon to use both types of
+        security interceptors in the same application, with
+        <literal>AspectJSecurityInterceptor</literal> being used for domain
+        object instance security and the AOP Alliance
+        <literal>MethodSecurityInterceptor</literal> being used for services
+        layer security.</para>
+
+        <para>Let's first consider how the
+        <literal>AspectJSecurityInterceptor</literal> is configured in the
+        Spring application context:</para>
+
+        <para><programlisting>&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.intercept.method.aspectj.AspectJSecurityInterceptor"&gt;
+  &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;true&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+  &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
+  &lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
+  &lt;property name="objectDefinitionSource"&gt;
+    &lt;value&gt;
+      net.sf.acegisecurity.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
+      net.sf.acegisecurity.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
+    &lt;/value&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>As you can see, aside from the class name, the
+        <literal>AspectJSecurityInterceptor</literal> is exactly the same as
+        the AOP Alliance security interceptor. Indeed the two interceptors can
+        share the same <literal>objectDefinitionSource</literal>, as the
+        <literal>ObjectDefinitionSource</literal> works with
+        <literal>java.lang.reflect.Method</literal>s rather than an AOP
+        library-specific class. Of course, your access decisions have access
+        to the relevant AOP library-specific invocation (ie
+        <literal>MethodInvocation</literal> or <literal>JoinPoint</literal>)
+        and as such can consider a range of addition criteria when making
+        access decisions (such as method arguments).</para>
+
+        <para>Next you'll need to define an AspectJ <literal>aspect</literal>.
+        For example:</para>
+
+        <para><programlisting>package net.sf.acegisecurity.samples.aspectj;
+
+import net.sf.acegisecurity.intercept.method.aspectj.AspectJSecurityInterceptor;
+import net.sf.acegisecurity.intercept.method.aspectj.AspectJCallback;
+import org.springframework.beans.factory.InitializingBean;
+
+public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
+
+  private AspectJSecurityInterceptor securityInterceptor;
+
+  pointcut domainObjectInstanceExecution(): target(PersistableEntity) 
+             &amp;&amp; execution(public * *(..)) &amp;&amp; !within(DomainObjectInstanceSecurityAspect);
+
+  Object around(): domainObjectInstanceExecution() {
+    if (this.securityInterceptor != null) {
+      AspectJCallback callback = new AspectJCallback() {
+        public Object proceedWithObject() {
+        return proceed();
+      }
+    };
+    return this.securityInterceptor.invoke(thisJoinPoint, callback);
+    } else {
+      return proceed();
+    }
+  }
+
+  public AspectJSecurityInterceptor getSecurityInterceptor() {
+    return securityInterceptor;
+  }
+
+  public void setSecurityInterceptor(AspectJSecurityInterceptor securityInterceptor) {
+    this.securityInterceptor = securityInterceptor;
+  }
+
+  public void afterPropertiesSet() throws Exception {
+    if (this.securityInterceptor == null)
+      throw new IllegalArgumentException("securityInterceptor required");
+  }
+}</programlisting></para>
+
+        <para>In the above example, the security interceptor will be applied
+        to every instance of <literal>PersistableEntity</literal>, which is an
+        abstract class not shown (you can use any other class or
+        <literal>pointcut</literal> expression you like). For those curious,
+        <literal>AspectJCallback</literal> is needed because the
+        <literal>proceed();</literal> statement has special meaning only
+        within an <literal>around()</literal> body. The
+        <literal>AspectJSecurityInterceptor</literal> calls this anonymous
+        <literal>AspectJCallback</literal> class when it wants the target
+        object to continue.</para>
+
+        <para>You will need to configure Spring to load the aspect and wire it
+        with the <literal>AspectJSecurityInterceptor</literal>. A bean
+        declaration which achieves this is shown below:</para>
+
+        <para><programlisting>&lt;bean id="domainObjectInstanceSecurityAspect" 
+    class="net.sf.acegisecurity.samples.aspectj.DomainObjectInstanceSecurityAspect"
+    factory-method="aspectOf"&gt;
+  &lt;property name="securityInterceptor"&gt;&lt;ref bean="aspectJSecurityInterceptor"/&gt;&lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>That's it! Now you can create your beans from anywhere within
+        your application, using whatever means you think fit (eg <literal>new
+        Person();</literal>) and they will have the security interceptor
+        applied.</para>
       </sect2>
 
       <sect2 id="security-interception-filterinvocation">

@@ -26,4 +26,9 @@ applications:
   providing a performance benefit as MethodSecurityInterceptor is not called
   for public (non-secure) objects. It also simplifies configuration.
 
+- MethodSecurityInterceptor has moved from
+  net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor to
+  net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor.
+  A simple find and replace will suffice to update your application contexts.
+
 $Id$

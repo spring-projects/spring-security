@@ -28,5 +28,6 @@
 	<classpathentry kind="lib" path="lib/cas/casclient-2.0.10.jar"/>
 	<classpathentry kind="lib" path="lib/spring/spring-mock.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-commons/commons-collections.jar"/>
+	<classpathentry kind="lib" path="lib/aspectj/aspectjrt.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>
