@@ -17,9 +17,11 @@ package net.sf.acegisecurity.providers.dao;
 
 import junit.framework.TestCase;
 
+import net.sf.acegisecurity.AccountExpiredException;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationServiceException;
 import net.sf.acegisecurity.BadCredentialsException;
+import net.sf.acegisecurity.CredentialsExpiredException;
 import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
@@ -69,6 +71,38 @@ public class DaoAuthenticationProviderTests extends TestCase {
             provider.authenticate(token);
             fail("Should have thrown BadCredentialsException");
         } catch (BadCredentialsException expected) {
+            assertTrue(true);
+        }
+    }
+
+    public void testAuthenticateFailsIfAccountExpired() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("peter",
+                "opal");
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setAuthenticationDao(new MockAuthenticationDaoUserPeterAccountExpired());
+        provider.setUserCache(new MockUserCache());
+
+        try {
+            provider.authenticate(token);
+            fail("Should have thrown AccountExpiredException");
+        } catch (AccountExpiredException expected) {
+            assertTrue(true);
+        }
+    }
+
+    public void testAuthenticateFailsIfCredentialsExpired() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("peter",
+                "opal");
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setAuthenticationDao(new MockAuthenticationDaoUserPeterCredentialsExpired());
+        provider.setUserCache(new MockUserCache());
+
+        try {
+            provider.authenticate(token);
+            fail("Should have thrown CredentialsExpiredException");
+        } catch (CredentialsExpiredException expected) {
             assertTrue(true);
         }
     }
@@ -426,7 +460,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("marissa".equals(username)) {
-                return new User("marissa", password, true,
+                return new User("marissa", password, true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
             } else {
@@ -442,6 +476,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
             throws UsernameNotFoundException, DataAccessException {
             if ("marissa".equals(username)) {
                 return new User("marissa", "koala{SYSTEM_SALT_VALUE}", true,
+                    true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
             } else {
@@ -455,7 +490,37 @@ public class DaoAuthenticationProviderTests extends TestCase {
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("peter".equals(username)) {
-                return new User("peter", "opal", false,
+                return new User("peter", "opal", false, true, true,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                            "ROLE_TWO")});
+            } else {
+                throw new UsernameNotFoundException("Could not find: "
+                    + username);
+            }
+        }
+    }
+
+    private class MockAuthenticationDaoUserPeterAccountExpired
+        implements AuthenticationDao {
+        public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException, DataAccessException {
+            if ("peter".equals(username)) {
+                return new User("peter", "opal", true, false, true,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                            "ROLE_TWO")});
+            } else {
+                throw new UsernameNotFoundException("Could not find: "
+                    + username);
+            }
+        }
+    }
+
+    private class MockAuthenticationDaoUserPeterCredentialsExpired
+        implements AuthenticationDao {
+        public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException, DataAccessException {
+            if ("peter".equals(username)) {
+                return new User("peter", "opal", true, true, false,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
             } else {

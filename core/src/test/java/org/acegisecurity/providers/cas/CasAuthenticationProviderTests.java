@@ -327,7 +327,7 @@ public class CasAuthenticationProviderTests extends TestCase {
     }
 
     private UserDetails makeUserDetails() {
-        return new User("user", "password", true,
+        return new User("user", "password", true, true, true,
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                     "ROLE_TWO")});
     }
@@ -337,7 +337,7 @@ public class CasAuthenticationProviderTests extends TestCase {
     private class MockAuthoritiesPopulator implements CasAuthoritiesPopulator {
         public UserDetails getUserDetails(String casUserId)
             throws AuthenticationException {
-            return new User("user", "password", true,
+            return new User("user", "password", true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl(
                         "ROLE_B")});
         }

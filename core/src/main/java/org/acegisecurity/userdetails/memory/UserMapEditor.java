@@ -56,6 +56,12 @@ import java.util.Properties;
  * If the above requirements are not met, the invalid entry will be silently
  * ignored.
  * </p>
+ * 
+ * <p>
+ * This editor always assumes each entry has a non-expired account and
+ * non-expired credentials. However, it does honour the user enabled/disabled
+ * flag as described above.
+ * </p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -91,7 +97,7 @@ public class UserMapEditor extends PropertyEditorSupport {
                 // Make a user object, assuming the properties were properly provided
                 if (attr != null) {
                     UserDetails user = new User(username, attr.getPassword(),
-                            attr.isEnabled(), attr.getAuthorities());
+                            attr.isEnabled(), true, true, attr.getAuthorities());
                     userMap.addUser(user);
                 }
             }

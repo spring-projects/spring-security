@@ -37,6 +37,8 @@ public class User implements UserDetails {
     private String password;
     private String username;
     private GrantedAuthority[] authorities;
+    private boolean accountNonExpired;
+    private boolean credentialsNonExpired;
     private boolean enabled;
 
     //~ Constructors ===========================================================
@@ -57,8 +59,38 @@ public class User implements UserDetails {
      * @throws IllegalArgumentException if a <code>null</code> value was passed
      *         either as a parameter or as an element in the
      *         <code>GrantedAuthority[]</code> array
+     *
+     * @deprecated use new constructor with extended properties (this
+     *             constructor will be removed from release 1.0.0)
      */
     public User(String username, String password, boolean enabled,
+        GrantedAuthority[] authorities) throws IllegalArgumentException {
+        this(username, password, enabled, true, true, authorities);
+    }
+
+    /**
+     * Construct the <code>User</code> with the details required by {@link
+     * DaoAuthenticationProvider}.
+     *
+     * @param username the username presented to the
+     *        <code>DaoAuthenticationProvider</code>
+     * @param password the password that should be presented to the
+     *        <code>DaoAuthenticationProvider</code>
+     * @param enabled set to <code>true</code> if the user is enabled
+     * @param accountNonExpired set to <code>true</code> if the account has not
+     *        expired
+     * @param credentialsNonExpired set to <code>true</code> if the credentials
+     *        have not expired
+     * @param authorities the authorities that should be granted to the caller
+     *        if they presented the correct username and password and the user
+     *        is enabled
+     *
+     * @throws IllegalArgumentException if a <code>null</code> value was passed
+     *         either as a parameter or as an element in the
+     *         <code>GrantedAuthority[]</code> array
+     */
+    public User(String username, String password, boolean enabled,
+        boolean accountNonExpired, boolean credentialsNonExpired,
         GrantedAuthority[] authorities) throws IllegalArgumentException {
         if (((username == null) || "".equals(username)) || (password == null)
             || "".equals(password) || (authorities == null)) {
@@ -78,6 +110,8 @@ public class User implements UserDetails {
         this.password = password;
         this.enabled = enabled;
         this.authorities = authorities;
+        this.accountNonExpired = accountNonExpired;
+        this.credentialsNonExpired = credentialsNonExpired;
     }
 
     protected User() {
@@ -86,8 +120,16 @@ public class User implements UserDetails {
 
     //~ Methods ================================================================
 
+    public boolean isAccountNonExpired() {
+        return accountNonExpired;
+    }
+
     public GrantedAuthority[] getAuthorities() {
         return authorities;
+    }
+
+    public boolean isCredentialsNonExpired() {
+        return credentialsNonExpired;
     }
 
     public boolean isEnabled() {

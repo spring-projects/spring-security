@@ -67,7 +67,7 @@ public class ReflectionSaltSourceTests extends TestCase {
         ReflectionSaltSource saltSource = new ReflectionSaltSource();
         saltSource.setUserPropertyToUse("getDoesNotExist");
 
-        UserDetails user = new User("scott", "wombat", true,
+        UserDetails user = new User("scott", "wombat", true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("HOLDER")});
 
         try {
@@ -89,7 +89,7 @@ public class ReflectionSaltSourceTests extends TestCase {
         saltSource.setUserPropertyToUse("getUsername");
         saltSource.afterPropertiesSet();
 
-        UserDetails user = new User("scott", "wombat", true,
+        UserDetails user = new User("scott", "wombat", true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("HOLDER")});
         assertEquals("scott", saltSource.getSalt(user));
     }

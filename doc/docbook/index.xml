@@ -1042,7 +1042,11 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         authentication is denied. An
         <literal>AuthenticationServiceException</literal> is also provided,
         which indicates the authentication system could not process the
-        request (eg a database was unavailable).</para>
+        request (eg a database was unavailable).
+        <literal>AuthenticationException</literal> also has a
+        <literal>CredentialsExpiredException</literal> and
+        <literal>AccoungtExpiredException</literal> subclass, although these
+        are less commonly used.</para>
       </sect2>
 
       <sect2 id="security-authentication-provider">
@@ -1293,6 +1297,23 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
             published when an authentication request is unsuccessful because
             the returned <literal>UserDetails</literal> is disabled. This is
             normally the case when an account is locked.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>AuthenticationFailureAccountExpiredEvent</literal>
+            is published when an authentication request is unsuccessful
+            because the returned <literal>UserDetails</literal> indicates the
+            account has expired. Some applications may wish to distinguish
+            between an account being disabled and expired.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>AuthenticationFailureCredentialsExpiredEvent</literal>
+            is published when an authentication request is unsuccessful
+            because the returned <literal>UserDetails</literal> indicates the
+            account's credentials have expired. Some applications may wish to
+            expire the credentials if, for example, a password is not changed
+            with sufficient regularity.</para>
           </listitem>
 
           <listitem>
@@ -3184,8 +3205,8 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             <para>As the <literal>Authentication</literal> object is now in
             the well-known location, it is handled like any other
             authentication approach. Usually the
-            <literal>AutoIntegrationFilter</literal> will be used to associate
-            the <literal>Authentication</literal> object with the
+            <literal>HttpSessionIntegrationFilter</literal> will be used to
+            associate the <literal>Authentication</literal> object with the
             <literal>ContextHolder</literal> for the duration of each
             request.</para>
           </listitem>
@@ -4169,8 +4190,8 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
           </listitem>
 
           <listitem>
-            <para>Acegi Security System for Spring Auto Integration Filter
-            (<literal>AutoIntegrationFilter</literal>)</para>
+            <para>Acegi Security System for Spring HTTP Session Integration
+            Filter (<literal>HttpSessionIntegrationFilter</literal>)</para>
           </listitem>
 
           <listitem>

@@ -164,7 +164,7 @@ public class LdapPasswordAuthenticationDao implements PasswordAuthenticationDao 
 
             String[] ldapRoles = (String[]) roles.toArray(new String[] {});
 
-            return new User(username, password, true,
+            return new User(username, password, true, true, true,
                 getGrantedAuthorities(ldapRoles));
         } catch (AuthenticationException ex) {
             throw new BadCredentialsException(BAD_CREDENTIALS_EXCEPTION_MESSAGE,

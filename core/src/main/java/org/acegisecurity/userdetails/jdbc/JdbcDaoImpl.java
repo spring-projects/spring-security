@@ -58,6 +58,13 @@ import javax.sql.DataSource;
  * the {@link MappingSqlQuery} instances used, via the {@link
  * #initMappingSqlQueries()} extension point.
  * </p>
+ * 
+ * <p>
+ * In order to minimise backward compatibility issues, this DAO does not
+ * recognise the expiration of user accounts or the expiration of user
+ * credentials. However, it does recognise and honour the user
+ * enabled/disabled column.
+ * </p>
  *
  * @author Ben Alex
  * @author colin sampaleanu
@@ -185,14 +192,14 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
         arrayAuths = (GrantedAuthority[]) dbAuths.toArray(arrayAuths);
 
         return new User(user.getUsername(), user.getPassword(),
-            user.isEnabled(), arrayAuths);
+            user.isEnabled(), true, true, arrayAuths);
     }
 
     /**
      * Allows subclasses to add their own granted authorities to the list to be
      * returned in the <code>User</code>.
      *
-     * @param username the username, for use by finder methods 
+     * @param username the username, for use by finder methods
      * @param authorities the current granted authorities, as populated from
      *        the <code>authoritiesByUsername</code> mapping
      */
@@ -248,7 +255,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
             String username = rs.getString(1);
             String password = rs.getString(2);
             boolean enabled = rs.getBoolean(3);
-            UserDetails user = new User(username, password, enabled,
+            UserDetails user = new User(username, password, enabled, true,
+                    true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("HOLDER")});
 
             return user;

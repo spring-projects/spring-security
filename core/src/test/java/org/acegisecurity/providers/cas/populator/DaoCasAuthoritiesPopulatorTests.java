@@ -139,7 +139,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("marissa".equals(username)) {
-                return new User("marissa", "koala", true,
+                return new User("marissa", "koala", true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
             } else {

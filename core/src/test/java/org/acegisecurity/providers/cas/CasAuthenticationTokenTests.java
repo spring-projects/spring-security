@@ -319,7 +319,7 @@ public class CasAuthenticationTokenTests extends TestCase {
     }
 
     private UserDetails makeUserDetails() {
-        return new User("user", "password", true,
+        return new User("user", "password", true, true, true,
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                     "ROLE_TWO")});
     }

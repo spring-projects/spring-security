@@ -95,7 +95,7 @@ public class EhCacheBasedUserCacheTests extends TestCase {
     }
 
     private User getUser() {
-        return new User("john", "password", true,
+        return new User("john", "password", true, true, true,
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                     "ROLE_TWO")});
     }

@@ -9,8 +9,15 @@
 The following should help most casual users of the project update their
 applications:
 <ul>
+<li>UserDetails now has two extra methods. Most people who have extended
+Acegi Security's default User implementation of UserDetails will be fine, as
+the constructor sets sensible defaults for the extra methods. People who
+have written their own UserDetails implementation from scratch will need to
+add the additional two methods. Returning true to both methods will normally
+be correct.
+</li>
 <li>MethodDefinitionMap, which is usually used by MethodSecurityInterceptor
-  for its objectDefinitionSource property, has been changed. From 0.7, when
+  for its objectDefinitionSource property, has been changed. From 0.7.0, when
   MethodDefinitionMap is queried for configuration attributes associated with
   secure MethodInvocations, it will use any method matching in the method
   invocation class (as it always has) plus any method matching any interface

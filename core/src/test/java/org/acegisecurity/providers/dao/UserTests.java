@@ -60,7 +60,7 @@ public class UserTests extends TestCase {
 
     public void testNullValuesRejected() throws Exception {
         try {
-            UserDetails user = new User(null, "koala", true,
+            UserDetails user = new User(null, "koala", true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
             fail("Should have thrown IllegalArgumentException");
@@ -69,7 +69,7 @@ public class UserTests extends TestCase {
         }
 
         try {
-            UserDetails user = new User("marissa", null, true,
+            UserDetails user = new User("marissa", null, true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
             fail("Should have thrown IllegalArgumentException");
@@ -78,14 +78,15 @@ public class UserTests extends TestCase {
         }
 
         try {
-            UserDetails user = new User("marissa", "koala", true, null);
+            UserDetails user = new User("marissa", "koala", true, true, true,
+                    null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
 
         try {
-            UserDetails user = new User("marissa", "koala", true,
+            UserDetails user = new User("marissa", "koala", true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), null});
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
@@ -96,7 +97,7 @@ public class UserTests extends TestCase {
     public void testNullWithinGrantedAuthorityElementIsRejected()
         throws Exception {
         try {
-            UserDetails user = new User(null, "koala", true,
+            UserDetails user = new User(null, "koala", true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO"), null, new GrantedAuthorityImpl(
                             "ROLE_THREE")});
@@ -107,7 +108,7 @@ public class UserTests extends TestCase {
     }
 
     public void testUserGettersSetter() throws Exception {
-        UserDetails user = new User("marissa", "koala", true,
+        UserDetails user = new User("marissa", "koala", true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")});
         assertEquals("marissa", user.getUsername());
@@ -120,7 +121,7 @@ public class UserTests extends TestCase {
     }
 
     public void testUserIsEnabled() throws Exception {
-        UserDetails user = new User("marissa", "koala", false,
+        UserDetails user = new User("marissa", "koala", false, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")});
         assertTrue(!user.isEnabled());

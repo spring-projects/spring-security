@@ -78,7 +78,7 @@ public class ContextHolderAwareRequestWrapperTests extends TestCase {
         throws Exception {
         SecureContext sc = new SecureContextImpl();
         Authentication auth = new TestingAuthenticationToken(new User(
-                    "marissaAsUserDetails", "koala", true,
+                    "marissaAsUserDetails", "koala", true, true, true,
                     new GrantedAuthority[] {}), "koala",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_HELLO"), new GrantedAuthorityImpl(
                         "ROLE_FOOBAR")});

@@ -15,16 +15,20 @@
 
 package net.sf.acegisecurity.providers.dao;
 
+import net.sf.acegisecurity.AccountExpiredException;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationServiceException;
 import net.sf.acegisecurity.BadCredentialsException;
+import net.sf.acegisecurity.CredentialsExpiredException;
 import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.AuthenticationProvider;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.cache.NullUserCache;
+import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureAccountExpiredEvent;
+import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureCredentialsExpiredEvent;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureDisabledEvent;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationFailurePasswordEvent;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureUsernameNotFoundEvent;
@@ -228,7 +232,7 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
                             authentication,
                             new User("".equals(username)
                                 ? "EMPTY_STRING_PROVIDED" : username, "*****",
-                                false, new GrantedAuthority[0])));
+                                false, false, false, new GrantedAuthority[0])));
                 }
 
                 throw ex;
@@ -242,6 +246,25 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             }
 
             throw new DisabledException("User is disabled");
+        }
+
+        if (!user.isAccountNonExpired()) {
+            if (this.context != null) {
+                context.publishEvent(new AuthenticationFailureAccountExpiredEvent(
+                        authentication, user));
+            }
+
+            throw new AccountExpiredException("User account has expired");
+        }
+
+        if (!user.isCredentialsNonExpired()) {
+            if (this.context != null) {
+                context.publishEvent(new AuthenticationFailureCredentialsExpiredEvent(
+                        authentication, user));
+            }
+
+            throw new CredentialsExpiredException(
+                "User credentials have expired");
         }
 
         if (!isPasswordCorrect(authentication, user)) {

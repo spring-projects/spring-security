@@ -90,7 +90,7 @@ public class LoggerListenerTests extends TestCase {
     }
 
     private User getUser() {
-        User user = new User("foo", "bar", true,
+        User user = new User("foo", "bar", true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FOOBAR")});
 
         return user;

@@ -52,13 +52,13 @@ public class UserMapTests extends TestCase {
     }
 
     public void testAddAndRetrieveUser() {
-        UserDetails marissa = new User("marissa", "koala", true,
+        UserDetails marissa = new User("marissa", "koala", true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")});
-        UserDetails scott = new User("scott", "wombat", true,
+        UserDetails scott = new User("scott", "wombat", true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_THREE")});
-        UserDetails peter = new User("peter", "opal", true,
+        UserDetails peter = new User("peter", "opal", true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_FOUR")});
         UserMap map = new UserMap();
@@ -85,7 +85,7 @@ public class UserMapTests extends TestCase {
     }
 
     public void testUnknownUserIsNotRetrieved() {
-        UserDetails marissa = new User("marissa", "koala", true,
+        UserDetails marissa = new User("marissa", "koala", true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")});
         UserMap map = new UserMap();

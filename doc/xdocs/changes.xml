@@ -45,6 +45,8 @@
       <action dev="benalex" type="add">Added AbstractProcessingFilter property to always use defaultTargetUrl</action>
       <action dev="benalex" type="add">Added ContextHolderAwareRequestWrapper to integrate with getRemoteUser()</action>
       <action dev="benalex" type="add">Added attempted username to view if processed by AuthenticationProcessingFilter</action>
+      <action dev="benalex" type="add">Added UserDetails account and credentials expiration methods</action>
+      <action dev="benalex" type="add">Added exceptions and events to support new UserDetails methods</action>
       <action dev="benalex" type="update">Improved BasicAclProvider to only respond to specified ACL object requests</action>
       <action dev="benalex" type="update">Refactored MethodDefinitionSource to work with Method, not MethodInvocation</action>
       <action dev="benalex" type="update">Refactored AbstractFilterInvocationDefinitionSource to work with URL Strings alone</action>
@@ -55,6 +57,7 @@
       <action dev="benalex" type="update">Refactored EH-CACHE implementations to use Spring IoC defined caches instead</action>
       <action dev="benalex" type="update">AbstractProcessingFilter now has various hook methods to assist subclasses</action>
       <action dev="benalex" type="update">DaoAuthenticationProvider better detects AuthenticationDao interface violations</action>
+      <action dev="benalex" type="update">The User class has a new constructor (the old constructor is deprecated)</action>
       <action dev="benalex" type="fix">Fixed ambiguous column references in JdbcDaoImpl default query</action>
       <action dev="benalex" type="fix">Fixed AbstractProcessingFilter to use removeAttribute (JRun compatibility)</action>
       <action dev="benalex" type="fix">Fixed GrantedAuthorityEffectiveAclResolver support of UserDetails principals</action>
