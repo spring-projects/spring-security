@@ -2,4 +2,15 @@
     <extend>${basedir}/../project.xml</extend>
     <artifactId>acegi-security</artifactId>
     <name>Acegi Security System for Spring</name>
+    <build>
+	    <resources>
+	      <resource>
+	        <directory>${basedir}/src/main/resources/net/sf/acegisecurity/taglibs</directory>
+	        <targetPath>META-INF</targetPath>
+	        <includes>
+	          <include>*.tld</include>
+	        </includes>
+	      </resource>
+	    </resources>
+    </build>
 </project>
