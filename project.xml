@@ -241,7 +241,7 @@
       <dependency>
          <groupId>hsqldb</groupId>
          <artifactId>hsqldb</artifactId>
-         <version>1.7.1</version>
+         <version>1.7.2-rc6c</version>
          <url>http://hsqldb.sourceforge.net/</url>
          <properties>
             <war.bundle>true</war.bundle>
