@@ -39,7 +39,9 @@
     -Dmaven.scm.cvs.root=:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity
     -Dmaven.scm.checkout.dir=acegisecurity</pre>
     
-    <li>Run maven in any module directory, or  <kbd>maven multiproject:artifact</kbd> in the root folder if you want to build all modules.</li>
+    <li>Run maven in any module directory, or <kbd>maven multiproject:artifact</kbd> in the root folder if you want to build all modules.</li>
   </ol>
+  <h2>Building the site</h2>
+  <p>Run <kbd>maven clean multiproject:clean multiproject:site -Dmaven.test.failure.ignore=true</kbd> to build a clean copy of the site.</p>
 </body>
 </html>
