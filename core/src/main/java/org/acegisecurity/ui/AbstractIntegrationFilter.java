@@ -100,7 +100,7 @@ public abstract class AbstractIntegrationFilter implements InitializingBean,
 
     public void afterPropertiesSet() throws Exception {
         if ((this.secureContext == null)
-            || (!this.secureContext.isAssignableFrom(SecureContext.class))) {
+            || (!SecureContext.class.isAssignableFrom(this.secureContext))) {
             throw new IllegalArgumentException(
                 "secureContext must be defined and implement SecureContext");
         }

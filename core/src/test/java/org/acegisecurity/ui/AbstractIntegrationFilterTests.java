@@ -152,13 +152,26 @@ public class AbstractIntegrationFilterTests extends TestCase {
         }
     }
 
-    public void testSecureContextSettersGetters() throws Exception {
+    public void testRejectsInvalidSecureContextClass()
+        throws Exception {
         MockAbstractIntegrationFilterImpl filter = new MockAbstractIntegrationFilterImpl(null);
 
-        // check the default
-        assertEquals(SecureContextImpl.class, filter.getSecureContext());
+        // Test rejects classes not implementing SecureContext
+        filter.setSecureContext(String.class);
 
-        // check null causes exception
+        try {
+            filter.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+
+        // Test accepts classes implementing SecureContext
+        filter.setSecureContext(SecureContextImpl.class);
+        filter.afterPropertiesSet();
+        assertTrue(true);
+
+        // Test rejects null
         filter.setSecureContext(null);
 
         try {
@@ -167,6 +180,17 @@ public class AbstractIntegrationFilterTests extends TestCase {
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
+    }
+
+    public void testSecureContextSettersGetters() throws Exception {
+        MockAbstractIntegrationFilterImpl filter = new MockAbstractIntegrationFilterImpl(null);
+
+        // check the default
+        assertEquals(SecureContextImpl.class, filter.getSecureContext());
+
+        // check the setter
+        filter.setSecureContext(null);
+        assertNull(filter.getSecureContext());
     }
 
     public void testSuccessWhenConcreteClassReturnsValidAuthenticationObject()
