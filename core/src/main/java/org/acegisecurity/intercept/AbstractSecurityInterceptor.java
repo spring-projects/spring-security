@@ -320,21 +320,22 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean {
                     logger.debug("Switching to RunAs Authentication: "
                         + runAs.toString());
                 }
-                
+
                 SecureContext origSecureContext = null;
+
                 try {
-                    origSecureContext = (SecureContext) ContextHolder.getContext();
+                    origSecureContext = (SecureContext) ContextHolder
+                        .getContext();
                     context.setAuthentication(runAs);
                     ContextHolder.setContext((Context) context);
 
                     return callback.proceedWithObject(object);
-                }
-                finally {
+                } finally {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Reverting to original Authentication: "
                             + authenticated.toString());
                     }
-                    
+
                     origSecureContext.setAuthentication(authenticated);
                     ContextHolder.setContext(origSecureContext);
                 }

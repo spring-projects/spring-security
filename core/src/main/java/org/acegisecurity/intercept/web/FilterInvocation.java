@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  *
  * @author Ben Alex
+ * @author colin sampaleanu
  * @version $Id$
  */
 public class FilterInvocation {
@@ -78,6 +79,13 @@ public class FilterInvocation {
 
     public FilterChain getChain() {
         return chain;
+    }
+
+    public String getFullRequestUrl() {
+        return getHttpRequest().getRequestURL().toString()
+        + ((getHttpRequest().getQueryString() == null) ? ""
+                                                       : ("?"
+        + getHttpRequest().getQueryString()));
     }
 
     public HttpServletRequest getHttpRequest() {

@@ -97,7 +97,7 @@ public class CasProcessingFilter extends AbstractProcessingFilter {
         String username = CAS_STATEFUL_IDENTIFIER;
         String password = request.getParameter("ticket");
 
-         if (password == null) {
+        if (password == null) {
             password = "";
         }
 

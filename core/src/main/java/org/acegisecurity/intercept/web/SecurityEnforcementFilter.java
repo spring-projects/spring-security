@@ -154,11 +154,11 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
             if (logger.isDebugEnabled()) {
                 logger.debug(
                     "Authentication failed - adding target URL to Session: "
-                    + fi.getRequestUrl());
+                    + fi.getFullRequestUrl());
             }
 
             ((HttpServletRequest) request).getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
-                fi.getRequestUrl());
+                fi.getFullRequestUrl());
             authenticationEntryPoint.commence(request, response);
         } catch (AccessDeniedException accessDenied) {
             if (logger.isDebugEnabled()) {

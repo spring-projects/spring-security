@@ -41,6 +41,7 @@ import javax.servlet.ServletResponse;
  * Tests {@link FilterInvocation}.
  *
  * @author Ben Alex
+ * @author colin sampaleanu
  * @version $Id$
  */
 public class FilterInvocationTests extends TestCase {
@@ -67,6 +68,7 @@ public class FilterInvocationTests extends TestCase {
     public void testGettersAndStringMethods() {
         MockHttpServletRequest request = new MockHttpServletRequest(null, null);
         request.setServletPath("/HelloWorld");
+        request.setRequestURL("http://www.example.com/mycontext/HelloWorld");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
@@ -78,6 +80,8 @@ public class FilterInvocationTests extends TestCase {
         assertEquals(chain, fi.getChain());
         assertEquals("/HelloWorld", fi.getRequestUrl());
         assertEquals("FilterInvocation: URL: /HelloWorld", fi.toString());
+        assertEquals("http://www.example.com/mycontext/HelloWorld",
+            fi.getFullRequestUrl());
     }
 
     public void testNoArgsConstructor() {
@@ -156,23 +160,29 @@ public class FilterInvocationTests extends TestCase {
     public void testStringMethodsWithAQueryString() {
         MockHttpServletRequest request = new MockHttpServletRequest("foo=bar");
         request.setServletPath("/HelloWorld");
+        request.setRequestURL("http://www.example.com/mycontext/HelloWorld");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         assertEquals("/HelloWorld?foo=bar", fi.getRequestUrl());
         assertEquals("FilterInvocation: URL: /HelloWorld?foo=bar", fi.toString());
+        assertEquals("http://www.example.com/mycontext/HelloWorld?foo=bar",
+            fi.getFullRequestUrl());
     }
 
     public void testStringMethodsWithoutAnyQueryString() {
         MockHttpServletRequest request = new MockHttpServletRequest(null, null);
         request.setServletPath("/HelloWorld");
+        request.setRequestURL("http://www.example.com/mycontext/HelloWorld");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         assertEquals("/HelloWorld", fi.getRequestUrl());
         assertEquals("FilterInvocation: URL: /HelloWorld", fi.toString());
+        assertEquals("http://www.example.com/mycontext/HelloWorld",
+            fi.getFullRequestUrl());
     }
 
     //~ Inner Classes ==========================================================

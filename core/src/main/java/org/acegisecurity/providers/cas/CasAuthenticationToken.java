@@ -19,6 +19,7 @@ import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.providers.AbstractAuthenticationToken;
 
 import java.io.Serializable;
+
 import java.util.List;
 
 
@@ -28,7 +29,8 @@ import java.util.List;
  * @author Ben Alex
  * @version $Id$
  */
-public class CasAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
+public class CasAuthenticationToken extends AbstractAuthenticationToken
+    implements Serializable {
     //~ Instance fields ========================================================
 
     private List proxyList;

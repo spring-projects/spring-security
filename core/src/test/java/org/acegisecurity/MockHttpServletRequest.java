@@ -42,6 +42,7 @@ import javax.servlet.http.HttpSession;
  * </p>
  *
  * @author Ben Alex
+ * @author colin sampaleanu
  * @version $Id$
  */
 public class MockHttpServletRequest implements HttpServletRequest {
@@ -53,7 +54,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private Principal principal;
     private String contextPath = "";
     private String queryString = null;
+    private String requestURL;
+    private String scheme;
+    private String serverName;
     private String servletPath;
+    private int serverPort;
 
     //~ Constructors ===========================================================
 
@@ -235,8 +240,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
+    public void setRequestURL(String newRequestURL) {
+        requestURL = newRequestURL;
+    }
+
     public StringBuffer getRequestURL() {
-        throw new UnsupportedOperationException("mock method not implemented");
+        return new StringBuffer(requestURL);
     }
 
     public String getRequestedSessionId() {
@@ -259,20 +268,32 @@ public class MockHttpServletRequest implements HttpServletRequest {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
+    public void setScheme(String newScheme) {
+        scheme = newScheme;
+    }
+
     public String getScheme() {
-        throw new UnsupportedOperationException("mock method not implemented");
+        return scheme;
     }
 
     public boolean isSecure() {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
+    public void setServerName(String newServerName) {
+        serverName = newServerName;
+    }
+
     public String getServerName() {
-        throw new UnsupportedOperationException("mock method not implemented");
+        return serverName;
+    }
+
+    public void setServerPort(int newPort) {
+        serverPort = newPort;
     }
 
     public int getServerPort() {
-        throw new UnsupportedOperationException("mock method not implemented");
+        return serverPort;
     }
 
     public void setServletPath(String servletPath) {

@@ -128,6 +128,8 @@ public class SecurityEnforcementFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest(null,
                 new MockHttpSession());
         request.setServletPath("/secure/page.html");
+        request.setRequestURL(
+            "http://www.example.com/mycontext/secure/page.html");
 
         // Setup our expectation that the filter chain will not be invoked, as access is denied
         MockFilterChain chain = new MockFilterChain(false);
@@ -146,7 +148,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
         assertEquals("/login.jsp", response.getRedirect());
-        assertEquals("/secure/page.html",
+        assertEquals("http://www.example.com/mycontext/secure/page.html",
             request.getSession().getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
     }
 

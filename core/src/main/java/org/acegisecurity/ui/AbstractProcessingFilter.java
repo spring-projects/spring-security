@@ -63,7 +63,9 @@ import javax.servlet.http.HttpServletResponse;
  * <code>defaultTargetUrl</code> indicates the URL that should be used for
  * redirection if the <code>HttpSession</code> attribute named {@link
  * #ACEGI_SECURITY_TARGET_URL_KEY} does not indicate the target URL once
- * authentication is completed successfully. eg: <code>/</code>.
+ * authentication is completed successfully. eg: <code>/</code>. This will be
+ * treated as relative to the web-app's context path, and should include the
+ * leading <code>/</code>.
  * </li>
  * <li>
  * <code>authenticationFailureUrl</code> indicates the URL that should be used
@@ -78,6 +80,7 @@ import javax.servlet.http.HttpServletResponse;
  * 
  *
  * @author Ben Alex
+ * @author colin sampaleanu
  * @version $Id$
  */
 public abstract class AbstractProcessingFilter implements Filter,
@@ -240,7 +243,7 @@ public abstract class AbstractProcessingFilter implements Filter,
                 null);
 
             if (targetUrl == null) {
-                targetUrl = defaultTargetUrl;
+                targetUrl = httpRequest.getContextPath() + defaultTargetUrl;
             }
 
             if (logger.isDebugEnabled()) {
@@ -249,7 +252,7 @@ public abstract class AbstractProcessingFilter implements Filter,
                     + targetUrl);
             }
 
-            httpResponse.sendRedirect(httpRequest.getContextPath() + targetUrl);
+            httpResponse.sendRedirect(targetUrl);
 
             return;
         }

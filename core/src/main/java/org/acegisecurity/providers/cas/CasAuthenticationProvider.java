@@ -155,7 +155,8 @@ public class CasAuthenticationProvider implements AuthenticationProvider,
         }
 
         // Ensure credentials are presented
-        if (authentication.getCredentials() == null || "".equals(authentication.getCredentials())) {
+        if ((authentication.getCredentials() == null)
+            || "".equals(authentication.getCredentials())) {
             throw new BadCredentialsException(
                 "Failed to provide a CAS service ticket to validate");
         }

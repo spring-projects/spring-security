@@ -15,9 +15,9 @@
 
 package net.sf.acegisecurity.providers.dao;
 
-import java.io.Serializable;
-
 import net.sf.acegisecurity.GrantedAuthority;
+
+import java.io.Serializable;
 
 
 /**

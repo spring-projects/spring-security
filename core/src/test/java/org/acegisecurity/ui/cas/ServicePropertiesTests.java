@@ -65,7 +65,7 @@ public class ServicePropertiesTests extends TestCase {
 
         sp.setService("https://mycompany.com/service");
         assertEquals("https://mycompany.com/service", sp.getService());
-        
+
         sp.afterPropertiesSet();
     }
 }

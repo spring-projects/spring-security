@@ -35,8 +35,7 @@ public class ServiceProperties implements InitializingBean {
     //~ Instance fields ========================================================
 
     private String service;
-
-     private boolean sendRenew = false;
+    private boolean sendRenew = false;
 
     //~ Methods ================================================================
 
@@ -47,12 +46,15 @@ public class ServiceProperties implements InitializingBean {
     /**
      * Indicates whether the <code>renew</code> parameter should be sent to the
      * CAS login URL and CAS validation URL.
-     * <P> If <code>true</code>, it will
-     * force CAS to authenticate the user again (even if the user has
-     * previously authenticated). During ticket validation it will require the
-     * ticket was generated as a consequence of an explicit login. High
-     * security applications would probably set this to <code>true</code>.
-     * Defaults to <code>false</code>, providing automated single sign on.
+     * 
+     * <p>
+     * If <code>true</code>, it will force CAS to authenticate the user again
+     * (even if the user has previously authenticated). During ticket
+     * validation it will require the ticket was generated as a consequence of
+     * an explicit login. High security applications would probably set this
+     * to <code>true</code>. Defaults to <code>false</code>, providing
+     * automated single sign on.
+     * </p>
      *
      * @return whether to send the <code>renew</code> parameter to CAS
      */
@@ -65,13 +67,14 @@ public class ServiceProperties implements InitializingBean {
     }
 
     /**
-      * Represents the service the user is authenticating to. 
-      * 
-      * <B>This service is the callback URL
-     * belonging to the local Acegi Security System for Spring secured
-     * application. For example,
+     * Represents the service the user is authenticating to.
+     * 
+     * <p>
+     * This service is the callback URL belonging to the local Acegi Security
+     * System for Spring secured application. For example,
+     * </p>
      * <code>https://www.mycompany.com/application/j_acegi_cas_security_check</code>
-    * 
+     *
      * @return the URL of the service the user is authenticating to
      */
     public String getService() {
