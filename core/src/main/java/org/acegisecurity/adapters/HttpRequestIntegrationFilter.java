@@ -50,7 +50,7 @@ import javax.servlet.http.HttpServletRequest;
  * </p>
  * 
  * <p>
- * See {@link HttpSessionContextIntegrationFilter} for further information.
+ * See {@link net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter} for further information.
  * </p>
  *
  * @author Ben Alex
