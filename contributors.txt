@@ -8,8 +8,10 @@ contributions to the Acegi Security System for Spring project:
 * Ben Alex of Acegi Technology Pty Limited (http://www.acegi.com.au) donated
   the original code and currently maintains the project.
 
-* Cameron Braid added support for configuration using Commons Attributes.
+* Cameron Braid contributed support for configuration via Commons Attributes.
 
-* François Beausoleil added and maintains tablig support for the project.                                
+* François Beausoleil is a current member of the development team.
+
+* Colin Sampaleanu is a current member of the development team.
 
 $Id$
