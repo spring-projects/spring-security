@@ -61,9 +61,8 @@ public class JbossIntegrationFilter extends AbstractIntegrationFilter {
             Context lc = this.getLookupContext();
 
             if (lc == null) {
-                if (super.logger.isWarnEnabled()) {
-                    super.logger.warn(
-                        "Could not obtain a Context to perform lookup");
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Could not obtain a Context to perform lookup");
                 }
 
                 return null;
@@ -75,8 +74,8 @@ public class JbossIntegrationFilter extends AbstractIntegrationFilter {
                 subject = (Subject) result;
             }
         } catch (NamingException ne) {
-            if (super.logger.isWarnEnabled()) {
-                super.logger.warn("Lookup on Subject failed "
+            if (logger.isWarnEnabled()) {
+                logger.warn("Lookup on Subject failed "
                     + ne.getLocalizedMessage());
             }
         }
