@@ -22,7 +22,7 @@ package sample.attributes;
  * @author Ben Alex
  * @version $Id$
  *
- * @@SecurityConfig("ROLE_TELLER")
+ * @@net.sf.acegisecurity.SecurityConfig("ROLE_TELLER")
  */
 public interface BankService {
     //~ Methods ================================================================
@@ -35,7 +35,7 @@ public interface BankService {
      *
      * @return DOCUMENT ME!
      *
-     * @@SecurityConfig("ROLE_PERMISSION_BALANCE")
+     * @@net.sf.acegisecurity.SecurityConfig("ROLE_PERMISSION_BALANCE")
      */
     public float balance(String accountNumber);
 
@@ -47,7 +47,7 @@ public interface BankService {
      *
      * @return DOCUMENT ME!
      *
-     * @@SecurityConfig("ROLE_PERMISSION_LIST")
+     * @@net.sf.acegisecurity.SecurityConfig("ROLE_PERMISSION_LIST")
      */
     public String[] listAccounts();
 }
