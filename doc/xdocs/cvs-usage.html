@@ -50,8 +50,10 @@
           <br>
           cvs -z3 -d :pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity co <em>modulename</em> </p>
         <p>
-          Updates from within the module's directory do not need the -d parameter.
-        </p><h2>Developer Access with Maven</h2>
+          Updates from within the module's directory do not need the -d parameter.</p>
+        </p><h2>Nightly Snapshots</h2>
+        <p>If you'd prefer not to use CVS directly (eg you're stuck behind a corporate firewall), please see our <a href="downloads.html">downloads page</a> for nightly snapshots.</p>
+        <h2>Developer Access with Maven</h2>
         <p> Only project developers can access the CVS tree via this method. Substitute <b>username</b> with the proper value. </p>
             <pre>maven scm:checkout-project
     -Dmaven.scm.method=cvs
