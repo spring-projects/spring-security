@@ -16,7 +16,7 @@
 package net.sf.acegisecurity.providers.cas.populator;
 
 import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.cas.CasAuthoritiesPopulator;
 import net.sf.acegisecurity.providers.dao.AuthenticationDao;
 
@@ -52,10 +52,9 @@ public class DaoCasAuthoritiesPopulator implements CasAuthoritiesPopulator,
         return authenticationDao;
     }
 
-    public GrantedAuthority[] getAuthorities(String casUserId)
+    public UserDetails getUserDetails(String casUserId)
         throws AuthenticationException {
-        return this.authenticationDao.loadUserByUsername(casUserId)
-                                     .getAuthorities();
+        return this.authenticationDao.loadUserByUsername(casUserId);
     }
 
     public void afterPropertiesSet() throws Exception {

@@ -43,5 +43,8 @@ applications:
 - Any custom event listeners relying on AuthenticationEvent should note a
   UserDetails is now provided in the AuthenticationEvent (not a User).
 
+- CAS users should note the CasAuthoritiesPopulator interface signature has
+  changed. Most CAS users will be using DaoCasAuthoritiesPopulator, so this
+  change is unlikely to require any action.
 
 $Id$

@@ -22,9 +22,11 @@ import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.providers.cas.ticketvalidator.AbstractTicketValidator;
+import net.sf.acegisecurity.providers.dao.User;
 import net.sf.acegisecurity.ui.cas.CasProcessingFilter;
 
 import java.util.HashMap;
@@ -177,7 +179,7 @@ public class CasAuthenticationProviderTests extends TestCase {
         CasAuthenticationToken token = new CasAuthenticationToken("WRONG_KEY",
                 "test", "credentials",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("XX")},
-                new Vector(), "IOU-xxx");
+                makeUserDetails(), new Vector(), "IOU-xxx");
 
         try {
             Authentication result = cap.authenticate(token);
@@ -324,13 +326,20 @@ public class CasAuthenticationProviderTests extends TestCase {
         assertTrue(cap.supports(CasAuthenticationToken.class));
     }
 
+    private UserDetails makeUserDetails() {
+        return new User("user", "password", true,
+            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                    "ROLE_TWO")});
+    }
+
     //~ Inner Classes ==========================================================
 
     private class MockAuthoritiesPopulator implements CasAuthoritiesPopulator {
-        public GrantedAuthority[] getAuthorities(String casUserId)
+        public UserDetails getUserDetails(String casUserId)
             throws AuthenticationException {
-            return new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl(
-                    "ROLE_B")};
+            return new User("user", "password", true,
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl(
+                        "ROLE_B")});
         }
     }
 

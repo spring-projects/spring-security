@@ -18,7 +18,7 @@ package net.sf.acegisecurity.providers.cas;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.AuthenticationProvider;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.ui.cas.CasProcessingFilter;
@@ -209,13 +209,14 @@ public class CasAuthenticationProvider implements AuthenticationProvider,
         // Check proxy list is trusted
         this.casProxyDecider.confirmProxyListTrusted(response.getProxyList());
 
-        // Build list of granted authorities
-        GrantedAuthority[] ga = this.casAuthoritiesPopulator.getAuthorities(response
+        // Lookup user details
+        UserDetails userDetails = this.casAuthoritiesPopulator.getUserDetails(response
                 .getUser());
 
         // Construct CasAuthenticationToken
         return new CasAuthenticationToken(this.key, response.getUser(),
-            authentication.getCredentials(), ga, response.getProxyList(),
+            authentication.getCredentials(), userDetails.getAuthorities(),
+            userDetails, response.getProxyList(),
             response.getProxyGrantingTicketIou());
     }
 }

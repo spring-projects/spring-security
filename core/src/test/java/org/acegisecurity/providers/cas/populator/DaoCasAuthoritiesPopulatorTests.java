@@ -74,7 +74,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
         populator.afterPropertiesSet();
 
         try {
-            populator.getAuthorities("scott");
+            populator.getUserDetails("scott");
             fail("Should have thrown UsernameNotFoundException");
         } catch (UsernameNotFoundException expected) {
             assertTrue(true);
@@ -87,10 +87,12 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
         populator.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
         populator.afterPropertiesSet();
 
-        GrantedAuthority[] results = populator.getAuthorities("marissa");
-        assertEquals(2, results.length);
-        assertEquals(new GrantedAuthorityImpl("ROLE_ONE"), results[0]);
-        assertEquals(new GrantedAuthorityImpl("ROLE_TWO"), results[1]);
+        UserDetails results = populator.getUserDetails("marissa");
+        assertEquals(2, results.getAuthorities().length);
+        assertEquals(new GrantedAuthorityImpl("ROLE_ONE"),
+            results.getAuthorities()[0]);
+        assertEquals(new GrantedAuthorityImpl("ROLE_TWO"),
+            results.getAuthorities()[1]);
     }
 
     public void testGetGrantedAuthoritiesWhenDaoThrowsException()
@@ -100,7 +102,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
         populator.afterPropertiesSet();
 
         try {
-            populator.getAuthorities("THE_DAO_WILL_FAIL");
+            populator.getUserDetails("THE_DAO_WILL_FAIL");
             fail("Should have thrown DataRetrievalFailureException");
         } catch (DataRetrievalFailureException expected) {
             assertTrue(true);

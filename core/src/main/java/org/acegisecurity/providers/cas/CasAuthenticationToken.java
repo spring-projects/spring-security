@@ -16,6 +16,7 @@
 package net.sf.acegisecurity.providers.cas;
 
 import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.AbstractAuthenticationToken;
 
 import java.io.Serializable;
@@ -37,6 +38,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
     private Object credentials;
     private Object principal;
     private String proxyGrantingTicketIou;
+    private UserDetails userDetails;
     private GrantedAuthority[] authorities;
     private int keyHash;
 
@@ -52,6 +54,8 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
      *        <code>null</code>)
      * @param authorities the authorities granted to the user (from {@link
      *        CasAuthoritiesPopulator}) (cannot be <code>null</code>)
+     * @param userDetails the user details (from {@link
+     *        CasAuthoritiesPopulator}) (cannot be <code>null</code>)
      * @param proxyList the list of proxies from CAS (cannot be
      *        <code>null</code>)
      * @param proxyGrantingTicketIou the PGT-IOU ID from CAS (cannot be
@@ -61,12 +65,13 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
     public CasAuthenticationToken(String key, Object principal,
-        Object credentials, GrantedAuthority[] authorities, List proxyList,
-        String proxyGrantingTicketIou) {
+        Object credentials, GrantedAuthority[] authorities,
+        UserDetails userDetails, List proxyList, String proxyGrantingTicketIou) {
         if ((key == null) || ("".equals(key)) || (principal == null)
             || "".equals(principal) || (credentials == null)
             || "".equals(credentials) || (authorities == null)
-            || (proxyList == null) || (proxyGrantingTicketIou == null)) {
+            || (userDetails == null) || (proxyList == null)
+            || (proxyGrantingTicketIou == null)) {
             throw new IllegalArgumentException(
                 "Cannot pass null or empty values to constructor");
         }
@@ -83,6 +88,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
         this.principal = principal;
         this.credentials = credentials;
         this.authorities = authorities;
+        this.userDetails = userDetails;
         this.proxyList = proxyList;
         this.proxyGrantingTicketIou = proxyGrantingTicketIou;
     }
@@ -139,6 +145,10 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
 
     public List getProxyList() {
         return proxyList;
+    }
+
+    public UserDetails getUserDetails() {
+        return userDetails;
     }
 
     public boolean equals(Object obj) {

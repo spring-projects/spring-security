@@ -16,12 +16,12 @@
 package net.sf.acegisecurity.providers.cas;
 
 import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.UserDetails;
 
 
 /**
- * Populates the <code>GrantedAuthority[]</code> objects for a CAS
- * authenticated user.
+ * Populates the <code>UserDetails</code> associated with a CAS authenticated
+ * user.
  * 
  * <P>
  * CAS does not provide the authorities (roles) granted to a user. It merely
@@ -29,6 +29,18 @@ import net.sf.acegisecurity.GrantedAuthority;
  * to know the authorities granted to a user in order to construct a valid
  * <code>Authentication</code> object, implementations of this interface will
  * provide this information.
+ * </p>
+ * 
+ * <P>
+ * A {@link UserDetails} is returned by implementations. The
+ * <code>UserDetails</code> must, at minimum, contain the username and
+ * <code>GrantedAuthority[]</code> objects applicable to the CAS-authenticated
+ * user. Note that Acegi Security ignores the password and enabled/disabled
+ * status of the <code>UserDetails</code> because this is
+ * authentication-related and should have been enforced by the CAS server. The
+ * <code>UserDetails</code> returned by implementations is stored in the
+ * generated <code>CasAuthenticationToken</code>, so additional properties
+ * such as email addresses, telephone numbers etc can easily be stored.
  * </p>
  * 
  * <P>
@@ -52,8 +64,11 @@ public interface CasAuthoritiesPopulator {
      *
      * @param casUserId as obtained from the CAS validation service
      *
-     * @return the granted authorities for the indicated user
+     * @return the details of the indicated user (at minimum the granted
+     *         authorities and the username)
+     *
+     * @throws AuthenticationException DOCUMENT ME!
      */
-    public GrantedAuthority[] getAuthorities(String casUserId)
+    public UserDetails getUserDetails(String casUserId)
         throws AuthenticationException;
 }

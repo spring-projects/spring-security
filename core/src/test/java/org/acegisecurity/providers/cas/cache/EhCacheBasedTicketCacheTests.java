@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.providers.cas.CasAuthenticationToken;
+import net.sf.acegisecurity.providers.dao.User;
 
 import java.util.List;
 import java.util.Vector;
@@ -82,10 +83,14 @@ public class EhCacheBasedTicketCacheTests extends TestCase {
         List proxyList = new Vector();
         proxyList.add("https://localhost/newPortal/j_acegi_cas_security_check");
 
+        User user = new User("marissa", "password", true,
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                        "ROLE_TWO")});
+
         return new CasAuthenticationToken("key", "marissa",
             "ST-0-ER94xMJmn6pha35CQRoZ",
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                    "ROLE_TWO")}, proxyList,
+                    "ROLE_TWO")}, user, proxyList,
             "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
     }
 }
