@@ -21,6 +21,8 @@ import org.springframework.beans.factory.InitializingBean;
 
 import java.io.IOException;
 
+import java.net.URLEncoder;
+
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -94,7 +96,8 @@ public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint,
             url = loginUrl + "?renew=true" + "&service="
                 + serviceProperties.getService();
         } else {
-            url = loginUrl + "?service=" + serviceProperties.getService();
+            url = loginUrl + "?service="
+                + URLEncoder.encode(serviceProperties.getService(), "UTF-8");
         }
 
         ((HttpServletResponse) response).sendRedirect(url);
