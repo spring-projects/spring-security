@@ -49,8 +49,8 @@ import javax.servlet.ServletResponse;
  * </p>
  * 
  * <p>
- * To use this filter, it is necessary to specify the following filter
- * initialization parameters:
+ * To use this filter, it is necessary to specify <b>one</b> of the following
+ * filter initialization parameters:
  * </p>
  * 
  * <ul>
@@ -62,13 +62,12 @@ import javax.servlet.ServletResponse;
  * <code>ApplicationContext</code>.
  * </li>
  * <li>
- * <code>targetBean</code> (optional) indicates the bean name of the target
- * class. This parameter should be specified if there is more than one bean in
- * the <code>ApplicationContext</code> of the same type as defined by the
- * <code>targetClass</code> parameter.
+ * <code>targetBean</code> indicates the bean name of the target class.
  * </li>
  * </ul>
  * 
+ * If both initialization parameters are specified, <code>targetBean</code>
+ * takes priority.
  *
  * @author Ben Alex
  * @version $Id$
@@ -90,22 +89,6 @@ public class FilterToBeanProxy implements Filter {
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {
-        String targetClassString = filterConfig.getInitParameter("targetClass");
-
-        if ((targetClassString == null) || "".equals(targetClassString)) {
-            throw new ServletException("targetClass must be specified");
-        }
-
-        Class targetClass;
-
-        try {
-            targetClass = Thread.currentThread().getContextClassLoader()
-                                .loadClass(targetClassString);
-        } catch (ClassNotFoundException ex) {
-            throw new ServletException("Class of type " + targetClassString
-                + " not found in classloader");
-        }
-
         String targetBean = filterConfig.getInitParameter("targetBean");
 
         if ("".equals(targetBean)) {
@@ -114,30 +97,44 @@ public class FilterToBeanProxy implements Filter {
 
         ApplicationContext ctx = this.getContext(filterConfig);
 
-        Map beans = ctx.getBeansOfType(targetClass, true, true);
-
-        if (beans.size() == 0) {
-            throw new ServletException(
-                "Bean context must contain at least one bean of type "
-                + targetClassString);
-        }
-
         String beanName = null;
 
-        if (targetBean == null) {
-            // Use first bean found
-            beanName = (String) beans.keySet().iterator().next();
+        if ((targetBean != null) && ctx.containsBean(targetBean)) {
+            beanName = targetBean;
+        } else if (targetBean != null) {
+            throw new ServletException("targetBean '" + targetBean
+                + "' not found in context");
         } else {
-            // Use the requested bean, providing it can be found
-            if (beans.containsKey(targetBean)) {
-                beanName = targetBean;
-            } else {
-                throw new ServletException("Bean with name '" + targetBean
-                    + "' cannot be found in bean context");
+            String targetClassString = filterConfig.getInitParameter(
+                    "targetClass");
+
+            if ((targetClassString == null) || "".equals(targetClassString)) {
+                throw new ServletException(
+                    "targetClass or targetBean must be specified");
             }
+
+            Class targetClass;
+
+            try {
+                targetClass = Thread.currentThread().getContextClassLoader()
+                                    .loadClass(targetClassString);
+            } catch (ClassNotFoundException ex) {
+                throw new ServletException("Class of type " + targetClassString
+                    + " not found in classloader");
+            }
+
+            Map beans = ctx.getBeansOfType(targetClass, true, true);
+
+            if (beans.size() == 0) {
+                throw new ServletException(
+                    "Bean context must contain at least one bean of type "
+                    + targetClassString);
+            }
+
+            beanName = (String) beans.keySet().iterator().next();
         }
 
-        Object object = beans.get(beanName);
+        Object object = ctx.getBean(beanName);
 
         if (!(object instanceof Filter)) {
             throw new ServletException("Bean '" + beanName

@@ -525,15 +525,13 @@
         delegate the <literal>Filter</literal>'s methods through to a bean
         which is obtained from the Spring application context. This enables
         the bean to benefit from the Spring application context lifecycle
-        support and configuration flexibility. The
+        support and configuration flexibility.
         <literal>FilterToBeanProxy</literal> only requires a single
-        initialization parameter, <literal>targetClass</literal>, which will
-        be used to identify the bean in the application context. In the
-        unlikely event there is more than one bean in the application context
-        that matches this class, the <literal>targetBean</literal>
-        initialization parameter should be used. This parameter simply
-        represents the name of the bean in the application context. Like
-        standard Spring web applications, the
+        initialization parameter, <literal>targetClass</literal> or
+        <literal>targetBean</literal>. The <literal>targetClass</literal>
+        parameter locates the first object in the application context of the
+        specified class, whilst <literal>targetBean</literal> locates the
+        object by bean name. Like standard Spring web applications, the
         <literal>FilterToBeanProxy</literal> accesses the application context
         via<literal>
         WebApplicationContextUtils.getWebApplicationContext(ServletContext)</literal>,
@@ -1569,8 +1567,8 @@ public boolean supports(Class clazz);</programlisting></para>
         standard authentication of web browser users, we recommend HTTP
         Session Authentication). The standard governing HTTP Basic
         Authentication is defined by RFC 1945, Section 11, and the
-        <literal>BasicProcessingFilter</literal> conforms with this RFC.
-        </para>
+        <literal>BasicProcessingFilter</literal> conforms with this
+        RFC.</para>
 
         <para>To implement HTTP Basic Authentication, it is necessary to add
         the following filter to <literal>web.xml</literal>, behind a

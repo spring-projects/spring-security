@@ -78,10 +78,9 @@ public class FilterToBeanProxyTests extends TestCase {
         }
     }
 
-    public void testDetectsMissingTargetClass() throws Exception {
+    public void testDetectsNeitherPropertyBeingSet() throws Exception {
         // Setup our filter
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("targetBean", "mockFilter");
 
         FilterToBeanProxy filter = new MockFilterToBeanProxy(
                 "net/sf/acegisecurity/util/filtertest-valid.xml");
@@ -90,7 +89,8 @@ public class FilterToBeanProxyTests extends TestCase {
             filter.init(config);
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("targetClass must be specified", expected.getMessage());
+            assertEquals("targetClass or targetBean must be specified",
+                expected.getMessage());
         }
     }
 
@@ -116,8 +116,6 @@ public class FilterToBeanProxyTests extends TestCase {
         throws Exception {
         // Setup our filter
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("targetClass",
-            "net.sf.acegisecurity.util.MockFilter");
         config.setInitParmeter("targetBean", "WRONG_NAME");
 
         FilterToBeanProxy filter = new MockFilterToBeanProxy(
@@ -127,7 +125,7 @@ public class FilterToBeanProxyTests extends TestCase {
             filter.init(config);
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("Bean with name 'WRONG_NAME' cannot be found in bean context",
+            assertEquals("targetBean 'WRONG_NAME' not found in context",
                 expected.getMessage());
         }
     }
@@ -171,11 +169,11 @@ public class FilterToBeanProxyTests extends TestCase {
             chain);
     }
 
-    public void testNormalOperationWithDefault() throws Exception {
+    public void testNormalOperationWithSpecificBeanName()
+        throws Exception {
         // Setup our filter
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("targetClass",
-            "net.sf.acegisecurity.util.MockFilter");
+        config.setInitParmeter("targetBean", "mockFilter");
 
         // Setup our expectation that the filter chain will be invoked
         MockFilterChain chain = new MockFilterChain(true);
@@ -190,13 +188,11 @@ public class FilterToBeanProxyTests extends TestCase {
             chain);
     }
 
-    public void testNormalOperationWithSpecificBeanName()
-        throws Exception {
+    public void testNormalOperationWithTargetClass() throws Exception {
         // Setup our filter
         MockFilterConfig config = new MockFilterConfig();
         config.setInitParmeter("targetClass",
             "net.sf.acegisecurity.util.MockFilter");
-        config.setInitParmeter("targetBean", "mockFilter");
 
         // Setup our expectation that the filter chain will be invoked
         MockFilterChain chain = new MockFilterChain(true);
