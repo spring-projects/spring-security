@@ -20,6 +20,7 @@ To execute these tests:
 
 3. Run "ant tests" (you can safely ignore the console output).
 
-4. Review the reports directory and confirm each container passed all tests.
+4. At the completion of execution, a summary report will be displayed on the
+   console.
 
 $Id$
