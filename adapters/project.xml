@@ -2,8 +2,9 @@
 <project>
   <extend>${basedir}/../project.xml</extend>
   <pomVersion>3</pomVersion>
-  <artifactId>null</artifactId>
-  <groupId>null</groupId>
+  <artifactId>acegi-security-adapters</artifactId>
+  <name>Acegi Security System for Spring - Adapters</name>
+  <groupId>acegi-security-adapters</groupId>
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
     <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>

@@ -3,7 +3,7 @@
   <extend>${basedir}/../project.xml</extend>
   <pomVersion>3</pomVersion>
   <artifactId>acegi-security-doc</artifactId>
-  <name>Acegi Security System for Spring</name>
+  <name>Acegi Security System for Spring - Documentation</name>
   <groupId>acegi-security-doc</groupId>
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
