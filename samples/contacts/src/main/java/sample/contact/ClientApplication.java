@@ -15,6 +15,12 @@
 
 package sample.contact;
 
+import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.context.ContextHolder;
+import net.sf.acegisecurity.context.SecureContext;
+import net.sf.acegisecurity.context.SecureContextImpl;
+import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.springframework.beans.factory.ListableBeanFactory;
 
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -51,33 +57,36 @@ public class ClientApplication {
 
     //~ Methods ================================================================
 
-    public void invokeContactManager(String forOwner, String username,
-        String password, int nrOfCalls) {
+    public void invokeContactManager(Authentication authentication,
+        int nrOfCalls) {
         StopWatch stopWatch = new StopWatch(nrOfCalls
                 + " ContactManager call(s)");
-        Map orderServices = this.beanFactory.getBeansOfType(ContactManager.class,
+        Map contactServices = this.beanFactory.getBeansOfType(ContactManager.class,
                 true, true);
 
-        for (Iterator it = orderServices.keySet().iterator(); it.hasNext();) {
-            String beanName = (String) it.next();
+        SecureContext secureContext = new SecureContextImpl();
+        secureContext.setAuthentication(authentication);
+        ContextHolder.setContext(secureContext);
 
-            ContactManager remoteContactManager = (ContactManager) orderServices
-                .get(beanName);
-            System.out.println("Calling ContactManager '" + beanName
-                + "' for owner " + forOwner);
+        for (Iterator it = contactServices.keySet().iterator(); it.hasNext();) {
+            String beanName = (String) it.next();
 
             Object object = this.beanFactory.getBean("&" + beanName);
 
             try {
-                System.out.println("Trying to find setUsername(String) method");
+                System.out.println(
+                    "Trying to find setUsername(String) method on: "
+                    + object.getClass().getName());
 
                 Method method = object.getClass().getMethod("setUsername",
                         new Class[] {String.class});
                 System.out.println("Found; Trying to setUsername(String) to "
-                    + username);
-                method.invoke(object, new Object[] {username});
+                    + authentication.getPrincipal());
+                method.invoke(object,
+                    new Object[] {authentication.getPrincipal()});
             } catch (NoSuchMethodException ignored) {
-                ignored.printStackTrace();
+                System.out.println(
+                    "This client proxy factory does not have a setUsername(String) method");
             } catch (IllegalAccessException ignored) {
                 ignored.printStackTrace();
             } catch (InvocationTargetException ignored) {
@@ -85,16 +94,25 @@ public class ClientApplication {
             }
 
             try {
-                System.out.println("Trying to find setPassword(String) method");
+                System.out.println(
+                    "Trying to find setPassword(String) method on: "
+                    + object.getClass().getName());
 
                 Method method = object.getClass().getMethod("setPassword",
                         new Class[] {String.class});
-                method.invoke(object, new Object[] {password});
+                method.invoke(object,
+                    new Object[] {authentication.getCredentials()});
                 System.out.println("Found; Trying to setPassword(String) to "
-                    + password);
-            } catch (NoSuchMethodException ignored) {}
-            catch (IllegalAccessException ignored) {}
+                    + authentication.getCredentials());
+            } catch (NoSuchMethodException ignored) {
+                System.out.println(
+                    "This client proxy factory does not have a setPassword(String) method");
+            } catch (IllegalAccessException ignored) {}
             catch (InvocationTargetException ignored) {}
+
+            ContactManager remoteContactManager = (ContactManager) contactServices
+                .get(beanName);
+            System.out.println("Calling ContactManager '" + beanName + "'");
 
             stopWatch.start(beanName);
 
@@ -106,7 +124,7 @@ public class ClientApplication {
 
             stopWatch.stop();
 
-            if (contacts.size() == 0) {
+            if (contacts.size() != 0) {
                 Iterator listIterator = contacts.iterator();
 
                 while (listIterator.hasNext()) {
@@ -121,28 +139,36 @@ public class ClientApplication {
             System.out.println();
             System.out.println(stopWatch.prettyPrint());
         }
+
+        ContextHolder.setContext(null);
     }
 
     public static void main(String[] args) {
-        if ((args.length == 0) || "".equals(args[0])) {
-            System.out.println(
-                "You need to specify the owner to request contacts for, the user ID to use, the password to use, and optionally a number of calls, e.g. for user marissa: "
-                + "'client marissa marissa koala' for a single call per service or 'client marissa marissa koala 10' for 10 calls each");
-        } else {
-            String forOwner = args[0];
-            String username = args[1];
-            String password = args[2];
+        String username = System.getProperty("username", "");
+        String password = System.getProperty("password", "");
+        String nrOfCallsString = System.getProperty("nrOfCalls", "");
 
+        if ("".equals(username) || "".equals(password)) {
+            System.out.println(
+                "You need to specify the user ID to use, the password to use, and optionally a number of calls "
+                + "using the username, password, and nrOfCalls system properties respectively. eg for user marissa, "
+                + "use: -Dusername=marissa -Dpassword=koala' for a single call per service and "
+                + "use: -Dusername=marissa -Dpassword=koala -DnrOfCalls=10 for ten calls per service.");
+            System.exit(-1);
+        } else {
             int nrOfCalls = 1;
 
-            if ((args.length > 3) && !"".equals(args[3])) {
-                nrOfCalls = Integer.parseInt(args[3]);
+            if (!"".equals(nrOfCallsString)) {
+                nrOfCalls = Integer.parseInt(nrOfCallsString);
             }
 
             ListableBeanFactory beanFactory = new FileSystemXmlApplicationContext(
                     "clientContext.xml");
             ClientApplication client = new ClientApplication(beanFactory);
-            client.invokeContactManager(forOwner, username, password, nrOfCalls);
+
+            client.invokeContactManager(new UsernamePasswordAuthenticationToken(
+                    username, password), nrOfCalls);
+            System.exit(0);
         }
     }
 }

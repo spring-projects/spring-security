@@ -70,10 +70,10 @@
 	</servlet>
 
   <!--
-    - Provides web services endpoint. See caucho-servlet.xml.
+    - Provides web services endpoint. See remoting-servlet.xml.
     -->
 	<servlet>
-		<servlet-name>caucho</servlet-name>
+		<servlet-name>remoting</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
@@ -84,8 +84,8 @@
  	</servlet-mapping>
   
 	<servlet-mapping>
-		<servlet-name>caucho</servlet-name>
-		<url-pattern>/caucho/*</url-pattern>
+		<servlet-name>remoting</servlet-name>
+		<url-pattern>/remoting/*</url-pattern>
 	</servlet-mapping>
 
  	<welcome-file-list>

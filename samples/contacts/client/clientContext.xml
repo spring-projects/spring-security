@@ -14,6 +14,42 @@
 		<property name="location"><value>client.properties</value></property>
 	</bean>
 
+	<!-- Proxy for the RMI-exported ContactManager -->
+	<!-- COMMENTED OUT BY DEFAULT TO AVOID CONFLICTS WITH APPLICATION SERVERS
+	<bean id="rmiProxy" class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
+		<property name="serviceInterface">
+			<value>sample.contact.ContactManager</value>
+		</property>
+		<property name="serviceUrl">
+			<value>rmi://${serverName}:${rmiPort}/contactManager</value>
+		</property>
+		<property name="remoteInvocationFactory">
+			<ref local="remoteInvocationFactory"/>
+		</property>
+	</bean>
+	-->
+	 
+	<!-- Automatically propagates ContextHolder contents when using the RMI proxy -->
+	<bean id="remoteInvocationFactory" class="net.sf.acegisecurity.ui.rmi.ContextPropagatingRemoteInvocationFactory"/>
+	
+	<!-- Proxy for the HTTP-invoker-exported ContactManager -->
+	<!-- Spring's HTTP invoker uses Java serialization via HTTP  -->
+	<bean id="httpInvokerProxy" class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean">
+		<property name="serviceInterface">
+			<value>sample.contact.ContactManager</value>
+		</property>
+		<property name="serviceUrl">
+			<value>http://${serverName}:${httpPort}${contextPath}/remoting/ContactManager-httpinvoker</value>
+		</property>
+		<property name="httpInvokerRequestExecutor">
+			<ref local="httpInvokerRequestExecutor"/>
+		</property>
+	</bean>
+
+	<!-- Automatically propagates ContextHolder-managed Authentication principal
+		 and credentials to a HTTP invoker BASIC authentication header -->
+	<bean id="httpInvokerRequestExecutor" class="net.sf.acegisecurity.ui.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor"/>
+
 	<!-- Proxy for the Hessian-exported ContactManager -->
 	<!-- Hessian is a slim binary HTTP remoting protocol -->
 	<bean id="hessianProxy" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
@@ -21,7 +57,7 @@
 			<value>sample.contact.ContactManager</value>
 		</property>
 		<property name="serviceUrl">
-			<value>http://${serverName}:${httpPort}${contextPath}/caucho/ContactManager-hessian</value>
+			<value>http://${serverName}:${httpPort}${contextPath}/remoting/ContactManager-hessian</value>
 		</property>
 	</bean>
 
@@ -32,7 +68,7 @@
 			<value>sample.contact.ContactManager</value>
 		</property>
 		<property name="serviceUrl">
-			<value>http://${serverName}:${httpPort}${contextPath}/caucho/ContactManager-burlap</value>
+			<value>http://${serverName}:${httpPort}${contextPath}/remoting/ContactManager-burlap</value>
 		</property>
 	</bean>
 
