@@ -42,7 +42,16 @@
   <mailingLists>
     <mailingList>
       <name>Acegi Developer List</name>
+      <subscribe>https://lists.sourceforge.net/lists/listinfo/acegisecurity-developer</subscribe>
       <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=40659</archive>
+    </mailingList>
+    <mailingList>
+      <name>Acegi Developer List (at GMane)</name>
+      <archive>http://news.gmane.org/gmane.comp.java.springframework.acegisecurity.devel/</archive>
+    </mailingList>
+    <mailingList>
+      <name>Acegi Developer List (at mail-archive.com)</name>
+      <archive>http://www.mail-archive.com/acegisecurity-developer@lists.sourceforge.net/</archive>
     </mailingList>
     <mailingList>
       <name>Spring User List</name>
