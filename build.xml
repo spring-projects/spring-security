@@ -181,6 +181,8 @@
 				<include name="net/sf/acegisecurity/providers/**"/>
 				<include name="net/sf/acegisecurity/runas/**"/>
 				<include name="net/sf/acegisecurity/vote/**"/>
+				<include name="net/sf/acegisecurity/ui/**"/>
+				<include name="net/sf/acegisecurity/intercept/**"/>
 				<include name="net/sf/acegisecurity/adapters/*"/>
 				<include name="net/sf/acegisecurity/adapters/catalina/*"/>
 				<exclude name="net/sf/acegisecurity/adapters/catalina/CatalinaAcegiUserRealm.class"/>
@@ -199,6 +201,8 @@
 				<include name="net/sf/acegisecurity/providers/**"/>
 				<include name="net/sf/acegisecurity/runas/**"/>
 				<include name="net/sf/acegisecurity/vote/**"/>
+				<include name="net/sf/acegisecurity/ui/**"/>
+				<include name="net/sf/acegisecurity/intercept/**"/>
 				<include name="net/sf/acegisecurity/adapters/*"/>
 				<include name="net/sf/acegisecurity/adapters/jetty/*"/>
 			</fileset>
@@ -216,6 +220,8 @@
 				<include name="net/sf/acegisecurity/providers/**"/>
 				<include name="net/sf/acegisecurity/runas/**"/>
 				<include name="net/sf/acegisecurity/vote/**"/>
+				<include name="net/sf/acegisecurity/ui/**"/>
+				<include name="net/sf/acegisecurity/intercept/**"/>
 				<include name="net/sf/acegisecurity/adapters/*"/>
 				<include name="net/sf/acegisecurity/adapters/jboss/*"/>
 			</fileset>
@@ -233,6 +239,8 @@
 				<include name="net/sf/acegisecurity/providers/**"/>
 				<include name="net/sf/acegisecurity/runas/**"/>
 				<include name="net/sf/acegisecurity/vote/**"/>
+				<include name="net/sf/acegisecurity/ui/**"/>
+				<include name="net/sf/acegisecurity/intercept/**"/>
 				<include name="net/sf/acegisecurity/adapters/*"/>
 				<include name="net/sf/acegisecurity/adapters/resin/*"/>
 			</fileset>
