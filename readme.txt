@@ -84,7 +84,10 @@ that need to be added to your WAR file.
 OBTAINING SUPPORT
 -------------------------------------------------------------------------------
 
-If you need any help, please post a question on the Spring Users mailing list.
+If you need any help, please use the Acegi Security System for Spring forum
+located at the Spring Community's forum site: 
+
+  http://forum.springframework.org
 
 If you start using Acegi Security in your project, please consider joining
 the acegisecurity-developer mailing list. This is currently the best way to
@@ -93,8 +96,8 @@ discussions. You can join at:
 
   https://lists.sourceforge.net/lists/listinfo/acegisecurity-developer.
 
-Links to mailing list archives and other useful resources are available from
-http://acegisecurity.sourceforge.net.
+Links to mailing list archives, the forums, and other useful resources are
+available from http://acegisecurity.sourceforge.net.
 
 
 $Id$
