@@ -289,7 +289,7 @@ public class FilterChainProxy implements Filter, InitializingBean,
 
         private VirtualFilterChain() {}
 
-        public void doFilter(ServletRequest arg0, ServletResponse arg1)
+        public void doFilter(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
             if (currentPosition == additionalFilters.length) {
                 if (logger.isDebugEnabled()) {
@@ -297,7 +297,7 @@ public class FilterChainProxy implements Filter, InitializingBean,
                         + " reached end of additional filter chain; proceeding with original chain");
                 }
 
-                fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+                fi.getChain().doFilter(request, response);
             } else {
                 currentPosition++;
 
@@ -308,8 +308,8 @@ public class FilterChainProxy implements Filter, InitializingBean,
                         + additionalFilters[currentPosition - 1] + "'");
                 }
 
-                additionalFilters[currentPosition - 1].doFilter(fi.getRequest(),
-                    fi.getResponse(), this);
+                additionalFilters[currentPosition - 1].doFilter(request,
+                    response, this);
             }
         }
     }

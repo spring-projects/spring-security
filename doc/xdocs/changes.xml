@@ -27,6 +27,7 @@
   <body>
     <release version="0.8.1" date="In CVS">
       <action dev="benalex" type="fix">SecurityEnforcementFilter caused NullPointerException when anonymous authentication used with BasicProcessingFilterEntryPoint</action>
+      <action dev="benalex" type="fix">FilterChainProxy now supports replacement of ServletRequest and ServetResponse by Filter beans</action>
       <action dev="benalex" type="update">ContextHolderAwareRequestWrapper methods returns null if user is anonymous</action>
     </release>
     <release version="0.8.0" date="2005-03-03">
