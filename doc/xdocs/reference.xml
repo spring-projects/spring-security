@@ -39,7 +39,7 @@
             </td>
             <td>
               The original docbook-generated reference. This is a good place to start if you want
-              to use the Acegi System to secure your applications.
+              to use the Acegi Security System to secure your applications.
             </td>
           </tr>
 
@@ -48,7 +48,7 @@
               <a href="docbook/index.pdf">Reference Guide PDF</a>
             </td>
             <td>
-              The pdf version of the reference guide.
+              The PDF version of the reference guide.
             </td>
           </tr>
 

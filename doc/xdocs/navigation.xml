@@ -29,30 +29,30 @@
 
     <menu name="Overview">
       <item name="Home" href="index.html"/>
-      <item name="Reference" href="reference.html"/>
       <item name="Building with Maven" href="building.html"/>
       <item name="Downloads" href="downloads.html"/>
-      <item name="Subprojects" href="projects-overview.html"/>
     </menu>
 
-    <menu name="Core">
-      <item name="Core" href="multiproject/acegi-security/index.html"/>
-      <item name="Sample SQL" href="dbinit.txt"/>
-    </menu>
-
-    <menu name="Upgrade Help">
+    <menu name="Documentation">
+      <item name="Suggested Steps" href="suggested.html"/>
+      <item name="Reference Guide" href="reference.html"/>
+      <item name="Sample SQL Schema" href="dbinit.txt"/>
+      <item name="Frequently Asked Questions" href="faq.html"/>
+      <item name="External Web Articles" href="articles.html"/>
       <item name="Upgrading to 0.7.0" href="upgrade/upgrade-06-070.html"/>
       <item name="Upgrading to 0.6" href="upgrade/upgrade-05-06.html"/>
       <item name="Upgrading to 0.5" href="upgrade/upgrade-04-05.html"/>
       <item name="Upgrading to 0.4" href="upgrade/upgrade-03-04.html"/>
     </menu>
 
-    <menu name="Adapters">
+    <menu name="Projects">
+      <item name="Core" href="multiproject/acegi-security/index.html"/>
       <item name="CAS" href="multiproject/acegi-security-cas/index.html"/>
       <item name="Catalina" href="multiproject/acegi-security-catalina/index.html"/>
       <item name="JBoss" href="multiproject/acegi-security-jboss/index.html"/>
       <item name="Jetty" href="multiproject/acegi-security-jetty/index.html"/>
       <item name="Resin" href="multiproject/acegi-security-resin/index.html"/>
+      <item name="Subproject Index" href="projects-overview.html"/>
     </menu>
 
     <menu name="Samples">
@@ -62,7 +62,7 @@
 
     <search/>
 
-    <menu name="" type="footer">
+    <menu type="footer">
       <item name="Spring Framework" href="http://www.springframework.org/" img="http://www.springframework.org/buttons/spring_white.png"/>
       <item name="Code Coverage by Clover" href="http://www.thecortex.net/clover" img="http://www.thecortex.net/clover/images/clovered1.gif"/>
     </menu>
