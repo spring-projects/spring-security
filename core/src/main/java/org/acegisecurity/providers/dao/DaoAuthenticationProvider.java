@@ -244,7 +244,7 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
         }
     }
 
-    private boolean isPasswordCorrect(Authentication authentication, User user) {
+    protected boolean isPasswordCorrect(Authentication authentication, User user) {
         Object salt = null;
 
         if (this.saltSource != null) {
