@@ -2161,7 +2161,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         the architecture of CAS, we present the general overview again here
         within the context of the Acegi Security System for Spring. The
         following refers to CAS 2.0, being the version of CAS that Acegi
-        Security for Spring supports.</para>
+        Security System for Spring supports.</para>
 
         <para>Somewhere in your enterprise you will need to setup a CAS
         server. The CAS server is simply a standard WAR file, so there isn't
@@ -2173,7 +2173,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         boolean as to whether a given username and password is valid. Your
         <literal>PasswordHandler</literal> implementation will need to link
         into some type of backend authentication repository, such as an LDAP
-        server or database. </para>
+        server or database.</para>
 
         <para>If you're running an existing CAS server, you will have already
         established a <literal>PasswordHandler</literal>. If you have not,
@@ -2183,8 +2183,8 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <literal>AuthenticationManager</literal>, enabling you to use a
         security configuration you might already have in place. You do not
         need to use the <literal>CasPasswordHandler</literal> class on your
-        CAS server unless you do not wish. The Acegi Security System for
-        Spring will function as a CAS client successfully irrespective of the
+        CAS server if you do not wish. The Acegi Security System for Spring
+        will function as a CAS client successfully irrespective of the
         <literal>PasswordHandler</literal> you've chosen for your CAS
         server.</para>
 
@@ -2200,9 +2200,9 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         contains a clients archive which demonstrates CAS clients in Java,
         Active Server Pages, Perl, Python and others. Naturally, Java support
         is very strong given the CAS server is written in Java. You do not
-        need to use one of CAS' clients to interact with the CAS server from
-        Acegi Security System for Spring secured applications. This is handled
-        transparently for you.</para>
+        need to use any of CAS' client classes in applications secured by the
+        Acegi Security System for Spring. This is handled transparently for
+        you.</para>
 
         <para>The basic interaction between a web browser, CAS server and an
         Acegi Security for System Spring secured service is as follows:</para>
@@ -2216,26 +2216,26 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
           <listitem>
             <para>The user eventually requests a page that is either secure or
             one of the beans it uses is secure. Acegi Security's
-            SecurityEnforcementFilter will detect the
-            AuthenticationException.</para>
+            <literal>SecurityEnforcementFilter</literal> will detect the
+            <literal>AuthenticationException</literal>.</para>
           </listitem>
 
           <listitem>
-            <para>Because the user has no <literal>Authentication</literal>
-            object in
-            <literal>HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY</literal>,
-            the SecurityEnforcementFilter will call the configured
-            <literal>AuthenticationEntryPoint</literal>. If using CAS, this
-            will be the <literal>CasProcessingFilterEntryPoint</literal>
-            class.</para>
+            <para>Because the user's <literal>Authentication</literal> object
+            (or lack thereof) caused an
+            <literal>AuthenticationException</literal>, the
+            <literal>SecurityEnforcementFilter</literal> will call the
+            configured <literal>AuthenticationEntryPoint</literal>. If using
+            CAS, this will be the
+            <literal>CasProcessingFilterEntryPoint</literal> class.</para>
           </listitem>
 
           <listitem>
-            <para>The CasProcessingFilterEntry point will redirect the user's
-            browser to the CAS server. It will also indicate a
-            <literal>service</literal> parameter, which is the callback URL
-            for the Acegi Security service. For example, the URL the browser
-            is redirected to might be
+            <para>The <literal>CasProcessingFilterEntry</literal> point will
+            redirect the user's browser to the CAS server. It will also
+            indicate a <literal>service</literal> parameter, which is the
+            callback URL for the Acegi Security service. For example, the URL
+            the browser is redirected to might be
             <literal>https://my.company.com/cas/login?service=https://server3.company.com/webapp/j_acegi_cas_security_check</literal>.</para>
           </listitem>
 
@@ -2245,8 +2245,8 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             session cookie which indicates they've previously logged on, they
             will not be prompted to login again (there is an exception to this
             procedure, which we'll cover later). CAS will use the
-            PasswordHandler discussed above to decide whether the username and
-            password is valid</para>
+            <literal>PasswordHandler</literal> discussed above to decide
+            whether the username and password is valid.</para>
           </listitem>
 
           <listitem>
@@ -2273,10 +2273,10 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
           </listitem>
 
           <listitem>
-            <para>The AuthenticationManager implementation will be the
-            <literal>ProviderManager</literal>, which is in turn configured
-            with the <literal>CasAuthenticationProvider</literal>. The
-            <literal>CasAuthenticationProvider</literal> only responds to
+            <para>The <literal>AuthenticationManager</literal> implementation
+            will be the <literal>ProviderManager</literal>, which is in turn
+            configured with the <literal>CasAuthenticationProvider</literal>.
+            The <literal>CasAuthenticationProvider</literal> only responds to
             <literal>UsernamePasswordAuthenticationToken</literal>s containing
             the CAS-specific principal (such as
             <literal>CasProcessingFilter.CAS_STATEFUL_IDENTIFIER</literal>)
@@ -2288,34 +2288,34 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             <para><literal>CasAuthenticationProvider</literal> will validate
             the service ticket using a <literal>TicketValidator</literal>
             implementation. Acegi Security includes one implementation, the
-            <literal>CasProxyTicketValidator</literal>. This implementation
-            uses a CAS-supplied ticket validator. The
+            <literal>CasProxyTicketValidator</literal>. This implementation a
+            ticket validation class included in the CAS client library. The
             <literal>CasProxyTicketValidator</literal> makes a HTTPS request
             to the CAS server in order to validate the service ticket. The
             <literal>CasProxyTicketValidator</literal> may also include a
-            proxy callback parameter, which is included in this example:
+            proxy callback URL, which is included in this example:
             <literal>https://my.company.com/cas/proxyValidate?service=https://server3.company.com/webapp/j_acegi_cas_security_check&amp;ticket=ST-0-ER94xMJmn6pha35CQRoZ&amp;pgtUrl=https://server3.company.com/webapp/casProxy/receptor</literal>.</para>
           </listitem>
 
           <listitem>
-            <para>Back of the CAS server, the proxy validation request will be
+            <para>Back on the CAS server, the proxy validation request will be
             received. If the presented service ticket matches the service URL
-            requested initially, CAS will provide an affirmative response in
-            XML indicating the username. If any proxy was involved in the
+            the ticket was issued to, CAS will provide an affirmative response
+            in XML indicating the username. If any proxy was involved in the
             authentication (discussed below), the list of proxies is also
             included in the XML response.</para>
           </listitem>
 
           <listitem>
             <para>[OPTIONAL] If the request to the CAS validation service
-            included the <literal>pgtUrl</literal>, CAS will include a
-            <literal>pgtIou</literal> string in the XML response. This
-            <literal>pgtIou</literal> represents a proxy-granting ticket IOU.
-            The CAS server will then create its own HTTPS connection back to
-            the <literal>pgtUrl</literal>. This is to mutually authenticate
-            the CAS server and the claimed service. The HTTPS connection will
-            be used to send a proxy granting ticket to the original web
-            application. For example,
+            included the proxy callback URL (in the <literal>pgtUrl</literal>
+            parameter), CAS will include a <literal>pgtIou</literal> string in
+            the XML response. This <literal>pgtIou</literal> represents a
+            proxy-granting ticket IOU. The CAS server will then create its own
+            HTTPS connection back to the <literal>pgtUrl</literal>. This is to
+            mutually authenticate the CAS server and the claimed service URL.
+            The HTTPS connection will be used to send a proxy granting ticket
+            to the original web application. For example,
             <literal>https://server3.company.com/webapp/casProxy/receptor?pgtIou=PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt&amp;pgtId=PGT-1-si9YkkHLrtACBo64rmsi3v2nf7cpCResXg5MpESZFArbaZiOKH</literal>.
             We suggest you use CAS' <literal>ProxyTicketReceptor</literal>
             servlet to receive these proxy-granting tickets, if they are
@@ -2448,9 +2448,10 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting>
 
-        <para>Note the granted authorities are ignored by CAS. It has no way
-        of communciating the granted authorities to calling applications. CAS
-        is only concerned with username and passwords.</para>
+        <para>Note the granted authorities are ignored by CAS because it has
+        no way of communicating the granted authorities to calling
+        applications. CAS is only concerned with username and passwords (and
+        the enabled/disabled status).</para>
 
         <para>Next you will need to edit the existing
         <literal>/web/WEB-INF/web.xml</literal> file. Add (or edit in the case
@@ -2478,6 +2479,12 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         the directory structure. This will create
         <literal>/lib/cas.war</literal>, which is ready for deployment to your
         servlet container.</para>
+
+        <para>Note CAS heavily relies on HTTPS. You can't even test the system
+        without a HTTPS certificate. Whilst you should refer to your web
+        container's documentation on setting up HTTPS, if you need some
+        additional help or a test certificate you might like to check the
+        <literal>samples/contacts/etc/ssl</literal> directory.</para>
       </sect2>
 
       <sect2 id="security-cas-install-client">
@@ -2549,12 +2556,12 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <para>For CAS to operate, the
         <literal>SecurityEnforcementFilter</literal> must have its
         <literal>authenticationEntryPoint</literal> property set to the
-        <literal>CasProcessingFilterEntryPoint</literal> bean. </para>
+        <literal>CasProcessingFilterEntryPoint</literal> bean.</para>
 
         <para>The <literal>CasProcessingFilterEntryPoint</literal> must refer
-        to the <literal>ServiceProperties</literal> bean (discussed above) and
-        provide the URL to the enterprise's CAS login server. This is where
-        the user's browser will be redirected.</para>
+        to the <literal>ServiceProperties</literal> bean (discussed above),
+        which provides the URL to the enterprise's CAS login server. This is
+        where the user's browser will be redirected.</para>
 
         <para>Next you need to add an <literal>AuthenticationManager</literal>
         that uses <literal>CasAuthenticationProvider</literal> and its
@@ -2656,27 +2663,31 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         within the context of a <literal>HttpSession</literal>, it isn't
         possible to rely on the <literal>HttpSession</literal>'s
         <literal>HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY</literal>
-        attribute to locate the CasAuthenticationToken. Furthermore, because
-        the CAS server invalidates a service ticket after it has been
-        validated by the TicketValidator, presenting the same service ticket
-        on subsequent requests will not work. It is similarly very difficult
-        to obtain a proxy-granting ticket for a remoting protocol client, as
-        they are often operational on client machines which do not have HTTPS
-        certificates that would be trusted by the CAS server.</para>
+        attribute to locate the <literal>CasAuthenticationToken</literal>.
+        Furthermore, because the CAS server invalidates a service ticket after
+        it has been validated by the <literal>TicketValidator</literal>,
+        presenting the same service ticket on subsequent requests will not
+        work. It is similarly very difficult to obtain a proxy-granting ticket
+        for a remoting protocol client, as they are often deployed on client
+        machines which rarely have HTTPS URLs that would be accessible to the
+        CAS server.</para>
 
         <para>One obvious option is to not use CAS at all for remoting
         protocol clients. However, this would eliminate many of the desirable
         features of CAS.</para>
 
-        <para>As a middle-ground, the CasAuthenticationProvider uses a
-        StatelessTicketCache. This is used solely for requests with a
-        principal equal to
+        <para>As a middle-ground, the
+        <literal>CasAuthenticationProvider</literal> uses a
+        <literal>StatelessTicketCache</literal>. This is used solely for
+        requests with a principal equal to
         <literal>CasProcessingFilter.CAS_STATELESS_IDENTIFIER</literal>. What
-        happens is the CasAuthenticationProvider will store the resulting
-        CasAuthenticationToken in the StatelessTicketCache, keyed on the
-        service ticket. Accordingly, remoting protocol clients can present the
-        same service ticket and the CasAuthenticationProvider will not need to
-        contact the CAS server for validation.</para>
+        happens is the <literal>CasAuthenticationProvider</literal> will store
+        the resulting <literal>CasAuthenticationToken</literal> in the
+        <literal>StatelessTicketCache</literal>, keyed on the service ticket.
+        Accordingly, remoting protocol clients can present the same service
+        ticket and the <literal>CasAuthenticationProvider</literal> will not
+        need to contact the CAS server for validation (aside from the first
+        request).</para>
 
         <para>The other aspect of advanced CAS usage involves creating proxy
         tickets from the proxy-granting ticket. As indicated above, we
@@ -2794,6 +2805,11 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
       <literal>scott</literal>'s contacts when authenticating as
       <literal>marissa</literal>. To see it work properly, use <literal>client
       scott scott wombat</literal>.</para>
+
+      <para>Please note the sample application's <literal>client</literal>
+      does not currently support CAS. You can still give it a try, though, if
+      you're ambitious: try <literal>client scott _cas_stateless_
+      YOUR-SERVICE-TICKET-ID-FOR-SCOTT</literal>.</para>
     </sect1>
 
     <sect1 id="security-become-involved">
@@ -2838,6 +2854,15 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         </listitem>
 
         <listitem>
+          <para>Join the acegisecurity-developer and acegisecurity-cvs mailing
+          lists so you're in the loop</para>
+        </listitem>
+
+        <listitem>
+          <para>Use CamelCase</para>
+        </listitem>
+
+        <listitem>
           <para>Add a CVS <literal>$Id: index.xml,v 1.3 2004/04/02 21:12:25
           fbos Exp $</literal> tag to the JavaDocs for any new class you
           create</para>
@@ -2858,9 +2883,10 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
       <title>Further Information</title>
 
       <para>Questions and comments on the Acegi Security System for Spring are
-      welcome. Please direct comments to the Spring Users mailing list or
-      ben.alex@acegi.com.au. Our project home page (where you can obtain the
-      latest release of the project and access to CVS) is at
+      welcome. Please direct comments to the Spring Users mailing list. You're
+      also welcome to join the acegisecurity-developer mailing list. Our
+      project home page (where you can obtain the latest release of the
+      project and access to CVS, mailing lists etc) is at
       <literal>http://acegisecurity.sourceforge.net</literal>.</para>
     </sect1>
   </chapter>
