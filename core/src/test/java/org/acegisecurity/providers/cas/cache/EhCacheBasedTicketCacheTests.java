@@ -56,6 +56,7 @@ public class EhCacheBasedTicketCacheTests extends TestCase {
     public void testCacheOperation() throws Exception {
         EhCacheBasedTicketCache cache = new EhCacheBasedTicketCache();
         cache.afterPropertiesSet();
+        cache.afterPropertiesSet(); // second run for test coverage
 
         // Check it gets stored in the cache
         cache.putTicketInCache(getToken());
