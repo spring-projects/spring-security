@@ -727,13 +727,6 @@
           </listitem>
 
           <listitem>
-            <para><literal>DaoAuthenticationToken</literal> is used to
-            represent a successful authentication by the
-            <literal>DaoAuthenticationProvider</literal>. This is further
-            discussed below.</para>
-          </listitem>
-
-          <listitem>
             <para><literal>PrincipalAcegiUserToken</literal> and
             <literal>JettyAcegiUserToken</literal> implement
             <literal>AuthByAdapter</literal> (a subclass of
@@ -960,7 +953,7 @@
         desired.</para>
       </sect2>
 
-      <sect2 id="security-authentication-provider-in-memory">
+      <sect2 id="security-authentication-provider-events">
         <title>Event Publishing</title>
 
         <para>The <literal>DaoAuthenticationProvider</literal> automatically
@@ -2526,7 +2519,6 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
 &lt;bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
   &lt;property name="authenticationDao"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
-  &lt;property name="key"&gt;&lt;value&gt;my_password&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
 &lt;bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager"&gt;
