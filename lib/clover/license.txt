@@ -1,7 +1,7 @@
 Cortex has supported the Acegi Security System for Spring project with a free
 Team Edition license of Clover.
 
-We thank Cortext for their support.
+We thank Cortex for their support.
 
 
 $Id$
