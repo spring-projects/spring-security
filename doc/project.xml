@@ -24,10 +24,9 @@
   </dependencies>
 
   <reports>
-    <report>maven-faq-plugin</report>
+    <report>maven-changes-plugin</report>
     <report>maven-dashboard-plugin</report>
     <report>maven-multiproject-plugin</report>
-    <report>maven-multichanges-plugin</report>
   </reports>
 
 </project>
