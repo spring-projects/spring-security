@@ -435,6 +435,14 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
         return digestMd5;
     }
 
+    public void setUserCache(UserCache userCache) {
+        this.userCache = userCache;
+    }
+
+    public UserCache getUserCache() {
+        return userCache;
+    }
+
     public void init(FilterConfig arg0) throws ServletException {}
 
     private void fail(ServletRequest request, ServletResponse response,

@@ -27,6 +27,7 @@ import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContextImpl;
 import net.sf.acegisecurity.context.security.SecureContextUtils;
 import net.sf.acegisecurity.providers.dao.AuthenticationDao;
+import net.sf.acegisecurity.providers.dao.UserCache;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 import net.sf.acegisecurity.util.StringSplitUtils;
 
@@ -193,6 +194,11 @@ public class DigestProcessingFilterTests extends TestCase {
 
         filter.setAuthenticationEntryPoint(new DigestProcessingFilterEntryPoint());
         assertTrue(filter.getAuthenticationEntryPoint() != null);
+
+        filter.setUserCache(null);
+        assertNull(filter.getUserCache());
+        filter.setUserCache(new MockUserCache());
+        assertNotNull(filter.getUserCache());
     }
 
     public void testInvalidDigestAuthorizationTokenGeneratesError()
@@ -884,5 +890,15 @@ public class DigestProcessingFilterTests extends TestCase {
                 fail("Did not expect filter chain to proceed");
             }
         }
+    }
+
+    private class MockUserCache implements UserCache {
+        public UserDetails getUserFromCache(String username) {
+            return null;
+        }
+
+        public void putUserInCache(UserDetails user) {}
+
+        public void removeUserFromCache(String username) {}
     }
 }
