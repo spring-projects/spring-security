@@ -13,7 +13,7 @@
             This is the Maven generated site for the Acegi-Security project. It is generated as part of an
             automated daily build. We intend to expand the information on Acegi which is available here but for
             the moment, your best starting point for documentation is Ben Alex's
-            original <a href="/ref/index.html">reference guide</a>
+            original <a href="./reference/index.html">reference guide</a>
             which provides a comprehensive overview.
          </p>
          <p>
