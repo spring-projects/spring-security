@@ -4,7 +4,6 @@
   <pomVersion>3</pomVersion>
   <artifactId>acegi-security-jetty</artifactId>
   <name>Acegi Security System for Spring - Jetty adapter</name>
-  <groupId>acegisecurity</groupId>
   <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs/multiproject/acegi-security-jetty</siteDirectory>
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
