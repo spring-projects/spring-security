@@ -891,7 +891,7 @@
         <para><programlisting>&lt;bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
   &lt;property name="authenticationDao"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
   &lt;property name="key"&gt;&lt;value&gt;my_password&lt;/value&gt;&lt;/property&gt;
-  &lt;property name="refreshTokenInterval&gt;&lt;value&gt;60000&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="refreshTokenInterval"&gt;&lt;value&gt;60000&lt;/value&gt;&lt;/property&gt;
   &lt;property name="saltSource"&gt;&lt;ref bean="saltSource"/&gt;&lt;/property&gt;
   &lt;property name="passwordEncoder"&gt;&lt;ref bean="passwordEncoder"/&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -2883,7 +2883,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         respond to say <literal>REQUIRES_HUMAN_USER</literal> configuration
         attributes and redirect to an appropriate entry point to start the
         human user validation process if the <literal>HttpSession</literal>
-        attribute is not currently set. </para>
+        attribute is not currently set.</para>
 
         <para>To decide whether a security check belongs in a
         <literal>ChannelProcessor</literal> or an
