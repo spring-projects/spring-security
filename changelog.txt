@@ -6,6 +6,7 @@ Changes in version 0.x (2004-xx-xx)
 * Extracted removeUserFromCache(String) to UserCache interface
 * Fixed EH-CACHE-based caching implementation behaviour when cache exists
 * Fixed Ant "release" target not including project.properties
+* Fixed GrantedAuthorityEffectiveAclsResolver if null ACLs provided to method
 * Documentation improvements
 
 Changes in version 0.6 (2004-08-09)

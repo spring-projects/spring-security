@@ -104,6 +104,11 @@ public class GrantedAuthorityEffectiveAclsResolverTests extends TestCase {
             resolver.resolveEffectiveAcls(acls, scott)[2]);
     }
 
+    public void testResolveAclsReturnsNullIfNoAclsInFirstPlace() {
+        GrantedAuthorityEffectiveAclsResolver resolver = new GrantedAuthorityEffectiveAclsResolver();
+        assertNull(resolver.resolveEffectiveAcls(null, scott));
+    }
+
     public void testSkipsNonBasicAclEntryObjects() {
         GrantedAuthorityEffectiveAclsResolver resolver = new GrantedAuthorityEffectiveAclsResolver();
         AclEntry[] basicAcls = {entry100Marissa, entry100Scott, entry100RoleEverybody, entry100RoleOne, new MockAcl(), entry100RoleTwo};

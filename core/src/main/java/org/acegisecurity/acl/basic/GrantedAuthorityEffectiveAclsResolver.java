@@ -59,6 +59,10 @@ public class GrantedAuthorityEffectiveAclsResolver
 
     public AclEntry[] resolveEffectiveAcls(AclEntry[] allAcls,
         Authentication filteredBy) {
+        if ((allAcls == null) || (allAcls.length == 0)) {
+            return null;
+        }
+
         List list = new Vector();
 
         for (int i = 0; i < allAcls.length; i++) {
