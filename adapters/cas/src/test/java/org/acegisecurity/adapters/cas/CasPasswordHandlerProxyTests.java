@@ -17,10 +17,10 @@ package net.sf.acegisecurity.adapters.cas;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.MockHttpServletRequest;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -70,7 +70,7 @@ public class CasPasswordHandlerProxyTests extends TestCase {
                 "net/sf/acegisecurity/adapters/cas/applicationContext-invalid.xml");
 
         try {
-            proxy.authenticate(new MockHttpServletRequest("/"), "x", "y");
+            proxy.authenticate(new MockHttpServletRequest(), "x", "y");
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertEquals("Bean context must contain at least one bean of type CasPasswordHandler",
@@ -81,11 +81,11 @@ public class CasPasswordHandlerProxyTests extends TestCase {
     public void testNormalOperation() {
         CasPasswordHandlerProxy proxy = new MockCasPasswordHandlerProxy(
                 "net/sf/acegisecurity/adapters/cas/applicationContext-valid.xml");
-        assertTrue(proxy.authenticate(new MockHttpServletRequest("/"),
-                "marissa", "koala"));
-        assertFalse(proxy.authenticate(new MockHttpServletRequest("/"),
-                "marissa", "WRONG_PASSWORD"));
-        assertFalse(proxy.authenticate(new MockHttpServletRequest("/"),
+        assertTrue(proxy.authenticate(new MockHttpServletRequest(), "marissa",
+                "koala"));
+        assertFalse(proxy.authenticate(new MockHttpServletRequest(), "marissa",
+                "WRONG_PASSWORD"));
+        assertFalse(proxy.authenticate(new MockHttpServletRequest(),
                 "INVALID_USER_NAME", "WRONG_PASSWORD"));
     }
 

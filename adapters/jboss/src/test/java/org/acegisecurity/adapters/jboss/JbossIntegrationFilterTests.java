@@ -19,9 +19,10 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.adapters.MockPrincipal;
 import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
+
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.security.Principal;
 
@@ -68,8 +69,7 @@ public class JbossIntegrationFilterTests extends TestCase {
         JbossIntegrationFilter filter = new MockJbossIntegrationFilter(new MockInitialContext(
                     makeIntoSubject(principal)));
 
-        Object result = filter.extractFromContainer(new MockHttpServletRequest(
-                    null, null));
+        Object result = filter.extractFromContainer(new MockHttpServletRequest());
 
         if (!(result instanceof PrincipalAcegiUserToken)) {
             fail("Should have returned PrincipalAcegiUserToken");
@@ -78,8 +78,10 @@ public class JbossIntegrationFilterTests extends TestCase {
         PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) result;
         assertEquals(principal, result);
 
-        filter.commitToContainer(new MockHttpServletRequest(principal, null),
-            principal);
+        MockHttpServletRequest mockRequest = new MockHttpServletRequest();
+        mockRequest.setUserPrincipal(principal);
+
+        filter.commitToContainer(mockRequest, principal);
     }
 
     public void testReturnsNullIfContextReturnsSomethingOtherThanASubject() {

@@ -18,7 +18,8 @@ package net.sf.acegisecurity.adapters.cas;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.MockHttpServletRequest;
+
+import org.springframework.mock.web.MockHttpServletRequest;
 
 
 /**
@@ -54,7 +55,7 @@ public class CasPasswordHandlerTests extends TestCase {
         handler.setAuthenticationManager(new MockAuthenticationManager(false));
         handler.afterPropertiesSet();
 
-        assertFalse(handler.authenticate(new MockHttpServletRequest("/"),
+        assertFalse(handler.authenticate(new MockHttpServletRequest(),
                 "username", "password"));
     }
 
@@ -84,16 +85,15 @@ public class CasPasswordHandlerTests extends TestCase {
         handler.afterPropertiesSet();
 
         // If empty or null username we return false
-        assertFalse(handler.authenticate(new MockHttpServletRequest("/"), "",
+        assertFalse(handler.authenticate(new MockHttpServletRequest(), "",
                 "password"));
-        assertFalse(handler.authenticate(new MockHttpServletRequest("/"), null,
+        assertFalse(handler.authenticate(new MockHttpServletRequest(), null,
                 "password"));
 
         // We authenticate with null passwords (they might not have one)
-        assertTrue(handler.authenticate(new MockHttpServletRequest("/"),
-                "user", null));
-        assertTrue(handler.authenticate(new MockHttpServletRequest("/"),
-                "user", ""));
+        assertTrue(handler.authenticate(new MockHttpServletRequest(), "user",
+                null));
+        assertTrue(handler.authenticate(new MockHttpServletRequest(), "user", ""));
     }
 
     public void testNormalOperation() throws Exception {
@@ -101,7 +101,7 @@ public class CasPasswordHandlerTests extends TestCase {
         handler.setAuthenticationManager(new MockAuthenticationManager(true));
         handler.afterPropertiesSet();
 
-        assertTrue(handler.authenticate(new MockHttpServletRequest("/"),
+        assertTrue(handler.authenticate(new MockHttpServletRequest(),
                 "username", "password"));
     }
 }
