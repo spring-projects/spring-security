@@ -26,6 +26,7 @@
   </properties>
   <body>
     <release version="0.8.2" date="In CVS">
+      <action dev="benalex" type="fix">Correct location of AuthenticationSimpleHttpInvokerRequestExecutor in clientContext.xml</action>
     </release>
     <release version="0.8.1" date="2005-03-22">
       <action dev="luke_t" type="add">X509 (certificate-based) authentication support</action>

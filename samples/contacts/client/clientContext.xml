@@ -48,7 +48,7 @@
 
 	<!-- Automatically propagates ContextHolder-managed Authentication principal
 		 and credentials to a HTTP invoker BASIC authentication header -->
-	<bean id="httpInvokerRequestExecutor" class="net.sf.acegisecurity.ui.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor"/>
+	<bean id="httpInvokerRequestExecutor" class="net.sf.acegisecurity.context.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor"/>
 
 	<!-- Proxy for the Hessian-exported ContactManager -->
 	<!-- Hessian is a slim binary HTTP remoting protocol -->
