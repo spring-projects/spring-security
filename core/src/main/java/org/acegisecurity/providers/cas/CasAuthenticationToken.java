@@ -157,8 +157,6 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
             return true;
         }
 
-        System.out.println("THey're not equal");
-
         return false;
     }
 
