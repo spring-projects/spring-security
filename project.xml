@@ -2,7 +2,7 @@
     <pomVersion>3</pomVersion>
     <name>Acegi Security System for Spring</name>
     <groupId>acegi</groupId>
-    <currentVersion>0.6-SNAPSHOT</currentVersion>
+    <currentVersion>0.7-SNAPSHOT</currentVersion>
     <package>net.sf.acegisecurity</package>
     <description>Acegi Security System for Spring</description>
     <shortDescription>Acegi Security System for Spring</shortDescription>
@@ -355,8 +355,9 @@
         <report>maven-jxr-plugin</report>
         <report>maven-license-plugin</report>
         <report>maven-pmd-plugin</report>
-        <report>maven-tasklist-plugin</report>
+        <report>maven-findbugs-plugin</report>
         <report>maven-simian-plugin</report>
+        <report>maven-tasklist-plugin</report>
         <report>maven-faq-plugin</report>
         <report>maven-clover-plugin</report>
     </reports>
