@@ -187,6 +187,7 @@
 				<include name="net/sf/acegisecurity/securechannel/**"/>
 				<include name="net/sf/acegisecurity/intercept/**"/>
 				<include name="net/sf/acegisecurity/adapters/*"/>
+				<include name="net/sf/acegisecurity/adapters/jboss/*"/>
 				<include name="net/sf/acegisecurity/adapters/catalina/*"/>
 				<exclude name="net/sf/acegisecurity/adapters/catalina/CatalinaAcegiUserRealm.class"/>
 			</fileset>
@@ -209,6 +210,7 @@
 				<include name="net/sf/acegisecurity/securechannel/**"/>
 				<include name="net/sf/acegisecurity/intercept/**"/>
 				<include name="net/sf/acegisecurity/adapters/*"/>
+				<include name="net/sf/acegisecurity/adapters/jboss/*"/>
 				<include name="net/sf/acegisecurity/adapters/jetty/*"/>
 			</fileset>
 			<manifest>
@@ -251,6 +253,7 @@
 				<include name="net/sf/acegisecurity/securechannel/**"/>
 				<include name="net/sf/acegisecurity/intercept/**"/>
 				<include name="net/sf/acegisecurity/adapters/*"/>
+				<include name="net/sf/acegisecurity/adapters/jboss/*"/>
 				<include name="net/sf/acegisecurity/adapters/resin/*"/>
 			</fileset>
 			<manifest>
