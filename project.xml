@@ -20,7 +20,6 @@
 -->
 <project>
   <pomVersion>3</pomVersion>
-  <artifactId>acegisecurity</artifactId>
   <groupId>acegisecurity</groupId>
   <currentVersion>0.8.2-SNAPSHOT</currentVersion>
   <package>net.sf.acegisecurity</package>
