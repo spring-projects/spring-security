@@ -93,6 +93,7 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
     private BasicAclDao basicAclDao;
     private BasicAclEntryCache basicAclEntryCache = new NullAclEntryCache();
     private Class defaultAclObjectIdentityClass = NamedEntityObjectIdentity.class;
+    private Class restrictSupportToClass = null;
     private EffectiveAclsResolver effectiveAclsResolver = new GrantedAuthorityEffectiveAclsResolver();
 
     //~ Methods ================================================================
@@ -230,6 +231,28 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
         return effectiveAclsResolver;
     }
 
+    /**
+     * If set to a value other than <code>null</code>, the {@link
+     * #supports(Object)} method will <b>only</b> support the indicates class.
+     * This is useful if you wish to wire multiple
+     * <code>BasicAclProvider</code>s in a list of
+     * <code>AclProviderManager.providers</code> but only have particular
+     * instances respond to particular domain object types.
+     *
+     * @param restrictSupportToClass the class to restrict this
+     *        <code>BasicAclProvider</code> to service request for, or
+     *        <code>null</code> (the default) if the
+     *        <code>BasicAclProvider</code> should respond to every class
+     *        presented
+     */
+    public void setRestrictSupportToClass(Class restrictSupportToClass) {
+        this.restrictSupportToClass = restrictSupportToClass;
+    }
+
+    public Class getRestrictSupportToClass() {
+        return restrictSupportToClass;
+    }
+
     public void afterPropertiesSet() {
         if (basicAclDao == null) {
             throw new IllegalArgumentException("basicAclDao required");
@@ -260,9 +283,14 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
     }
 
     /**
-     * Indicates support for the passed object if it an
-     * <code>AclObjectIdentity</code> is returned by {@link
-     * #obtainIdentity(Object)}.
+     * Indicates support for the passed object.
+     * 
+     * <p>
+     * An object will only be supported if it (i) is allowed to be supported as
+     * defined by the {@link #setRestrictSupportToClass(Class)} method,
+     * <b>and</b> (ii) if an <code>AclObjectIdentity</code> is returned by
+     * {@link #obtainIdentity(Object)} for that object.
+     * </p>
      *
      * @param domainInstance the instance to check
      *
@@ -270,6 +298,16 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
      *         <code>false</code> otherwise
      */
     public boolean supports(Object domainInstance) {
+        if (domainInstance == null) {
+            return false;
+        }
+
+        if ((restrictSupportToClass != null)
+            && !restrictSupportToClass.isAssignableFrom(
+                domainInstance.getClass())) {
+            return false;
+        }
+
         if (obtainIdentity(domainInstance) == null) {
             return false;
         } else {

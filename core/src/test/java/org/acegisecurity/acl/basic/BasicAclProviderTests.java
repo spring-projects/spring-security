@@ -184,6 +184,10 @@ public class BasicAclProviderTests extends TestCase {
 
         provider.setBasicAclDao(new MockDao());
         assertNotNull(provider.getBasicAclDao());
+
+        assertNull(provider.getRestrictSupportToClass());
+        provider.setRestrictSupportToClass(SomeDomain.class);
+        assertEquals(SomeDomain.class, provider.getRestrictSupportToClass());
     }
 
     public void testStartupFailsIfNullAclDao() throws Exception {
@@ -276,6 +280,16 @@ public class BasicAclProviderTests extends TestCase {
 
         // this one SHOULD be supported, as it implements AclObjectIdentityAware
         assertTrue(provider.supports(new MockDomain(4)));
+
+        // now restrict the provider to only respond to SomeDomain.class requests
+        provider.setRestrictSupportToClass(SomeDomain.class);
+        assertEquals(SomeDomain.class, provider.getRestrictSupportToClass());
+
+        // this one SHOULD be supported, as it has a getId() method AND it meets the restrictSupportToClass criteria
+        assertTrue(provider.supports(new SomeDomain()));
+
+        // this one should NOT be suported, as whilst it implement AclObjectIdentityAware (as proven earlier in the test), it does NOT meet the restrictSupportToClass criteria
+        assertFalse(provider.supports(new MockDomain(4)));
     }
 
     private JdbcDaoImpl makePopulatedJdbcDao() throws Exception {
