@@ -76,7 +76,7 @@ import javax.servlet.http.HttpSession;
  * similar clients that will never present the same <code>jsessionid</code>
  * etc), the  {@link #setAllowSessionCreation(boolean)} should be set to
  * <code>false</code>. Only do this if you really need to conserve server
- * memory and are sure ensure all classes using the <code>ContextHolder</code>
+ * memory and ensure all classes using the <code>ContextHolder</code>
  * are designed to have no persistence of the <code>Context</code> between web
  * requests.
  * </p>
@@ -84,7 +84,7 @@ import javax.servlet.http.HttpSession;
  * <p>
  * This filter MUST be executed BEFORE any authentication procesing mechanisms.
  * Authentication processing mechanisms (eg BASIC, CAS processing filters etc)
- * expect the <code>ContextHolder</code> to be contain a valid
+ * expect the <code>ContextHolder</code> to contain a valid
  * <code>SecureContext</code> by the time they execute.
  * </p>
  *
