@@ -77,7 +77,7 @@ public class AuthenticationTagTests extends TestCase {
     public void testOperationWhenPrincipalIsAUserDetailsInstance()
         throws JspException {
         Authentication auth = new TestingAuthenticationToken(new User(
-                    "marissaUserDetails", "koala", true, true, true,
+                    "marissaUserDetails", "koala", true, true, true, true,
                     new GrantedAuthority[] {}), "koala",
                 new GrantedAuthority[] {});
         SecureContext sc = new SecureContextImpl();

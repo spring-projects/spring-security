@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ public class EhCacheBasedTicketCacheTests extends TestCase {
         List proxyList = new Vector();
         proxyList.add("https://localhost/newPortal/j_acegi_cas_security_check");
 
-        User user = new User("marissa", "password", true, true, true,
+        User user = new User("marissa", "password", true, true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")});
 

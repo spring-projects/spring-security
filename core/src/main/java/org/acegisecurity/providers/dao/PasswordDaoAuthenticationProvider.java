@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,13 @@ import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.CredentialsExpiredException;
 import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.LockedException;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.AuthenticationProvider;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.cache.NullUserCache;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureAccountExpiredEvent;
+import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureAccountLockedEvent;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureCredentialsExpiredEvent;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureDisabledEvent;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureUsernameOrPasswordEvent;
@@ -184,7 +186,7 @@ public class PasswordDaoAuthenticationProvider implements AuthenticationProvider
                     context.publishEvent(new AuthenticationFailureUsernameOrPasswordEvent(
                             authentication,
                             new User(username, "*****", false, false, false,
-                                new GrantedAuthority[0])));
+                                false, new GrantedAuthority[0])));
                 }
 
                 throw ex;
@@ -207,6 +209,15 @@ public class PasswordDaoAuthenticationProvider implements AuthenticationProvider
             }
 
             throw new AccountExpiredException("User account has expired");
+        }
+
+        if (!user.isAccountNonLocked()) {
+            if (this.context != null) {
+                context.publishEvent(new AuthenticationFailureAccountLockedEvent(
+                        authentication, user));
+            }
+
+            throw new LockedException("User account is locked");
         }
 
         if (!user.isCredentialsNonExpired()) {

@@ -104,6 +104,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
 
     public void testAutoLoginIfExpired() throws Exception {
         UserDetails user = new User("someone", "password", true, true, true,
+                true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
 
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
@@ -130,6 +131,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
     public void testAutoLoginIfMissingThreeTokensInCookieValue()
         throws Exception {
         UserDetails user = new User("someone", "password", true, true, true,
+                true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
 
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
@@ -154,6 +156,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
 
     public void testAutoLoginIfNotBase64Encoded() throws Exception {
         UserDetails user = new User("someone", "password", true, true, true,
+                true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
 
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
@@ -179,6 +182,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
     public void testAutoLoginIfSignatureBlocksDoesNotMatchExpectedValue()
         throws Exception {
         UserDetails user = new User("someone", "password", true, true, true,
+                true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
 
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
@@ -205,6 +209,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
     public void testAutoLoginIfTokenDoesNotContainANumberInCookieValue()
         throws Exception {
         UserDetails user = new User("someone", "password", true, true, true,
+                true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
 
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
@@ -252,6 +257,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
 
     public void testAutoLoginWithValidToken() throws Exception {
         UserDetails user = new User("someone", "password", true, true, true,
+                true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
 
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
@@ -346,6 +352,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         UserDetails user = new User("someone", "password", true, true, true,
+                true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")});
         services.loginSuccess(request, response,
             new TestingAuthenticationToken(user, "ignored",

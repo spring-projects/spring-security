@@ -13,35 +13,24 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.x509;
+package net.sf.acegisecurity.providers.dao.event;
 
-import junit.framework.TestCase;
+import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.UserDetails;
 
 
 /**
- * DOCUMENT ME!
+ * Application event which indicates authentication failure due to the user's
+ * account having been locked.
  *
- * @author Luke Taylor
+ * @author Ben Alex
+ * @version $Id$
  */
-public class X509AuthenticationTokenTests extends TestCase {
+public class AuthenticationFailureAccountLockedEvent extends AuthenticationEvent {
     //~ Constructors ===========================================================
 
-    public X509AuthenticationTokenTests() {}
-
-    public X509AuthenticationTokenTests(String s) {
-        super(s);
-    }
-
-    //~ Methods ================================================================
-
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void testAuthenticated() throws Exception {
-        X509AuthenticationToken token = X509TestUtils.createToken();
-        assertTrue(!token.isAuthenticated());
-        token.setAuthenticated(true);
-        assertTrue(token.isAuthenticated());
+    public AuthenticationFailureAccountLockedEvent(
+        Authentication authentication, UserDetails user) {
+        super(authentication, user);
     }
 }

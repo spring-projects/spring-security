@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -192,7 +192,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
         arrayAuths = (GrantedAuthority[]) dbAuths.toArray(arrayAuths);
 
         return new User(user.getUsername(), user.getPassword(),
-            user.isEnabled(), true, true, arrayAuths);
+            user.isEnabled(), true, true, true, arrayAuths);
     }
 
     /**
@@ -256,7 +256,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
             String password = rs.getString(2);
             boolean enabled = rs.getBoolean(3);
             UserDetails user = new User(username, password, enabled, true,
-                    true,
+                    true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("HOLDER")});
 
             return user;

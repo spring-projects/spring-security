@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,17 @@ public class LoggerListener implements ApplicationListener {
             if (logger.isWarnEnabled()) {
                 logger.warn(
                     "Authentication failed due to account being disabled for user: "
+                    + authEvent.getUser().getUsername() + "; details: "
+                    + authEvent.getAuthentication().getDetails());
+            }
+        }
+
+        if (event instanceof AuthenticationFailureAccountLockedEvent) {
+            AuthenticationFailureAccountLockedEvent authEvent = (AuthenticationFailureAccountLockedEvent) event;
+
+            if (logger.isWarnEnabled()) {
+                logger.warn(
+                    "Authentication failed due to account being locked for user: "
                     + authEvent.getUser().getUsername() + "; details: "
                     + authEvent.getAuthentication().getDetails());
             }

@@ -23,11 +23,13 @@ import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.CredentialsExpiredException;
 import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.LockedException;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.AuthenticationProvider;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.cache.NullUserCache;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureAccountExpiredEvent;
+import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureAccountLockedEvent;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureCredentialsExpiredEvent;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureDisabledEvent;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationFailurePasswordEvent;
@@ -232,7 +234,8 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
                             authentication,
                             new User("".equals(username)
                                 ? "EMPTY_STRING_PROVIDED" : username, "*****",
-                                false, false, false, new GrantedAuthority[0])));
+                                false, false, false, false,
+                                new GrantedAuthority[0])));
                 }
 
                 throw ex;
@@ -255,6 +258,15 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             }
 
             throw new AccountExpiredException("User account has expired");
+        }
+
+        if (!user.isAccountNonLocked()) {
+            if (this.context != null) {
+                context.publishEvent(new AuthenticationFailureAccountLockedEvent(
+                        authentication, user));
+            }
+
+            throw new LockedException("User account is locked");
         }
 
         if (!user.isCredentialsNonExpired()) {

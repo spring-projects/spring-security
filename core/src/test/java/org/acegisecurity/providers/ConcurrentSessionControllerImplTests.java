@@ -16,12 +16,14 @@
 package net.sf.acegisecurity.providers;
 
 import junit.framework.TestCase;
+
 import net.sf.acegisecurity.*;
 import net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.User;
 import net.sf.acegisecurity.ui.WebAuthenticationDetails;
 import net.sf.acegisecurity.ui.session.HttpSessionCreatedEvent;
 import net.sf.acegisecurity.ui.session.HttpSessionDestroyedEvent;
+
 import org.springframework.context.ApplicationListener;
 
 import java.security.Principal;
@@ -39,8 +41,17 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
 
     //~ Methods ================================================================
 
+    public void testAnonymous() throws Exception {
+        AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken("blah",
+                "anon",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ANON")});
+        target.beforeAuthentication(auth);
+        target.afterAuthentication(auth, auth);
+    }
+
     public void testBumpCoverage() throws Exception {
-        target.onApplicationEvent(new HttpSessionCreatedEvent(new MockHttpSession()));
+        target.onApplicationEvent(new HttpSessionCreatedEvent(
+                new MockHttpSession()));
     }
 
     public void testEnforcementKnownGood() throws Exception {
@@ -63,7 +74,8 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         try {
             auth = createAuthentication("user", "password", "lastsession");
             target.beforeAuthentication(auth);
-            fail("Only allowed 5 sessions, this should have thrown a ConcurrentLoginException");
+            fail(
+                "Only allowed 5 sessions, this should have thrown a ConcurrentLoginException");
         } catch (ConcurrentLoginException e) {
             assertTrue(e.getMessage().startsWith(auth.getPrincipal().toString()));
         }
@@ -81,9 +93,9 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         try {
             target.beforeAuthentication(createAuthentication("user",
                     "password", "session2"));
-            fail("Only allowed 1 session, this should have thrown a ConcurrentLoginException");
-        } catch (ConcurrentLoginException e) {
-        }
+            fail(
+                "Only allowed 1 session, this should have thrown a ConcurrentLoginException");
+        } catch (ConcurrentLoginException e) {}
     }
 
     public void testEnforcementUnlimitedSameSession() throws Exception {
@@ -129,6 +141,11 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         target.afterAuthentication(different, different);
     }
 
+    public void testImplementsApplicationListener() throws Exception {
+        assertTrue("This class must implement ApplicationListener, and at one point it didn't.",
+            target instanceof ApplicationListener);
+    }
+
     public void testNonWebDetails() throws Exception {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("asdf",
                 "asdf");
@@ -141,7 +158,7 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         target.setMaxSessions(1);
 
         final UserDetails user = new User("user", "password", true, true, true,
-                new GrantedAuthority[0]);
+                true, new GrantedAuthority[0]);
         final UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user,
                 "password", user.getAuthorities());
         auth.setDetails(createWebDetails(auth, "session1"));
@@ -151,20 +168,20 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
 
         try {
             UsernamePasswordAuthenticationToken otherAuth = new UsernamePasswordAuthenticationToken(new Principal() {
-                public String getName() {
-                    return "user";
-                }
+                        public String getName() {
+                            return "user";
+                        }
 
-                public String toString() {
-                    return getName();
-                }
-            }, "password");
+                        public String toString() {
+                            return getName();
+                        }
+                    }, "password");
 
             otherAuth.setDetails(createWebDetails(otherAuth, "session2"));
             target.beforeAuthentication(otherAuth);
-            fail("Same principal, different principal type, different session should have thrown ConcurrentLoginException");
-        } catch (ConcurrentLoginException e) {
-        }
+            fail(
+                "Same principal, different principal type, different session should have thrown ConcurrentLoginException");
+        } catch (ConcurrentLoginException e) {}
     }
 
     public void testSetMax() throws Exception {
@@ -177,7 +194,7 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
 
     public void testSetTrustManager() throws Exception {
         assertNotNull("There is supposed to be a default AuthenticationTrustResolver",
-                target.getTrustResolver());
+            target.getTrustResolver());
 
         AuthenticationTrustResolverImpl impl = new AuthenticationTrustResolverImpl();
         target.setTrustResolver(impl);
@@ -220,7 +237,7 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
     }
 
     private Authentication createAuthentication(String user, String password,
-                                                String sessionId) {
+        String sessionId) {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user,
                 password);
         auth.setDetails(createWebDetails(auth, sessionId));
@@ -229,21 +246,11 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
     }
 
     private WebAuthenticationDetails createWebDetails(Authentication auth,
-                                                      String sessionId) {
+        String sessionId) {
         MockHttpSession session = new MockHttpSession(sessionId);
         MockHttpServletRequest request = new MockHttpServletRequest(auth,
                 session);
 
         return new WebAuthenticationDetails(request);
-    }
-
-    public void testAnonymous() throws Exception {
-        AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken("blah", "anon", new GrantedAuthority[]{new GrantedAuthorityImpl("ROLE_ANON")});
-        target.beforeAuthentication(auth);
-        target.afterAuthentication(auth, auth);
-    }
-
-    public void testImplementsApplicationListener() throws Exception {
-        assertTrue("This class must implement ApplicationListener, and at one point it didn't.", target instanceof ApplicationListener);
     }
 }

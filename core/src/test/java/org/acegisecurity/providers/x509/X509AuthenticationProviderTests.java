@@ -16,11 +16,13 @@
 package net.sf.acegisecurity.providers.x509;
 
 import junit.framework.TestCase;
+
 import net.sf.acegisecurity.*;
-import net.sf.acegisecurity.providers.dao.User;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import net.sf.acegisecurity.providers.dao.User;
 
 import java.security.cert.X509Certificate;
+
 
 /**
  * Tests {@link net.sf.acegisecurity.providers.x509.X509AuthenticationProvider}
@@ -45,17 +47,28 @@ public class X509AuthenticationProviderTests extends TestCase {
         super.setUp();
     }
 
-    public void testRequiresPopulator() throws Exception {
+    public void testAuthenticationIsNullWithUnsupportedToken() {
         X509AuthenticationProvider provider = new X509AuthenticationProvider();
+        Authentication request = new UsernamePasswordAuthenticationToken("dummy",
+                "dummy");
+        Authentication result = provider.authenticate(request);
+        assertNull(result);
+    }
+
+    public void testFailsWithNullCertificate() {
+        X509AuthenticationProvider provider = new X509AuthenticationProvider();
+
+        provider.setX509AuthoritiesPopulator(new MockAuthoritiesPopulator(false));
+
         try {
-            provider.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException failed) {
-            //ignored
+            provider.authenticate(new X509AuthenticationToken(null));
+            fail("Should have thrown BadCredentialsException");
+        } catch (BadCredentialsException e) {
+            //ignore
         }
     }
 
-    public void testNormalOperation () throws Exception {
+    public void testNormalOperation() throws Exception {
         X509AuthenticationProvider provider = new X509AuthenticationProvider();
 
         provider.setX509AuthoritiesPopulator(new MockAuthoritiesPopulator(false));
@@ -67,56 +80,48 @@ public class X509AuthenticationProviderTests extends TestCase {
         assertNotNull(result.getAuthorities());
     }
 
-    public void testFailsWithNullCertificate() {
-        X509AuthenticationProvider provider = new X509AuthenticationProvider();
-
-        provider.setX509AuthoritiesPopulator(new MockAuthoritiesPopulator(false));
-        try {
-            provider.authenticate(new X509AuthenticationToken(null));
-            fail("Should have thrown BadCredentialsException");
-        } catch(BadCredentialsException e) {
-            //ignore
-        }
-    }
-
     public void testPopulatorRejectionCausesFailure() throws Exception {
         X509AuthenticationProvider provider = new X509AuthenticationProvider();
         provider.setX509AuthoritiesPopulator(new MockAuthoritiesPopulator(true));
+
         try {
             provider.authenticate(X509TestUtils.createToken());
             fail("Should have thrown BadCredentialsException");
-        } catch(BadCredentialsException e) {
+        } catch (BadCredentialsException e) {
             //ignore
         }
     }
 
-    public void testAuthenticationIsNullWithUnsupportedToken() {
+    public void testRequiresPopulator() throws Exception {
         X509AuthenticationProvider provider = new X509AuthenticationProvider();
-        Authentication request = new UsernamePasswordAuthenticationToken("dummy","dummy");
-        Authentication result = provider.authenticate(request);
-        assertNull(result);
+
+        try {
+            provider.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException failed) {
+            //ignored
+        }
     }
 
     //~ Inner Classes ==========================================================
 
-    public static class MockAuthoritiesPopulator implements X509AuthoritiesPopulator {
+    public static class MockAuthoritiesPopulator
+        implements X509AuthoritiesPopulator {
         private boolean rejectCertificate;
 
         public MockAuthoritiesPopulator(boolean rejectCertificate) {
             this.rejectCertificate = rejectCertificate;
         }
 
-        public UserDetails getUserDetails(X509Certificate userCertificate) throws AuthenticationException {
-            if(rejectCertificate) {
+        public UserDetails getUserDetails(X509Certificate userCertificate)
+            throws AuthenticationException {
+            if (rejectCertificate) {
                 throw new BadCredentialsException("Invalid Certificate");
             }
 
-            return new User ("user", "password", true, true, true,
+            return new User("user", "password", true, true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl(
                         "ROLE_B")});
         }
     }
-
-
-
 }

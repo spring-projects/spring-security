@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,7 +139,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("marissa".equals(username)) {
-                return new User("marissa", "koala", true, true, true,
+                return new User("marissa", "koala", true, true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
             } else {

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -319,7 +319,7 @@ public class CasAuthenticationTokenTests extends TestCase {
     }
 
     private UserDetails makeUserDetails() {
-        return new User("user", "password", true, true, true,
+        return new User("user", "password", true, true, true, true,
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                     "ROLE_TWO")});
     }

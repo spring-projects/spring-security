@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public class GrantedAuthorityEffectiveAclsResolverTests extends TestCase {
             .getPrincipal(), new NamedEntityObjectIdentity("OBJECT", "100"),
             null, 2);
     private UsernamePasswordAuthenticationToken scottWithUserDetails = new UsernamePasswordAuthenticationToken(new User(
-                "scott", "NOT_USED", true, true, true,
+                "scott", "NOT_USED", true, true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl(
                         "ROLE_EVERYBODY")}), "not used",
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_EVERYBODY"), new GrantedAuthorityImpl("ROLE_TWO")});

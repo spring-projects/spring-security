@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ public class UserTests extends TestCase {
 
     public void testNullValuesRejected() throws Exception {
         try {
-            UserDetails user = new User(null, "koala", true, true, true,
+            UserDetails user = new User(null, "koala", true, true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
             fail("Should have thrown IllegalArgumentException");
@@ -70,6 +70,7 @@ public class UserTests extends TestCase {
 
         try {
             UserDetails user = new User("marissa", null, true, true, true,
+                    true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
             fail("Should have thrown IllegalArgumentException");
@@ -79,7 +80,7 @@ public class UserTests extends TestCase {
 
         try {
             UserDetails user = new User("marissa", "koala", true, true, true,
-                    null);
+                    true, null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -87,6 +88,7 @@ public class UserTests extends TestCase {
 
         try {
             UserDetails user = new User("marissa", "koala", true, true, true,
+                    true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), null});
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
@@ -97,7 +99,7 @@ public class UserTests extends TestCase {
     public void testNullWithinGrantedAuthorityElementIsRejected()
         throws Exception {
         try {
-            UserDetails user = new User(null, "koala", true, true, true,
+            UserDetails user = new User(null, "koala", true, true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO"), null, new GrantedAuthorityImpl(
                             "ROLE_THREE")});
@@ -108,7 +110,7 @@ public class UserTests extends TestCase {
     }
 
     public void testUserGettersSetter() throws Exception {
-        UserDetails user = new User("marissa", "koala", true, true, true,
+        UserDetails user = new User("marissa", "koala", true, true, true, true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")});
         assertEquals("marissa", user.getUsername());
@@ -122,6 +124,7 @@ public class UserTests extends TestCase {
 
     public void testUserIsEnabled() throws Exception {
         UserDetails user = new User("marissa", "koala", false, true, true,
+                true,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")});
         assertTrue(!user.isEnabled());

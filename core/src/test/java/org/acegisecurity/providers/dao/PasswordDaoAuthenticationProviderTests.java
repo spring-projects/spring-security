@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import net.sf.acegisecurity.CredentialsExpiredException;
 import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.LockedException;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
@@ -94,6 +95,32 @@ public class PasswordDaoAuthenticationProviderTests extends TestCase {
             provider.authenticate(token);
             fail("Should have thrown AccountExpiredException");
         } catch (AccountExpiredException expected) {
+            assertTrue(true);
+        }
+    }
+
+    public void testAuthenticateFailsIfAccountLocked() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("peter",
+                "opal");
+
+        PasswordDaoAuthenticationProvider provider = new PasswordDaoAuthenticationProvider();
+        provider.setPasswordAuthenticationDao(new MockAuthenticationDaoUserPeterAccountLocked());
+        provider.setUserCache(new MockUserCache());
+
+        try {
+            provider.authenticate(token);
+            fail("Should have thrown AccountExpiredException");
+        } catch (LockedException expected) {
+            assertTrue(true);
+        }
+
+        provider.setApplicationContext(new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/util/filtertest-valid.xml"));
+
+        try {
+            provider.authenticate(token);
+            fail("Should have thrown AccountExpiredException");
+        } catch (LockedException expected) {
             assertTrue(true);
         }
     }
@@ -346,7 +373,7 @@ public class PasswordDaoAuthenticationProviderTests extends TestCase {
             String password)
             throws BadCredentialsException, DataAccessException {
             if ("marissa".equals(username) && "koala".equals(password)) {
-                return new User("marissa", "koala", true, true, true,
+                return new User("marissa", "koala", true, true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
             } else {
@@ -361,7 +388,7 @@ public class PasswordDaoAuthenticationProviderTests extends TestCase {
             String password)
             throws BadCredentialsException, DataAccessException {
             if ("peter".equals(username) && "opal".equals(password)) {
-                return new User("peter", "opal", false, true, true,
+                return new User("peter", "opal", false, true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
             } else {
@@ -376,7 +403,23 @@ public class PasswordDaoAuthenticationProviderTests extends TestCase {
             String password)
             throws UsernameNotFoundException, DataAccessException {
             if ("peter".equals(username)) {
-                return new User("peter", "opal", true, false, true,
+                return new User("peter", "opal", true, false, true, true,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                            "ROLE_TWO")});
+            } else {
+                throw new UsernameNotFoundException("Could not find: "
+                    + username);
+            }
+        }
+    }
+
+    private class MockAuthenticationDaoUserPeterAccountLocked
+        implements PasswordAuthenticationDao {
+        public UserDetails loadUserByUsernameAndPassword(String username,
+            String password)
+            throws UsernameNotFoundException, DataAccessException {
+            if ("peter".equals(username)) {
+                return new User("peter", "opal", true, true, true, false,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
             } else {
@@ -392,7 +435,7 @@ public class PasswordDaoAuthenticationProviderTests extends TestCase {
             String password)
             throws UsernameNotFoundException, DataAccessException {
             if ("peter".equals(username)) {
-                return new User("peter", "opal", true, true, false,
+                return new User("peter", "opal", true, true, false, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
             } else {

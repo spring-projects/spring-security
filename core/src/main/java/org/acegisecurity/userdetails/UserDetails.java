@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,15 @@ public interface UserDetails extends Serializable {
      *         expired)
      */
     public boolean isAccountNonExpired();
+
+    /**
+     * Indicates whether the user is locked or unlocked. A locked user cannot
+     * be authenticated.
+     *
+     * @return <code>true</code> if the user is not locked, <code>false</code>
+     *         otherwise
+     */
+    public boolean isAccountNonLocked();
 
     /**
      * Returns the authorities granted to the user. Cannot return
