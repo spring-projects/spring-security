@@ -53,7 +53,7 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
- * If a {@link AuthenticationException} is detected, the filter will launch the
+ * If an {@link AuthenticationException} is detected, the filter will launch the
  * <code>authenticationEntryPoint</code>. This allows common handling of
  * authentication failures originating from any subclass of {@link
  * net.sf.acegisecurity.intercept.AbstractSecurityInterceptor}.
@@ -86,7 +86,7 @@ import javax.servlet.http.HttpServletResponse;
  * <code>authenticationEntryPoint</code> indicates the handler that should
  * commence the authentication process if an
  * <code>AuthenticationException</code> is detected. Note that this may also
- * switch the current protocol from http to https for a an SSL login.
+ * switch the current protocol from http to https for an SSL login.
  * </li>
  * <li>
  * <code>portResolver</code> is used to determine the "real" port that a
