@@ -46,6 +46,7 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
     //~ Instance fields ========================================================
 
     private AuthenticationDao authenticationDao;
+    private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
     private boolean ignorePasswordCase = false;
     private boolean ignoreUsernameCase = true;
 
@@ -89,6 +90,21 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
         return ignoreUsernameCase;
     }
 
+    /**
+     * Sets the PasswordEncoder instance to be used to encode and validate
+     * passwords. If not set, {@link PlaintextPasswordEncoder} will be used by
+     * default.
+     *
+     * @param passwordEncoder The passwordEncoder to use
+     */
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public PasswordEncoder getPasswordEncoder() {
+        return passwordEncoder;
+    }
+
     public void afterPropertiesSet() throws Exception {
         if (this.authenticationDao == null) {
             throw new IllegalArgumentException(
@@ -116,15 +132,9 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             throw new BadCredentialsException("Bad credentials presented");
         }
 
-        if (!user.getPassword().toLowerCase().equals(authentication.getCredentials()
-                                                                   .toString()
-                                                                   .toLowerCase())) {
-            throw new BadCredentialsException("Bad credentials presented");
-        }
-
-        if ((!this.ignorePasswordCase)
-            && (!user.getPassword().equals(authentication.getCredentials()
-                                                         .toString()))) {
+        if (!passwordEncoder.isPasswordValid(user.getPassword(),
+                authentication.getCredentials().toString(), user,
+                ignorePasswordCase)) {
             throw new BadCredentialsException("Bad credentials presented");
         }
 
@@ -133,7 +143,7 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
         }
 
         return new UsernamePasswordAuthenticationToken(user.getUsername(),
-            user.getPassword(), user.getAuthorities());
+            authentication.getCredentials().toString(), user.getAuthorities());
     }
 
     public boolean supports(Class authentication) {

@@ -48,11 +48,14 @@ import javax.sql.DataSource;
  * </p>
  * 
  * <p>
- * A default database structure is assumed, which most users of this class will
+ * A default database structure is assumed, (see {@link
+ * #DEF_USERS_BY_USERNAME_QUERY} and {@link
+ * #DEF_AUTHORITIES_BY_USERNAME_QUERY}, which most users of this class will
  * need to override, if using an existing scheme. This may be done by setting
- * the default query strings used, or if that does not provide enough
- * flexibility, setting the  actual {@link MappingSqlQuery} instances used to
- * query the database.
+ * the default query strings used. If this does not provide enough
+ * flexibility, another strategy would be to subclass this class and override
+ * the {@link MappingSqlQuery} instances used, via the {@link
+ * #initMappingSqlQueries()} extension point.
  * </p>
  *
  * @author Ben Alex
@@ -68,10 +71,11 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
 
     //~ Instance fields ========================================================
 
-    protected MappingSqlQuery authoritiesByUsernameMapping;
-    protected MappingSqlQuery usersByUsernameMapping;
-    protected String authoritiesByUsernameQuery;
-    protected String usersByUsernameQuery;
+    private MappingSqlQuery authoritiesByUsernameMapping;
+    private MappingSqlQuery usersByUsernameMapping;
+    private String authoritiesByUsernameQuery;
+    private String rolePrefix = "ROLE_";
+    private String usersByUsernameQuery;
 
     //~ Constructors ===========================================================
 
@@ -82,16 +86,6 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
 
     //~ Methods ================================================================
 
-    /**
-     * Allows the default MappingSqlQuery used for retrieving authorities by
-     * username to be overriden. This may be used when overriding the query
-     * string alone is inadequate. Note that there is no point in setting this
-     * property and also  specifying a query string, since there will be no
-     * way for the instance set by this property to get at the query string.
-     * As such, the MappingSqlQuery should be self contained.
-     *
-     * @param authoritiesByUsernameQuery The authoritiesByUsernameQuery to set.
-     */
     public void setAuthoritiesByUsernameMapping(
         MappingSqlQuery authoritiesByUsernameQuery) {
         this.authoritiesByUsernameMapping = authoritiesByUsernameQuery;
@@ -120,15 +114,23 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
     }
 
     /**
-     * Allows the default MappingSqlQuery used for retrieving users by username
-     * to be overriden. This may be used when overriding the query string
-     * alone is inadequate. Note that there is no point in setting this
-     * property and also  specifying a query string, since there will be no
-     * way for the instance set by this property to get at the query string.
-     * As such, the MappingSqlQuery should be self contained.
+     * Allows a default role prefix to be specified. If this is set to a
+     * non-empty value, then it is automatically prepended to any roles read
+     * in from the db. This may for example be used to add the
+     * <code>ROLE_</code> prefix expected to exist in role names (by default)
+     * by some other Acegi Security framework classes, in the case that the
+     * prefix is not already present in the db.
      *
-     * @param usersByUsernameQuery The MappingSqlQuery to set.
+     * @param rolePrefix the new prefix
      */
+    public void setRolePrefix(String rolePrefix) {
+        this.rolePrefix = rolePrefix;
+    }
+
+    public String getRolePrefix() {
+        return rolePrefix;
+    }
+
     public void setUsersByUsernameMapping(MappingSqlQuery usersByUsernameQuery) {
         this.usersByUsernameMapping = usersByUsernameQuery;
     }
@@ -183,8 +185,17 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
     }
 
     protected void initDao() throws ApplicationContextException {
-        usersByUsernameMapping = new UsersByUsernameMapping(getDataSource());
-        authoritiesByUsernameMapping = new AuthoritiesByUsernameMapping(getDataSource());
+        initMappingSqlQueries();
+    }
+
+    /**
+     * Extension point to allow other MappingSqlQuery objects to be substituted
+     * in a subclass
+     */
+    protected void initMappingSqlQueries() {
+        setUsersByUsernameMapping(new UsersByUsernameMapping(getDataSource()));
+        setAuthoritiesByUsernameMapping(new AuthoritiesByUsernameMapping(
+                getDataSource()));
     }
 
     //~ Inner Classes ==========================================================
@@ -201,8 +212,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
 
         protected Object mapRow(ResultSet rs, int rownum)
             throws SQLException {
-            GrantedAuthorityImpl authority = new GrantedAuthorityImpl(rs
-                    .getString("authority"));
+            String roleName = rolePrefix + rs.getString(1);
+            GrantedAuthorityImpl authority = new GrantedAuthorityImpl(roleName);
 
             return authority;
         }
@@ -220,9 +231,9 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
 
         protected Object mapRow(ResultSet rs, int rownum)
             throws SQLException {
-            String username = rs.getString("username");
-            String password = rs.getString("password");
-            boolean enabled = rs.getBoolean("enabled");
+            String username = rs.getString(1);
+            String password = rs.getString(2);
+            boolean enabled = rs.getBoolean(3);
             User user = new User(username, password, enabled,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("HOLDER")});
 
