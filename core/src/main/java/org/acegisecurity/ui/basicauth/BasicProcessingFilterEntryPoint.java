@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package net.sf.acegisecurity.ui.basicauth;
 
+import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -65,11 +66,13 @@ public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint
         }
     }
 
-    public void commence(ServletRequest request, ServletResponse response)
+    public void commence(ServletRequest request, ServletResponse response,
+        AuthenticationException authException)
         throws IOException, ServletException {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         httpResponse.addHeader("WWW-Authenticate",
             "Basic realm=\"" + realmName + "\"");
-        httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED); // 401
+        httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+            authException.getMessage());
     }
 }

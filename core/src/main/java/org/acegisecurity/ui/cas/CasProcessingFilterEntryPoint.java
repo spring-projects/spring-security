@@ -15,6 +15,7 @@
 
 package net.sf.acegisecurity.ui.cas;
 
+import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -88,7 +89,8 @@ public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint,
         }
     }
 
-    public void commence(ServletRequest request, ServletResponse response)
+    public void commence(ServletRequest request, ServletResponse response,
+        AuthenticationException authenticationException)
         throws IOException, ServletException {
         String url;
 

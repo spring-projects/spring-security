@@ -15,6 +15,8 @@
 
 package net.sf.acegisecurity.intercept.web;
 
+import net.sf.acegisecurity.AuthenticationException;
+
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -34,14 +36,14 @@ public interface AuthenticationEntryPoint {
 
     /**
      * Commences an authentication scheme.
-     *
+     * 
      * <P>
      * <code>SecurityEnforcementFilter</code> will populate the
      * <code>HttpSession</code> attribute named
      * <code>AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY</code>
      * with the requested target URL before calling this method.
      * </p>
-     *
+     * 
      * <P>
      * Implementations should modify the headers on the
      * <code>ServletResponse</code> as necessary to commence the
@@ -50,7 +52,9 @@ public interface AuthenticationEntryPoint {
      *
      * @param request that resulted in an <code>AuthenticationException</code>
      * @param response so that the user agent can begin authentication
+     * @param authException that caused the invocation
      */
-    public void commence(ServletRequest request, ServletResponse response)
+    public void commence(ServletRequest request, ServletResponse response,
+        AuthenticationException authException)
         throws IOException, ServletException;
 }

@@ -38,6 +38,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     //~ Instance fields ========================================================
 
     private Map headersMap = new HashMap();
+    private String errorMessage;
     private String redirect;
     private int error;
 
@@ -77,6 +78,10 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     public int getError() {
         return this.error;
+    }
+
+    public String getErrorMessage() {
+        return this.errorMessage;
     }
 
     public void setHeader(String arg0, String arg1) {
@@ -174,7 +179,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     public void sendError(int arg0, String arg1) throws IOException {
-        throw new UnsupportedOperationException("mock method not implemented");
+        this.error = arg0;
+        this.errorMessage = arg1;
     }
 
     public void sendError(int arg0) throws IOException {

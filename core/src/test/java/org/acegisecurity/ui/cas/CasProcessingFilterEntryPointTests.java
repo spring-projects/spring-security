@@ -100,7 +100,7 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         ep.afterPropertiesSet();
-        ep.commence(request, response);
+        ep.commence(request, response, null);
 
         assertEquals("https://cas/login?service="
             + URLEncoder.encode(
@@ -124,7 +124,7 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         ep.afterPropertiesSet();
-        ep.commence(request, response);
+        ep.commence(request, response, null);
         assertEquals("https://cas/login?renew=true&service=https://mycompany.com/bigWebApp/j_acegi_cas_security_check",
             response.getRedirect());
     }

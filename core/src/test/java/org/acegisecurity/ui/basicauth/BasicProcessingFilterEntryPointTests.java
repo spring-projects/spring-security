@@ -17,6 +17,7 @@ package net.sf.acegisecurity.ui.basicauth;
 
 import junit.framework.TestCase;
 
+import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.MockHttpServletRequest;
 import net.sf.acegisecurity.MockHttpServletResponse;
 
@@ -74,8 +75,13 @@ public class BasicProcessingFilterEntryPointTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         ep.afterPropertiesSet();
-        ep.commence(request, response);
+
+        String msg = "These are the jokes kid";
+        ep.commence(request, response, new DisabledException(msg));
+
         assertEquals(401, response.getError());
+        assertEquals(msg, response.getErrorMessage());
+
         assertEquals("Basic realm=\"hello\"",
             response.getHeader("WWW-Authenticate"));
     }

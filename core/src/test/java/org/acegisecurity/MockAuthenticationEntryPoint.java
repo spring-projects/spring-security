@@ -49,7 +49,8 @@ public class MockAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     //~ Methods ================================================================
 
-    public void commence(ServletRequest request, ServletResponse response)
+    public void commence(ServletRequest request, ServletResponse response,
+        AuthenticationException authenticationException)
         throws IOException, ServletException {
         ((HttpServletResponse) response).sendRedirect(((HttpServletRequest) request)
             .getContextPath() + url);

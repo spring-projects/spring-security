@@ -199,7 +199,7 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
 
             ((HttpServletRequest) request).getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
                 targetUrl);
-            authenticationEntryPoint.commence(request, response);
+            authenticationEntryPoint.commence(request, response, authentication);
         } catch (AccessDeniedException accessDenied) {
             if (logger.isDebugEnabled()) {
                 logger.debug(
@@ -208,7 +208,7 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
 
             ((HttpServletRequest) request).getSession().setAttribute(ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY,
                 accessDenied);
-            sendAccessDeniedError(request, response);
+            sendAccessDeniedError(request, response, accessDenied);
         } catch (Throwable otherException) {
             throw new ServletException(otherException);
         }
@@ -221,11 +221,14 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
      *
      * @param request
      * @param response
+     * @param accessDenied
      *
      * @throws IOException
      */
     protected void sendAccessDeniedError(ServletRequest request,
-        ServletResponse response) throws IOException {
-        ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN); // 403
+        ServletResponse response, AccessDeniedException accessDenied)
+        throws IOException {
+        ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN,
+            accessDenied.getMessage()); // 403
     }
 }

@@ -15,6 +15,7 @@
 
 package net.sf.acegisecurity.ui.webapp;
 
+import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
 import net.sf.acegisecurity.util.PortMapper;
 import net.sf.acegisecurity.util.PortMapperImpl;
@@ -133,7 +134,8 @@ public class AuthenticationProcessingFilterEntryPoint
         }
     }
 
-    public void commence(ServletRequest request, ServletResponse response)
+    public void commence(ServletRequest request, ServletResponse response,
+        AuthenticationException authException)
         throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         String scheme = request.getScheme();

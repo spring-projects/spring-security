@@ -145,7 +145,6 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
         }
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String header = httpRequest.getHeader("Authorization");
 
@@ -182,7 +181,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                         + " failed: " + failed.toString());
                 }
 
-                authenticationEntryPoint.commence(request, response);
+                authenticationEntryPoint.commence(request, response, failed);
 
                 return;
             }
