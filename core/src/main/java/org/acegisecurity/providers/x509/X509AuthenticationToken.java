@@ -3,7 +3,6 @@ package net.sf.acegisecurity.providers.x509;
 import net.sf.acegisecurity.providers.AbstractAuthenticationToken;
 import net.sf.acegisecurity.GrantedAuthority;
 
-import javax.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 
 /**

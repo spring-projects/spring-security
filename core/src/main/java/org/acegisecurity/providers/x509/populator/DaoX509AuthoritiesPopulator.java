@@ -21,6 +21,8 @@ import net.sf.acegisecurity.providers.dao.AuthenticationDao;
 import net.sf.acegisecurity.providers.x509.X509AuthoritiesPopulator;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.security.cert.X509Certificate;
 
@@ -33,9 +35,14 @@ import java.security.cert.X509Certificate;
  */
 public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
     InitializingBean {
+    //~ Static fields/initializers =============================================
+
+    private static final Log logger = LogFactory.getLog(DaoX509AuthoritiesPopulator.class);
+
     //~ Instance fields ========================================================
 
     private AuthenticationDao authenticationDao;
+    private String userPattern;
 
     //~ Methods ================================================================
 
@@ -49,6 +56,7 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
 
     public UserDetails getUserDetails(X509Certificate clientCert)
         throws AuthenticationException {
+        logger.debug("Populating authorities for " + clientCert.getSubjectDN().getName());
         return this.authenticationDao.loadUserByUsername("marissa"/*clientCert.getSubjectDN().getName()*/);
     }
 
