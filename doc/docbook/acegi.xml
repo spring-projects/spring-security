@@ -26,7 +26,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>0.8.1</releaseinfo>
+    <releaseinfo>0.8.2</releaseinfo>
 
     <authorgroup>
       <author>
@@ -1475,6 +1475,69 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         bean context configuration shown above.</para>
       </sect2>
 
+      <sect2 id="security-authentication-concurrent-login">
+        <title>Concurrent Session Support</title>
+
+        <para>Acegi Security is able to stop the same principal authenticating
+        to the same web application multiple times concurrently. Put
+        differently, you can stop user "Batman" from logging into a web
+        application twice at the same time. </para>
+
+        <para>To use concurrent session support, you'll need to add the
+        following to web.xml:</para>
+
+        <para><programlisting>&lt;listener&gt;
+  &lt;listener-class&gt;net.sf.acegisecurity.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;
+&lt;/listener&gt;</programlisting></para>
+
+        <para>The above code causes an <literal>ApplicationEvent</literal> to
+        be published to the Spring <literal>ApplicationContext</literal> every
+        time a <literal>HttpSession</literal> commences or terminates. This is
+        critical, as it allows the
+        <literal>ConcurrentSessionControllerImpl</literal> to be notified when
+        a session ends. Next up you'll need to wire the
+        <literal>ConcurrentSessionControllerImpl</literal> into your existing
+        <literal>ProviderManager</literal>:</para>
+
+        <para><programlisting>&lt;bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager"&gt;
+  &lt;property name="providers"&gt;
+    &lt;!-- your providers go here --&gt;
+  &lt;/property&gt;
+  &lt;property name="sessionController"&gt;&lt;ref bean="concurrentSessionController"/&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="concurrentSessionController" class="net.sf.acegisecurity.providers.ConcurrentSessionControllerImpl"&gt;
+  &lt;property name="maxSessions"&gt;&lt;value&gt;1&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>Ensure you do not in-line the
+        <literal>ConcurrentSessionControllerImpl</literal> when declaring it
+        in your XML. This is important, as it appears that in-lined bean
+        declarations do not receive ApplicationEvents.</para>
+
+        <para>The <literal>ConcurrentSessionControllerImpl</literal> relies
+        heavily on the
+        <literal>Authentication.getPrincipal().equals()</literal> method. If
+        you are using a custom <literal>Authentication</literal> object,
+        please keep this in mind. In order for the
+        <literal>ConcurrentSessionControllerImpl</literal> to release a given
+        <literal>HttpSession</literal>, and thus let the user log in to a new
+        <literal>HttpSession</literal>, the existing
+        <literal>HttpSession</literal> must be invalidated. For example, if
+        "Batman" logs into the web application, checks for crimes being
+        commited, and the just closes his browser with out "logging out", he
+        will not be able to log back in until his
+        <literal>HttpSession</literal> is timed out by the server (and a
+        corresponding <literal>ApplicationEvent</literal> is published via
+        <literal>HttpSessionEventPublisher</literal> to the
+        <literal>ConcurrentSessionControllerImpl</literal>). You would have to
+        look at your container's documentation to determine the default
+        timeout period. You can also configure the session timeout in your
+        <literal>web.xml</literal>:<programlisting>&lt;session-config&gt;
+  &lt;session-timeout&gt;30&lt;/session-timeout&gt;
+&lt;/session-config&gt;</programlisting></para>
+      </sect2>
+
       <sect2 id="security-authentication-provider-jaas">
         <title>JAAS Authentication</title>
 
@@ -2134,7 +2197,7 @@ public boolean supports(Class clazz);</programlisting></para>
         attribute that an <literal>AccessDecisionVoter</literal> will vote to
         grant access for. This latter (recommended) approach is usually
         achieved through a <literal>ROLE_USER</literal> or
-        <literal>ROLE_AUTHENTICATED</literal> configuration attribute. </para>
+        <literal>ROLE_AUTHENTICATED</literal> configuration attribute.</para>
       </sect2>
 
       <sect2 id="afterinvocation-acl-aware">
