@@ -4,11 +4,67 @@
    <pomVersion>3</pomVersion>
    <id>acegi-security</id>
    <name>Acegi Security System for Spring</name>
-   <currentVersion>0.51</currentVersion>
    <groupId>acegi</groupId>
+   <currentVersion>0.52-SNAPSHOT</currentVersion>
    <package>net.sf.acegisecurity</package>
-   <shortDescription>Acegi Security System for Spring</shortDescription>
+   <!--logo>http://acegisecurity.sourceforge.net/logo.gif</logoi-->
    <description>Acegi Security System for Spring</description>
+   <shortDescription>Acegi Security System for Spring</shortDescription>
+   <url>http://acegisecurity.sourceforge.net/</url>
+   <siteDirectory>/srv/www/htdocs/acegi</siteDirectory>
+
+   <repository>
+      <!-- connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection-->
+      <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
+      <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/</url>
+   </repository>
+
+   <mailingLists>
+      <mailingList>
+         <name>Acegi Developer List</name>
+         <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=40659</archive>
+      </mailingList>
+      <mailingList>
+         <name>Spring User List</name>
+         <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=30287</archive>
+      </mailingList>
+   </mailingLists>
+
+   <developers>
+      <developer>
+         <name>Ben Alex</name>
+         <id>benalex</id>
+         <email>benalex at users.sourceforge.net</email>
+         <roles>
+            <role>Project Admin</role>'
+            <role>Developer</role>
+         </roles>
+      </developer>
+      <developer>
+         <name>Francois Beausoleil</name>
+         <id>fbos</id>
+         <email>fbos at users.sourceforge.net</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
+      <developer>
+         <name>Colin Sampaleanu</name>
+         <id>colins</id>
+         <email>colinml1 at exis.com</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
+      <developer>
+         <name>Luke Taylor</name>
+         <id>luke_t</id>
+         <email>luke at monkeymachine.ltd.uk</email>
+         <roles>
+            <role>Developer</role>
+         </roles>
+      </developer>
+   </developers>
 
    <dependencies>
 
@@ -202,6 +258,7 @@
          </properties>
       </dependency>
 
+
       <!-- Extracted -->
 
       <dependency>
@@ -245,7 +302,7 @@
 
    <build>
       <sourceDirectory>${basedir}/src</sourceDirectory>
-      <unitTestSourceDirectory>${basedir}/tests</unitTestSourceDirectory>
+      <unitTestSourceDirectory>${basedir}/test</unitTestSourceDirectory>
 
       <!-- Unit test cases -->
       <unitTest>
@@ -278,7 +335,11 @@
    </build>
 
    <reports>
+      <report>maven-changelog-plugin</report>
+      <report>maven-developer-activity-plugin</report>
+      <report>maven-file-activity-plugin</report>
       <report>maven-checkstyle-plugin</report>
+      <report>maven-statcvs-plugin</report>
       <report>maven-javadoc-plugin</report>
       <report>maven-jdepend-plugin</report>
       <report>maven-junit-report-plugin</report>
@@ -288,7 +349,7 @@
       <report>maven-tasklist-plugin</report>
       <report>maven-simian-plugin</report>
       <report>maven-faq-plugin</report>
-      <report>maven-jcoverage-plugin</report>
+      <!--report>maven-jcoverage-plugin</report-->
       <report>maven-clover-plugin</report>
    </reports>
 
