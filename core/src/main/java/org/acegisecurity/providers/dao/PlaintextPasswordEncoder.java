@@ -24,13 +24,32 @@ package net.sf.acegisecurity.providers.dao;
  * @version $Id$
  */
 public class PlaintextPasswordEncoder implements PasswordEncoder {
+  
+    //~ Instance fields ========================================================
+    private boolean ignorePasswordCase = false;
+  
     //~ Methods ================================================================
+    
+    /**
+     * Indicates whether the password comparison is case sensitive. Defaults to
+     * <code>false</code>, meaning an exact case match is required.
+     *
+     * @param ignorePasswordCase set to <code>true</code> for less stringent
+     *        comparison
+     */
+    public void setIgnorePasswordCase(boolean ignorePasswordCase) {
+        this.ignorePasswordCase = ignorePasswordCase;
+    }
+
+    public boolean isIgnorePasswordCase() {
+        return ignorePasswordCase;
+    }
 
     /* (non-Javadoc)
-     * @see net.sf.acegisecurity.providers.dao.PasswordEncoder#isPasswordValid(net.sf.acegisecurity.providers.dao.User, java.lang.String, boolean)
+     * @see net.sf.acegisecurity.providers.dao.PasswordEncoder#isPasswordValid(java.lang.String, java.lang.String, java.lang.Object)
      */
-    public boolean isPasswordValid(String encPass, String rawPass,
-        Object saltSource, boolean ignorePasswordCase) {
+    public boolean isPasswordValid(String encPass, String rawPass, Object saltSource) {
+      
         String pass1 = "" + encPass;
         String pass2 = "" + rawPass;
 

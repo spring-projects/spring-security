@@ -34,8 +34,6 @@
 	
 	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
      	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
- 		<property name="ignorePasswordCase"><value>false</value></property>
- 		<property name="ignoreUsernameCase"><value>true</value></property>
 	</bean>
 
 	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">

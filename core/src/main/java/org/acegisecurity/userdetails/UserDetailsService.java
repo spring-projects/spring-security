@@ -34,9 +34,11 @@ public interface AuthenticationDao {
     //~ Methods ================================================================
 
     /**
-     * Locates the user based on the username. The search is case insensitive,
-     * meaning the implementation must return any matching object irrespective
-     * of the mixture of uppercase and lowercase characters in the username.
+     * Locates the user based on the username. In the actual implementation,
+     * the search may possibly be case insensitive, or case insensitive
+     * depending on how the implementaion instance is configured. In this case,
+     * the User object that comes back may have a username that is of a different
+     * case than what was actually requested..
      *
      * @param username the username presented to the {@link
      *        DaoAuthenticationProvider}

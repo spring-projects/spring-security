@@ -37,15 +37,6 @@ import org.springframework.dao.DataRetrievalFailureException;
  * @version $Id$
  */
 public class DaoAuthenticationProviderTests extends TestCase {
-    //~ Constructors ===========================================================
-
-    public DaoAuthenticationProviderTests() {
-        super();
-    }
-
-    public DaoAuthenticationProviderTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ================================================================
 
@@ -63,7 +54,6 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
-        assertTrue(!provider.isIgnorePasswordCase()); // default
 
         try {
             provider.authenticate(token);
@@ -139,9 +129,6 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
-        assertTrue(provider.isIgnoreUsernameCase()); // default
-        provider.setIgnoreUsernameCase(false);
-        assertTrue(!provider.isIgnoreUsernameCase()); // changed
 
         try {
             provider.authenticate(token);
@@ -149,32 +136,6 @@ public class DaoAuthenticationProviderTests extends TestCase {
         } catch (BadCredentialsException expected) {
             assertTrue(true);
         }
-    }
-
-    public void testAuthenticateSuccessfulWithMixedCaseIfDefaultChanged() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("marissa",
-                "KOAla");
-
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
-        assertTrue(!provider.isIgnorePasswordCase()); // default
-        provider.setIgnorePasswordCase(true);
-        assertTrue(provider.isIgnorePasswordCase()); // changed
-
-        Authentication result = provider.authenticate(token);
-        assertEquals("marissa", result.getPrincipal().toString());
-    }
-
-    public void testAuthenticateSuccessfulWithMixedCaseUsername() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("MaRiSSA",
-                "koala");
-
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
-        assertTrue(provider.isIgnoreUsernameCase()); // default
-
-        Authentication result = provider.authenticate(token);
-        assertEquals("marissa", result.getPrincipal().toString());
     }
 
     public void testAuthenticates() {
@@ -239,7 +200,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
     private class MockAuthenticationDaoUserMarissa implements AuthenticationDao {
         public User loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
-            if ("marissa".equals(username.toLowerCase())) {
+            if ("marissa".equals(username)) {
                 return new User("marissa", "koala", true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});
@@ -253,7 +214,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
     private class MockAuthenticationDaoUserPeter implements AuthenticationDao {
         public User loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
-            if ("peter".equals(username.toLowerCase())) {
+            if ("peter".equals(username)) {
                 return new User("peter", "opal", false,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                             "ROLE_TWO")});

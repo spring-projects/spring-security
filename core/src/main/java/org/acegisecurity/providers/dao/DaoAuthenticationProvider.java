@@ -47,8 +47,6 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
     private AuthenticationDao authenticationDao;
     private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
-    private boolean ignorePasswordCase = false;
-    private boolean ignoreUsernameCase = true;
 
     //~ Methods ================================================================
 
@@ -58,36 +56,6 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
     public AuthenticationDao getAuthenticationDao() {
         return authenticationDao;
-    }
-
-    /**
-     * Indicates whether the password comparison is case sensitive. Defaults to
-     * <code>false</code>, meaning an exact case match is required.
-     *
-     * @param ignorePasswordCase set to <code>true</code> for less stringent
-     *        comparison
-     */
-    public void setIgnorePasswordCase(boolean ignorePasswordCase) {
-        this.ignorePasswordCase = ignorePasswordCase;
-    }
-
-    public boolean isIgnorePasswordCase() {
-        return ignorePasswordCase;
-    }
-
-    /**
-     * Indicates whether the username search is case sensitive. Default to
-     * <code>true</code>, meaning an exact case match is not  required.
-     *
-     * @param ignoreUsernameCase set to <code>false</code> for more stringent
-     *        comparison
-     */
-    public void setIgnoreUsernameCase(boolean ignoreUsernameCase) {
-        this.ignoreUsernameCase = ignoreUsernameCase;
-    }
-
-    public boolean isIgnoreUsernameCase() {
-        return ignoreUsernameCase;
     }
 
     /**
@@ -123,20 +91,12 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             throw new BadCredentialsException("Bad credentials presented");
         } catch (DataAccessException repositoryProblem) {
             throw new AuthenticationServiceException(repositoryProblem
-                .getMessage());
-        }
-
-        if ((!this.ignoreUsernameCase)
-            && (!user.getUsername().equals(authentication.getPrincipal()
-                                                         .toString()))) {
-            throw new BadCredentialsException("Bad credentials presented");
+                .getMessage(), repositoryProblem);
         }
 
         if (!passwordEncoder.isPasswordValid(user.getPassword(),
-                authentication.getCredentials().toString(), user,
-                ignorePasswordCase)) {
+                authentication.getCredentials().toString(), user))
             throw new BadCredentialsException("Bad credentials presented");
-        }
 
         if (!user.isEnabled()) {
             throw new DisabledException("User is disabled");

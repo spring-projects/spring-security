@@ -15,16 +15,12 @@
 
 package net.sf.acegisecurity.providers.dao;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-
 
 /**
  * <p>
  * SHA implementation of PasswordEncoder.
- * </p>
- * 
- * <p>
- * The ignorePasswordCase parameter is not used for this implementation.
  * </p>
  * 
  * <p>
@@ -34,16 +30,15 @@ import org.apache.commons.codec.digest.DigestUtils;
  * @author colin sampaleanu
  * @version $Id$
  */
-public class SHAPasswordEncoder implements PasswordEncoder {
-    //~ Methods ================================================================
-
+public class SHAPasswordEncoder extends BaseDigestPasswordEncoder implements PasswordEncoder {
+  
     /* (non-Javadoc)
-     * @see net.sf.acegisecurity.providers.dao.PasswordEncoder#isPasswordValid(net.sf.acegisecurity.providers.dao.User, java.lang.String, boolean)
+     * @see net.sf.acegisecurity.providers.dao.PasswordEncoder#isPasswordValid(java.lang.String, java.lang.String, java.lang.Object)
      */
-    public boolean isPasswordValid(String encPass, String rawPass,
-        Object saltSource, boolean ignorePasswordCase) {
+    public boolean isPasswordValid(String encPass, String rawPass, Object saltSource) {
+
         String pass1 = "" + encPass;
-        String pass2 = DigestUtils.shaHex("" + rawPass);
+        String pass2 = encodeInternal("" + rawPass);
 
         return pass1.equals(pass2);
     }
@@ -52,6 +47,15 @@ public class SHAPasswordEncoder implements PasswordEncoder {
      * @see net.sf.acegisecurity.providers.dao.PasswordEncoder#encodePassword(java.lang.String, java.lang.Object)
      */
     public String encodePassword(String rawPass, Object saltSource) {
-        return DigestUtils.shaHex("" + rawPass);
+        return encodeInternal("" + rawPass);
+    }
+    
+    private String encodeInternal(String input) {
+      
+      if (!getEncodeHashAsBase64())
+        return DigestUtils.shaHex(input);
+      
+      byte[] encoded = Base64.encodeBase64(DigestUtils.sha(input));
+      return new String(encoded);
     }
 }

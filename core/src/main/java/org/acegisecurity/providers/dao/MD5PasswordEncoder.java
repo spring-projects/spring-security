@@ -15,6 +15,7 @@
 
 package net.sf.acegisecurity.providers.dao;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 
 
@@ -24,34 +25,39 @@ import org.apache.commons.codec.digest.DigestUtils;
  * </p>
  * 
  * <p>
- * The ignorePasswordCase parameter is not used for this implementation.
- * </p>
- * 
- * <p>
  * A null password is encoded to the same value as an empty ("") password.
  * </p>
  *
  * @author colin sampaleanu
  * @version $Id$
  */
-public class MD5PasswordEncoder implements PasswordEncoder {
+public class MD5PasswordEncoder extends BaseDigestPasswordEncoder implements PasswordEncoder {
     //~ Methods ================================================================
 
-    /* (non-Javadoc)
-     * @see net.sf.acegisecurity.providers.dao.PasswordEncoder#isPasswordValid(net.sf.acegisecurity.providers.dao.User, java.lang.String, boolean)
-     */
-    public boolean isPasswordValid(String encPass, String rawPass,
-        Object saltSource, boolean ignorePasswordCase) {
-        String pass1 = "" + encPass;
-        String pass2 = DigestUtils.md5Hex("" + rawPass);
+  /* (non-Javadoc)
+   * @see net.sf.acegisecurity.providers.dao.PasswordEncoder#isPasswordValid(java.lang.String, java.lang.String, java.lang.Object)
+   */
+  public boolean isPasswordValid(String encPass, String rawPass, Object saltSource) {
 
-        return pass1.equals(pass2);
-    }
+      String pass1 = "" + encPass;
+      String pass2 = encodeInternal("" + rawPass);
 
-    /* (non-Javadoc)
-     * @see net.sf.acegisecurity.providers.dao.PasswordEncoder#encodePassword(java.lang.String, java.lang.Object)
-     */
-    public String encodePassword(String rawPass, Object saltSource) {
-        return DigestUtils.md5Hex("" + rawPass);
-    }
+      return pass1.equals(pass2);
+  }
+
+  /* (non-Javadoc)
+   * @see net.sf.acegisecurity.providers.dao.PasswordEncoder#encodePassword(java.lang.String, java.lang.Object)
+   */
+  public String encodePassword(String rawPass, Object saltSource) {
+      return encodeInternal("" + rawPass);
+  }
+  
+  private String encodeInternal(String input) {
+    
+    if (!getEncodeHashAsBase64())
+      return DigestUtils.md5Hex(input);
+    
+    byte[] encoded = Base64.encodeBase64(DigestUtils.md5(input));
+    return new String(encoded);
+  }
 }

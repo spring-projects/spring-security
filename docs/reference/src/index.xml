@@ -850,14 +850,7 @@
 
         <para><programlisting>&lt;bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
   &lt;property name="authenticationDao"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
-  &lt;property name="ignorePasswordCase"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
-  &lt;property name="ignoreUsernameCase"&gt;&lt;value&gt;true&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
-
-        <para>By default the <literal>DaoAuthenticationProvider</literal> does
-        not require an exact match on usernames, but it does require an exact
-        match on passwords. This behavior can be configured with the optional
-        properties shown above.</para>
 
         <para>For a class to be able to provide the
         <literal>DaoAuthenticationProvider</literal> with access to an

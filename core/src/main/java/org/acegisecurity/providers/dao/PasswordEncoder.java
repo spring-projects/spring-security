@@ -31,8 +31,8 @@ public interface PasswordEncoder {
     //~ Methods ================================================================
 
     public boolean isPasswordValid(String encPass, String rawPass,
-        Object saltSource, boolean ignorePasswordCase)
+        Object saltSource)
         throws DataAccessException;
 
-    public String encodePassword(String rawPass, Object saltSource);
+    public String encodePassword(String rawPass, Object saltSource) throws DataAccessException;
 }
