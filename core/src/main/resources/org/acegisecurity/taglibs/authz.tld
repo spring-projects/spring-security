@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE taglib
+        PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+        "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+	<tlib-version>1.0</tlib-version>
+	<jsp-version>1.2</jsp-version>
+	<short-name>authz</short-name>
+	<uri>http://acegisecurity.sf.net/authz</uri>
+	<description>
+        Acegi Security Systems Authorization Tag Library
+		$Id$
+	</description>
+
+	<tag>
+		<name>authorize</name>
+		<tag-class>net.sf.acegisecurity.taglibs.authz.AuthorizeTag</tag-class>
+		<description>
+            A simple tag to output or not the body of the tag if the principal
+            has or doesn't have certain authorities.
+		</description>
+
+		<attribute>
+			<name>ifNotGranted</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+                A comma separated list of roles which the user must not have
+                for the body to be output.
+			</description>
+		</attribute>
+
+		<attribute>
+			<name>ifAllGranted</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+                A comma separated list of roles which the user must all
+                possess for the body to be output.
+			</description>
+		</attribute>
+
+		<attribute>
+			<name>ifAnyGranted</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+                A comma separated list of roles, one of which the user must
+                possess for the body to be output.
+			</description>
+		</attribute>
+	</tag>
+</taglib>

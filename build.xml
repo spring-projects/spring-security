@@ -109,18 +109,33 @@
 
 	<target name="fulljar" depends="build,initdist" description="Create JAR file with all Acegi Security System for Spring classes">
 		<delete file="${dist.dir}/${acegi-security.jar}"/>
-		
+
 		<!-- An all classes JAR file, which is provided for compiling web apps
 		only (at runtime all classes should be from web container) -->
 		<jar jarfile="${dist.dir}/${acegi-security.jar}">
 			<fileset dir="${target.classes.dir}">
 				<include name="net/sf/acegisecurity/**"/>
+				<exclude name="net/sf/acegisecurity/taglibs/**"/>
 			</fileset>
 			<manifest>
 				<attribute name="Acegi-Security-System-version" value="${acegi-security-version}"/>
 			</manifest>
 		</jar>
-		
+
+		<!-- The Acegi Security Tag Library JAR -->
+		<jar jarfile="${dist.dir}/${acegi-taglib.jar}">
+			<fileset dir="${target.classes.dir}">
+				<include name="net/sf/acegisecurity/taglibs/**"/>
+				<exclude name="**/*.tld"/>
+			</fileset>
+			<zipfileset dir="${src.dir}/net/sf/acegisecurity/taglibs"
+				prefix="META-INF" includes="*.tld" />
+			<manifest>
+				<attribute name="Acegi-Security-Taglib-version" value="${acegi-security-version}"/>
+				<attribute name="Sealed" value="true"/>
+			</manifest>
+		</jar>
+
 		<!-- The class that has catalina.jar dependencies and thus belongs in
 		Catalina's "Catalina" classloader ($CATALINA_HOME/server/lib directory) -->
 		<jar jarfile="${dist.dir}/acegi-security-catalina-server.jar">
@@ -131,7 +146,7 @@
 				<attribute name="Acegi-Security-System-version" value="${acegi-security-version}"/>
 			</manifest>
 		</jar>
-		
+
 		<!-- All Acegi Security System for Spring classes that belong in Catalina's
 		"Common" classloader ($CATALINA_HOME/common/lib directory) -->
 		<jar jarfile="${dist.dir}/acegi-security-catalina-common.jar">
@@ -149,7 +164,7 @@
 				<attribute name="Acegi-Security-System-version" value="${acegi-security-version}"/>
 			</manifest>
 		</jar>
-		
+
 		<!-- All Acegi Security System for Spring classes that belong in Jetty's
 		"ext" directory -->
 		<jar jarfile="${dist.dir}/acegi-security-jetty-ext.jar">
@@ -166,7 +181,7 @@
 				<attribute name="Acegi-Security-System-version" value="${acegi-security-version}"/>
 			</manifest>
 		</jar>
-		
+
 		<!-- All Acegi Security System for Spring classes that belong in JBoss'
 		"server/your_config/lib" directory -->
 		<jar jarfile="${dist.dir}/acegi-security-jboss-lib.jar">
@@ -183,7 +198,7 @@
 				<attribute name="Acegi-Security-System-version" value="${acegi-security-version}"/>
 			</manifest>
 		</jar>
-		
+
 		<!-- All Acegi Security System for Spring classes that belong in
 		Resin's "lib" directory -->
 		<jar jarfile="${dist.dir}/acegi-security-resin-lib.jar">
@@ -305,7 +320,7 @@
 
 
 	<!--
-		Run tests. 
+		Run tests.
 	-->
 	<target name="tests" depends="buildtests" description="Run tests.">
 
