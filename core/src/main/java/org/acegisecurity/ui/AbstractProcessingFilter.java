@@ -330,8 +330,7 @@ public abstract class AbstractProcessingFilter implements Filter,
 
                 httpRequest.getSession().setAttribute(ACEGI_SECURITY_LAST_EXCEPTION_KEY,
                     failed);
-                httpRequest.getSession().setAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY,
-                    null);
+                httpRequest.getSession().removeAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY);
                 httpResponse.sendRedirect(httpResponse.encodeRedirectURL(httpRequest
                         .getContextPath() + failureUrl));
 
@@ -347,8 +346,7 @@ public abstract class AbstractProcessingFilter implements Filter,
                 authResult);
 
             String targetUrl = (String) httpRequest.getSession().getAttribute(ACEGI_SECURITY_TARGET_URL_KEY);
-            httpRequest.getSession().setAttribute(ACEGI_SECURITY_TARGET_URL_KEY,
-                null);
+            httpRequest.getSession().removeAttribute(ACEGI_SECURITY_TARGET_URL_KEY);
 
             if (targetUrl == null) {
                 targetUrl = httpRequest.getContextPath() + defaultTargetUrl;
