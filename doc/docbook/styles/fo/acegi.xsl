@@ -356,7 +356,10 @@
     ################################################### -->  
     
     <!-- Verbatim text formatting (programlistings) -->
+    <xsl:param name="hyphenate.verbatim" select="1"/>
     <xsl:attribute-set name="monospace.verbatim.properties">
+        <xsl:attribute name="wrap-option">wrap</xsl:attribute>
+        <xsl:attribute name="hyphenation-character">&#x25BA;</xsl:attribute>
         <xsl:attribute name="font-size">
             <xsl:value-of select="$body.font.small * 1.0"/>
             <xsl:text>pt</xsl:text>
