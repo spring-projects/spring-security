@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
+<!-- $Id$  -->
+
 <beans>
 
     <bean id="eventCheck" class="net.sf.acegisecurity.providers.jaas.JaasEventCheck"/>

@@ -1,24 +1,44 @@
+/* Copyright 2004 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package net.sf.acegisecurity.providers.jaas;
+
+import java.security.Principal;
+
+import java.util.Map;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.*;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import java.security.Principal;
-import java.util.Map;
+
 
 /**
- * Insert comments here...
- * <br>
+ * DOCUMENT ME!
  *
  * @author Ray Krueger
  * @version $Id$
  */
 public class TestLoginModule implements LoginModule {
+    //~ Instance fields ========================================================
 
-    private Subject subject;
-    private String user;
     private String password;
+    private String user;
+    private Subject subject;
+
+    //~ Methods ================================================================
 
     public boolean abort() throws LoginException {
         return true;
@@ -28,8 +48,26 @@ public class TestLoginModule implements LoginModule {
         return true;
     }
 
-    public boolean login() throws LoginException {
+    public void initialize(Subject subject, CallbackHandler callbackHandler,
+        Map sharedState, Map options) {
+        this.subject = subject;
 
+        try {
+            TextInputCallback textCallback = new TextInputCallback("prompt");
+            NameCallback nameCallback = new NameCallback("prompt");
+            PasswordCallback passwordCallback = new PasswordCallback("prompt",
+                    false);
+
+            callbackHandler.handle(new Callback[] {textCallback, nameCallback, passwordCallback});
+
+            password = new String(passwordCallback.getPassword());
+            user = nameCallback.getName();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean login() throws LoginException {
         if (!user.equals("user")) {
             throw new LoginException("Bad User");
         }
@@ -39,38 +77,21 @@ public class TestLoginModule implements LoginModule {
         }
 
         subject.getPrincipals().add(new Principal() {
-            public String getName() {
-                return "TEST_PRINCIPAL";
-            }
-        });
+                public String getName() {
+                    return "TEST_PRINCIPAL";
+                }
+            });
 
         subject.getPrincipals().add(new Principal() {
-            public String getName() {
-                return "NULL_PRINCIPAL";
-            }
-        });
+                public String getName() {
+                    return "NULL_PRINCIPAL";
+                }
+            });
+
         return true;
     }
 
     public boolean logout() throws LoginException {
         return true;
-    }
-
-    public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
-        this.subject = subject;
-        try {
-
-            TextInputCallback textCallback = new TextInputCallback("prompt");
-            NameCallback nameCallback = new NameCallback("prompt");
-            PasswordCallback passwordCallback = new PasswordCallback("prompt", false);
-
-            callbackHandler.handle(new Callback[]{textCallback, nameCallback, passwordCallback});
-
-            password = new String(passwordCallback.getPassword());
-            user = nameCallback.getName();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }
