@@ -68,6 +68,23 @@ Certificate was added to keystore
 
 TROUBLESHOOTING
 
+* First of all, most CAS-Acegi Security problems are because of untrusted
+  SSL certificates. So it's important to understand why. Most people can
+  load the Acegi Security webapp, get redirected to the CAS server, then
+  after login they get redirected back to the Acegi Security webapp and
+  receive a failure. This is because the CAS server redirects to something
+  like https://server3.company.com/webapp/j_acegi_cas_security_check?ticket=ST-0-ER94xMJmn6pha35CQRoZ
+  which causes the "service ticket" (the "ticket" parameter) to be validated.
+  net.sf.acegisecurity.providers.cas.ticketvalidator.CasProxyTicketValidator
+  performs service ticket validation by delegation to CAS'
+  ProxyTicketValidator class. The ProxyTicketValidator class will perform a
+  HTTPS connection from the web server running the Acegi Security webapp
+  (server3.company.com) above to the CAS server. If for some reason the
+  web server keystore does not trust the HTTPS certificate presented by the
+  CAS server, you will receive various failures as discussed below. NB: This
+  has NOTHING to do with client-side (browser) certificates. You need to
+  correct the trust between the two webserver keystores alone.
+
 * A "sun.security.validator.ValidatorException: No trusted certificate 
   found" indicates the cacerts is not being used or it did not correctly
   import the certificate. To rule out your web container replacing or in

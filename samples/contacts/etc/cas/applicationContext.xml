@@ -4,6 +4,11 @@
 <!--
   - Application context loaded by ContextLoaderListener if NOT using container adapters
   - $Id$
+  -
+  -
+  - HAVING PROBLEMS? See the etc/ssl/howto.txt file and read "TROUBLESHOOTING".
+  -
+  -
   -->
 
 <beans>
