@@ -58,6 +58,19 @@ public class PrincipalAcegiUserTokenTests extends TestCase {
         assertEquals("my_password".hashCode(), token.getKeyHash());
     }
 
+    public void testIsUserInRole() throws Exception {
+        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("my_password",
+                "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                        "ROLE_TWO")});
+        assertTrue(token.isUserInRole("ROLE_ONE"));
+        assertTrue(token.isUserInRole("ROLE_TWO"));
+        assertTrue(!token.isUserInRole(""));
+        assertTrue(!token.isUserInRole("ROLE_ONE "));
+        assertTrue(!token.isUserInRole("role_one"));
+        assertTrue(!token.isUserInRole("ROLE_XXXX"));
+    }
+
     public void testNoArgsConstructor() {
         PrincipalAcegiUserToken token = new PrincipalAcegiUserToken();
     }
@@ -105,5 +118,18 @@ public class PrincipalAcegiUserTokenTests extends TestCase {
                 "Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE")});
         assertTrue(!token1.equals(token7));
+
+        assertTrue(!token1.equals(new Integer(100)));
+    }
+
+    public void testSetAuthenticatedAlwaysReturnsTrue()
+        throws Exception {
+        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("my_password",
+                "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                        "ROLE_TWO")});
+        assertTrue(token.isAuthenticated());
+        token.setAuthenticated(false);
+        assertTrue(token.isAuthenticated());
     }
 }
