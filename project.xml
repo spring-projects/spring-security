@@ -7,11 +7,17 @@
   <description>Acegi Security System for Spring</description>
   <shortDescription>Acegi Security System for Spring</shortDescription>
   <url>http://acegisecurity.sourceforge.net/</url>
-  <siteDirectory>/srv/www/htdocs/acegi</siteDirectory>
+
+  <siteAddress>shell.sourceforge.net</siteAddress>
+  <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs</siteDirectory>
+  <distributionSite>shell.sourceforge.net</distributionSite>
+  <distributionDirectory>/home/groups/a/ac/acegisecurity/htdocs/maven</distributionDirectory>
+
   <repository>
     <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
     <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/</url>
   </repository>
+
   <mailingLists>
     <mailingList>
       <name>Acegi Developer List</name>
@@ -243,7 +249,7 @@
     </dependency>
     <dependency>
       <groupId>maven-plugins</groupId>
-      <artifactId>maven-sdockbook-plugin</artifactId>
+      <artifactId>maven-sdocbook-plugin</artifactId>
       <version>1.4-SNAPSHOT</version>
       <type>plugin</type>
     </dependency>
