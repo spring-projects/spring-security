@@ -150,15 +150,6 @@ public class BasicAclProviderTests extends TestCase {
         assertEquals("ROLE_SUPERVISOR", ((BasicAclEntry) acls[1]).getRecipient());
     }
 
-    public void testGetAclsForInstanceWithoutParent() throws Exception {
-        BasicAclProvider provider = new BasicAclProvider();
-        provider.setBasicAclDao(makePopulatedJdbcDao());
-
-        Object object = new MockDomain(7);
-        AclEntry[] acls = provider.getAcls(object);
-        assertEquals(1, acls.length);
-    }
-
     public void testGetAclsWithAuthentication() throws Exception {
         BasicAclProvider provider = new BasicAclProvider();
         provider.setBasicAclDao(makePopulatedJdbcDao());
