@@ -2,4 +2,15 @@
     <extend>${basedir}/../project.xml</extend>
     <artifactId>acegi-sample-contacts</artifactId>
     <name>Acegi Security System for Spring - Contacts sample</name>
+  <dependencies>
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>1.1</version>
+      <url>http://www.springframework.org</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+  </dependencies>
 </project>
