@@ -42,11 +42,14 @@
 	</bean>
 
 	<!-- =================== SECURITY BEANS YOU WILL RARELY (IF EVER) CHANGE ================== -->
-	<!-- However, it is a good idea to change each <property name="key">'s to a new random value -->
 	
 	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
      	<property name="authenticationDao"><ref bean="authenticationDao"/></property>
-		<property name="key"><value>my_password</value></property>
+     	<property name="userCache"><ref bean="userCache"/></property>
+	</bean>
+	
+	<bean id="userCache" class="net.sf.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
+		<property name="minutesToIdle"><value>5</value></property>
 	</bean>
 
 	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">

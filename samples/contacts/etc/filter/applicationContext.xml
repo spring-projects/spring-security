@@ -43,7 +43,11 @@
 	
 	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
      	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
-		<property name="key"><value>my_password</value></property>
+     	<property name="userCache"><ref bean="userCache"/></property>
+	</bean>
+	
+	<bean id="userCache" class="net.sf.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
+		<property name="minutesToIdle"><value>5</value></property>
 	</bean>
 
 	<!-- Automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->

@@ -152,6 +152,8 @@
 			<lib dir="${lib.dir}/j2ee" includes="jstl.jar"/>
 			<lib dir="${lib.dir}/caucho" includes="*.jar"/>
 			<lib dir="${lib.dir}/jakarta-commons" includes="commons-codec.jar"/>
+			<lib dir="${lib.dir}/jakarta-commons" includes="commons-collections.jar"/>
+			<lib dir="${lib.dir}/ehcache" includes="*.jar"/>
 			<lib dir="${dist.lib.dir}" includes="acegi-security-taglib.jar"/>
 			<lib dir="${dist.lib.dir}" includes="acegi-security.jar"/>
 		</war>

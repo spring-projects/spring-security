@@ -33,7 +33,6 @@
 	
 	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
      	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
-		<property name="key"><value>my_password</value></property>
  	</bean>
 
 	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">

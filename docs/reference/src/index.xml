@@ -892,7 +892,6 @@
 
         <para><programlisting>&lt;bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
   &lt;property name="authenticationDao"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
-  &lt;property name="key"&gt;&lt;value&gt;my_password&lt;/value&gt;&lt;/property&gt;
   &lt;property name="refreshTokenInterval"&gt;&lt;value&gt;60000&lt;/value&gt;&lt;/property&gt;
   &lt;property name="saltSource"&gt;&lt;ref bean="saltSource"/&gt;&lt;/property&gt;
   &lt;property name="passwordEncoder"&gt;&lt;ref bean="passwordEncoder"/&gt;&lt;/property&gt;
@@ -910,23 +909,30 @@
         <literal>SaltSource</literal> implementations are also provided:
         <literal>SystemWideSaltSource</literal> which encodes all passwords
         with the same salt, and <literal>ReflectionSaltSource</literal>, which
-        inspects a given property of the returned User object to obtain the
-        salt. Please refer to the JavaDocs for further details on these
-        optional features.</para>
+        inspects a given property of the returned <literal>User</literal>
+        object to obtain the salt. Please refer to the JavaDocs for further
+        details on these optional features.</para>
 
-        <para>The <literal>key</literal> property permits the
-        <literal>DaoAuthenticationProvider</literal> to build a
-        <literal>DaoAuthenticationToken</literal> that represents the
-        successful authentication request. This allows the
-        <literal>DaoAuthenticationProvider</literal> to avoid repeated lookups
-        of the backend authentication repository. For a presented
-        <literal>DaoAuthenticationToken</literal> to be accepted as valid, it
-        needs to both present the expected key (to prove it was created by the
-        <literal>DaoAuthenticationProvider</literal>) and that is has not
-        expired. <literal>DaoAuthenticationToken</literal>s by default expire
-        60 seconds after they have been created, although this can be set to
-        any other millisecond value via the
-        <literal>refreshTokenInterval</literal> property.</para>
+        <para>In addition to the properties above, the
+        <literal>DaoAuthenticationProvider</literal> supports optional caching
+        of <literal>User</literal> objects. The <literal>UserCache</literal>
+        interface enables the <literal>DaoAuthenticationProvider</literal> to
+        place a <literal>User</literal> object into the cache, and retrieve it
+        from the cache upon subsequent authentication attempts for the same
+        username. By default the <literal>DaoAuthenticationProvider</literal>
+        uses the <literal>NullUserCache</literal>, which performs no caching.
+        A usable caching implementation is also provided,
+        <literal>EhCacheBasedUserCache</literal>, which is configured as
+        follows:</para>
+
+        <para><programlisting>&lt;bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
+  &lt;property name="authenticationDao"&gt;&lt;ref bean="authenticationDao"/&gt;&lt;/property&gt;
+  &lt;property name="userCache"&gt;&lt;ref bean="userCache"/&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="userCache" class="net.sf.acegisecurity.providers.dao.cache.EhCacheBasedUserCache"&gt;
+  &lt;property name="minutesToIdle"&gt;&lt;value&gt;5&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
 
         <para>For a class to be able to provide the
         <literal>DaoAuthenticationProvider</literal> with access to an

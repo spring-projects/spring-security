@@ -22,6 +22,7 @@ import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.providers.AuthenticationProvider;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import net.sf.acegisecurity.providers.dao.cache.NullUserCache;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureDisabledEvent;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationFailurePasswordEvent;
 import net.sf.acegisecurity.providers.dao.event.AuthenticationSuccessEvent;
@@ -36,32 +37,26 @@ import org.springframework.context.ApplicationContextAware;
 
 import org.springframework.dao.DataAccessException;
 
-import java.util.Date;
-
 
 /**
  * An {@link AuthenticationProvider} implementation that retrieves user details
  * from an {@link AuthenticationDao}.
  * 
  * <p>
- * This <code>AuthenticationProvider</code> is capable of validating  {@link
+ * This <code>AuthenticationProvider</code> is capable of validating {@link
  * UsernamePasswordAuthenticationToken} requests contain the correct username,
  * password and the user is not disabled.
  * </p>
  * 
  * <p>
- * Upon successful validation, a <code>DaoAuthenticationToken</code> will be
- * created and returned to the caller. This token will be signed with the key
- * configured by {@link #getKey()} and expire {@link
- * #getRefreshTokenInterval()} milliseconds into the future. The token will be
- * assumed to remain valid whilstever it has not expired, and no requests of
- * the <code>AuthenticationProvider</code> will need to be made. Once the
- * token has expired, the relevant <code>AuthenticationProvider</code> will be
- * called again to provide an updated enabled/disabled status, and list of
- * granted authorities. It should be noted the credentials will not be
- * revalidated, as the user presented correct credentials in the originial
- * <code>UsernamePasswordAuthenticationToken</code>. This avoids complications
- * if the user changes their password during the session.
+ * Upon successful validation, a
+ * <code>UsernamePasswordAuthenticationToken</code> will be created and
+ * returned to the caller. In addition, the {@link User} will be placed in the
+ * {@link UserCache} so that subsequent requests with the same username can be
+ * validated without needing to query the {@link AuthenticationDao}. It should
+ * be noted that if a user appears to present an incorrect password, the
+ * {@link AuthenticationDao} will be queried to confirm the most up-to-date
+ * password was used for comparison.
  * </p>
  * 
  * <P>
@@ -83,8 +78,7 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
     private AuthenticationDao authenticationDao;
     private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
     private SaltSource saltSource;
-    private String key;
-    private long refreshTokenInterval = 60000; // 60 seconds
+    private UserCache userCache = new NullUserCache();
 
     //~ Methods ================================================================
 
@@ -101,14 +95,6 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
         return authenticationDao;
     }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
     /**
      * Sets the PasswordEncoder instance to be used to encode and validate
      * passwords. If not set, {@link PlaintextPasswordEncoder} will be used by
@@ -122,22 +108,6 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
     public PasswordEncoder getPasswordEncoder() {
         return passwordEncoder;
-    }
-
-    public void setRefreshTokenInterval(long refreshTokenInterval) {
-        this.refreshTokenInterval = refreshTokenInterval;
-    }
-
-    /**
-     * Indicates the number of seconds a created
-     * <code>DaoAuthenticationToken</code> will remain valid for. Whilstever
-     * the token is valid, the <code>DaoAuthenticationProvider</code> will
-     * only check it presents the expected key hash code.
-     *
-     * @return Returns the refreshTokenInterval.
-     */
-    public long getRefreshTokenInterval() {
-        return refreshTokenInterval;
     }
 
     /**
@@ -157,46 +127,36 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
         return saltSource;
     }
 
+    public void setUserCache(UserCache userCache) {
+        this.userCache = userCache;
+    }
+
+    public UserCache getUserCache() {
+        return userCache;
+    }
+
     public void afterPropertiesSet() throws Exception {
         if (this.authenticationDao == null) {
             throw new IllegalArgumentException(
                 "An Authentication DAO must be set");
         }
 
-        if ((this.key == null) || "".equals(key)) {
-            throw new IllegalArgumentException("A key must be set");
+        if (this.userCache == null) {
+            throw new IllegalArgumentException("A user cache must be set");
         }
     }
 
     public Authentication authenticate(Authentication authentication)
         throws AuthenticationException {
-        // If an existing DaoAuthenticationToken, check we created it and it hasn't expired
-        if (authentication instanceof DaoAuthenticationToken) {
-            if (this.key.hashCode() == ((DaoAuthenticationToken) authentication)
-                .getKeyHash()) {
-                if (((DaoAuthenticationToken) authentication).getExpires()
-                     .after(new Date())) {
-                    return authentication;
-                }
-            } else {
-                throw new BadCredentialsException(
-                    "The presented DaoAuthenticationToken does not contain the expected key");
-            }
+        boolean cacheWasUsed = true;
+        User user = this.userCache.getUserFromCache(authentication.getPrincipal()
+                                                                  .toString());
+
+        if (user == null) {
+            cacheWasUsed = false;
+            user = getUserFromBackend(authentication);
         }
 
-        // We need to authenticate or refresh the token
-        User user = null;
-
-        try {
-            user = this.authenticationDao.loadUserByUsername(authentication.getPrincipal()
-                                                                           .toString());
-        } catch (UsernameNotFoundException notFound) {
-            throw new BadCredentialsException("Bad credentials presented");
-        } catch (DataAccessException repositoryProblem) {
-            throw new AuthenticationServiceException(repositoryProblem
-                .getMessage(), repositoryProblem);
-        }
-        
         if (!user.isEnabled()) {
             if (this.ctx != null) {
                 ctx.publishEvent(new AuthenticationFailureDisabledEvent(
@@ -206,16 +166,14 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             throw new DisabledException("User is disabled");
         }
 
-        if (!(authentication instanceof DaoAuthenticationToken)) {
-            // Must validate credentials, as this is not simply a token refresh
-            Object salt = null;
-
-            if (this.saltSource != null) {
-                salt = this.saltSource.getSalt(user);
+        if (!isPasswordCorrect(authentication, user)) {
+            // Password incorrect, so ensure we're using most current password
+            if (cacheWasUsed) {
+                cacheWasUsed = false;
+                user = getUserFromBackend(authentication);
             }
 
-            if (!passwordEncoder.isPasswordValid(user.getPassword(),
-                    authentication.getCredentials().toString(), salt)) {
+            if (!isPasswordCorrect(authentication, user)) {
                 if (this.ctx != null) {
                     ctx.publishEvent(new AuthenticationFailurePasswordEvent(
                             authentication, user));
@@ -225,24 +183,50 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             }
         }
 
-        Date expiry = new Date(new Date().getTime()
-                + this.getRefreshTokenInterval());
+        if (!cacheWasUsed) {
+            // Put into cache
+            this.userCache.putUserInCache(user);
 
-        if (this.ctx != null) {
-            ctx.publishEvent(new AuthenticationSuccessEvent(authentication, user));
+            // As this appears to be an initial login, publish the event
+            if (this.ctx != null) {
+                ctx.publishEvent(new AuthenticationSuccessEvent(
+                        authentication, user));
+            }
         }
 
-        return new DaoAuthenticationToken(this.getKey(), expiry,
-            user.getUsername(), user.getPassword(), user.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(user.getUsername(),
+            user.getPassword(), user.getAuthorities());
     }
 
     public boolean supports(Class authentication) {
         if (UsernamePasswordAuthenticationToken.class.isAssignableFrom(
-                authentication)
-            || (DaoAuthenticationToken.class.isAssignableFrom(authentication))) {
+                authentication)) {
             return true;
         } else {
             return false;
+        }
+    }
+
+    private boolean isPasswordCorrect(Authentication authentication, User user) {
+        Object salt = null;
+
+        if (this.saltSource != null) {
+            salt = this.saltSource.getSalt(user);
+        }
+
+        return passwordEncoder.isPasswordValid(user.getPassword(),
+            authentication.getCredentials().toString(), salt);
+    }
+
+    private User getUserFromBackend(Authentication authentication) {
+        try {
+            return this.authenticationDao.loadUserByUsername(authentication.getPrincipal()
+                                                                           .toString());
+        } catch (UsernameNotFoundException notFound) {
+            throw new BadCredentialsException("Bad credentials presented");
+        } catch (DataAccessException repositoryProblem) {
+            throw new AuthenticationServiceException(repositoryProblem
+                .getMessage(), repositoryProblem);
         }
     }
 }
