@@ -25,6 +25,8 @@
     <title>Acegi Security changes</title>
   </properties>
   <body>
+    <release version="0.8.2" date="In CVS">
+    </release>
     <release version="0.8.1" date="2005-03-22">
       <action dev="luke_t" type="add">X509 (certificate-based) authentication support</action>
       <action dev="benalex" type="update">UserDetails now advises locked accounts, with corresponding DaoAuthenticationProvider events and enforcement</action>
