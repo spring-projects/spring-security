@@ -37,6 +37,7 @@ import java.io.Serializable;
  *
  * @author Carlos Sanchez
  * @author Ben Alex
+ * @author Matthew Porter
  * @version $Id$
  */
 public abstract class BusinessObject implements Serializable, Cloneable {
@@ -61,12 +62,12 @@ public abstract class BusinessObject implements Serializable, Cloneable {
      * @see java.lang.Object#clone()
      * @see BeanUtils#cloneBean(Object)
      */
-    public Object clone() {
+    public Object clone() throws CloneNotSupportedException {
         try {
             return BeanUtils.cloneBean(this);
         } catch (Exception e) {
             logger.error(e);
-            throw new IllegalStateException(e);
+            throw new CloneNotSupportedException(e.getMessage());
         }
     }
 
