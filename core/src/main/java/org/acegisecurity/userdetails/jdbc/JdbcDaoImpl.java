@@ -54,8 +54,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
 
     //~ Instance fields ========================================================
 
-    private AuthoritiesByUsernameQuery authoritiesByUsernameQuery;
-    private UsersByUsernameQuery usersByUsernameQuery;
+    protected AuthoritiesByUsernameQuery authoritiesByUsernameQuery;
+    protected UsersByUsernameQuery usersByUsernameQuery;
 
     //~ Methods ================================================================
 
@@ -82,24 +82,9 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
             user.isEnabled(), arrayAuths);
     }
 
-    protected void setAuthoritiesByUsernameQuery(
-        AuthoritiesByUsernameQuery authoritiesByUsernameQuery) {
-        this.authoritiesByUsernameQuery = authoritiesByUsernameQuery;
-    }
-
-    protected void setUsersByUsernameQuery(
-        UsersByUsernameQuery usersByUsernameQuery) {
-        this.usersByUsernameQuery = usersByUsernameQuery;
-    }
-
     protected void initDao() throws ApplicationContextException {
-        if (usersByUsernameQuery == null) {
-            usersByUsernameQuery = new UsersByUsernameQuery(getDataSource());
-        }
-
-        if (authoritiesByUsernameQuery == null) {
-            authoritiesByUsernameQuery = new AuthoritiesByUsernameQuery(getDataSource());
-        }
+        usersByUsernameQuery = new UsersByUsernameQuery(getDataSource());
+        authoritiesByUsernameQuery = new AuthoritiesByUsernameQuery(getDataSource());
     }
 
     //~ Inner Classes ==========================================================
@@ -140,7 +125,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
             String username = rs.getString("username");
             String password = rs.getString("password");
             boolean enabled = rs.getBoolean("enabled");
-            User user = new User(username, password, enabled, null);
+            User user = new User(username, password, enabled,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("HOLDER")});
 
             return user;
         }
