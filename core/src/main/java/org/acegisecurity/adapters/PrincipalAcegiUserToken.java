@@ -43,7 +43,7 @@ public class PrincipalAcegiUserToken extends AbstractAdapterAuthenticationToken
         this.password = password;
     }
 
-    private PrincipalAcegiUserToken() {
+    protected PrincipalAcegiUserToken() {
         super();
     }
 
