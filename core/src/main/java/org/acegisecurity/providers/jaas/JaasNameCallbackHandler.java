@@ -40,30 +40,20 @@ import javax.security.auth.callback.UnsupportedCallbackException;
  */
 public class JaasNameCallbackHandler
     implements JaasAuthenticationCallbackHandler {
-    //~ Instance fields ========================================================
-
-    private Authentication authentication;
-
     //~ Methods ================================================================
-
-    public void setAuthentication(Authentication authentication) {
-        this.authentication = authentication;
-    }
 
     /**
      * If the callback passed to the 'handle' method is an instance of
      * NameCallback, the JaasNameCallbackHandler will call,
-     * callback.setName(authentication.getPrincipal().toString()). Where
-     * 'authentication' is the {@link Authentication} object used in the
-     * {@link #setAuthentication(net.sf.acegisecurity.Authentication)
-     * setAuthentication} method.
+     * callback.setName(authentication.getPrincipal().toString()).
      *
      * @param callback
+     * @param authentication
      *
      * @throws IOException
      * @throws UnsupportedCallbackException
      */
-    public void handle(Callback callback)
+    public void handle(Callback callback, Authentication authentication)
         throws IOException, UnsupportedCallbackException {
         if (callback instanceof NameCallback) {
             NameCallback ncb = (NameCallback) callback;

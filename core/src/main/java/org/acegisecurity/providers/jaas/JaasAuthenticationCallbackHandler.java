@@ -51,28 +51,18 @@ public interface JaasAuthenticationCallbackHandler {
     //~ Methods ================================================================
 
     /**
-     * Called by the JaasAuthenticationProvider before calling the handle
-     * method for any Callbacks.
-     *
-     * @param auth The Authentication object currently being authenticated.
-     */
-    void setAuthentication(Authentication auth);
-
-    /**
      * Handle the <a
      * href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>.
      * The handle method will be called for every callback instance sent from
      * the LoginContext. Meaning that The handle method may be called multiple
-     * times for a given JaasAuthenticationCallbackHandler, after a single
-     * call to the {@link
-     * #setAuthentication(net.sf.acegisecurity.Authentication)
-     * setAuthentication} method.
+     * times for a given JaasAuthenticationCallbackHandler.
      *
      * @param callback
+     * @param auth The Authentication object currently being authenticated.
      *
      * @throws IOException
      * @throws UnsupportedCallbackException
      */
-    void handle(Callback callback)
+    void handle(Callback callback, Authentication auth)
         throws IOException, UnsupportedCallbackException;
 }

@@ -17,13 +17,22 @@ package net.sf.acegisecurity.providers.jaas;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.*;
+import net.sf.acegisecurity.AcegiSecurityException;
+import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.AuthenticationException;
+import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.LockedException;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.net.URL;
+
+import java.security.Security;
 
 import java.util.Arrays;
 import java.util.List;
@@ -70,6 +79,17 @@ public class JaasAuthenticationProviderTests extends TestCase {
         assertNotNull("Failure event exception was null",
             eventCheck.failedEvent.getException());
         assertNull("Success event was fired", eventCheck.successEvent);
+    }
+
+    public void testConfigurationLoop() throws Exception {
+        String resName = "/" + getClass().getName().replace('.', '/') + ".conf";
+        URL url = getClass().getResource(resName);
+
+        Security.setProperty("policy.allowSystemProperty", "false");
+        Security.setProperty("login.config.url.1", url.toString());
+
+        setUp();
+        testFull();
     }
 
     public void testDetectsMissingLoginConfig() throws Exception {
