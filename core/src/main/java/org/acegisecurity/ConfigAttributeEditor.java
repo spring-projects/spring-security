@@ -23,6 +23,11 @@ import java.beans.PropertyEditorSupport;
 /**
  * A property editor that can create a populated  {@link
  * ConfigAttributeDefinition} from a comma separated list of values.
+ * 
+ * <P>
+ * Trims preceding and trailing spaces from presented command separated tokens,
+ * as this can be a source of hard-to-spot configuration issues for end users.
+ * </p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -39,7 +44,7 @@ public class ConfigAttributeEditor extends PropertyEditorSupport {
 
             for (int i = 0; i < tokens.length; i++) {
                 configDefinition.addConfigAttribute(new SecurityConfig(
-                        tokens[i]));
+                        tokens[i].trim()));
             }
 
             setValue(configDefinition);

@@ -17,6 +17,7 @@ package net.sf.acegisecurity;
 
 import junit.framework.TestCase;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 
@@ -124,6 +125,27 @@ public class ConfigAttributeEditorTests extends TestCase {
         ConfigAttributeDefinition result = (ConfigAttributeDefinition) editor
             .getValue();
         assertTrue(result == null);
+    }
+
+    public void testStripsTrailingAndLeadingSpaces() {
+        ConfigAttributeEditor editor = new ConfigAttributeEditor();
+        editor.setAsText("  HELLO, DOCTOR,NAME,  YESTERDAY ,TOMORROW ");
+
+        ConfigAttributeDefinition result = (ConfigAttributeDefinition) editor
+            .getValue();
+        Iterator iter = result.getConfigAttributes();
+
+        ArrayList list = new ArrayList();
+
+        while (iter.hasNext()) {
+            list.add(iter.next());
+        }
+
+        assertEquals("HELLO", ((ConfigAttribute) list.get(0)).getAttribute());
+        assertEquals("DOCTOR", ((ConfigAttribute) list.get(1)).getAttribute());
+        assertEquals("NAME", ((ConfigAttribute) list.get(2)).getAttribute());
+        assertEquals("YESTERDAY", ((ConfigAttribute) list.get(3)).getAttribute());
+        assertEquals("TOMORROW", ((ConfigAttribute) list.get(4)).getAttribute());
     }
 
     public void testToString() {
