@@ -24,6 +24,8 @@ import net.sf.acegisecurity.context.SecureContextImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.factory.InitializingBean;
+
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -59,16 +61,43 @@ import javax.servlet.ServletResponse;
  * be obtained from the well-known location. It will simply continue the
  * filter chain as normal.
  * </p>
+ * 
+ * <p>
+ * If the <code>ContextHolder</code> does not contain a valid {@link
+ * SecureContext}, one will be created. The created object will be of the
+ * instance defined by the {@link #setSecureContext(Class)} method.
+ * </p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public abstract class AbstractIntegrationFilter implements Filter {
+public abstract class AbstractIntegrationFilter implements InitializingBean,
+    Filter {
     //~ Static fields/initializers =============================================
 
     protected static final Log logger = LogFactory.getLog(AbstractIntegrationFilter.class);
 
+    //~ Instance fields ========================================================
+
+    private Class secureContext = SecureContextImpl.class;
+
     //~ Methods ================================================================
+
+    public void setSecureContext(Class secureContext) {
+        this.secureContext = secureContext;
+    }
+
+    public Class getSecureContext() {
+        return secureContext;
+    }
+
+    public void afterPropertiesSet() throws Exception {
+        if ((this.secureContext == null)
+            || (!this.secureContext.isAssignableFrom(SecureContext.class))) {
+            throw new IllegalArgumentException(
+                "secureContext must be defined and implement SecureContext");
+        }
+    }
 
     /**
      * Writes a new <code>Authentication</code> object to the container's
@@ -97,18 +126,24 @@ public abstract class AbstractIntegrationFilter implements Filter {
             Authentication auth = (Authentication) extracted;
 
             // Get or create existing SecureContext
-            SecureContext secureContext = null;
+            SecureContext sc = null;
 
             if ((ContextHolder.getContext() == null)
                 || !(ContextHolder.getContext() instanceof SecureContext)) {
-                secureContext = new SecureContextImpl();
+                try {
+                    sc = (SecureContext) this.secureContext.newInstance();
+                } catch (InstantiationException ie) {
+                    throw new ServletException(ie);
+                } catch (IllegalAccessException iae) {
+                    throw new ServletException(iae);
+                }
             } else {
-                secureContext = (SecureContext) ContextHolder.getContext();
+                sc = (SecureContext) ContextHolder.getContext();
             }
 
             // Add Authentication to SecureContext, and save
-            secureContext.setAuthentication(auth);
-            ContextHolder.setContext((Context) secureContext);
+            sc.setAuthentication(auth);
+            ContextHolder.setContext((Context) sc);
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug(
