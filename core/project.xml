@@ -4,7 +4,7 @@
   <pomVersion>3</pomVersion>
   <artifactId>acegi-security</artifactId>
   <name>Acegi Security System for Spring</name>
-  <groupId>acegi-security</groupId>
+  <groupId>acegisecurity</groupId>
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
     <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>

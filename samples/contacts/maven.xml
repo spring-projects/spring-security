@@ -1,6 +1,7 @@
 <project
    xmlns:j="jelly:core"
    xmlns:ant="jelly:ant"
+   xmlns:artifact="artifact"
    xmlns:maven="jelly:maven">
 
     <goal name="war">
@@ -35,6 +36,11 @@
             property="maven.war.final.name"
             value="${pom.artifactId}-${webapp}.war"/>
         <attainGoal name="war:war"/>
+    </goal>
+
+    <goal name="multiwar:install">
+        <attainGoal name="multiwar:multiwar"/>
+        <echo>multiproject:install doesn't install Contacts Samples WARs to local repo</echo>
     </goal>
 
     <postGoal name="war:war-resources">

@@ -4,7 +4,7 @@
   <pomVersion>3</pomVersion>
   <artifactId>acegi-security-sample-contacts</artifactId>
   <name>Acegi Security System for Spring - Contacts sample</name>
-  <groupId>acegi-security-sample-contacts</groupId>
+  <groupId>acegisecurity</groupId>
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
     <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>

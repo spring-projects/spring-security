@@ -11,7 +11,8 @@
     <dependency>
       <groupId>acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
-      <version>0.7-SNAPSHOT</version>
+      <version>0.7.0-SNAPSHOT</version>
+      <type>jar</type>
       <url>http://acegisecurity.sourceforge.net</url>
       <properties>
         <war.bundle>true</war.bundle>
