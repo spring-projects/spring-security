@@ -34,4 +34,10 @@ public class DirSetupTestCase extends BaseLdapTestCase {
         assertEquals("Two", myAttrs.get("givenName").get() );
     }
     
+    public void testOthersUsers() throws NamingException {
+        Attributes myAttrs = getClientContext().getAttributes("uid=other.two,ou=others");
+        assertEquals("uid=other.two,ou=others,ou=system", myAttrs.get("dn").get() );
+        assertEquals("Other", myAttrs.get("givenName").get() );
+    }
+    
 }

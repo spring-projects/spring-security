@@ -30,6 +30,19 @@ public class LdapPasswordAuthenticationTest extends BaseLdapTestCase {
             fail();
         }
     }
+    
+    public void testSimpleUidUserBadPassword() throws NamingException {
+        dao.setUserContext("uid={0},ou=users,ou=system");
+        dao.setDefaultRole(DEFAULT_ROLE);
+        try {
+            UserDetails userDetails = dao.loadUserByUsernameAndPassword("one.user", "plainlywrong");
+            //assertEquals(1, userDetails.getAuthorities().length );
+            //assertEquals(DEFAULT_ROLE, userDetails.getAuthorities()[0].getAuthority() );
+            fail();
+        } catch (BadCredentialsException ex) {
+            assertTrue(true);
+        }
+    }
 	
     public void testSimpleCnUser() throws NamingException {
         dao.setUserContext("cn={0},ou=users,ou=system");
@@ -69,4 +82,12 @@ public class LdapPasswordAuthenticationTest extends BaseLdapTestCase {
                 ex.getMessage().startsWith(LdapPasswordAuthenticationDao.BAD_CREDENTIALS_EXCEPTION_MESSAGE) );
         }
     }
+    
+    /*
+     * @todo:
+     * 1. two different groups...
+     * 2. two groups, limit 'roles'
+     * 3. other stuff...
+     */
+    
 }

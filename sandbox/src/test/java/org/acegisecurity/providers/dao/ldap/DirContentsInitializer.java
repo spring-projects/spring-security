@@ -32,6 +32,9 @@ public class DirContentsInitializer {
         try {
             initSimpleUidUser();
             initSimpleCnUser();
+            
+            initOthersGroup();
+            initOthersUsers();
         } catch (NamingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace(System.err);
@@ -68,5 +71,43 @@ public class DirContentsInitializer {
         attrs.put("objectClass", "top");
         
         serverContext.createSubcontext(name, attrs);
+    }
+    
+    private void initOthersGroup() throws NamingException {
+        String otherUserOU = "ou=others";
+        Attributes attrs = new BasicAttributes();
+        attrs.put("dn", otherUserOU + ",ou=system");
+        attrs.put("ou", "others");
+        attrs.put("objectClass", "top");
+        attrs.put("objectClass", "organizationalUnit");
+        serverContext.createSubcontext(otherUserOU, attrs);
+    }
+    
+    private void initOthersUsers() throws NamingException {
+        String name1 = "uid=other.one,ou=others";
+        Attributes attrs1 = new BasicAttributes();
+        attrs1.put("dn", name1 + ",ou=system");
+        attrs1.put("cn", "Other One");
+        attrs1.put("givenName", "Other");
+        attrs1.put("sn", "One");
+        attrs1.put("uid", "other.one");
+        attrs1.put("mail", "other.one@hotmail.com");
+        attrs1.put("userPassword", "otherone");
+        attrs1.put("objectClass", "inetOrgPerson");
+        attrs1.put("objectClass", "top");
+        serverContext.createSubcontext(name1, attrs1);
+        
+        String name2 = "uid=other.two,ou=others";
+        Attributes attrs2 = new BasicAttributes();
+        attrs2.put("dn", name2 + ",ou=system");
+        attrs2.put("cn", "Other Two");
+        attrs2.put("givenName", "Other");
+        attrs2.put("sn", "Two");
+        attrs2.put("uid", "other.two");
+        attrs2.put("mail", "other.two@hotmail.com");
+        attrs2.put("userPassword", "othertwo");
+        attrs2.put("objectClass", "inetOrgPerson");
+        attrs2.put("objectClass", "top");
+        serverContext.createSubcontext(name2, attrs2);
     }
 }

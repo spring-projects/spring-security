@@ -1,0 +1,43 @@
+<html>
+<body bgcolor="#ffffff">
+	<h2>LDAP JUnit Tests and Helper Files.</h2>
+	<p>
+	Because the inter-class dependencies may not be obvious at first glance 
+	they are documented for this package; most of this complexity is on account 
+	of the JUnit design, hopefully future testing frameworks will be less intrusive.
+	</p>
+	<dl>
+		<dt>LdapTestHelper</dt>
+		<dd>Containing the majority of the code which references the 
+		apache directory server classes, LdapTestHelper is designed 
+		to be assigned as a static field in the BaseLdapTestCase, although 
+		it can be used elsewhere.  LdapTestHelper contains all the code 
+		needed to start, initialize, and shutdown the directory server.
+		</dd>
+		
+		<dt>DirContentsInitializer</dt>
+		<dd>DirContentsInitializer contains the JNDI code 
+		used to load the directory server up with entries (users and groups).
+		When I figure out how to correctly import LDIF files, DirContentsInitializer 
+		will probably be radically simplified.
+		</dd>
+		
+		<dt>BaseLdapTestCase</dt>
+		<dd>Contains common methods and fields that will probably 
+		be needed by any TestCase which interacts with the directory server, 
+		including a static reference to a LdapTestHelper instance.
+		</dd>
+		
+		<dt>DirSetupTestCase</dt>
+		<dd>Contains some simple code designed to test that DirContentsInitializer 
+		has functioned properly.  If these tests fail then the 
+		other tests are expected to fail too.
+		</dd>
+		
+		<dt>LdapPasswordAuthenticationTest</dt>
+		<dd>Contains tests which configure a LdapPasswordAuthenticationDao bean and
+		excersize it against the directory server.
+		</dd>
+	</dl>
+</body>
+</html>
