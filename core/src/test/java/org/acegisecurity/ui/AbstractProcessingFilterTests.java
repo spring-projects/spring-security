@@ -163,6 +163,22 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         filter.setFilterProcessesUrl("/p");
         assertEquals("/p", filter.getFilterProcessesUrl());
+
+        filter.setAuthenticationCredentialCheckFailureUrl("/foo");
+        assertEquals("/foo", filter.getAuthenticationCredentialCheckFailureUrl());
+
+        filter.setAuthenticationDisabledFailureUrl("/dis");
+        assertEquals("/dis", filter.getAuthenticationDisabledFailureUrl());
+
+        filter.setAuthenticationFailureUrl("/fail");
+        assertEquals("/fail", filter.getAuthenticationFailureUrl());
+
+        filter.setAuthenticationLockedFailureUrl("/locked");
+        assertEquals("/locked", filter.getAuthenticationLockedFailureUrl());
+
+        filter.setAuthenticationProxyUntrustedFailureUrl("/proxy");
+        assertEquals("/proxy",
+            filter.getAuthenticationProxyUntrustedFailureUrl());
     }
 
     public void testIgnoresAnyServletPathOtherThanFilterProcessesUrl()
@@ -367,10 +383,19 @@ public class AbstractProcessingFilterTests extends TestCase {
     //~ Inner Classes ==========================================================
 
     private class MockAbstractProcessingFilter extends AbstractProcessingFilter {
+        private AuthenticationException exceptionToThrow;
         private boolean grantAccess;
 
         public MockAbstractProcessingFilter(boolean grantAccess) {
             this.grantAccess = grantAccess;
+            this.exceptionToThrow = new BadCredentialsException(
+                    "Mock requested to do so");
+        }
+
+        public MockAbstractProcessingFilter(
+            AuthenticationException exceptionToThrow) {
+            this.grantAccess = false;
+            this.exceptionToThrow = exceptionToThrow;
         }
 
         private MockAbstractProcessingFilter() {
@@ -387,7 +412,7 @@ public class AbstractProcessingFilterTests extends TestCase {
                 return new UsernamePasswordAuthenticationToken("test", "test",
                     new GrantedAuthority[] {new GrantedAuthorityImpl("TEST")});
             } else {
-                throw new BadCredentialsException("Mock requested to do so");
+                throw exceptionToThrow;
             }
         }
 
