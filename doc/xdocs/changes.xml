@@ -29,6 +29,7 @@
       <action dev="benalex" type="fix">Correct location of AuthenticationSimpleHttpInvokerRequestExecutor in clientContext.xml</action>
       <action dev="benalex" type="fix">TokenBasedRememberMeServices changed to use long instead of int for tokenValiditySeconds (SPR-807)</action>
       <action dev="benalex" type="fix">Handle null Authentication.getAuthorities() in AuthorizeTag</action>
+      <action dev="benalex" type="fix">PasswordDaoAuthenticationProvider no longer stores String against Authentication.setDetails()</action>
       <action dev="benalex" type="update">Add credentialsExpiredFailureUrl getter/setter to AbstractProcessingFilter</action>
       <action dev="benalex" type="update">Update commons-codec dependency to 1.3</action>
       <action dev="raykrueger" type="update">AbstractProcessingFilter no longer has setters for failures, it uses the exceptionMappings property</action>
