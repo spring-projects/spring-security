@@ -22,6 +22,7 @@ import java.security.Principal;
 
 import java.util.Iterator;
 
+import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
@@ -48,10 +49,24 @@ public class JbossIntegrationFilter extends AbstractIntegrationFilter {
         Subject subject = null;
 
         try {
-            InitialContext ic = new InitialContext();
-            subject = (Subject) ic.lookup("java:comp/env/security/subject");
+            Context lc = this.getLookupContext();
+
+            if (lc == null) {
+                if (super.logger.isWarnEnabled()) {
+                    super.logger.warn(
+                        "Could not obtain a Context to perform lookup");
+                }
+
+                return null;
+            }
+
+            Object result = lc.lookup("java:comp/env/security/subject");
+
+            if (result instanceof Subject) {
+                subject = (Subject) result;
+            }
         } catch (NamingException ne) {
-            if (super.logger.isDebugEnabled()) {
+            if (super.logger.isWarnEnabled()) {
                 super.logger.warn("Lookup on Subject failed "
                     + ne.getLocalizedMessage());
             }
@@ -63,9 +78,15 @@ public class JbossIntegrationFilter extends AbstractIntegrationFilter {
             while (principals.hasNext()) {
                 Principal p = (Principal) principals.next();
 
-                if (super.logger.isDebugEnabled()) {
-                    super.logger.debug("Found Principal in container ("
-                        + p.getClass().getName() + ") : " + p.getName());
+                if (p == null) {
+                    if (super.logger.isDebugEnabled()) {
+                        super.logger.debug("Found null Principal in container");
+                    }
+                } else {
+                    if (super.logger.isDebugEnabled()) {
+                        super.logger.debug("Found Principal in container ("
+                            + p.getClass().getName() + ") : " + p.getName());
+                    }
                 }
 
                 if (p instanceof Authentication) {
@@ -75,5 +96,16 @@ public class JbossIntegrationFilter extends AbstractIntegrationFilter {
         }
 
         return null;
+    }
+
+    /**
+     * Provided so that unit tests can override.
+     *
+     * @return a <code>Context</code> that can be used for lookup
+     *
+     * @throws NamingException DOCUMENT ME!
+     */
+    protected Context getLookupContext() throws NamingException {
+        return new InitialContext();
     }
 }
