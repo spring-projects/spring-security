@@ -15,6 +15,7 @@
 
 package net.sf.acegisecurity;
 
+
 /**
  * Makes a final access control (authorization) decision.
  *
@@ -41,7 +42,7 @@ public interface AccessDecisionManager {
      * Indicates whether this <code>AccessDecisionManager</code> is able to
      * process authorization requests presented with the passed
      * <code>ConfigAttribute</code>.
-     * 
+     *
      * <p>
      * This allows the <code>AbstractSecurityInterceptor</code> to check every
      * configuration attribute can be consumed by the configured
