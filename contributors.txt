@@ -30,8 +30,9 @@ contributions to the Acegi Security System for Spring project:
 
 * Ray Krueger is a current member of the development team.
 
-* Karel Miarka contributed a fix for EH-CACHE NPEs and additional event
-  handling for DaoAuthenticationProvider.
+* Karel Miarka contributed a fix for EH-CACHE NPEs, additional event
+  handling for DaoAuthenticationProvider, and the 
+  PasswordAuthenticationProvider-related classes
 
 * Anyone else I've forgotten (please let me know so I can correct this).
 

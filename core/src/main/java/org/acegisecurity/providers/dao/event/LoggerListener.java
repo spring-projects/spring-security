@@ -74,6 +74,17 @@ public class LoggerListener implements ApplicationListener {
             }
         }
 
+        if (event instanceof AuthenticationFailureUsernameOrPasswordEvent) {
+            AuthenticationFailureUsernameOrPasswordEvent authEvent = (AuthenticationFailureUsernameOrPasswordEvent) event;
+
+            if (logger.isWarnEnabled()) {
+                logger.warn(
+                    "Authentication failed due to invalid username or password: "
+                    + authEvent.getUser().getUsername() + "; details: "
+                    + authEvent.getAuthentication().getDetails());
+            }
+        }
+
         if (event instanceof AuthenticationSuccessEvent) {
             AuthenticationSuccessEvent authEvent = (AuthenticationSuccessEvent) event;
 
