@@ -59,18 +59,8 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor {
         return this.objectDefinitionSource;
     }
 
-    public void afterPropertiesSet() {
-        super.afterPropertiesSet();
-
-        if (!this.getAccessDecisionManager().supports(FilterInvocation.class)) {
-            throw new IllegalArgumentException(
-                "AccessDecisionManager does not support FilterInvocation");
-        }
-
-        if (!this.getRunAsManager().supports(FilterInvocation.class)) {
-            throw new IllegalArgumentException(
-                "RunAsManager does not support FilterInvocation");
-        }
+    public Class getSecureObjectClass() {
+        return FilterInvocation.class;
     }
 
     public void invoke(FilterInvocation fi) throws Throwable {
@@ -79,7 +69,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor {
         try {
             fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
         } finally {
-            super.afterInvocation(token);
+            super.afterInvocation(token, null);
         }
     }
 

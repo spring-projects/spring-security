@@ -35,7 +35,7 @@ import org.aspectj.lang.JoinPoint;
  * </p>
  * 
  * <p>
- * The secure object type is <code>org.aspectj.lang.JointPoint</code>, which is
+ * The secure object type is <code>org.aspectj.lang.JoinPoint</code>, which is
  * passed from the relevant <code>around()</code> advice. The
  * <code>around()</code> advice also passes an anonymous implementation of
  * {@link AspectJCallback} which contains the call for AspectJ to continue
@@ -64,18 +64,8 @@ public class AspectJSecurityInterceptor extends AbstractSecurityInterceptor {
         return this.objectDefinitionSource;
     }
 
-    public void afterPropertiesSet() {
-        super.afterPropertiesSet();
-
-        if (!this.getAccessDecisionManager().supports(JoinPoint.class)) {
-            throw new IllegalArgumentException(
-                "AccessDecisionManager does not support JointPoint");
-        }
-
-        if (!this.getRunAsManager().supports(JoinPoint.class)) {
-            throw new IllegalArgumentException(
-                "RunAsManager does not support JointPoint");
-        }
+    public Class getSecureObjectClass() {
+        return JoinPoint.class;
     }
 
     /**
@@ -91,13 +81,13 @@ public class AspectJSecurityInterceptor extends AbstractSecurityInterceptor {
      * @return The returned value from the method invocation
      */
     public Object invoke(JoinPoint jp, AspectJCallback advisorProceed) {
-        Object result;
+        Object result = null;
         InterceptorStatusToken token = super.beforeInvocation(jp);
 
         try {
             result = advisorProceed.proceedWithObject();
         } finally {
-            super.afterInvocation(token);
+            result = super.afterInvocation(token, result);
         }
 
         return result;

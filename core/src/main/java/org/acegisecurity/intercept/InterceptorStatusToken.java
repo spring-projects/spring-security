@@ -16,6 +16,7 @@
 package net.sf.acegisecurity.intercept;
 
 import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.ConfigAttributeDefinition;
 
 
 /**
@@ -23,14 +24,9 @@ import net.sf.acegisecurity.Authentication;
  * 
  * <P>
  * This class reflects the status of the security interception, so that the
- * final call to <code>AbstractSecurityInterceptor</code> can tidy up
- * correctly.
- * </p>
- * 
- * <P>
- * Whilst this class currently only wraps a single object, it has been modelled
- * as a class so that future changes to the operation of
- * <code>AbstractSecurityInterceptor</code> are abstracted from subclasses.
+ * final call to {@link
+ * net.sf.acegisecurity.intercept.AbstractSecurityInterceptor#afterInvocation(InterceptorStatusToken,
+ * Object)} can tidy up correctly.
  * </p>
  *
  * @author Ben Alex
@@ -39,15 +35,41 @@ import net.sf.acegisecurity.Authentication;
 public class InterceptorStatusToken {
     //~ Instance fields ========================================================
 
-    private Authentication authenticated;
+    private Authentication authentication;
+    private ConfigAttributeDefinition attr;
+    private Object secureObject;
+    private boolean contextHolderRefreshRequired;
+
+    //~ Constructors ===========================================================
+
+    public InterceptorStatusToken(Authentication authentication,
+        boolean contextHolderRefreshRequired, ConfigAttributeDefinition attr,
+        Object secureObject) {
+        this.authentication = authentication;
+        this.contextHolderRefreshRequired = contextHolderRefreshRequired;
+        this.attr = attr;
+        this.secureObject = secureObject;
+    }
+
+    protected InterceptorStatusToken() {
+        throw new IllegalArgumentException("Cannot use default constructor");
+    }
 
     //~ Methods ================================================================
 
-    public void setAuthenticated(Authentication authenticated) {
-        this.authenticated = authenticated;
+    public ConfigAttributeDefinition getAttr() {
+        return attr;
     }
 
-    public Authentication getAuthenticated() {
-        return authenticated;
+    public Authentication getAuthentication() {
+        return authentication;
+    }
+
+    public boolean isContextHolderRefreshRequired() {
+        return contextHolderRefreshRequired;
+    }
+
+    public Object getSecureObject() {
+        return secureObject;
     }
 }

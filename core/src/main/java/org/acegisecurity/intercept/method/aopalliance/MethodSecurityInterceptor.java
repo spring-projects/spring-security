@@ -58,18 +58,8 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor
         return this.objectDefinitionSource;
     }
 
-    public void afterPropertiesSet() {
-        super.afterPropertiesSet();
-
-        if (!this.getAccessDecisionManager().supports(MethodInvocation.class)) {
-            throw new IllegalArgumentException(
-                "AccessDecisionManager does not support MethodInvocation");
-        }
-
-        if (!this.getRunAsManager().supports(MethodInvocation.class)) {
-            throw new IllegalArgumentException(
-                "RunAsManager does not support MethodInvocation");
-        }
+    public Class getSecureObjectClass() {
+        return MethodInvocation.class;
     }
 
     /**
@@ -83,13 +73,13 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor
      * @throws Throwable if any error occurs
      */
     public Object invoke(MethodInvocation mi) throws Throwable {
-        Object result;
+        Object result = null;
         InterceptorStatusToken token = super.beforeInvocation(mi);
 
         try {
             result = mi.proceed();
         } finally {
-            super.afterInvocation(token);
+            result = super.afterInvocation(token, result);
         }
 
         return result;
