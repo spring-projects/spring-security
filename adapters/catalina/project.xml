@@ -1,0 +1,13 @@
+<project>
+    <extend>${basedir}/../project.xml</extend>
+    <artifactId>acegi-security-catalina</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>catalina</artifactId>
+            <version>4.1.9</version>
+            <type>jar</type>
+            <properties/>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,11 @@
+<project>
+    <extend>${basedir}/../project.xml</extend>
+    <artifactId>acegi-security-jetty</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>jetty</groupId>
+            <artifactId>org.mortbay.jetty</artifactId>
+            <version>4.2.20</version>
+        </dependency>
+    </dependencies>
+</project>

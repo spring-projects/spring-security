@@ -1,0 +1,4 @@
+<project>
+    <extend>${basedir}/../project.xml</extend>
+    <artifactId>acegi-security</artifactId>
+</project>

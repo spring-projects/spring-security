@@ -1,0 +1,11 @@
+<project>
+    <extend>${basedir}/../project.xml</extend>
+    <artifactId>acegi-security-resin</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>resin</groupId>
+            <artifactId>resin</artifactId>
+            <version>3.0.9</version>
+        </dependency>
+    </dependencies>
+</project>
