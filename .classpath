@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="sandbox/src"/>
-	<classpathentry kind="src" path="sandbox/test"/>
-	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="src" path="samples/contacts/src"/>
-	<classpathentry kind="src" path="samples/attributes/src"/>
+	<classpathentry kind="src" path="samples/attributes/src/main/java"/>
+	<classpathentry kind="src" path="samples/contacts/src/main/java"/>
+	<classpathentry kind="src" path="sandbox/src/main/java"/>
+	<classpathentry kind="src" path="sandbox/src/test/java"/>
+	<classpathentry kind="src" path="adapters/cas/src/main/java"/>
+	<classpathentry kind="src" path="adapters/cas/src/test/java"/>
+	<classpathentry kind="src" path="adapters/catalina/src/main/java"/>
+	<classpathentry kind="src" path="adapters/catalina/src/test/java"/>
+	<classpathentry kind="src" path="adapters/jboss/src/main/java"/>
+	<classpathentry kind="src" path="adapters/jboss/src/test/java"/>
+	<classpathentry kind="src" path="adapters/jetty/src/main/java"/>
+	<classpathentry kind="src" path="adapters/jetty/src/test/java"/>
+	<classpathentry kind="src" path="adapters/resin/src/main/java"/>
+	<classpathentry kind="src" path="adapters/resin/src/test/java"/>
+	<classpathentry kind="src" path="core/src/main/java"/>
+	<classpathentry kind="src" path="core/src/test/java"/>
 	<classpathentry kind="src" path="integration-test/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/jakarta-commons/commons-logging.jar"/>
@@ -17,7 +27,6 @@
 	<classpathentry kind="lib" path="lib/extracted/catalina/catalina-extracted.jar"/>
 	<classpathentry kind="lib" path="lib/extracted/catalina/jmx-extracted.jar"/>
 	<classpathentry kind="lib" path="lib/extracted/jetty/org.mortbay.jetty-extracted.jar"/>
-	<classpathentry kind="lib" path="lib/extracted/resin/resin-extracted.jar"/>
 	<classpathentry kind="lib" path="integration-test/lib/httpunit.jar"/>
 	<classpathentry kind="lib" path="lib/regexp/jakarta-oro.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-commons/commons-codec.jar"/>
@@ -29,5 +38,6 @@
 	<classpathentry kind="lib" path="lib/spring/spring-mock.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-commons/commons-collections.jar"/>
 	<classpathentry kind="lib" path="lib/aspectj/aspectjrt.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/resin/jars/resin-3.0.9.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>
