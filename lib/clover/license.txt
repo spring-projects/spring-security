@@ -1,7 +1,7 @@
-Cortex has supported the Acegi Security System for Spring project with a free
+Cenque has supported the Acegi Security System for Spring project with a free
 Team Edition license of Clover.
 
-We thank Cortex for their support.
+We thank Cenqua for their support.
 
 
 $Id$
