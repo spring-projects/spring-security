@@ -22,7 +22,8 @@ import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.providers.AuthenticationProvider;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.providers.encoding.*;
+import net.sf.acegisecurity.providers.encoding.PasswordEncoder;
+import net.sf.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -48,6 +49,7 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
     private AuthenticationDao authenticationDao;
     private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
+    private SaltSource saltSource;
 
     //~ Methods ================================================================
 
@@ -74,6 +76,23 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
         return passwordEncoder;
     }
 
+    /**
+     * The source of salts to use when decoding passwords.  <code>null</code>
+     * is a valid value, meaning the <code>DaoAuthenticationProvider</code>
+     * will present <code>null</code> to the relevant
+     * <code>PasswordEncoder</code>.
+     *
+     * @param saltSource to use when attempting to decode passwords via  the
+     *        <code>PasswordEncoder</code>
+     */
+    public void setSaltSource(SaltSource saltSource) {
+        this.saltSource = saltSource;
+    }
+
+    public SaltSource getSaltSource() {
+        return saltSource;
+    }
+
     public void afterPropertiesSet() throws Exception {
         if (this.authenticationDao == null) {
             throw new IllegalArgumentException(
@@ -95,8 +114,14 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
                 .getMessage(), repositoryProblem);
         }
 
+        Object salt = null;
+
+        if (this.saltSource != null) {
+            salt = this.saltSource.getSalt(user);
+        }
+
         if (!passwordEncoder.isPasswordValid(user.getPassword(),
-                authentication.getCredentials().toString(), user)) {
+                authentication.getCredentials().toString(), salt)) {
             throw new BadCredentialsException("Bad credentials presented");
         }
 
