@@ -1,7 +1,6 @@
 package net.sf.acegisecurity.providers.jaas;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.providers.jaas.JAASAuthenticationCallbackHandler;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.PasswordCallback;
@@ -11,8 +10,9 @@ import java.io.IOException;
 /**
  * Insert comments here...
  * <br>
- * User: raykrueger@users.sourceforge.net<br>
- * Date: Jul 15, 2004<br>
+ *
+ * @author Ray Krueger
+ * @version $Id$
  */
 public class JAASPasswordCallbackHandler implements JAASAuthenticationCallbackHandler {
 

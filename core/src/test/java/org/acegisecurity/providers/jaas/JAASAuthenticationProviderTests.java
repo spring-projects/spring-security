@@ -14,8 +14,9 @@ import java.util.List;
 /**
  * Insert comments here...
  * <br>
- * User: raykrueger@users.sourceforge.net<br>
- * Date: Jul 16, 2004<br>
+ *
+ * @author Ray Krueger
+ * @version $Id$
  */
 public class JAASAuthenticationProviderTests extends TestCase {
 

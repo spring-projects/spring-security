@@ -6,8 +6,9 @@ import org.springframework.context.ApplicationEvent;
 /**
  * Insert comments here...
  * <br>
- * User: raykrueger@users.sourceforge.net<br>
- * Date: Jul 15, 2004<br>
+ *
+ * @author Ray Krueger
+ * @version $Id$
  */
 public abstract class JAASAuthenticationEvent extends ApplicationEvent {
 

@@ -7,8 +7,9 @@ import java.security.Principal;
 /**
  * Insert comments here...
  * <br>
- * User: raykrueger@users.sourceforge.net<br>
- * Date: Jul 15, 2004<br>
+ *
+ * @author Ray Krueger
+ * @version $Id$
  */
 public class JAASGrantedAuthority extends GrantedAuthorityImpl {
 

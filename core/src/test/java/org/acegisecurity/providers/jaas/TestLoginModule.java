@@ -10,8 +10,9 @@ import java.util.Map;
 /**
  * Insert comments here...
  * <br>
- * @author raykrueger@users.sourceforge.net<br>
- * Date: Jul 16, 2004<br>
+ *
+ * @author Ray Krueger
+ * @version $Id$
  */
 public class TestLoginModule implements LoginModule {
 
