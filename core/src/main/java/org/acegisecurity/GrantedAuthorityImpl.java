@@ -15,6 +15,9 @@
 
 package net.sf.acegisecurity;
 
+import java.io.Serializable;
+
+
 /**
  * Basic concrete implementation of a {@link GrantedAuthority}.
  * 
@@ -26,7 +29,7 @@ package net.sf.acegisecurity;
  * @author Ben Alex
  * @version $Id$
  */
-public class GrantedAuthorityImpl implements GrantedAuthority {
+public class GrantedAuthorityImpl implements GrantedAuthority, Serializable {
     //~ Instance fields ========================================================
 
     private String role;
