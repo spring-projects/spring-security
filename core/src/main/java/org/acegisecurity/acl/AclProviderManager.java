@@ -78,12 +78,13 @@ public class AclProviderManager implements AclManager, InitializingBean {
         return null;
     }
 
-	public AclEntry[] getAcls(Object domainInstance,
-			Authentication authentication) {
+    public AclEntry[] getAcls(Object domainInstance,
+        Authentication authentication) {
         if (domainInstance == null) {
             throw new IllegalArgumentException(
                 "domainInstance is null - violating interface contract");
         }
+
         if (authentication == null) {
             throw new IllegalArgumentException(
                 "authentication is null - violating interface contract");
@@ -101,6 +102,11 @@ public class AclProviderManager implements AclManager, InitializingBean {
                 }
 
                 return provider.getAcls(domainInstance, authentication);
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Provider " + provider.toString()
+                        + " does not support " + domainInstance);
+                }
             }
         }
 
@@ -110,8 +116,8 @@ public class AclProviderManager implements AclManager, InitializingBean {
         }
 
         return null;
-	}
-	
+    }
+
     /**
      * Sets the {@link AclProvider} objects to be used for ACL determinations.
      *

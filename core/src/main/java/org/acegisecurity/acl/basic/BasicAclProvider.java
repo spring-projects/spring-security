@@ -299,18 +299,36 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
      */
     public boolean supports(Object domainInstance) {
         if (domainInstance == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("domainInstance is null");
+            }
+
             return false;
         }
 
         if ((restrictSupportToClass != null)
             && !restrictSupportToClass.isAssignableFrom(
                 domainInstance.getClass())) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("domainInstance not instance of "
+                    + restrictSupportToClass);
+            }
+
             return false;
         }
 
         if (obtainIdentity(domainInstance) == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("obtainIdentity returned null");
+            }
+
             return false;
         } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("obtainIdentity returned "
+                    + obtainIdentity(domainInstance));
+            }
+
             return true;
         }
     }
@@ -338,6 +356,11 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
         if (domainInstance instanceof AclObjectIdentityAware) {
             AclObjectIdentityAware aclObjectIdentityAware = (AclObjectIdentityAware) domainInstance;
 
+            if (logger.isDebugEnabled()) {
+                logger.debug("domainInstance: " + domainInstance
+                    + " cast to AclObjectIdentityAware");
+            }
+
             return aclObjectIdentityAware.getAclObjectIdentity();
         }
 
@@ -345,8 +368,23 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
             Constructor constructor = defaultAclObjectIdentityClass
                 .getConstructor(new Class[] {Object.class});
 
+            if (logger.isDebugEnabled()) {
+                logger.debug("domainInstance: " + domainInstance
+                    + " attempting to pass to constructor: " + constructor);
+            }
+
             return (AclObjectIdentity) constructor.newInstance(new Object[] {domainInstance});
         } catch (Exception ex) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Error attempting construction of "
+                    + defaultAclObjectIdentityClass + ": " + ex.getMessage(), ex);
+
+                if (ex.getCause() != null) {
+                    logger.debug("Cause: " + ex.getCause().getMessage(),
+                        ex.getCause());
+                }
+            }
+
             return null;
         }
     }
