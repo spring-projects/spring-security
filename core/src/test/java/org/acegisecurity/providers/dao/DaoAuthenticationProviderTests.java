@@ -66,6 +66,8 @@ public class DaoAuthenticationProviderTests extends TestCase {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
+        provider.setApplicationContext(new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/util/filtertest-valid.xml"));
 
         try {
             provider.authenticate(token);
@@ -89,6 +91,16 @@ public class DaoAuthenticationProviderTests extends TestCase {
         } catch (AccountExpiredException expected) {
             assertTrue(true);
         }
+
+        provider.setApplicationContext(new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/util/filtertest-valid.xml"));
+
+        try {
+            provider.authenticate(token);
+            fail("Should have thrown AccountExpiredException");
+        } catch (AccountExpiredException expected) {
+            assertTrue(true);
+        }
     }
 
     public void testAuthenticateFailsIfCredentialsExpired() {
@@ -105,6 +117,16 @@ public class DaoAuthenticationProviderTests extends TestCase {
         } catch (CredentialsExpiredException expected) {
             assertTrue(true);
         }
+
+        provider.setApplicationContext(new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/util/filtertest-valid.xml"));
+
+        try {
+            provider.authenticate(token);
+            fail("Should have thrown CredentialsExpiredException");
+        } catch (CredentialsExpiredException expected) {
+            assertTrue(true);
+        }
     }
 
     public void testAuthenticateFailsIfUserDisabled() {
@@ -114,6 +136,16 @@ public class DaoAuthenticationProviderTests extends TestCase {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setAuthenticationDao(new MockAuthenticationDaoUserPeter());
         provider.setUserCache(new MockUserCache());
+
+        try {
+            provider.authenticate(token);
+            fail("Should have thrown DisabledException");
+        } catch (DisabledException expected) {
+            assertTrue(true);
+        }
+
+        provider.setApplicationContext(new ClassPathXmlApplicationContext(
+                "net/sf/acegisecurity/util/filtertest-valid.xml"));
 
         try {
             provider.authenticate(token);
