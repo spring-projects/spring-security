@@ -98,26 +98,13 @@ Maven throws an OutOfMemoryError. :-(
   	</goal>
 
     <postGoal name="sdocbook:prepare-filesystem">
-        <j:set var="unzipped" value="false" />
-        <util:available file="${maven.sdocbook.generated.fo}">
-            <j:set var="unzipped" value="true" />
-            <echo>Using previusly unzipped docbook files</echo>
-        </util:available>
-        <j:if test="${!unzipped}">
-            <!-- unzip docbook files -->
-            <ant:unzip dest="${maven.build.dir}"
-                src="${pom.getDependencyPath('docbook:docbook-xsl')}"/>
-                
+
             <!-- use a custom fo stylesheet -->
-            <move file="${maven.sdocbook.stylesheets.dir}/fo/docbook.xsl"
-                tofile="${maven.sdocbook.stylesheets.dir}/fo/docbook-bak.xsl"/>
             <copy todir="${maven.sdocbook.stylesheets.dir}/fo">
                 <fileset dir="${maven.sdocbook.src.dir}/styles/fo"/>
             </copy>
 
             <!-- use a custom html stylesheet -->
-            <move file="${maven.sdocbook.stylesheets.dir}/html/docbook.xsl"
-                tofile="${maven.sdocbook.stylesheets.dir}/html/docbook-bak.xsl"/>
             <copy todir="${maven.sdocbook.stylesheets.dir}/html">
                 <fileset dir="${maven.sdocbook.src.dir}/styles/html"/>
             </copy>
@@ -126,10 +113,25 @@ Maven throws an OutOfMemoryError. :-(
             <copy todir="${maven.sdocbook.stylesheets.dir}/images">
                 <fileset dir="${maven.sdocbook.src.dir}/images"/>
             </copy>
-        </j:if>
 
     </postGoal>
 
+    <postGoal name="sdocbook:generate-html">
+        <j:if test="${chunk != true}">
+            <move file="${maven.sdocbook.target.dir}/index.html"
+                  tofile="${maven.sdocbook.target.dir}/index-all.html"/>
+        </j:if>
+    </postGoal>
+    <goal name="sdocbook:generate-htmlchunk">
+        <j:set var="maven.sdocbook.html.xsl" value="${maven.sdocbook.stylesheets.dir}/html/acegi-chunk.xsl"/>
+        <j:set var="maven.sdocbook.generated.html" value="${maven.build.dir}/generated-docbooks/html-chunk"/>
+        <j:set var="chunk" value="true"/>
+        <attainGoal name="sdocbook:generate-html"/>
+    </goal>
+    <postGoal name="sdocbook">
+        <attainGoal name="sdocbook:generate-htmlchunk"/>
+    </postGoal>
+    
     <preGoal name="site">
         <attainGoal name="sdocbook"/>
     </preGoal>

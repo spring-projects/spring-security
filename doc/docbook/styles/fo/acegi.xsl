@@ -15,7 +15,7 @@
 -->
 
 <!DOCTYPE xsl:stylesheet [
-    <!ENTITY db_xsl_bak        "docbook-bak.xsl">
+    <!ENTITY db_xsl             "docbook.xsl">
     <!ENTITY admon_gfx_path     "../images/admons/">
 ]>
 
@@ -25,7 +25,7 @@
                 xmlns:fo="http://www.w3.org/1999/XSL/Format"
                 exclude-result-prefixes="#default">
                 
-<xsl:import href="&db_xsl_bak;"/>
+<xsl:import href="&db_xsl;"/>
 
 <!--###################################################
                    Custom Title Page
