@@ -226,8 +226,9 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
                 if (this.context != null) {
                     context.publishEvent(new AuthenticationFailureUsernameNotFoundEvent(
                             authentication,
-                            new User(username, "*****", false,
-                                new GrantedAuthority[0])));
+                            new User("".equals(username)
+                                ? "EMPTY_STRING_PROVIDED" : username, "*****",
+                                false, new GrantedAuthority[0])));
                 }
 
                 throw ex;
