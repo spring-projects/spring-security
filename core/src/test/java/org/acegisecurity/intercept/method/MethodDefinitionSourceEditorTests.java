@@ -157,6 +157,20 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         assertEquals(expectedCountLength, returnedCountLength);
     }
 
+    public void testNullIsReturnedByMethodDefinitionSourceWhenMethodInvocationNotDefined()
+        throws Exception {
+        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        editor.setAsText(
+            "net.sf.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
+
+        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+
+        ConfigAttributeDefinition configAttributeDefinition = map.getAttributes(new MockMethodInvocation(
+                    TargetObject.class, "makeLowerCase",
+                    new Class[] {String.class}));
+        assertNull(configAttributeDefinition);
+    }
+
     public void testNullReturnsEmptyMap() {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(null);

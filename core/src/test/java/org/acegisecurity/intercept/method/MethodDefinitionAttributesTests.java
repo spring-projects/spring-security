@@ -26,6 +26,7 @@ import net.sf.acegisecurity.MockMethodInvocation;
 import net.sf.acegisecurity.OtherTargetObject;
 import net.sf.acegisecurity.SecurityConfig;
 import net.sf.acegisecurity.TargetObject;
+import net.sf.acegisecurity.acl.basic.SomeDomain;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.SecureContext;
 import net.sf.acegisecurity.context.SecureContextImpl;
@@ -200,6 +201,15 @@ public class MethodDefinitionAttributesTests extends TestCase {
             result);
 
         ContextHolder.setContext(null);
+    }
+
+    public void testNullReturnedIfZeroAttributesDefinedForMethodInvocation()
+        throws Exception {
+        // SomeDomain is not defined in the MockAttributes() 
+        // (which getConfigAttributeDefinition refers to)
+        ConfigAttributeDefinition def = getConfigAttributeDefinition(SomeDomain.class,
+                "getId", null);
+        assertNull(def);
     }
 
     private ConfigAttributeDefinition getConfigAttributeDefinition(

@@ -103,7 +103,11 @@ public class MethodDefinitionAttributes extends AbstractMethodDefinitionSource {
         // add the method level attributes for the implemented intreface methods
         addInterfaceMethodAttributes(definition, invocation.getMethod());
 
-        return definition;
+        if (definition.size() == 0) {
+            return null;
+        } else {
+            return definition;
+        }
     }
 
     private void add(ConfigAttributeDefinition definition, Collection attribs) {

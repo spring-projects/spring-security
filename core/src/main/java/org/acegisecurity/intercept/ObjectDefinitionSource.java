@@ -34,6 +34,11 @@ public interface ObjectDefinitionSource {
     /**
      * Accesses the <code>ConfigAttributeDefinition</code> that applies to a
      * given secure object.
+     * 
+     * <P>
+     * Returns <code>null</code> if no <code>ConfigAttribiteDefinition</code>
+     * applies.
+     * </p>
      *
      * @param object the object being secured
      *
