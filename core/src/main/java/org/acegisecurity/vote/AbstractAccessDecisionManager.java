@@ -98,6 +98,33 @@ public abstract class AbstractAccessDecisionManager
         return false;
     }
 
+    /**
+     * Iterates through all <code>AccessDecisionVoter</code>s and ensures each
+     * can support the presented class.
+     * 
+     * <p>
+     * If one or more voters cannot support the presented class,
+     * <code>false</code> is returned.
+     * </p>
+     *
+     * @param clazz DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
+    public boolean supports(Class clazz) {
+        Iterator iter = this.decisionVoters.iterator();
+
+        while (iter.hasNext()) {
+            AccessDecisionVoter voter = (AccessDecisionVoter) iter.next();
+
+            if (!voter.supports(clazz)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private void checkIfValidList(List listToCheck) {
         if ((listToCheck == null) || (listToCheck.size() == 0)) {
             throw new IllegalArgumentException(

@@ -19,8 +19,6 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 import java.util.Iterator;
 
 
@@ -56,7 +54,19 @@ public class RoleVoter implements AccessDecisionVoter {
         }
     }
 
-    public int vote(Authentication authentication, MethodInvocation invocation,
+    /**
+     * This implementation supports any type of class, because it does not
+     * query the presented secure object.
+     *
+     * @param clazz the secure object
+     *
+     * @return always <code>true</code>
+     */
+    public boolean supports(Class clazz) {
+        return true;
+    }
+
+    public int vote(Authentication authentication, Object object,
         ConfigAttributeDefinition config) {
         int result = ACCESS_ABSTAIN;
         Iterator iter = config.getConfigAttributes();

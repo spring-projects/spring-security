@@ -20,8 +20,6 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -63,15 +61,14 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
      * </p>
      *
      * @param authentication the caller invoking the method
-     * @param invocation the method being called
+     * @param object the secured object
      * @param config the configuration attributes associated with the method
      *        being invoked
      *
      * @throws AccessDeniedException if access is denied
      */
-    public void decide(Authentication authentication,
-        MethodInvocation invocation, ConfigAttributeDefinition config)
-        throws AccessDeniedException {
+    public void decide(Authentication authentication, Object object,
+        ConfigAttributeDefinition config) throws AccessDeniedException {
         int grant = 0;
         int deny = 0;
         int abstain = 0;
@@ -86,7 +83,7 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 
             while (voters.hasNext()) {
                 AccessDecisionVoter voter = (AccessDecisionVoter) voters.next();
-                int result = voter.vote(authentication, invocation, thisDef);
+                int result = voter.vote(authentication, object, thisDef);
 
                 switch (result) {
                 case AccessDecisionVoter.ACCESS_GRANTED:

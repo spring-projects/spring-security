@@ -22,8 +22,6 @@ import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.RunAsManager;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.Iterator;
@@ -72,7 +70,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
     }
 
     public Authentication buildRunAs(Authentication authentication,
-        MethodInvocation invocation, ConfigAttributeDefinition config) {
+        Object object, ConfigAttributeDefinition config) {
         List newAuthorities = new Vector();
         Iterator iter = config.getConfigAttributes();
 
@@ -110,5 +108,17 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
         } else {
             return false;
         }
+    }
+
+    /**
+     * This implementation supports any type of class, because it does not
+     * query the presented secure object.
+     *
+     * @param clazz the secure object
+     *
+     * @return alwaus <code>true</code>
+     */
+    public boolean supports(Class clazz) {
+        return true;
     }
 }

@@ -19,8 +19,6 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 
 /**
  * Indicates a class is responsible for voting on authorization decisions.
@@ -62,6 +60,17 @@ public interface AccessDecisionVoter {
     public boolean supports(ConfigAttribute attribute);
 
     /**
+     * Indicates whether the <code>AccessDecisionVoter</code> implementation is
+     * able to provide access control votes for the indicated secured object
+     * type.
+     *
+     * @param clazz the class that is being queried
+     *
+     * @return true if the implementation can process the indicated class
+     */
+    public boolean supports(Class clazz);
+
+    /**
      * Indicates whether or not access is granted.
      * 
      * <p>
@@ -91,13 +100,13 @@ public interface AccessDecisionVoter {
      * </p>
      *
      * @param authentication the caller invoking the method
-     * @param invocation the method being called
+     * @param object the secured object
      * @param config the configuration attributes associated with the method
      *        being invoked
      *
      * @return either {@link #ACCESS_GRANTED}, {@link #ACCESS_ABSTAIN} or
      *         {@link #ACCESS_DENIED}
      */
-    public int vote(Authentication authentication, MethodInvocation invocation,
+    public int vote(Authentication authentication, Object object,
         ConfigAttributeDefinition config);
 }

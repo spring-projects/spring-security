@@ -19,8 +19,6 @@ import net.sf.acegisecurity.AccessDeniedException;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -73,15 +71,14 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
      * </p>
      *
      * @param authentication the caller invoking the method
-     * @param invocation the method being called
+     * @param object the secured object
      * @param config the configuration attributes associated with the method
      *        being invoked
      *
      * @throws AccessDeniedException if access is denied
      */
-    public void decide(Authentication authentication,
-        MethodInvocation invocation, ConfigAttributeDefinition config)
-        throws AccessDeniedException {
+    public void decide(Authentication authentication, Object object,
+        ConfigAttributeDefinition config) throws AccessDeniedException {
         Iterator iter = this.getDecisionVoters().iterator();
         int grant = 0;
         int deny = 0;
@@ -89,7 +86,7 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 
         while (iter.hasNext()) {
             AccessDecisionVoter voter = (AccessDecisionVoter) iter.next();
-            int result = voter.vote(authentication, invocation, config);
+            int result = voter.vote(authentication, object, config);
 
             switch (result) {
             case AccessDecisionVoter.ACCESS_GRANTED:
