@@ -28,7 +28,6 @@
 	<classpathentry kind="lib" path="lib/jakarta-commons/commons-logging.jar"/>
 	<classpathentry kind="lib" path="lib/j2ee/servlet.jar"/>
 	<classpathentry kind="lib" path="lib/junit/junit.jar"/>
-	<classpathentry sourcepath="/spring" kind="lib" path="lib/spring/spring.jar"/>
 	<classpathentry kind="lib" path="lib/extracted/jboss/jboss-common-extracted.jar"/>
 	<classpathentry kind="lib" path="lib/extracted/jboss/jbosssx-extracted.jar"/>
 	<classpathentry kind="lib" path="lib/extracted/catalina/catalina-extracted.jar"/>
@@ -42,10 +41,17 @@
 	<classpathentry kind="lib" path="lib/aopalliance/aopalliance-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/cas/cas-2.0.12-beta3.jar"/>
 	<classpathentry kind="lib" path="lib/cas/casclient-2.0.10.jar"/>
-	<classpathentry kind="lib" path="lib/spring/spring-mock.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-commons/commons-collections.jar"/>
 	<classpathentry kind="lib" path="lib/aspectj/aspectjrt.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/resin/jars/resin-3.0.9.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/retroweaver/jars/retroweaver-1.0fcs.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-aop-1.1.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-context-1.1.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-core-1.1.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-dao-1.1.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.1.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-orm-1.1.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-web-1.1.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-webmvc-1.1.2.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>
