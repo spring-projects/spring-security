@@ -32,7 +32,7 @@
   <p>This project uses <a href="http://maven.apache.org">Maven</a> as project manager
 	and build tool.	We recommend you to install Maven 1.0.2 or greater before trying
 	the following. <b>Note there are workarounds at the bottom of this page.</b></p>
-  <p>To ancheckout Acegi Security from CVS, execute the following command on a
+  <p>To checkout Acegi Security from CVS, execute the following command on a
 	single line:</p>
   <ol>
     <pre>maven scm:checkout-project
@@ -59,12 +59,28 @@
 	<a href="http://localhost:8080/acegi-security-sample-contacts-filter/">http://localhost:8080/acegi-security-sample-contacts-filter/</a>
 	(or whatever location is appropriate for your web container).</p>
 
+  <h2>Installing commons-attributes-plugin</h2>
+  <p>To properly integrate Commons Attributes with Maven (as required by
+     the <a href="/acegi-security-sample-attributes/index.html">Attributes Sample</a>),
+	 you need to install an additional plugin.</b></p>
+  <p>To install the <code>commons-attributes-plugin</code>, execute the following commands:</p>
+  <ol>
+	<pre>cd $ACEGI_SECURITY/doc</pre>
+    <pre>maven plugin:download
+    -DgroupId=commons-attributes-plugin
+    -DartifactId=commons-attributes-plugin
+    -Dversion=2.1</pre>
+  </ol>
+  <p>The second (final) command should be executed on a single line.</p>
+
   <h2>Building All JARs</h2>
   <p>Sometimes people are already using Acegi Security, and they just want to build the
 	latest code from CVS. To build all artifacts (JARs) and install them into
-	your local Maven repository, simple execute:</p>
+	your local Maven repository, simple perform a CVS checkout and install the
+	<code>commons-attributes-plugin</code> (as detailed above), and then
+	execute:</p>
   <ol>
-	<pre>cd $ACEGI_SECURITY/</pre>
+	<pre>cd $ACEGI_SECURITY/doc</pre>
 	<pre>maven multiproject:install</pre>
   </ol>
   <p>You can then check your <code>$HOME/.maven/repository/acegisecurity</code>
