@@ -72,6 +72,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
         Authentication result = filter.attemptAuthentication(request);
         assertTrue(result != null);
+        assertEquals("127.0.0.1", result.getDetails());
     }
 
     public void testNullPasswordHandledGracefully() throws Exception {

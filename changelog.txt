@@ -1,9 +1,11 @@
 Changes in version 0.7 (2004-xx-xx)
 -----------------------------------
 
+* Major CVS repository restructure to support Maven and eliminate libraries
 * Added AspectJ support (especially useful for instance-level security)
 * Added MethodDefinitionSourceAdvisor for performance and autoproxying
 * Added MethodDefinitionMap querying of interfaces defined by secure objects
+* Added AuthenticationProcessingFilter.setDetails for use by subclasses
 * Refactored MethodDefinitionSource to work with Method, not MethodInvocation
 * Refactored AbstractSecurityInterceptor to better support other AOP libraries
 * Moved MethodSecurityInterceptor to ...intercept.method.aopalliance package

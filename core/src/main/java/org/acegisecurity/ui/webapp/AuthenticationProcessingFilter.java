@@ -83,4 +83,18 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {}
+
+    /**
+     * Provided so that subclasses may configure what is put into the
+     * authentication request's details property. Default implementation
+     * simply sets the IP address of the servlet request.
+     *
+     * @param request that an authentication request is being created for
+     * @param authRequest the authentication request object that should have
+     *        its details set
+     */
+    protected void setDetails(HttpServletRequest request,
+        UsernamePasswordAuthenticationToken authRequest) {
+        authRequest.setDetails(request.getRemoteAddr());
+    }
 }
