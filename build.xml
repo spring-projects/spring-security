@@ -358,7 +358,7 @@
 		<delete dir="${reports.dir}"/>
 		<mkdir dir="${reports.dir}"/>
 
-		<junit printsummary="yes" haltonfailure="yes">
+		<junit dir="${test.dir}" printsummary="yes" haltonfailure="yes">
 
 			<!-- Must go first to ensure any jndi.properties files etc take precedence  -->
 			<classpath location="${target.testclasses.dir}"/>
