@@ -25,10 +25,8 @@
 
     <para>This document provides a reference guide to the Acegi Security
     System for Spring, which is a series of classes that deliver
-    authentication and authorization services within the Spring Framework.
-    Whilst the Acegi Security System for Spring is not officially part of
-    Spring, it is hoped this implementation will further discussion concerning
-    the implementation of security capabilities within Spring itself.</para>
+    authentication and authorization services within the Spring
+    Framework.</para>
 
     <para>I would like to acknowledge this reference was prepared using the
     DocBook configuration included with the Spring Framework. The Spring team
@@ -566,12 +564,18 @@
         <para>The <literal>AuthenticationEntryPoint</literal> will be called
         if the user requests a secure HTTP resource but they are not
         authenticated. The class handles presenting the appropriate response
-        to the user so that authentication can begin. Two concrete
+        to the user so that authentication can begin. Three concrete
         implementations are provided with the Acegi Security System for
         Spring: <literal>AuthenticationProcessingFilterEntryPoint</literal>
-        for commencing a form-based authentication, and
+        for commencing a form-based authentication,
         <literal>BasicProcessingFilterEntryPoint</literal> for commencing a
-        Http Basic authentication process.</para>
+        Http Basic authentication process, and
+        <literal>CasProcessingFilterEntryPoint</literal> for commencing a Yale
+        Central Authentication Service (CAS) login. The
+        <literal>AuthenticationProcessingFilterEntryPoint</literal> and
+        <literal>CasProcessingFilterEntryPoint</literal> have optional
+        properties related to forcing the use of HTTPS, so please refer to the
+        JavaDocs if you require this.</para>
 
         <para>The <literal>SecurityEnforcementFilter</literal> primarily
         provides session management support and initiates authentication when
@@ -693,7 +697,7 @@
         its credentials are populated by the client code, whilst the granted
         authorities are populated by the
         <literal>AuthenticationManager</literal>. The Acegi Security System
-        for Spring includes several concrete Authentication
+        for Spring includes several concrete <literal>Authentication</literal>
         implementations:</para>
 
         <itemizedlist spacing="compact">
@@ -716,6 +720,20 @@
             run-as authentication replacement implementation. This is
             discussed further in the Run-As Authentication Replacement
             section.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>CasAuthenticationToken</literal> is used to
+            represent a successful Yale Central Authentication Service (CAS)
+            authentication. This is discussed further in the CAS
+            section.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>DaoAuthenticationToken</literal> is used to
+            represent a successful authentication by the
+            <literal>DaoAuthenticationProvider</literal>. This is further
+            discussed below.</para>
           </listitem>
 
           <listitem>
@@ -877,6 +895,8 @@
 
         <para><programlisting>&lt;bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
   &lt;property name="authenticationDao"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
+  &lt;property name="key"&gt;&lt;value&gt;my_password&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="refreshTokenInterval&gt;&lt;value&gt;60000&lt;/value&gt;&lt;/property&gt;
   &lt;property name="saltSource"&gt;&lt;ref bean="saltSource"/&gt;&lt;/property&gt;
   &lt;property name="passwordEncoder"&gt;&lt;ref bean="passwordEncoder"/&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -896,6 +916,20 @@
         inspects a given property of the returned User object to obtain the
         salt. Please refer to the JavaDocs for further details on these
         optional features.</para>
+
+        <para>The <literal>key</literal> property permits the
+        <literal>DaoAuthenticationProvider</literal> to build a
+        <literal>DaoAuthenticationToken</literal> that represents the
+        successful authentication request. This allows the
+        <literal>DaoAuthenticationProvider</literal> to avoid repeated lookups
+        of the backend authentication repository. For a presented
+        <literal>DaoAuthenticationToken</literal> to be accepted as valid, it
+        needs to both present the expected key (to prove it was created by the
+        <literal>DaoAuthenticationProvider</literal>) and that is has not
+        expired. <literal>DaoAuthenticationToken</literal>s by default expire
+        60 seconds after they have been created, although this can be set to
+        any other millisecond value via the
+        <literal>refreshTokenInterval</literal> property.</para>
 
         <para>For a class to be able to provide the
         <literal>DaoAuthenticationProvider</literal> with access to an
@@ -2434,6 +2468,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
 &lt;bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
   &lt;property name="authenticationDao"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
+  &lt;property name="key"&gt;&lt;value&gt;my_password&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
 &lt;bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager"&gt;
