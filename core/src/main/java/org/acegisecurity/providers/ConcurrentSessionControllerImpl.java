@@ -21,15 +21,14 @@ import net.sf.acegisecurity.AuthenticationTrustResolverImpl;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.ui.WebAuthenticationDetails;
 import net.sf.acegisecurity.ui.session.HttpSessionDestroyedEvent;
-
 import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import javax.servlet.http.HttpSession;
 
 
 /**
@@ -47,7 +46,7 @@ import javax.servlet.http.HttpSession;
  * @author Ben Alex
  */
 public class ConcurrentSessionControllerImpl
-    implements ConcurrentSessionController {
+        implements ConcurrentSessionController, ApplicationListener {
     //~ Instance fields ========================================================
 
     protected Map principalsToSessions = new HashMap();
@@ -102,18 +101,17 @@ public class ConcurrentSessionControllerImpl
      * Called by the {@link ProviderManager} after receiving a response from a
      * configured AuthenticationProvider.
      *
-     * @param request Used to retieve the {@link WebAuthenticationDetails}
+     * @param request  Used to retieve the {@link WebAuthenticationDetails}
      * @param response Used to store the sessionId for the current Principal
-     *
      * @see #determineSessionPrincipal(net.sf.acegisecurity.Authentication)
      */
     public void afterAuthentication(Authentication request,
-        Authentication response) {
+                                    Authentication response) {
         enforceConcurrentLogins(response);
 
         if (request.getDetails() instanceof WebAuthenticationDetails) {
             String sessionId = ((WebAuthenticationDetails) request.getDetails())
-                .getSessionId();
+                    .getSessionId();
             addSession(determineSessionPrincipal(response), sessionId);
         }
     }
@@ -123,12 +121,11 @@ public class ConcurrentSessionControllerImpl
      * {@link AuthenticationProvider}s
      *
      * @param request The Authentication in question
-     *
      * @throws ConcurrentLoginException if the user has already met the {@link
-     *         #setMaxSessions(int)}
+     *                                  #setMaxSessions(int)}
      */
     public void beforeAuthentication(Authentication request)
-        throws ConcurrentLoginException {
+            throws ConcurrentLoginException {
         enforceConcurrentLogins(request);
     }
 
@@ -151,7 +148,6 @@ public class ConcurrentSessionControllerImpl
      *
      * @param principal The principal in question
      * @param sessionId The new or existing sessionId
-     *
      * @return true if it's the same as a session already in use, false if it
      *         is a new session
      */
@@ -189,7 +185,6 @@ public class ConcurrentSessionControllerImpl
      * Counts the number of sessions in use by the given principal
      *
      * @param principal The principal object
-     *
      * @return 0 if there are no sessions, &gt; if there are any
      */
     protected int countSessions(Object principal) {
@@ -210,7 +205,6 @@ public class ConcurrentSessionControllerImpl
      * specific implementation.
      *
      * @param auth The Authentication in question
-     *
      * @return The principal to be used as the key against sessions
      */
     protected Object determineSessionPrincipal(Authentication auth) {
@@ -233,12 +227,11 @@ public class ConcurrentSessionControllerImpl
      * may override for more specific functionality
      *
      * @param request Authentication being evaluated
-     *
      * @throws ConcurrentLoginException If the session is new, and the user is
-     *         already at maxSessions
+     *                                  already at maxSessions
      */
     protected void enforceConcurrentLogins(Authentication request)
-        throws ConcurrentLoginException {
+            throws ConcurrentLoginException {
         //If the max is less than 1, sessions are unlimited
         if (maxSessions < 1) {
             return;
@@ -251,7 +244,7 @@ public class ConcurrentSessionControllerImpl
 
         if (request.getDetails() instanceof WebAuthenticationDetails) {
             String sessionId = ((WebAuthenticationDetails) request.getDetails())
-                .getSessionId();
+                    .getSessionId();
 
             Object principal = determineSessionPrincipal(request);
 
@@ -259,7 +252,7 @@ public class ConcurrentSessionControllerImpl
                 if (maxSessions == countSessions(principal)) {
                     //The user is AT their max, toss them out
                     throw new ConcurrentLoginException(principal
-                        + " has reached the maximum concurrent logins");
+                            + " has reached the maximum concurrent logins");
                 }
             }
         }
