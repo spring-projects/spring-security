@@ -15,6 +15,8 @@
 
 package net.sf.acegisecurity.ui.webapp;
 
+import java.util.HashMap;
+
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.MockHttpServletRequest;
@@ -28,15 +30,6 @@ import net.sf.acegisecurity.MockHttpServletResponse;
  * @version $Id$
  */
 public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
-    //~ Constructors ===========================================================
-
-    public AuthenticationProcessingFilterEntryPointTests() {
-        super();
-    }
-
-    public AuthenticationProcessingFilterEntryPointTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ================================================================
 
@@ -64,6 +57,38 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         ep.setLoginFormUrl("/hello");
         assertEquals("/hello", ep.getLoginFormUrl());
     }
+    
+    public void testSetSslPortMapping() {
+        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        HashMap map = new HashMap();
+        try {
+            ep.setHttpsPortMapping(map);
+        } catch (IllegalArgumentException expected) {
+            assertEquals("must map at least one port", expected.getMessage());
+        }
+        
+        map.put(new Integer(0).toString(), new Integer(443).toString());
+        try {
+            ep.setHttpsPortMapping(map);
+        } catch (IllegalArgumentException expected) {
+            assertTrue(expected.getMessage().startsWith("one or both ports out of legal range"));
+        }
+        
+        map.clear();
+        map.put(new Integer(80).toString(), new Integer(100000).toString());
+        try {
+            ep.setHttpsPortMapping(map);
+        } catch (IllegalArgumentException expected) {
+            assertTrue(expected.getMessage().startsWith("one or both ports out of legal range"));
+        }
+        
+        map.clear();
+        map.put(new Integer(80).toString(), new Integer(443).toString());
+        ep.setHttpsPortMapping(map);
+        map = ep.getTranslatedHttpsPortMapping();
+        assertTrue(map.size() == 1);
+        assertTrue(((Integer)map.get(new Integer(80))).equals(new Integer(443)));
+    }
 
     public void testNormalOperation() throws Exception {
         AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
@@ -79,4 +104,11 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         ep.commence(request, response);
         assertEquals("/bigWebApp/hello", response.getRedirect());
     }
+    
+    public void testHttpsOperation() throws Exception {
+        AuthenticationProcessingFilterEntryPoint ep = new AuthenticationProcessingFilterEntryPoint();
+        
+        //TODO: finish later today
+    }
+    
 }

@@ -49,16 +49,16 @@ public class AuthenticationProcessingFilterEntryPoint
      */
     private String loginFormUrl;
     
-    private boolean forceSsl = false;
+    private boolean forceHttps = false;
     
-    private HashMap sslPortMapping;
+    private HashMap httpsPortMapping;
 
     //~ Methods ================================================================
     
     public AuthenticationProcessingFilterEntryPoint() {
-        sslPortMapping = new HashMap();
-        sslPortMapping.put(new Integer(80), new Integer(443));
-        sslPortMapping.put(new Integer(8080), new Integer(8443));
+        httpsPortMapping = new HashMap();
+        httpsPortMapping.put(new Integer(80), new Integer(443));
+        httpsPortMapping.put(new Integer(8080), new Integer(8443));
     }
 
     public void setLoginFormUrl(String loginFormUrl) {
@@ -83,9 +83,9 @@ public class AuthenticationProcessingFilterEntryPoint
         
         String redirectUrl =  contextPath + loginFormUrl;
         
-        if (forceSsl && req.getScheme().equals("http")) {
+        if (forceHttps && req.getScheme().equals("http")) {
             Integer httpPort = new Integer(req.getServerPort());
-            Integer httpsPort = (Integer) sslPortMapping.get(httpPort);
+            Integer httpsPort = (Integer) httpsPortMapping.get(httpPort);
             if (httpsPort != null ) {
                 String serverName = req.getServerName();
                 redirectUrl = "https://" + serverName + ":" + httpsPort + contextPath
@@ -96,35 +96,40 @@ public class AuthenticationProcessingFilterEntryPoint
         ((HttpServletResponse) response).sendRedirect(redirectUrl);
     }
     
-    public void setForceSsl(boolean forceSsl) {
-        this.forceSsl = forceSsl;
+    public void setForceHttps(boolean forceSsl) {
+        this.forceHttps = forceSsl;
     }
-    public boolean isForceSsl() {
-        return forceSsl;
+    public boolean getForceHttps() {
+        return forceHttps;
     }
 
     /**
      * @throws IllegalArgumentException if input map does not consist of String keys
      * and values, each representing an integer port number for one mapping.
      */
-    public void setSslPortMapping(HashMap sslPortMapping) {
-        this.sslPortMapping.clear();
-        Iterator it = sslPortMapping.entrySet().iterator();
+    public void setHttpsPortMapping(HashMap newMappings) {
+        httpsPortMapping.clear();
+        Iterator it = newMappings.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
             Integer httpPort = new Integer((String)entry.getKey());
-            Integer httpsPort = new Integer((String)entry.getKey());
+            Integer httpsPort = new Integer((String)entry.getValue());
             if (httpPort.intValue() < 1 || httpPort.intValue() > 65535 ||
                     httpsPort.intValue() < 1 || httpsPort.intValue() > 65535)
                 throw new IllegalArgumentException("one or both ports out of legal range: "
                         + httpPort + ", " + httpsPort);
-            sslPortMapping.put(httpPort, httpsPort);
-            if (sslPortMapping.size() < 1)
-                throw new IllegalArgumentException("Must map at least one port");
+            httpsPortMapping.put(httpPort, httpsPort);
+            if (httpsPortMapping.size() < 1)
+                throw new IllegalArgumentException("must map at least one port");
         }
         
     }
-    public HashMap getSslPortMapping() {
-        return sslPortMapping;
+    
+    /**
+     * Returns the translated (Integer -> Integer) version of the original port
+     * mapping specified via setHttpsPortMapping() 
+     */
+    protected HashMap getTranslatedHttpsPortMapping() {
+        return httpsPortMapping;
     }
 }
