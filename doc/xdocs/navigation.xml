@@ -63,7 +63,7 @@
 
     <menu type="footer">
       <item name="Spring Framework" href="http://www.springframework.org/" img="http://www.springframework.org/buttons/spring_white.png"/>
-      <item name="Code Coverage by Clover" href="http://www.thecortex.net/clover" img="http://www.thecortex.net/clover/images/clovered1.gif"/>
+      <item name="Code Coverage by Clover" href="http://www.cenqua.com/clover/" img="http://www.cenqua.com/clover/images/clovered1.gif" />
     </menu>
 
   </body>
