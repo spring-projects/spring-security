@@ -1,0 +1,29 @@
+===============================================================================
+          ACEGI SECURITY SYSTEM FOR SPRING - UPGRADING FROM 0.6 TO 0.7
+===============================================================================
+
+The following should help most casual users of the project update their
+applications:
+
+- MethodDefinitionMap, which is usually used by MethodSecurityInterceptor
+  for its objectDefinitionSource property, has been changed. From 0.7, when
+  MethodDefinitionMap is queried for configuration attributes associated with
+  secure MethodInvocations, it will use any method matching in the method
+  invocation class (as it always has) plus any method matching any interface
+  the MethodInvocation class directly implements. So consider a PersonManager
+  interface, a PersonManagerImpl class that implements it, and a definition of
+  PersonManager.findAll=ROLE_FOO. In this example, any query for either
+  PersonManager.findAll OR PersonManagerImpl.findAll will return ROLE_FOO.
+  As we have always encouraged definition against the interface names (as per
+  this example), this change should not adversely impact users. This change
+  was necessary because of the new MethodDefinitionSourceAdvisor (see below).
+  Refer to the MethodDefinitionMap JavaDocs for further clarification.
+
+- MethodDefinitionSourceAdvisor can now be used instead of defining proxies
+  for secure business objects. The advisor is fully compatible with both
+  MethodDefinitionMap and MethodDefinitionAttributes. Using an advisor allows
+  caching of which methods the MethodSecurityInterceptor should handle, thus
+  providing a performance benefit as MethodSecurityInterceptor is not called
+  for public (non-secure) objects. It also simplifies configuration.
+
+$Id$

@@ -91,6 +91,34 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         }
     }
 
+    public void testConcreteClassInvocationsAlsoReturnDefinitionsAgainstInterface()
+        throws Exception {
+        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        editor.setAsText(
+            "net.sf.acegisecurity.ITargetObject.makeLower*=ROLE_FROM_INTERFACE\r\nnet.sf.acegisecurity.ITargetObject.makeUpper*=ROLE_FROM_INTERFACE\r\nnet.sf.acegisecurity.TargetObject.makeUpper*=ROLE_FROM_IMPLEMENTATION");
+
+        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+        assertEquals(3, map.getMethodMapSize());
+
+        ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(
+                    TargetObject.class, "makeLowerCase",
+                    new Class[] {String.class}));
+        ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition();
+        expectedMakeLower.addConfigAttribute(new SecurityConfig(
+                "ROLE_FROM_INTERFACE"));
+        assertEquals(expectedMakeLower, returnedMakeLower);
+
+        ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(
+                    TargetObject.class, "makeUpperCase",
+                    new Class[] {String.class}));
+        ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition();
+        expectedMakeUpper.addConfigAttribute(new SecurityConfig(
+                "ROLE_FROM_IMPLEMENTATION"));
+        expectedMakeUpper.addConfigAttribute(new SecurityConfig(
+                "ROLE_FROM_INTERFACE"));
+        assertEquals(expectedMakeUpper, returnedMakeUpper);
+    }
+
     public void testEmptyStringReturnsEmptyMap() {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText("");

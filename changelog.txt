@@ -2,6 +2,8 @@ Changes in version 0.7 (2004-xx-xx)
 -----------------------------------
 
 * Added MethodDefinitionSourceAdvisor for performance and autoproxying
+* Added MethodDefinitionMap querying of interfaces defined by secure objects
+* Documentation improvements
 
 Changes in version 0.6.1 (2004-09-25)
 -------------------------------------

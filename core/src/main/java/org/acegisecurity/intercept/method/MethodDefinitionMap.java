@@ -15,6 +15,7 @@
 
 package net.sf.acegisecurity.intercept.method;
 
+import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -34,6 +35,32 @@ import java.util.Map;
 /**
  * Stores a {@link ConfigAttributeDefinition} for each method signature defined
  * in a bean context.
+ * 
+ * <p>
+ * For consistency with {@link MethodDefinitionAttributes} as well as support
+ * for {@link MethodDefinitionSourceAdvisor}, this implementation will return
+ * a <code>ConfigAttributeDefinition</code> containing all configuration
+ * attributes defined against:
+ * 
+ * <ul>
+ * <li>
+ * The method-specific attributes defined for the intercepted method of the
+ * intercepted class.
+ * </li>
+ * <li>
+ * The method-specific attributes defined by any explicitly implemented
+ * interface if that interface contains a method signature matching that of
+ * the intercepted method.
+ * </li>
+ * </ul>
+ * </p>
+ * 
+ * <p>
+ * In general you should therefore define the <b>interface method</b>s of your
+ * secure objects, not the implementations. For example, define
+ * <code>com.company.Foo.findAll=ROLE_TEST</code> but not
+ * <code>com.company.FooImpl.findAll=ROLE_TEST</code>.
+ * </p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -53,10 +80,28 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
 
     //~ Methods ================================================================
 
+    /**
+     * Obtains the configuration attributes explicitly defined against this
+     * bean. This method will not return implicit configuration attributes
+     * that may be returned by {@link #lookupAttributes(MethodInvocation)} as
+     * it does not have access to a method invocation at this time.
+     *
+     * @return the attributes explicitly defined against this bean
+     */
     public Iterator getConfigAttributeDefinitions() {
         return methodMap.values().iterator();
     }
 
+    /**
+     * Obtains the number of configuration attributes explicitly defined
+     * against this bean. This method will not return implicit configuration
+     * attributes that may be returned by {@link
+     * #lookupAttributes(MethodInvocation)} as it does not have access to a
+     * method invocation at this time.
+     *
+     * @return the number of configuration attributes explicitly defined
+     *         against this bean
+     */
     public int getMethodMapSize() {
         return this.methodMap.size();
     }
@@ -165,7 +210,38 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
     }
 
     protected ConfigAttributeDefinition lookupAttributes(MethodInvocation mi) {
-        return (ConfigAttributeDefinition) this.methodMap.get(mi.getMethod());
+        ConfigAttributeDefinition definition = new ConfigAttributeDefinition();
+
+        // Add attributes explictly defined for this method invocation
+        ConfigAttributeDefinition directlyAssigned = (ConfigAttributeDefinition) this.methodMap
+            .get(mi.getMethod());
+        merge(definition, directlyAssigned);
+
+        // Add attributes explicitly defined for this method invocation's interfaces
+        Class[] interfaces = mi.getMethod().getDeclaringClass().getInterfaces();
+
+        for (int i = 0; i < interfaces.length; i++) {
+            Class clazz = interfaces[i];
+
+            try {
+                // Look for the method on the current interface
+                Method interfaceMethod = clazz.getDeclaredMethod(mi.getMethod()
+                                                                   .getName(),
+                        mi.getMethod().getParameterTypes());
+                ConfigAttributeDefinition interfaceAssigned = (ConfigAttributeDefinition) this.methodMap
+                    .get(interfaceMethod);
+                merge(definition, interfaceAssigned);
+            } catch (Exception e) {
+                // skip this interface
+            }
+        }
+
+        // Return null if empty, as per abstract superclass contract
+        if (definition.size() == 0) {
+            return null;
+        } else {
+            return definition;
+        }
     }
 
     /**
@@ -183,5 +259,18 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
                 - 1)))
         || (mappedName.startsWith("*")
         && methodName.endsWith(mappedName.substring(1, mappedName.length())));
+    }
+
+    private void merge(ConfigAttributeDefinition definition,
+        ConfigAttributeDefinition toMerge) {
+        if (toMerge == null) {
+            return;
+        }
+
+        Iterator attribs = toMerge.getConfigAttributes();
+
+        while (attribs.hasNext()) {
+            definition.addConfigAttribute((ConfigAttribute) attribs.next());
+        }
     }
 }
