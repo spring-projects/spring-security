@@ -12,5 +12,23 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
+    <dependency>
+      <groupId>hessian</groupId>
+      <artifactId>hessian</artifactId>
+      <version>3.0.1</version>
+      <url>http://www.caucho.com</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>burlap</groupId>
+      <artifactId>burlap</artifactId>
+      <version>2.1.7</version>
+      <url>http://www.caucho.com</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
   </dependencies>
 </project>
