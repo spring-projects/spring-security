@@ -68,6 +68,15 @@ import javax.servlet.ServletResponse;
  * 
  * If both initialization parameters are specified, <code>targetBean</code>
  * takes priority.
+ * 
+ * <P>
+ * An additional initialization parameter, <code>init</code>, is also
+ * supported. If set to "<code>lazy</code>" the initialization will take place
+ * on the first HTTP request, rather than at filter creation time. This makes
+ * it possible to use <code>FilterToBeanProxy</code> with the Spring
+ * <code>ContextLoaderServlet</code>. Where possible you should not use this
+ * initialization parameter, instead using <code>ContextLoaderListener</code>.
+ * </p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -76,6 +85,8 @@ public class FilterToBeanProxy implements Filter {
     //~ Instance fields ========================================================
 
     private Filter delegate;
+    private FilterConfig filterConfig;
+    private boolean initialized = false;
 
     //~ Methods ================================================================
 
@@ -85,10 +96,41 @@ public class FilterToBeanProxy implements Filter {
 
     public void doFilter(ServletRequest request, ServletResponse response,
         FilterChain chain) throws IOException, ServletException {
+        if (!initialized) {
+            doInit();
+        }
+
         delegate.doFilter(request, response, chain);
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {
+        this.filterConfig = filterConfig;
+
+        String strategy = filterConfig.getInitParameter("init");
+
+        if ((strategy != null) && strategy.toLowerCase().equals("lazy")) {
+            return;
+        }
+
+        doInit();
+    }
+
+    /**
+     * Allows test cases to override where application context obtained from.
+     *
+     * @param filterConfig which can be used to find the
+     *        <code>ServletContext</code>
+     *
+     * @return the Spring application context
+     */
+    protected ApplicationContext getContext(FilterConfig filterConfig) {
+        return WebApplicationContextUtils.getRequiredWebApplicationContext(filterConfig
+            .getServletContext());
+    }
+
+    private void doInit() throws ServletException {
+        initialized = true;
+
         String targetBean = filterConfig.getInitParameter("targetBean");
 
         if ("".equals(targetBean)) {
@@ -144,18 +186,5 @@ public class FilterToBeanProxy implements Filter {
         delegate = (Filter) object;
 
         delegate.init(filterConfig);
-    }
-
-    /**
-     * Allows test cases to override where application context obtained from.
-     *
-     * @param filterConfig which can be used to find the
-     *        <code>ServletContext</code>
-     *
-     * @return the Spring application context
-     */
-    protected ApplicationContext getContext(FilterConfig filterConfig) {
-        return WebApplicationContextUtils.getRequiredWebApplicationContext(filterConfig
-            .getServletContext());
     }
 }

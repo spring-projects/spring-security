@@ -169,6 +169,25 @@ public class FilterToBeanProxyTests extends TestCase {
             chain);
     }
 
+    public void testNormalOperationWithLazyTrue() throws Exception {
+        // Setup our filter
+        MockFilterConfig config = new MockFilterConfig();
+        config.setInitParmeter("targetBean", "mockFilter");
+        config.setInitParmeter("init", "lazy");
+
+        // Setup our expectation that the filter chain will be invoked
+        MockFilterChain chain = new MockFilterChain(true);
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockHttpServletRequest request = new MockHttpServletRequest("/go");
+
+        FilterToBeanProxy filter = new MockFilterToBeanProxy(
+                "net/sf/acegisecurity/util/filtertest-valid.xml");
+
+        executeFilterInContainerSimulator(config, filter, request, response,
+            chain);
+    }
+
     public void testNormalOperationWithSpecificBeanName()
         throws Exception {
         // Setup our filter
