@@ -76,7 +76,7 @@ import javax.servlet.http.HttpServletResponse;
  * WebApplicationContextUtils#getWebApplicationContext(ServletContext sc)}
  * method to obtain an ApplicationContext instance, inside which must be a
  * configured AuthenticationManager instance. In the case where it is
- * desireable for  this filter to instantiate its own ApplicationContext
+ * desirable for  this filter to instantiate its own ApplicationContext
  * instance from which to obtain the AuthenticationManager, the location of
  * the config for this context may be specified with the optional
  * <code>appContextLocation</code> init param.
@@ -105,7 +105,7 @@ import javax.servlet.http.HttpServletResponse;
  * <code>/j_acegi_security_check</code>.
  * </li>
  * <li>
- * <code>appContextLocation</code> (optional, normally not used), indicates the
+ * <code>contextConfigLocation</code> (optional, normally not used), indicates the
  * path to an application context that contains an {@link
  * AuthenticationManager} which should be used to process each authentication
  * request. If not specified, {@link
@@ -116,7 +116,7 @@ import javax.servlet.http.HttpServletResponse;
  * 
  *
  * @author Ben Alex
- * @author colin sampaleanu
+ * @author Colin Sampaleanu
  * @version $Id$
  */
 public class AuthenticationProcessingFilter implements Filter {
@@ -126,7 +126,7 @@ public class AuthenticationProcessingFilter implements Filter {
      * Name of (optional) servlet filter parameter that can specify the config
      * location for a new ApplicationContext used to config this filter.
      */
-    public static final String CONFIG_LOCATION_PARAM = "appContextLocation";
+    public static final String CONFIG_LOCATION_PARAM = "contextConfigLocation";
     public static final String ACEGI_SECURITY_TARGET_URL_KEY = "ACEGI_SECURITY_TARGET_URL";
     public static final String ACEGI_SECURITY_FORM_USERNAME_KEY = "j_username";
     public static final String ACEGI_SECURITY_FORM_PASSWORD_KEY = "j_password";

@@ -7,7 +7,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>0.4</releaseinfo>
+    <releaseinfo>0.5</releaseinfo>
 
     <authorgroup>
       <author>
@@ -368,7 +368,7 @@
         <para>Whilst this may seem quite involved, don't worry. Developers
         interact with the security process by simply implementing basic
         interfaces (such as <literal>AccessDecisionManager</literal>), which
-        are fully documented below. </para>
+        are fully documented below.</para>
 
         <para>The <literal>AbstractSecurityInterceptor</literal> handles the
         majority of the flow listed above. Each secure object has its own
@@ -518,10 +518,6 @@
   &lt;filter-name&gt;Acegi HTTP Request Security Filter&lt;/filter-name&gt;
   &lt;filter-class&gt;net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter&lt;/filter-class&gt;
   &lt;init-param&gt;
-    &lt;param-name&gt;appContextLocation&lt;/param-name&gt;
-    &lt;param-value&gt;web-filters-acegisecurity.xml&lt;/param-value&gt;
-  &lt;/init-param&gt;
-  &lt;init-param&gt;
     &lt;param-name&gt;loginFormUrl&lt;/param-name&gt;
     &lt;param-value&gt;/acegilogin.jsp&lt;/param-value&gt;
   &lt;/init-param&gt;
@@ -532,22 +528,31 @@
   &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
 &lt;/filter-mapping&gt;</programlisting></para>
 
-        <para>As shown above, an <literal>appContextLocation</literal>
-        indicates the location of a Spring XML application context. In the
-        example above, this file should be placed at the root of the web
-        application's classpath (in the <literal>WEB-INF/classes</literal>
-        directory). The <literal>loginFormUrl</literal> is where the filter
-        will redirect the user's browser if they request a secure HTTP
-        resource but they are not authenticated. If the user is authenticated,
-        a "403 Forbidden" response will be returned to the browser. All paths
-        are relative to the web application root.</para>
+        <para>The <literal>loginFormUrl</literal> is where the filter will
+        redirect the user's browser if they request a secure HTTP resource but
+        they are not authenticated. If the user is authenticated, a "403
+        Forbidden" response will be returned to the browser. All paths are
+        relative to the web application root.</para>
 
-        <para>The <literal>SecurityEnforcementFilter</literal> will load the
-        Spring XML application context expressed in the
-        <literal>appContextLocation</literal>. It will expect to find in this
-        application context a properly configured
-        <literal>FilterSecurityInterceptor</literal>. The configuration of the
-        <literal>FilterSecurityInterceptor</literal> is very similar to the
+        <para>To perform its function, the
+        <literal>SecurityEnforcementFilter</literal> will need to delegate to
+        a properly configured <literal>FilterSecurityInterceptor</literal>. To
+        do this it requires access to a Spring application context, which is
+        usually obtained from
+        <literal>WebApplicationContextUtils.getWebApplicationContext(ServletContext)</literal>.
+        This is usually made available by using Spring's
+        <literal>ContextLoaderListener</literal> in
+        <literal>web.xml</literal>. Alternatively, the
+        <literal>web.xml</literal> can be used to define a filter
+        <literal>&lt;init-param&gt;</literal> named
+        <literal>contextConfigLocation</literal>. This initialization
+        parameter will represent a path to a Spring XML application context
+        that the <literal>SecurityEnforcementFilter</literal> will load during
+        startup.</para>
+
+        <para>The configuration of the
+        <literal>FilterSecurityInterceptor</literal> in the Spring application
+        context is very similar to the
         <literal>MethodSecurityInterceptor</literal>:</para>
 
         <para><programlisting>&lt;bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
@@ -1471,10 +1476,6 @@ public boolean supports(Class clazz);</programlisting></para>
   &lt;filter-name&gt;Acegi Authentication Processing Filter&lt;/filter-name&gt;
   &lt;filter-class&gt;net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter&lt;/filter-class&gt;
   &lt;init-param&gt;
-    &lt;param-name&gt;appContextLocation&lt;/param-name&gt;
-    &lt;param-value&gt;web-filters-acegisecurity.xml&lt;/param-value&gt;
-  &lt;/init-param&gt;
-  &lt;init-param&gt;
     &lt;param-name&gt;authenticationFailureUrl&lt;/param-name&gt;
     &lt;param-value&gt;/acegilogin.jsp?login_error=1&lt;/param-value&gt;
   &lt;/init-param&gt;
@@ -1493,14 +1494,23 @@ public boolean supports(Class clazz);</programlisting></para>
   &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
 &lt;/filter-mapping&gt;</programlisting></para>
 
-        <para>The <literal>appContextLocation</literal> specifies the location
-        of a Spring XML application context. In the example above the root of
-        the classpath is used, so the XML file should be placed in
-        <literal>WEB-INF/classes</literal>. The
-        <literal>AuthenticationProcessingFilter</literal> will load this
-        application context, expecting to find a properly configured
-        <literal>AuthenticationManager</literal>. It will use this
-        <literal>AuthenticationManager</literal> to process each
+        <para>To perform its function, the
+        <literal>AuthenticationProcessingFilter</literal> will need to
+        delegate to a properly configured
+        <literal>AuthenticationManager</literal>. To do this it requires
+        access to a Spring application context, which is usually obtained from
+        <literal>WebApplicationContextUtils.getWebApplicationContext(ServletContext)</literal>.
+        This is usually made available by using Spring's
+        <literal>ContextLoaderListener</literal> in
+        <literal>web.xml</literal>. Alternatively, the
+        <literal>web.xml</literal> can be used to define a filter
+        <literal>&lt;init-param&gt;</literal> named
+        <literal>contextConfigLocation</literal>. This initialization
+        parameter will represent a path to a Spring XML application context
+        that the <literal>AuthenticationProcessingFilter</literal> will load
+        during startup.</para>
+
+        <para>The <literal>AuthenticationManager</literal> processes each
         authentication request. If authentication fails, the browser will be
         redirected to the <literal>authenticationFailureUrl</literal>. The
         <literal>AuthenticationException</literal> will be placed into the
@@ -1515,9 +1525,10 @@ public boolean supports(Class clazz);</programlisting></para>
         This becomes the "well-known location" from which the
         <literal>Authentication</literal> object is later extracted.</para>
 
-        <para>Once the HttpSession has been updated, the browser will need to
-        be redirected to the target URL. The target URL is usually indicated
-        by the <literal>HttpSession</literal> attribute specified by
+        <para>Once the <literal>HttpSession</literal> has been updated, the
+        browser will need to be redirected to the target URL. The target URL
+        is usually indicated by the <literal>HttpSession</literal> attribute
+        specified by
         <literal>AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY</literal>.
         This attribute is automatically set by the
         <literal>SecurityEnforcementFilter</literal> when an

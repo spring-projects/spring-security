@@ -132,11 +132,11 @@ public class SecurityEnforcementFilterTests extends TestCase {
             request.getSession().getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
     }
 
-    public void testStartupDetectsInvalidAppContextLocation()
+    public void testStartupDetectsInvalidcontextConfigLocation()
         throws Exception {
         MockFilterConfig config = new MockFilterConfig();
         config.setInitParmeter("loginFormUrl", "/login.jsp");
-        config.setInitParmeter("appContextLocation",
+        config.setInitParmeter("contextConfigLocation",
             "net/sf/acegisecurity/intercept/web/securityfiltertest-invalid.xml");
 
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
@@ -163,7 +163,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
             assertTrue(expected.getMessage().startsWith("Error obtaining/creating ApplicationContext for config."));
         }
 
-        config.setInitParmeter("appContextLocation", "");
+        config.setInitParmeter("contextConfigLocation", "");
 
         try {
             filter.init(config);
@@ -173,11 +173,11 @@ public class SecurityEnforcementFilterTests extends TestCase {
         }
     }
 
-    public void testStartupDetectsMissingInvalidAppContextLocation()
+    public void testStartupDetectsMissingInvalidcontextConfigLocation()
         throws Exception {
         MockFilterConfig config = new MockFilterConfig();
         config.setInitParmeter("loginFormUrl", "/login.jsp");
-        config.setInitParmeter("appContextLocation", "DOES_NOT_EXIST");
+        config.setInitParmeter("contextConfigLocation", "DOES_NOT_EXIST");
 
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
 
@@ -192,7 +192,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
     public void testStartupDetectsMissingLoginFormUrl()
         throws Exception {
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("appContextLocation",
+        config.setInitParmeter("contextConfigLocation",
             "net/sf/acegisecurity/intercept/web/securityfiltertest-valid.xml");
 
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
@@ -237,7 +237,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
     public void testSuccessfulStartupAndShutdownDown()
         throws Exception {
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("appContextLocation",
+        config.setInitParmeter("contextConfigLocation",
             "net/sf/acegisecurity/intercept/web/securityfiltertest-valid.xml");
         config.setInitParmeter("loginFormUrl", "/login.jsp");
 

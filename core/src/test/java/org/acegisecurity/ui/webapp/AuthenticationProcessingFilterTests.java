@@ -102,7 +102,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("appContextLocation",
+        config.setInitParmeter("contextConfigLocation",
             "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
         config.setInitParmeter("defaultTargetUrl", "/");
         config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
@@ -133,7 +133,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("appContextLocation",
+        config.setInitParmeter("contextConfigLocation",
             "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
         config.setInitParmeter("defaultTargetUrl", "/");
         config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
@@ -163,7 +163,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("appContextLocation",
+        config.setInitParmeter("contextConfigLocation",
             "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
         config.setInitParmeter("defaultTargetUrl", "/");
         config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
@@ -190,7 +190,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("appContextLocation",
+        config.setInitParmeter("contextConfigLocation",
             "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
         config.setInitParmeter("defaultTargetUrl", "/");
         config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
@@ -222,7 +222,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("appContextLocation",
+        config.setInitParmeter("contextConfigLocation",
             "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
         config.setInitParmeter("defaultTargetUrl", "/");
         config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
@@ -251,7 +251,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("appContextLocation",
+        config.setInitParmeter("contextConfigLocation",
             "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
         config.setInitParmeter("defaultTargetUrl", "/");
         config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
@@ -268,12 +268,12 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         assertTrue(request.getSession().getAttribute(HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY) == null);
     }
 
-    public void testStartupDetectsInvalidAppContextLocation()
+    public void testStartupDetectsInvalidcontextConfigLocation()
         throws Exception {
         MockFilterConfig config = new MockFilterConfig();
         config.setInitParmeter("defaultTargetUrl", "/");
         config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
-        config.setInitParmeter("appContextLocation",
+        config.setInitParmeter("contextConfigLocation",
             "net/sf/acegisecurity/ui/webapp/filtertest-invalid.xml");
 
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
@@ -301,7 +301,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
             assertTrue(expected.getMessage().startsWith("Error obtaining/creating ApplicationContext for config."));
         }
 
-        config.setInitParmeter("appContextLocation", "");
+        config.setInitParmeter("contextConfigLocation", "");
 
         try {
             filter.init(config);
@@ -314,7 +314,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
     public void testStartupDetectsMissingAuthenticationFailureUrl()
         throws Exception {
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("appContextLocation",
+        config.setInitParmeter("contextConfigLocation",
             "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
         config.setInitParmeter("defaultTargetUrl", "/");
 
@@ -343,7 +343,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         throws Exception {
         MockFilterConfig config = new MockFilterConfig();
         config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
-        config.setInitParmeter("appContextLocation",
+        config.setInitParmeter("contextConfigLocation",
             "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
 
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
@@ -367,12 +367,12 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testStartupDetectsMissingInvalidAppContextLocation()
+    public void testStartupDetectsMissingInvalidcontextConfigLocation()
         throws Exception {
         MockFilterConfig config = new MockFilterConfig();
         config.setInitParmeter("defaultTargetUrl", "/");
         config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
-        config.setInitParmeter("appContextLocation", "DOES_NOT_EXIST");
+        config.setInitParmeter("contextConfigLocation", "DOES_NOT_EXIST");
 
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
 
@@ -397,7 +397,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("appContextLocation",
+        config.setInitParmeter("contextConfigLocation",
             "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
         config.setInitParmeter("defaultTargetUrl", "/");
         config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
@@ -442,7 +442,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("appContextLocation",
+        config.setInitParmeter("contextConfigLocation",
             "net/sf/acegisecurity/ui/webapp/filtertest-valid.xml");
         config.setInitParmeter("defaultTargetUrl", "/");
         config.setInitParmeter("authenticationFailureUrl", "/failed.jsp");
