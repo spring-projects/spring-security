@@ -18,6 +18,7 @@ public class X509AuthenticationToken extends AbstractAuthenticationToken {
     private Object principal;
     private GrantedAuthority[] authorities;
     private boolean authenticated = false;
+    private Object details = null;
 
     //~ Constructors ===========================================================
 
@@ -33,6 +34,15 @@ public class X509AuthenticationToken extends AbstractAuthenticationToken {
     }
 
     //~ Methods ================================================================
+
+    public Object getDetails() {
+        return details;
+    }
+
+    public void setDetails(Object details) {
+        this.details = details;
+    }
+
 
     public void setAuthenticated(boolean isAuthenticated) {
         this.authenticated = isAuthenticated;
