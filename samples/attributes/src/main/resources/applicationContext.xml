@@ -90,7 +90,7 @@
 		above configuration is a Commons Attributes-based source.
 	-->
 	<bean id="methodSecurityAdvisor"
-		class="net.sf.acegisecurity.intercept.method.MethodDefinitionSourceAdvisor"
+		class="net.sf.acegisecurity.intercept.method.aopalliance.MethodDefinitionSourceAdvisor"
 		autowire="constructor" >
 	</bean>
 
