@@ -1,28 +1,37 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<project name="Maven">
 
-  <title>Acegi Security System for Spring</title>
+<project>
+
   <body>
+    <links>
+        <item name="Acegi Security on Sourceforge" href="http://sourceforge.net/projects/acegisecurity" />
+    </links>
+
     <menu name="Overview">
-<!--      <item name="Goals"                   href="/goals.html"/>
-      <item name="Features"                href="/features.html"/> -->
-      <item name="News and Status"         href="/status.html"/>
-      <item name="Getting Started"         href="/start/index.html" collapse="true">
-        <item name="Download"              href="/start/download.html"/>
-        <item name="Build"                 href="/start/build.html"/>
-      </item>
-      <item name="Reference"               href="/reference/index.html" collapse="true">
-        <item name="User Guide"            href="/ref/index.html"/>
-        <!-- item name="Developer Guide"       href="/reference/developer-guide.html"/ -->
-        <!-- item name="FAQ"                   href="/faq.html"/ -->
-      </item>
+      <item name="Home"                    href="/index.html"/>
+      <item name="Reference"               href="/docbook/index.html"/>
     </menu>
-<!--
-    <menu name="Misc">
-      <item name="Wiki"       href=""/>
-      <item name="Glossary"   href="/glossary.html"/>
-      <item name="Articles"   href="/articles.html"/>
+
+    <menu name="Subprojects">
+      <item name="Overview" href="projects-overview.html"/>
+      <item name="CAS" href="multiproject/acegi-security-cas/index.html"/>
+      <item name="Catalina" href="multiproject/acegi-security-catalina/index.html"/>
+      <item name="JBoss" href="multiproject/acegi-security-jboss/index.html"/>
+      <item name="Jetty" href="multiproject/acegi-security-jetty/index.html"/>
+      <item name="Resin" href="multiproject/acegi-security-resin/index.html"/>
     </menu>
- -->
+
+    <menu name="Samples">
+      <item name="Contacts" href="multiproject/acegi-security-sample-contacts/index.html"/>
+      <item name="Attributes" href="multiproject/acegi-security-sample-attributes/index.html"/>
+    </menu>
+
+    <search/>
+
+    <menu name="" type="footer">
+      <item name="Spring Framework" href="http://www.springframework.org/" img="http://www.springframework.org/buttons/spring_white.png"/>
+      <item name="Code Coverage by Clover" href="http://www.thecortex.net/clover" img="http://www.thecortex.net/clover/images/clovered1.gif"/>
+    </menu>
+
   </body>
 </project>
