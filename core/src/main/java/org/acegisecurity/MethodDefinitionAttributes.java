@@ -28,6 +28,40 @@ import java.util.Iterator;
 /**
  * Stores a {@link ConfigAttributeDefinition} for each method signature defined
  * by Commons Attributes.
+ * 
+ * <P>
+ * This class will only detect those attributes which are defined for the:
+ * 
+ * <ul>
+ * <li>
+ * The class-wide attributes defined for the intercepted class.
+ * </li>
+ * <li>
+ * The class-wide attributes defined for interfaces explicitly implemented by
+ * the intercepted class.
+ * </li>
+ * <li>
+ * The method-specific attributes defined for the intercepted method of the
+ * intercepted class.
+ * </li>
+ * <li>
+ * The method-specific attributes defined by any explicitly implemented
+ * interface if that interface contains a method signature matching that of
+ * the intercepted method.
+ * </li>
+ * </ul>
+ * </p>
+ * 
+ * <P>
+ * Note that attributes defined against parent classes (either for their
+ * methods or interfaces) are not detected. The attributes must be defined
+ * against an explicit method or interface on the intercepted class.
+ * </p>
+ * 
+ * <p>
+ * Attributes detected that do not implement {@link ConfigAttribute} will be
+ * ignored.
+ * </p>
  *
  * @author Cameron Braid
  * @author Ben Alex
