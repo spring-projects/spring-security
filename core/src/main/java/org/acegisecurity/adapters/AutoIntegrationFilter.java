@@ -31,6 +31,15 @@ import javax.servlet.http.HttpServletRequest;
  * <code>web.xml</code> will not need to refer to a specific container
  * integration filter.
  * </p>
+ * 
+ * <P>
+ * The filter automatically delegates to
+ * <code>HttpRequestIntegrationFilter</code> if any
+ * <code>Authentication</code> object is detected in the
+ * <code>ServletRequest</code>. Failing this, it will delegate to
+ * <code>JbossIntegrationFilter</code> if the <code>ServletRequest</code>
+ * contains an instance of JBoss' <code>SimplePrincipal</code>.
+ * </p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -45,7 +54,7 @@ public class AutoIntegrationFilter extends AbstractIntegrationFilter {
             HttpServletRequest httpRequest = (HttpServletRequest) request;
 
             if (httpRequest.getUserPrincipal() instanceof Authentication) {
-                return new HttpRequestIntegrationFilter().extractFromContainer(request);
+                return getHttpServletRequest().extractFromContainer(request);
             }
 
             try {
@@ -55,8 +64,7 @@ public class AutoIntegrationFilter extends AbstractIntegrationFilter {
                 if (null != httpRequest.getUserPrincipal()) {
                     if (simplePrincipalClass.isAssignableFrom(
                             httpRequest.getUserPrincipal().getClass())) {
-                        return new JbossIntegrationFilter()
-                        .extractFromContainer(request);
+                        return getJbossIntegrationFilter().extractFromContainer(request);
                     }
                 }
             } catch (ClassNotFoundException e) {
@@ -66,5 +74,25 @@ public class AutoIntegrationFilter extends AbstractIntegrationFilter {
         }
 
         return null;
+    }
+
+    /**
+     * Allows test case to override the source of
+     * <code>HttpRequestIntegrationFilter</code>.
+     *
+     * @return the <code>HttpRequestIntegrationFilter</code> to use
+     */
+    protected HttpRequestIntegrationFilter getHttpServletRequest() {
+        return new HttpRequestIntegrationFilter();
+    }
+
+    /**
+     * Allows test case to override the source of
+     * <code>JbossIntegrationFilter</code>.
+     *
+     * @return the <code>JbossIntegrationFilter</code> to use
+     */
+    protected JbossIntegrationFilter getJbossIntegrationFilter() {
+        return new JbossIntegrationFilter();
     }
 }
