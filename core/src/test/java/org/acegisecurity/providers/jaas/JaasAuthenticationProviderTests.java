@@ -21,9 +21,11 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.Arrays;
@@ -69,6 +71,46 @@ public class JaasAuthenticationProviderTests extends TestCase {
         assertNotNull("Failure event exception was null",
             eventCheck.failedEvent.getException());
         assertNull("Success event was fired", eventCheck.successEvent);
+    }
+
+    public void testDetectsMissingLoginConfig() throws Exception {
+        JaasAuthenticationProvider myJaasProvider = new JaasAuthenticationProvider();
+        myJaasProvider.setApplicationContext(context);
+        myJaasProvider.setAuthorityGranters(jaasProvider.getAuthorityGranters());
+        myJaasProvider.setCallbackHandlers(jaasProvider.getCallbackHandlers());
+        myJaasProvider.setLoginContextName(jaasProvider.getLoginContextName());
+
+        try {
+            myJaasProvider.afterPropertiesSet();
+            fail("Should have thrown ApplicationContextException");
+        } catch (ApplicationContextException expected) {
+            assertTrue(expected.getMessage().startsWith("loginConfig must be set on"));
+        }
+    }
+
+    public void testDetectsMissingLoginContextName() throws Exception {
+        JaasAuthenticationProvider myJaasProvider = new JaasAuthenticationProvider();
+        myJaasProvider.setApplicationContext(context);
+        myJaasProvider.setAuthorityGranters(jaasProvider.getAuthorityGranters());
+        myJaasProvider.setCallbackHandlers(jaasProvider.getCallbackHandlers());
+        myJaasProvider.setLoginConfig(jaasProvider.getLoginConfig());
+        myJaasProvider.setLoginContextName(null);
+
+        try {
+            myJaasProvider.afterPropertiesSet();
+            fail("Should have thrown ApplicationContextException");
+        } catch (ApplicationContextException expected) {
+            assertTrue(expected.getMessage().startsWith("loginContextName must be set on"));
+        }
+
+        myJaasProvider.setLoginContextName("");
+
+        try {
+            myJaasProvider.afterPropertiesSet();
+            fail("Should have thrown ApplicationContextException");
+        } catch (ApplicationContextException expected) {
+            assertTrue(expected.getMessage().startsWith("loginContextName must be set on"));
+        }
     }
 
     public void testFull() throws Exception {
@@ -121,6 +163,12 @@ public class JaasAuthenticationProviderTests extends TestCase {
             eventCheck.successEvent.getAuthentication());
 
         assertNull("Failure event was fired", eventCheck.failedEvent);
+    }
+
+    public void testUnsupportedAuthenticationObjectReturnsNull() {
+        assertNull(jaasProvider.authenticate(
+                new TestingAuthenticationToken("foo", "bar",
+                    new GrantedAuthority[] {})));
     }
 
     protected void setUp() throws Exception {

@@ -112,11 +112,11 @@ import javax.security.auth.login.LoginException;
  * </p>
  * 
  * <p>
-{ * {@link JaasAuthenticationCallbackHandler}s are passed to the
+ * {{@link JaasAuthenticationCallbackHandler}s are passed to the
  * JaasAuthenticationProvider through the {@link
  * #setCallbackHandlers(net.sf.acegisecurity.providers.jaas.JaasAuthenticationCallbackHandler[])
- * callbackHandlers} property.
-} * <pre>
+ * callbackHandlers} property. }
+ * <pre>
  *   &lt;property name="callbackHandlers"&gt;
  *       &lt;list&gt;
  *           &lt;bean class="net.sf.acegisecurity.providers.jaas.TestCallbackHandler"/&gt;
@@ -255,7 +255,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
                 + getClass());
         }
 
-        if (loginContextName == null) {
+        if ((loginContextName == null) || "".equals(loginContextName)) {
             throw new ApplicationContextException(
                 "loginContextName must be set on " + getClass());
         }
