@@ -325,7 +325,7 @@
 			<include name="hsqldb/**"/>
 			<include name="*.txt"/>
 			<include name="*.xml"/>
-			<exclude name="project.properties"/>
+			<include name="project.properties"/>
 		</fileset>
 
 		<!-- To create your own free signing certificate, see http://www.dallaway.com/acad/webstart/  -->
