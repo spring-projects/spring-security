@@ -26,11 +26,15 @@ import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContext;
 import net.sf.acegisecurity.context.security.SecureContextUtils;
 import net.sf.acegisecurity.providers.cas.ProxyUntrustedException;
+import net.sf.acegisecurity.ui.rememberme.NullRememberMeServices;
+import net.sf.acegisecurity.ui.rememberme.RememberMeServices;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -106,6 +110,7 @@ public abstract class AbstractProcessingFilter implements Filter,
     //~ Instance fields ========================================================
 
     private AuthenticationManager authenticationManager;
+    private RememberMeServices rememberMeServices = new NullRememberMeServices();
 
     /**
      * Where to redirect the browser if authentication fails due to incorrect
@@ -193,6 +198,14 @@ public abstract class AbstractProcessingFilter implements Filter,
      * @return the default <code>filterProcessesUrl</code>
      */
     public abstract String getDefaultFilterProcessesUrl();
+
+    public void setRememberMeServices(RememberMeServices rememberMeServices) {
+        this.rememberMeServices = rememberMeServices;
+    }
+
+    public RememberMeServices getRememberMeServices() {
+        return rememberMeServices;
+    }
 
     /**
      * Performs actual authentication.
@@ -306,6 +319,8 @@ public abstract class AbstractProcessingFilter implements Filter,
             throw new IllegalArgumentException(
                 "authenticationManager must be specified");
         }
+
+        Assert.notNull(this.rememberMeServices);
     }
 
     /**
@@ -370,7 +385,8 @@ public abstract class AbstractProcessingFilter implements Filter,
         HttpServletResponse response) throws IOException {}
 
     protected void onSuccessfulAuthentication(HttpServletRequest request,
-        HttpServletResponse response) throws IOException {}
+        HttpServletResponse response, Authentication authResult)
+        throws IOException {}
 
     protected void onUnsuccessfulAuthentication(HttpServletRequest request,
         HttpServletResponse response) throws IOException {}
@@ -429,7 +445,9 @@ public abstract class AbstractProcessingFilter implements Filter,
                 + targetUrl);
         }
 
-        onSuccessfulAuthentication(request, response);
+        onSuccessfulAuthentication(request, response, authResult);
+
+        rememberMeServices.loginSuccess(request, response, authResult);
 
         response.sendRedirect(response.encodeRedirectURL(targetUrl));
     }
@@ -480,6 +498,8 @@ public abstract class AbstractProcessingFilter implements Filter,
             failed);
 
         onUnsuccessfulAuthentication(request, response);
+
+        rememberMeServices.loginFail(request, response);
 
         response.sendRedirect(response.encodeRedirectURL(request.getContextPath()
                 + failureUrl));

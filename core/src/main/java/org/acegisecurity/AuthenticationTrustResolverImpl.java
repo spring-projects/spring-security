@@ -16,6 +16,7 @@
 package net.sf.acegisecurity;
 
 import net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
+import net.sf.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
 
 
 /**
@@ -39,7 +40,7 @@ public class AuthenticationTrustResolverImpl
     //~ Instance fields ========================================================
 
     private Class anonymousClass = AnonymousAuthenticationToken.class;
-    private Class rememberMeClass;
+    private Class rememberMeClass = RememberMeAuthenticationToken.class;
 
     //~ Methods ================================================================
 

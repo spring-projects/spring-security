@@ -25,6 +25,11 @@
    the application context using standard Acegi Security classes. *</li>
 <li><b>Database-sourced security data</b>. All of the user, role and ACL
    information is obtained from an in-memory JDBC-compliant database.</li>
+<li><b>Integrated form-based and BASIC authentication</b>. Any BASIC
+   authentication header is detected and used for authentication. Normal
+   interactive form-based authentication is used by default.</li>
+<li><b>Remember-me services</b>. Acegi Security's pluggable remember-me
+   strategy is demonstrated, with a corresponding checkbox on the login form.</li>
 </ul>
 
 * As the application provides an "ACL Administration" use case, those

@@ -21,7 +21,7 @@
          <value>
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 		    PATTERN_TYPE_APACHE_ANT
-            /**=httpSessionContextIntegrationFilter,authenticationProcessingFilter,basicProcessingFilter,anonymousProcessingFilter,securityEnforcementFilter
+            /**=httpSessionContextIntegrationFilter,authenticationProcessingFilter,basicProcessingFilter,rememberMeProcessingFilter,anonymousProcessingFilter,securityEnforcementFilter
          </value>
       </property>
     </bean>
@@ -33,6 +33,7 @@
          <list>
             <ref local="daoAuthenticationProvider"/>
             <ref local="anonymousAuthenticationProvider"/>
+             <ref local="rememberMeAuthenticationProvider"/>
          </list>
       </property>
    </bean>
@@ -89,6 +90,19 @@
       <property name="context"><value>net.sf.acegisecurity.context.security.SecureContextImpl</value></property>
    </bean>
 
+   <bean id="rememberMeProcessingFilter" class="net.sf.acegisecurity.ui.rememberme.RememberMeProcessingFilter">
+      <property name="rememberMeServices"><ref local="rememberMeServices"/></property>
+   </bean>
+
+   <bean id="rememberMeServices" class="net.sf.acegisecurity.ui.rememberme.TokenBasedRememberMeServices">
+      <property name="authenticationDao"><ref local="jdbcDaoImpl"/></property>
+      <property name="key"><value>springRocks</value></property>
+   </bean>
+   
+   <bean id="rememberMeAuthenticationProvider" class="net.sf.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider">
+      <property name="key"><value>springRocks</value></property>
+   </bean>
+
    <!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
 
    <!-- You will need to uncomment the "Acegi Channel Processing Filter"
@@ -131,6 +145,7 @@
       <property name="authenticationFailureUrl"><value>/acegilogin.jsp?login_error=1</value></property>
       <property name="defaultTargetUrl"><value>/</value></property>
       <property name="filterProcessesUrl"><value>/j_acegi_security_check</value></property>
+      <property name="rememberMeServices"><ref local="rememberMeServices"/></property>
    </bean>
 
    <bean id="authenticationProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
@@ -160,7 +175,7 @@
 			    /index.jsp=ROLE_ANONYMOUS,ROLE_USER
 			    /hello.htm=ROLE_ANONYMOUS,ROLE_USER
 			    /logoff.jsp=ROLE_ANONYMOUS,ROLE_USER
-			    /acegilogin.jsp=ROLE_ANONYMOUS,ROLE_USER
+			    /acegilogin.jsp*=ROLE_ANONYMOUS,ROLE_USER
 				/**=ROLE_USER
          </value>
       </property>

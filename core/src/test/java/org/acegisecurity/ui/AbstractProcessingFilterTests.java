@@ -30,6 +30,7 @@ import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContextImpl;
 import net.sf.acegisecurity.context.security.SecureContextUtils;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import net.sf.acegisecurity.ui.rememberme.TokenBasedRememberMeServices;
 
 import java.io.IOException;
 
@@ -150,6 +151,11 @@ public class AbstractProcessingFilterTests extends TestCase {
 
     public void testGettersSetters() {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
+        assertNotNull(filter.getRememberMeServices());
+        filter.setRememberMeServices(new TokenBasedRememberMeServices());
+        assertEquals(TokenBasedRememberMeServices.class,
+            filter.getRememberMeServices().getClass());
+
         filter.setAuthenticationFailureUrl("/x");
         assertEquals("/x", filter.getAuthenticationFailureUrl());
 

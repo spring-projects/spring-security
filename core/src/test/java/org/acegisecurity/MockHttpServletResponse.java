@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 public class MockHttpServletResponse implements HttpServletResponse {
     //~ Instance fields ========================================================
 
+    private Map cookiesMap = new HashMap();
     private Map headersMap = new HashMap();
     private String errorMessage;
     private String redirect;
@@ -70,6 +71,10 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     public void setContentType(String arg0) {
         throw new UnsupportedOperationException("mock method not implemented");
+    }
+
+    public Cookie getCookieByName(String name) {
+        return (Cookie) cookiesMap.get(name);
     }
 
     public void setDateHeader(String arg0, long arg1) {
@@ -131,7 +136,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     public void addCookie(Cookie arg0) {
-        throw new UnsupportedOperationException("mock method not implemented");
+        cookiesMap.put(arg0.getName(), arg0);
     }
 
     public void addDateHeader(String arg0, long arg1) {

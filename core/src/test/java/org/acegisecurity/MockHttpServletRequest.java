@@ -54,6 +54,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private Map attribMap = new HashMap();
     private Map headersMap = new HashMap();
     private Map paramMap = new HashMap();
+    private Map cookiesMap = new HashMap();
     private Principal principal;
     private String contextPath = "";
     private String pathInfo; // null for no extra path
@@ -73,6 +74,15 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     public MockHttpServletRequest(String queryString) {
         this.queryString = queryString;
+    }
+
+    public MockHttpServletRequest(Map headers, HttpSession session, String queryString, Cookie[] cookies) {
+    	this.queryString = queryString;
+        this.headersMap = headers;
+        this.session = session;
+        for (int i = 0; i < cookies.length; i++) {
+        	cookiesMap.put(cookies[i].getName(), cookies[i]);
+        }
     }
 
     public MockHttpServletRequest(Map headers, Principal principal,
@@ -129,7 +139,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     public Cookie[] getCookies() {
-        throw new UnsupportedOperationException("mock method not implemented");
+        return (Cookie[]) cookiesMap.values().toArray(new Cookie[] {});
     }
 
     public long getDateHeader(String arg0) {

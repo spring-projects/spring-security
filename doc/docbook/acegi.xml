@@ -2645,7 +2645,7 @@ key:              A private key to prevent modification of the nonce token
       /index.jsp=ROLE_ANONYMOUS,ROLE_USER
       /hello.htm=ROLE_ANONYMOUS,ROLE_USER
       /logoff.jsp=ROLE_ANONYMOUS,ROLE_USER
-      /acegilogin.jsp=ROLE_ANONYMOUS,ROLE_USER
+      /acegilogin.jsp*=ROLE_ANONYMOUS,ROLE_USER
       /**=ROLE_USER
     &lt;/value&gt;
   &lt;/property&gt;
@@ -2667,6 +2667,110 @@ key:              A private key to prevent modification of the nonce token
         principals would always be deemed "authenticated" and never be given
         an opportunity to login via form, basic, digest or some other normal
         authentication mechanism.</para>
+      </sect2>
+
+      <sect2 id="security-ui-remember-me">
+        <title>Remember-Me Authentication</title>
+
+        <para>Remember-me authentication refers to web sites being able to
+        remember the identity of a principal between sessions. This is
+        typically accomplished by sending a cookie to the browser, with the
+        cookie being detected during future sessions and causing automated
+        login to take place. Acegi Security provides the necessary hooks so
+        that such operations can take place, along with providing a concrete
+        implementation that uses hashing to preserve the security of
+        cookie-based tokens. </para>
+
+        <para>Remember-me authentication is not used with digest or basic
+        authentication, given they are often not used with
+        <literal>HttpSession</literal>s. Remember-me is used with
+        <literal>AuthenticationProcessingFilter</literal>, and is implemented
+        via hooks in the <literal>AbstractProcessingFilter</literal>
+        superclass. The hooks will invoke a concrete
+        <literal>RememberMeServices</literal> at the appropriate times. The
+        interface looks like this:</para>
+
+        <para><programlisting>public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response);
+public void loginFail(HttpServletRequest request, HttpServletResponse response);
+public void loginSuccess(HttpServletRequest request, HttpServletResponse response, Authentication successfulAuthentication);</programlisting></para>
+
+        <para>Please refer to JavaDocs for a fuller discussion on what the
+        methods do, although note at this stage
+        <literal>AbstractProcessingFilter</literal> only calls the
+        <literal>loginFail()</literal> and <literal>loginSuccess()</literal>
+        methods. The <literal>autoLogin()</literal> method is called by
+        <literal>RememberMeProcessingFilter</literal> whenever the
+        <literal>ContextHolder</literal> does not contain an
+        <literal>Authentication</literal>. This interface therefore provides
+        the underlaying remember-me implementation with sufficient
+        notification of authentication-related events, and delegates to the
+        implementation whenever a candidate web request might contain a cookie
+        and wish to be remembered.</para>
+
+        <para>This design allows any number of remember-me implementation
+        strategies. In the interests of simplicity and avoiding the need for
+        DAO implementations that specify write and create methods, Acegi
+        Security's only concrete implementation,
+        <literal>TokenBasedRememberMeServices</literal>, uses hashing to
+        achieve a useful remember-me strategy. In essence a cookie is sent to
+        the browser upon successful interactive authentication, with that
+        cookie being composed as follows:</para>
+
+        <para><programlisting>base64(username + ":" + expirationTime + ":" + md5Hex(username + ":" + expirationTime + ":" password + ":" + key))
+
+username:         As identifiable to TokenBasedRememberMeServices.getAuthenticationDao()
+password:         That matches the relevant UserDetails retrieved from TokenBasedRememberMeServices.getAuthenticationDao()
+expirationTime:   The date and time when the remember-me token expires, expressed in milliseconds
+key:              A private key to prevent modification of the remember-me token
+</programlisting></para>
+
+        <para>As such the remember-me token is valid only for the period
+        specified, and provided that the username, password and key does not
+        change. Notably, this has a potential security issue issue in that a
+        captured remember-me token will be usable from any user agent until
+        such time as the token expires. This is the same issue as with digest
+        authentication. If a principal is aware a token has been captured,
+        they can easily change their password and immediately invalidate all
+        remember-me tokens on issue. However, if more significant security is
+        needed a rolling token approach should be used (this would require a
+        database) or remember-me services should simply not be used.</para>
+
+        <para><literal>TokenBasedRememberMeServices</literal> generates a
+        <literal>RememberMeAuthenticationToken</literal>, which is processed
+        by <literal>RememberMeAuthenticationProvider</literal>. A
+        <literal>key</literal> is shared between this authentication provider
+        and the <literal>TokenBasedRememberMeServices</literal>. In addition,
+        <literal>TokenBasedRememberMeServices</literal> requires an
+        <literal>AuthenticationDao</literal> from which it can retrieve the
+        username and password for signature comparison purposes, and generate
+        the <literal>RememberMeAuthenticationToken</literal> to contain the
+        correct <literal>GrantedAuthority</literal>[]s. Some sort of logout
+        command should be provided by the application (typically via a JSP)
+        that invalidates the cookie upon user request. See the Contacts Sample
+        application's <literal>logout.jsp</literal> for an example.</para>
+
+        <para>The beans required in an application context to enable
+        remember-me services are as follows:</para>
+
+        <para><programlisting>&lt;bean id="rememberMeProcessingFilter" class="net.sf.acegisecurity.ui.rememberme.RememberMeProcessingFilter"&gt;
+  &lt;property name="rememberMeServices"&gt;&lt;ref local="rememberMeServices"/&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="rememberMeServices" class="net.sf.acegisecurity.ui.rememberme.TokenBasedRememberMeServices"&gt;
+  &lt;property name="authenticationDao"&gt;&lt;ref local="jdbcDaoImpl"/&gt;&lt;/property&gt;
+  &lt;property name="key"&gt;&lt;value&gt;springRocks&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;
+   
+&lt;bean id="rememberMeAuthenticationProvider" class="net.sf.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider"&gt;
+  &lt;property name="key"&gt;&lt;value&gt;springRocks&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;</programlisting>Don't forget to add your
+        <literal>RememberMeServices</literal> implementation to your
+        <literal>AuthenticationProcessingFilter.setRememberMeServices()</literal>
+        property, include the <literal>RememberMeProcessingFilter</literal> in
+        your <literal>AuthenticationManager.setProviders()</literal> list, and
+        add a call to <literal>RememberMeProcessingFilter</literal> into your
+        <literal>FilterChainProxy</literal> (typically immediately after your
+        <literal>AuthenticationProcessingFilter</literal>).</para>
       </sect2>
 
       <sect2 id="security-ui-well-known">
@@ -4480,6 +4584,15 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
             you are using it to install an Acegi Security aware
             <literal>HttpServletRequestWrapper</literal> into your servlet
             container</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>RememberMeProcessingFilter</literal>, so that if no
+            earlier authentication processing mechanism updated the
+            <literal>ContextHolder</literal>, and the request presents a
+            cookie that enables remember-me services to take place, a suitable
+            remembered <literal><literal>Authentication</literal></literal>
+            object will be put there</para>
           </listitem>
 
           <listitem>

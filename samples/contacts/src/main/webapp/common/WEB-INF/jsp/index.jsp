@@ -27,6 +27,6 @@
   </tr>
 </c:forEach>
 </table>
-<p><a href="<c:url value="add.htm"/>">Add</a>   <p><a href="<c:url value="../logoff.jsp"/>">Logoff</a>
+<p><a href="<c:url value="add.htm"/>">Add</a>   <p><a href="<c:url value="../logoff.jsp"/>">Logoff</a> (also clears any remember-me cookie)
 </body>
 </html>

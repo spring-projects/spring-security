@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
+import net.sf.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
 
 
 /**
@@ -54,6 +55,16 @@ public class AuthenticationTrustResolverImplTests extends TestCase {
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ignored")})));
     }
 
+    public void testCorrectOperationIsRememberMe() {
+        AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
+        assertTrue(trustResolver.isRememberMe(
+                new RememberMeAuthenticationToken("ignored", "ignored",
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ignored")})));
+        assertFalse(trustResolver.isAnonymous(
+                new TestingAuthenticationToken("ignored", "ignored",
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ignored")})));
+    }
+
     public void testGettersSetters() {
         AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
 
@@ -62,6 +73,9 @@ public class AuthenticationTrustResolverImplTests extends TestCase {
         trustResolver.setAnonymousClass(String.class);
         assertEquals(String.class, trustResolver.getAnonymousClass());
 
-        assertNull(trustResolver.getRememberMeClass());
+        assertEquals(RememberMeAuthenticationToken.class,
+            trustResolver.getRememberMeClass());
+        trustResolver.setRememberMeClass(String.class);
+        assertEquals(String.class, trustResolver.getRememberMeClass());
     }
 }
