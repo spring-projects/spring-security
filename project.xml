@@ -21,7 +21,7 @@
 <project>
   <pomVersion>3</pomVersion>
   <groupId>acegisecurity</groupId>
-  <currentVersion>0.7.0-SNAPSHOT</currentVersion>
+  <currentVersion>0.7.0</currentVersion>
   <package>net.sf.acegisecurity</package>
   <description>Acegi Security System for Spring</description>
   <shortDescription>Acegi Security System for Spring</shortDescription>
@@ -473,6 +473,11 @@
       <id>0.6.1</id>
       <name>0.6.1</name>
       <tag>release_0_6_1</tag>
+    </version>
+    <version>
+      <id>0.7.0</id>
+      <name>0.7.0</name>
+      <tag>release_0_7_0</tag>
     </version>
   </versions>
 </project>

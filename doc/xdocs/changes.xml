@@ -22,10 +22,10 @@
 
 <document>
   <properties>
-    <title>Acegi security changes</title>
+    <title>Acegi Security changes</title>
   </properties>
   <body>
-    <release version="0.7-SNAPSHOT" date="in CVS">
+    <release version="0.7.0" date="2005-01-16">
       <action dev="carlossg" type="add">Major CVS repository restructure to support Maven and eliminate libraries</action>
       <action dev="benalex" type="update">Major improvements to Contacts sample application (now demos ACL security)</action>
       <action dev="benalex" type="add">Added AfterInvocationManager to mutate objects return from invocations</action>
