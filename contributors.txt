@@ -10,6 +10,6 @@ contributions to the Acegi Security System for Spring project:
 
 * Cameron Braid added support for configuration using Commons Attributes.
 
-                                 
+* François Beausoleil added and maintains tablig support for the project.                                
 
 $Id$

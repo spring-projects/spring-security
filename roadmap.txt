@@ -9,9 +9,6 @@ to the project have some ideas on where they could potentially add value.
 - Extend integration tests to support Resin (Ant startup/shutdown approach 
   needed)
 
-- Tablib that can query Authentication object in ContextHolder and hide links
-  if the user does not hold a required authority
-
 - Extend Spring remoting classes to transparently transport the Context
 
 - Sample application that demonstrates EJB remote method invocation with Acegi
