@@ -30,7 +30,7 @@
     <menu name="Overview">
       <item name="Home" href="index.html"/>
       <item name="Building with Maven" href="building.html"/>
-      <item name="Downloads" href="http://sourceforge.net/project/showfiles.php?group_id=104215"/>
+      <item name="Downloads" href="downloads.html"/>
     </menu>
 
     <menu name="Documentation">
