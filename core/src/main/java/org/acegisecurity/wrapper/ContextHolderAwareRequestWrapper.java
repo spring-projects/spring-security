@@ -16,10 +16,13 @@
 package net.sf.acegisecurity.wrapper;
 
 import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.AuthenticationTrustResolver;
+import net.sf.acegisecurity.AuthenticationTrustResolverImpl;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.security.SecureContextUtils;
 
 import java.security.Principal;
 
@@ -39,6 +42,10 @@ import javax.servlet.http.HttpServletRequestWrapper;
  * @version $Id$
  */
 public class ContextHolderAwareRequestWrapper extends HttpServletRequestWrapper {
+    //~ Instance fields ========================================================
+
+    private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
+
     //~ Constructors ===========================================================
 
     public ContextHolderAwareRequestWrapper(HttpServletRequest request) {
@@ -109,8 +116,12 @@ public class ContextHolderAwareRequestWrapper extends HttpServletRequestWrapper 
     private Authentication getAuthentication() {
         if ((ContextHolder.getContext() != null)
             && ContextHolder.getContext() instanceof SecureContext) {
-            return ((SecureContext) ContextHolder.getContext())
-            .getAuthentication();
+            Authentication auth = SecureContextUtils.getSecureContext()
+                                                    .getAuthentication();
+
+            if (!authenticationTrustResolver.isAnonymous(auth)) {
+                return auth;
+            }
         }
 
         return null;
