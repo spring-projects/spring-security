@@ -13,12 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao;
+package net.sf.acegisecurity.providers.encoding;
 
 import junit.framework.TestCase;
-
-import net.sf.acegisecurity.providers.encoding.*;
-
 
 /**
  * <p>

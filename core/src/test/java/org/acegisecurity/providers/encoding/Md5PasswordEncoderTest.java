@@ -13,12 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao;
+package net.sf.acegisecurity.providers.encoding;
 
 import junit.framework.TestCase;
-
-import net.sf.acegisecurity.providers.encoding.*;
-
 
 /**
  * <p>
@@ -28,7 +25,7 @@ import net.sf.acegisecurity.providers.encoding.*;
  * @author colin sampaleanu
  * @version $Id$
  */
-public class MD5PasswordEncoderTest extends TestCase {
+public class Md5PasswordEncoderTest extends TestCase {
     //~ Methods ================================================================
 
     public void testBasicFunctionality() {

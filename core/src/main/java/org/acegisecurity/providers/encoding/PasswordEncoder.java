@@ -49,14 +49,14 @@ public interface PasswordEncoder {
      * @param encPass a pre-encoded password
      * @param rawPass a raw password to encode and compare against the
      *        pre-encoded password
-     * @param saltSource optionally used by the implementation to 'salt' the
+     * @param salt optionally used by the implementation to 'salt' the
      *        raw password before encoding. A <code>null</code> value is
      *        legal.
      *
      * @return DOCUMENT ME!
      */
     public boolean isPasswordValid(String encPass, String rawPass,
-        Object saltSource) throws DataAccessException;
+        Object salt) throws DataAccessException;
 
     /**
      * <p>

@@ -13,11 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao;
+package net.sf.acegisecurity.providers.encoding;
 
 import junit.framework.TestCase;
-
-import net.sf.acegisecurity.providers.encoding.*;
 
 
 /**
@@ -28,7 +26,7 @@ import net.sf.acegisecurity.providers.encoding.*;
  * @author colin sampaleanu
  * @version $Id$
  */
-public class SHAPasswordEncoderTest extends TestCase {
+public class ShaPasswordEncoderTest extends TestCase {
     //~ Methods ================================================================
 
     public void testBasicFunctionality() {
