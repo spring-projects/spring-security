@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 
 
 /**
- * Tests {@link GrantedAuthorityImpl}
+ * Tests {@link GrantedAuthorityImpl}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -45,6 +45,15 @@ public class GrantedAuthorityImplTests extends TestCase {
         junit.textui.TestRunner.run(GrantedAuthorityImplTests.class);
     }
 
+    public void testNoArgsConstructor() {
+        try {
+            new GrantedAuthorityImpl();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+    }
+
     public void testObjectEquals() throws Exception {
         GrantedAuthorityImpl auth1 = new GrantedAuthorityImpl("TEST");
         GrantedAuthorityImpl auth2 = new GrantedAuthorityImpl("TEST");
@@ -68,6 +77,11 @@ public class GrantedAuthorityImplTests extends TestCase {
 
         Integer int1 = new Integer(222);
         assertTrue(!auth1.equals(int1));
+    }
+
+    public void testToString() {
+        GrantedAuthorityImpl auth = new GrantedAuthorityImpl("TEST");
+        assertEquals("TEST", auth.toString());
     }
 
     //~ Inner Classes ==========================================================
