@@ -5,7 +5,7 @@
       <authenticator>
         <type>net.sf.acegisecurity.adapters.resin.ResinAcegiAuthenticator</type>
         <init>
-          <app-context-location>WEB-INF/resin-acegisecurity.xml</app-context-location>
+          <app-context-location>resin-acegisecurity.xml</app-context-location>
            <key>my_password</key>
         </init>
       </authenticator>
