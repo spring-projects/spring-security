@@ -1,8 +1,16 @@
-/*
- * The Acegi Security System for Spring is published under the terms
- * of the Apache Software License.
+/* Copyright 2004 Acegi Technology Pty Limited
  *
- * Visit http://acegisecurity.sourceforge.net for further details.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package net.sf.acegisecurity.adapters;
@@ -60,14 +68,14 @@ public abstract class AbstractIntegrationFilter implements Filter {
     public void destroy() {}
 
     public void doFilter(ServletRequest request, ServletResponse response,
-                         FilterChain chain)
-                  throws IOException, ServletException {
+        FilterChain chain) throws IOException, ServletException {
         // Populate authentication information
         Object extracted = this.extractFromContainer(request);
 
         if (extracted instanceof Authentication) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Authentication added to ContextHolder from container");
+                logger.debug(
+                    "Authentication added to ContextHolder from container");
             }
 
             Authentication auth = (Authentication) extracted;
@@ -76,7 +84,7 @@ public abstract class AbstractIntegrationFilter implements Filter {
             SecureContext secureContext = null;
 
             if ((ContextHolder.getContext() == null)
-                    || !(ContextHolder.getContext() instanceof SecureContext)) {
+                || !(ContextHolder.getContext() instanceof SecureContext)) {
                 secureContext = new SecureContextImpl();
             } else {
                 secureContext = (SecureContext) ContextHolder.getContext();
@@ -87,7 +95,8 @@ public abstract class AbstractIntegrationFilter implements Filter {
             ContextHolder.setContext((Context) secureContext);
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug("Authentication not added to ContextHolder (could not extract an authentication object from the container which is an instance of Authentication)");
+                logger.debug(
+                    "Authentication not added to ContextHolder (could not extract an authentication object from the container which is an instance of Authentication)");
             }
         }
 
@@ -96,19 +105,20 @@ public abstract class AbstractIntegrationFilter implements Filter {
 
         // Remove authentication information
         if ((ContextHolder.getContext() != null)
-                && ContextHolder.getContext() instanceof SecureContext) {
+            && ContextHolder.getContext() instanceof SecureContext) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Removing Authentication from ContextHolder");
             }
 
             // Get context holder and remove authentication information
             SecureContext secureContext = (SecureContext) ContextHolder
-                                          .getContext();
+                .getContext();
             secureContext.setAuthentication(null);
             ContextHolder.setContext((Context) secureContext);
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug("ContextHolder does not contain any authentication information");
+                logger.debug(
+                    "ContextHolder does not contain any authentication information");
             }
         }
     }

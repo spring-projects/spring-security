@@ -1,8 +1,16 @@
-/*
- * The Acegi Security System for Spring is published under the terms
- * of the Apache Software License.
+/* Copyright 2004 Acegi Technology Pty Limited
  *
- * Visit http://acegisecurity.sourceforge.net for further details.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package net.sf.acegisecurity.runas;
@@ -58,13 +66,13 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 
     public void afterPropertiesSet() throws Exception {
         if (key == null) {
-            throw new IllegalArgumentException("A Key is required and should match that configured for the RunAsImplAuthenticationProvider");
+            throw new IllegalArgumentException(
+                "A Key is required and should match that configured for the RunAsImplAuthenticationProvider");
         }
     }
 
     public Authentication buildRunAs(Authentication authentication,
-                                     MethodInvocation invocation,
-                                     ConfigAttributeDefinition config) {
+        MethodInvocation invocation, ConfigAttributeDefinition config) {
         Set newAuthorities = new HashSet();
         Iterator iter = config.getConfigAttributes();
 
@@ -72,9 +80,8 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
             ConfigAttribute attribute = (ConfigAttribute) iter.next();
 
             if (this.supports(attribute)) {
-                GrantedAuthorityImpl extraAuthority = new GrantedAuthorityImpl("ROLE_"
-                                                                               + attribute
-                                                                                 .getAttribute());
+                GrantedAuthorityImpl extraAuthority = new GrantedAuthorityImpl(
+                        "ROLE_" + attribute.getAttribute());
                 newAuthorities.add(extraAuthority);
             }
         }
@@ -88,18 +95,17 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 
             GrantedAuthority[] resultType = {new GrantedAuthorityImpl("holder")};
             GrantedAuthority[] newAuthoritiesAsArray = (GrantedAuthority[]) newAuthorities
-                                                         .toArray(resultType);
+                .toArray(resultType);
 
             return new RunAsUserToken(this.key, authentication.getPrincipal(),
-                                      authentication.getCredentials(),
-                                      newAuthoritiesAsArray,
-                                      authentication.getClass());
+                authentication.getCredentials(), newAuthoritiesAsArray,
+                authentication.getClass());
         }
     }
 
     public boolean supports(ConfigAttribute attribute) {
         if ((attribute.getAttribute() != null)
-                && attribute.getAttribute().startsWith("RUN_AS_")) {
+            && attribute.getAttribute().startsWith("RUN_AS_")) {
             return true;
         } else {
             return false;

@@ -1,8 +1,16 @@
-/*
- * The Acegi Security System for Spring is published under the terms
- * of the Apache Software License.
+/* Copyright 2004 Acegi Technology Pty Limited
  *
- * Visit http://acegisecurity.sourceforge.net for further details.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package net.sf.acegisecurity.vote;
@@ -57,13 +65,12 @@ public interface AccessDecisionVoter {
      * Indicates whether or not access is granted.
      * 
      * <p>
-     * The decision must be affirmative (<code>ACCESS_GRANTED</code>),
-     * negative (<code>ACCESS_DENIED</code>) or the
-     * <code>AccessDecisionVoter</code> can abstain
-     * (<code>ACCESS_ABSTAIN</code>) from voting. Under no circumstances
-     * should implementing classes return any other value. If a weighting of
-     * results is desired, this should be handled in a custom  {@link
-     * net.sf.acegisecurity.AccessDecisionManager} instead.
+     * The decision must be affirmative (<code>ACCESS_GRANTED</code>), negative
+     * (<code>ACCESS_DENIED</code>) or the <code>AccessDecisionVoter</code>
+     * can abstain (<code>ACCESS_ABSTAIN</code>) from voting. Under no
+     * circumstances should implementing classes return any other value. If a
+     * weighting of results is desired, this should be handled in a custom
+     * {@link net.sf.acegisecurity.AccessDecisionManager} instead.
      * </p>
      * 
      * <P>
@@ -92,5 +99,5 @@ public interface AccessDecisionVoter {
      *         {@link #ACCESS_DENIED}
      */
     public int vote(Authentication authentication, MethodInvocation invocation,
-                    ConfigAttributeDefinition config);
+        ConfigAttributeDefinition config);
 }

@@ -1,8 +1,16 @@
-/*
- * The Acegi Security System for Spring is published under the terms
- * of the Apache Software License.
+/* Copyright 2004 Acegi Technology Pty Limited
  *
- * Visit http://acegisecurity.sourceforge.net for further details.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package net.sf.acegisecurity.providers.dao;
@@ -34,7 +42,7 @@ import org.springframework.dao.DataAccessException;
  * @version $Id$
  */
 public class DaoAuthenticationProvider implements AuthenticationProvider,
-                                                  InitializingBean {
+    InitializingBean {
     //~ Instance fields ========================================================
 
     private AuthenticationDao authenticationDao;
@@ -83,12 +91,13 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
     public void afterPropertiesSet() throws Exception {
         if (this.authenticationDao == null) {
-            throw new IllegalArgumentException("An Authentication DAO must be set");
+            throw new IllegalArgumentException(
+                "An Authentication DAO must be set");
         }
     }
 
     public Authentication authenticate(Authentication authentication)
-                                throws AuthenticationException {
+        throws AuthenticationException {
         User user = null;
 
         try {
@@ -98,7 +107,7 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             throw new BadCredentialsException("Bad credentials presented");
         } catch (DataAccessException repositoryProblem) {
             throw new AuthenticationServiceException(repositoryProblem
-                                                     .getMessage());
+                .getMessage());
         }
 
         if (!user.isEnabled()) {
@@ -110,12 +119,12 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
         }
 
         return new UsernamePasswordAuthenticationToken(user.getUsername(),
-                                                       user.getPassword(),
-                                                       user.getAuthorities());
+            user.getPassword(), user.getAuthorities());
     }
 
     public boolean supports(Class authentication) {
-        if (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication)) {
+        if (UsernamePasswordAuthenticationToken.class.isAssignableFrom(
+                authentication)) {
             return true;
         } else {
             return false;

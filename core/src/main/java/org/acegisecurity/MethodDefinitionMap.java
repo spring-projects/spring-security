@@ -1,8 +1,16 @@
-/*
- * The Acegi Security System for Spring is published under the terms
- * of the Apache Software License.
+/* Copyright 2004 Acegi Technology Pty Limited
  *
- * Visit http://acegisecurity.sourceforge.net for further details.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package net.sf.acegisecurity;
@@ -45,7 +53,7 @@ public class MethodDefinitionMap implements MethodDefinitionSource {
 
     public ConfigAttributeDefinition getAttributes(MethodInvocation invocation) {
         return (ConfigAttributeDefinition) this.methodMap.get(invocation
-                                                              .getMethod());
+            .getMethod());
     }
 
     public Iterator getConfigAttributeDefinitions() {
@@ -61,7 +69,7 @@ public class MethodDefinitionMap implements MethodDefinitionSource {
      */
     public void addSecureMethod(Method method, ConfigAttributeDefinition attr) {
         logger.info("Adding secure method [" + method + "] with attributes ["
-                    + attr + "]");
+            + attr + "]");
         this.methodMap.put(method, attr);
     }
 
@@ -79,7 +87,7 @@ public class MethodDefinitionMap implements MethodDefinitionSource {
 
         if (lastDotIndex == -1) {
             throw new IllegalArgumentException("'" + name
-                                               + "' is not a valid method name: format is FQN.methodName");
+                + "' is not a valid method name: format is FQN.methodName");
         }
 
         String className = name.substring(0, lastDotIndex);
@@ -87,12 +95,11 @@ public class MethodDefinitionMap implements MethodDefinitionSource {
 
         try {
             Class clazz = Class.forName(className, true,
-                                        Thread.currentThread()
-                                              .getContextClassLoader());
+                    Thread.currentThread().getContextClassLoader());
             addSecureMethod(clazz, methodName, attr);
         } catch (ClassNotFoundException ex) {
             throw new IllegalArgumentException("Class '" + className
-                                               + "' not found");
+                + "' not found");
         }
     }
 
@@ -107,12 +114,12 @@ public class MethodDefinitionMap implements MethodDefinitionSource {
      * @throws IllegalArgumentException DOCUMENT ME!
      */
     public void addSecureMethod(Class clazz, String mappedName,
-                                ConfigAttributeDefinition attr) {
+        ConfigAttributeDefinition attr) {
         String name = clazz.getName() + '.' + mappedName;
 
         if (logger.isDebugEnabled()) {
             logger.debug("Adding secure method [" + name
-                         + "] with attributes [" + attr + "]");
+                + "] with attributes [" + attr + "]");
         }
 
         Method[] methods = clazz.getDeclaredMethods();
@@ -120,14 +127,14 @@ public class MethodDefinitionMap implements MethodDefinitionSource {
 
         for (int i = 0; i < methods.length; i++) {
             if (methods[i].getName().equals(mappedName)
-                    || isMatch(methods[i].getName(), mappedName)) {
+                || isMatch(methods[i].getName(), mappedName)) {
                 matchingMethods.add(methods[i]);
             }
         }
 
         if (matchingMethods.isEmpty()) {
             throw new IllegalArgumentException("Couldn't find method '"
-                                               + mappedName + "' on " + clazz);
+                + mappedName + "' on " + clazz);
         }
 
         // register all matching methods
@@ -136,15 +143,14 @@ public class MethodDefinitionMap implements MethodDefinitionSource {
             String regMethodName = (String) this.nameMap.get(method);
 
             if ((regMethodName == null)
-                    || (!regMethodName.equals(name)
-                    && (regMethodName.length() <= name.length()))) {
+                || (!regMethodName.equals(name)
+                && (regMethodName.length() <= name.length()))) {
                 // no already registered method name, or more specific
                 // method name specification now -> (re-)register method
                 if (logger.isDebugEnabled() && (regMethodName != null)) {
                     logger.debug("Replacing attributes for secure method ["
-                                 + method + "]: current name [" + name
-                                 + "] is more specific than [" + regMethodName
-                                 + "]");
+                        + method + "]: current name [" + name
+                        + "] is more specific than [" + regMethodName + "]");
                 }
 
                 this.nameMap.put(method, name);
@@ -152,9 +158,8 @@ public class MethodDefinitionMap implements MethodDefinitionSource {
             } else {
                 if (logger.isDebugEnabled() && (regMethodName != null)) {
                     logger.debug("Keeping attributes for secure method ["
-                                 + method + "]: current name [" + name
-                                 + "] is not more specific than ["
-                                 + regMethodName + "]");
+                        + method + "]: current name [" + name
+                        + "] is not more specific than [" + regMethodName + "]");
                 }
             }
         }
@@ -171,11 +176,9 @@ public class MethodDefinitionMap implements MethodDefinitionSource {
      */
     private boolean isMatch(String methodName, String mappedName) {
         return (mappedName.endsWith("*")
-               && methodName.startsWith(mappedName.substring(0,
-                                                             mappedName.length()
-                                                             - 1)))
-               || (mappedName.startsWith("*")
-               && methodName.endsWith(mappedName.substring(1,
-                                                           mappedName.length())));
+        && methodName.startsWith(mappedName.substring(0, mappedName.length()
+                - 1)))
+        || (mappedName.startsWith("*")
+        && methodName.endsWith(mappedName.substring(1, mappedName.length())));
     }
 }

@@ -1,8 +1,16 @@
-/*
- * The Acegi Security System for Spring is published under the terms
- * of the Apache Software License.
+/* Copyright 2004 Acegi Technology Pty Limited
  *
- * Visit http://acegisecurity.sourceforge.net for further details.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package net.sf.acegisecurity;
@@ -71,12 +79,12 @@ public class MethodDefinitionAttributes implements MethodDefinitionSource {
     }
 
     private void addClassAttributes(ConfigAttributeDefinition definition,
-                                    Class clazz) {
+        Class clazz) {
         addClassAttributes(definition, new Class[] {clazz});
     }
 
     private void addClassAttributes(ConfigAttributeDefinition definition,
-                                    Class[] clazz) {
+        Class[] clazz) {
         for (int i = 0; i < clazz.length; i++) {
             Collection classAttributes = attributes.getAttributes(clazz[i]);
 
@@ -86,8 +94,8 @@ public class MethodDefinitionAttributes implements MethodDefinitionSource {
         }
     }
 
-    private void addInterfaceMethodAttributes(ConfigAttributeDefinition definition,
-                                              Method method) {
+    private void addInterfaceMethodAttributes(
+        ConfigAttributeDefinition definition, Method method) {
         Class[] interfaces = method.getDeclaringClass().getInterfaces();
 
         for (int i = 0; i < interfaces.length; i++) {
@@ -95,7 +103,7 @@ public class MethodDefinitionAttributes implements MethodDefinitionSource {
 
             try {
                 Method m = clazz.getDeclaredMethod(method.getName(),
-                                                   method.getParameterTypes());
+                        method.getParameterTypes());
                 addMethodAttributes(definition, m);
             } catch (Exception e) {
                 // this won't happen since we are getting a method from an interface that 
@@ -105,7 +113,7 @@ public class MethodDefinitionAttributes implements MethodDefinitionSource {
     }
 
     private void addMethodAttributes(ConfigAttributeDefinition definition,
-                                     Method method) {
+        Method method) {
         // add the method level attributes
         Collection methodAttributes = attributes.getAttributes(method);
 

@@ -1,8 +1,16 @@
-/*
- * The Acegi Security System for Spring is published under the terms
- * of the Apache Software License.
+/* Copyright 2004 Acegi Technology Pty Limited
  *
- * Visit http://acegisecurity.sourceforge.net for further details.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package net.sf.acegisecurity.providers.dao.jdbc;
@@ -52,8 +60,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
     //~ Methods ================================================================
 
     public User loadUserByUsername(String username)
-                            throws UsernameNotFoundException, 
-                                   DataAccessException {
+        throws UsernameNotFoundException, DataAccessException {
         List users = usersByUsernameQuery.execute(username);
 
         if (users.size() == 0) {
@@ -72,14 +79,16 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
         arrayAuths = (GrantedAuthority[]) dbAuths.toArray(arrayAuths);
 
         return new User(user.getUsername(), user.getPassword(),
-                        user.isEnabled(), arrayAuths);
+            user.isEnabled(), arrayAuths);
     }
 
-    protected void setAuthoritiesByUsernameQuery(AuthoritiesByUsernameQuery authoritiesByUsernameQuery) {
+    protected void setAuthoritiesByUsernameQuery(
+        AuthoritiesByUsernameQuery authoritiesByUsernameQuery) {
         this.authoritiesByUsernameQuery = authoritiesByUsernameQuery;
     }
 
-    protected void setUsersByUsernameQuery(UsersByUsernameQuery usersByUsernameQuery) {
+    protected void setUsersByUsernameQuery(
+        UsersByUsernameQuery usersByUsernameQuery) {
         this.usersByUsernameQuery = usersByUsernameQuery;
     }
 
@@ -101,15 +110,15 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
     protected static class AuthoritiesByUsernameQuery extends MappingSqlQuery {
         protected AuthoritiesByUsernameQuery(DataSource ds) {
             super(ds,
-                  "SELECT username,authority FROM authorities WHERE username = ?");
+                "SELECT username,authority FROM authorities WHERE username = ?");
             declareParameter(new SqlParameter(Types.VARCHAR));
             compile();
         }
 
         protected Object mapRow(ResultSet rs, int rownum)
-                         throws SQLException {
+            throws SQLException {
             GrantedAuthorityImpl authority = new GrantedAuthorityImpl(rs
-                                                                      .getString("authority"));
+                    .getString("authority"));
 
             return authority;
         }
@@ -121,13 +130,13 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
     protected static class UsersByUsernameQuery extends MappingSqlQuery {
         protected UsersByUsernameQuery(DataSource ds) {
             super(ds,
-                  "SELECT username,password,enabled FROM users WHERE username = ?");
+                "SELECT username,password,enabled FROM users WHERE username = ?");
             declareParameter(new SqlParameter(Types.VARCHAR));
             compile();
         }
 
         protected Object mapRow(ResultSet rs, int rownum)
-                         throws SQLException {
+            throws SQLException {
             String username = rs.getString("username");
             String password = rs.getString("password");
             boolean enabled = rs.getBoolean("enabled");
