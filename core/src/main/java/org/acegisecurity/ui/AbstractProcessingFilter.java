@@ -20,6 +20,7 @@ import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationManager;
 import net.sf.acegisecurity.AuthenticationServiceException;
 import net.sf.acegisecurity.BadCredentialsException;
+import net.sf.acegisecurity.CredentialsExpiredException;
 import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.LockedException;
 import net.sf.acegisecurity.context.ContextHolder;
@@ -144,6 +145,7 @@ public abstract class AbstractProcessingFilter implements Filter,
      * the authentication service
      */
     private String authenticationServiceFailureUrl;
+    private String credentialsExpiredFailureUrl;
 
     /**
      * Where to redirect the browser to if authentication is successful but
@@ -488,6 +490,11 @@ public abstract class AbstractProcessingFilter implements Filter,
         if (failed instanceof ProxyUntrustedException
             && (authenticationProxyUntrustedFailureUrl != null)) {
             failureUrl = authenticationProxyUntrustedFailureUrl;
+        }
+
+        if (failed instanceof CredentialsExpiredException
+            && (credentialsExpiredFailureUrl != null)) {
+            failureUrl = credentialsExpiredFailureUrl;
         }
 
         if (logger.isDebugEnabled()) {
