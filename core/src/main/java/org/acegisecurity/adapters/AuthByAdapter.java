@@ -35,7 +35,10 @@ public interface AuthByAdapter extends Authentication {
     //~ Methods ================================================================
 
     /**
-     * DOCUMENT ME!
+     * Returns the hash code of the key that was passed to the constructor of
+     * the <code>AuthByAdapter</code> implementation. The implementation
+     * should convert the value to a hash code at construction time, rather
+     * than storing the key itself.
      *
      * @return the hash code of the key used when the object was created.
      */
