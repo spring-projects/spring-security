@@ -17,12 +17,11 @@ package net.sf.acegisecurity.util;
 
 import junit.framework.TestCase;
 
-import java.io.IOException;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import java.io.IOException;
 
 
 /**
@@ -31,7 +30,7 @@ import javax.servlet.ServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class MockFilterChain extends TestCase implements FilterChain {
+public class MockFilterChain implements FilterChain {
     //~ Instance fields ========================================================
 
     private boolean expectToProceed;
@@ -42,18 +41,14 @@ public class MockFilterChain extends TestCase implements FilterChain {
         this.expectToProceed = expectToProceed;
     }
 
-    private MockFilterChain() {
-        super();
-    }
-
     //~ Methods ================================================================
 
     public void doFilter(ServletRequest request, ServletResponse response)
-        throws IOException, ServletException {
+            throws IOException, ServletException {
         if (expectToProceed) {
-            assertTrue(true);
+            TestCase.assertTrue(true);
         } else {
-            fail("Did not expect filter chain to proceed");
+            TestCase.fail("Did not expect filter chain to proceed");
         }
     }
 }
