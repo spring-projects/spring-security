@@ -26,7 +26,7 @@
   </properties>
   <body>
     <release version="0.8.1" date="In CVS">
-      <action dev="benalex" type="add">...</action>
+      <action dev="benalex" type="fix">SecurityEnforcementFilter caused NullPointerException when anonymous authentication used with BasicProcessingFilterEntryPoint</action>
     </release>
     <release version="0.8.0" date="2005-03-03">
       <action dev="benalex" type="add">Added Digest Authentication support (RFC 2617 and RFC 2069)</action>

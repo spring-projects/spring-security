@@ -19,6 +19,7 @@ import net.sf.acegisecurity.AccessDeniedException;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationTrustResolver;
 import net.sf.acegisecurity.AuthenticationTrustResolverImpl;
+import net.sf.acegisecurity.InsufficientAuthenticationException;
 import net.sf.acegisecurity.context.security.SecureContextUtils;
 import net.sf.acegisecurity.ui.AbstractProcessingFilter;
 import net.sf.acegisecurity.util.PortResolver;
@@ -198,7 +199,9 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
                         accessDenied);
                 }
 
-                sendStartAuthentication(fi, null);
+                sendStartAuthentication(fi,
+                    new InsufficientAuthenticationException(
+                        "Full authentication is required to access this resource"));
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Access is denied (user is not anonymous); sending back forbidden response",
