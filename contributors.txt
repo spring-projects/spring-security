@@ -28,6 +28,8 @@ contributions to the Acegi Security System for Spring project:
 
 * Travis Gregg contributed a fix to EH-CACHE usage after web context refresh.
 
+* Ray Krueger is a current member of the development team.
+
 * Anyone else I've forgotten (please let me know so I can correct this).
 
 Plus of course all the people who use the project and provide feedback, bug
