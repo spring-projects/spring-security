@@ -2,8 +2,7 @@
           ACEGI SECURITY SYSTEM FOR SPRING - UPGRADING FROM 0.4 TO 0.5
 ===============================================================================
 
-Unfortunately, changes to the API and package locations were required. The
-following should help most casual users of the project update their
+The following should help most casual users of the project update their
 applications:
 
 - By default, AuthenticationProcessingFilter and SecurityEnforcementFilter now
@@ -17,6 +16,9 @@ applications:
   If you do still want to use this approach, just rename your param from 
   'appContextLocation' to 'contextConfigLocation'.
 
+- If you're using container adapters, please refer to the reference
+  documentation as additional JARs are now required in your container
+  classloader.
 
 We hope you find the new features useful in your projects.
 

@@ -281,15 +281,6 @@
         custom request contexts implement the <literal>SecureContext</literal>
         interface.</para>
       </sect2>
-
-      <sect2 id="security-contexts-future-work">
-        <title>Future Work</title>
-
-        <para>Over time it is hoped that the Spring remoting classes can be
-        extended to support propagation of the <literal>Context</literal>
-        between <literal>ContextHolder</literal>s on the client and
-        server.</para>
-      </sect2>
     </sect1>
 
     <sect1 id="security-interception">
@@ -618,7 +609,7 @@
         expressions to be treated as Apache Ant paths. It is not possible to
         mix expression syntaxes within the same definition. For example, the
         earlier configuration could be generated using Apache Ant paths as
-        follows: </para>
+        follows:</para>
 
         <para><programlisting>&lt;bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
@@ -642,8 +633,8 @@
         pattern appears higher than the less specific
         <literal>/super/</literal> pattern. If they were reversed, the
         <literal>/super/</literal> pattern would always match and the
-        <literal>/secure/super/</literal> pattern would never be evaluated.
-        </para>
+        <literal>/secure/super/</literal> pattern would never be
+        evaluated.</para>
 
         <para>The special keyword
         <literal>CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON</literal> causes
@@ -1477,13 +1468,17 @@ public boolean supports(Class clazz);</programlisting></para>
             </listitem>
           </itemizedlist></para>
 
-        <para>Several alternatives are available for the first step. The two
-        most supported approaches are HTTP Session Authentication, which uses
-        the <literal>HttpSession</literal> object and filters to authenticate
-        the user. The other is via Container Adapters, which allow supported
-        web containers to perform the authentication themselves. HTTP Session
-        Authentication is discussed below, whilst Container Adapters are
-        discussed in a separate section.</para>
+        <para>There are several alternatives are available for the first step,
+        which will be briefly discussed in this chapter. The most popular
+        approach is HTTP Session Authentication, which uses the
+        <literal>HttpSession</literal> object and filters to authenticate the
+        user. Another approach is HTTP Basic Authentication, which allows
+        clients to use HTTP headers to present authentication information to
+        the Acegi Security System for Spring. The final approach is via
+        Container Adapters, which allow supported web containers to perform
+        the authentication themselves. HTTP Session Authentication is
+        discussed below, whilst Container Adapters are discussed in a separate
+        section.</para>
       </sect2>
 
       <sect2 id="security-ui-http-session">
@@ -1569,11 +1564,74 @@ public boolean supports(Class clazz);</programlisting></para>
         be used instead of Container Adapters.</para>
       </sect2>
 
+      <sect2 id="security-ui-http-session">
+        <title>HTTP Basic Authentication</title>
+
+        <para>Primarily to cater for the needs of remoting protocols such as
+        Hessian and Burlap, the Acegi Security System for Spring provides a
+        <literal>BasicProcessingFilter</literal> which is capable of
+        processing authentication credentials presented in HTTP headers (for
+        standard authentication of web browser users, we recommend HTTP
+        Session Authentication). The standard governing HTTP Basic
+        Authentication is defined by RFC 1945, Section 11, and the
+        <literal>BasicProcessingFilter</literal> conforms with this RFC. To
+        implement HTTP Basic Authentication, it is necessary to add the
+        following filter to <literal>web.xml</literal>:</para>
+
+        <para><programlisting>&lt;filter&gt;
+  &lt;filter-name&gt;Acegi HTTP BASIC Authorization Filter&lt;/filter-name&gt;
+  &lt;filter-class&gt;net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter&lt;/filter-class&gt;
+&lt;/filter&gt;
+
+&lt;filter-mapping&gt;
+  &lt;filter-name&gt;Acegi HTTP BASIC Authorization Filter&lt;/filter-name&gt;
+  &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;</programlisting></para>
+
+        <para>Like the <literal>AuthenticationProcessingFilter</literal>
+        discussed above, the <literal>BasicProcessingFilter</literal> will
+        need to delegate to a properly configured
+        <literal>AuthenticationManager</literal>. To do this it requires
+        access to a Spring application context, which is usually obtained from
+        <literal>WebApplicationContextUtils.getWebApplicationContext(ServletContext)</literal>.
+        This is usually made available by using Spring's
+        <literal>ContextLoaderListener</literal> in
+        <literal>web.xml</literal>. Alternatively, the
+        <literal>web.xml</literal> can be used to define a filter
+        <literal>&lt;init-param&gt;</literal> named
+        <literal>contextConfigLocation</literal>. This initialization
+        parameter will represent a path to a Spring XML application context
+        that the <literal>AuthenticationProcessingFilter</literal> will load
+        during startup.</para>
+
+        <para>The <literal>AuthenticationManager</literal> processes each
+        authentication request. If authentication fails, a 403 (forbidden)
+        response will be returned in response to the HTTP request. If
+        authentication is successful, the resulting
+        <literal>Authentication</literal> object will be placed into the
+        <literal>HttpSession</literal> attribute indicated by
+        <literal>HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY</literal>.
+        This becomes the "well-known location" from which the
+        <literal>Authentication</literal> object is later extracted.</para>
+
+        <para>If the authentication event was successful, or authentication
+        was not attempted because the HTTP header did not contain a supported
+        authentication request, the filter chain will continue as normal. The
+        only time the filter chain will be interrupted is if authentication
+        fails and a 403 response is returned, as discussed in the previous
+        paragraph.</para>
+
+        <para>HTTP Basic Authentication is recommended to be used instead of
+        Container Adapters. It can be used in conjunction with HTTP Session
+        Authentication, as demonstrated in the Contacts sample
+        application.</para>
+      </sect2>
+
       <sect2 id="security-ui-well-known">
         <title>Well-Known Location Integration</title>
 
         <para>Once a web application has used either HTTP Session
-        Authentication or a Container Adapter, an
+        Authentication, HTTP Basic Authentication, or a Container Adapter, an
         <literal>Authentication</literal> object will exist in a well-known
         location. The final step in automatically integrating the user
         interface with the backend security interceptor is to extract this
@@ -1597,9 +1655,10 @@ public boolean supports(Class clazz);</programlisting></para>
         <para><itemizedlist>
             <listitem>
               <para><literal>HttpSessionIntegrationFilter</literal> is used
-              with HTTP Session Authentication, or any other approach that
-              populates the <literal>HttpSession</literal> accordingly. It
-              extracts the <literal>Authentication</literal> object from the
+              with HTTP Session Authentication, HTTP Basic Authentication, or
+              any other approach that populates the
+              <literal>HttpSession</literal> accordingly. It extracts the
+              <literal>Authentication</literal> object from the
               <literal>HttpSession</literal> attribute indicated by
               <literal>HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY</literal>.</para>
             </listitem>
@@ -1663,8 +1722,8 @@ public boolean supports(Class clazz);</programlisting></para>
         with end users. Whilst this worked well, it required considerable time
         to support multiple container versions and the configuration itself
         was relatively time-consuming for developers. For this reason the HTTP
-        Session Authentication approach was developed, and is today
-        recommended for most applications.</para>
+        Session Authentication and HTTP Basic Authentication approaches were
+        developed, and are today recommended for most applications.</para>
 
         <para>Container Adapters enable the Acegi Security System for Spring
         to integrate directly with the containers used to host end user
@@ -1789,6 +1848,18 @@ public boolean supports(Class clazz);</programlisting></para>
           <listitem>
             <para><literal>acegi-security-catalina-common.jar</literal></para>
           </listitem>
+
+          <listitem>
+            <para><literal>commons-codec.jar</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>burlap.jar</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>hessian.jar</literal></para>
+          </listitem>
         </itemizedlist>
 
         <para>None of the above JAR files (or
@@ -1851,6 +1922,18 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             <listitem>
               <para><literal>acegi-security-jetty-ext.jar</literal></para>
             </listitem>
+
+            <listitem>
+              <para><literal>commons-codec.jar</literal></para>
+            </listitem>
+
+            <listitem>
+              <para><literal>burlap.jar</literal></para>
+            </listitem>
+
+            <listitem>
+              <para><literal>hessian.jar</literal></para>
+            </listitem>
           </itemizedlist></para>
 
         <para>None of the above JAR files (or
@@ -1904,6 +1987,18 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             <listitem>
               <para><literal>acegi-security-jboss-lib.jar</literal></para>
             </listitem>
+
+            <listitem>
+              <para><literal>commons-codec.jar</literal></para>
+            </listitem>
+
+            <listitem>
+              <para><literal>burlap.jar</literal></para>
+            </listitem>
+
+            <listitem>
+              <para><literal>hessian.jar</literal></para>
+            </listitem>
           </itemizedlist></para>
 
         <para>None of the above JAR files (or
@@ -1953,6 +2048,18 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
             <listitem>
               <para><literal>acegi-security-resin-lib.jar</literal></para>
+            </listitem>
+
+            <listitem>
+              <para><literal>commons-codec.jar</literal></para>
+            </listitem>
+
+            <listitem>
+              <para><literal>burlap.jar</literal></para>
+            </listitem>
+
+            <listitem>
+              <para><literal>hessian.jar</literal></para>
             </listitem>
           </itemizedlist></para>
 
@@ -2066,6 +2173,22 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
       visiting <literal>http://localhost:8080/contacts/secure/super</literal>,
       which will demonstrate access being denied by the
       <literal>SecurityEnforcementFilter</literal>.</para>
+
+      <para>The Contacts sample application also include a
+      <literal>client</literal> directory. Inside you will find a small
+      application that queries the backend business objects using the Hessian
+      and Burlap protocols. This demonstrates how to use the Acegi Security
+      System for Spring for authentication with Spring remoting protocols. To
+      try this client, ensure your servlet container is still running the
+      Contacts sample application, and then execute <literal>client
+      marissa</literal>. This will use the remoting protocols to obtain the
+      list of contacts with the owner specified (in this case
+      <literal>marissa</literal>). Note you will be need to edit
+      <literal>client.properties</literal> to use a different username,
+      password, or target URL. To see that security does indeed work, try
+      running <literal>client scott</literal> before changing
+      <literal>client.properties</literal> to use <literal>scott</literal>'s
+      authentication details.</para>
     </sect1>
 
     <sect1 id="security-become-involved">

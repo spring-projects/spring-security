@@ -1,6 +1,8 @@
 Changes in version 0.5 (2004-xx-xx)
 -----------------------------------
 
+* Added support for HTTP Basic Authentication
+* Added Burlap and Hessian remoting to Contacts sample application
 * AuthenticationProcessingFilter by default finds configuration context using Spring's WebApplicationContextUtils.getWebApplicationContext()
 * AuthenticationProcessingFilter context may optionally be specified with 'contextConfigLocation' param (was previously 'appContextLocation')
 * SecurityEnforcementFilter by default finds configuration context using Spring's WebApplicationContextUtils.getWebApplicationContext()

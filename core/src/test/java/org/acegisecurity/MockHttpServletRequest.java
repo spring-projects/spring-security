@@ -48,7 +48,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
     //~ Instance fields ========================================================
 
     private HttpSession session;
-    private Map map = new HashMap();
+    private Map paramMap = new HashMap();
+    private Map headersMap = new HashMap();
     private Principal principal;
     private String contextPath = "";
     private String queryString = null;
@@ -67,6 +68,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     private MockHttpServletRequest() {
         super();
+    }
+
+    public MockHttpServletRequest(Map headers, Principal principal, HttpSession session) {
+        this.headersMap = headers;
+        this.principal = principal;
+        this.session = session;
     }
 
     //~ Methods ================================================================
@@ -120,7 +127,13 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     public String getHeader(String arg0) {
-        throw new UnsupportedOperationException("mock method not implemented");
+        Object result = headersMap.get(arg0);
+
+        if (result != null) {
+            return (String) headersMap.get(arg0);
+        } else {
+            return null;
+        }
     }
 
     public Enumeration getHeaderNames() {
@@ -152,14 +165,14 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     public void setParameter(String arg0, String value) {
-        map.put(arg0, value);
+        paramMap.put(arg0, value);
     }
 
     public String getParameter(String arg0) {
-        Object result = map.get(arg0);
+        Object result = paramMap.get(arg0);
 
         if (result != null) {
-            return (String) map.get(arg0);
+            return (String) paramMap.get(arg0);
         } else {
             return null;
         }

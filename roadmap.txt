@@ -9,8 +9,6 @@ to the project have some ideas on where they could potentially add value.
 - Extend integration tests to support Resin (Ant startup/shutdown approach 
   needed)
 
-- Extend Spring remoting classes to transparently transport the Context
-
 - Sample application that demonstrates EJB remote method invocation with Acegi
   security system as login module on server side
 
