@@ -1,6 +1,5 @@
 <project>
     <pomVersion>3</pomVersion>
-    <artifactId>acegi-security</artifactId>
     <name>Acegi Security System for Spring</name>
     <groupId>acegi</groupId>
     <currentVersion>0.7-SNAPSHOT</currentVersion>
@@ -251,14 +250,6 @@
         </dependency>
         <dependency>
             <groupId>cas</groupId>
-            <artifactId>cas</artifactId>
-            <version>2.0.12</version>
-            <type>jar</type>
-            <url>http://www.yale.edu/tp/cas</url>
-            <properties/>
-        </dependency>
-        <dependency>
-            <groupId>cas</groupId>
             <artifactId>casclient</artifactId>
             <version>2.0.11</version>
             <type>jar</type>
@@ -268,67 +259,26 @@
             </properties>
         </dependency>
         <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-jmx</artifactId>
-            <version>3.2.1</version>
-            <type>jar</type>
-            <properties/>
-        </dependency>
-        <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-common</artifactId>
-            <version>3.2.3</version>
-            <type>jar</type>
-            <properties/>
-        </dependency>
-        <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jbosssx</artifactId>
-            <version>3.2.3</version>
-            <type>jar</type>
-            <properties/>
-        </dependency>
-        <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>catalina</artifactId>
-            <version>4.1.9</version>
-            <type>jar</type>
-            <properties/>
-        </dependency>
-        <dependency>
-            <groupId>jetty</groupId>
-            <artifactId>org.mortbay.jetty</artifactId>
-            <version>4.2.20</version>
-            <type>jar</type>
-            <properties/>
-        </dependency>
-        <dependency>
-            <groupId>acegi</groupId>
-            <artifactId>resin-extracted</artifactId>
-            <version>unknown</version>
-            <jar>${basedir}/lib/extracted/resin/resin-extracted.jar</jar>
-            <type>jar</type>
-            <properties/>
-        </dependency>
-        <dependency>
             <groupId>aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
             <version>1.2</version>
             <type>jar</type>
-            <url>http://eclipse.org/aspectj/</url>
-            <properties/>
+            <url>http://www.eclipse.org/aspectj</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
         </dependency>
     </dependencies>
     <build>
-        <sourceDirectory>${basedir}/src</sourceDirectory>
-        <unitTestSourceDirectory>${basedir}/test</unitTestSourceDirectory>
+        <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
+        <unitTestSourceDirectory>${basedir}/src/test/java</unitTestSourceDirectory>
         <unitTest>
             <includes>
                 <include>**/*Tests.java</include>
             </includes>
             <resources>
                 <resource>
-                    <directory>${basedir}/test</directory>
+                    <directory>${basedir}/src/test/resources</directory>
                     <includes>
                         <include>**/**</include>
                     </includes>
@@ -341,7 +291,7 @@
         </unitTest>
         <resources>
             <resource>
-                <directory>${basedir}/src/conf</directory>
+                <directory>${basedir}/src/main/resources</directory>
                 <includes>
                     <include>**/**</include>
                 </includes>
