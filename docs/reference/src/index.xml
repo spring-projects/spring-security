@@ -885,7 +885,6 @@
 
         <para><programlisting>&lt;bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
   &lt;property name="authenticationDao"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
-  &lt;property name="refreshTokenInterval"&gt;&lt;value&gt;60000&lt;/value&gt;&lt;/property&gt;
   &lt;property name="saltSource"&gt;&lt;ref bean="saltSource"/&gt;&lt;/property&gt;
   &lt;property name="passwordEncoder"&gt;&lt;ref bean="passwordEncoder"/&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
