@@ -232,6 +232,12 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         // Create acl_object_identity record if required
         createAclObjectIdentityIfRequired(basicAclEntry);
 
+        // Only continue if a recipient is specifed (null recipient indicates
+        // just wanted to ensure the acl_object_identity was created)
+        if (basicAclEntry.getRecipient() == null) {
+        	return;
+        }
+        
         // Retrieve acl_object_identity record details
         AclDetailsHolder aclDetailsHolder = lookupAclDetailsHolder(basicAclEntry
                 .getAclObjectIdentity());
