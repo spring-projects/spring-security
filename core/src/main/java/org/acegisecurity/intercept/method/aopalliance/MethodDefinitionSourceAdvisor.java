@@ -90,14 +90,16 @@ public class MethodDefinitionSourceAdvisor
      * configuration attributes for <code>MethodInvocation</code>s.
      * </p>
      */
-    private class InternalMethodInvocation implements MethodInvocation {
+    class InternalMethodInvocation implements MethodInvocation {
         Method method;
 
         public InternalMethodInvocation(Method method) {
             this.method = method;
         }
 
-        private InternalMethodInvocation() {}
+        protected InternalMethodInvocation() {
+            throw new UnsupportedOperationException();
+        }
 
         public Object[] getArguments() {
             throw new UnsupportedOperationException();
