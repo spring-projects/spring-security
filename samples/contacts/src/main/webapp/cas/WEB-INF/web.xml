@@ -40,81 +40,17 @@
         <param-value>http://localhost:8433/cas/proxy</param-value>
     </context-param>
 
-   <filter>
-        <filter-name>Acegi Channel Processing Filter</filter-name>
-        <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
-        <init-param>
-            <param-name>targetClass</param-name>
-            <param-value>net.sf.acegisecurity.securechannel.ChannelProcessingFilter</param-value>
-        </init-param>
-    </filter>
-
-	<!-- Responds to HTTP POSTs to j_acegi_cas_security_check URI -->
     <filter>
-        <filter-name>Acegi CAS Processing Filter</filter-name>
+        <filter-name>Acegi Filter Chain Proxy</filter-name>
         <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
         <init-param>
             <param-name>targetClass</param-name>
-            <param-value>net.sf.acegisecurity.ui.cas.CasProcessingFilter</param-value>
+            <param-value>net.sf.acegisecurity.util.FilterChainProxy</param-value>
         </init-param>
     </filter>
 
-	<!-- Responds to HTTP requests with a BASIC (RFC 1945) authentication header -->
-    <filter>
-        <filter-name>Acegi HTTP BASIC Authorization Filter</filter-name>
-        <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
-        <init-param>
-            <param-name>targetClass</param-name>
-            <param-value>net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter</param-value>
-        </init-param>
-    </filter>
-
-	<!-- Obtains Authentication from HttpSession attribute, puts it into
-		 ContextHolder for request duration, proceeds with request, then
-		 copies Authentication from ContextHolder back into HttpSession -->
-    <filter>
-        <filter-name>Acegi Security System for Spring HttpSession Integration Filter</filter-name>
-        <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
-        <init-param>
-            <param-name>targetClass</param-name>
-            <param-value>net.sf.acegisecurity.ui.webapp.HttpSessionIntegrationFilter</param-value>
-        </init-param>
-    </filter>
-
-	<!-- Provides HTTP request URL security, and also catches
-		 AcegiSecurityExceptions and sends 403 errors (if access denied)
-		 or commences an authentication mechanism as appropriate -->
-    <filter>
-        <filter-name>Acegi HTTP Request Security Filter</filter-name>
-        <filter-class>net.sf.acegisecurity.util.FilterToBeanProxy</filter-class>
-        <init-param>
-            <param-name>targetClass</param-name>
-            <param-value>net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter</param-value>
-        </init-param>
-    </filter>
-	
     <filter-mapping>
-      <filter-name>Acegi Channel Processing Filter</filter-name>
-      <url-pattern>/*</url-pattern>
-    </filter-mapping>
-	
-    <filter-mapping>
-      <filter-name>Acegi CAS Processing Filter</filter-name>
-      <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-      <filter-name>Acegi HTTP BASIC Authorization Filter</filter-name>
-      <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-      <filter-name>Acegi Security System for Spring HttpSession Integration Filter</filter-name>
-      <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    
-    <filter-mapping>
-      <filter-name>Acegi HTTP Request Security Filter</filter-name>
+      <filter-name>Acegi Filter Chain Proxy</filter-name>
       <url-pattern>/*</url-pattern>
     </filter-mapping>
 
@@ -127,11 +63,9 @@
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
 
-	<!--
     <listener>
 		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
 	</listener>
-	 -->
 	
   <!--
 	- Provides core MVC application controller. See contacts-servlet.xml.

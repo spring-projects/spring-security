@@ -12,6 +12,20 @@
 
 <beans>
 
+   <!-- ======================== FILTER CHAIN ======================= -->
+
+	<!--  if you wish to use channel security, add "channelProcessingFilter," in front
+	      of "authenticationProcessingFilter" in the list below -->
+	<bean id="filterChainProxy" class="net.sf.acegisecurity.util.FilterChainProxy">
+      <property name="filterInvocationDefinitionSource">
+         <value>
+		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+		    PATTERN_TYPE_APACHE_ANT
+            /**=authenticationProcessingFilter,basicProcessingFilter,httpSessionIntegrationFilter,securityEnforcementFilter
+         </value>
+      </property>
+    </bean>
+
    <!-- ======================== AUTHENTICATION ======================= -->
 
    <bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
