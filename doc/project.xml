@@ -14,15 +14,8 @@
     <dependency>
       <groupId>maven-plugins</groupId>
       <artifactId>maven-sdocbook-plugin</artifactId>
-      <version>1.4-SNAPSHOT</version>
+      <version>1.4</version>
       <type>plugin</type>
-    </dependency>
-    <dependency>
-      <groupId>docbook</groupId>
-      <artifactId>docbook-xsl</artifactId>
-      <version>1.66.1</version>
-      <type>zip</type>
-      <url>http://docbook.sourceforge.net</url>
     </dependency>
   </dependencies>
   <reports>
