@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+
+<!--
+  Build file for the "contacts" sample application.
+  $Id$
+-->
+
+<project name="minimal" basedir="." default="usage">
+
+	<property file="build.properties"/>
+	<property file="project.properties"/>
+
+	<path id="qa-portalpath">
+		<fileset dir="${dist.lib.dir}">
+			<include name="acegi-security.jar"/>
+		</fileset>
+		<fileset dir="${lib.dir}">
+			<include name="**/**.jar"/>
+		</fileset>
+	</path>
+
+    <path id="jalopy-classpath">
+        <fileset dir="${lib.dir}/jalopy">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+	<target name="usage">
+		<echo message=""/>
+		<echo message="Contacts sample application build file"/>
+		<echo message="*** Make sure you've copied the required JAR files to the lib directory."/>
+		<echo message="*** See lib/readme.txt for more information."/>
+		<echo message="------------------------------------------------------"/>
+		<echo message=""/>
+		<echo message="Available targets are:"/>
+		<echo message=""/>
+		<echo message="clean    --> Clean output dirs"/>
+		<echo message="build    --> Compile main Java sources and copy libraries"/>
+		<echo message="warfile  --> Create WAR deployment units"/>
+		<echo message="javadoc  --> Create API documentation"/>
+		<echo message=""/>
+	</target>
+
+
+	<target name="clean" description="Clean output dirs (build, dist)">
+		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
+		<delete dir="${war.dir}/WEB-INF/lib"/>
+	</target>
+
+
+	<target name="build" description="Compile main source tree java files into class files">
+		<mkdir dir="${build.dir}"/>
+
+		<javac destdir="${build.dir}" target="1.3" debug="true" deprecation="false"
+			  optimize="false" failonerror="true">
+			<src path="${src.dir}"/>
+			<classpath refid="qa-portalpath"/>
+		</javac>
+		
+		<copy todir="${build.dir}">
+			<fileset dir="${src.dir}">
+				<include name="*.properties"/>
+			</fileset>
+		</copy>
+	</target>
+
+    <target name="format" description="Formats all project source code">
+        <taskdef name="jalopy" classname="de.hunsicker.jalopy.plugin.ant.AntPlugin">
+            <classpath refid="jalopy-classpath"/>
+        </taskdef>
+
+        <jalopy fileformat="unix"
+            convention="${jalopy.xml}"
+            history="file"
+            historymethod="adler32"
+            loglevel="error"
+            threads="2"
+            classpathref="qa-portalpath">
+            <fileset dir="${src.dir}">
+                <include name="**/*.java"/>
+            </fileset>
+        </jalopy>
+   </target>
+
+   <target name="warfile" depends="build" description="Build the web application archives">
+		<mkdir dir="${dist.dir}"/>
+		
+		<!-- Temporary staging directory for libs -->
+		<delete dir="${war.dir}/WEB-INF/lib"/>
+		<mkdir dir="${war.dir}/WEB-INF/lib"/>
+		
+     	<!-- Copy required libs into temporary staging directory -->
+     	<copy todir="${war.dir}/WEB-INF/lib">
+			<fileset dir="${lib.dir}/jakarta-taglibs">
+				<include name="standard.jar"/>
+			</fileset>
+			<fileset dir="${lib.dir}/j2ee">
+				<include name="jstl.jar"/>
+			</fileset>
+     	</copy>
+     
+		<war warfile="${dist.dir}/${name}.war" webxml="${war.dir}/WEB-INF/web.xml">
+			<!-- Include the JSPs and other documents -->
+			<fileset dir="war" excludes="WEB-INF/**"/>
+			
+			<!-- Bring in Spring-specific XML configuration files -->
+			<webinf dir="${war.dir}/WEB-INF">
+				<!-- We separately include these -->
+				<exclude name="web.xml"/>
+				<exclude name="lib/**"/>
+			</webinf>
+			
+			<!-- Include the compiled classes -->
+			<classes dir="${build.dir}"/>
+
+			<!-- Include the temporary staging directory for libs -->
+  	 		<lib dir = "${war.dir}/WEB-INF/lib"/>
+		</war>
+		
+		<!-- Remove temporary staging directory -->
+		<delete dir="${war.dir}/WEB-INF/lib"/>
+		
+   </target>
+
+   <target name="javadoc" description="Generate Javadocs.">
+		<mkdir dir="${javadocs.dir}"/>
+
+		<javadoc sourcepath="src" destdir="${javadocs.dir}" windowtitle="Contact Sample Application"
+			defaultexcludes="yes"	author="true" version="true" use="true">
+			<doctitle><![CDATA[<h1>Acegi Security System for Spring Contacts Sample</h1>]]></doctitle>
+			<bottom><![CDATA[<A HREF="http://acegisecurity.sourceforge.net">Acegi Security System for Spring Project]]></bottom>
+			<classpath refid="qa-portalpath"/>
+			<packageset dir="${src.dir}">
+				<include name="sample/contact/**"/>
+			</packageset>
+		</javadoc>
+   </target>
+
+   <target name="release" depends="clean,warfile,javadoc" description="Builds a clean release file"/>
+
+</project>

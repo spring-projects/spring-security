@@ -1,0 +1,5 @@
+dist
+target
+build.properties
+*.log
+

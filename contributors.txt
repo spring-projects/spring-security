@@ -1,0 +1,15 @@
+===============================================================================
+              ACEGI SECURITY SYSTEM FOR SPRING - CONTRIBUTORS
+===============================================================================
+
+The following people and organisations are gratefully acknowledged for their
+contributions to the Acegi Security System for Spring project:
+
+* Ben Alex of Acegi Technology Pty Limited (http://www.acegi.com.au) donated
+  the original code and currently maintains the project.
+
+* Cameron Braid added support for configuration using Commons Attributes.
+
+                                 
+
+$Id$

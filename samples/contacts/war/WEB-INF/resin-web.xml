@@ -1,0 +1,12 @@
+<!--
+  - $Id$
+  -->
+<web-app>
+      <authenticator>
+        <type>net.sf.acegisecurity.adapters.resin.ResinSpringAuthenticator</type>
+        <init>
+          <app-context-location>WEB-INF/resin-acegisecurity.xml</app-context-location>
+           <key>my_password</key>
+        </init>
+      </authenticator>
+</web-app>

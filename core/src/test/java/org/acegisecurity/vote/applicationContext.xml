@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+ * The Acegi Security System for Spring is published under the terms
+ * of the Apache Software License.
+ * $Id$
+-->
+
+<beans>
+
+	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~~~~ -->
+
+	<!-- An access decision voter that reads ROLE_* configuaration settings -->
+	<bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
+
+	<!-- An access decision voter that reads XXXX configuaration settings -->
+	<bean id="xVoter" class="net.sf.acegisecurity.vote.XVoter"/>
+
+	<!-- An access decision voter that reads YYYY configuaration settings -->
+	<bean id="yVoter" class="net.sf.acegisecurity.vote.YVoter"/>
+
+	<bean id="unanimousBased" class="net.sf.acegisecurity.vote.UnanimousBased">
+   		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
+		<property name="decisionVoters">
+		  <list>
+		    <ref bean="roleVoter"/>
+		    <ref bean="xVoter"/>
+		    <ref bean="yVoter"/>
+		  </list>
+		</property>
+	</bean>
+
+	<bean id="affirmativeBased" class="net.sf.acegisecurity.vote.AffirmativeBased">
+   		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
+		<property name="decisionVoters">
+		  <list>
+		    <ref bean="roleVoter"/>
+		    <ref bean="xVoter"/>
+		    <ref bean="yVoter"/>
+		  </list>
+		</property>
+	</bean>
+
+	<bean id="consensusBased" class="net.sf.acegisecurity.vote.ConsensusBased">
+   		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
+  		<property name="allowIfEqualGrantedDeniedDecisions"><value>true</value></property>
+		<property name="decisionVoters">
+		  <list>
+		    <ref bean="roleVoter"/>
+		    <ref bean="xVoter"/>
+		    <ref bean="yVoter"/>
+		  </list>
+		</property>
+	</bean>
+</beans>

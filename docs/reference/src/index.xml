@@ -1,0 +1,1509 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"../lib/docbook-dtd/docbookx.dtd">
+<book>
+  <bookinfo>
+    <title>Acegi Security System for Spring</title>
+
+    <subtitle>Reference Documentation</subtitle>
+
+    <releaseinfo>0.3</releaseinfo>
+
+    <authorgroup>
+      <author>
+        <firstname>Ben</firstname>
+
+        <surname>Alex</surname>
+      </author>
+    </authorgroup>
+  </bookinfo>
+
+  <toc></toc>
+
+  <preface id="preface">
+    <title>Preface</title>
+
+    <para>This document provides a reference guide to the Acegi Security
+    System for Spring, which is a series of classes that deliver
+    authentication and authorization services within the Spring Framework.
+    Whilst the Acegi Security System for Spring is not officially part of
+    Spring, it is hoped this implementation will further discussion concerning
+    the implementation of security capabilities within Spring itself.</para>
+
+    <para>I would like to acknowledge this reference was prepared using the
+    DocBook configuration included with the Spring Framework. The Spring team
+    in turn acknowledge Chris Bauer (Hibernate) for his assistance with their
+    DocBook.</para>
+  </preface>
+
+  <chapter id="security">
+    <title>Security</title>
+
+    <sect1 id="security-introduction">
+      <title>Introduction</title>
+
+      <para>The Acegi Security System for Spring provides authentication and
+      authorization capabilities for Spring-powered projects, with full
+      integration with popular web containers. The security architecture was
+      designed from the ground up using "The Spring Way" of development, which
+      includes using bean contexts, interceptors and interface-driven
+      programming. As a consequence, the Acegi Security System for Spring is
+      useful out-of-the-box for those seeking to secure their Spring-based
+      applications, and can be easily adapted to complex customized
+      requirements.</para>
+
+      <para>Security involves two distinct operations, authentication and
+      authorization. The former relates to resolving whether or not a caller
+      is who they claim to be. Authorization on the other hand relates to
+      determining whether or not an authenticated caller is permitted to
+      perform a given operation.</para>
+
+      <para>Throughout the Acegi Security System for Spring, the user, system
+      or agent that needs to be authenticated is referred to as a "principal".
+      The security architecture does not have a notion of roles or groups,
+      which you may be familiar with from other security
+      implementations.</para>
+    </sect1>
+
+    <sect1 id="security-request-contexts">
+      <title>Request Contexts</title>
+
+      <sect2 id="security-contexts">
+        <title>Contexts</title>
+
+        <para>Many applications require a way of sharing objects between
+        classes, but without resorting to passing them in method signatures.
+        This is commonly achieved by using a <literal>ThreadLocal</literal>.
+        The Acegi Security System for Spring uses
+        <literal>ThreadLocal</literal> functionality and introduces the
+        concept of "request contexts".</para>
+
+        <para>By placing an object into a request context, that object becomes
+        available to any other object on the current thread of execution. The
+        request context is not passed around as a method parameter, but is
+        held in a <literal>ThreadLocal</literal>. The Acegi Security System
+        for Spring uses the request context to pass around the authentication
+        request and response.</para>
+
+        <para>A request context is a concrete implementation of the
+        <literal>Context</literal> interface, which exposes a single
+        method:</para>
+
+        <programlisting>public void validate() throws ContextInvalidException;</programlisting>
+
+        <para>This <literal>validate()</literal> method is called to confirm
+        the <literal>Context</literal> is properly setup. An implementation
+        will typically use this method to check that the objects it holds are
+        properly setup.</para>
+
+        <para>The <literal>ContextHolder</literal> class makes the
+        <literal>Context</literal> available to the current thread of
+        execution using a <literal>ThreadLocal</literal>. A
+        <literal>ContextInterceptor</literal> is also provided, which is
+        intended to be chained into the bean context using
+        <literal>ProxyFactoryBean</literal>. The
+        <literal>ContextInterceptor</literal> simply calls
+        <literal>Context.validate()</literal>, which guarantees to business
+        methods that a valid <literal>Context</literal> is available from the
+        <literal>ContextHolder</literal>.</para>
+      </sect2>
+
+      <sect2 id="security-contexts-secure-contexts">
+        <title>Secure Contexts</title>
+
+        <para>The Acegi Security System for Spring requires the
+        <literal>ContextHolder</literal> to contain a request context that
+        implements the <literal>SecureContext</literal> interface. An
+        implementation is provided named <literal>SecureContextImpl</literal>.
+        The <literal>SecureContext</literal> simply extends the
+        <literal>Context</literal> discussed above and adds a holder and
+        validation for an <literal>Authentication</literal> object.</para>
+      </sect2>
+
+      <sect2 id="security-contexts-custom-contexts">
+        <title>Custom Contexts</title>
+
+        <para>Developers can create their own request context classes to store
+        application-specific objects. Such request context classes will need
+        to implement the <literal>Context</literal> interface. If the Acegi
+        Security System for Spring is to be used, developers must ensure any
+        custom request contexts implement the <literal>SecureContext</literal>
+        interface.</para>
+      </sect2>
+
+      <sect2 id="security-contexts-future-work">
+        <title>Future Work</title>
+
+        <para>Over time it is hoped that the Spring remoting classes can be
+        extended to support propagation of the <literal>Context</literal>
+        between <literal>ContextHolder</literal>s on the client and
+        server.</para>
+      </sect2>
+    </sect1>
+
+    <sect1 id="security-interception">
+      <title>Security Interception</title>
+
+      <sect2 id="security-interception-configuration">
+        <title>Configuration</title>
+
+        <para>The security architecture is implemented by placing a properly
+        configured <literal>SecurityInterceptor</literal> into the bean
+        context, and then chaining that <literal>SecurityInterceptor</literal>
+        into a business object. This chaining is accomplished using Spring’s
+        <literal>ProxyFactoryBean</literal>, as commonly used by many other
+        parts of Spring (refer to the security test cases and sample
+        application for examples). The <literal>SecurityInterceptor</literal>
+        is configured as follows:</para>
+
+        <para><programlisting>&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.SecurityInterceptor"&gt;
+  &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;true&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+  &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
+  &lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
+  &lt;property name="methodDefinitionSource"&gt;
+    &lt;value&gt;
+      net.sf.acegisecurity.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
+      net.sf.acegisecurity.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
+    &lt;/value&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>As shown above, the <literal>SecurityInterceptor</literal> is
+        configured with a reference to an
+        <literal>AuthenticationManager</literal>,
+        <literal>AccessDecisionManager</literal> and
+        <literal>RunAsManager</literal>, which are each discussed in separate
+        sections below. The <literal>SecurityInterceptor</literal> is also
+        configured with "configuration attributes" that apply to different
+        method signatures. A configuration attribute is simply a
+        <literal>ConfigAttribute</literal> instance that has special meaning
+        to an <literal>AccessDecisionManager</literal> and/or
+        <literal>RunAsManager</literal>.</para>
+
+        <para>The <literal>SecurityInterceptor</literal> can be configured
+        with configuration attributes in three ways. The first is via a
+        property editor and the bean context, which is shown above. The second
+        is via defining the configuration attributes in your source code using
+        Commons Attributes. The third is via writing your own
+        <literal>MethodDefinitionSource</literal>, although this is beyond the
+        scope of this document. Irrespective of the approach used, the
+        <literal>MethodDefinitionSource</literal> is responsible for returning
+        a <literal>ConfigAttributeDefinition</literal> object that contains
+        all of the configuration attributes associated with a single secure
+        method.</para>
+
+        <para>If using the property editor approach (as shown above), commas
+        are used to delimit the different configuration attributes that apply
+        to a given method pattern. Each configuration attribute is assigned
+        into its own <literal>SecurityConfig</literal> object.
+        <literal>SecurityConfig</literal> is a concrete implementation of
+        <literal>ConfigAttribute</literal>, and simply stores the
+        configuration attribute as a <literal>String</literal>.</para>
+
+        <para>If using the Commons Attributes approach, your bean context will
+        be configured differently:</para>
+
+        <para><programlisting>&lt;bean id="attributes" class="org.springframework.metadata.commons.CommonsAttributes"/&gt;
+&lt;bean id="methodDefinitionSource" class="net.sf.acegisecurity.MethodDefinitionAttributes"&gt;
+  &lt;property name="attributes"&gt;&lt;ref local="attributes"/&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.SecurityInterceptor"&gt;
+  &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+  &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
+  &lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
+  &lt;property name="methodDefinitionSource"&gt;&lt;ref bean="methodDefinitionSource"/&gt;&lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>In addition, your source code will contain Commons Attributes
+        tags that refer to a concrete implementation of
+        <literal>ConfigAttribute</literal>. The following example uses the
+        <literal>SecurityConfig</literal> implementation to represent the
+        configuration attributes, and results in the same security
+        configuration as provided by the property editor approach
+        above:</para>
+
+        <para><programlisting>public interface BankManager {
+
+    /**
+     * @@SecurityConfig("ROLE_SUPERVISOR")
+     * @@SecurityConfig("RUN_AS_SERVER")
+     */
+    public void deleteSomething(int id);
+
+    /**
+     * @@SecurityConfig("ROLE_SUPERVISOR")
+     * @@SecurityConfig("RUN_AS_SERVER")
+     */
+    public void deleteAnother(int id);
+
+    /**
+     * @@SecurityConfig("ROLE_TELLER")
+     * @@SecurityConfig("ROLE_SUPERVISOR")
+     * @@SecurityConfig("BANKSECURITY_CUSTOMER")
+     * @@SecurityConfig("RUN_AS_SERVER")
+     */
+    public float getBalance(int id);
+}</programlisting></para>
+
+        <para>You might have noticed the
+        <literal>validateConfigAttributes</literal> property in the above
+        <literal>SecurityInterceptor</literal> examples. When set to
+        <literal>true</literal> (the default), at startup time the
+        <literal>SecurityInterceptor</literal> will evaluate if the provided
+        configuration attributes are valid. It does this by checking each
+        configuration attribute can be processed by either the
+        <literal>AccessDecisionManager</literal> or the
+        <literal>RunAsManager</literal>. If neither of these can process a
+        given configuration attribute, an exception is thrown. If using the
+        Commons Attributes method of configuration, you should set
+        <literal>validateConfigAttributes</literal> to
+        <literal>false</literal>.</para>
+      </sect2>
+
+      <sect2 id="security-interception-runtime-processing">
+        <title>Runtime Processing</title>
+
+        <para>At runtime the <literal>SecurityInterceptor</literal> has three
+        basic tasks: authenticate, authorize and perform any run-as
+        authentication replacement. It assesses the method pattern being
+        invoked to determine whether or not it is secure. A secure method
+        matches a method pattern defined with configuration attributes in the
+        bean context, whilst a public method is not defined in the bean
+        context.</para>
+
+        <para>If a public method is called,
+        <literal>SecurityInterceptor</literal> will make no effort to
+        authenticate, authorize or perform any run-as authentication
+        replacement for the request. However, should there be an
+        <literal>Authentication</literal> object in the
+        <literal>ContextHolder</literal>, it will have its authenticated
+        property set to <literal>false</literal>. Once this is handled,
+        invocation of the public method will proceed as normal.</para>
+
+        <para>If a secure method is called,
+        <literal>SecurityInterceptor</literal> will need to extract an
+        <literal>Authentication</literal> object from the request context. As
+        discussed above, the <literal>SecurityInterceptor</literal> requires
+        the <literal>SecureContext</literal> interface be implemented on the
+        object contained in the <literal>ContextHolder</literal>. Once the
+        <literal>Authentication</literal> object is extracted from the
+        <literal>SecureContext</literal>, it will be passed to the
+        <literal>SecurityInterceptor</literal>’s
+        <literal>AuthenticationManager</literal>.</para>
+
+        <para>The <literal>AuthenticationManager</literal> will perform
+        authentication, throwing an <literal>AuthenticationException</literal>
+        if there is a problem. If successful, the
+        <literal>AuthenticationManager</literal> will return a populated
+        <literal>Authentication</literal> object, including the authorities
+        granted to the principal. <literal>SecurityInterceptor</literal> will
+        then call its <literal>AccessDecisionManager</literal>.</para>
+
+        <para>When the <literal>AccessDecisionManager</literal> is invoked by
+        the <literal>SecurityInterceptor</literal>, it will be passed
+        important information it may require to make an authorization
+        decision. This includes details of the secure method that is being
+        invoked, the authenticated principal, and the
+        <literal>ConfigAttributeDefinition</literal> (the collection of
+        configuration attributes associated with the secure method). If
+        authorization fails, the <literal>AccessDecisionManager</literal> will
+        throw an <literal>AccessDeniedException</literal>. If successful, the
+        <literal>SecurityInterceptor</literal> will then call the
+        <literal>RunAsManager</literal>.</para>
+
+        <para>Like the <literal>AccessDecisionManager</literal>, the
+        <literal>RunAsManager</literal> is called with details of the secure
+        method being invoked, the authenticated principal, and the
+        <literal>ConfigAttributeDefinition</literal>. The
+        <literal>RunAsManager</literal> can then choose to return a
+        replacement <literal>Authentication</literal> object that should be
+        used for the request. If a replacement
+        <literal>Authentication</literal> object is returned, the
+        <literal>SecurityInterceptor</literal> will update the
+        <literal>ContextHolder</literal> for the duration of the method
+        invocation, returning to the original
+        <literal>Authentication</literal> object after the method has been
+        invoked.</para>
+      </sect2>
+
+      <sect2>
+        <title>Putting it into Context</title>
+
+        <para>The above briefly outlines that the
+        <literal>AuthenticationManager</literal>,
+        <literal>AccessDecisionManager</literal> and
+        <literal>RunAsManager</literal> perform the bulk of the security
+        decision making. The <literal>SecurityInterceptor</literal> simply
+        coordinates the method invocation and stores the configuration
+        attributes that are relevant to different methods. It also coordinates
+        the temporary replacement of the <literal>Authentication</literal>
+        object as a consequence of <literal>RunAsManager</literal> responses.
+        The way <literal>AuthenticationManager</literal>,
+        <literal>AccessDecisionManager</literal> and
+        <literal>RunAsManager</literal> operate is discussed in detail
+        below.</para>
+      </sect2>
+    </sect1>
+
+    <sect1 id="security-authentication">
+      <title>Authentication</title>
+
+      <sect2 id="security-authentication-requests">
+        <title>Authentication Requests</title>
+
+        <para>Authentication requires a way for client code to present its
+        security identification to the Acegi Security System for Spring. This
+        is the role of the <literal>Authentication</literal> interface. The
+        <literal>Authentication</literal> interface holds three important
+        objects: the principal (the identity of the caller), the credentials
+        (the proof of the identity of the caller, such as a password), and the
+        authorities that have been granted to the principal. The principal and
+        its credentials are populated by the client code, whilst the granted
+        authorities are populated by the
+        <literal>AuthenticationManager</literal>. The Acegi Security System
+        for Spring includes several concrete Authentication
+        implementations:</para>
+
+        <itemizedlist spacing="compact">
+          <listitem>
+            <para><literal>UsernamePasswordAuthenticationToken</literal>
+            allows a username and password to be presented as the principal
+            and credentials respectively.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>TestingAuthenticationToken</literal> facilitates
+            unit testing by automatically being considered an authenticated
+            object by its associated
+            <literal>AuthenticationProvider</literal>.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>RunAsUserToken</literal> is used by the default
+            run-as authentication replacement implementation. This is
+            discussed further in the Run-As Authentication Replacement
+            section.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>PrincipalAcegiUserToken</literal> and
+            <literal>JettyAcegiUserToken</literal> implement
+            <literal>AuthByAdapter</literal> (a subclass of
+            <literal>Authentication</literal>) and are used whenever
+            authentication is completed by Acegi Security System for Spring
+            container adapters. This is discussed further in the Container
+            Adapters section.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>The authorities granted to a principal are represented by the
+        <literal>GrantedAuthority</literal> interface. The
+        <literal>GrantedAuthority</literal> interface is discussed at length
+        in the Authorization section.</para>
+      </sect2>
+
+      <sect2 id="security-authentication-manager">
+        <title>Authentication Manager</title>
+
+        <para>As discussed in the Security Interception section, the
+        <literal>SecurityInterceptor</literal> extracts the
+        <literal>Authentication</literal> object from the
+        <literal>SecureContext</literal>. This is then passed to an
+        <literal>AuthenticationManager</literal>. The
+        <literal>AuthenticationManager</literal> interface is very
+        simple:</para>
+
+        <programlisting>public Authentication authenticate(Authentication authentication) throws AuthenticationException;</programlisting>
+
+        <para>Implementations of <literal>AuthenticationManager</literal> are
+        required to throw an <literal>AuthenticationException</literal> should
+        authentication fail, or return a fully populated
+        <literal>Authentication</literal> object. In particular, the returned
+        <literal>Authentication</literal> object should contain an array of
+        <literal>GrantedAuthority</literal> objects. The
+        <literal>SecurityInterceptor</literal> places the populated
+        <literal>Authentication</literal> object back in the
+        <literal>SecureContext</literal>, overwriting the original
+        <literal>Authentication</literal> object.</para>
+
+        <para>The <literal>AuthenticationException</literal> has a number of
+        subclasses. The most important are
+        <literal>BadCredentialsException</literal> (an incorrect principal or
+        credentials), <literal>DisabledException</literal> and
+        <literal>LockedException</literal>. The latter two exceptions indicate
+        the principal was found, but the credentials were not checked and
+        authentication is denied. An
+        <literal>AuthenticationServiceException</literal> is also provided,
+        which indicates the authentication system could not process the
+        request (eg a database was unavailable).</para>
+      </sect2>
+
+      <sect2>
+        <title>Provider-Based Authentication</title>
+
+        <para>Whilst the basic <literal>Authentication</literal> and
+        <literal>AuthenticationManager</literal> interfaces enable users to
+        develop their own authentication systems, users should consider using
+        the provider-based authentication packages provided in the Acegi
+        Security System for Spring. The key class,
+        <literal>ProviderManager</literal>, is configured via the bean context
+        with a list of <literal>AuthenticationProvider</literal>s:</para>
+
+        <para><programlisting>&lt;bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager"&gt;
+  &lt;property name="providers"&gt;
+    &lt;list&gt;
+      &lt;ref bean="daoAuthenticationProvider"/&gt;
+    &lt;/list&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para><literal>ProviderManager</literal> calls a series of registered
+        <literal>AuthenticationProvider</literal> implementations, until one
+        is found that indicates it is able to authenticate a given
+        <literal>Authentication</literal> class. When the first compatible
+        <literal>AuthenticationProvider</literal> is located, it is passed the
+        authentication request. The <literal>AuthenticationProvider</literal>
+        will then either throw an <literal>AuthenticationException</literal>
+        or return a fully populated <literal>Authentication</literal>
+        object.</para>
+
+        <para>Note the <literal>ProviderManager</literal> may throw a
+        <literal>ProviderNotFoundException</literal> (subclass of
+        <literal>AuthenticationException</literal>) if it none of the
+        registered <literal>AuthenticationProviders</literal> can validate the
+        <literal>Authentication</literal> object.</para>
+
+        <para>Several <literal>AuthenticationProvider</literal>
+        implementations are provided with the Acegi Security System for
+        Spring:</para>
+
+        <para><itemizedlist spacing="compact">
+            <listitem>
+              <para><literal>TestingAuthenticationProvider</literal> is able
+              to authenticate a <literal>TestingAuthenticationToken</literal>.
+              The limit of its authentication is simply to treat whatever is
+              contained in the <literal>TestingAuthenticationToken</literal>
+              as valid. This makes it ideal for use during unit testing, as
+              you can create an <literal>Authentication</literal> object with
+              precisely the <literal>GrantedAuthority</literal> objects
+              required for calling a given method.</para>
+            </listitem>
+
+            <listitem>
+              <para><literal>DaoAuthenticationProvider</literal> is able to
+              authenticate a
+              <literal>UsernamePasswordAuthenticationToken</literal> by
+              accessing an authentication respository via a data access
+              object. This is discussed further below.</para>
+            </listitem>
+
+            <listitem>
+              <para><literal>RunAsImplAuthenticationToken</literal> is able to
+              authenticate a <literal>RunAsUserToken</literal>. This is
+              discussed further in the Run-As Authentication Replacement
+              section.</para>
+            </listitem>
+
+            <listitem>
+              <para><literal>AuthByAdapterProvider</literal> is able to
+              authenticate any <literal>AuthByAdapter</literal> (a subclass of
+              <literal>Authentication</literal> used with container adapters).
+              This is discussed further in the Container Adapters
+              section.</para>
+            </listitem>
+          </itemizedlist></para>
+      </sect2>
+
+      <sect2>
+        <title>Data Access Object Authentication Provider</title>
+
+        <para>The Acegi Security System for Spring includes a
+        production-quality <literal>AuthenticationProvider</literal>
+        implementation called <literal>DaoAuthenticationProvider</literal>.
+        This authentication provider is able to authenticate a
+        <literal>UsernamePasswordAuthenticationToken</literal> by obtaining
+        authentication details from a data access object configured at bean
+        creation time:</para>
+
+        <para><programlisting>&lt;bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
+  &lt;property name="authenticationDao"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
+  &lt;property name="ignorePasswordCase"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="ignoreUsernameCase"&gt;&lt;value&gt;true&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>By default the <literal>DaoAuthenticationProvider</literal> does
+        not require an exact match on usernames, but it does require an exact
+        match on passwords. This behavior can be configured with the optional
+        properties shown above.</para>
+
+        <para>For a class to be able to provide the
+        <literal>DaoAuthenticationProvider</literal> with access to an
+        authentication repository, it must implement the
+        <literal>AuthenticationDao</literal> interface:</para>
+
+        <para><programlisting>public User loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException;</programlisting></para>
+
+        <para>The <literal>User</literal> object holds basic information such
+        as the username, password, granted authorities and whether the user is
+        enabled or disabled.</para>
+
+        <para>Given <literal>AuthenticationDao</literal> is so simple to
+        implement, it should be easy for users to retrieve authentication
+        information using a persistence strategy of their choice.</para>
+
+        <para>A design decision was made not to support account locking in the
+        <literal>DaoAuthenticationProvider</literal>, as doing so would have
+        increased the complexity of the <literal>AuthenticationDao</literal>
+        interface. Such functionality could be easily provided in a new
+        <literal>AuthenticationManager</literal> or
+        <literal>AuthenticationProvider</literal> implementation.</para>
+      </sect2>
+
+      <sect2>
+        <title>In-Memory Authentication</title>
+
+        <para>Whilst it is easy to use the
+        <literal>DaoAuthenticationProvider</literal> and create a custom
+        <literal>AuthenticationDao</literal> implementation that extracts
+        information from a persistence engine of choice, many applications do
+        not require such complexity. One alternative is to configure an
+        authentication repository in the bean context itself using the
+        <literal>InMemoryDaoImpl</literal>:</para>
+
+        <para><programlisting>&lt;bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl"&gt;
+  &lt;property name="userMap"&gt;
+    &lt;value&gt;
+      marissa=koala,ROLE_TELLER,ROLE_SUPERVISOR
+      dianne=emu,ROLE_TELLER
+      scott=wombat,ROLE_TELLER
+      peter=opal,disabled,ROLE_TELLER
+    &lt;/value&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>The <literal>userMap</literal> property contains each of the
+        usernames, passwords, a list of granted authorities and an optional
+        enabled/disabled keyword. Commas delimit each token. The username must
+        appear to the left of the equals sign, and the password must be the
+        first token to the right of the equals sign. The
+        <literal>enabled</literal> and <literal>disabled</literal> keywords
+        (case insensitive) may appear in the second or any subsequent token.
+        Any remaining tokens are treated as granted authorities, which are
+        created as <literal>GrantedAuthorityImpl</literal> objects (refer to
+        the Authorization section for further discussion on granted
+        authorities). Note that if a user has no password or no granted
+        authorities, the user will not be created in the in-memory
+        authentication repository.</para>
+      </sect2>
+
+      <sect2>
+        <title>JDBC Authentication</title>
+
+        <para>The Acegi Security System for Spring also includes an
+        authentication provider that can obtain authentication information
+        from a JDBC data source. The typical configuration for the
+        <literal>JdbcDaoImpl</literal> is shown below:</para>
+
+        <para><programlisting>&lt;bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"&gt;
+  &lt;property name="driverClassName"&gt;&lt;value&gt;org.hsqldb.jdbcDriver&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="url"&gt;&lt;value&gt;jdbc:hsqldb:hsql://localhost:9001&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="username"&gt;&lt;value&gt;sa&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="password"&gt;&lt;value&gt;&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;!-- Data access object which stores authentication information --&gt;
+&lt;bean id="jdbcDaoImpl" class="net.sf.acegisecurity.providers.dao.jdbc.JdbcDaoImpl"&gt;
+  &lt;property name="dataSource"&gt;&lt;ref bean="dataSource"/&gt;&lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>You can use different relational database management systems by
+        modifying the <literal>DriverManagerDataSource</literal> shown above.
+        Irrespective of the database used, a standard schema must be used as
+        indicated in <literal>dbinit.txt</literal>.</para>
+
+        <para>The Acegi Security System for Spring ships with a Hypersonic SQL
+        instance that has the required authentication information and sample
+        data already populated. To use this server, simply execute the
+        <literal>server.bat</literal> or <literal>server.sh</literal> script
+        included in the distribution. This will load a new database server
+        instance that will service requests made to the URL indicated in the
+        bean context configuration shown above.</para>
+
+        <para>As discussed further in the Container Adapters section, most
+        authentication providers that perform actual authentication are
+        configured within a container adapter bean context typically called
+        <literal>acegisecurity.xml</literal>. This file by default uses the
+        in-memory DAO authentication provider. The Acegi Security System for
+        Spring includes an alternative configuration file named
+        <literal>acegisecurity-jdbc.xml</literal>, which uses the JDBC DAO
+        authentication provider. To use a JDBC authentication repository,
+        simply copy this file over the existing
+        <literal>acegisecurity.xml</literal> (or other name) being used by
+        your container. Alternatively, leave the name as
+        <literal>acegisecurity-jdbc.xml</literal> and modify your container
+        configuration file to refer to
+        <literal>acegisecurity-jdbc.xml</literal>. You will also need to copy
+        the relevant JDBC driver library to your container's
+        <literal>lib</literal> directory. If you are using Hypersonic SQL,
+        copy the <literal>hsqldb.jar</literal> file.</para>
+      </sect2>
+
+      <sect2>
+        <title>Authentication Recommendations</title>
+
+        <para>With the heavy use of interfaces throughout the authentication
+        system (<literal>Authentication</literal>,
+        <literal>AuthenticationManager</literal>,
+        <literal>AuthenticationProvider</literal> and
+        <literal>AuthenticationDao</literal>) it might be confusing to a new
+        user to know which part of the authentication system to customize. In
+        general, the following is recommended:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Use the
+            <literal>UsernamePasswordAuthenticationToken</literal> or an
+            <literal>AuthByContainer</literal> implementation where
+            possible.</para>
+          </listitem>
+
+          <listitem>
+            <para>If you simply need to implement a new authentication
+            repository (eg to obtain user details from your application’s
+            existing database), use the
+            <literal>DaoAuthenticationProvider</literal> along with the
+            <literal>AuthenticationDao</literal>. It is the fastest and safest
+            way to integrate an external database.</para>
+          </listitem>
+
+          <listitem>
+            <para>Never enable the
+            <literal>TestingAuthenticationProvider</literal> on a production
+            system. Doing so will allow any client to simply present a
+            <literal>TestingAuthenticationToken</literal> and obtain whatever
+            access they request.</para>
+          </listitem>
+
+          <listitem>
+            <para>Adding a new <literal>AuthenticationProvider</literal> is
+            sufficient to support most custom authentication requirements.
+            Only unusual requirements would require the
+            <literal>ProviderManager</literal> to be replaced with a different
+            <literal>AuthenticationManager</literal>.</para>
+          </listitem>
+        </itemizedlist>
+      </sect2>
+    </sect1>
+
+    <sect1 id="security-authorization">
+      <title>Authorization</title>
+
+      <sect2>
+        <title>Granted Authorities</title>
+
+        <para>As briefly mentioned in the <literal>Authentication</literal>
+        section, all <literal>Authentication</literal> implementations are
+        required to store an array of <literal>GrantedAuthority</literal>
+        objects. These represent the authorities that have been granted to the
+        principal. The <literal>GrantedAuthority</literal> objects are
+        inserted into the <literal>Authentication</literal> object by the
+        <literal>AuthenticationManager</literal> and are later read by
+        <literal>AccessDecisionManager</literal>s when making authorization
+        decisions.</para>
+
+        <para><literal>GrantedAuthority</literal> is an interface with only
+        one method:</para>
+
+        <para><programlisting>public String getAuthority();</programlisting></para>
+
+        <para>This method allows <literal>AccessDecisionManager</literal>s to
+        obtain a precise <literal>String</literal> representation of the
+        <literal>GrantedAuthority</literal>. By returning a representation as
+        a <literal>String</literal>, a <literal>GrantedAuthority</literal> can
+        be easily "read" by most <literal>AccessDecisionManager</literal>s. If
+        a <literal>GrantedAuthority</literal> cannot be precisely represented
+        as a <literal>String</literal>, the
+        <literal>GrantedAuthority</literal> is considered "complex" and
+        <literal>getAuthority()</literal> must return
+        <literal>null</literal>.</para>
+
+        <para>An example of a "complex" <literal>GrantedAuthority</literal>
+        would be an implementation that stores a list of operations and
+        authority thresholds that apply to different customer account numbers.
+        Representing this complex <literal>GrantedAuthority</literal> as a
+        <literal>String</literal> would be quite complex, and as a result the
+        <literal>getAuthority()</literal> method should return
+        <literal>null</literal>. This will indicate to any
+        <literal>AccessDecisionManager</literal> that it will need to
+        specifically support the <literal>GrantedAuthority</literal>
+        implementation in order to understand its contents.</para>
+
+        <para>The Acegi Security System for Spring includes one concrete
+        <literal>GrantedAuthority</literal> implementation,
+        <literal>GrantedAuthorityImpl</literal>. This allows any
+        user-specified <literal>String</literal> to be converted into a
+        <literal>GrantedAuthority</literal>. All
+        <literal>AuthenticationProvider</literal>s included with the security
+        architecture used <literal>GrantedAuthorityImpl</literal> to populate
+        the <literal>Authentication</literal> object.</para>
+      </sect2>
+
+      <sect2>
+        <title>Access Decision Managers</title>
+
+        <para>The <literal>AccessDecisionManager</literal> is called by the
+        <literal>SecurityInterceptor</literal> and is responsible for making
+        final access control decisions. The
+        <literal>AccessDecisionManager</literal> interface contains two
+        methods:</para>
+
+        <para><programlisting>public void decide(Authentication authentication, MethodInvocation invocation, ConfigAttributeDefinition config) throws AccessDeniedException;
+public boolean supports(ConfigAttribute attribute);</programlisting></para>
+
+        <para>As can be seen from the first method, the
+        <literal>AccessDecisionManager</literal> is passed via method
+        parameters all information that is likely to be of value in assessing
+        an authorization decision. In particular, passing the
+        <literal>MethodInvocation</literal> enables those arguments contained
+        in the intercepted method call to be inspected. For example, if a
+        <literal>Customer</literal> argument was passed in the intercepted
+        method call, this could be extracted from the
+        <literal>MethodInvocation</literal> and used in making an access
+        control decision. Implementations are expected to throw an
+        <literal>AccessDeniedException</literal> if access is denied.</para>
+
+        <para>The <literal>supports(ConfigAttribute)</literal> method is
+        called by the <literal>SecurtyInterceptor</literal> at startup time to
+        determine if the <literal>AccessDecisionManager</literal> can process
+        the passed <literal>ConfigAttribute</literal>.</para>
+      </sect2>
+
+      <sect2>
+        <title>Voting Decision Manager</title>
+
+        <para>Whilst users can implement their own
+        <literal>AccessDecisionManager</literal> to control all aspects of
+        authorization, the Acegi Security System for Spring includes an
+        <literal>AccessDecisionManager</literal> implementation that is based
+        on voting. Using this approach, a series of
+        <literal>AccessDecisionVoter</literal> implementations are polled on
+        an authorization decision. The
+        <literal>AccessDecisionManager</literal> then decides whether or not
+        to throw an <literal>AccessDeniedException</literal> based on its
+        assessment of the votes.</para>
+
+        <para>The <literal>AccessDecisionVoter</literal> interface has two
+        methods:</para>
+
+        <para><programlisting>public int vote(Authentication authentication, MethodInvocation invocation, ConfigAttributeDefinition config);
+public boolean supports(ConfigAttribute attribute);</programlisting></para>
+
+        <para>Concrete implementations return an int, with possible values
+        being reflected in the <literal>AccessDecisionVoter</literal> static
+        fields <literal>ACCESS_ABSTAIN</literal>,
+        <literal>ACCESS_DENIED</literal> and
+        <literal>ACCESS_GRANTED</literal>. A voting implementation will return
+        <literal>ACCESS_ABSTAIN</literal> if it has no opinion on an
+        authorization decision. If it does have an opinion, it must return
+        either <literal>ACCESS_DENIED</literal> or
+        <literal>ACCESS_GRANTED</literal>.</para>
+
+        <para>There are three <literal>AccessDecisionManager</literal>s
+        provided with the Acegi Security System for Spring that tally the
+        votes. The <literal>ConsensusBased</literal> implementation will grant
+        or deny access based on the consensus of non-abstain votes. Properties
+        are provided to control behavior in the event of an equality of votes
+        or if all votes are abstain. The <literal>AffirmativeBased</literal>
+        implementation will grant access if one or more
+        <literal>ACCESS_GRANTED</literal> votes were received (ie a deny vote
+        will be ignored, provided there was at least one grant vote). Like the
+        <literal>ConsensusBased</literal> implementation, there is a parameter
+        that controls the behavior if all voters abstain. The
+        <literal>UnanimousBased</literal> provider will deny access if there
+        was any <literal>ACCESS_DENIED</literal> result. Like the other
+        implementations, there is a parameter that controls the behaviour if
+        all voters abstain.</para>
+
+        <para>It is possible to implement a custom
+        <literal>AccessDecisionManager</literal> that tallies votes
+        differently. For example, votes from a particular
+        <literal>AccessDecisionVoter</literal> might receive additional
+        weighting, whilst a deny vote from a particular voter would have a
+        veto effect.</para>
+
+        <para>There is one concrete <literal>AccessDecisionVoter</literal>
+        implementation provided with the Acegi Security System for Spring. The
+        <literal>RoleVoter</literal> class will vote if any ConfigAttribute
+        begins with <literal>ROLE_</literal>. It will vote to grant access if
+        there is a <literal>GrantedAuthority</literal> which returns a
+        <literal>String</literal> representation (via the
+        <literal>getAuthority()</literal> method) exactly equal to one or more
+        <literal>ConfigAttributes</literal> starting with
+        <literal>ROLE_</literal>. If there is no exact match of any
+        <literal>ConfigAttribute</literal> starting with
+        <literal>ROLE_</literal>, the <literal>RoleVoter</literal> will vote
+        to deny access. If no <literal>ConfigAttribute</literal> begins with
+        <literal>ROLE_</literal>, the voter will abstain.
+        <literal>RoleVoter</literal> is case sensitive on comparisons as well
+        as the <literal>ROLE_</literal> prefix.</para>
+
+        <para>It is possible to implement a custom
+        <literal>AccessDecisionVoter</literal>. Several examples are provided
+        in the Acegi Security System for Spring unit tests, including
+        <literal>BankSecurityVoter</literal> and <literal>XVoter</literal>.
+        The <literal>BankSecurityVoter</literal> abstains from voting
+        decisions where the <literal>BANKSECURITY_CUSTOMER</literal>
+        <literal>ConfigAttribute</literal> is not found. If voting, it queries
+        the <literal>MethodInvocation</literal> to extract the account number
+        subject of the method call. It votes to grant access if the account
+        number matches a <literal>GrantedAuthority.getAuthority()</literal> of
+        <literal>ACCOUNT_xxxx</literal> where <literal>xxxx</literal> is the
+        account number subject of the method call. All of this is achieved
+        with relatively few lines of code and demonstrates the flexibility of
+        the authorization model.</para>
+
+        <para>Note that an <literal>AccessDecisionManager</literal> or
+        <literal>AccessDecisionVoter</literal> can also support complex
+        <literal>GrantedAuthority</literal> implementations that cannot
+        represent themselves as a <literal>String</literal> via the
+        <literal>getAuthority()</literal> method. In our
+        <literal>BankSecurityVoter</literal> example, we could have it ignore
+        the <literal>String</literal> representations of
+        <literal>GrantedAuthority</literal> objects but instead processed any
+        <literal>AccountHolderGrantedAuthority</literal> objects. This complex
+        granted authority could have conveyed more information than simply an
+        account number, such as the maximum amount the principal is permitted
+        to deposit. The <literal>BankSecurityVoter</literal> could then detect
+        a deposit value via the <literal>MethodInvocation</literal> and grant
+        or deny access accordingly.</para>
+      </sect2>
+
+      <sect2>
+        <title>Authorization Recommendations</title>
+
+        <para>Given there are several ways to achieve similar authorization
+        outcomes in the Acegi Security System for Spring, the following
+        general recommendations are made:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Grant authorities using
+            <literal>GrantedAuthorityImpl</literal> where possible. Because it
+            is already supported by the Acegi Security System for Spring, you
+            avoid the need to create custom
+            <literal>AuthenticationManager</literal> or
+            <literal>AuthenticationProvider</literal> implementations simply
+            to populate the <literal>Authentication</literal> object with a
+            custom <literal>GrantedAuthority</literal>.</para>
+          </listitem>
+
+          <listitem>
+            <para>Most authorization decision rules can be easily satisfied by
+            writing an <literal>AccessDecisionVoter</literal> implementation
+            and using either <literal>ConsensusBased</literal> or
+            <literal>AffirmativeBased</literal> as the
+            <literal>AccessDecisionManager</literal>.</para>
+          </listitem>
+        </itemizedlist>
+      </sect2>
+    </sect1>
+
+    <sect1>
+      <title>Run-As Authentication Replacement</title>
+
+      <sect2>
+        <title>Purpose</title>
+
+        <para>The SecurityInterceptor is able to temporarily replace the
+        <literal>Authentication</literal> object in the
+        <literal>ContextHolder</literal> during a method invocation. This only
+        occurs if the original <literal>Authentication</literal> object was
+        successfully processed by the <literal>AuthenticationManager</literal>
+        and <literal>AccessDecisionManager</literal>. The
+        <literal>RunAsManager</literal> will indicate the replacement
+        <literal>Authentication</literal> object (if any) that should be used
+        during the method invocation.</para>
+
+        <para>By temporarily replacing the <literal>Authentication</literal>
+        object during a method invocation, the method invocation will be able
+        to call other objects which require different authentication and
+        authorization credentials. It will also be able to perform any
+        internal security checks for specific
+        <literal>GrantedAuthority</literal> objects.</para>
+      </sect2>
+
+      <sect2>
+        <title>Usage</title>
+
+        <para>A <literal>RunAsManager</literal> interface is provided by the
+        Acegi Security System for Spring:</para>
+
+        <para><programlisting>public Authentication buildRunAs(Authentication authentication, MethodInvocation invocation, ConfigAttributeDefinition config);
+public boolean supports(ConfigAttribute attribute);</programlisting></para>
+
+        <para>The first method returns the <literal>Authentication</literal>
+        object that should replace the existing
+        <literal>Authentication</literal> object for the duration of the
+        method invocation. If the method returns <literal>null</literal>, it
+        indicates no replacement should be made. The second method is used by
+        the <literal>SecurityInterceptor</literal> as part of its startup
+        validation of configuration attributes.</para>
+
+        <para>One concrete implementation of a <literal>RunAsManager</literal>
+        is provided with the Acegi Security System for Spring. The
+        <literal>RunAsManagerImpl</literal> class returns a replacement
+        <literal>RunAsUserToken</literal> if any
+        <literal>ConfigAttribute</literal> starts with
+        <literal>RUN_AS_</literal>. If any <literal>such
+        ConfigAttribute</literal> is found, the replacement
+        <literal>RunAsUserToken</literal> will contain the same principal,
+        credentials and granted authorities as the original
+        <literal>Authentication</literal> object, along with a new
+        <literal>GrantedAuthorityImpl</literal> for each
+        <literal>RUN_AS_</literal> <literal>ConfigAttribute</literal>. Each
+        new <literal>GrantedAuthorityImpl</literal> will be prefixed with
+        <literal>ROLE_</literal>, followed by the <literal>RUN_AS</literal>
+        <literal>ConfigAttribute</literal>. For example, a
+        <literal>RUN_AS_SERVER</literal> will result in the replacement
+        <literal>RunAsUserToken</literal> containing a
+        <literal>ROLE_RUN_AS_SERVER</literal> granted authority.</para>
+
+        <para>The replacement <literal>RunAsUserToken</literal> is just like
+        any other <literal>Authentication</literal> object. It needs to be
+        authenticated by the <literal>AuthenticationManager</literal>,
+        probably via delegation to <literal>a suitable
+        AuthenticationProvider</literal>. The
+        <literal>RunAsImplAuthenticationProvider</literal> performs such
+        authentication. It simply accepts as valid whatever
+        <literal>RunAsUserToken</literal> is presented.</para>
+
+        <para>To ensure malicious code does not create a
+        <literal>RunAsUserToken</literal> and presents it for guaranteed
+        acceptance by the <literal>RunAsImplAuthenticationProvider</literal>,
+        the hash of a key is stored in all generated tokens. The
+        <literal>RunAsManagerImpl</literal> and
+        <literal>RunAsImplAuthenticationProvider</literal> is created in the
+        bean context with the same key:</para>
+
+        <para><programlisting>&lt;bean id="runAsManager" class="net.sf.acegisecurity.runas.RunAsManagerImpl"&gt;
+  &lt;property name="key"&gt;&lt;value&gt;my_run_as_password&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;</programlisting><programlisting>&lt;bean id="runAsAuthenticationProvider" class="net.sf.acegisecurity.runas.RunAsImplAuthenticationProvider"&gt;
+  &lt;property name="key"&gt;&lt;value&gt;my_run_as_password&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>By using the same key, each <literal>RunAsUserToken</literal>
+        can be validated it was created by an approved
+        <literal>RunAsManagerImpl</literal>. The
+        <literal>RunAsUserToken</literal> is immutable after creation for
+        security reasons.</para>
+      </sect2>
+    </sect1>
+
+    <sect1 id="security-container-adapters">
+      <title>Container Adapters</title>
+
+      <sect2>
+        <title>Overview</title>
+
+        <para>A very large proportion of Spring applications are web-based.
+        The Acegi Security System for Spring supports integration with
+        containers that host such applications. This integration means that
+        applications can continue to leverage the authentication and
+        authorization capabilities built into containers (such as
+        <literal>isUserInRole()</literal> and form-based or basic
+        authentication), whilst benefiting from the enhanced bean-level
+        security capabilities provided by the Acegi Security System for
+        Spring.</para>
+
+        <para>The integration between a container and the Acegi Security
+        System for Spring is achieved through an adapter. The adapter provides
+        a container-compatible user authentication provider, and often needs
+        to return a container-compatible user object.</para>
+
+        <para>The adapter is instantiated by the container and is defined in a
+        container-specific configuration file. The adapter then loads a Spring
+        bean context which defines the normal authentication manager settings,
+        such as the authentication providers that can be used to authenticate
+        the request. The bean context is usually named
+        <literal>acegisecurity.xml</literal> and is placed in a
+        container-specific location.</para>
+
+        <para>The Acegi Security System for Spring currently supports Jetty,
+        Catalina (Tomcat), JBoss and Resin. Additional container adapters can
+        easily be written.</para>
+      </sect2>
+
+      <sect2 id="security-container-adapters-configuration">
+        <title>Filter Integration</title>
+
+        <para>Web applications wishing to use container adapters should define
+        the standard <literal>&lt;security-constraint&gt;</literal> and
+        <literal>&lt;login-config&gt;</literal> entries in their
+        <literal>web.xml</literal> file. These will cause the container
+        authentication to occur, which will delegate to the Acegi Security
+        System for Spring provided adapter.</para>
+
+        <para>The adapter will return a container-compatible user object that
+        also implements the <literal>Authentication</literal> interface. The
+        container then makes this returned user object available from a
+        container-specific well-known location.</para>
+
+        <para>The <literal>AbstractIntegrationFilter</literal> and its
+        subclasses finalise the adapter integration. These classes are
+        standard filters, and at the start of each request they will attempt
+        to extract the <literal>Authentication</literal> object from the
+        container's well-known location. The <literal>Authentication</literal>
+        object will then be associated with the
+        <literal>ContextHolder</literal> for the duration of the request, and
+        be removed when the request is finished. Three concrete subclasses of
+        <literal>AbstractIntegrationFilter</literal> are provided with the
+        Acegi Security System for Spring:</para>
+
+        <para><itemizedlist>
+            <listitem>
+              <para><literal>HttpRequestIntegrationFilter</literal> is used
+              with Catalina, Jetty and Resin. It extracts the authentication
+              information from
+              <literal>HttpServletRequest.getUserPrincipal()</literal>.</para>
+            </listitem>
+
+            <listitem>
+              <para><literal>JbossIntegrationFilter</literal> is used with
+              JBoss. It extracts the authentication from
+              <literal>java:comp/env/security/subject</literal>.</para>
+            </listitem>
+
+            <listitem>
+              <para><literal>AutoIntegrationFilter</literal> automatically
+              determines which filter to use. This makes a web application WAR
+              file more portable, as the <literal>web.xml</literal> is not
+              hard-coded to a container-specific
+              <literal>AbstractIntegrationFilter</literal>.</para>
+            </listitem>
+          </itemizedlist></para>
+
+        <para>Once in the <literal>ContextHolder</literal>, the standard Acegi
+        Security System for Spring classes can be used. Because
+        <literal>ContextHolder</literal> is a standard object which is
+        populated using a filter at the container level, JSPs and Servlets do
+        not need to use Spring's MVC packages. This enables those applications
+        that use other MVC frameworks to still leverage Spring's other
+        capabilities, with full authentication and authorization support. The
+        <literal>debug.jsp</literal> page provided with the sample application
+        demonstrates accessing the <literal>ContextHolder</literal>
+        independent of Spring's MVC packages.</para>
+      </sect2>
+
+      <sect2 id="security-container-adapters-provider">
+        <title>Adapter Authentication Provider</title>
+
+        <para>As is always the case, the container adapter generated
+        <literal>Authentication</literal> object still needs to be
+        authenticated by an <literal>AuthenticationManager</literal> when
+        requested to do so by the <literal>SecurityInterceptor</literal>. The
+        <literal>AuthenticationManager</literal> needs to be certain the
+        adapter-provided <literal>Authentication</literal> object is valid and
+        was actually authenticated by a trusted adapter.</para>
+
+        <para>Adapters create <literal>Authentication</literal> objects which
+        are immutable and implement the <literal>AuthByAdapter</literal>
+        interface. These objects store the hash of a key that is defined by
+        the adapter. This allows the <literal>Authentication</literal> object
+        to be validated by the <literal>AuthByAdapterProvider</literal>. This
+        authentication provider is defined as follows:</para>
+
+        <para><programlisting>&lt;bean id="authByAdapterProvider" class="net.sf.acegisecurity.adapters.AuthByAdapterProvider"&gt;
+  &lt;property name="key"&gt;&lt;value&gt;my_password&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>The key must match the key that is defined in the
+        container-specific configuration file that starts the adapter. The
+        <literal>AuthByAdapterProvider</literal> automatically accepts as
+        valid any <literal>AuthByAdapter</literal> implementation that returns
+        the expected hash of the key.</para>
+
+        <para>To reiterate, this means the adapter will perform the initial
+        authentication using providers such as
+        <literal>DaoAuthenticationProvider</literal>, returning an
+        <literal>AuthByAdapter</literal> instance that contains a hash code of
+        the key. Later, when an application calls a
+        <literal>SecurityInterceptor</literal> managed bean, the
+        <literal>AuthByAdapter</literal> instance in the
+        <literal>ContextHolder</literal> will be tested by the application's
+        <literal>AuthByAdapterProvider</literal>. There is no requirement for
+        additional authentication providers such as
+        <literal>DaoAuthenticationProvider</literal> within the
+        application-specific bean context, as the only type of
+        <literal>Authentication</literal> instance that will be presented by
+        the application is from the container adapter.</para>
+
+        <para>Classloader issues are frequent with containers and the use of
+        container adapters illustrates this further. Each container requires a
+        very specific configuration. The installation instructions are
+        provided below. Once installed, please take the time to try the sample
+        application to ensure your container adapter is properly
+        configured.</para>
+      </sect2>
+
+      <sect2>
+        <title>Catalina (Tomcat) Installation</title>
+
+        <para>The following was tested with Jakarta Tomcat 5.0.19. We
+        automatically test the following directions using our container
+        integration test system and this version of Catalina (Tomcat).</para>
+
+        <para><literal>$CATALINA_HOME</literal> refers to the root of your
+        Catalina (Tomcat) installation.</para>
+
+        <para>Edit your <literal>$CATALINA_HOME/conf/server.xml</literal> file
+        so the <literal>&lt;Engine&gt;</literal> section contains only one
+        active <literal>&lt;Realm&gt;</literal> entry. An example realm
+        entry:</para>
+
+        <para><programlisting>      &lt;Realm className="net.sf.acegisecurity.adapters.catalina.CatalinaAcegiUserRealm"
+             appContextLocation="conf/acegisecurity.xml"
+             key="my_password" /&gt;</programlisting></para>
+
+        <para>Be sure to remove any other <literal>&lt;Realm&gt;</literal>
+        entry from your <literal>&lt;Engine&gt;</literal> section.</para>
+
+        <para>Copy <literal>acegisecurity.xml</literal> into
+        <literal>$CATALINA_HOME/conf</literal>.</para>
+
+        <para>Copy <literal>acegi-security-catalina-server.jar</literal> into
+        <literal>$CATALINA_HOME/server/lib</literal>.</para>
+
+        <para>Copy the following files into
+        <literal>$CATALINA_HOME/common/lib</literal>:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><literal>aopalliance.jar</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>spring.jar</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>acegi-security-catalina-common.jar</literal></para>
+          </listitem>
+        </itemizedlist>
+
+        <para>None of the above JAR files (or
+        <literal>acegi-security.jar</literal>) should be in your application's
+        <literal>WEB-INF/lib</literal>. The realm name indicated in your
+        <literal>web.xml</literal> does not matter with Catalina.</para>
+      </sect2>
+
+      <sect2>
+        <title>Jetty Installation</title>
+
+        <para>The following was tested with Jetty 4.2.18. We automatically
+        test the following directions using our container integration test
+        system and this version of Jetty.</para>
+
+        <para><literal>$JETTY_HOME</literal> refers to the root of your Jetty
+        installation.</para>
+
+        <para>Edit your <literal>$JETTY_HOME/etc/jetty.xml</literal> file so
+        the <literal>&lt;Configure class&gt;</literal> section has a new
+        addRealm call:</para>
+
+        <para><programlisting>  &lt;Call name="addRealm"&gt;
+    &lt;Arg&gt;
+      &lt;New class="net.sf.acegisecurity.adapters.jetty.JettyAcegiUserRealm"&gt;
+        &lt;Arg&gt;Spring Powered Realm&lt;/Arg&gt;
+        &lt;Arg&gt;my_password&lt;/Arg&gt;
+        &lt;Arg&gt;/etc/acegisecurity.xml&lt;/Arg&gt;
+      &lt;/New&gt;
+    &lt;/Arg&gt;
+  &lt;/Call&gt;</programlisting></para>
+
+        <para>Copy <literal>acegisecurity.xml</literal> into
+        <literal>$JETTY_HOME/etc</literal>.</para>
+
+        <para>Copy the following files into
+        <literal>$JETTY_HOME/ext</literal>:<itemizedlist>
+            <listitem>
+              <para><literal>aopalliance.jar</literal></para>
+            </listitem>
+
+            <listitem>
+              <para><literal>commons-logging.jar</literal></para>
+            </listitem>
+
+            <listitem>
+              <para><literal>spring.jar</literal></para>
+            </listitem>
+
+            <listitem>
+              <para><literal>acegi-security-jetty-ext.jar</literal></para>
+            </listitem>
+          </itemizedlist></para>
+
+        <para>None of the above JAR files (or
+        <literal>acegi-security.jar</literal>) should be in your application's
+        <literal>WEB-INF/lib</literal>. The realm name indicated in your
+        <literal>web.xml</literal> does matter with Jetty. The
+        <literal>web.xml</literal> must express the same
+        <literal>&lt;realm-name&gt;</literal> as your
+        <literal>jetty.xml</literal> (in the example above, "Spring Powered
+        Realm").</para>
+      </sect2>
+
+      <sect2>
+        <title>JBoss Installation</title>
+
+        <para>The following was tested with JBoss 3.2.3. We automatically test
+        the following directions using our container integration test system
+        and this version of JBoss.</para>
+
+        <para><literal>$JBOSS_HOME</literal> refers to the root of your JBoss
+        installation.</para>
+
+        <para>Edit your
+        <literal>$JBOSS_HOME/server/your_config/conf/login-config.xml</literal>
+        file so that it contains a new entry under the
+        <literal>&lt;Policy&gt;</literal> section:</para>
+
+        <para><programlisting>    &lt;application-policy name = "SpringPoweredRealm"&gt;
+       &lt;authentication&gt;
+          &lt;login-module code = "net.sf.acegisecurity.adapters.jboss.JbossSpringLoginModule"
+            flag = "required"&gt;
+            &lt;module-option name = "appContextLocation"&gt;acegisecurity.xml&lt;/module-option&gt;
+            &lt;module-option name = "key"&gt;my_password&lt;/module-option&gt;
+         &lt;/login-module&gt;
+       &lt;/authentication&gt;
+    &lt;/application-policy&gt;</programlisting></para>
+
+        <para>Copy <literal>acegisecurity.xml</literal> into
+        <literal>$JBOSS_HOME/server/your_config/conf</literal>.</para>
+
+        <para>Copy the following files into
+        <literal>$JBOSS_HOME/server/your_config/lib</literal>:<itemizedlist>
+            <listitem>
+              <para><literal>aopalliance.jar</literal></para>
+            </listitem>
+
+            <listitem>
+              <para><literal>spring.jar</literal></para>
+            </listitem>
+
+            <listitem>
+              <para><literal>acegi-security-jboss-lib.jar</literal></para>
+            </listitem>
+          </itemizedlist></para>
+
+        <para>None of the above JAR files (or
+        <literal>acegi-security.jar</literal>) should be in your application's
+        <literal>WEB-INF/lib</literal>. The realm name indicated in your
+        <literal>web.xml</literal> does not matter with JBoss. However, your
+        web application's <literal>WEB-INF/jboss-web.xml</literal> must
+        express the same <literal>&lt;security-domain&gt;</literal> as your
+        <literal>login-config.xml</literal>. For example, to match the above
+        example, your <literal>jboss-web.xml</literal> would look like
+        this:</para>
+
+        <para><programlisting>&lt;jboss-web&gt;
+  &lt;security-domain&gt;java:/jaas/SpringPoweredRealm&lt;/security-domain&gt;
+&lt;/jboss-web&gt;</programlisting></para>
+      </sect2>
+
+      <sect2>
+        <title>Resin Installation</title>
+
+        <para>The following was tested with Resin 3.0.6.</para>
+
+        <para><literal>$RESIN_HOME</literal> refers to the root of your Resin
+        installation.</para>
+
+        <para>Resin provides several ways to support the container adapter. In
+        the instructions below we have elected to maximise consistency with
+        other container adapter configurations. This will allow Resin users to
+        simply deploy the sample application and confirm correct
+        configuration. Developers comfortable with Resin are naturally able to
+        use its capabilities to package the JARs with the web application
+        itself, and/or support single sign-on.</para>
+
+        <para>Copy the following files into
+        <literal>$RESIN_HOME/lib</literal>:<itemizedlist>
+            <listitem>
+              <para><literal>aopalliance.jar</literal></para>
+            </listitem>
+
+            <listitem>
+              <para><literal>commons-logging.jar</literal></para>
+            </listitem>
+
+            <listitem>
+              <para><literal>spring.jar</literal></para>
+            </listitem>
+
+            <listitem>
+              <para><literal>acegi-security-resin-lib.jar</literal></para>
+            </listitem>
+          </itemizedlist></para>
+
+        <para>Unlike the container-wide <literal>acegisecurity.xml</literal>
+        files used by other container adapters, each Resin web application
+        will contain its own
+        <literal>WEB-INF/resin-acegisecurity.xml</literal> file. Each web
+        application will also contain a <literal>resin-web.xml</literal> file
+        which Resin uses to start the container adapter:</para>
+
+        <para><programlisting>&lt;web-app&gt;
+  &lt;authenticator&gt;
+    &lt;type&gt;net.sf.acegisecurity.adapters.resin.ResinAcegiAuthenticator&lt;/type&gt;
+    &lt;init&gt;
+      &lt;app-context-location&gt;WEB-INF/resin-acegisecurity.xml&lt;/app-context-location&gt;
+      &lt;key&gt;my_password&lt;/key&gt;
+    &lt;/init&gt;
+  &lt;/authenticator&gt;
+&lt;/web-app&gt;</programlisting></para>
+
+        <para>With the basic configuration provided above, none of the JAR
+        files listed (or <literal>acegi-security.jar</literal>) should be in
+        your application's <literal>WEB-INF/lib</literal>. The realm name
+        indicated in your <literal>web.xml</literal> does not matter with
+        Resin, as the relevant authentication class is indicated by the
+        <literal>&lt;authenticator&gt;</literal> setting.</para>
+      </sect2>
+    </sect1>
+
+    <sect1 id="security-sample">
+      <title>Sample Application</title>
+
+      <para>Included with the Acegi Security System for Spring is a very
+      simple application that can demonstrate the basic security facilities
+      provided by the system and confirm your container adapter is properly
+      configured.</para>
+
+      <para>To install, configure your container as described in the Container
+      Adapters section of this chapter. Do not modify
+      <literal>acegisecurity.xml</literal>. It contains a very basic in-memory
+      authentication configuration that is compatible with the sample
+      application. Next, copy the <literal>contacts.war</literal> file from
+      the Acegi Security System for Spring distribution into your container’s
+      <literal>webapps</literal> directory.</para>
+
+      <para>After starting your container, check the application can load.
+      Visit <literal>http://localhost:8080/contacts</literal> (or whichever
+      URL is appropriate for your web container). A random contact should be
+      displayed. Click "Refresh" several times and you will see different
+      contacts. The business method that provides this random contact is not
+      secured.</para>
+
+      <para>Next, click "Debug". You will be prompted to authenticate, and a
+      series of usernames and passwords are suggested on that page. Simply
+      authenticate with any of these and view the resulting page. It should
+      contain a success message similar to the following:</para>
+
+      <blockquote>
+        <para>Context on ContextHolder is of type:
+        net.sf.acegisecurity.context.SecureContextImpl</para>
+
+        <para>The Context implements SecureContext.</para>
+
+        <para>Authentication object is of type:
+        net.sf.acegisecurity.adapters.PrincipalAcegiUserToken</para>
+
+        <para>Authentication object as a String:
+        net.sf.acegisecurity.adapters.PrincipalAcegiUserToken@e9a7c2:
+        Username: marissa; Password: [PROTECTED]; Authenticated: true; Granted
+        Authorities: ROLE_TELLER, ROLE_SUPERVISOR</para>
+
+        <para>Authentication object holds the following granted
+        authorities:</para>
+
+        <para>ROLE_TELLER (getAuthority(): ROLE_TELLER)</para>
+
+        <para>ROLE_SUPERVISOR (getAuthority(): ROLE_SUPERVISOR)</para>
+
+        <para>SUCCESS! Your container adapter appears to be properly
+        configured!</para>
+      </blockquote>
+
+      <para>If you receive a different message, check you have properly
+      configured your container adapter. Refer to the instructions provided
+      above.</para>
+
+      <para>Once you successfully receive the above message, return to the
+      sample application's home page and click "Manage". You can then try out
+      the application. Notice that only the contacts belonging to the
+      currently logged on user are displayed, and only users with
+      <literal>ROLE_SUPERVISOR</literal> are granted access to delete their
+      contacts. Behind the scenes, the <literal>SecurityInterceptor</literal>
+      is securing the business objects.</para>
+    </sect1>
+
+    <sect1 id="security-become-involved">
+      <title>Become Involved</title>
+
+      <para>We welcome you to become involved in the Acegi Security System for
+      Spring project. There are many ways of contributing, including reading
+      the mailing list and responding to questions from other people, writing
+      new code, improving existing code, assisting with documentation, or
+      simply making suggestions.</para>
+
+      <para>SourceForge provides CVS services for the project, allowing
+      anybody to access the latest code. If you wish to contribute new code,
+      please observe the following requirements. These exist to maintain the
+      quality and consistency of the project:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Run the Ant <literal>format</literal> task to convert your
+          code into the project's consistent style</para>
+        </listitem>
+
+        <listitem>
+          <para>Ensure your code does not break any unit tests (run the Ant
+          <literal>tests</literal> target)</para>
+        </listitem>
+
+        <listitem>
+          <para>Please use the container integration test system to test your
+          code in the project's officially supported containers</para>
+        </listitem>
+
+        <listitem>
+          <para>When writing a new container adapter, expand the container
+          integration test system to properly test it</para>
+        </listitem>
+
+        <listitem>
+          <para>If you have added new code, please provide suitable unit
+          tests</para>
+        </listitem>
+
+        <listitem>
+          <para>Add a CVS <literal>$Id$</literal> tag to the JavaDocs for any
+          new class you create </para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Mentioned above is our container integration test system, which
+      aims to test the Acegi Security System for Spring container adapters
+      with current, production versions of each container. Some containers
+      might not be supported due to difficulties with starting or stopping the
+      container within an Ant target. You will need to download the container
+      release files as specified in the integration test
+      <literal>readme.txt</literal> file. These files are intentionally
+      excluded from CVS due to their large size.</para>
+    </sect1>
+
+    <sect1 id="security-further">
+      <title>Further Information</title>
+
+      <para>Questions and comments on the Acegi Security System for Spring are
+      welcome. Please direct comments to the Spring Users mailing list or
+      ben.alex@acegi.com.au. Our project home page (where you can obtain the
+      latest release of the project and access to CVS) is at
+      <literal>http://acegisecurity.sourceforge.net</literal>.</para>
+    </sect1>
+  </chapter>
+</book>

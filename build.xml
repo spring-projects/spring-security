@@ -1,0 +1,464 @@
+<?xml version="1.0"?>
+
+<!--
+    Build file for the Acegi Security System for Spring.
+
+    $Id$
+-->
+
+<project name="acegi-security-core" default="usage" basedir=".">
+
+	<property file="build.properties"/>
+	<property file="project.properties"/>
+
+	<path id="qa-portalpath">
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+
+    <path id="jalopy-classpath">
+        <fileset dir="${lib.dir}/jalopy">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+	<target name="usage">
+		<echo message=""/>
+		<echo message="${name} build file"/>
+		<echo message="------------------------------------------------------"/>
+		<echo message=""/>
+		<echo message="Among the available targets are:"/>
+		<echo message=""/>
+		<echo message="build    --> build all; don't create JARs"/>
+		<echo message="alljars  --> create all JAR files"/>
+		<echo message="format   --> format/tidy all source code"/>
+		<echo message="tests    --> run tests"/>
+		<echo message="release  --> build a distribution ZIP file"/>
+		<echo message=""/>
+		<echo message="To build or test, your lib directory needs to be populated"/>
+	</target>
+
+	<target name="clean" description="Clean all output dirs (dist, javadocs, classes, test-classes, etc.)">
+
+		<delete dir="${dist.dir}"/>
+		<delete dir="${javadocs.dir}"/>
+
+		<delete dir="${target.classes.dir}"/>
+		<delete dir="${target.junit.reports.dir}"/>
+		<delete dir="${target.otherclasses.dir}"/>
+		<delete dir="${target.release.dir}"/>
+		<delete dir="${target.testclasses.dir}"/>
+
+	</target>
+
+
+	<!--
+		Compile the main source tree.
+	-->
+	<target name="build"
+		depends=""
+		description="Compile main source tree java files into class files (no-jarring)">
+
+		<mkdir dir="${target.classes.dir}"/>
+
+		<javac destdir="${target.classes.dir}" target="1.3" debug="${debug}"
+			deprecation="false" optimize="false" failonerror="true">
+			<src path="${src.dir}"/>
+			<classpath refid="qa-portalpath"/>
+		</javac>
+
+		<copy todir="${target.classes.dir}" preservelastmodified="true">
+			<fileset dir="${src.dir}">
+				<include name="**/*.xml"/>
+			</fileset>
+		</copy>
+
+	</target>
+
+
+    <target name="format" description="Formats all project source code">
+	    <taskdef name="jalopy" classname="de.hunsicker.jalopy.plugin.ant.AntPlugin">
+            <classpath refid="jalopy-classpath"/>
+        </taskdef>
+
+        <jalopy fileformat="unix"
+            convention="${jalopy.xml}"
+            history="file"
+            historymethod="adler32"
+            loglevel="error"
+            threads="2"
+            classpathref="qa-portalpath">
+            <fileset dir="${src.dir}">
+                <include name="**/*.java"/>
+            </fileset>
+            <fileset dir="${test.dir}">
+                <include name="**/*.java"/>
+            </fileset>
+        </jalopy>
+
+		<ant inheritall="no" antfile="build.xml" dir="samples/contacts" target="format"/>
+		<ant inheritall="no" antfile="build.xml" dir="samples/attributes" target="format"/>
+		<ant inheritall="no" antfile="build.xml" dir="integration-test" target="format"/>
+    </target>
+
+	<target name="initdist" description="Initialize the distribution directory">
+		<mkdir dir="${dist.dir}"/>
+	</target>
+
+
+	<target name="fulljar" depends="build,initdist" description="Create JAR file with all Acegi Security System for Spring classes">
+		<delete file="${dist.dir}/${acegi-security.jar}"/>
+		
+		<!-- An all classes JAR file, which is provided for compiling web apps
+		only (at runtime all classes should be from web container) -->
+		<jar jarfile="${dist.dir}/${acegi-security.jar}">
+			<fileset dir="${target.classes.dir}">
+				<include name="net/sf/acegisecurity/**"/>
+			</fileset>
+			<manifest>
+				<attribute name="Acegi-Security-System-version" value="${acegi-security-version}"/>
+			</manifest>
+		</jar>
+		
+		<!-- The class that has catalina.jar dependencies and thus belongs in
+		Catalina's "Catalina" classloader ($CATALINA_HOME/server/lib directory) -->
+		<jar jarfile="${dist.dir}/acegi-security-catalina-server.jar">
+			<fileset dir="${target.classes.dir}">
+				<include name="net/sf/acegisecurity/adapters/catalina/CatalinaAcegiUserRealm.class"/>
+			</fileset>
+			<manifest>
+				<attribute name="Acegi-Security-System-version" value="${acegi-security-version}"/>
+			</manifest>
+		</jar>
+		
+		<!-- All Acegi Security System for Spring classes that belong in Catalina's
+		"Common" classloader ($CATALINA_HOME/common/lib directory) -->
+		<jar jarfile="${dist.dir}/acegi-security-catalina-common.jar">
+			<fileset dir="${target.classes.dir}">
+				<include name="net/sf/acegisecurity/*"/>
+				<include name="net/sf/acegisecurity/context/**"/>
+				<include name="net/sf/acegisecurity/providers/**"/>
+				<include name="net/sf/acegisecurity/runas/**"/>
+				<include name="net/sf/acegisecurity/vote/**"/>
+				<include name="net/sf/acegisecurity/adapters/*"/>
+				<include name="net/sf/acegisecurity/adapters/catalina/*"/>
+				<exclude name="net/sf/acegisecurity/adapters/catalina/CatalinaAcegiUserRealm.class"/>
+			</fileset>
+			<manifest>
+				<attribute name="Acegi-Security-System-version" value="${acegi-security-version}"/>
+			</manifest>
+		</jar>
+		
+		<!-- All Acegi Security System for Spring classes that belong in Jetty's
+		"ext" directory -->
+		<jar jarfile="${dist.dir}/acegi-security-jetty-ext.jar">
+			<fileset dir="${target.classes.dir}">
+				<include name="net/sf/acegisecurity/*"/>
+				<include name="net/sf/acegisecurity/context/**"/>
+				<include name="net/sf/acegisecurity/providers/**"/>
+				<include name="net/sf/acegisecurity/runas/**"/>
+				<include name="net/sf/acegisecurity/vote/**"/>
+				<include name="net/sf/acegisecurity/adapters/*"/>
+				<include name="net/sf/acegisecurity/adapters/jetty/*"/>
+			</fileset>
+			<manifest>
+				<attribute name="Acegi-Security-System-version" value="${acegi-security-version}"/>
+			</manifest>
+		</jar>
+		
+		<!-- All Acegi Security System for Spring classes that belong in JBoss'
+		"server/your_config/lib" directory -->
+		<jar jarfile="${dist.dir}/acegi-security-jboss-lib.jar">
+			<fileset dir="${target.classes.dir}">
+				<include name="net/sf/acegisecurity/*"/>
+				<include name="net/sf/acegisecurity/context/**"/>
+				<include name="net/sf/acegisecurity/providers/**"/>
+				<include name="net/sf/acegisecurity/runas/**"/>
+				<include name="net/sf/acegisecurity/vote/**"/>
+				<include name="net/sf/acegisecurity/adapters/*"/>
+				<include name="net/sf/acegisecurity/adapters/jboss/*"/>
+			</fileset>
+			<manifest>
+				<attribute name="Acegi-Security-System-version" value="${acegi-security-version}"/>
+			</manifest>
+		</jar>
+		
+		<!-- All Acegi Security System for Spring classes that belong in
+		Resin's "lib" directory -->
+		<jar jarfile="${dist.dir}/acegi-security-resin-lib.jar">
+			<fileset dir="${target.classes.dir}">
+				<include name="net/sf/acegisecurity/*"/>
+				<include name="net/sf/acegisecurity/context/**"/>
+				<include name="net/sf/acegisecurity/providers/**"/>
+				<include name="net/sf/acegisecurity/runas/**"/>
+				<include name="net/sf/acegisecurity/vote/**"/>
+				<include name="net/sf/acegisecurity/adapters/*"/>
+				<include name="net/sf/acegisecurity/adapters/resin/*"/>
+			</fileset>
+			<manifest>
+				<attribute name="Acegi-Security-System-version" value="${acegi-security-version}"/>
+			</manifest>
+		</jar>
+
+	</target>
+
+	<target name="srczip" depends="initdist" description="Create source ZIP (containing all Java sources)">
+		<delete file="${dist.dir}/${acegi-security-src.zip}"/>
+
+		<zip zipfile="${dist.dir}/${acegi-security-src.zip}">
+			<fileset dir="${src.dir}">
+				<include name="net/sf/acegisecurity/**"/>
+				<include name="net/sf/acegisecurity/context/**"/>
+			</fileset>
+		</zip>
+	</target>
+
+
+	<target name="alljars" depends="fulljar,srczip" description="Create all JAR files"/>
+
+	<target name="javadoc" description="Generate Javadocs.">
+		<mkdir dir="${javadocs.dir}"/>
+
+		<javadoc sourcepath="src" destdir="${javadocs.dir}" windowtitle="Acegi Security System for Spring"
+			defaultexcludes="yes"	author="true" version="true" use="true">
+			<doctitle><![CDATA[<h1>Acegi Security System for Spring</h1>]]></doctitle>
+			<bottom><![CDATA[<A HREF="http://acegisecurity.sourceforge.net">Acegi Security System for Spring Project]]></bottom>
+			<classpath refid="qa-portalpath"/>
+			<packageset dir="${src.dir}">
+				<include name="net/sf/acegisecurity/**"/>
+				<include name="net/sf/acegisecurity/context/**"/>
+			</packageset>
+		</javadoc>
+	</target>
+
+	<target name="release" depends="clean,alljars,format,tests,javadoc,refdoc" description="Generate release zip file">
+		<ant inheritall="no" antfile="build.xml" dir="samples/contacts" target="release"/>
+		<ant inheritall="no" antfile="build.xml" dir="samples/attributes" target="release"/>
+
+		<delete dir="${target.release.dir}"/>
+		<mkdir dir="${target.release.dir}"/>
+
+		<fileset id="main" dir=".">
+			<include name="dist/*.jar"/>
+			<include name="docs/**"/>
+			<exclude name="docs/reference/lib/**"/>
+			<include name="extractor/*"/>
+			<include name="extractor/source/*"/>
+			<include name="integration-test/**"/>
+			<exclude name="integration-test/lib/**"/>
+			<exclude name="integration-test/build.properties"/>
+			<exclude name="integration-test/classes/**"/>
+			<exclude name="integration-test/containers/**"/>
+			<exclude name="integration-test/reports/**"/>
+			<exclude name="integration-test/temporary/**"/>
+			<include name="samples/**"/>
+			<exclude name="samples/contacts/classes/**"/>
+			<exclude name="samples/contacts/build.properties"/>
+			<exclude name="samples/attributes/classes/**"/>
+			<exclude name="samples/attributes/reports/**"/>
+			<exclude name="samples/attributes/generated/**"/>
+			<include name="src/**"/>
+			<include name="test/**"/>
+			<include name="hsqldb/**"/>
+			<include name="*.txt"/>
+			<include name="*.xml"/>
+			<exclude name="project.properties"/>
+		</fileset>
+
+		<zip zipfile="${target.release.dir}/${release.zip}">
+			<zipfileset refid="main" prefix="${release.path}"/>
+		</zip>
+
+		<zip zipfile="${target.release.dir}/${release-with-dependencies.zip}">
+			<zipfileset refid="main" prefix="${release.path}"/>
+			<zipfileset dir="." prefix="${release.path}">
+				<include name="lib/**"/>
+				<include name="integration-test/lib/**"/>
+			</zipfileset>
+		</zip>
+
+	</target>
+
+ 	<!--
+		Compile test cases
+	-->
+	<target name="buildtests" depends="" description="Compile test source tree Java files into class files">
+
+		<mkdir dir="${target.testclasses.dir}"/>
+
+		<javac destdir="${target.testclasses.dir}" target="1.3" debug="${debug}"
+			deprecation="false" optimize="false" failonerror="true">
+			<src path="${test.dir}"/>
+			<classpath refid="qa-portalpath"/>
+			<classpath location="${target.classes.dir}"/>
+		</javac>
+
+		<!-- Pick up logging config from test directory -->
+		<copy todir="${target.testclasses.dir}" preservelastmodified="true">
+			<fileset dir="${test.dir}">
+				<include name="**/*.properties"/>
+			</fileset>
+		</copy>
+
+	</target>
+
+
+	<!--
+		Run tests. 
+	-->
+	<target name="tests" depends="buildtests" description="Run tests.">
+
+		<property name="reports.dir" value="${target.junit.reports.dir}"/>
+
+		<delete dir="${reports.dir}"/>
+		<mkdir dir="${reports.dir}"/>
+
+		<junit printsummary="yes" haltonfailure="yes">
+
+			<!-- Must go first to ensure any jndi.properties files etc take precedence  -->
+			<classpath location="${target.testclasses.dir}"/>
+			<classpath location="${target.classes.dir}"/>
+
+			<!-- Need files loaded as resources -->
+			<classpath location="${test.dir}"/>
+
+			<classpath refid="qa-portalpath"/>
+
+			<formatter type="plain"/>
+
+			<batchtest fork="yes" todir="${reports.dir}">
+				<fileset dir="${target.testclasses.dir}" includes="${test.includes}" excludes="${test.excludes}"/>
+			</batchtest>
+
+		</junit>
+
+	</target>
+
+	<target name="docclean" description="Delete temporary and distribution directories for docs">
+
+		<delete quiet="true" dir="${basedir}/${dist.ref.dir}/pdf"/>
+		<delete quiet="true" dir="${basedir}/${dist.ref.dir}/html_single"/>
+		<delete quiet="true" dir="${basedir}/${dist.ref.dir}/html"/>
+
+	</target>
+
+
+	<target name="preparedocs" description="Extra preparation for the documentation">
+		<!-- For now, no dynamic inclusion of the DTD since it looks ugly because of
+		     all the extra newlines the replace is mysteriously adding.
+		     I'll figure something out for that later on
+		<delete file="${basedir}/${doc.ref.dir}/src/dtd.xml"/>
+		<loadfile
+			property="doc.beansdtd"
+				srcFile="${src.dir}/org/springframework/beans/factory/xml/spring-beans.dtd"/>
+		<copy
+			file="${basedir}/${doc.ref.dir}/src/dtd-template.xml"
+			tofile="${basedir}/${doc.ref.dir}/src/dtd.xml"/>
+		<replace
+			file="${basedir}/${doc.ref.dir}/src/dtd.xml"
+			token="@dtd-include@"
+			value="${doc.beansdtd}">
+		</replace>
+		<replace
+			file="${basedir}/${doc.ref.dir}/src/dtd.xml"
+			token="\\n"
+			value=""/>
+		-->
+	</target>
+
+
+	<target name="docpdf" depends="preparedocs" description="Compile reference documentation to pdf">
+
+		<mkdir dir="${basedir}/${dist.ref.dir}/pdf/images"/>
+
+		<copy todir="${basedir}/${dist.ref.dir}/pdf/images">
+			<fileset dir="${basedir}/${doc.ref.dir}/src/images">
+				<include name="*.gif"/>
+				<include name="*.svg"/>
+				<include name="*.jpg"/>
+			</fileset>
+		</copy>
+
+		<java classname="com.icl.saxon.StyleSheet" fork="true" dir="${doc.ref.dir}">
+			<classpath>
+				<fileset dir="${basedir}/${doc.ref.dir}/lib">
+					<include name="**/*.jar"/>
+				</fileset>
+			</classpath>
+			<arg value="-o"/>
+			<arg value="${basedir}/${dist.ref.dir}/pdf/docbook_fop.tmp"/>
+			<arg value="${basedir}/${doc.ref.dir}/src/index.xml"/>
+			<arg value="${basedir}/${doc.ref.dir}/styles/fopdf.xsl"/>
+		</java>
+
+		<java classname="org.apache.fop.apps.Fop" fork="true" dir="${doc.ref.dir}">
+			<classpath>
+				<fileset dir="${basedir}/${doc.ref.dir}/lib">
+					<include name="**/*.jar"/>
+				</fileset>
+			</classpath>
+			<arg value="${basedir}/${dist.ref.dir}/pdf/docbook_fop.tmp"/>
+			<arg value="${basedir}/${dist.ref.dir}/pdf/acegi-security-reference.pdf"/>
+		</java>
+
+		<delete file="${dist.ref.dir}/pdf/docbook_fop.tmp"/>
+
+	</target>
+
+
+	<target name="dochtml" depends="preparedocs" description="Compile reference documentation to chunked html">
+
+		<mkdir dir="${dist.ref.dir}/html/images"/>
+
+		<copy todir="${basedir}/${dist.ref.dir}/html/images">
+			<fileset dir="${basedir}/${doc.ref.dir}/src/images">
+				<include name="*.gif"/>
+				<include name="*.svg"/>
+				<include name="*.jpg"/>
+			</fileset>
+		</copy>
+
+		<java classname="com.icl.saxon.StyleSheet" fork="true" dir="${dist.ref.dir}/html/">
+			<classpath>
+				<fileset dir="${basedir}/${doc.ref.dir}/lib">
+					<include name="**/*.jar"/>
+				</fileset>
+			</classpath>
+			<arg value="${basedir}/${doc.ref.dir}/src/index.xml"/>
+			<arg value="${basedir}/${doc.ref.dir}/styles/html_chunk.xsl"/>
+		</java>
+
+	</target>
+
+
+	<target name="dochtmlsingle" description="Compile reference documentation to single html">
+
+		<mkdir dir="${dist.ref.dir}/html_single/images"/>
+
+		<copy todir="${basedir}/${dist.ref.dir}/html_single/images">
+			<fileset dir="${basedir}/${doc.ref.dir}/src/images">
+				<include name="*.gif"/>
+				<include name="*.svg"/>
+				<include name="*.jpg"/>
+			</fileset>
+		</copy>
+
+		<java classname="com.icl.saxon.StyleSheet" fork="true" dir="${doc.ref.dir}">
+			<classpath>
+				<fileset dir="${basedir}/${doc.dir}/reference/lib">
+					<include name="**/*.jar"/>
+				</fileset>
+			</classpath>
+			<arg value="-o"/>
+			<arg value="${basedir}/${dist.ref.dir}/html_single/index.html"/>
+			<arg value="${basedir}/${doc.ref.dir}/src/index.xml"/>
+			<arg value="${basedir}/${doc.ref.dir}/styles/html.xsl"/>
+		</java>
+
+	</target>
+
+
+	<target name="refdoc" depends="dochtml,dochtmlsingle,docpdf" description="Generate and copy reference documentation"/>
+
+</project>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="src" path="src"/>
+    <classpathentry kind="src" path="test"/>
+    <classpathentry kind="src" path="samples/contacts/src"/>
+    <classpathentry kind="src" path="samples/attributes/src"/>
+    <classpathentry kind="src" path="integration-test/src"/>
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+    <classpathentry kind="lib" path="lib/aop-alliance/aopalliance.jar"/>
+    <classpathentry kind="lib" path="lib/jakarta-commons/commons-logging.jar"/>
+    <classpathentry kind="lib" path="lib/j2ee/servlet.jar"/>
+    <classpathentry kind="lib" path="lib/junit/junit.jar"/>
+    <classpathentry kind="lib" path="lib/spring/spring.jar"/>
+    <classpathentry kind="lib" path="lib/extracted/jboss/jboss-common-extracted.jar"/>
+    <classpathentry kind="lib" path="lib/extracted/jboss/jbosssx-extracted.jar"/>
+    <classpathentry kind="lib" path="lib/extracted/catalina/catalina-extracted.jar"/>
+    <classpathentry kind="lib" path="lib/extracted/catalina/jmx-extracted.jar"/>
+    <classpathentry kind="lib" path="lib/extracted/jetty/org.mortbay.jetty-extracted.jar"/>
+    <classpathentry kind="lib" path="lib/extracted/resin/resin-extracted.jar"/>
+    <classpathentry kind="lib" path="integration-test/lib/httpunit.jar"/>
+    <classpathentry kind="output" path="target/eclipseclasses"/>
+</classpath>

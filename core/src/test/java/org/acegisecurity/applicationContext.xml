@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+ * The Acegi Security System for Spring is published under the terms
+ * of the Apache Software License.
+ * $Id$
+-->
+
+<beans>
+
+	<!-- =================== SECURITY SYSTEM DEFINITIONS ================== -->
+	
+	<!-- RunAsManager -->
+	<bean id="runAsManager" class="net.sf.acegisecurity.runas.RunAsManagerImpl">
+     	<property name="key"><value>my_run_as_password</value></property>
+ 	</bean>
+
+	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHENTICATION DEFINITIONS ~~~~~~~~~~~~~~~~~~ -->
+
+	<!-- This authentication provider accepts any presented TestingAuthenticationToken -->
+	<bean id="testingAuthenticationProvider" class="net.sf.acegisecurity.providers.TestingAuthenticationProvider"/>
+
+	<!-- The authentication manager that iterates through our only authentication provider -->
+	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+		<property name="providers">
+		  <list>
+		    <ref bean="testingAuthenticationProvider"/>
+		  </list>
+		</property>
+	</bean>
+
+	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~~~~ -->
+
+	<!-- An access decision voter that reads ROLE_* configuaration settings -->
+	<bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
+
+	<!-- An access decision voter that reads BANKSECURITY_CUSTOMER configuaration settings -->
+	<bean id="bankSecurityVoter" class="net.sf.acegisecurity.BankSecurityVoter"/>
+
+	<!-- An affirmative access decision manager -->
+	<bean id="accessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
+   		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
+		<property name="decisionVoters">
+		  <list>
+		    <ref bean="roleVoter"/>
+		    <ref bean="bankSecurityVoter"/>
+		  </list>
+		</property>
+	</bean>
+
+	<!-- ===================== SECURITY DEFINITIONS ======================= -->
+	
+	<!-- No declaration for BankManager.getBankFundsUnderControl() makes it public -->
+	<bean id="bankManagerSecurity" class="net.sf.acegisecurity.SecurityInterceptor">
+    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
+    	<property name="runAsManager"><ref bean="runAsManager"/></property>
+ 		<property name="methodDefinitionSource">
+			<value>
+				net.sf.acegisecurity.context.BankManager.delete*=ROLE_SUPERVISOR
+				net.sf.acegisecurity.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER
+				net.sf.acegisecurity.context.BankManager.loadAccount=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER
+				net.sf.acegisecurity.context.BankManager.saveAccount=ROLE_TELLER,ROLE_SUPERVISOR
+				net.sf.acegisecurity.context.BankManager.transferFunds=ROLE_SUPERVISOR
+			</value>
+		</property>
+	</bean>
+
+	<!-- ======================= BUSINESS DEFINITIONS ===================== -->
+
+	<bean id="bankManagerTarget" class="net.sf.acegisecurity.context.BankManagerImpl"/>
+
+	<!-- We don't include any context interceptor, although we should do so prior to the security interceptor -->
+	<bean id="bankManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+    	<property name="proxyInterfaces"><value>net.sf.acegisecurity.context.BankManager</value></property>
+	    <property name="interceptorNames">
+      	<list>
+        	<value>bankManagerSecurity</value>
+ 	        <value>bankManagerTarget</value>
+    	</list>
+	    </property>
+  	</bean>
+
+</beans>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+ * The Acegi Security System for Spring is published under the terms
+ * of the Apache Software License.
+ * $Id$
+-->
+
+<beans>
+
+	<!-- =================== SECURITY SYSTEM DEFINITIONS ================== -->
+	
+	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHENTICATION DEFINITIONS ~~~~~~~~~~~~~~~~~~ -->
+
+	<!-- Authentication provider that accepts as valid any adapter-created Authentication token  -->
+	<bean id="authByAdapterProvider" class="net.sf.acegisecurity.adapters.AuthByAdapterProvider">
+  		<property name="key"><value>my_password</value></property>
+ 	</bean>
+
+	<!-- The authentication manager that iterates through our authentication providers -->
+	<bean id="providerManager" class="net.sf.acegisecurity.providers.ProviderManager">
+		<property name="providers">
+		  <list>
+		    <ref bean="authByAdapterProvider"/>
+		  </list>
+		</property>
+	</bean>
+
+</beans>

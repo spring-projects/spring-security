@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+
+<!--
+    Build file for extracting relevant classes out of distribution JARs.
+ 
+    $Id$
+-->
+
+<project name="acegi-security-lib-extractor" default="usage" basedir=".">
+
+	<property file="build.properties"/>
+	<property file="project.properties"/>
+
+	<target name="usage">
+		<echo message=""/>
+		<echo message="${name} build file"/>
+		<echo message="------------------------------------------------------"/>
+		<echo message=""/>
+		<echo message="Among the available targets are:"/>
+		<echo message=""/>
+		<echo message="extract           --> runs all extract targets below"/>
+		<echo message="extract-catalina  --> extracts required classes from Catalina"/>
+		<echo message="extract-jboss     --> extracts required classes from JBoss"/>
+		<echo message="extract-jetty     --> extracts required classes from Jetty"/>
+		<echo message="extract-resin     --> extracts required classes from Resin"/>
+		<echo message=""/>
+	</target>
+
+	<target name="extract" depends="extract-jboss,extract-catalina,extract-jetty,extract-resin" description="Extract required files from all source JARs"/>
+
+	<target name="extract-jboss" depends="" description="Extract required classes from JBoss">
+		<delete dir="${tmp.dir}"/>
+		<mkdir dir="${tmp.dir}"/>
+		<delete dir="${dest.dir.jboss}"/>
+		<mkdir dir="${dest.dir.jboss}"/>
+
+		<copy todir="${dest.dir.jboss}" file="${source.license.jboss}"/>
+
+		<unzip src="${source.dir.jboss}/jbosssx.jar" dest="${tmp.dir}/jbosssx"/>
+		<jar update="no" jarfile="${dest.dir.jboss}/jbosssx-extracted.jar">
+			<fileset dir="${tmp.dir}/jbosssx">
+				<include name="org/jboss/security/Simple*"/>
+				<include name="org/jboss/security/auth/spi/AbstractServerLoginModule*"/>
+			</fileset>
+			<manifest>
+				<attribute name="Extracted-By-Acegi-Security-System-Extractor-Version" value="${extractor-version}"/>
+				<attribute name="Extracted-From-Info" value="${extract.info.jboss}"/>
+			</manifest>
+		</jar>
+		
+		<unzip src="${source.dir.jboss}/jboss-common.jar" dest="${tmp.dir}/jboss-common"/>
+		<jar update="no" jarfile="${dest.dir.jboss}/jboss-common-extracted.jar">
+			<fileset dir="${tmp.dir}/jboss-common">
+				<include name="org/jboss/logging/Logger*"/>
+			</fileset>
+			<manifest>
+				<attribute name="Extracted-By-Acegi-Security-System-Extractor-Version" value="${extractor-version}"/>
+				<attribute name="Extracted-From-Info" value="${extract.info.jboss}"/>
+			</manifest>
+		</jar>
+
+		<delete dir="${tmp.dir}"/>
+	</target>
+
+	<target name="extract-catalina" depends="" description="Extract required classes from Catalina">
+		<delete dir="${tmp.dir}"/>
+		<mkdir dir="${tmp.dir}"/>
+		<delete dir="${dest.dir.catalina}"/>
+		<mkdir dir="${dest.dir.catalina}"/>
+
+		<copy todir="${dest.dir.catalina}" file="${source.license.catalina}"/>
+
+		<unzip src="${source.dir.catalina}/catalina.jar" dest="${tmp.dir}/catalina"/>
+		<jar update="no" jarfile="${dest.dir.catalina}/catalina-extracted.jar">
+			<fileset dir="${tmp.dir}/catalina">
+				<include name="org/apache/catalina/Container*"/>
+				<include name="org/apache/catalina/LifecycleException*"/>
+				<include name="org/apache/catalina/Lifecycle*"/>
+				<include name="org/apache/catalina/Realm*"/>
+				<include name="org/apache/catalina/realm/RealmBase*"/>
+			</fileset>
+			<manifest>
+				<attribute name="Extracted-By-Acegi-Security-System-Extractor-Version" value="${extractor-version}"/>
+				<attribute name="Extracted-From-Info" value="${extract.info.catalina}"/>
+			</manifest>
+		</jar>
+		
+		<unzip src="${source.dir.catalina}/jmx.jar" dest="${tmp.dir}/jmx"/>
+		<jar update="no" jarfile="${dest.dir.catalina}/jmx-extracted.jar">
+			<fileset dir="${tmp.dir}/jmx">
+				<include name="javax/management/MBeanRegistration*"/>
+			</fileset>
+			<manifest>
+				<attribute name="Extracted-By-Acegi-Security-System-Extractor-Version" value="${extractor-version}"/>
+				<attribute name="Extracted-From-Info" value="${extract.info.catalina}"/>
+			</manifest>
+		</jar>
+
+		<delete dir="${tmp.dir}"/>
+	</target>
+
+	<target name="extract-jetty" depends="" description="Extract required classes from Jetty">
+		<delete dir="${tmp.dir}"/>
+		<mkdir dir="${tmp.dir}"/>
+		<delete dir="${dest.dir.jetty}"/>
+		<mkdir dir="${dest.dir.jetty}"/>
+
+		<copy todir="${dest.dir.jetty}" file="${source.license.jetty}"/>
+
+		<unzip src="${source.dir.jetty}/org.mortbay.jetty.jar" dest="${tmp.dir}/org.mortbay.jetty"/>
+		<jar update="no" jarfile="${dest.dir.jetty}/org.mortbay.jetty-extracted.jar">
+			<fileset dir="${tmp.dir}/org.mortbay.jetty">
+				<include name="org/mortbay/http/HttpRequest*"/>
+				<include name="org/mortbay/http/User*"/>
+			</fileset>
+			<manifest>
+				<attribute name="Extracted-By-Acegi-Security-System-Extractor-Version" value="${extractor-version}"/>
+				<attribute name="Extracted-From-Info" value="${extract.info.jetty}"/>
+			</manifest>
+		</jar>
+		
+		<delete dir="${tmp.dir}"/>
+	</target>
+
+	<target name="extract-resin" depends="" description="Extract required classes from Resin">
+		<delete dir="${tmp.dir}"/>
+		<mkdir dir="${tmp.dir}"/>
+		<delete dir="${dest.dir.resin}"/>
+		<mkdir dir="${dest.dir.resin}"/>
+
+		<copy todir="${dest.dir.resin}" file="${source.license.resin}"/>
+
+		<unzip src="${source.dir.resin}/resin.jar" dest="${tmp.dir}/resin"/>
+		<jar update="no" jarfile="${dest.dir.resin}/resin-extracted.jar">
+			<fileset dir="${tmp.dir}/resin">
+				<include name="com/caucho/http/security/AbstractAuthenticator*"/>
+				<include name="com/caucho/vfs/Path*"/>
+				<include name="com/caucho/server/security/AbstractAuthenticator*"/>
+				<include name="com/caucho/server/security/ServletAuthenticator*"/>
+			</fileset>
+			<manifest>
+				<attribute name="Extracted-By-Acegi-Security-System-Extractor-Version" value="${extractor-version}"/>
+				<attribute name="Extracted-From-Info" value="${extract.info.resin}"/>
+			</manifest>
+		</jar>
+		
+		<delete dir="${tmp.dir}"/>
+	</target>
+
+</project>

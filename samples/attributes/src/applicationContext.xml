@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+ * The Acegi Security System for Spring is published under the terms
+ * of the Apache Software License.
+ * $Id$
+-->
+
+<beans>
+
+	<!-- =================== SECURITY SYSTEM DEFINITIONS ================== -->
+	
+	<!-- RunAsManager -->
+	<bean id="runAsManager" class="net.sf.acegisecurity.runas.RunAsManagerImpl">
+     	<property name="key"><value>my_run_as_password</value></property>
+ 	</bean>
+
+	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHENTICATION DEFINITIONS ~~~~~~~~~~~~~~~~~~ -->
+
+	<!-- This authentication provider accepts any presented TestingAuthenticationToken -->
+	<bean id="testingAuthenticationProvider" class="net.sf.acegisecurity.providers.TestingAuthenticationProvider"/>
+
+	<!-- The authentication manager that iterates through our only authentication provider -->
+	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+		<property name="providers">
+		  <list>
+		    <ref bean="testingAuthenticationProvider"/>
+		  </list>
+		</property>
+	</bean>
+
+	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~~~~ -->
+
+	<!-- An access decision voter that reads ROLE_* configuaration settings -->
+	<bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
+
+	<!-- A unanimous access decision manager -->
+	<bean id="accessDecisionManager" class="net.sf.acegisecurity.vote.UnanimousBased">
+   		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
+		<property name="decisionVoters">
+		  <list>
+		    <ref bean="roleVoter"/>
+		  </list>
+		</property>
+	</bean>
+	
+	<!-- ===================== SECURITY DEFINITIONS ======================= -->
+	
+	<bean id="attributes" class="org.springframework.metadata.commons.CommonsAttributes"/>
+	<bean id="methodDefinitionSource" class="net.sf.acegisecurity.MethodDefinitionAttributes">
+		<property name="attributes"><ref local="attributes"/></property>
+	</bean>
+
+	<!-- We don't validate config attributes, as it's unsupported by MethodDefinitionAttributes -->
+	<bean id="securityInterceptor" class="net.sf.acegisecurity.SecurityInterceptor">
+    	<property name="validateConfigAttributes"><value>false</value></property>
+    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
+    	<property name="runAsManager"><ref bean="runAsManager"/></property>
+ 		<property name="methodDefinitionSource"><ref bean="methodDefinitionSource"/></property>
+	</bean>
+	
+	<bean id="bankService" class="sample.attributes.BankServiceImpl"/>
+	
+	<bean id="autoProxyCreator" class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+		<!-- names of the interceptors that will be applied by the proxy -->
+        <property name="interceptorNames">
+            <list>
+                <value>securityInterceptor</value>
+            </list>
+        </property>
+
+		<!-- the bean names to automatically generate proxies for -->
+        <property name="beanNames">
+            <list>
+                <value>bankService</value>
+            </list>
+        </property>
+    </bean>
+
+</beans>

@@ -1,0 +1,6 @@
+<!--
+  - $Id$
+  -->
+<jboss-web>
+    <security-domain>java:/jaas/SpringPoweredRealm</security-domain>
+</jboss-web>

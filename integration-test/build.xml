@@ -1,0 +1,231 @@
+<?xml version="1.0"?>
+
+<!--
+    Build file for running container integration tests.
+    
+    $Id$
+-->
+
+<project name="acegi-security-integration-tests" default="usage" basedir=".">
+
+	<property file="build.properties"/>
+	<property file="project.properties"/>
+
+	<path id="qa-portalpath">
+		<fileset dir="${dist.lib.dir}">
+			<include name="acegi-security-spring.jar"/>
+		</fileset>
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar"/>
+		</fileset>
+		<fileset dir="${httpunit.lib.dir}">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+
+    <path id="jalopy-classpath">
+        <fileset dir="${lib.dir}/jalopy">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+	<target name="usage">
+		<echo message=""/>
+		<echo message="${name} build file"/>
+		<echo message="------------------------------------------------------"/>
+		<echo message=""/>
+		<echo message="Among the available targets are:"/>
+		<echo message=""/>
+		<echo message="clean             --> deletes output directories"/>
+		<echo message="unzip             --> unzips each container into file system"/>
+		<echo message="tests             --> unzips each container and runs all tests"/>
+		<echo message="tests-jetty       --> runs the integration tests with Jetty"/>
+		<echo message="tests-jboss       --> runs the integration tests with JBoss"/>
+		<echo message="tests-catalina    --> runs the integration tests with Catalina"/>
+		<echo message=""/>
+		<echo message="Each tests-xxxx target assumes the container is unzipped"/>
+		<echo message=""/>
+		<echo message="BE SURE TO CHECK REPORTS DIRECTORY FOR RESULTS OF TESTS!"/>
+		<echo message="   *** The script does NOT halt if a test fails ***"/>
+		<echo message=""/>
+	</target>
+
+	<target name="clean" description="Clean all output dirs">
+		<delete dir="${build.dir}"/>
+		<delete dir="${tmp.dir}"/>
+		<delete dir="${reports.dir}"/>
+	</target>
+
+	<target name="buildtests" depends="" description="Compile test source tree Java files into class files">
+		<mkdir dir="${build.dir}"/>
+
+		<javac destdir="${build.dir}" target="1.3" debug="${debug}"
+			deprecation="false" optimize="false" failonerror="true">
+			<src path="${src.dir}"/>
+			<classpath refid="qa-portalpath"/>
+		</javac>
+	</target>
+
+    <target name="format" description="Formats all project source code">
+        <taskdef name="jalopy" classname="de.hunsicker.jalopy.plugin.ant.AntPlugin">
+            <classpath refid="jalopy-classpath"/>
+        </taskdef>
+
+        <jalopy fileformat="unix"
+            convention="${jalopy.xml}"
+            history="file"
+            historymethod="adler32"
+            loglevel="error"
+            threads="2"
+            classpathref="qa-portalpath">
+            <fileset dir="${src.dir}">
+                <include name="**/*.java"/>
+            </fileset>
+        </jalopy>
+   </target>
+
+	<target name="tests" depends="clean,unzip,tests-jetty,tests-catalina,tests-jboss" description="Run all integration tests">
+		<echo message="BE SURE TO CHECK REPORTS DIRECTORY FOR RESULTS OF TESTS!"/>
+	</target>
+	
+	<target name="tests-jetty" depends="buildtests" description="Runs Jetty integration tests">
+		<copy file="${config.dir}/jetty-4.2.18/jetty.xml" todir="${tmp.dir}/jetty-4.2.18/etc" overwrite="true"/>
+		<copy file="${acegisecurity.xml}" todir="${tmp.dir}/jetty-4.2.18/etc" overwrite="true"/>
+		<copy file="${dist.lib.dir}/acegi-security-jetty-ext.jar" todir="${tmp.dir}/jetty-4.2.18/ext" overwrite="true"/>
+		<copy file="${lib.dir}/aop-alliance/aopalliance.jar" todir="${tmp.dir}/jetty-4.2.18/ext" overwrite="true"/>
+		<copy file="${lib.dir}/jakarta-commons/commons-logging.jar" todir="${tmp.dir}/jetty-4.2.18/ext" overwrite="true"/>
+		<copy file="${lib.dir}/spring/spring.jar" todir="${tmp.dir}/jetty-4.2.18/ext" overwrite="true"/>
+		<copy file="${contacts.war}" todir="${tmp.dir}/jetty-4.2.18/webapps" overwrite="true"/>
+	
+		<parallel>
+			<java fork="true" dir="${tmp.dir}/jetty-4.2.18/" classpath="${tmp.dir}/jetty-4.2.18/start.jar" classname="org.mortbay.start.Main">
+			</java>
+			<sequential>
+                <waitfor maxwait="60" maxwaitunit="second" checkevery="500" checkeveryunit="millisecond">
+                    <http url="http://localhost:8080/contacts" />
+                </waitfor>
+		  		<delete dir="${reports.dir}/jetty-4.2.18"/>
+		  		<mkdir dir="${reports.dir}/jetty-4.2.18"/>
+		  		<junit printsummary="yes" haltonfailure="no">
+					<classpath location="${build.dir}"/>
+					<classpath refid="qa-portalpath"/>
+					<formatter type="plain"/>
+					<batchtest fork="yes" todir="${reports.dir}/jetty-4.2.18">
+						<fileset dir="${build.dir}" includes="${test.includes}" excludes="${test.excludes}"/>
+					</batchtest>
+				</junit>
+		  		<java fork="true" dir="${tmp.dir}/jetty-4.2.18/" classpath="${tmp.dir}/jetty-4.2.18/stop.jar" classname="org.mortbay.stop.Main"/>
+        	</sequential>
+		</parallel>
+	</target>
+	
+	<target name="tests-catalina" depends="buildtests" description="Runs Catalina integration tests">
+		<delete dir="${tmp.dir}/jakarta-tomcat-5.0.19/webapps/contacts"/>
+		<copy file="${config.dir}/catalina-5.0.19/server.xml" todir="${tmp.dir}/jakarta-tomcat-5.0.19/conf" overwrite="true"/>
+		<copy file="${acegisecurity.xml}" todir="${tmp.dir}/jakarta-tomcat-5.0.19/conf" overwrite="true"/>
+		<copy file="${dist.lib.dir}/acegi-security-catalina-server.jar" todir="${tmp.dir}/jakarta-tomcat-5.0.19/server/lib" overwrite="true"/>
+		<copy file="${dist.lib.dir}/acegi-security-catalina-common.jar" todir="${tmp.dir}/jakarta-tomcat-5.0.19/common/lib" overwrite="true"/>
+		<copy file="${lib.dir}/aop-alliance/aopalliance.jar" todir="${tmp.dir}/jakarta-tomcat-5.0.19/common/lib" overwrite="true"/>
+		<copy file="${lib.dir}/spring/spring.jar" todir="${tmp.dir}/jakarta-tomcat-5.0.19/common/lib" overwrite="true"/>
+		<copy file="${contacts.war}" todir="${tmp.dir}/jakarta-tomcat-5.0.19/webapps" overwrite="true"/>
+
+		<property name="tomcat.home" value="${tmp.dir}/jakarta-tomcat-5.0.19"/>
+		<parallel>
+			<java fork="true" classname="org.apache.catalina.startup.Bootstrap" dir="${tomcat.home}">
+				<jvmarg value="-Dcatalina.home=${tomcat.home}"/>
+				<arg value="start"/>
+				<classpath>
+					<pathelement path="${java.home}/../lib/tools.jar"/>
+					<fileset dir="${tomcat.home}">
+						<include name="bin/bootstrap.jar"/>
+					</fileset>
+				</classpath>
+			</java>
+			<sequential>
+                <waitfor maxwait="60" maxwaitunit="second" checkevery="500" checkeveryunit="millisecond">
+                    <http url="http://localhost:8080/contacts" />
+                </waitfor>
+		  		<delete dir="${reports.dir}/jakarta-tomcat-5.0.19"/>
+		  		<mkdir dir="${reports.dir}/jakarta-tomcat-5.0.19"/>
+		  		<junit printsummary="yes" haltonfailure="no">
+					<classpath location="${build.dir}"/>
+					<classpath refid="qa-portalpath"/>
+					<formatter type="plain"/>
+					<batchtest fork="yes" todir="${reports.dir}/jakarta-tomcat-5.0.19">
+						<fileset dir="${build.dir}" includes="${test.includes}" excludes="${test.excludes}"/>
+					</batchtest>
+				</junit>
+				<java fork="true" classname="org.apache.catalina.startup.Bootstrap" dir="${tomcat.home}">
+					<jvmarg value="-Dcatalina.home=${tomcat.home}"/>
+					<arg value="stop"/>
+					<classpath>
+						<pathelement path="${java.home}/../lib/tools.jar"/>
+						<fileset dir="${tomcat.home}">
+							<include name="bin/bootstrap.jar"/>
+						</fileset>
+					</classpath>
+				</java>
+ 	      	</sequential>
+		</parallel>
+	</target>
+	
+	<target name="tests-jboss" depends="buildtests" description="Runs JBoss integration tests">
+		<copy file="${config.dir}/jboss-3.2.3/login-config.xml" todir="${tmp.dir}/jboss-3.2.3/server/default/conf" overwrite="true"/>
+		<copy file="${acegisecurity.xml}" todir="${tmp.dir}/jboss-3.2.3/server/default/conf" overwrite="true"/>
+		<copy file="${dist.lib.dir}/acegi-security-jboss-lib.jar" todir="${tmp.dir}/jboss-3.2.3/server/default/lib" overwrite="true"/>
+		<copy file="${lib.dir}/aop-alliance/aopalliance.jar" todir="${tmp.dir}/jboss-3.2.3/server/default/lib" overwrite="true"/>
+		<copy file="${lib.dir}/spring/spring.jar" todir="${tmp.dir}/jboss-3.2.3/server/default/lib" overwrite="true"/>
+		<copy file="${contacts.war}" todir="${tmp.dir}/jboss-3.2.3/server/default/deploy" overwrite="true"/>
+
+		<parallel>
+            <java fork="yes" classname="org.jboss.Main" dir="${tmp.dir}/jboss-3.2.3">
+                <classpath>
+        			<pathelement path="${java.home}/../lib/tools.jar"/>
+		            <pathelement path="${tmp.dir}/jboss-3.2.3/bin/run.jar"/>
+                </classpath>
+            </java>
+			<sequential>
+                <waitfor maxwait="60" maxwaitunit="second" checkevery="500" checkeveryunit="millisecond">
+                    <http url="http://localhost:8080/contacts" />
+                </waitfor>
+		  		<delete dir="${reports.dir}/jboss-3.2.3"/>
+		  		<mkdir dir="${reports.dir}/jboss-3.2.3"/>
+		  		<junit printsummary="yes" haltonfailure="no">
+					<classpath location="${build.dir}"/>
+					<classpath refid="qa-portalpath"/>
+					<formatter type="plain"/>
+					<batchtest fork="yes" todir="${reports.dir}/jboss-3.2.3">
+						<fileset dir="${build.dir}" includes="${test.includes}" excludes="${test.excludes}"/>
+					</batchtest>
+				</junit>
+		        <java fork="yes" classname="org.jboss.Shutdown" dir="${tmp.dir}/jboss-3.2.3">
+					<arg value="--shutdown"/>
+		            <classpath>
+		                <pathelement path="${tmp.dir}/jboss-3.2.3/bin/shutdown.jar"/>
+		            </classpath>
+		        </java>
+ 	      	</sequential>
+		</parallel>
+	</target>
+
+	<target name="unzip" depends="unzip-jetty,unzip-catalina,unzip-jboss" description="Unzip all containers"/>
+
+	<target name="unzip-jetty" depends="" description="Unzip Jetty container">
+		<delete dir="${tmp.dir}/Jetty-4.2.18"/>
+		<mkdir dir="${tmp.dir}/Jetty-4.2.18"/>
+		<unzip src="${containers.dir}/Jetty-4.2.18-all.zip" dest="${tmp.dir}"/>
+	</target>
+	
+	<target name="unzip-catalina" depends="" description="Unzip Catalina container">
+		<delete dir="${tmp.dir}/jakarta-tomcat-5.0.19"/>
+		<mkdir dir="${tmp.dir}/jakarta-tomcat-5.0.19"/>
+		<unzip src="${containers.dir}/jakarta-tomcat-5.0.19.zip" dest="${tmp.dir}"/>
+	</target>
+	
+	<target name="unzip-jboss" depends="" description="Unzip JBoss container">
+		<delete dir="${tmp.dir}/jboss-3.2.3"/>
+		<mkdir dir="${tmp.dir}/jboss-3.2.3"/>
+		<unzip src="${containers.dir}/jboss-3.2.3.zip" dest="${tmp.dir}"/>
+	</target>
+
+</project>

@@ -1,0 +1,39 @@
+Changes in version 0.3 (2004-03-16)
+-----------------------------------
+
+* Added "in container" unit test system for container adapters and sample app
+* Added library extractor tool to reduce the "with deps" ZIP release sizes
+* Added unit test to the attributes sample
+* Added Jalopy source formatting
+* Modified all files to use net.sf.acegisecurity namespace
+* Renamed springsecurity.xml to acegisecurity.xml for consistency
+* Reduced length of ZIP and JAR filenames
+* Clarified licenses and sources for all included libraries
+* Updated documentation to reflect new file and package names
+* Setup Sourceforge.net project and added to CVS etc
+
+Changes in version 0.2 (2004-03-10)
+-----------------------------------
+
+* Added Commons Attributes support and sample (thanks to Cameron Braid)
+* Added JBoss container adapter
+* Added Resin container adapter
+* Added JDBC DAO authentication provider
+* Added several filter implementations for container adapter integration
+* Added SecurityInterceptor startup time validation of ConfigAttributes
+* Added more unit tests
+* Refactored ConfigAttribute to interface and added concrete implementation
+* Enhanced diagnostics information provided by sample application debug.jsp
+* Modified sample application for wider container portability (Resin, JBoss)
+* Fixed switch block in voting decision manager implementations
+* Removed Spring MVC interceptor for container adapter integration
+* Documentation improvements
+
+Changes in version 0.1 (2004-03-03)
+-----------------------------------
+
+* Initial public release
+
+
+
+$Id$
