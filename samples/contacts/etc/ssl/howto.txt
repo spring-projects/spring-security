@@ -89,7 +89,7 @@ TROUBLESHOOTING
   found" indicates the cacerts is not being used or it did not correctly
   import the certificate. To rule out your web container replacing or in
   some way modifying the trust manager, set the
-  CasAuthenticationProvider.trustStore property to the full file system
+  CasProxyTicketValidator.trustStore property to the full file system
   location to your cacerts file.
 
 * If your web container is ignoring your cacerts file, double-check it
