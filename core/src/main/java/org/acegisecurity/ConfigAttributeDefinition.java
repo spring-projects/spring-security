@@ -15,9 +15,9 @@
 
 package net.sf.acegisecurity;
 
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
+import java.util.Vector;
 
 
 /**
@@ -36,7 +36,7 @@ import java.util.Set;
 public class ConfigAttributeDefinition {
     //~ Instance fields ========================================================
 
-    private Set configAttributes = new HashSet();
+    private List configAttributes = new Vector();
 
     //~ Constructors ===========================================================
 
@@ -62,6 +62,34 @@ public class ConfigAttributeDefinition {
      */
     public void addConfigAttribute(ConfigAttribute newConfigAttribute) {
         this.configAttributes.add(newConfigAttribute);
+    }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof ConfigAttributeDefinition) {
+            ConfigAttributeDefinition test = (ConfigAttributeDefinition) obj;
+
+            List testAttrs = new Vector();
+            Iterator iter = test.getConfigAttributes();
+
+            while (iter.hasNext()) {
+                ConfigAttribute attr = (ConfigAttribute) iter.next();
+                testAttrs.add(attr);
+            }
+
+            if (this.configAttributes.size() != testAttrs.size()) {
+                return false;
+            }
+
+            for (int i = 0; i < this.configAttributes.size(); i++) {
+                if (!this.configAttributes.get(i).equals(testAttrs.get(i))) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public String toString() {
