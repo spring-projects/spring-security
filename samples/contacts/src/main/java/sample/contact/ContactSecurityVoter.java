@@ -69,13 +69,13 @@ public class ContactSecurityVoter implements AccessDecisionVoter {
                 // Lookup the account number being passed
                 String passedOwner = null;
 
-                for (int i = 0; i < invocation.getArgumentCount(); i++) {
-                    Class argClass = invocation.getArgument(i).getClass();
+                for (int i = 0; i < invocation.getArguments().length; i++) {
+                    Class argClass = invocation.getArguments()[i].getClass();
 
                     if (String.class.isAssignableFrom(argClass)) {
-                        passedOwner = (String) invocation.getArgument(i);
+                        passedOwner = (String) invocation.getArguments()[i];
                     } else if (Contact.class.isAssignableFrom(argClass)) {
-                        passedOwner = ((Contact) invocation.getArgument(i))
+                        passedOwner = ((Contact) invocation.getArguments()[i])
                             .getOwner();
                     }
                 }

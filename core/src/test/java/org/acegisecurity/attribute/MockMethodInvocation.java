@@ -15,7 +15,6 @@
 
 package net.sf.acegisecurity.attribute;
 
-import org.aopalliance.intercept.AttributeRegistry;
 import org.aopalliance.intercept.Invocation;
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -63,13 +62,6 @@ public class MockMethodInvocation implements MethodInvocation {
      * @see org.aopalliance.intercept.Invocation#getAttachment(java.lang.String)
      */
     public Object getAttachment(String arg0) {
-        throw new UnsupportedOperationException("mock method not implemented");
-    }
-
-    /* (non-Javadoc)
-     * @see org.aopalliance.intercept.Invocation#getAttributeRegistry()
-     */
-    public AttributeRegistry getAttributeRegistry() {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
