@@ -33,6 +33,7 @@
         <table>
           <tr><th>Document</th><th>Description</th></tr>
 
+			<!--  disabled by Ben Alex on 9 April 2005 as it is still not auto-updating on Monkey Machine nightly build
           <tr>
             <td>
               <a href="docbook/index.html">Reference Guide HTML One Page per Chapter</a>
@@ -41,6 +42,7 @@
               The reference guide using one page per chapter.
             </td>
           </tr>
+			 -->
 
           <tr>
             <td>
