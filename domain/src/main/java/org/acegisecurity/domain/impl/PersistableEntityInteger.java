@@ -50,7 +50,7 @@ public abstract class PersistableEntityInteger extends AbstractPersistableEntity
      *
      * @return the instance's identity
      *
-     * @hibernate.id generator-class="sequence"
+     * @hibernate.id generator-class="native"
      */
     public Integer getId() {
         return id;
