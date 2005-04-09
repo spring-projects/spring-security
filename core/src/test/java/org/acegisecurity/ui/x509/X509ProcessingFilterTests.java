@@ -24,9 +24,6 @@ import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.providers.x509.X509TestUtils;
 import net.sf.acegisecurity.providers.x509.X509AuthenticationToken;
 import net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
-import net.sf.acegisecurity.MockHttpServletResponse;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpSession;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
@@ -35,6 +32,9 @@ import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.ui.AbstractProcessingFilter;
 import net.sf.acegisecurity.util.MockFilterChain;
+
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -108,7 +108,7 @@ public class X509ProcessingFilterTests extends TestCase {
 
 
     public void testNormalOperation() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest(null, new MockHttpSession());
+        MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain chain = new MockFilterChain(true);
 
@@ -137,7 +137,7 @@ public class X509ProcessingFilterTests extends TestCase {
     }
 
     public void testFailedAuthentication() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest(null, new MockHttpSession());
+        MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain chain = new MockFilterChain(true);
 
@@ -166,8 +166,7 @@ public class X509ProcessingFilterTests extends TestCase {
     }
 
     public void testAuthenticationIsNullWithNoCertificate() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        MockHttpServletRequest request = new MockHttpServletRequest(null, session);
+        MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain chain = new MockFilterChain(true);
 
@@ -181,14 +180,17 @@ public class X509ProcessingFilterTests extends TestCase {
 
         SecureContext ctx = SecureContextUtils.getSecureContext();
 
+        Object lastException = request.getSession().getAttribute(
+                AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY);
+
         assertNull("Authentication should be null", ctx.getAuthentication());
         assertTrue("BadCredentialsException should have been thrown",
-                session.getAttribute(AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY) instanceof BadCredentialsException);
+                 lastException instanceof BadCredentialsException);
     }
 
 
     public void testDoesNothingWithExistingSecurityContext() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest(null, new MockHttpSession());
+        MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain chain = new MockFilterChain(true);
 
