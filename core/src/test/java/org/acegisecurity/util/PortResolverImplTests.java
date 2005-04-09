@@ -16,8 +16,8 @@
 package net.sf.acegisecurity.util;
 
 import junit.framework.TestCase;
+import org.springframework.mock.web.MockHttpServletRequest;
 
-import net.sf.acegisecurity.MockHttpServletRequest;
 
 
 /**
@@ -51,7 +51,7 @@ public class PortResolverImplTests extends TestCase {
         PortResolverImpl pr = new PortResolverImpl();
         pr.afterPropertiesSet();
 
-        MockHttpServletRequest request = new MockHttpServletRequest("X");
+        MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServerPort(8443);
         request.setScheme("HTtP"); // proves case insensitive handling
         assertEquals(8080, pr.getServerPort(request));
@@ -61,7 +61,7 @@ public class PortResolverImplTests extends TestCase {
         PortResolverImpl pr = new PortResolverImpl();
         pr.afterPropertiesSet();
 
-        MockHttpServletRequest request = new MockHttpServletRequest("X");
+        MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServerPort(8080);
         request.setScheme("HTtPs"); // proves case insensitive handling
         assertEquals(8443, pr.getServerPort(request));
@@ -90,7 +90,7 @@ public class PortResolverImplTests extends TestCase {
         PortResolverImpl pr = new PortResolverImpl();
         pr.afterPropertiesSet();
 
-        MockHttpServletRequest request = new MockHttpServletRequest("X");
+        MockHttpServletRequest request = new MockHttpServletRequest();
         request.setScheme("http");
         request.setServerPort(1021);
         assertEquals(1021, pr.getServerPort(request));

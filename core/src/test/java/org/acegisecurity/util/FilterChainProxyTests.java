@@ -21,14 +21,14 @@ import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.MockApplicationContext;
 import net.sf.acegisecurity.MockFilterConfig;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
 import net.sf.acegisecurity.intercept.web.FilterInvocationDefinitionSource;
 import net.sf.acegisecurity.intercept.web.MockFilterInvocationDefinitionSource;
 import net.sf.acegisecurity.intercept.web.PathBasedFilterInvocationDefinitionMap;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -137,7 +137,7 @@ public class FilterChainProxyTests extends TestCase {
         assertFalse(filter.isWasDoFiltered());
         assertFalse(filter.isWasDestroyed());
 
-        MockHttpServletRequest request = new MockHttpServletRequest(null);
+        MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/foo/secure/super/somefile.html");
 
         MockHttpServletResponse response = new MockHttpServletResponse();

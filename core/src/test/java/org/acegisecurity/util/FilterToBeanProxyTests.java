@@ -18,11 +18,11 @@ package net.sf.acegisecurity.util;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.MockFilterConfig;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.io.IOException;
 
@@ -160,7 +160,7 @@ public class FilterToBeanProxyTests extends TestCase {
         MockFilterChain chain = new MockFilterChain(true);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockHttpServletRequest request = new MockHttpServletRequest("/go");
+        MockHttpServletRequest request = new MockHttpServletRequest();
 
         FilterToBeanProxy filter = new MockFilterToBeanProxy(
                 "net/sf/acegisecurity/util/filtertest-valid.xml");
@@ -179,7 +179,7 @@ public class FilterToBeanProxyTests extends TestCase {
         MockFilterChain chain = new MockFilterChain(true);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockHttpServletRequest request = new MockHttpServletRequest("/go");
+        MockHttpServletRequest request = new MockHttpServletRequest();
 
         FilterToBeanProxy filter = new MockFilterToBeanProxy(
                 "net/sf/acegisecurity/util/filtertest-valid.xml");
@@ -198,7 +198,7 @@ public class FilterToBeanProxyTests extends TestCase {
         MockFilterChain chain = new MockFilterChain(true);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockHttpServletRequest request = new MockHttpServletRequest("/go");
+        MockHttpServletRequest request = new MockHttpServletRequest();
 
         FilterToBeanProxy filter = new MockFilterToBeanProxy(
                 "net/sf/acegisecurity/util/filtertest-valid.xml");
@@ -217,7 +217,7 @@ public class FilterToBeanProxyTests extends TestCase {
         MockFilterChain chain = new MockFilterChain(true);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockHttpServletRequest request = new MockHttpServletRequest("/go");
+        MockHttpServletRequest request = new MockHttpServletRequest();
 
         FilterToBeanProxy filter = new MockFilterToBeanProxy(
                 "net/sf/acegisecurity/util/filtertest-valid.xml");
@@ -237,7 +237,7 @@ public class FilterToBeanProxyTests extends TestCase {
         MockFilterChain chain = new MockFilterChain(true);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockHttpServletRequest request = new MockHttpServletRequest("/go");
+        MockHttpServletRequest request = new MockHttpServletRequest();
 
         FilterToBeanProxy filter = new MockFilterToBeanProxy(
                 "net/sf/acegisecurity/util/filtertest-valid.xml");
