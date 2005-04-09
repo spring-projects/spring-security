@@ -41,6 +41,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -242,6 +243,16 @@ public class AbstractProcessingFilterTests extends TestCase {
                               .getPrincipal().toString());
     }
 
+    public void testDefaultProcessesFilterUrlWithPathParameter() {
+        MockHttpServletRequest request = createMockRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter();
+        filter.setFilterProcessesUrl("/j_acegi_security_check");        
+
+        request.setRequestURI("/mycontext/j_acegi_security_check;jsessionid=I8MIONOSTHOR");
+        assertTrue(filter.requiresAuthentication(request, response));
+    }
+
     public void testStartupDetectsInvalidAuthenticationFailureUrl()
         throws Exception {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
@@ -307,7 +318,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testSuccessLoginThenFailureLoginResultsInSessionLoosingToken()
+    public void testSuccessLoginThenFailureLoginResultsInSessionLosingToken()
         throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
@@ -449,6 +460,10 @@ public class AbstractProcessingFilterTests extends TestCase {
             AuthenticationException exceptionToThrow) {
             this.grantAccess = false;
             this.exceptionToThrow = exceptionToThrow;
+        }
+
+        public boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
+            return super.requiresAuthentication(request, response);
         }
 
         private MockAbstractProcessingFilter() {

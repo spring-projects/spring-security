@@ -249,27 +249,10 @@ public abstract class AbstractProcessingFilter implements Filter,
     }
 
     public void afterPropertiesSet() throws Exception {
-        if ((filterProcessesUrl == null) || "".equals(filterProcessesUrl)) {
-            throw new IllegalArgumentException(
-                "filterProcessesUrl must be specified");
-        }
-
-        if ((defaultTargetUrl == null) || "".equals(defaultTargetUrl)) {
-            throw new IllegalArgumentException(
-                "defaultTargetUrl must be specified");
-        }
-
-        if ((authenticationFailureUrl == null)
-            || "".equals(authenticationFailureUrl)) {
-            throw new IllegalArgumentException(
-                "authenticationFailureUrl must be specified");
-        }
-
-        if (authenticationManager == null) {
-            throw new IllegalArgumentException(
-                "authenticationManager must be specified");
-        }
-
+        Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
+        Assert.hasLength(defaultTargetUrl, "defaultTargetUrl must be specified");
+        Assert.hasLength(authenticationFailureUrl, "authenticationFailureUrl must be specified");
+        Assert.notNull(authenticationManager, "authenticationManager must be specified");
         Assert.notNull(this.rememberMeServices);
     }
 
@@ -346,6 +329,10 @@ public abstract class AbstractProcessingFilter implements Filter,
      * Indicates whether this filter should attempt to process a login request
      * for the current invocation.
      * </p>
+     * <p>
+     * It strips any parameters from the "path" section of the request URL (such as the
+     * jsessionid parameter in <em>http://host/myapp/index.html;jsessionid=blah</em>)
+     * before matching against the <code>filterProcessesUrl</code> property.
      * 
      * <p>
      * Subclasses may override for special requirements, such as Tapestry
@@ -360,8 +347,15 @@ public abstract class AbstractProcessingFilter implements Filter,
      */
     protected boolean requiresAuthentication(HttpServletRequest request,
         HttpServletResponse response) {
-        return request.getRequestURL().toString().endsWith(request
-            .getContextPath() + filterProcessesUrl);
+        String uri = request.getRequestURI();
+        int pathParamIndex = uri.indexOf(';');
+
+        if(pathParamIndex > 0) {
+            // strip everything after the first semi-colon
+            uri = uri.substring(0, pathParamIndex);
+        }
+
+        return uri.endsWith(request.getContextPath() + filterProcessesUrl);
     }
 
     protected void successfulAuthentication(HttpServletRequest request,
