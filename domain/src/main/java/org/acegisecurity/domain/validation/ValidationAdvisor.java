@@ -48,7 +48,7 @@ public class ValidationAdvisor extends StaticMethodMatcherPointcutAdvisor
     //~ Instance fields ========================================================
 
     private Class supportsClass;
-    private String[] methods = {"create", "update"};
+    private String[] methods = {"create", "update", "createOrUpdate"};
 
     //~ Constructors ===========================================================
 
