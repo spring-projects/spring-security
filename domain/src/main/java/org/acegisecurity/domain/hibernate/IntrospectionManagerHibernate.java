@@ -122,8 +122,10 @@ public class IntrospectionManagerHibernate implements IntrospectionManager,
                     // only if a Validator is registered for that Object
                     if (this.validationRegistryManager.findValidator(
                             propertyType.getReturnedClass()) != null) {
-                        allObjects.add(classMetadata.getPropertyValue(
-                                parentObject, propertyNames[i], EntityMode.POJO));
+                        Object childObject = classMetadata.getPropertyValue(parentObject, propertyNames[i], EntityMode.POJO);
+                        if (childObject != null) {
+                            allObjects.add(childObject);
+                        }
                     }
                 }
             }
