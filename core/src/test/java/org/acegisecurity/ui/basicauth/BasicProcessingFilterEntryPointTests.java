@@ -18,8 +18,11 @@ package net.sf.acegisecurity.ui.basicauth;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.DisabledException;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
+
+
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -70,8 +73,8 @@ public class BasicProcessingFilterEntryPointTests extends TestCase {
         BasicProcessingFilterEntryPoint ep = new BasicProcessingFilterEntryPoint();
         ep.setRealmName("hello");
 
-        MockHttpServletRequest request = new MockHttpServletRequest(
-                "/some_path");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/some_path");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         ep.afterPropertiesSet();
@@ -79,7 +82,7 @@ public class BasicProcessingFilterEntryPointTests extends TestCase {
         String msg = "These are the jokes kid";
         ep.commence(request, response, new DisabledException(msg));
 
-        assertEquals(401, response.getError());
+        assertEquals(401, response.getStatus());
         assertEquals(msg, response.getErrorMessage());
 
         assertEquals("Basic realm=\"hello\"",

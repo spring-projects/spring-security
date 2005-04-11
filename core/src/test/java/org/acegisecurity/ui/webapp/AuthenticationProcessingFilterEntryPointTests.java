@@ -17,13 +17,17 @@ package net.sf.acegisecurity.ui.webapp;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
+
+
 import net.sf.acegisecurity.MockPortResolver;
+
 import net.sf.acegisecurity.util.PortMapperImpl;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -100,8 +104,8 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
 
     public void testHttpsOperationFromOriginalHttpUrl()
         throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest(
-                "/some_path");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/some_path");
         request.setScheme("http");
         request.setServerName("www.example.com");
         request.setContextPath("/bigWebApp");
@@ -119,24 +123,27 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
 
         ep.commence(request, response, null);
         assertEquals("https://www.example.com/bigWebApp/hello",
-            response.getRedirect());
+            response.getRedirectedUrl());
 
         request.setServerPort(8080);
+        response = new MockHttpServletResponse();
         ep.setPortResolver(new MockPortResolver(8080, 8443));
         ep.commence(request, response, null);
         assertEquals("https://www.example.com:8443/bigWebApp/hello",
-            response.getRedirect());
+            response.getRedirectedUrl());
 
         // Now test an unusual custom HTTP:HTTPS is handled properly
         request.setServerPort(8888);
+        response = new MockHttpServletResponse();
         ep.commence(request, response, null);
         assertEquals("https://www.example.com:8443/bigWebApp/hello",
-            response.getRedirect());
+            response.getRedirectedUrl());
 
         PortMapperImpl portMapper = new PortMapperImpl();
         Map map = new HashMap();
         map.put("8888", "9999");
         portMapper.setPortMappings(map);
+        response = new MockHttpServletResponse();
 
         ep = new AuthenticationProcessingFilterEntryPoint();
         ep.setLoginFormUrl("/hello");
@@ -148,13 +155,13 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
 
         ep.commence(request, response, null);
         assertEquals("https://www.example.com:9999/bigWebApp/hello",
-            response.getRedirect());
+            response.getRedirectedUrl());
     }
 
     public void testHttpsOperationFromOriginalHttpsUrl()
         throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest(
-                "/some_path");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/some_path");
         request.setScheme("https");
         request.setServerName("www.example.com");
         request.setContextPath("/bigWebApp");
@@ -172,13 +179,14 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
 
         ep.commence(request, response, null);
         assertEquals("https://www.example.com/bigWebApp/hello",
-            response.getRedirect());
+            response.getRedirectedUrl());
 
         request.setServerPort(8443);
+        response = new MockHttpServletResponse();
         ep.setPortResolver(new MockPortResolver(8080, 8443));
         ep.commence(request, response, null);
         assertEquals("https://www.example.com:8443/bigWebApp/hello",
-            response.getRedirect());
+            response.getRedirectedUrl());
     }
 
     public void testNormalOperation() throws Exception {
@@ -188,8 +196,8 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         ep.setPortResolver(new MockPortResolver(80, 443));
         ep.afterPropertiesSet();
 
-        MockHttpServletRequest request = new MockHttpServletRequest(
-                "/some_path");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/some_path");
         request.setContextPath("/bigWebApp");
         request.setScheme("http");
         request.setServerName("www.example.com");
@@ -201,7 +209,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
         ep.commence(request, response, null);
         assertEquals("http://www.example.com/bigWebApp/hello",
-            response.getRedirect());
+            response.getRedirectedUrl());
     }
 
     public void testOperationWhenHttpsRequestsButHttpsPortUnknown()
@@ -213,8 +221,8 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         ep.setForceHttps(true);
         ep.afterPropertiesSet();
 
-        MockHttpServletRequest request = new MockHttpServletRequest(
-                "/some_path");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/some_path");
         request.setContextPath("/bigWebApp");
         request.setScheme("http");
         request.setServerName("www.example.com");
@@ -228,6 +236,6 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
 
         // Response doesn't switch to HTTPS, as we didn't know HTTP port 8888 to HTTP port mapping
         assertEquals("http://www.example.com:8888/bigWebApp/hello",
-            response.getRedirect());
+            response.getRedirectedUrl());
     }
 }

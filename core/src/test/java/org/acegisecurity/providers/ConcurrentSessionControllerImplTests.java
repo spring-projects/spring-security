@@ -17,14 +17,22 @@ package net.sf.acegisecurity.providers;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.*;
+
 import net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.User;
 import net.sf.acegisecurity.ui.WebAuthenticationDetails;
 import net.sf.acegisecurity.ui.session.HttpSessionCreatedEvent;
 import net.sf.acegisecurity.ui.session.HttpSessionDestroyedEvent;
+import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.UserDetails;
+import net.sf.acegisecurity.AuthenticationTrustResolverImpl;
+import net.sf.acegisecurity.MockApplicationContext;
 
 import org.springframework.context.ApplicationListener;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.security.Principal;
 
@@ -33,6 +41,8 @@ import java.security.Principal;
  * Tests for {@link ConcurrentSessionControllerImpl}
  *
  * @author Ray Krueger
+ * @author Luke Taylor
+ * @version $Id$
  */
 public class ConcurrentSessionControllerImplTests extends TestCase {
     //~ Instance fields ========================================================
@@ -55,7 +65,7 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
     }
 
     public void testEnforcementKnownGood() throws Exception {
-        Authentication auth = createAuthentication("user", "password", "session");
+        Authentication auth = createAuthentication("user", "password");
         target.beforeAuthentication(auth);
         target.afterAuthentication(auth, auth);
     }
@@ -65,14 +75,14 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
 
         Authentication auth = null;
 
-        for (int i = 0; i < 5; i++) {
-            auth = createAuthentication("user", "password", String.valueOf(i));
+        for (int i = 0; i < 5; i++) {  // creates 5 sessions
+            auth = createAuthentication("user", "password");
             target.beforeAuthentication(auth);
             target.afterAuthentication(auth, auth);
         }
 
         try {
-            auth = createAuthentication("user", "password", "lastsession");
+            auth = createAuthentication("user", "password");
             target.beforeAuthentication(auth);
             fail(
                 "Only allowed 5 sessions, this should have thrown a ConcurrentLoginException");
@@ -84,15 +94,13 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
     public void testEnforcementSingleSession() throws Exception {
         target.setMaxSessions(1);
 
-        Authentication auth = createAuthentication("user", "password",
-                "session1");
+        Authentication auth = createAuthentication("user", "password");
 
         target.beforeAuthentication(auth);
         target.afterAuthentication(auth, auth);
 
         try {
-            target.beforeAuthentication(createAuthentication("user",
-                    "password", "session2"));
+            target.beforeAuthentication(createAuthentication("user", "password"));
             fail(
                 "Only allowed 1 session, this should have thrown a ConcurrentLoginException");
         } catch (ConcurrentLoginException e) {}
@@ -100,10 +108,15 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
 
     public void testEnforcementUnlimitedSameSession() throws Exception {
         target.setMaxSessions(1);
+        MockHttpSession session = new MockHttpSession(); // all requests are within this session
 
         for (int i = 0; i < 100; i++) {
-            Authentication auth = createAuthentication("user", "password",
-                    "samesession");
+            UsernamePasswordAuthenticationToken auth =  new UsernamePasswordAuthenticationToken("user",
+                    "password");
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setSession(session);
+            request.setUserPrincipal(auth);
+            auth.setDetails(new WebAuthenticationDetails(request));
             target.beforeAuthentication(auth);
             target.afterAuthentication(auth, auth);
         }
@@ -113,8 +126,7 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         target.setMaxSessions(0);
 
         for (int i = 0; i < 100; i++) {
-            Authentication auth = createAuthentication("user", "password",
-                    String.valueOf(i));
+            Authentication auth = createAuthentication("user", "password");
             target.beforeAuthentication(auth);
             target.afterAuthentication(auth, auth);
         }
@@ -126,8 +138,9 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("user",
                 "password");
         MockHttpSession session = new MockHttpSession();
-        MockHttpServletRequest request = new MockHttpServletRequest(auth,
-                session);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setSession(session);
+        request.setUserPrincipal(auth);
         auth.setDetails(new WebAuthenticationDetails(request));
 
         target.beforeAuthentication(auth);
@@ -135,8 +148,7 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
 
         target.onApplicationEvent(new HttpSessionDestroyedEvent(session));
 
-        Authentication different = createAuthentication("user", "password",
-                "differentsession");
+        Authentication different = createAuthentication("user", "password");
         target.beforeAuthentication(different);
         target.afterAuthentication(different, different);
     }
@@ -169,7 +181,7 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
                 true, new GrantedAuthority[0]);
         final UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user,
                 "password", user.getAuthorities());
-        auth.setDetails(createWebDetails(auth, "session1"));
+        auth.setDetails(createWebDetails(auth));
 
         target.beforeAuthentication(auth);
         target.afterAuthentication(auth, auth);
@@ -185,7 +197,7 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
                         }
                     }, "password");
 
-            otherAuth.setDetails(createWebDetails(otherAuth, "session2"));
+            otherAuth.setDetails(createWebDetails(otherAuth));
             target.beforeAuthentication(otherAuth);
             fail(
                 "Same principal, different principal type, different session should have thrown ConcurrentLoginException");
@@ -249,20 +261,19 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         target.setApplicationContext(MockApplicationContext.getContext());
     }
 
-    private Authentication createAuthentication(String user, String password,
-        String sessionId) {
+    private Authentication createAuthentication(String user, String password) {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user,
                 password);
-        auth.setDetails(createWebDetails(auth, sessionId));
+        auth.setDetails(createWebDetails(auth));
 
         return auth;
     }
 
-    private WebAuthenticationDetails createWebDetails(Authentication auth,
-        String sessionId) {
-        MockHttpSession session = new MockHttpSession(sessionId);
-        MockHttpServletRequest request = new MockHttpServletRequest(auth,
-                session);
+    private WebAuthenticationDetails createWebDetails(Authentication auth) {
+        MockHttpSession session = new MockHttpSession();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setSession(session);
+        request.setUserPrincipal(auth);
 
         return new WebAuthenticationDetails(request);
     }

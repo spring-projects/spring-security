@@ -19,9 +19,10 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
+
+
 import net.sf.acegisecurity.SecurityConfig;
+
 import net.sf.acegisecurity.intercept.web.FilterInvocation;
 import net.sf.acegisecurity.intercept.web.FilterInvocationDefinitionSource;
 
@@ -35,6 +36,9 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -143,7 +147,8 @@ public class ChannelProcessingFilterTests extends TestCase {
 
         filter.setFilterInvocationDefinitionSource(fids);
 
-        MockHttpServletRequest request = new MockHttpServletRequest("info=now");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setQueryString("info=now");
         request.setServletPath("/path");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -167,7 +172,8 @@ public class ChannelProcessingFilterTests extends TestCase {
 
         filter.setFilterInvocationDefinitionSource(fids);
 
-        MockHttpServletRequest request = new MockHttpServletRequest("info=now");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setQueryString("info=now");
         request.setServletPath("/path");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -191,7 +197,8 @@ public class ChannelProcessingFilterTests extends TestCase {
 
         filter.setFilterInvocationDefinitionSource(fids);
 
-        MockHttpServletRequest request = new MockHttpServletRequest("info=now");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setQueryString("info=now");
         request.setServletPath("/PATH_NOT_MATCHING_CONFIG_ATTRIBUTE");
 
         MockHttpServletResponse response = new MockHttpServletResponse();

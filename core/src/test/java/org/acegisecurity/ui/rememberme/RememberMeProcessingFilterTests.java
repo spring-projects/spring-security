@@ -31,13 +31,16 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.MockFilterConfig;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
+
+
+
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContext;
 import net.sf.acegisecurity.context.security.SecureContextImpl;
 import net.sf.acegisecurity.context.security.SecureContextUtils;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -82,7 +85,9 @@ public class RememberMeProcessingFilterTests extends TestCase {
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
 
     try {
-        filter.doFilter(new MockHttpServletRequest("dc"), null,
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("dc");
+        filter.doFilter(request, null,
             new MockFilterChain());
         fail("Should have thrown ServletException");
     } catch (ServletException expected) {
@@ -129,8 +134,10 @@ public class RememberMeProcessingFilterTests extends TestCase {
         filter.afterPropertiesSet();
 
         // Test
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("x");
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
-            new MockHttpServletRequest("x"), new MockHttpServletResponse(),
+                request, new MockHttpServletResponse(),
             new MockFilterChain(true));
 
         // Ensure filter didn't change our original object
@@ -147,8 +154,10 @@ public class RememberMeProcessingFilterTests extends TestCase {
         filter.setRememberMeServices(new MockRememberMeServices(remembered));
         filter.afterPropertiesSet();
 
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("x");
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
-            new MockHttpServletRequest("x"), new MockHttpServletResponse(),
+                request, new MockHttpServletResponse(),
             new MockFilterChain(true));
 
         Authentication auth = SecureContextUtils.getSecureContext()

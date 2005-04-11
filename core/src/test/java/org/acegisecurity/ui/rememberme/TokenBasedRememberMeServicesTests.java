@@ -20,8 +20,8 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
+
+
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.AuthenticationDao;
@@ -34,6 +34,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.dao.DataAccessException;
 
 import org.springframework.util.StringUtils;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.util.Date;
 
@@ -71,14 +73,15 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         services.setAuthenticationDao(new MockAuthenticationDao(null, true));
         services.afterPropertiesSet();
 
-        MockHttpServletRequest request = new MockHttpServletRequest("dc");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("dc");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         Authentication result = services.autoLogin(request, response);
 
         assertNull(result);
 
-        Cookie returnedCookie = response.getCookieByName(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
+        Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
         assertNull(returnedCookie); // shouldn't try to invalidate our cookie
     }
 
@@ -90,15 +93,15 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         services.afterPropertiesSet();
 
         Cookie cookie = new Cookie("unrelated_cookie", "foobar");
-        MockHttpServletRequest request = new MockHttpServletRequest(null, null,
-                "null", new Cookie[] {cookie});
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie[] {cookie});
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         Authentication result = services.autoLogin(request, response);
 
         assertNull(result);
 
-        Cookie returnedCookie = response.getCookieByName(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
+        Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
         assertNull(returnedCookie); // shouldn't try to invalidate our cookie
     }
 
@@ -115,15 +118,15 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis()
                     - 1000000, "someone", "password", "key"));
-        MockHttpServletRequest request = new MockHttpServletRequest(null, null,
-                "null", new Cookie[] {cookie});
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie[] {cookie});
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         Authentication result = services.autoLogin(request, response);
 
         assertNull(result);
 
-        Cookie returnedCookie = response.getCookieByName(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
+        Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(returnedCookie);
         assertEquals(0, returnedCookie.getMaxAge());
     }
@@ -141,15 +144,15 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
 
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
                 new String(Base64.encodeBase64("x".getBytes())));
-        MockHttpServletRequest request = new MockHttpServletRequest(null, null,
-                "null", new Cookie[] {cookie});
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie[] {cookie});
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         Authentication result = services.autoLogin(request, response);
 
         assertNull(result);
 
-        Cookie returnedCookie = response.getCookieByName(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
+        Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(returnedCookie);
         assertEquals(0, returnedCookie.getMaxAge());
     }
@@ -166,15 +169,15 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
 
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
                 "NOT_BASE_64_ENCODED");
-        MockHttpServletRequest request = new MockHttpServletRequest(null, null,
-                "null", new Cookie[] {cookie});
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie[] {cookie});
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         Authentication result = services.autoLogin(request, response);
 
         assertNull(result);
 
-        Cookie returnedCookie = response.getCookieByName(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
+        Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(returnedCookie);
         assertEquals(0, returnedCookie.getMaxAge());
     }
@@ -193,15 +196,15 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis()
                     + 1000000, "someone", "password", "WRONG_KEY"));
-        MockHttpServletRequest request = new MockHttpServletRequest(null, null,
-                "null", new Cookie[] {cookie});
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie[] {cookie});
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         Authentication result = services.autoLogin(request, response);
 
         assertNull(result);
 
-        Cookie returnedCookie = response.getCookieByName(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
+        Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(returnedCookie);
         assertEquals(0, returnedCookie.getMaxAge());
     }
@@ -220,15 +223,15 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
                 new String(Base64.encodeBase64(
                         "username:NOT_A_NUMBER:signature".getBytes())));
-        MockHttpServletRequest request = new MockHttpServletRequest(null, null,
-                "null", new Cookie[] {cookie});
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie[] {cookie});
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         Authentication result = services.autoLogin(request, response);
 
         assertNull(result);
 
-        Cookie returnedCookie = response.getCookieByName(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
+        Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(returnedCookie);
         assertEquals(0, returnedCookie.getMaxAge());
     }
@@ -242,15 +245,15 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis()
                     + 1000000, "someone", "password", "key"));
-        MockHttpServletRequest request = new MockHttpServletRequest(null, null,
-                "null", new Cookie[] {cookie});
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie[] {cookie});
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         Authentication result = services.autoLogin(request, response);
 
         assertNull(result);
 
-        Cookie returnedCookie = response.getCookieByName(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
+        Cookie returnedCookie = response.getCookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(returnedCookie);
         assertEquals(0, returnedCookie.getMaxAge());
     }
@@ -268,8 +271,8 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis()
                     + 1000000, "someone", "password", "key"));
-        MockHttpServletRequest request = new MockHttpServletRequest(null, null,
-                "null", new Cookie[] {cookie});
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie[] {cookie});
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         Authentication result = services.autoLogin(request, response);
@@ -300,19 +303,21 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
 
     public void testLoginFail() {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
-        MockHttpServletRequest request = new MockHttpServletRequest("fv");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("fv");
         MockHttpServletResponse response = new MockHttpServletResponse();
         services.loginFail(request, response);
 
-        Cookie cookie = response.getCookieByName(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
+        Cookie cookie = response.getCookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(cookie);
         assertEquals(0, cookie.getMaxAge());
     }
 
     public void testLoginSuccessIgnoredIfParameterNotSetOrFalse() {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
-        MockHttpServletRequest request = new MockHttpServletRequest("d");
-        request.setParameter(TokenBasedRememberMeServices.DEFAULT_PARAMETER,
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("d");
+        request.addParameter(TokenBasedRememberMeServices.DEFAULT_PARAMETER,
             "false");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -320,22 +325,22 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
             new TestingAuthenticationToken("someone", "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")}));
 
-        Cookie cookie = response.getCookieByName(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
+        Cookie cookie = response.getCookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
         assertNull(cookie);
     }
 
     public void testLoginSuccessNormalWithNonUserDetailsBasedPrincipal() {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
-        MockHttpServletRequest request = new MockHttpServletRequest("d");
-        request.setParameter(TokenBasedRememberMeServices.DEFAULT_PARAMETER,
-            "true");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("d");
+        request.addParameter(TokenBasedRememberMeServices.DEFAULT_PARAMETER, "true");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         services.loginSuccess(request, response,
             new TestingAuthenticationToken("someone", "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")}));
 
-        Cookie cookie = response.getCookieByName(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
+        Cookie cookie = response.getCookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(cookie);
         assertEquals(60 * 60 * 24 * 365 * 5, cookie.getMaxAge()); // 5 years
         assertTrue(Base64.isArrayByteBase64(cookie.getValue().getBytes()));
@@ -346,9 +351,9 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
 
     public void testLoginSuccessNormalWithUserDetailsBasedPrincipal() {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
-        MockHttpServletRequest request = new MockHttpServletRequest("d");
-        request.setParameter(TokenBasedRememberMeServices.DEFAULT_PARAMETER,
-            "true");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("d");
+        request.addParameter(TokenBasedRememberMeServices.DEFAULT_PARAMETER, "true");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         UserDetails user = new User("someone", "password", true, true, true,
@@ -358,7 +363,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
             new TestingAuthenticationToken(user, "ignored",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ABC")}));
 
-        Cookie cookie = response.getCookieByName(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
+        Cookie cookie = response.getCookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(cookie);
         assertEquals(60 * 60 * 24 * 365 * 5, cookie.getMaxAge()); // 5 years
         assertTrue(Base64.isArrayByteBase64(cookie.getValue().getBytes()));

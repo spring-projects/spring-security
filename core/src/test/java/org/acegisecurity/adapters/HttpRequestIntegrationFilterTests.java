@@ -19,12 +19,12 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContextImpl;
 import net.sf.acegisecurity.context.security.SecureContextUtils;
 import net.sf.acegisecurity.util.MockFilterChain;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -56,8 +56,8 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
                 "someone", "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")});
 
-        MockHttpServletRequest request = new MockHttpServletRequest(principal,
-                null);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setUserPrincipal(principal);
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain(true);
 
@@ -86,7 +86,7 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
 
     public void testHandlesIfThereIsNoPrincipal() throws Exception {
         HttpRequestIntegrationFilter filter = new HttpRequestIntegrationFilter();
-        MockHttpServletRequest request = new MockHttpServletRequest("foo");
+        MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain(true);
 

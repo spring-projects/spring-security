@@ -19,11 +19,14 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.MockFilterChain;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
+
+
 import net.sf.acegisecurity.SecurityConfig;
 
 import java.util.Iterator;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**

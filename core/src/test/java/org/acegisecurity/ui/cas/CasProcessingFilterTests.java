@@ -20,8 +20,8 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpSession;
+
+import org.springframework.mock.web.MockHttpServletRequest;
 
 
 /**
@@ -58,9 +58,8 @@ public class CasProcessingFilterTests extends TestCase {
     }
 
     public void testNormalOperation() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest(null,
-                new MockHttpSession());
-        request.setParameter("ticket", "ST-0-ER94xMJmn6pha35CQRoZ");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addParameter("ticket", "ST-0-ER94xMJmn6pha35CQRoZ");
 
         MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
 
@@ -74,8 +73,7 @@ public class CasProcessingFilterTests extends TestCase {
 
     public void testNullServiceTicketHandledGracefully()
         throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest(null,
-                new MockHttpSession());
+        MockHttpServletRequest request = new MockHttpServletRequest();
 
         MockAuthenticationManager authMgr = new MockAuthenticationManager(false);
 

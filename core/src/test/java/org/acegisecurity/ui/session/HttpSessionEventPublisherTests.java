@@ -17,10 +17,8 @@ package net.sf.acegisecurity.ui.session;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.MockHttpSession;
-
 import org.springframework.mock.web.MockServletContext;
-
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.web.context.support.StaticWebApplicationContext;
 
 import javax.servlet.ServletContextEvent;

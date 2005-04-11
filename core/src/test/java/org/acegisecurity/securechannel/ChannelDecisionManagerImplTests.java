@@ -20,8 +20,6 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.MockFilterChain;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
 import net.sf.acegisecurity.SecurityConfig;
 import net.sf.acegisecurity.intercept.web.FilterInvocation;
 
@@ -32,6 +30,9 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.servlet.ServletException;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -101,7 +102,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
         cdm.setChannelProcessors(list);
         cdm.afterPropertiesSet();
 
-        MockHttpServletRequest request = new MockHttpServletRequest("not used");
+        MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
         FilterInvocation fi = new FilterInvocation(request, response, chain);
@@ -124,7 +125,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
         cdm.setChannelProcessors(list);
         cdm.afterPropertiesSet();
 
-        MockHttpServletRequest request = new MockHttpServletRequest("not used");
+        MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
         FilterInvocation fi = new FilterInvocation(request, response, chain);

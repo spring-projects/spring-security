@@ -19,10 +19,13 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.MockFilterChain;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
+
+
 import net.sf.acegisecurity.SecurityConfig;
+
 import net.sf.acegisecurity.intercept.web.FilterInvocation;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -47,7 +50,8 @@ public class InsecureChannelProcessorTests extends TestCase {
         cad.addConfigAttribute(new SecurityConfig("SOME_IGNORED_ATTRIBUTE"));
         cad.addConfigAttribute(new SecurityConfig("REQUIRES_INSECURE_CHANNEL"));
 
-        MockHttpServletRequest request = new MockHttpServletRequest("info=true");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setQueryString("info=true");
         request.setServerName("localhost");
         request.setContextPath("/bigapp");
         request.setServletPath("/servlet");
@@ -70,11 +74,13 @@ public class InsecureChannelProcessorTests extends TestCase {
         cad.addConfigAttribute(new SecurityConfig("SOME_IGNORED_ATTRIBUTE"));
         cad.addConfigAttribute(new SecurityConfig("REQUIRES_INSECURE_CHANNEL"));
 
-        MockHttpServletRequest request = new MockHttpServletRequest("info=true");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setQueryString("info=true");
         request.setServerName("localhost");
         request.setContextPath("/bigapp");
         request.setServletPath("/servlet");
         request.setScheme("https");
+        request.setSecure(true);
         request.setServerPort(8443);
 
         MockHttpServletResponse response = new MockHttpServletResponse();

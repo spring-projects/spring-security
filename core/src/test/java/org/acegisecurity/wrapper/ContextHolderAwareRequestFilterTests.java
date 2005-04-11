@@ -18,7 +18,7 @@ package net.sf.acegisecurity.wrapper;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.MockFilterConfig;
-import net.sf.acegisecurity.MockHttpServletRequest;
+
 import net.sf.acegisecurity.wrapper.ContextHolderAwareRequestFilter;
 import net.sf.acegisecurity.wrapper.ContextHolderAwareRequestWrapper;
 
@@ -28,6 +28,8 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
+import org.springframework.mock.web.MockHttpServletRequest;
 
 
 /**

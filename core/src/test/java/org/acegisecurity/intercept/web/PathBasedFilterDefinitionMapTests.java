@@ -19,9 +19,12 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.MockFilterChain;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
+
+
 import net.sf.acegisecurity.SecurityConfig;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -73,7 +76,9 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         map.addSecureUrl("/secure/super/**", def);
 
         // Build a HTTP request
-        MockHttpServletRequest req = new MockHttpServletRequest(null);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI(null);
+        MockHttpServletRequest req = request;
         req.setServletPath("/SeCuRE/super/somefile.html");
 
         FilterInvocation fi = new FilterInvocation(req,
@@ -93,7 +98,9 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         map.addSecureUrl("/secure/super/**", def);
 
         // Build a HTTP request
-        MockHttpServletRequest req = new MockHttpServletRequest(null);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI(null);
+        MockHttpServletRequest req = request;
         req.setServletPath("/SeCuRE/super/somefile.html");
 
         FilterInvocation fi = new FilterInvocation(req,
@@ -113,7 +120,9 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         map.addSecureUrl("/secure/super/**", def);
 
         // Build a HTTP request
-        MockHttpServletRequest req = new MockHttpServletRequest(null);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI(null);
+        MockHttpServletRequest req = request;
         req.setServletPath("/secure/super/somefile.html");
 
         FilterInvocation fi = new FilterInvocation(req,

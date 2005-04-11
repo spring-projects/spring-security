@@ -18,14 +18,17 @@ package net.sf.acegisecurity.ui.digestauth;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.DisabledException;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
+
+
+
 import net.sf.acegisecurity.util.StringSplitUtils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import org.springframework.util.StringUtils;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.util.Map;
 
@@ -98,8 +101,8 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
         ep.setRealmName("hello");
         ep.setKey("key");
 
-        MockHttpServletRequest request = new MockHttpServletRequest(
-                "/some_path");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/some_path");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         ep.afterPropertiesSet();
@@ -107,14 +110,13 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
         ep.commence(request, response, new DisabledException("foobar"));
 
         // Check response is properly formed
-        assertEquals(401, response.getError());
-        assertTrue(response.getHeader("WWW-Authenticate").startsWith("Digest "));
+        assertEquals(401, response.getStatus());
+        assertEquals(true, response.getHeader("WWW-Authenticate").toString().startsWith("Digest "));
 
         // Break up response header
-        String header = response.getHeader("WWW-Authenticate").substring(7);
+        String header = response.getHeader("WWW-Authenticate").toString().substring(7);
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
-        Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries,
-                "=", "\"");
+        Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
         assertEquals("hello", headerMap.get("realm"));
         assertEquals("auth", headerMap.get("qop"));
@@ -128,8 +130,8 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
         ep.setRealmName("hello");
         ep.setKey("key");
 
-        MockHttpServletRequest request = new MockHttpServletRequest(
-                "/some_path");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/some_path");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         ep.afterPropertiesSet();
@@ -138,11 +140,11 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
             new NonceExpiredException("expired nonce"));
 
         // Check response is properly formed
-        assertEquals(401, response.getError());
-        assertTrue(response.getHeader("WWW-Authenticate").startsWith("Digest "));
+        assertEquals(401, response.getStatus());
+        assertTrue(response.getHeader("WWW-Authenticate").toString().startsWith("Digest "));
 
         // Break up response header
-        String header = response.getHeader("WWW-Authenticate").substring(7);
+        String header = response.getHeader("WWW-Authenticate").toString().substring(7);
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
         Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries,
                 "=", "\"");

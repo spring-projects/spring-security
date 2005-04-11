@@ -20,9 +20,6 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.MockAuthenticationEntryPoint;
 import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockFilterConfig;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
-import net.sf.acegisecurity.MockHttpSession;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContextImpl;
@@ -32,11 +29,10 @@ import org.apache.commons.codec.binary.Base64;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.io.IOException;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -100,9 +96,7 @@ public class BasicProcessingFilterTests extends TestCase {
     public void testFilterIgnoresRequestsContainingNoAuthorizationHeader()
         throws Exception {
         // Setup our HTTP request
-        Map headers = new HashMap();
-        MockHttpServletRequest request = new MockHttpServletRequest(headers,
-                null, new MockHttpSession());
+        MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -138,13 +132,9 @@ public class BasicProcessingFilterTests extends TestCase {
     public void testInvalidBasicAuthorizationTokenIsIgnored()
         throws Exception {
         // Setup our HTTP request
-        Map headers = new HashMap();
         String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
-        headers.put("Authorization",
-            "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-
-        MockHttpServletRequest request = new MockHttpServletRequest(headers,
-                null, new MockHttpSession());
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -169,13 +159,10 @@ public class BasicProcessingFilterTests extends TestCase {
 
     public void testNormalOperation() throws Exception {
         // Setup our HTTP request
-        Map headers = new HashMap();
         String token = "marissa:koala";
-        headers.put("Authorization",
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization",
             "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-
-        MockHttpServletRequest request = new MockHttpServletRequest(headers,
-                null, new MockHttpSession());
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -205,11 +192,8 @@ public class BasicProcessingFilterTests extends TestCase {
     public void testOtherAuthorizationSchemeIsIgnored()
         throws Exception {
         // Setup our HTTP request
-        Map headers = new HashMap();
-        headers.put("Authorization", "SOME_OTHER_AUTHENTICATION_SCHEME");
-
-        MockHttpServletRequest request = new MockHttpServletRequest(headers,
-                null, new MockHttpSession());
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization", "SOME_OTHER_AUTHENTICATION_SCHEME");
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -262,13 +246,10 @@ public class BasicProcessingFilterTests extends TestCase {
     public void testSuccessLoginThenFailureLoginResultsInSessionLoosingToken()
         throws Exception {
         // Setup our HTTP request
-        Map headers = new HashMap();
         String token = "marissa:koala";
-        headers.put("Authorization",
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization",
             "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-
-        MockHttpServletRequest request = new MockHttpServletRequest(headers,
-                null, new MockHttpSession());
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -296,12 +277,10 @@ public class BasicProcessingFilterTests extends TestCase {
 
         // NOW PERFORM FAILED AUTHENTICATION
         // Setup our HTTP request
-        headers = new HashMap();
         token = "marissa:WRONG_PASSWORD";
-        headers.put("Authorization",
+        request = new MockHttpServletRequest();
+        request.addHeader("Authorization",
             "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-        request = new MockHttpServletRequest(headers, null,
-                new MockHttpSession());
         request.setServletPath("/some_file.html");
 
         // Setup our expectation that the filter chain will not be invoked, as we get a 403 forbidden response
@@ -313,18 +292,15 @@ public class BasicProcessingFilterTests extends TestCase {
             chain);
 
         assertNull(SecureContextUtils.getSecureContext().getAuthentication());
-        assertEquals(401, response.getError());
+        assertEquals(401, response.getStatus());
     }
 
     public void testWrongPasswordReturnsForbidden() throws Exception {
         // Setup our HTTP request
-        Map headers = new HashMap();
         String token = "marissa:WRONG_PASSWORD";
-        headers.put("Authorization",
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization",
             "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-
-        MockHttpServletRequest request = new MockHttpServletRequest(headers,
-                null, new MockHttpSession());
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -345,7 +321,7 @@ public class BasicProcessingFilterTests extends TestCase {
             chain);
 
         assertNull(SecureContextUtils.getSecureContext().getAuthentication());
-        assertEquals(401, response.getError());
+        assertEquals(401, response.getStatus());
     }
 
     protected void setUp() throws Exception {

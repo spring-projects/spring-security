@@ -19,9 +19,9 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpSession;
 import net.sf.acegisecurity.ui.WebAuthenticationDetails;
+
+import org.springframework.mock.web.MockHttpServletRequest;
 
 
 /**
@@ -58,11 +58,10 @@ public class AuthenticationProcessingFilterTests extends TestCase {
     }
 
     public void testNormalOperation() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest(null,
-                new MockHttpSession());
-        request.setParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY,
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY,
             "marissa");
-        request.setParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY,
+        request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY,
             "koala");
 
         MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
@@ -78,9 +77,8 @@ public class AuthenticationProcessingFilterTests extends TestCase {
     }
 
     public void testNullPasswordHandledGracefully() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest(null,
-                new MockHttpSession());
-        request.setParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY,
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY,
             "marissa");
 
         MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
@@ -94,9 +92,8 @@ public class AuthenticationProcessingFilterTests extends TestCase {
     }
 
     public void testNullUsernameHandledGracefully() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest(null,
-                new MockHttpSession());
-        request.setParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY,
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY,
             "koala");
 
         MockAuthenticationManager authMgr = new MockAuthenticationManager(true);

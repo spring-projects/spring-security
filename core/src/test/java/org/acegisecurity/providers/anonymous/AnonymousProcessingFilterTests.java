@@ -21,8 +21,9 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.MockFilterConfig;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
+
+
+
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContext;
 import net.sf.acegisecurity.context.security.SecureContextImpl;
@@ -38,6 +39,9 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -126,8 +130,10 @@ public class AnonymousProcessingFilterTests extends TestCase {
         filter.afterPropertiesSet();
 
         // Test
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("x");
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
-            new MockHttpServletRequest("x"), new MockHttpServletResponse(),
+                request, new MockHttpServletResponse(),
             new MockFilterChain(true));
 
         // Ensure filter didn't change our original object
@@ -146,8 +152,10 @@ public class AnonymousProcessingFilterTests extends TestCase {
         filter.setUserAttribute(user);
         filter.afterPropertiesSet();
 
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("x");
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
-            new MockHttpServletRequest("x"), new MockHttpServletResponse(),
+                request, new MockHttpServletResponse(),
             new MockFilterChain(true));
 
         Authentication auth = SecureContextUtils.getSecureContext()

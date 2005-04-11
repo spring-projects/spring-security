@@ -17,8 +17,8 @@ package net.sf.acegisecurity.intercept.web;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
+
+
 
 import java.io.IOException;
 
@@ -26,6 +26,10 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
 
 
 /**

@@ -17,10 +17,14 @@ package net.sf.acegisecurity.ui.cas;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
+
+
+
 
 import java.net.URLEncoder;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -94,8 +98,8 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
         ep.setLoginUrl("https://cas/login");
         ep.setServiceProperties(sp);
 
-        MockHttpServletRequest request = new MockHttpServletRequest(
-                "/some_path");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/some_path");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -105,7 +109,7 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
         assertEquals("https://cas/login?service="
             + URLEncoder.encode(
                 "https://mycompany.com/bigWebApp/j_acegi_cas_security_check",
-                "UTF-8"), response.getRedirect());
+                "UTF-8"), response.getRedirectedUrl());
     }
 
     public void testNormalOperationWithRenewTrue() throws Exception {
@@ -118,14 +122,14 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
         ep.setLoginUrl("https://cas/login");
         ep.setServiceProperties(sp);
 
-        MockHttpServletRequest request = new MockHttpServletRequest(
-                "/some_path");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/some_path");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         ep.afterPropertiesSet();
         ep.commence(request, response, null);
         assertEquals("https://cas/login?renew=true&service=https://mycompany.com/bigWebApp/j_acegi_cas_security_check",
-            response.getRedirect());
+            response.getRedirectedUrl());
     }
 }

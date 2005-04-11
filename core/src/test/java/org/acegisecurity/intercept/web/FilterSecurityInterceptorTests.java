@@ -27,9 +27,6 @@ import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.MockAccessDecisionManager;
 import net.sf.acegisecurity.MockApplicationContext;
 import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
-import net.sf.acegisecurity.MockHttpSession;
 import net.sf.acegisecurity.MockRunAsManager;
 import net.sf.acegisecurity.RunAsManager;
 import net.sf.acegisecurity.SecurityConfig;
@@ -46,6 +43,9 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 
 /**
@@ -163,8 +163,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
 
         // Setup our HTTPS request and response
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockHttpServletRequest request = new MockHttpServletRequest(null,
-                new MockHttpSession());
+        MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/secure/page.html");
         request.setScheme("https");
         request.setServerPort(443);
@@ -226,8 +225,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
 
         // Setup our HTTP request and response
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockHttpServletRequest request = new MockHttpServletRequest(null,
-                new MockHttpSession());
+        MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/secure/page.html");
 
         // Setup a Context

@@ -18,8 +18,6 @@ package net.sf.acegisecurity.intercept.web;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.MockFilterChain;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,6 +33,9 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -73,8 +74,7 @@ public class FilterInvocationTests extends TestCase {
         request.setScheme("http");
         request.setServerPort(80);
         request.setContextPath("/mycontext");
-        request.setRequestURL(
-            "http://www.example.com/mycontext/HelloWorld/some/more/segments.html");
+        request.setRequestURI("/mycontext/HelloWorld/some/more/segments.html");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
@@ -165,13 +165,14 @@ public class FilterInvocationTests extends TestCase {
     }
 
     public void testStringMethodsWithAQueryString() {
-        MockHttpServletRequest request = new MockHttpServletRequest("foo=bar");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setQueryString("foo=bar");
         request.setServletPath("/HelloWorld");
         request.setServerName("www.example.com");
         request.setScheme("http");
         request.setServerPort(80);
         request.setContextPath("/mycontext");
-        request.setRequestURL("http://www.example.com/mycontext/HelloWorld");
+        request.setRequestURI("/mycontext/HelloWorld");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
@@ -189,7 +190,7 @@ public class FilterInvocationTests extends TestCase {
         request.setScheme("http");
         request.setServerPort(80);
         request.setContextPath("/mycontext");
-        request.setRequestURL("http://www.example.com/mycontext/HelloWorld");
+        request.setRequestURI("/mycontext/HelloWorld");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();

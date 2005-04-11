@@ -17,13 +17,17 @@ package net.sf.acegisecurity.securechannel;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
+
+
 import net.sf.acegisecurity.MockPortResolver;
+
 import net.sf.acegisecurity.util.PortMapperImpl;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -76,7 +80,8 @@ public class RetryWithHttpEntryPointTests extends TestCase {
     }
 
     public void testNormalOperation() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest("open=true");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setQueryString("open=true");
         request.setScheme("https");
         request.setServerName("www.example.com");
         request.setContextPath("/bigWebApp");
@@ -93,12 +98,12 @@ public class RetryWithHttpEntryPointTests extends TestCase {
 
         ep.commence(request, response);
         assertEquals("http://www.example.com/bigWebApp/hello/pathInfo.html?open=true",
-            response.getRedirect());
+            response.getRedirectedUrl());
     }
 
     public void testNormalOperationWithNullPathInfoAndNullQueryString()
         throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest(null);
+        MockHttpServletRequest request = new MockHttpServletRequest();
         request.setScheme("https");
         request.setServerName("www.example.com");
         request.setContextPath("/bigWebApp");
@@ -115,12 +120,13 @@ public class RetryWithHttpEntryPointTests extends TestCase {
 
         ep.commence(request, response);
         assertEquals("http://www.example.com/bigWebApp/hello",
-            response.getRedirect());
+            response.getRedirectedUrl());
     }
 
     public void testOperationWhenTargetPortIsUnknown()
         throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest("open=true");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setQueryString("open=true");
         request.setScheme("https");
         request.setServerName("www.example.com");
         request.setContextPath("/bigWebApp");
@@ -136,11 +142,12 @@ public class RetryWithHttpEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
 
         ep.commence(request, response);
-        assertEquals("/bigWebApp", response.getRedirect());
+        assertEquals("/bigWebApp", response.getRedirectedUrl());
     }
 
     public void testOperationWithNonStandardPort() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest("open=true");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setQueryString("open=true");
         request.setScheme("https");
         request.setServerName("www.example.com");
         request.setContextPath("/bigWebApp");
@@ -162,6 +169,6 @@ public class RetryWithHttpEntryPointTests extends TestCase {
 
         ep.commence(request, response);
         assertEquals("http://www.example.com:8888/bigWebApp/hello/pathInfo.html?open=true",
-            response.getRedirect());
+            response.getRedirectedUrl());
     }
 }

@@ -20,13 +20,15 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.MockHttpServletRequest;
+
+
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContext;
 import net.sf.acegisecurity.context.security.SecureContextImpl;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.User;
 import net.sf.acegisecurity.wrapper.ContextHolderAwareRequestWrapper;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 
 /**
@@ -65,8 +67,9 @@ public class ContextHolderAwareRequestWrapperTests extends TestCase {
         sc.setAuthentication(auth);
         ContextHolder.setContext(sc);
 
-        ContextHolderAwareRequestWrapper wrapper = new ContextHolderAwareRequestWrapper(new MockHttpServletRequest(
-                    "/"));
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/");
+        ContextHolderAwareRequestWrapper wrapper = new ContextHolderAwareRequestWrapper(request);
 
         assertEquals("marissa", wrapper.getRemoteUser());
         assertTrue(wrapper.isUserInRole("ROLE_FOO"));
@@ -87,8 +90,9 @@ public class ContextHolderAwareRequestWrapperTests extends TestCase {
         sc.setAuthentication(auth);
         ContextHolder.setContext(sc);
 
-        ContextHolderAwareRequestWrapper wrapper = new ContextHolderAwareRequestWrapper(new MockHttpServletRequest(
-                    "/"));
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/");
+        ContextHolderAwareRequestWrapper wrapper = new ContextHolderAwareRequestWrapper(request);
 
         assertEquals("marissaAsUserDetails", wrapper.getRemoteUser());
         assertFalse(wrapper.isUserInRole("ROLE_FOO"));
@@ -105,8 +109,9 @@ public class ContextHolderAwareRequestWrapperTests extends TestCase {
         sc.setAuthentication(null);
         ContextHolder.setContext(sc);
 
-        ContextHolderAwareRequestWrapper wrapper = new ContextHolderAwareRequestWrapper(new MockHttpServletRequest(
-                    "/"));
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/");
+        ContextHolderAwareRequestWrapper wrapper = new ContextHolderAwareRequestWrapper(request);
         assertNull(wrapper.getRemoteUser());
         assertFalse(wrapper.isUserInRole("ROLE_ANY"));
         assertNull(wrapper.getUserPrincipal());
@@ -117,8 +122,9 @@ public class ContextHolderAwareRequestWrapperTests extends TestCase {
     public void testNullContextHolderHandling() throws Exception {
         ContextHolder.setContext(null);
 
-        ContextHolderAwareRequestWrapper wrapper = new ContextHolderAwareRequestWrapper(new MockHttpServletRequest(
-                    "/"));
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/");
+        ContextHolderAwareRequestWrapper wrapper = new ContextHolderAwareRequestWrapper(request);
         assertNull(wrapper.getRemoteUser());
         assertFalse(wrapper.isUserInRole("ROLE_ANY"));
         assertNull(wrapper.getUserPrincipal());
@@ -132,8 +138,9 @@ public class ContextHolderAwareRequestWrapperTests extends TestCase {
         sc.setAuthentication(auth);
         ContextHolder.setContext(sc);
 
-        ContextHolderAwareRequestWrapper wrapper = new ContextHolderAwareRequestWrapper(new MockHttpServletRequest(
-                    "/"));
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/");
+        ContextHolderAwareRequestWrapper wrapper = new ContextHolderAwareRequestWrapper(request);
 
         assertNull(wrapper.getRemoteUser());
         assertFalse(wrapper.isUserInRole("ROLE_HELLO")); // principal is null, so reject

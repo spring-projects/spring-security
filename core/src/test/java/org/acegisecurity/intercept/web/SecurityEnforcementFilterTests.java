@@ -22,9 +22,6 @@ import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.MockAuthenticationEntryPoint;
-import net.sf.acegisecurity.MockHttpServletRequest;
-import net.sf.acegisecurity.MockHttpServletResponse;
-import net.sf.acegisecurity.MockHttpSession;
 import net.sf.acegisecurity.MockPortResolver;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContext;
@@ -38,7 +35,9 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpSession;
+
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 
 /**
@@ -70,16 +69,13 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
     public void testAccessDeniedWhenAnonymous() throws Exception {
         // Setup our HTTP request
-        HttpSession session = new MockHttpSession();
-        MockHttpServletRequest request = new MockHttpServletRequest(null,
-                session);
+        MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/secure/page.html");
         request.setServerPort(80);
         request.setScheme("http");
         request.setServerName("www.example.com");
         request.setContextPath("/mycontext");
-        request.setRequestURL(
-            "http://www.example.com/mycontext/secure/page.html");
+        request.setRequestURI("/mycontext/secure/page.html");
 
         // Setup our expectation that the filter chain will not be invoked, as access is denied
         MockFilterChain chain = new MockFilterChain(false);
@@ -103,16 +99,14 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
-        assertEquals("/mycontext/login.jsp", response.getRedirect());
+        assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
         assertEquals("http://www.example.com/mycontext/secure/page.html",
             request.getSession().getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
     }
 
     public void testAccessDeniedWhenNonAnonymous() throws Exception {
         // Setup our HTTP request
-        HttpSession session = new MockHttpSession();
-        MockHttpServletRequest request = new MockHttpServletRequest(null,
-                session);
+        MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/secure/page.html");
 
         // Setup our expectation that the filter chain will not be invoked, as access is denied
@@ -135,9 +129,9 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
-        assertEquals(403, response.getError());
+        assertEquals(403, response.getStatus());
         assertEquals(AccessDeniedException.class,
-            session.getAttribute(
+            request.getSession().getAttribute(
                 SecurityEnforcementFilter.ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY)
                    .getClass());
     }
@@ -185,15 +179,13 @@ public class SecurityEnforcementFilterTests extends TestCase {
     public void testRedirectedToLoginFormAndSessionShowsOriginalTargetWhenAuthenticationException()
         throws Exception {
         // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest(null,
-                new MockHttpSession());
+        MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/secure/page.html");
         request.setServerPort(80);
         request.setScheme("http");
         request.setServerName("www.example.com");
         request.setContextPath("/mycontext");
-        request.setRequestURL(
-            "http://www.example.com/mycontext/secure/page.html");
+        request.setRequestURI("/mycontext/secure/page.html");
 
         // Setup our expectation that the filter chain will not be invoked, as access is denied
         MockFilterChain chain = new MockFilterChain(false);
@@ -212,7 +204,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
-        assertEquals("/mycontext/login.jsp", response.getRedirect());
+        assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
         assertEquals("http://www.example.com/mycontext/secure/page.html",
             request.getSession().getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
     }
@@ -220,15 +212,13 @@ public class SecurityEnforcementFilterTests extends TestCase {
     public void testRedirectedToLoginFormAndSessionShowsOriginalTargetWithExoticPortWhenAuthenticationException()
         throws Exception {
         // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest(null,
-                new MockHttpSession());
+        MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/secure/page.html");
         request.setServerPort(8080);
         request.setScheme("http");
         request.setServerName("www.example.com");
         request.setContextPath("/mycontext");
-        request.setRequestURL(
-            "http://www.example.com:8080/mycontext/secure/page.html");
+        request.setRequestURI("/mycontext/secure/page.html");
 
         // Setup our expectation that the filter chain will not be invoked, as access is denied
         MockFilterChain chain = new MockFilterChain(false);
@@ -247,7 +237,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
-        assertEquals("/mycontext/login.jsp", response.getRedirect());
+        assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
         assertEquals("http://www.example.com:8080/mycontext/secure/page.html",
             request.getSession().getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
     }
@@ -301,8 +291,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
     public void testSuccessfulAccessGrant() throws Exception {
         // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest(null,
-                new MockHttpSession());
+        MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/secure/page.html");
 
         // Setup our expectation that the filter chain will be invoked, as access is granted
