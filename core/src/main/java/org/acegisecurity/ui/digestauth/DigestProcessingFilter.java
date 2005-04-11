@@ -40,6 +40,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.util.StringUtils;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -62,7 +63,7 @@ import javax.servlet.http.HttpServletResponse;
  * <P>
  * For a detailed background on what this filter is designed to process, refer
  * to <A HREF="http://www.ietf.org/rfc/rfc2617.txt">RFC 2617</A> (which
- * superseeded RFC 2069, although this filter support clients that implement
+ * superseded RFC 2069, although this filter support clients that implement
  * either RFC 2617 or RFC 2069).
  * </p>
  * 
@@ -138,15 +139,8 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (this.authenticationDao == null) {
-            throw new IllegalArgumentException(
-                "An AuthenticationDao is required");
-        }
-
-        if (this.authenticationEntryPoint == null) {
-            throw new IllegalArgumentException(
-                "A DigestProcessingFilterEntryPoint is required");
-        }
+        Assert.notNull(authenticationDao, "An AuthenticationDao is required");
+        Assert.notNull(authenticationEntryPoint, "A DigestProcessingFilterEntryPoint is required");
     }
 
     public void destroy() {}
@@ -237,7 +231,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
             if (!Base64.isArrayByteBase64(nonce.getBytes())) {
                 fail(request, response,
                     new BadCredentialsException(
-                        "None is not encoded in Base64; received nonce: '"
+                        "Nonce is not encoded in Base64; received nonce: '"
                         + nonce + "'"));
 
                 return;
@@ -392,7 +386,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
      * Computes the <code>response</code> portion of a Digest authentication
      * header. Both the server and user agent should compute the
      * <code>response</code> independently. Provided as a static method to
-     * simply the coding of user agents.
+     * simplify the coding of user agents.
      *
      * @param username DOCUMENT ME!
      * @param realm DOCUMENT ME!
