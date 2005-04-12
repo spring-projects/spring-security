@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,14 @@ public class UsernamePasswordAuthenticationToken
         return this.authenticated;
     }
 
+    /**
+     * Generally you should not call this method, because on subsequent
+     * requests the <code>Authentication</code> will be recreated by the
+     * relevant <code>AuthenticationManager</code>. This method is mostly of
+     * interest to <code>AuthenticationManager</code>s and unit tests.
+     *
+     * @param authorities the new authorities to apply
+     */
     public void setAuthorities(GrantedAuthority[] authorities) {
         this.authorities = authorities;
     }
