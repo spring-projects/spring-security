@@ -66,7 +66,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
 
     public Authentication attemptAuthentication(HttpServletRequest request)
         throws AuthenticationException {
-        String username = request.getParameter(ACEGI_SECURITY_FORM_USERNAME_KEY);
+        String username = obtainUsername(request);
         String password = obtainPassword(request);
 
         if (username == null) {
@@ -126,5 +126,19 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
      */
     protected String obtainPassword(HttpServletRequest request) {
         return request.getParameter(ACEGI_SECURITY_FORM_PASSWORD_KEY);
+    }
+
+    /**
+     * Enables subclasses to override the composition of the username, such as
+     * by including additional values and a separator.
+     *
+     * @param request so that request attributes can be retrieved
+     *
+     * @return the username that will be presented in the
+     *         <code>Authentication</code> request token to the
+     *         <code>AuthenticationManager</code>
+     */
+    protected String obtainUsername(HttpServletRequest request) {
+        return request.getParameter(ACEGI_SECURITY_FORM_USERNAME_KEY);
     }
 }
