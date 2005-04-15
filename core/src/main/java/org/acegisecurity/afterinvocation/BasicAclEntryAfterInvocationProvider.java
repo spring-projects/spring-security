@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.util.Iterator;
 
@@ -129,18 +130,11 @@ public class BasicAclEntryAfterInvocationProvider
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (processConfigAttribute == null) {
-            throw new IllegalArgumentException(
-                "A processConfigAttribute is mandatory");
-        }
+        Assert.notNull(processConfigAttribute, "A processConfigAttribute is mandatory");
+        Assert.notNull(aclManager, "An aclManager is mandatory");
 
         if ((requirePermission == null) || (requirePermission.length == 0)) {
-            throw new IllegalArgumentException(
-                "One or more requirePermission entries is mandatory");
-        }
-
-        if (aclManager == null) {
-            throw new IllegalArgumentException("An aclManager is mandatory");
+            throw new IllegalArgumentException("One or more requirePermission entries is mandatory");
         }
     }
 

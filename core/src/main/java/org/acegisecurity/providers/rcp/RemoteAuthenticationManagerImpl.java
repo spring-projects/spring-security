@@ -21,6 +21,7 @@ import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 
 /**
@@ -53,10 +54,7 @@ public class RemoteAuthenticationManagerImpl
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (this.authenticationManager == null) {
-            throw new IllegalArgumentException(
-                "authenticationManager is required");
-        }
+        Assert.notNull(this.authenticationManager, "authenticationManager is required");
     }
 
     public GrantedAuthority[] attemptAuthentication(String username,

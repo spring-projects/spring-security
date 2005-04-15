@@ -43,6 +43,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.util.Assert;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -221,80 +222,61 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (getSecureObjectClass() == null) {
-            throw new IllegalArgumentException(
-                "Subclass must provide a non-null response to getSecureObjectClass()");
-        }
+        Assert.notNull(getSecureObjectClass(), "Subclass must provide a non-null response to getSecureObjectClass()");
 
-        if (this.authenticationManager == null) {
-            throw new IllegalArgumentException(
-                "An AuthenticationManager is required");
-        }
+        Assert.notNull(this.authenticationManager, "An AuthenticationManager is required");
 
-        if (this.accessDecisionManager == null) {
-            throw new IllegalArgumentException(
-                "An AccessDecisionManager is required");
-        }
+        Assert.notNull(this.accessDecisionManager, "An AccessDecisionManager is required");
 
-        if (this.runAsManager == null) {
-            throw new IllegalArgumentException("A RunAsManager is required");
-        }
+        Assert.notNull(this.runAsManager, "A RunAsManager is required");
 
-        if (this.obtainObjectDefinitionSource() == null) {
-            throw new IllegalArgumentException(
-                "An ObjectDefinitionSource is required");
-        }
+        Assert.notNull(this.obtainObjectDefinitionSource(), "An ObjectDefinitionSource is required");
 
         if (!this.obtainObjectDefinitionSource().supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
-                "ObjectDefinitionSource does not support secure object class: "
-                + getSecureObjectClass());
+            throw new IllegalArgumentException("ObjectDefinitionSource does not support secure object class: "
+                    + getSecureObjectClass());
         }
 
         if (!this.runAsManager.supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
-                "RunAsManager does not support secure object class: "
-                + getSecureObjectClass());
+            throw new IllegalArgumentException("RunAsManager does not support secure object class: "
+                    + getSecureObjectClass());
         }
 
         if (!this.accessDecisionManager.supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
-                "AccessDecisionManager does not support secure object class: "
-                + getSecureObjectClass());
+            throw new IllegalArgumentException("AccessDecisionManager does not support secure object class: "
+                    + getSecureObjectClass());
         }
 
         if ((this.afterInvocationManager != null)
-            && !this.afterInvocationManager.supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
-                "AfterInvocationManager does not support secure object class: "
-                + getSecureObjectClass());
+                && !this.afterInvocationManager.supports(getSecureObjectClass())) {
+            throw new IllegalArgumentException("AfterInvocationManager does not support secure object class: "
+                    + getSecureObjectClass());
         }
 
         if (this.validateConfigAttributes) {
             Iterator iter = this.obtainObjectDefinitionSource()
-                                .getConfigAttributeDefinitions();
+                    .getConfigAttributeDefinitions();
 
             if (iter == null) {
                 if (logger.isWarnEnabled()) {
-                    logger.warn(
-                        "Could not validate configuration attributes as the MethodDefinitionSource did not return a ConfigAttributeDefinition Iterator");
+                    logger.warn("Could not validate configuration attributes as the MethodDefinitionSource did not return a ConfigAttributeDefinition Iterator");
                 }
             } else {
                 Set set = new HashSet();
 
                 while (iter.hasNext()) {
                     ConfigAttributeDefinition def = (ConfigAttributeDefinition) iter
-                        .next();
+                            .next();
                     Iterator attributes = def.getConfigAttributes();
 
                     while (attributes.hasNext()) {
                         ConfigAttribute attr = (ConfigAttribute) attributes
-                            .next();
+                                .next();
 
                         if (!this.runAsManager.supports(attr)
-                            && !this.accessDecisionManager.supports(attr)
-                            && ((this.afterInvocationManager == null)
-                            || !this.afterInvocationManager.supports(attr))) {
+                                && !this.accessDecisionManager.supports(attr)
+                                && ((this.afterInvocationManager == null)
+                                || !this.afterInvocationManager.supports(attr))) {
                             set.add(attr);
                         }
                     }
@@ -305,9 +287,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                         logger.info("Validated configuration attributes");
                     }
                 } else {
-                    throw new IllegalArgumentException(
-                        "Unsupported configuration attributes: "
-                        + set.toString());
+                    throw new IllegalArgumentException("Unsupported configuration attributes: "
+                            + set.toString());
                 }
             }
         }
@@ -354,31 +335,25 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
     }
 
     protected InterceptorStatusToken beforeInvocation(Object object) {
-        if (object == null) {
-            throw new IllegalArgumentException("Object was null");
-        }
-
-        if (!getSecureObjectClass().isAssignableFrom(object.getClass())) {
-            throw new IllegalArgumentException(
-                "Security invocation attempted for object " + object
-                + " but AbstractSecurityInterceptor only configured to support secure objects of type: "
-                + getSecureObjectClass());
-        }
+        Assert.notNull(object, "Object was null");
+        Assert.isTrue(getSecureObjectClass().isAssignableFrom(object.getClass()), "Security invocation attempted for object " + object
+                    + " but AbstractSecurityInterceptor only configured to support secure objects of type: "
+                    + getSecureObjectClass());
 
         ConfigAttributeDefinition attr = this.obtainObjectDefinitionSource()
-                                             .getAttributes(object);
+                .getAttributes(object);
 
         if (attr != null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Secure object: " + object.toString()
-                    + "; ConfigAttributes: " + attr.toString());
+                        + "; ConfigAttributes: " + attr.toString());
             }
 
             // Ensure ContextHolder presents a populated SecureContext
             if ((ContextHolder.getContext() == null)
-                || !(ContextHolder.getContext() instanceof SecureContext)) {
+                    || !(ContextHolder.getContext() instanceof SecureContext)) {
                 credentialsNotFound("A valid SecureContext was not provided in the RequestContext",
-                    object, attr);
+                        object, attr);
             }
 
             SecureContext context = (SecureContext) ContextHolder.getContext();
@@ -387,7 +362,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
             // not call Context.validate() like the ContextInterceptor)
             if (context.getAuthentication() == null) {
                 credentialsNotFound("Authentication credentials were not found in the SecureContext",
-                    object, attr);
+                        object, attr);
             }
 
             // Attempt authentication
@@ -439,23 +414,22 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 
             if (runAs == null) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug(
-                        "RunAsManager did not change Authentication object");
+                    logger.debug("RunAsManager did not change Authentication object");
                 }
 
                 return new InterceptorStatusToken(authenticated, false, attr,
-                    object); // no further work post-invocation
+                        object); // no further work post-invocation
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Switching to RunAs Authentication: "
-                        + runAs.toString());
+                            + runAs.toString());
                 }
 
                 context.setAuthentication(runAs);
                 ContextHolder.setContext((Context) context);
 
                 return new InterceptorStatusToken(authenticated, true, attr,
-                    object); // revert to token.Authenticated post-invocation
+                        object); // revert to token.Authenticated post-invocation
             }
         } else {
             if (logger.isDebugEnabled()) {
@@ -466,14 +440,13 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 
             // Set Authentication object (if it exists) to be unauthenticated
             if ((ContextHolder.getContext() != null)
-                && ContextHolder.getContext() instanceof SecureContext) {
+                    && ContextHolder.getContext() instanceof SecureContext) {
                 SecureContext context = (SecureContext) ContextHolder
-                    .getContext();
+                        .getContext();
 
                 if (context.getAuthentication() != null) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug(
-                            "Authentication object detected and tagged as unauthenticated");
+                        logger.debug("Authentication object detected and tagged as unauthenticated");
                     }
 
                     Authentication authenticated = context.getAuthentication();

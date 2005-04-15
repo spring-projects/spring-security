@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.lang.reflect.Constructor;
 
@@ -103,10 +104,7 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
 
         AclObjectIdentity aclIdentity = obtainIdentity(domainInstance);
 
-        if (aclIdentity == null) {
-            throw new IllegalArgumentException(
-                "domainInstance is not supported by this provider");
-        }
+        Assert.notNull(aclIdentity, "domainInstance is not supported by this provider");
 
         if (logger.isDebugEnabled()) {
             logger.debug("Looking up: " + aclIdentity.toString());
@@ -123,14 +121,14 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
         for (int i = 0; i < instanceAclEntries.length; i++) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Explicit add: "
-                    + instanceAclEntries[i].toString());
+                        + instanceAclEntries[i].toString());
             }
 
             map.put(instanceAclEntries[i].getRecipient(), instanceAclEntries[i]);
         }
 
         AclObjectIdentity parent = instanceAclEntries[0]
-            .getAclObjectParentIdentity();
+                .getAclObjectParentIdentity();
 
         while (parent != null) {
             BasicAclEntry[] parentAclEntries = lookup(parent);
@@ -153,15 +151,15 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
                 if (!map.containsKey(parentAclEntries[i].getRecipient())) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Added parent to map: "
-                            + parentAclEntries[i].toString());
+                                + parentAclEntries[i].toString());
                     }
 
                     map.put(parentAclEntries[i].getRecipient(),
-                        parentAclEntries[i]);
+                            parentAclEntries[i]);
                 } else {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Did NOT add parent to map: "
-                            + parentAclEntries[i].toString());
+                                + parentAclEntries[i].toString());
                     }
                 }
             }
@@ -172,7 +170,7 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
 
         Collection collection = map.values();
 
-        return (AclEntry[]) collection.toArray(new AclEntry[] {});
+        return (AclEntry[]) collection.toArray(new AclEntry[]{});
     }
 
     public AclEntry[] getAcls(Object domainInstance,
@@ -254,31 +252,19 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
     }
 
     public void afterPropertiesSet() {
-        if (basicAclDao == null) {
-            throw new IllegalArgumentException("basicAclDao required");
-        }
-
-        if (basicAclEntryCache == null) {
-            throw new IllegalArgumentException("basicAclEntryCache required");
-        }
-
-        if (effectiveAclsResolver == null) {
-            throw new IllegalArgumentException("effectiveAclsResolver required");
-        }
-
-        if ((defaultAclObjectIdentityClass == null)
-            || (!AclObjectIdentity.class.isAssignableFrom(
-                this.defaultAclObjectIdentityClass))) {
-            throw new IllegalArgumentException(
-                "defaultAclObjectIdentityClass that implements AclObjectIdentity is required");
-        }
+        Assert.notNull(basicAclDao, "basicAclDao required");
+        Assert.notNull(basicAclEntryCache, "basicAclEntryCache required");
+        Assert.notNull(basicAclEntryCache, "basicAclEntryCache required");
+        Assert.notNull(effectiveAclsResolver, "effectiveAclsResolver required");
+        Assert.notNull(defaultAclObjectIdentityClass, "defaultAclObjectIdentityClass required");
+        Assert.isTrue(AclObjectIdentity.class.isAssignableFrom(this.defaultAclObjectIdentityClass),
+                "defaultAclObjectIdentityClass must implement AclObjectIdentity");
 
         try {
             Constructor constructor = defaultAclObjectIdentityClass
-                .getConstructor(new Class[] {Object.class});
+                    .getConstructor(new Class[]{Object.class});
         } catch (NoSuchMethodException nsme) {
-            throw new IllegalArgumentException(
-                "defaultAclObjectIdentityClass must provide a constructor that accepts the domain object instance!");
+            throw new IllegalArgumentException("defaultAclObjectIdentityClass must provide a constructor that accepts the domain object instance!");
         }
     }
 

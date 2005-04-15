@@ -16,6 +16,7 @@
 package net.sf.acegisecurity.util;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import javax.servlet.ServletRequest;
 
@@ -78,8 +79,6 @@ public class PortResolverImpl implements InitializingBean, PortResolver {
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (portMapper == null) {
-            throw new IllegalArgumentException("portMapper required");
-        }
+        Assert.notNull(portMapper, "portMapper required");
     }
 }

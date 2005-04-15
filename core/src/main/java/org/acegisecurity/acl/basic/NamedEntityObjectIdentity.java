@@ -15,6 +15,8 @@
 
 package net.sf.acegisecurity.acl.basic;
 
+import org.springframework.util.Assert;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -65,9 +67,7 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
      */
     public NamedEntityObjectIdentity(Object object)
         throws IllegalAccessException, InvocationTargetException {
-        if (object == null) {
-            throw new IllegalArgumentException("object cannot be null");
-        }
+        Assert.notNull(object, "object cannot be null");
 
         this.classname = object.getClass().getName();
 
@@ -79,7 +79,7 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
             this.id = result.toString();
         } catch (NoSuchMethodException nsme) {
             throw new IllegalArgumentException("Object of class '" + clazz
-                + "' does not provide the required getId() method: " + object);
+                    + "' does not provide the required getId() method: " + object);
         }
     }
 

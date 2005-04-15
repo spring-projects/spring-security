@@ -27,6 +27,7 @@ import org.springframework.web.bind.RequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,10 +61,7 @@ public class AddPermissionController extends SimpleFormController
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (contactManager == null) {
-            throw new IllegalArgumentException(
-                "A ContactManager implementation is required");
-        }
+        Assert.notNull(contactManager, "A ContactManager implementation is required");
     }
 
     protected ModelAndView disallowDuplicateFormSubmission(

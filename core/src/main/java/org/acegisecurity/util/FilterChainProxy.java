@@ -28,6 +28,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -133,15 +134,8 @@ public class FilterChainProxy implements Filter, InitializingBean,
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (filterInvocationDefinitionSource == null) {
-            throw new IllegalArgumentException(
-                "filterInvocationDefinitionSource must be specified");
-        }
-
-        if (this.filterInvocationDefinitionSource.getConfigAttributeDefinitions() == null) {
-            throw new IllegalArgumentException(
-                "FilterChainProxy requires the FitlerInvocationDefinitionSource to return a non-null response to getConfigAttributeDefinitions()");
-        }
+        Assert.notNull(filterInvocationDefinitionSource, "filterInvocationDefinitionSource must be specified");
+        Assert.notNull(this.filterInvocationDefinitionSource.getConfigAttributeDefinitions(), "FilterChainProxy requires the FitlerInvocationDefinitionSource to return a non-null response to getConfigAttributeDefinitions()");
     }
 
     public void destroy() {
@@ -252,11 +246,9 @@ public class FilterChainProxy implements Filter, InitializingBean,
             ConfigAttribute attr = (ConfigAttribute) attributes.next();
             String filterName = attr.getAttribute();
 
-            if (filterName == null) {
-                throw new IllegalArgumentException("Configuration attribute: '"
+            Assert.notNull(filterName, "Configuration attribute: '"
                     + attr
                     + "' returned null to the getAttribute() method, which is invalid when used with FilterChainProxy");
-            }
 
             list.add(this.applicationContext.getBean(filterName, Filter.class));
         }

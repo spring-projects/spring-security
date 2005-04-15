@@ -20,6 +20,7 @@ import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.intercept.web.FilterInvocation;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -77,13 +78,8 @@ public class InsecureChannelProcessor implements InitializingBean,
     }
 
     public void afterPropertiesSet() throws Exception {
-        if ((insecureKeyword == null) || "".equals(insecureKeyword)) {
-            throw new IllegalArgumentException("insecureKeyword required");
-        }
-
-        if (entryPoint == null) {
-            throw new IllegalArgumentException("entryPoint required");
-        }
+        Assert.hasLength(insecureKeyword, "insecureKeyword required");
+        Assert.notNull(entryPoint, "entryPoint required");
     }
 
     public void decide(FilterInvocation invocation,

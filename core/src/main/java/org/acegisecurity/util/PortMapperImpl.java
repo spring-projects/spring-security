@@ -15,6 +15,8 @@
 
 package net.sf.acegisecurity.util;
 
+import org.springframework.util.Assert;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -75,10 +77,7 @@ public class PortMapperImpl implements PortMapper {
      *         the range 1-65535 for that mapping.
      */
     public void setPortMappings(Map newMappings) {
-        if (newMappings == null) {
-            throw new IllegalArgumentException(
-                "A valid list of HTTPS port mappings must be provided");
-        }
+        Assert.notNull(newMappings, "A valid list of HTTPS port mappings must be provided");
 
         httpsPortMappings.clear();
 
@@ -90,10 +89,9 @@ public class PortMapperImpl implements PortMapper {
             Integer httpsPort = new Integer((String) entry.getValue());
 
             if ((httpPort.intValue() < 1) || (httpPort.intValue() > 65535)
-                || (httpsPort.intValue() < 1) || (httpsPort.intValue() > 65535)) {
-                throw new IllegalArgumentException(
-                    "one or both ports out of legal range: " + httpPort + ", "
-                    + httpsPort);
+                    || (httpsPort.intValue() < 1) || (httpsPort.intValue() > 65535)) {
+                throw new IllegalArgumentException("one or both ports out of legal range: " + httpPort + ", "
+                        + httpsPort);
             }
 
             httpsPortMappings.put(httpPort, httpsPort);

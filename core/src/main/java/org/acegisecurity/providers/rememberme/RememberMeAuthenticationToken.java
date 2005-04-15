@@ -20,6 +20,8 @@ import net.sf.acegisecurity.providers.AbstractAuthenticationToken;
 
 import java.io.Serializable;
 
+import org.springframework.util.Assert;
+
 
 /**
  * Represents a remembered <code>Authentication</code>.
@@ -62,11 +64,9 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken
         }
 
         for (int i = 0; i < authorities.length; i++) {
-            if (authorities[i] == null) {
-                throw new IllegalArgumentException("Granted authority element "
+            Assert.notNull(authorities[i], "Granted authority element "
                     + i
                     + " is null - GrantedAuthority[] cannot contain any null elements");
-            }
         }
 
         this.keyHash = key.hashCode();

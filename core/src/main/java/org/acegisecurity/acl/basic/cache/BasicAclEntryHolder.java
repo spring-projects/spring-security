@@ -19,6 +19,8 @@ import net.sf.acegisecurity.acl.basic.BasicAclEntry;
 
 import java.io.Serializable;
 
+import org.springframework.util.Assert;
+
 
 /**
  * Used by {@link EhCacheBasedAclEntryCache} to store the array of
@@ -57,14 +59,10 @@ public class BasicAclEntryHolder implements Serializable {
      *         passed to the constructor
      */
     public BasicAclEntryHolder(BasicAclEntry[] aclEntries) {
-        if (aclEntries == null) {
-            throw new IllegalArgumentException("aclEntries cannot be null");
-        }
+        Assert.notNull(aclEntries, "aclEntries cannot be null");
 
         for (int i = 0; i < aclEntries.length; i++) {
-            if (aclEntries[i] == null) {
-                throw new IllegalArgumentException("aclEntries cannot be null");
-            }
+            Assert.notNull(aclEntries[i], "aclEntries cannot be null");
         }
 
         this.basicAclEntries = aclEntries;

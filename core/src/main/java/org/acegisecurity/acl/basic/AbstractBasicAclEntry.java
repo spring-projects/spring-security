@@ -17,6 +17,7 @@ package net.sf.acegisecurity.acl.basic;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 import java.util.Arrays;
 
@@ -49,14 +50,9 @@ public abstract class AbstractBasicAclEntry implements BasicAclEntry {
     public AbstractBasicAclEntry(Object recipient,
         AclObjectIdentity aclObjectIdentity,
         AclObjectIdentity aclObjectParentIdentity, int mask) {
-        if (recipient == null) {
-            throw new IllegalArgumentException("recipient cannot be null");
-        }
+        Assert.notNull(recipient, "recipient cannot be null");
 
-        if (aclObjectIdentity == null) {
-            throw new IllegalArgumentException(
-                "aclObjectIdentity cannot be null");
-        }
+        Assert.notNull(aclObjectIdentity, "aclObjectIdentity cannot be null");
 
         validPermissions = getValidPermissions();
         Arrays.sort(validPermissions);
@@ -64,9 +60,9 @@ public abstract class AbstractBasicAclEntry implements BasicAclEntry {
         for (int i = 0; i < validPermissions.length; i++) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Valid permission:   "
-                    + printPermissionsBlock(validPermissions[i]) + " "
-                    + printBinary(validPermissions[i]) + " ("
-                    + validPermissions[i] + ")");
+                        + printPermissionsBlock(validPermissions[i]) + " "
+                        + printBinary(validPermissions[i]) + " ("
+                        + validPermissions[i] + ")");
             }
         }
 

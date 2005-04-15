@@ -20,6 +20,7 @@ import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.dao.User;
 
 import org.springframework.context.ApplicationEvent;
+import org.springframework.util.Assert;
 
 
 /**
@@ -53,9 +54,7 @@ public abstract class AuthenticationEvent extends ApplicationEvent {
         super(authentication);
 
         // No need to check authentication isn't null, as done by super
-        if (user == null) {
-            throw new IllegalArgumentException("User is required");
-        }
+        Assert.notNull(user, "User is required");
 
         this.user = user;
     }

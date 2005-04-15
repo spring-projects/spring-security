@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -58,17 +59,12 @@ public class NamedCasProxyDecider implements CasProxyDecider, InitializingBean {
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (this.validProxies == null) {
-            throw new IllegalArgumentException(
-                "A validProxies list must be set");
-        }
+        Assert.notNull(this.validProxies, "A validProxies list must be set");
     }
 
     public void confirmProxyListTrusted(List proxyList)
         throws ProxyUntrustedException {
-        if (proxyList == null) {
-            throw new IllegalArgumentException("proxyList cannot be null");
-        }
+        Assert.notNull(proxyList, "proxyList cannot be null");
 
         if (logger.isDebugEnabled()) {
             logger.debug("Proxy list: " + proxyList.toString());
@@ -81,7 +77,7 @@ public class NamedCasProxyDecider implements CasProxyDecider, InitializingBean {
 
         if (!validProxies.contains(proxyList.get(0))) {
             throw new ProxyUntrustedException("Nearest proxy '"
-                + proxyList.get(0) + "' is untrusted");
+                    + proxyList.get(0) + "' is untrusted");
         }
     }
 }

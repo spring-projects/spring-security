@@ -17,6 +17,7 @@ package net.sf.acegisecurity.providers.dao;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.UserDetails;
+import org.springframework.util.Assert;
 
 
 /**
@@ -134,11 +135,9 @@ public class User implements UserDetails {
         }
 
         for (int i = 0; i < authorities.length; i++) {
-            if (authorities[i] == null) {
-                throw new IllegalArgumentException("Granted authority element "
+            Assert.notNull(authorities[i], "Granted authority element "
                     + i
                     + " is null - GrantedAuthority[] cannot contain any null elements");
-            }
         }
 
         this.username = username;

@@ -19,6 +19,7 @@ import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -79,14 +80,8 @@ public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint,
     }
 
     public void afterPropertiesSet() throws Exception {
-        if ((loginUrl == null) || "".equals(loginUrl)) {
-            throw new IllegalArgumentException("loginUrl must be specified");
-        }
-
-        if (serviceProperties == null) {
-            throw new IllegalArgumentException(
-                "serviceProperties must be specified");
-        }
+        Assert.hasLength(loginUrl, "loginUrl must be specified");
+        Assert.notNull(serviceProperties, "serviceProperties must be specified");
     }
 
     public void commence(ServletRequest request, ServletResponse response,

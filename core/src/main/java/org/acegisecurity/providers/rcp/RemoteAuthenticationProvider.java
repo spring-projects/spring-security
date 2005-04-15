@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 
 /**
@@ -79,10 +80,7 @@ public class RemoteAuthenticationProvider implements AuthenticationProvider,
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (this.remoteAuthenticationManager == null) {
-            throw new IllegalArgumentException(
-                "remoteAuthenticationManager is mandatory");
-        }
+        Assert.notNull(this.remoteAuthenticationManager, "remoteAuthenticationManager is mandatory");
     }
 
     public Authentication authenticate(Authentication authentication)

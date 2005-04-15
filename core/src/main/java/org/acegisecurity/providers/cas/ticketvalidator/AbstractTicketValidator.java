@@ -19,6 +19,7 @@ import net.sf.acegisecurity.providers.cas.TicketValidator;
 import net.sf.acegisecurity.ui.cas.ServiceProperties;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 
 /**
@@ -80,14 +81,8 @@ public abstract class AbstractTicketValidator implements TicketValidator,
     }
 
     public void afterPropertiesSet() throws Exception {
-        if ((this.casValidate == null) || "".equals(casValidate)) {
-            throw new IllegalArgumentException("A casValidate URL must be set");
-        }
-
-        if (serviceProperties == null) {
-            throw new IllegalArgumentException(
-                "serviceProperties must be specified");
-        }
+        Assert.hasLength(casValidate, "A casValidate URL must be set");
+        Assert.notNull(serviceProperties, "serviceProperties must be specified");
 
         if ((trustStore != null) && (!"".equals(trustStore))) {
             System.setProperty("javax.net.ssl.trustStore", trustStore);

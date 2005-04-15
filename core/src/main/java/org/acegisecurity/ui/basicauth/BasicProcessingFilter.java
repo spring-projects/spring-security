@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -132,15 +133,8 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (this.authenticationManager == null) {
-            throw new IllegalArgumentException(
-                "An AuthenticationManager is required");
-        }
-
-        if (this.authenticationEntryPoint == null) {
-            throw new IllegalArgumentException(
-                "An AuthenticationEntryPoint is required");
-        }
+        Assert.notNull(this.authenticationManager, "An AuthenticationManager is required");
+        Assert.notNull(this.authenticationEntryPoint, "An AuthenticationEntryPoint is required");
     }
 
     public void destroy() {}

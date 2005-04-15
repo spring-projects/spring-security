@@ -23,6 +23,8 @@ import java.io.Serializable;
 
 import java.util.List;
 
+import org.springframework.util.Assert;
+
 
 /**
  * Represents a successful CAS <code>Authentication</code>.
@@ -77,11 +79,9 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
         }
 
         for (int i = 0; i < authorities.length; i++) {
-            if (authorities[i] == null) {
-                throw new IllegalArgumentException("Granted authority element "
+            Assert.notNull(authorities[i], "Granted authority element "
                     + i
                     + " is null - GrantedAuthority[] cannot contain any null elements");
-            }
         }
 
         this.keyHash = key.hashCode();

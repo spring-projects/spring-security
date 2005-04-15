@@ -20,6 +20,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.web.bind.RequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -50,10 +51,7 @@ public class DeleteController implements Controller, InitializingBean {
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (contactManager == null) {
-            throw new IllegalArgumentException(
-                "A ContactManager implementation is required");
-        }
+        Assert.notNull(contactManager, "A ContactManager implementation is required");
     }
 
     public ModelAndView handleRequest(HttpServletRequest request,

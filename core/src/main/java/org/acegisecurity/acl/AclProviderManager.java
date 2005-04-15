@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.util.Iterator;
 import java.util.List;
@@ -50,10 +51,7 @@ public class AclProviderManager implements AclManager, InitializingBean {
     //~ Methods ================================================================
 
     public AclEntry[] getAcls(Object domainInstance) {
-        if (domainInstance == null) {
-            throw new IllegalArgumentException(
-                "domainInstance is null - violating interface contract");
-        }
+        Assert.notNull(domainInstance, "domainInstance is null - violating interface contract");
 
         Iterator iter = providers.iterator();
 
@@ -63,7 +61,7 @@ public class AclProviderManager implements AclManager, InitializingBean {
             if (provider.supports(domainInstance)) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("ACL lookup using "
-                        + provider.getClass().getName());
+                            + provider.getClass().getName());
                 }
 
                 return provider.getAcls(domainInstance);
@@ -72,7 +70,7 @@ public class AclProviderManager implements AclManager, InitializingBean {
 
         if (logger.isDebugEnabled()) {
             logger.debug("No AclProvider found for "
-                + domainInstance.toString());
+                    + domainInstance.toString());
         }
 
         return null;
@@ -80,15 +78,8 @@ public class AclProviderManager implements AclManager, InitializingBean {
 
     public AclEntry[] getAcls(Object domainInstance,
         Authentication authentication) {
-        if (domainInstance == null) {
-            throw new IllegalArgumentException(
-                "domainInstance is null - violating interface contract");
-        }
-
-        if (authentication == null) {
-            throw new IllegalArgumentException(
-                "authentication is null - violating interface contract");
-        }
+        Assert.notNull(domainInstance, "domainInstance is null - violating interface contract");
+        Assert.notNull(authentication, "authentication is null - violating interface contract");
 
         Iterator iter = providers.iterator();
 
@@ -98,21 +89,21 @@ public class AclProviderManager implements AclManager, InitializingBean {
             if (provider.supports(domainInstance)) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("ACL lookup using "
-                        + provider.getClass().getName());
+                            + provider.getClass().getName());
                 }
 
                 return provider.getAcls(domainInstance, authentication);
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Provider " + provider.toString()
-                        + " does not support " + domainInstance);
+                            + " does not support " + domainInstance);
                 }
             }
         }
 
         if (logger.isDebugEnabled()) {
             logger.debug("No AclProvider found for "
-                + domainInstance.toString());
+                    + domainInstance.toString());
         }
 
         return null;
@@ -157,9 +148,6 @@ public class AclProviderManager implements AclManager, InitializingBean {
     }
 
     private void checkIfValidList(List listToCheck) {
-        if ((listToCheck == null) || (listToCheck.size() == 0)) {
-            throw new IllegalArgumentException(
-                "A list of AclManagers is required");
-        }
+        Assert.notEmpty(listToCheck, "A list of AclManagers is required");
     }
 }

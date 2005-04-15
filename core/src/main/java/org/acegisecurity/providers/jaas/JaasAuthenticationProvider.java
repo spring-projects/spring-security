@@ -259,14 +259,9 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
 
     public void afterPropertiesSet() throws Exception {
 
-        if (loginConfig == null) {
-            throw new IllegalArgumentException("loginConfig must be set on "
-                    + getClass());
-        }
-
-        if ((loginContextName == null) || "".equals(loginContextName)) {
-            throw new IllegalArgumentException("loginContextName must be set on " + getClass());
-        }
+        Assert.notNull(loginConfig, "loginConfig must be set on "
+                + getClass());
+        Assert.hasLength(loginContextName, "loginContextName must be set on " + getClass());
 
         String loginConfigStr = null;
 

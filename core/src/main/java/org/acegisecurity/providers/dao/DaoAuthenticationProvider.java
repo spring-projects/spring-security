@@ -45,6 +45,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.util.Assert;
 
 
 /**
@@ -196,14 +197,8 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (this.authenticationDao == null) {
-            throw new IllegalArgumentException(
-                "An Authentication DAO must be set");
-        }
-
-        if (this.userCache == null) {
-            throw new IllegalArgumentException("A user cache must be set");
-        }
+        Assert.notNull(this.authenticationDao, "An Authentication DAO must be set");
+        Assert.notNull(this.userCache, "A user cache must be set");
     }
 
     public Authentication authenticate(Authentication authentication)

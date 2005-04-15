@@ -21,6 +21,7 @@ import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.providers.AuthenticationProvider;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 
 /**
@@ -58,10 +59,7 @@ public class AuthByAdapterProvider implements InitializingBean,
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (key == null) {
-            throw new IllegalArgumentException(
-                "A Key is required and should match that configured for the adapters");
-        }
+        Assert.notNull(key, "A Key is required and should match that configured for the adapters");
     }
 
     public Authentication authenticate(Authentication authentication)

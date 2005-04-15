@@ -21,6 +21,7 @@ import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -82,9 +83,7 @@ public class UserMap {
      * @throws IllegalArgumentException if a null User was passed
      */
     public void addUser(UserDetails user) throws IllegalArgumentException {
-        if (user == null) {
-            throw new IllegalArgumentException("Must be a valid User");
-        }
+        Assert.notNull(user, "Must be a valid User");
 
         logger.info("Adding user [" + user + "]");
         this.userMap.put(user.getUsername().toLowerCase(), user);

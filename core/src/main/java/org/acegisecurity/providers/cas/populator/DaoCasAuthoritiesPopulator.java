@@ -21,6 +21,7 @@ import net.sf.acegisecurity.providers.cas.CasAuthoritiesPopulator;
 import net.sf.acegisecurity.providers.dao.AuthenticationDao;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 
 /**
@@ -58,9 +59,6 @@ public class DaoCasAuthoritiesPopulator implements CasAuthoritiesPopulator,
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (this.authenticationDao == null) {
-            throw new IllegalArgumentException(
-                "An authenticationDao must be set");
-        }
+        Assert.notNull(this.authenticationDao, "An authenticationDao must be set");
     }
 }

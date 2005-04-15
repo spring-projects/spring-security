@@ -22,6 +22,7 @@ import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.util.Assert;
 
 
 /**
@@ -46,10 +47,7 @@ public class InMemoryDaoImpl implements AuthenticationDao, InitializingBean {
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (this.userMap == null) {
-            throw new IllegalArgumentException(
-                "A list of users, passwords, enabled/disabled status and their granted authorities must be set");
-        }
+        Assert.notNull(this.userMap, "A list of users, passwords, enabled/disabled status and their granted authorities must be set");
     }
 
     public UserDetails loadUserByUsername(String username)

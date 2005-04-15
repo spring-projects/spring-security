@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.CodeSignature;
+import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
 
@@ -44,9 +45,7 @@ public abstract class AbstractMethodDefinitionSource
 
     public ConfigAttributeDefinition getAttributes(Object object)
         throws IllegalArgumentException {
-        if (object == null) {
-            throw new IllegalArgumentException("Object cannot be null");
-        }
+        Assert.notNull(object, "Object cannot be null");
 
         if (object instanceof MethodInvocation) {
             return this.lookupAttributes(((MethodInvocation) object).getMethod());
@@ -57,7 +56,7 @@ public abstract class AbstractMethodDefinitionSource
             Class targetClazz = jp.getTarget().getClass();
             String targetMethodName = jp.getStaticPart().getSignature().getName();
             Class[] types = ((CodeSignature) jp.getStaticPart().getSignature())
-                .getParameterTypes();
+                    .getParameterTypes();
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Target Class: " + targetClazz);
@@ -66,22 +65,19 @@ public abstract class AbstractMethodDefinitionSource
                 for (int i = 0; i < types.length; i++) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Target Method Arg #" + i + ": "
-                            + types[i]);
+                                + types[i]);
                     }
                 }
             }
 
             try {
-                return this.lookupAttributes(targetClazz.getMethod(
-                        targetMethodName, types));
+                return this.lookupAttributes(targetClazz.getMethod(targetMethodName, types));
             } catch (NoSuchMethodException nsme) {
-                throw new IllegalArgumentException(
-                    "Could not obtain target method from JoinPoint: " + jp);
+                throw new IllegalArgumentException("Could not obtain target method from JoinPoint: " + jp);
             }
         }
 
-        throw new IllegalArgumentException(
-            "Object must be a MethodInvocation or JoinPoint");
+        throw new IllegalArgumentException("Object must be a MethodInvocation or JoinPoint");
     }
 
     public boolean supports(Class clazz) {

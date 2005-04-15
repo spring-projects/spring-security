@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -194,23 +195,12 @@ public class BasicAclEntryVoter implements AccessDecisionVoter,
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (processConfigAttribute == null) {
-            throw new IllegalArgumentException(
-                "A processConfigAttribute is mandatory");
-        }
+        Assert.notNull(processConfigAttribute, "A processConfigAttribute is mandatory");
+        Assert.notNull(aclManager, "An aclManager is mandatory");
+        Assert.notNull(processDomainObjectClass, "A processDomainObjectClass is mandatory");
 
         if ((requirePermission == null) || (requirePermission.length == 0)) {
-            throw new IllegalArgumentException(
-                "One or more requirePermission entries is mandatory");
-        }
-
-        if (aclManager == null) {
-            throw new IllegalArgumentException("An aclManager is mandatory");
-        }
-
-        if (processDomainObjectClass == null) {
-            throw new IllegalArgumentException(
-                "A processDomainObjectClass is mandatory");
+            throw new IllegalArgumentException("One or more requirePermission entries is mandatory");
         }
     }
 

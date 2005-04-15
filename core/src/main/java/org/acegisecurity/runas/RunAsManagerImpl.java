@@ -23,6 +23,7 @@ import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.RunAsManager;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.util.Iterator;
 import java.util.List;
@@ -94,10 +95,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (key == null) {
-            throw new IllegalArgumentException(
-                "A Key is required and should match that configured for the RunAsImplAuthenticationProvider");
-        }
+        Assert.notNull(key, "A Key is required and should match that configured for the RunAsImplAuthenticationProvider");
     }
 
     public Authentication buildRunAs(Authentication authentication,

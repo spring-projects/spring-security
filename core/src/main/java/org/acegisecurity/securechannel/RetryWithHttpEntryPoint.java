@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -76,13 +77,8 @@ public class RetryWithHttpEntryPoint implements InitializingBean,
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (portMapper == null) {
-            throw new IllegalArgumentException("portMapper is required");
-        }
-
-        if (portResolver == null) {
-            throw new IllegalArgumentException("portResolver is required");
-        }
+        Assert.notNull(portMapper, "portMapper is required");
+        Assert.notNull(portResolver, "portResolver is required");
     }
 
     public void commence(ServletRequest request, ServletResponse response)

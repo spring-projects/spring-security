@@ -20,6 +20,7 @@ import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.intercept.web.FilterInvocation;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -76,20 +77,13 @@ public class SecureChannelProcessor implements InitializingBean,
     }
 
     public void afterPropertiesSet() throws Exception {
-        if ((secureKeyword == null) || "".equals(secureKeyword)) {
-            throw new IllegalArgumentException("secureKeyword required");
-        }
-
-        if (entryPoint == null) {
-            throw new IllegalArgumentException("entryPoint required");
-        }
+        Assert.hasLength(secureKeyword, "secureKeyword required");
+        Assert.notNull(entryPoint, "entryPoint required");
     }
 
     public void decide(FilterInvocation invocation,
         ConfigAttributeDefinition config) throws IOException, ServletException {
-        if ((invocation == null) || (config == null)) {
-            throw new IllegalArgumentException("Nulls cannot be provided");
-        }
+        Assert.isTrue((invocation != null) && (config != null), "Nulls cannot be provided");
 
         Iterator iter = config.getConfigAttributes();
 

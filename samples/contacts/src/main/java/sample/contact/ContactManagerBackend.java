@@ -26,6 +26,7 @@ import net.sf.acegisecurity.context.security.SecureContextUtils;
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.context.support.ApplicationObjectSupport;
+import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Random;
@@ -122,13 +123,8 @@ public class ContactManagerBackend extends ApplicationObjectSupport
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (contactDao == null) {
-            throw new IllegalArgumentException("contactDao required");
-        }
-
-        if (basicAclExtendedDao == null) {
-            throw new IllegalArgumentException("basicAclExtendedDao required");
-        }
+        Assert.notNull(contactDao, "contactDao required");
+        Assert.notNull(basicAclExtendedDao, "basicAclExtendedDao required");
     }
 
     public void create(Contact contact) {

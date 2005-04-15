@@ -20,6 +20,7 @@ import net.sf.acegisecurity.providers.cas.ProxyUntrustedException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -44,9 +45,7 @@ public class AcceptAnyCasProxy implements CasProxyDecider {
 
     public void confirmProxyListTrusted(List proxyList)
         throws ProxyUntrustedException {
-        if (proxyList == null) {
-            throw new IllegalArgumentException("proxyList cannot be null");
-        }
+        Assert.notNull(proxyList, "proxyList cannot be null");
 
         if (logger.isDebugEnabled()) {
             logger.debug("Always accepting proxy list: " + proxyList.toString());

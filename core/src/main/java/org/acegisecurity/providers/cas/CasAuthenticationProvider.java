@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 
 /**
@@ -104,28 +105,11 @@ public class CasAuthenticationProvider implements AuthenticationProvider,
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (this.casAuthoritiesPopulator == null) {
-            throw new IllegalArgumentException(
-                "A casAuthoritiesPopulator must be set");
-        }
-
-        if (this.ticketValidator == null) {
-            throw new IllegalArgumentException("A ticketValidator must be set");
-        }
-
-        if (this.casProxyDecider == null) {
-            throw new IllegalArgumentException("A casProxyDecider must be set");
-        }
-
-        if (this.statelessTicketCache == null) {
-            throw new IllegalArgumentException(
-                "A statelessTicketCache must be set");
-        }
-
-        if (key == null) {
-            throw new IllegalArgumentException(
-                "A Key is required so CasAuthenticationProvider can identify tokens it previously authenticated");
-        }
+        Assert.notNull(this.casAuthoritiesPopulator, "A casAuthoritiesPopulator must be set");
+        Assert.notNull(this.ticketValidator, "A ticketValidator must be set");
+        Assert.notNull(this.casProxyDecider, "A casProxyDecider must be set");
+        Assert.notNull(this.statelessTicketCache, "A statelessTicketCache must be set");
+        Assert.notNull(key, "A Key is required so CasAuthenticationProvider can identify tokens it previously authenticated");
     }
 
     public Authentication authenticate(Authentication authentication)

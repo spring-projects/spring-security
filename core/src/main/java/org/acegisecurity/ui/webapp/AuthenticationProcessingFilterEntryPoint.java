@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -121,17 +122,9 @@ public class AuthenticationProcessingFilterEntryPoint
     }
 
     public void afterPropertiesSet() throws Exception {
-        if ((loginFormUrl == null) || "".equals(loginFormUrl)) {
-            throw new IllegalArgumentException("loginFormUrl must be specified");
-        }
-
-        if (portMapper == null) {
-            throw new IllegalArgumentException("portMapper must be specified");
-        }
-
-        if (portResolver == null) {
-            throw new IllegalArgumentException("portResolver must be specified");
-        }
+        Assert.hasLength(loginFormUrl,"loginFormUrl must be specified");
+        Assert.notNull(portMapper, "portMapper must be specified");
+        Assert.notNull(portResolver, "portResolver must be specified");
     }
 
     public void commence(ServletRequest request, ServletResponse response,

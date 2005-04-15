@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -96,23 +97,15 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (filterInvocationDefinitionSource == null) {
-            throw new IllegalArgumentException(
-                "filterInvocationDefinitionSource must be specified");
-        }
-
-        if (channelDecisionManager == null) {
-            throw new IllegalArgumentException(
-                "channelDecisionManager must be specified");
-        }
+        Assert.notNull(filterInvocationDefinitionSource, "filterInvocationDefinitionSource must be specified");
+        Assert.notNull(channelDecisionManager, "channelDecisionManager must be specified");
 
         Iterator iter = this.filterInvocationDefinitionSource
-            .getConfigAttributeDefinitions();
+                .getConfigAttributeDefinitions();
 
         if (iter == null) {
             if (logger.isWarnEnabled()) {
-                logger.warn(
-                    "Could not validate configuration attributes as the FilterInvocationDefinitionSource did not return a ConfigAttributeDefinition Iterator");
+                logger.warn("Could not validate configuration attributes as the FilterInvocationDefinitionSource did not return a ConfigAttributeDefinition Iterator");
             }
 
             return;
@@ -122,7 +115,7 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
 
         while (iter.hasNext()) {
             ConfigAttributeDefinition def = (ConfigAttributeDefinition) iter
-                .next();
+                    .next();
             Iterator attributes = def.getConfigAttributes();
 
             while (attributes.hasNext()) {
@@ -139,8 +132,7 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
                 logger.info("Validated configuration attributes");
             }
         } else {
-            throw new IllegalArgumentException(
-                "Unsupported configuration attributes: " + set.toString());
+            throw new IllegalArgumentException("Unsupported configuration attributes: " + set.toString());
         }
     }
 

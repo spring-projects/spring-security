@@ -20,6 +20,8 @@ import net.sf.acegisecurity.providers.AbstractAuthenticationToken;
 
 import java.io.Serializable;
 
+import org.springframework.util.Assert;
+
 
 /**
  * Represents an anonymous <code>Authentication</code>.
@@ -56,11 +58,9 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
         }
 
         for (int i = 0; i < authorities.length; i++) {
-            if (authorities[i] == null) {
-                throw new IllegalArgumentException("Granted authority element "
+            Assert.notNull(authorities[i], "Granted authority element "
                     + i
                     + " is null - GrantedAuthority[] cannot contain any null elements");
-            }
         }
 
         this.keyHash = key.hashCode();

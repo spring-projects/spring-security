@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.util.Assert;
 
 
 /**
@@ -79,9 +80,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (cache == null) {
-            throw new IllegalArgumentException("cache mandatory");
-        }
+        Assert.notNull(cache, "cache mandatory");
     }
 
     public void putUserInCache(UserDetails user) {
