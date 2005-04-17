@@ -55,6 +55,10 @@ public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBea
         this.cache = cache;
     }
 
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(cache, "cache is mandatory");
+    }
+
     public UserDetails getUserFromCache(X509Certificate userCert) {
         Element element = null;
 
@@ -77,10 +81,6 @@ public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBea
         }
     }
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(cache, "cache is mandatory");
-    }
-
     public void putUserInCache(X509Certificate userCert, UserDetails user) {
         Element element = new Element(userCert, user);
 
@@ -96,6 +96,6 @@ public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBea
             logger.debug("Cache remove: " + userCert.getSubjectDN());
         }
 
-        this.removeUserFromCache(userCert);
+        cache.remove(userCert);
     }
 }
