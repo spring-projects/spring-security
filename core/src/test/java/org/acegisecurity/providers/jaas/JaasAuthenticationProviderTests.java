@@ -199,6 +199,10 @@ public class JaasAuthenticationProviderTests extends TestCase {
                 auth.getAuthorities().length == 1);
     }
 
+    public void testGetApplicationContext() throws Exception {
+        assertNotNull(jaasProvider.getApplicationContext());
+    }
+
     public void testUnsupportedAuthenticationObjectReturnsNull() {
         assertNull(jaasProvider.authenticate(new TestingAuthenticationToken("foo", "bar",
                 new GrantedAuthority[]{})));
