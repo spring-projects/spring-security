@@ -43,4 +43,11 @@
         <attainGoal name="dashboard:report-single"/>
     </postGoal>
 
+    <goal name="copystatcvs">
+        <ant:mkdir dir="${rootdir}/doc/target/generated-xdocs/statcvs"/>
+        <ant:move todir="${rootdir}/doc/target/generated-xdocs/statcvs">
+            <ant:fileset dir="${rootdir}/target/generated-xdocs/statcvs"/>
+        </ant:move>
+    </goal>
+
 </project>
