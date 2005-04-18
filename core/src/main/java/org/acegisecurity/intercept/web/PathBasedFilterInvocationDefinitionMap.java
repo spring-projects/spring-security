@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.util.PathMatcher;
+import org.springframework.util.AntPathMatcher;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,7 +42,7 @@ import java.util.Vector;
  * <p>
  * The order of registering the Ant paths using the {@link
  * #addSecureUrl(String, ConfigAttributeDefinition)} is very important. The
- * system will identify the <B>first</B>  matching path for a given HTTP URL.
+ * system will identify the <b>first</b>  matching path for a given HTTP URL.
  * It will not proceed to evaluate later paths if a match has already been
  * found. Accordingly, the most specific paths should be registered first,
  * with the most general paths registered last.
@@ -62,6 +63,7 @@ public class PathBasedFilterInvocationDefinitionMap
 
     private List requestMap = new Vector();
     private boolean convertUrlToLowercaseBeforeComparison = false;
+    private PathMatcher pathMatcher = new AntPathMatcher();
 
     //~ Methods ================================================================
 
@@ -113,7 +115,7 @@ public class PathBasedFilterInvocationDefinitionMap
         while (iter.hasNext()) {
             EntryHolder entryHolder = (EntryHolder) iter.next();
 
-            boolean matched = PathMatcher.match(entryHolder.getAntPath(), url);
+            boolean matched = pathMatcher.match(entryHolder.getAntPath(), url);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Candidate is: '" + url + "'; pattern is "
