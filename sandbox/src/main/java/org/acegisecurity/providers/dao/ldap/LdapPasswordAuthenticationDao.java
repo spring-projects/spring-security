@@ -446,7 +446,7 @@ public class LdapPasswordAuthenticationDao implements PasswordAuthenticationDao 
        if (upperCaseRoleNames) {
            roleName = roleName.toUpperCase();
        }
-       GrantedAuthority ga = new GrantedAuthorityImpl(roleName);
+       GrantedAuthority ga = new GrantedAuthorityImpl( roleName.replaceAll("[,=\\s]", "_") );
 
        if (log.isDebugEnabled()) {
            log.debug("GrantedAuthority: " + ga);
@@ -454,6 +454,23 @@ public class LdapPasswordAuthenticationDao implements PasswordAuthenticationDao 
 
        return ga;
    }
+   /*
+   public void testGetGrantedAuthorityString() {
+         LdapPasswordAuthenticationDao uut = new LdapPasswordAuthenticationDao();
+         String[] test = {
+                 "ROLE ABC DEF", "ROLE ABC,DEF", "ROLE ABC=DEF", "ROLE ABC_DEF",
+                 "ROLE,ABC DEF", "ROLE,ABC,DEF", "ROLE,ABC=DEF", "ROLE,ABC_DEF",
+                 "ROLE=ABC DEF", "ROLE=ABC,DEF", "ROLE=ABC=DEF", "ROLE=ABC_DEF",
+                 "ROLE_ABC DEF", "ROLE_ABC,DEF", "ROLE_ABC=DEF", "ROLE_ABC_DEF",
+             };
+         final String expected = "ROLE_ABC_DEF";
+ 
+         for (int i = 0; i < test.length; i++) {
+             assertEquals("Unexpected granted authority name.", expected,
+                 uut.getGrantedAuthority(test[i]).getAuthority());
+         }
+     }
+    */
    
    /**
     * @return The InitialContextFactory for creating the root JNDI context; defaults to "com.sun.jndi.ldap.LdapCtxFactory"
