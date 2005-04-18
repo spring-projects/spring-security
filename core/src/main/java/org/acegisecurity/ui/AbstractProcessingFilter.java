@@ -87,7 +87,7 @@ import javax.servlet.http.HttpServletResponse;
  * </ul>
  * 
  * <p>
- * To configure this filter to redirect to specfic pages as the result of
+ * To configure this filter to redirect to specific pages as the result of
  * specific {@link AuthenticationException}s you can do the following.
  * Configure the <code>exceptionMappings</code> property in your application
  * xml. This property is a java.util.Properties object that maps a
