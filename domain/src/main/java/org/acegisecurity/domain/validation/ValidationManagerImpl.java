@@ -210,6 +210,10 @@ public class ValidationManagerImpl implements InitializingBean,
         Assert.isTrue(allObjects.contains(parentObject),
             "List of objects missing the requested parentObject");
 
+		if (logger.isDebugEnabled()) {
+			logger.debug("Searching for children of " + parentObject);
+		}
+		
         // Add immediate children of this domain object
         List currentChildren = new Vector();
         introspectionManager.obtainImmediateChildren(parentObject,
@@ -224,7 +228,10 @@ public class ValidationManagerImpl implements InitializingBean,
         while (childrenIter.hasNext()) {
             Object childObject = childrenIter.next();
 
-            if (childObject != null) {
+            if (childObject != null && !allObjects.contains(childObject)) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("New child class found; searching for children of: " + childObject);
+				}
                 obtainAllChildren(childObject, allObjects);
             }
         }
