@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 
 
@@ -315,7 +316,7 @@ public class PaginatedList implements List {
     }
 
     public Iterator iterator() {
-        return new PaginatedListIterator(this);
+        return new PaginatedListIterator();
     }
 
     /**
@@ -473,5 +474,58 @@ public class PaginatedList implements List {
         }
 
         return list.toArray(arg0);
+    }
+
+    //~ Inner Classes ==========================================================
+
+    private class PaginatedListIterator implements Iterator {
+        private Iterator iterator;
+        private int i = 0;
+
+        /**
+         * @see java.util.Iterator#hasNext()
+         */
+        public boolean hasNext() {
+            return i < size();
+        }
+
+        /**
+         * This method follows the rules of Iterator.next() except that it
+         * returns null when requesting an element that it's not in the
+         * current page.
+         *
+         * @see java.util.Iterator#next()
+         */
+        public Object next() {
+            if (i == getFirstElement()) {
+                iterator = getList().iterator();
+            }
+
+            if ((i >= getFirstElement())
+                && (i < (getFirstElement() + getMaxElements()))) {
+                i++;
+
+                return iterator.next();
+            }
+
+            if (hasNext()) {
+                i++;
+
+                return null;
+            } else {
+                throw new NoSuchElementException();
+            }
+        }
+
+        /**
+         * Unsupported operation
+         *
+         * @throws UnsupportedOperationException
+         *
+         * @see java.util.Iterator#remove()
+         */
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
     }
 }
