@@ -40,15 +40,13 @@ public class EvictionUtils {
      *
      * @param daoOrServices the potential source for
      *        <code>EvictionCapable</code> services (never <code>null</code>)
-     * @param entity to evict (never <code>null</code>)
+     * @param entity to evict (can be <code>null</code>)
      */
     public static void evictIfRequired(Object daoOrServices,
         PersistableEntity entity) {
-        Assert.notNull(entity, "Cannot evict an empty PersistableEntity object!");
-
         EvictionCapable evictor = getEvictionCapable(daoOrServices);
 
-        if (evictor != null) {
+        if (evictor != null && entity != null) {
             evictor.evict(entity);
         }
     }
