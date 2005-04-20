@@ -25,7 +25,7 @@
     <title>Acegi Security changes</title>
   </properties>
   <body>
-    <release version="0.8.2" date="In CVS">
+    <release version="0.8.2" date="2005-04-20">
       <action dev="benalex" type="fix">Correct location of AuthenticationSimpleHttpInvokerRequestExecutor in clientContext.xml</action>
       <action dev="benalex" type="fix">TokenBasedRememberMeServices changed to use long instead of int for tokenValiditySeconds (SPR-807)</action>
       <action dev="benalex" type="fix">Handle null Authentication.getAuthorities() in AuthorizeTag</action>

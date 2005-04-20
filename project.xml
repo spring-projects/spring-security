@@ -21,7 +21,7 @@
 <project>
   <pomVersion>3</pomVersion>
   <groupId>acegisecurity</groupId>
-  <currentVersion>0.8.2-SNAPSHOT</currentVersion>
+  <currentVersion>0.8.2</currentVersion>
   <package>net.sf.acegisecurity</package>
   <description>Acegi Security System for Spring</description>
   <shortDescription>Acegi Security System for Spring</shortDescription>
@@ -248,7 +248,7 @@
     <dependency>
       <groupId>springframework</groupId>
       <artifactId>spring</artifactId>
-      <version>1.2-SNAPSHOT</version>
+      <version>1.2-RC2</version>
       <type>jar</type>
       <url>http://www.springframework.org</url>
       <properties>
@@ -434,6 +434,11 @@
       <id>0.8.1</id>
       <name>0.8.1</name>
       <tag>release_0_8_1</tag>
+    </version>
+    <version>
+      <id>0.8.2</id>
+      <name>0.8.2</name>
+      <tag>release_0_8_2</tag>
     </version>
   </versions>
 </project>
