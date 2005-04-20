@@ -109,12 +109,24 @@ public class DaoHibernate extends HibernateDaoSupport implements Dao,
         Assert.notNull(value);
         Assert.hasText(orderByAsc,
             "An orderByAsc is required (why not use your identity property?)");
+		Assert.isInstanceOf(this.supportsClass, value, "Can only scroll with values this DAO supports");
 
         return (PaginatedList) getHibernateTemplate().execute(getFindByValueCallback(
-                value, firstElement, maxElements, Order.asc(orderByAsc)));
+				value.getClass(), value, firstElement, maxElements, Order.asc(orderByAsc)));
     }
 
-    public boolean supports(Class clazz) {
+    public PaginatedList scrollWithSubclasses(PersistableEntity value, int firstElement,
+	        int maxElements, String orderByAsc) {
+	        Assert.notNull(value);
+	        Assert.hasText(orderByAsc,
+	            "An orderByAsc is required (why not use your identity property?)");
+			Assert.isInstanceOf(this.supportsClass, value, "Can only scroll with values this DAO supports");
+
+	        return (PaginatedList) getHibernateTemplate().execute(getFindByValueCallback(
+					this.supportsClass, value, firstElement, maxElements, Order.asc(orderByAsc)));
+	    }
+
+	public boolean supports(Class clazz) {
         Assert.notNull(clazz);
 
         return this.supportsClass.equals(clazz);
@@ -187,12 +199,12 @@ public class DaoHibernate extends HibernateDaoSupport implements Dao,
      *
      * @return a PaginatedList containing the requested objects
      */
-    private HibernateCallback getFindByValueCallback(final Object bean,
+    private HibernateCallback getFindByValueCallback(final Class whichClass, final Object bean,
         final int firstElement, final int count, final Order order) {
         return new HibernateCallback() {
                 public Object doInHibernate(Session session)
                     throws HibernateException {
-                    Criteria criteria = session.createCriteria(bean.getClass());
+                    Criteria criteria = session.createCriteria(whichClass);
 
                     criteria.addOrder(order);
 

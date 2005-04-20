@@ -94,7 +94,7 @@ public interface Dao {
     public void delete(PersistableEntity value);
 
     /**
-     * Return all persistent instances.
+     * Return all persistent instances, including subclasses.
      *
      * @return all persistence instances (an empty <code>List</code> will be
      *         returned if no matches are found)
@@ -133,7 +133,8 @@ public interface Dao {
      * the query by example evaluation.
      * </p>
      *
-     * @param value parameters to filter on
+     * @param value parameters to filter on (the class of this object will be
+     *        added to the filter)
      * @param firstElement the first result (start at zero to obtain all
      *        results)
      * @param maxElements the maximum number of results desired for this page
@@ -147,6 +148,28 @@ public interface Dao {
      */
     public PaginatedList scroll(PersistableEntity value, int firstElement,
         int maxElements, String orderByAsc);
+
+    /**
+     * Find persistent instances with properties matching those of the passed
+     * <code>PersistableEntity</code>, ignoring the class of the passed
+     * <code>PersistableEntity</code> (useful if you pass a superclass, as you
+     * want to find all subclass instances which match).
+     *
+     * @param value parameters to filter on (the class of this object will NOT
+     *        be added to the filter)
+     * @param firstElement the first result (start at zero to obtain all
+     *        results)
+     * @param maxElements the maximum number of results desired for this page
+     *        of the result set
+     * @param orderByAsc the property name of the
+     *        <code>PersistableEntity</code> that should be used to order the
+     *        results
+     *
+     * @return the requested page of the result list (a properly formed
+     *         <code>PaginatedList</code> is returned if no results match)
+     */
+    public PaginatedList scrollWithSubclasses(PersistableEntity value,
+        int firstElement, int maxElements, String orderByAsc);
 
     /**
      * Indicates whether the DAO instance provides persistence services for the
