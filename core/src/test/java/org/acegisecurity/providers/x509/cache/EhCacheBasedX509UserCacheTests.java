@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,21 @@ package net.sf.acegisecurity.providers.x509.cache;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.providers.dao.User;
-import net.sf.acegisecurity.providers.x509.X509TestUtils;
-import net.sf.acegisecurity.MockApplicationContext;
-import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.MockApplicationContext;
+import net.sf.acegisecurity.UserDetails;
+import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.x509.X509TestUtils;
+
 import net.sf.ehcache.Cache;
 
 import org.springframework.context.ApplicationContext;
 
-import java.security.cert.X509Certificate;
 
 /**
+ * DOCUMENT ME!
+ *
  * @author Luke Taylor
  * @version $Id$
  */
@@ -58,7 +60,8 @@ public class EhCacheBasedX509UserCacheTests extends TestCase {
         // Check it gets stored in the cache
         cache.putUserInCache(X509TestUtils.buildTestCertificate(), getUser());
         assertEquals(getUser().getPassword(),
-            cache.getUserFromCache(X509TestUtils.buildTestCertificate()).getPassword());
+            cache.getUserFromCache(X509TestUtils.buildTestCertificate())
+                 .getPassword());
 
         // Check it gets removed from the cache
         cache.removeUserFromCache(X509TestUtils.buildTestCertificate());

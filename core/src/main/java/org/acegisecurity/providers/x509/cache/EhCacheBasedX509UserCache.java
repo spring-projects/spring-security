@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.dao.DataRetrievalFailureException;
+
 import org.springframework.util.Assert;
 
 import java.security.cert.X509Certificate;
@@ -38,9 +39,11 @@ import java.security.cert.X509Certificate;
  * HREF="http://ehcache.sourceforge.net">EHCACHE</a>.
  *
  * @author Luke Taylor
+ * @author Ben Alex
  * @version $Id$
  */
-public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBean {
+public class EhCacheBasedX509UserCache implements X509UserCache,
+    InitializingBean {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(EhCacheBasedX509UserCache.class);
@@ -55,10 +58,6 @@ public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBea
         this.cache = cache;
     }
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(cache, "cache is mandatory");
-    }
-
     public UserDetails getUserFromCache(X509Certificate userCert) {
         Element element = null;
 
@@ -70,8 +69,13 @@ public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBea
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("X.509 Cache hit. SubjectDN: "
-                + userCert.getSubjectDN());
+            String subjectDN = "unknown";
+
+            if ((userCert != null) && (userCert.getSubjectDN() != null)) {
+                subjectDN = userCert.getSubjectDN().toString();
+            }
+
+            logger.debug("X.509 Cache hit. SubjectDN: " + subjectDN);
         }
 
         if (element == null) {
@@ -79,6 +83,10 @@ public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBea
         } else {
             return (UserDetails) element.getValue();
         }
+    }
+
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(cache, "cache is mandatory");
     }
 
     public void putUserInCache(X509Certificate userCert, UserDetails user) {
