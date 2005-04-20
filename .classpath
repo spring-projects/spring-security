@@ -120,7 +120,7 @@
 		<attributes>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2-rc1.jar">
+	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2-SNAPSHOT.jar">
 		<attributes>
 		</attributes>
 	</classpathentry>
@@ -204,7 +204,7 @@
 		<attributes>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0.jar">
+	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0.1.jar">
 		<attributes>
 		</attributes>
 	</classpathentry>
