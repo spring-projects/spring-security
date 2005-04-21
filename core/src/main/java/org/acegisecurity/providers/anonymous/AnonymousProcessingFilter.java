@@ -135,18 +135,21 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
         FilterChain chain) throws IOException, ServletException {
         SecureContext sc = SecureContextUtils.getSecureContext();
 
-        if (sc.getAuthentication() == null) {
-            sc.setAuthentication(createAuthentication(request));
+        if (applyAnonymousForThisRequest(request)) {
+            if (sc.getAuthentication() == null) {
+                sc.setAuthentication(createAuthentication(request));
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Replaced ContextHolder with anonymous token: '"
-                    + sc.getAuthentication() + "'");
-            }
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "ContextHolder not replaced with anonymous token, as ContextHolder already contained: '"
-                    + sc.getAuthentication() + "'");
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "Replaced ContextHolder with anonymous token: '"
+                        + sc.getAuthentication() + "'");
+                }
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "ContextHolder not replaced with anonymous token, as ContextHolder already contained: '"
+                        + sc.getAuthentication() + "'");
+                }
             }
         }
 
@@ -161,6 +164,24 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
      * @throws ServletException DOCUMENT ME!
      */
     public void init(FilterConfig arg0) throws ServletException {}
+
+    /**
+     * Enables subclasses to determine whether or not an anonymous
+     * authentication token should be setup for this request. This is useful
+     * if anonymous authentication should be allowed only for specific IP
+     * subnet ranges etc.
+     *
+     * @param request to assist the method determine request details
+     *
+     * @return <code>true</code> if the anonymous token should be setup for
+     *         this request (provided that the request doesn't already have
+     *         some other <code>Authentication</code> inside it), or
+     *         <code>false</code> if no anonymous token should be setup for
+     *         this request
+     */
+    protected boolean applyAnonymousForThisRequest(ServletRequest request) {
+        return true;
+    }
 
     protected Authentication createAuthentication(ServletRequest request) {
         return new AnonymousAuthenticationToken(key,

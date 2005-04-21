@@ -26,6 +26,7 @@
   </properties>
   <body>
     <release version="0.9.0" date="In CVS">
+      <action dev="benalex" type="update">AnonymousProcessingFilter offers protected method to control when it should execute</action>
     </release>
     <release version="0.8.2" date="2005-04-20">
       <action dev="benalex" type="fix">Correct location of AuthenticationSimpleHttpInvokerRequestExecutor in clientContext.xml</action>
