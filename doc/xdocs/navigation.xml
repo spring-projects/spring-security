@@ -45,6 +45,7 @@
       <item name="Upgrading to 0.6" href="upgrade/upgrade-05-06.html"/>
       <item name="Upgrading to 0.5" href="upgrade/upgrade-04-05.html"/>
       <item name="Upgrading to 0.4" href="upgrade/upgrade-03-04.html"/>
+      <item name="Core JavaDocs" href="multiproject/acegi-security/apidocs/index.html" target="_blank"/>
     </menu>
 
     <menu name="Projects">
