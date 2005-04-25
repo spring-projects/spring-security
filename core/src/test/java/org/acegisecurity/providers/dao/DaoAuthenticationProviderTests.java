@@ -154,6 +154,16 @@ public class DaoAuthenticationProviderTests extends TestCase {
         } catch (CredentialsExpiredException expected) {
             assertTrue(true);
         }
+
+        // Check that wrong password causes BadCredentialsException, rather than CredentialsExpiredException
+        token = new UsernamePasswordAuthenticationToken("peter", "wrong_password");
+
+        try {
+            provider.authenticate(token);
+            fail("Should have thrown BadCredentialsException");
+        } catch (BadCredentialsException expected) {
+            assertTrue(true);
+        }
     }
 
     public void testAuthenticateFailsIfUserDisabled() {

@@ -264,16 +264,6 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             throw new LockedException("User account is locked");
         }
 
-        if (!user.isCredentialsNonExpired()) {
-            if (this.context != null) {
-                context.publishEvent(new AuthenticationFailureCredentialsExpiredEvent(
-                        authentication, user));
-            }
-
-            throw new CredentialsExpiredException(
-                "User credentials have expired");
-        }
-
         if (!isPasswordCorrect(authentication, user)) {
             // Password incorrect, so ensure we're using most current password
             if (cacheWasUsed) {
@@ -290,6 +280,16 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
                 throw new BadCredentialsException("Bad credentials presented");
             }
         }
+
+        if (!user.isCredentialsNonExpired()) {
+            if (this.context != null) {
+                context.publishEvent(new AuthenticationFailureCredentialsExpiredEvent(
+                        authentication, user));
+            }
+
+            throw new CredentialsExpiredException(
+                "User credentials have expired");
+        }        
 
         if (!cacheWasUsed) {
             // Put into cache
