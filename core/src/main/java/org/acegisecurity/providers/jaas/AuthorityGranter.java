@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,12 @@ package net.sf.acegisecurity.providers.jaas;
 
 import java.security.Principal;
 
+import java.util.Set;
+
 
 /**
- * The AuthorityGranter interface is used to map a given principal to a role
- * name.
+ * The AuthorityGranter interface is used to map a given principal to role
+ * names.
  * 
  * <P>
  * If a Windows NT login module were to be used from JAAS, an AuthrityGranter
@@ -36,16 +38,18 @@ public interface AuthorityGranter {
 
     /**
      * The grant method is called for each principal returned from the
-     * LoginContext subject. If the AuthorityGranter wishes to grant
-     * authority, it should return the role name, such as ROLE_USER. If the
-     * AuthrityGranter does not wish to grant any authority it should return
-     * null.
+     * LoginContext subject. If the AuthorityGranter wishes to grant any
+     * authorities, it should return a java.util.Set containing the role names
+     * it wishes to grant, such as ROLE_USER. If the AuthrityGranter does not
+     * wish to grant any authorities it should return null. <br>
+     * The set may contain any object as all objects in the returned set will be
+     * passed to the JaasGrantedAuthority constructor using toString().
      *
-     * @param principal One of the principal from the
+     * @param principal One of the principals from the
      *        LoginContext.getSubect().getPrincipals() method.
      *
-     * @return The name of a role to grant, or null meaning no role should be
-     *         granted.
+     * @return A java.util.Set of role names to grant, or null meaning no
+     *         roles should be granted for the principal.
      */
-    public String grant(Principal principal);
+    public Set grant(Principal principal);
 }

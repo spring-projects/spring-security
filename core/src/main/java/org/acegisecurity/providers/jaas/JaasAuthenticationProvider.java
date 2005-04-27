@@ -353,12 +353,16 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
 
                     for (int i = 0; i < authorityGranters.length; i++) {
                         AuthorityGranter granter = authorityGranters[i];
-                        String role = granter.grant(principal);
+                        Set roles = granter.grant(principal);
 
-                        //If the granter doesn't wish to grant any authority, it should return null.
-                        if (role != null) {
-                            authorities.add(new JaasGrantedAuthority(role,
-                                    principal));
+                        //If the granter doesn't wish to grant any authorities, it should return null.
+                        if ((roles != null) && !roles.isEmpty()) {
+                            for (Iterator roleIterator = roles.iterator();
+                                roleIterator.hasNext();) {
+                                String role = roleIterator.next().toString();
+                                authorities.add(new JaasGrantedAuthority(role,
+                                        principal));
+                            }
                         }
                     }
                 }

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@ package net.sf.acegisecurity.providers.jaas;
 
 import java.security.Principal;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * DOCUMENT ME!
@@ -27,13 +30,14 @@ import java.security.Principal;
 public class TestAuthorityGranter implements AuthorityGranter {
     //~ Methods ================================================================
 
-    public String grant(Principal principal) {
-        String role = null;
+    public Set grant(Principal principal) {
+        Set rtnSet = new HashSet();
 
         if (principal.getName().equals("TEST_PRINCIPAL")) {
-            role = "ROLE_TEST";
+            rtnSet.add("ROLE_TEST1");
+            rtnSet.add("ROLE_TEST2");
         }
 
-        return role;
+        return rtnSet;
     }
 }

@@ -141,13 +141,16 @@ public class JaasAuthenticationProviderTests extends TestCase {
 
         List list = Arrays.asList(auth.getAuthorities());
 
-        assertTrue("GrantedAuthorities does not contain ROLE_TEST",
-                list.contains(new GrantedAuthorityImpl("ROLE_TEST")));
+        assertTrue("GrantedAuthorities should contain ROLE_TEST1",
+                list.contains(new GrantedAuthorityImpl("ROLE_TEST1")));
 
-        assertTrue("GrantedAuthorities does not contain ROLE_1",
+        assertTrue("GrantedAuthorities should contain ROLE_TEST2",
+                list.contains(new GrantedAuthorityImpl("ROLE_TEST2")));
+
+        assertTrue("GrantedAuthorities should contain ROLE_1",
                 list.contains(role1));
 
-        assertTrue("GrantedAuthorities does not contain ROLE_2",
+        assertTrue("GrantedAuthorities should contain ROLE_2",
                 list.contains(role2));
 
         boolean foundit = false;
@@ -195,8 +198,8 @@ public class JaasAuthenticationProviderTests extends TestCase {
         assertTrue(jaasProvider.supports(UsernamePasswordAuthenticationToken.class));
 
         Authentication auth = jaasProvider.authenticate(token);
-        assertTrue("Only ROLE_TEST should have been returned",
-                auth.getAuthorities().length == 1);
+        assertTrue("Only ROLE_TEST1 and ROLE_TEST2 should have been returned",
+                auth.getAuthorities().length == 2);
     }
 
     public void testGetApplicationContext() throws Exception {
