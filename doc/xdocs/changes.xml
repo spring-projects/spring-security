@@ -27,6 +27,7 @@
   <body>
     <release version="0.9.0" date="In CVS">
       <action dev="benalex" type="update">AnonymousProcessingFilter offers protected method to control when it should execute</action>
+      <action dev="benalex" type="fix">AbstractAuthenticationToken.getName() now returns username alone if UserDetails present</action>
       <action dev="raykrueger" type="update">AuthorityGranter.grant now returns a java.util.Set of role names, instead of a single role name</action>  
     </release>
     <release version="0.8.2" date="2005-04-20">
