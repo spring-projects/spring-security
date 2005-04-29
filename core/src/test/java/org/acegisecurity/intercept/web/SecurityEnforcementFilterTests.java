@@ -17,17 +17,15 @@ package net.sf.acegisecurity.intercept.web;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.MockAuthenticationEntryPoint;
-import net.sf.acegisecurity.MockPortResolver;
+import net.sf.acegisecurity.*;
 import net.sf.acegisecurity.context.ContextHolder;
 import net.sf.acegisecurity.context.security.SecureContext;
 import net.sf.acegisecurity.context.security.SecureContextImpl;
 import net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
 import net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
@@ -35,9 +33,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.mock.web.MockHttpServletRequest;
 
 
 /**
@@ -82,7 +77,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
         // Setup the FilterSecurityInterceptor thrown an access denied exception
         MockFilterSecurityInterceptor interceptor = new MockFilterSecurityInterceptor(true,
-                false);
+                false, false, false);
 
         // Setup ContextHolder, as filter needs to check if user is anonymous
         SecureContext sc = new SecureContextImpl();
@@ -114,7 +109,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
         // Setup the FilterSecurityInterceptor thrown an access denied exception
         MockFilterSecurityInterceptor interceptor = new MockFilterSecurityInterceptor(true,
-                false);
+                false, false, false);
 
         // Setup ContextHolder, as filter needs to check if user is anonymous
         SecureContext sc = new SecureContextImpl();
@@ -131,8 +126,8 @@ public class SecurityEnforcementFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
         assertEquals(403, response.getStatus());
         assertEquals(AccessDeniedException.class,
-            request.getSession().getAttribute(
-                SecurityEnforcementFilter.ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY)
+            request.getSession()
+                   .getAttribute(SecurityEnforcementFilter.ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY)
                    .getClass());
     }
 
@@ -165,7 +160,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
     public void testGettersSetters() {
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
         filter.setFilterSecurityInterceptor(new MockFilterSecurityInterceptor(
-                false, false));
+                false, false, false, false));
         assertTrue(filter.getFilterSecurityInterceptor() != null);
 
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
@@ -192,7 +187,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
         // Setup the FilterSecurityInterceptor thrown an authentication failure exceptions
         MockFilterSecurityInterceptor interceptor = new MockFilterSecurityInterceptor(false,
-                true);
+                true, false, false);
 
         // Test
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
@@ -225,7 +220,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
         // Setup the FilterSecurityInterceptor thrown an authentication failure exceptions
         MockFilterSecurityInterceptor interceptor = new MockFilterSecurityInterceptor(false,
-                true);
+                true, false, false);
 
         // Test
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
@@ -246,7 +241,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
         throws Exception {
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
         filter.setFilterSecurityInterceptor(new MockFilterSecurityInterceptor(
-                false, false));
+                false, false, false, false));
 
         try {
             filter.afterPropertiesSet();
@@ -276,7 +271,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
         throws Exception {
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
         filter.setFilterSecurityInterceptor(new MockFilterSecurityInterceptor(
-                false, false));
+                false, false, false, false));
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
                 "/login.jsp"));
         filter.setPortResolver(null);
@@ -299,7 +294,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
         // Setup the FilterSecurityInterceptor to not thrown any exceptions
         MockFilterSecurityInterceptor interceptor = new MockFilterSecurityInterceptor(false,
-                false);
+                false, false, false);
 
         // Test
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
@@ -318,6 +313,46 @@ public class SecurityEnforcementFilterTests extends TestCase {
         filter.init(null);
         filter.destroy();
         assertTrue(true);
+    }
+
+    public void testThrowIOException() throws Exception {
+        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
+
+        filter.setFilterSecurityInterceptor(new MockFilterSecurityInterceptor(
+                false, false, false, true));
+
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(""));
+
+        filter.afterPropertiesSet();
+
+        try {
+            filter.doFilter(new MockHttpServletRequest(),
+                new MockHttpServletResponse(), new MockFilterChain(false));
+            fail("Should have thrown IOException");
+        } catch (IOException e) {
+            assertNull("The IOException thrown should not have been wrapped",
+                e.getCause());
+        }
+    }
+
+    public void testThrowServletException() throws Exception {
+        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
+
+        filter.setFilterSecurityInterceptor(new MockFilterSecurityInterceptor(
+                false, false, true, false));
+
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(""));
+
+        filter.afterPropertiesSet();
+
+        try {
+            filter.doFilter(new MockHttpServletRequest(),
+                new MockHttpServletResponse(), new MockFilterChain(false));
+            fail("Should have thrown ServletException");
+        } catch (ServletException e) {
+            assertNull("The ServletException thrown should not have been wrapped",
+                e.getCause());
+        }
     }
 
     protected void tearDown() throws Exception {
@@ -352,15 +387,16 @@ public class SecurityEnforcementFilterTests extends TestCase {
         extends FilterSecurityInterceptor {
         private boolean throwAccessDenied;
         private boolean throwAuthenticationFailure;
+        private boolean throwIOException;
+        private boolean throwServletException;
 
         public MockFilterSecurityInterceptor(boolean throwAccessDenied,
-            boolean throwAuthenticationFailure) {
+            boolean throwAuthenticationFailure, boolean throwServletException,
+            boolean throwIOException) {
             this.throwAccessDenied = throwAccessDenied;
             this.throwAuthenticationFailure = throwAuthenticationFailure;
-        }
-
-        private MockFilterSecurityInterceptor() {
-            super();
+            this.throwServletException = throwServletException;
+            this.throwIOException = throwIOException;
         }
 
         public void invoke(FilterInvocation fi) throws Throwable {
@@ -370,6 +406,14 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
             if (throwAuthenticationFailure) {
                 throw new BadCredentialsException("As requested");
+            }
+
+            if (throwServletException) {
+                throw new ServletException("As requested");
+            }
+
+            if (throwIOException) {
+                throw new IOException("As requested");
             }
 
             fi.getChain().doFilter(fi.getRequest(), fi.getResponse());

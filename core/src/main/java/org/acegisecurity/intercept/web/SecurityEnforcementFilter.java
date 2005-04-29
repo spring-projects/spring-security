@@ -15,11 +15,7 @@
 
 package net.sf.acegisecurity.intercept.web;
 
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationTrustResolver;
-import net.sf.acegisecurity.AuthenticationTrustResolverImpl;
-import net.sf.acegisecurity.InsufficientAuthenticationException;
+import net.sf.acegisecurity.*;
 import net.sf.acegisecurity.context.security.SecureContextUtils;
 import net.sf.acegisecurity.ui.AbstractProcessingFilter;
 import net.sf.acegisecurity.util.PortResolver;
@@ -34,12 +30,7 @@ import org.springframework.util.Assert;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -53,8 +44,8 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
- * If an {@link AuthenticationException} is detected, the filter will launch the
- * <code>authenticationEntryPoint</code>. This allows common handling of
+ * If an {@link AuthenticationException} is detected, the filter will launch
+ * the <code>authenticationEntryPoint</code>. This allows common handling of
  * authentication failures originating from any subclass of {@link
  * net.sf.acegisecurity.intercept.AbstractSecurityInterceptor}.
  * </p>
@@ -210,6 +201,10 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
 
                 sendAccessDeniedError(fi, accessDenied);
             }
+        } catch (ServletException e) {
+            throw e;
+        } catch (IOException e) {
+            throw e;
         } catch (Throwable otherException) {
             throw new ServletException(otherException);
         }
