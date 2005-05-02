@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.util.Assert;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -70,6 +71,8 @@ public class HttpSessionEventPublisher implements HttpSessionListener,
      *        WebApplicationContext
      */
     public void contextInitialized(ServletContextEvent event) {
+        if (log.isDebugEnabled())
+            log.debug("Received ServletContextEvent: " + event);
         setContext(WebApplicationContextUtils.getRequiredWebApplicationContext(
                 event.getServletContext()));
     }
@@ -86,7 +89,7 @@ public class HttpSessionEventPublisher implements HttpSessionListener,
 
         log.debug("Publishing event: " + e);
 
-        context.publishEvent(e);
+        getContext().publishEvent(e);
     }
 
     /**
@@ -101,7 +104,7 @@ public class HttpSessionEventPublisher implements HttpSessionListener,
 
         log.debug("Publishing event: " + e);
 
-        context.publishEvent(e);
+        getContext().publishEvent(e);
     }
 
     /**
@@ -113,5 +116,10 @@ public class HttpSessionEventPublisher implements HttpSessionListener,
     void setContext(ApplicationContext context) {
         this.context = context;
         log.debug("Using context: " + context);
+    }
+
+    ApplicationContext getContext() {
+        Assert.notNull(context, "setContext(...) never called, ApplicationContext must not be null");
+        return context;
     }
 }

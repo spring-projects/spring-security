@@ -20,9 +20,12 @@ import junit.framework.TestCase;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.web.context.support.StaticWebApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.http.HttpSessionEvent;
+
+import net.sf.acegisecurity.MockApplicationContext;
 
 
 /**
@@ -71,5 +74,23 @@ public class HttpSessionEventPublisherTests extends TestCase {
         assertEquals(session, listener.getDestroyedEvent().getSession());
 
         publisher.contextDestroyed(new ServletContextEvent(servletContext));
+    }
+
+    public void testContext() throws Exception {
+        HttpSessionEventPublisher pub  = new HttpSessionEventPublisher();
+        ConfigurableApplicationContext c = MockApplicationContext.getContext();
+        pub.setContext(c);
+        assertEquals(c, pub.getContext());
+    }
+
+    public void testNullContextCheck() throws Exception {
+        HttpSessionEventPublisher pub  = new HttpSessionEventPublisher();
+
+        try {
+            pub.getContext();
+            fail("IllegalArgumentException expected, the context is null");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
 }
