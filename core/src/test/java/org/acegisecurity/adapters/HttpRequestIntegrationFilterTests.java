@@ -19,10 +19,9 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.util.MockFilterChain;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -58,17 +57,19 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setUserPrincipal(principal);
+
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain(true);
 
         filter.doFilter(request, response, chain);
 
-        if (!(SecureContextUtils.getSecureContext().getAuthentication() instanceof PrincipalAcegiUserToken)) {
+        if (!(SecurityContext.getAuthentication() instanceof PrincipalAcegiUserToken)) {
+            System.out.println(SecurityContext.getAuthentication());
             fail("Should have returned PrincipalAcegiUserToken");
         }
 
-        PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) SecureContextUtils.getSecureContext()
-                                                                                         .getAuthentication();
+        PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) SecurityContext
+            .getAuthentication();
         assertEquals(principal, castResult);
     }
 
@@ -90,18 +91,18 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain(true);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
         filter.doFilter(request, response, chain);
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        ContextHolder.setContext(new SecureContextImpl());
+        SecurityContext.setAuthentication(null);
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 }

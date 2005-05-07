@@ -18,9 +18,7 @@ package net.sf.acegisecurity.ui;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.ui.rememberme.NullRememberMeServices;
 import net.sf.acegisecurity.ui.rememberme.RememberMeServices;
 
@@ -46,8 +44,8 @@ import javax.servlet.http.HttpServletResponse;
  * <p>
  * This filter is responsible for processing authentication requests. If
  * authentication is successful, the resulting {@link Authentication} object
- * will be placed into the <code>ContextHolder</code>, which is guaranteed to
- * have already been created by an earlier filter.
+ * will be placed into the <code>SecurityContext</code>, which is guaranteed
+ * to have already been created by an earlier filter.
  * </p>
  * 
  * <p>
@@ -249,10 +247,13 @@ public abstract class AbstractProcessingFilter implements Filter,
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
+        Assert.hasLength(filterProcessesUrl,
+            "filterProcessesUrl must be specified");
         Assert.hasLength(defaultTargetUrl, "defaultTargetUrl must be specified");
-        Assert.hasLength(authenticationFailureUrl, "authenticationFailureUrl must be specified");
-        Assert.notNull(authenticationManager, "authenticationManager must be specified");
+        Assert.hasLength(authenticationFailureUrl,
+            "authenticationFailureUrl must be specified");
+        Assert.notNull(authenticationManager,
+            "authenticationManager must be specified");
         Assert.notNull(this.rememberMeServices);
     }
 
@@ -329,10 +330,13 @@ public abstract class AbstractProcessingFilter implements Filter,
      * Indicates whether this filter should attempt to process a login request
      * for the current invocation.
      * </p>
+     * 
      * <p>
-     * It strips any parameters from the "path" section of the request URL (such as the
-     * jsessionid parameter in <em>http://host/myapp/index.html;jsessionid=blah</em>)
-     * before matching against the <code>filterProcessesUrl</code> property.
+     * It strips any parameters from the "path" section of the request URL
+     * (such as the jsessionid parameter in
+     * <em>http://host/myapp/index.html;jsessionid=blah</em>) before matching
+     * against the <code>filterProcessesUrl</code> property.
+     * </p>
      * 
      * <p>
      * Subclasses may override for special requirements, such as Tapestry
@@ -350,7 +354,7 @@ public abstract class AbstractProcessingFilter implements Filter,
         String uri = request.getRequestURI();
         int pathParamIndex = uri.indexOf(';');
 
-        if(pathParamIndex > 0) {
+        if (pathParamIndex > 0) {
             // strip everything after the first semi-colon
             uri = uri.substring(0, pathParamIndex);
         }
@@ -365,8 +369,7 @@ public abstract class AbstractProcessingFilter implements Filter,
             logger.debug("Authentication success: " + authResult.toString());
         }
 
-        SecureContext sc = SecureContextUtils.getSecureContext();
-        sc.setAuthentication(authResult);
+        SecurityContext.setAuthentication(authResult);
 
         if (logger.isDebugEnabled()) {
             logger.debug(
@@ -401,9 +404,7 @@ public abstract class AbstractProcessingFilter implements Filter,
     protected void unsuccessfulAuthentication(HttpServletRequest request,
         HttpServletResponse response, AuthenticationException failed)
         throws IOException {
-        SecureContext sc = SecureContextUtils.getSecureContext();
-        sc.setAuthentication(null);
-        ContextHolder.setContext(sc);
+        SecurityContext.setAuthentication(null);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Updated ContextHolder to contain null Authentication");

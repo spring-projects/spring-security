@@ -21,16 +21,15 @@ import net.sf.acegisecurity.MockAuthenticationEntryPoint;
 import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockFilterConfig;
 import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
+import net.sf.acegisecurity.context.SecurityContext;
 
 import org.apache.commons.codec.binary.Base64;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.mock.web.MockHttpServletResponse;
+
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
@@ -116,7 +115,7 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
     }
 
     public void testGettersSetters() {
@@ -134,7 +133,8 @@ public class BasicProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+        request.addHeader("Authorization",
+            "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -154,7 +154,7 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
     }
 
     public void testNormalOperation() throws Exception {
@@ -182,10 +182,9 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNotNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNotNull(SecurityContext.getAuthentication());
         assertEquals("marissa",
-            ((UserDetails) SecureContextUtils.getSecureContext()
-                                             .getAuthentication().getPrincipal())
+            ((UserDetails) SecurityContext.getAuthentication().getPrincipal())
             .getUsername());
     }
 
@@ -213,7 +212,7 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
     }
 
     public void testStartupDetectsMissingAuthenticationEntryPoint()
@@ -269,10 +268,9 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNotNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNotNull(SecurityContext.getAuthentication());
         assertEquals("marissa",
-            ((UserDetails) SecureContextUtils.getSecureContext()
-                                             .getAuthentication().getPrincipal())
+            ((UserDetails) SecurityContext.getAuthentication().getPrincipal())
             .getUsername());
 
         // NOW PERFORM FAILED AUTHENTICATION
@@ -291,7 +289,7 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -320,18 +318,18 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        ContextHolder.setContext(new SecureContextImpl());
+        SecurityContext.setAuthentication(null);
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     private void executeFilterInContainerSimulator(FilterConfig filterConfig,

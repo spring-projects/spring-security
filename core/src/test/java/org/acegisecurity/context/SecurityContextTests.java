@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,23 @@ package net.sf.acegisecurity.context;
 
 import junit.framework.TestCase;
 
+import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 
 /**
- * Tests {@link ContextImpl}.
+ * Tests {@link SecurityContext}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class ContextImplTests extends TestCase {
+public class SecurityContextTests extends TestCase {
     //~ Constructors ===========================================================
 
-    public ContextImplTests() {
+    public SecurityContextTests() {
         super();
     }
 
-    public ContextImplTests(String arg0) {
+    public SecurityContextTests(String arg0) {
         super(arg0);
     }
 
@@ -42,12 +44,20 @@ public class ContextImplTests extends TestCase {
     }
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(ContextImplTests.class);
+        junit.textui.TestRunner.run(SecurityContextTests.class);
     }
 
-    public void testConfirmsContextImplHasTheValidateMethod() {
-        Context context = new ContextImpl();
-        context.validate();
-        assertTrue(true);
+    public void tearDown() {
+        SecurityContext.setAuthentication(null);
+    }
+
+    public void testContextHolderGetterSetter() {
+        assertEquals(null, SecurityContext.getAuthentication());
+
+        SecurityContext.setAuthentication(new UsernamePasswordAuthenticationToken(
+                "ben", "12345"));
+
+        assertEquals("12345",
+            SecurityContext.getAuthentication().getCredentials());
     }
 }

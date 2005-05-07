@@ -15,15 +15,11 @@
 
 package net.sf.acegisecurity.ui.digestauth;
 
-import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationServiceException;
 import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
-import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.AuthenticationDao;
 import net.sf.acegisecurity.providers.dao.UserCache;
@@ -39,8 +35,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 
-import org.springframework.util.StringUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 
@@ -140,7 +136,8 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(authenticationDao, "An AuthenticationDao is required");
-        Assert.notNull(authenticationEntryPoint, "A DigestProcessingFilterEntryPoint is required");
+        Assert.notNull(authenticationEntryPoint,
+            "A DigestProcessingFilterEntryPoint is required");
     }
 
     public void destroy() {}
@@ -374,9 +371,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
                     user.getPassword());
             authRequest.setDetails(new WebAuthenticationDetails(httpRequest));
 
-            SecureContext sc = SecureContextUtils.getSecureContext();
-            sc.setAuthentication(authRequest);
-            ContextHolder.setContext(sc);
+            SecurityContext.setAuthentication(authRequest);
         }
 
         chain.doFilter(request, response);
@@ -441,9 +436,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
 
     private void fail(ServletRequest request, ServletResponse response,
         AuthenticationException failed) throws IOException, ServletException {
-        SecureContext sc = SecureContextUtils.getSecureContext();
-        sc.setAuthentication(null);
-        ContextHolder.setContext(sc);
+        SecurityContext.setAuthentication(null);
 
         if (logger.isDebugEnabled()) {
             logger.debug(failed);

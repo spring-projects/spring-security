@@ -16,11 +16,8 @@
 package net.sf.acegisecurity.providers.anonymous;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
-import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.providers.dao.memory.UserAttribute;
-import net.sf.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -133,22 +130,20 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
 
     public void doFilter(ServletRequest request, ServletResponse response,
         FilterChain chain) throws IOException, ServletException {
-        SecureContext sc = SecureContextUtils.getSecureContext();
-
         if (applyAnonymousForThisRequest(request)) {
-            if (sc.getAuthentication() == null) {
-                sc.setAuthentication(createAuthentication(request));
+            if (SecurityContext.getAuthentication() == null) {
+                SecurityContext.setAuthentication(createAuthentication(request));
 
                 if (logger.isDebugEnabled()) {
                     logger.debug(
                         "Replaced ContextHolder with anonymous token: '"
-                        + sc.getAuthentication() + "'");
+                        + SecurityContext.getAuthentication() + "'");
                 }
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug(
                         "ContextHolder not replaced with anonymous token, as ContextHolder already contained: '"
-                        + sc.getAuthentication() + "'");
+                        + SecurityContext.getAuthentication() + "'");
                 }
             }
         }

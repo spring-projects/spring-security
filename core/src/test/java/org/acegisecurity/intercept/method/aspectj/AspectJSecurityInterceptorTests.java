@@ -26,9 +26,7 @@ import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockJoinPoint;
 import net.sf.acegisecurity.MockRunAsManager;
 import net.sf.acegisecurity.TargetObject;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.intercept.method.MethodDefinitionMap;
 import net.sf.acegisecurity.intercept.method.MethodDefinitionSourceEditor;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
@@ -88,17 +86,15 @@ public class AspectJSecurityInterceptorTests extends TestCase {
 
         MockAspectJCallback aspectJCallback = new MockAspectJCallback();
 
-        SecureContext secureContext = new SecureContextImpl();
-        secureContext.setAuthentication(new TestingAuthenticationToken(
+        SecurityContext.setAuthentication(new TestingAuthenticationToken(
                 "marissa", "koala",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_ONE")}));
-        ContextHolder.setContext(secureContext);
 
         Object result = si.invoke(joinPoint, aspectJCallback);
 
         assertEquals("object proceeded", result);
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     public void testCallbackIsNotInvokedWhenPermissionDenied()
@@ -126,10 +122,8 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         MockAspectJCallback aspectJCallback = new MockAspectJCallback();
         aspectJCallback.setThrowExceptionIfInvoked(true);
 
-        SecureContext secureContext = new SecureContextImpl();
-        secureContext.setAuthentication(new TestingAuthenticationToken(
+        SecurityContext.setAuthentication(new TestingAuthenticationToken(
                 "marissa", "koala", new GrantedAuthority[] {}));
-        ContextHolder.setContext(secureContext);
 
         try {
             si.invoke(joinPoint, aspectJCallback);
@@ -138,7 +132,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
             assertTrue(true);
         }
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     //~ Inner Classes ==========================================================

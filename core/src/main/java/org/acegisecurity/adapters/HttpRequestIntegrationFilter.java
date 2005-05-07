@@ -16,8 +16,7 @@
 package net.sf.acegisecurity.adapters;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
+import net.sf.acegisecurity.context.SecurityContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * Populates <code>ContextHolder</code> with the <code>Authentication</code>
+ * Populates <code>SecurityContext</code> with the <code>Authentication</code>
  * obtained from the container's
  * <code>HttpServletRequest.getUserPrincipal()</code>.
  * 
@@ -46,11 +45,12 @@ import javax.servlet.http.HttpServletRequest;
  * 
  * <p>
  * This filter <b>never</b> preserves the <code>Authentication</code> on the
- * <code>ContextHolder</code> - it is replaced every request.
+ * <code>SecurityContext</code> - it is replaced every request.
  * </p>
  * 
  * <p>
- * See {@link net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter} for further information.
+ * See {@link net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter}
+ * for further information.
  * </p>
  *
  * @author Ben Alex
@@ -70,18 +70,16 @@ public class HttpRequestIntegrationFilter implements Filter {
 
     public void doFilter(ServletRequest request, ServletResponse response,
         FilterChain chain) throws IOException, ServletException {
-        SecureContext sc = SecureContextUtils.getSecureContext();
-
         if (request instanceof HttpServletRequest) {
             Principal principal = ((HttpServletRequest) request)
                 .getUserPrincipal();
 
             if ((principal != null) && principal instanceof Authentication) {
-                sc.setAuthentication((Authentication) principal);
+                SecurityContext.setAuthentication((Authentication) principal);
 
                 if (logger.isDebugEnabled()) {
                     logger.debug(
-                        "ContextHolder updated with Authentication from container: '"
+                        "SecurityContext updated with Authentication from container: '"
                         + principal + "'");
                 }
             } else {

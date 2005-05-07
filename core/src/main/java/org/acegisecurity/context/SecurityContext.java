@@ -13,28 +13,32 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.context.security;
+package net.sf.acegisecurity.context;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.Context;
 
 
 /**
- * A {@link Context} that also stores {@link Authentication} information.
- * 
- * <p>
- * This interface must be implemented on contexts that will be presented to the
- * Acegi Security System for Spring, as it is required by the  {@link
- * net.sf.acegisecurity.intercept.AbstractSecurityInterceptor}.
- * </p>
+ * Associates a given {@link Authentication} with the current execution thread,
+ * along with new threads the current execution thread may spawn.
  *
  * @author Ben Alex
  * @version $Id$
+ *
+ * @see java.lang.InheritableThreadLocal
  */
-public interface SecureContext extends Context {
+public class SecurityContext {
+    //~ Static fields/initializers =============================================
+
+    private static InheritableThreadLocal authenticationHolder = new InheritableThreadLocal();
+
     //~ Methods ================================================================
 
-    public void setAuthentication(Authentication newAuthentication);
+    public static void setAuthentication(Authentication authentication) {
+        authenticationHolder.set(authentication);
+    }
 
-    public Authentication getAuthentication();
+    public static Authentication getAuthentication() {
+        return (Authentication) authenticationHolder.get();
+    }
 }

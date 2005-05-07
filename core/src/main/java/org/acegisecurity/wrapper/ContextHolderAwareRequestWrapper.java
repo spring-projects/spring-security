@@ -18,11 +18,8 @@ package net.sf.acegisecurity.wrapper;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationTrustResolver;
 import net.sf.acegisecurity.AuthenticationTrustResolverImpl;
-import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
+import net.sf.acegisecurity.context.SecurityContext;
 
 import java.security.Principal;
 
@@ -32,7 +29,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 
 /**
  * An Acegi Security-aware <code>HttpServletRequestWrapper</code>, which uses
- * the <code>ContextHolder</code>-defined <code>Authentication</code> object
+ * the <code>SecurityContext</code>-defined <code>Authentication</code> object
  * for {@link ContextHolderAwareRequestWrapper#isUserInRole(java.lang.String)}
  * and {@link javax.servlet.http.HttpServletRequestWrapper#getRemoteUser()}
  * responses.
@@ -113,15 +110,16 @@ public class ContextHolderAwareRequestWrapper extends HttpServletRequestWrapper 
         return auth;
     }
 
+    /**
+     * Obtain the current active <code>Authentication</code>
+     *
+     * @return the authentication object or <code>null</code>
+     */
     private Authentication getAuthentication() {
-        if ((ContextHolder.getContext() != null)
-            && ContextHolder.getContext() instanceof SecureContext) {
-            Authentication auth = SecureContextUtils.getSecureContext()
-                                                    .getAuthentication();
+        Authentication auth = SecurityContext.getAuthentication();
 
-            if (!authenticationTrustResolver.isAnonymous(auth)) {
-                return auth;
-            }
+        if (!authenticationTrustResolver.isAnonymous(auth)) {
+            return auth;
         }
 
         return null;

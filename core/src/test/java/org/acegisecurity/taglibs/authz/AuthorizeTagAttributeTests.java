@@ -19,8 +19,7 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 
 import javax.servlet.jsp.JspException;
@@ -37,7 +36,6 @@ public class AuthorizeTagAttributeTests extends TestCase {
     //~ Instance fields ========================================================
 
     private final AuthorizeTag authorizeTag = new AuthorizeTag();
-    private SecureContextImpl context;
     private TestingAuthenticationToken currentUser;
 
     //~ Methods ================================================================
@@ -95,13 +93,10 @@ public class AuthorizeTagAttributeTests extends TestCase {
                         "ROLE_SUPERVISOR"), new GrantedAuthorityImpl(
                         "ROLE_RESTRICTED"),});
 
-        context = new SecureContextImpl();
-        context.setAuthentication(currentUser);
-
-        ContextHolder.setContext(context);
+        SecurityContext.setAuthentication(currentUser);
     }
 
     protected void tearDown() throws Exception {
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 }

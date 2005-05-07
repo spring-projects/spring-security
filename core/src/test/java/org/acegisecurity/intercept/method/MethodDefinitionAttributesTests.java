@@ -27,9 +27,7 @@ import net.sf.acegisecurity.OtherTargetObject;
 import net.sf.acegisecurity.SecurityConfig;
 import net.sf.acegisecurity.TargetObject;
 import net.sf.acegisecurity.acl.basic.SomeDomain;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.context.ApplicationContext;
@@ -167,29 +165,25 @@ public class MethodDefinitionAttributesTests extends TestCase {
     }
 
     public void testMethodCallWithRunAsReplacement() throws Exception {
-        SecureContext context = new SecureContextImpl();
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_INTERFACE_METHOD_MAKE_UPPER_CASE")});
-        context.setAuthentication(token);
-        ContextHolder.setContext(context);
+        SecurityContext.setAuthentication(token);
 
         ITargetObject target = makeInterceptedTarget();
         String result = target.makeUpperCase("hello");
         assertEquals("HELLO net.sf.acegisecurity.MockRunAsAuthenticationToken true",
             result);
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     public void testMethodCallWithoutRunAsReplacement()
         throws Exception {
-        SecureContext context = new SecureContextImpl();
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_INTERFACE_METHOD_MAKE_LOWER_CASE")});
-        context.setAuthentication(token);
-        ContextHolder.setContext(context);
+        SecurityContext.setAuthentication(token);
 
         ITargetObject target = makeInterceptedTarget();
         String result = target.makeLowerCase("HELLO");
@@ -197,7 +191,7 @@ public class MethodDefinitionAttributesTests extends TestCase {
         assertEquals("hello net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken true",
             result);
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     public void testNullReturnedIfZeroAttributesDefinedForMethodInvocation()

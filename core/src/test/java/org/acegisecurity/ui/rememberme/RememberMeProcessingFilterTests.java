@@ -15,6 +15,18 @@
 
 package net.sf.acegisecurity.ui.rememberme;
 
+import junit.framework.TestCase;
+
+import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.MockFilterConfig;
+import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.providers.TestingAuthenticationToken;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -25,22 +37,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import junit.framework.TestCase;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.MockFilterConfig;
-
-
-
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
-import net.sf.acegisecurity.providers.TestingAuthenticationToken;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -65,48 +61,23 @@ public class RememberMeProcessingFilterTests extends TestCase {
     public static void main(String[] args) {
         junit.textui.TestRunner.run(RememberMeProcessingFilterTests.class);
     }
-    
-    public void testDoFilterWithNonHttpServletRequestDetected()
-    throws Exception {
+
+    public void testDetectsRememberMeServicesProperty()
+        throws Exception {
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
 
-    try {
-        filter.doFilter(null, new MockHttpServletResponse(),
-            new MockFilterChain());
-        fail("Should have thrown ServletException");
-    } catch (ServletException expected) {
-        assertEquals("Can only process HttpServletRequest",
-            expected.getMessage());
-    }
-}
-
-    public void testDoFilterWithNonHttpServletResponseDetected()
-    throws Exception {
-        RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
-
-    try {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("dc");
-        filter.doFilter(request, null,
-            new MockFilterChain());
-        fail("Should have thrown ServletException");
-    } catch (ServletException expected) {
-        assertEquals("Can only process HttpServletResponse",
-            expected.getMessage());
-    }
-}
-
-    public void testDetectsRememberMeServicesProperty() throws Exception {
-        RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
         // check default is NullRememberMeServices
-        assertEquals(NullRememberMeServices.class, filter.getRememberMeServices().getClass());
-        
+        assertEquals(NullRememberMeServices.class,
+            filter.getRememberMeServices().getClass());
+
         // check getter/setter
         filter.setRememberMeServices(new TokenBasedRememberMeServices());
-        assertEquals(TokenBasedRememberMeServices.class, filter.getRememberMeServices().getClass());
+        assertEquals(TokenBasedRememberMeServices.class,
+            filter.getRememberMeServices().getClass());
 
         // check detects if made null
         filter.setRememberMeServices(null);
+
         try {
             filter.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
@@ -115,18 +86,45 @@ public class RememberMeProcessingFilterTests extends TestCase {
         }
     }
 
+    public void testDoFilterWithNonHttpServletRequestDetected()
+        throws Exception {
+        RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
+
+        try {
+            filter.doFilter(null, new MockHttpServletResponse(),
+                new MockFilterChain());
+            fail("Should have thrown ServletException");
+        } catch (ServletException expected) {
+            assertEquals("Can only process HttpServletRequest",
+                expected.getMessage());
+        }
+    }
+
+    public void testDoFilterWithNonHttpServletResponseDetected()
+        throws Exception {
+        RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
+
+        try {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setRequestURI("dc");
+            filter.doFilter(request, null, new MockFilterChain());
+            fail("Should have thrown ServletException");
+        } catch (ServletException expected) {
+            assertEquals("Can only process HttpServletResponse",
+                expected.getMessage());
+        }
+    }
+
     public void testOperationWhenAuthenticationExistsInContextHolder()
         throws Exception {
         // Put an Authentication object into the ContextHolder
-        SecureContext sc = SecureContextUtils.getSecureContext();
         Authentication originalAuth = new TestingAuthenticationToken("user",
                 "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
-        sc.setAuthentication(originalAuth);
-        ContextHolder.setContext(sc);
+        SecurityContext.setAuthentication(originalAuth);
 
         // Setup our filter correctly
-    	Authentication remembered = new TestingAuthenticationToken("remembered",
+        Authentication remembered = new TestingAuthenticationToken("remembered",
                 "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_REMEMBERED")});
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
@@ -137,17 +135,15 @@ public class RememberMeProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("x");
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
-                request, new MockHttpServletResponse(),
-            new MockFilterChain(true));
+            request, new MockHttpServletResponse(), new MockFilterChain(true));
 
         // Ensure filter didn't change our original object
-        assertEquals(originalAuth,
-            SecureContextUtils.getSecureContext().getAuthentication());
+        assertEquals(originalAuth, SecurityContext.getAuthentication());
     }
 
     public void testOperationWhenNoAuthenticationInContextHolder()
         throws Exception {
-    	Authentication remembered = new TestingAuthenticationToken("remembered",
+        Authentication remembered = new TestingAuthenticationToken("remembered",
                 "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_REMEMBERED")});
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
@@ -157,25 +153,22 @@ public class RememberMeProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("x");
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
-                request, new MockHttpServletResponse(),
-            new MockFilterChain(true));
+            request, new MockHttpServletResponse(), new MockFilterChain(true));
 
-        Authentication auth = SecureContextUtils.getSecureContext()
-                                                .getAuthentication();
-        
+        Authentication auth = SecurityContext.getAuthentication();
+
         // Ensure filter setup with our remembered authentication object
-        assertEquals(remembered,
-                SecureContextUtils.getSecureContext().getAuthentication());
+        assertEquals(remembered, SecurityContext.getAuthentication());
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        ContextHolder.setContext(new SecureContextImpl());
+        SecurityContext.setAuthentication(null);
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     private void executeFilterInContainerSimulator(FilterConfig filterConfig,
@@ -208,25 +201,24 @@ public class RememberMeProcessingFilterTests extends TestCase {
             }
         }
     }
-    
-    private class MockRememberMeServices implements RememberMeServices
-	{
-    	private Authentication authToReturn;
-    	
-    	public MockRememberMeServices(Authentication authToReturn) {
-    		this.authToReturn = authToReturn;
-    	}
-    	
-		public Authentication autoLogin(HttpServletRequest request,
-				HttpServletResponse response) {
-			return authToReturn;
-		}
-		public void loginFail(HttpServletRequest request,
-				HttpServletResponse response) {
-		}
-		public void loginSuccess(HttpServletRequest request,
-				HttpServletResponse response,
-				Authentication successfulAuthentication) {
-		}
-}
+
+    private class MockRememberMeServices implements RememberMeServices {
+        private Authentication authToReturn;
+
+        public MockRememberMeServices(Authentication authToReturn) {
+            this.authToReturn = authToReturn;
+        }
+
+        public Authentication autoLogin(HttpServletRequest request,
+            HttpServletResponse response) {
+            return authToReturn;
+        }
+
+        public void loginFail(HttpServletRequest request,
+            HttpServletResponse response) {}
+
+        public void loginSuccess(HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication successfulAuthentication) {}
+    }
 }

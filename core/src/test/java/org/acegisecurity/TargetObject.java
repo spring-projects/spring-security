@@ -15,9 +15,7 @@
 
 package net.sf.acegisecurity;
 
-import net.sf.acegisecurity.context.Context;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.SecurityContext;
 
 
 /**
@@ -44,24 +42,18 @@ public class TargetObject implements ITargetObject {
      * @param input the message to make lowercase
      *
      * @return the lowercase message, a space, the <code>Authentication</code>
-     *         class that was on the <code>ContextHolder</code> at the time of
-     *         method invocation, and a boolean indicating if the
+     *         class that was on the <code>SecurityContext</code> at the time
+     *         of method invocation, and a boolean indicating if the
      *         <code>Authentication</code> object is authenticated or not
      */
     public String makeLowerCase(String input) {
-        Context context = ContextHolder.getContext();
+        Authentication auth = SecurityContext.getAuthentication();
 
-        if ((context != null) && (context instanceof SecureContext)) {
-            Authentication auth = ((SecureContext) context).getAuthentication();
-
-            if (auth == null) {
-                return input.toLowerCase() + " Authentication empty";
-            } else {
-                return input.toLowerCase() + " " + auth.getClass().getName()
-                + " " + auth.isAuthenticated();
-            }
+        if (auth == null) {
+            return input.toLowerCase() + " Authentication empty";
         } else {
-            return input.toLowerCase() + " ContextHolder Not Security Aware";
+            return input.toLowerCase() + " " + auth.getClass().getName() + " "
+            + auth.isAuthenticated();
         }
     }
 
@@ -72,23 +64,12 @@ public class TargetObject implements ITargetObject {
      * @param input the message to make uppercase
      *
      * @return the uppercase message, a space, the <code>Authentication</code>
-     *         class that was on the <code>ContextHolder</code> at the time of
-     *         method invocation, and a boolean indicating if the
+     *         class that was on the <code>SecurityContext</code> at the time
+     *         of method invocation, and a boolean indicating if the
      *         <code>Authentication</code> object is authenticated or not
-     *
-     * @throws AccessDeniedException if for some reason this method was being
-     *         called and the <code>ContextHolder</code> was <code>null</code>
-     *         or did not hold a <code>SecureContext</code>
      */
     public String makeUpperCase(String input) {
-        Context context = ContextHolder.getContext();
-
-        if ((context == null) || !(context instanceof SecureContext)) {
-            throw new AccessDeniedException(
-                "For some reason the SecurityInterceptor allowed this call, meaning the ContextHolder should have been populated, but it was not.");
-        }
-
-        Authentication auth = ((SecureContext) context).getAuthentication();
+        Authentication auth = SecurityContext.getAuthentication();
 
         return input.toUpperCase() + " " + auth.getClass().getName() + " "
         + auth.isAuthenticated();

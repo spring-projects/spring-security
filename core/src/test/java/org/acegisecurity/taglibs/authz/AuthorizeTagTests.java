@@ -19,8 +19,7 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 
 import javax.servlet.jsp.JspException;
@@ -37,14 +36,13 @@ public class AuthorizeTagTests extends TestCase {
     //~ Instance fields ========================================================
 
     private final AuthorizeTag authorizeTag = new AuthorizeTag();
-    private SecureContextImpl context;
     private TestingAuthenticationToken currentUser;
 
     //~ Methods ================================================================
 
     public void testAlwaysReturnsUnauthorizedIfNoUserFound()
         throws JspException {
-        context.setAuthentication(null);
+        SecurityContext.setAuthentication(null);
 
         authorizeTag.setIfAllGranted("ROLE_TELLER");
         assertEquals("prevents request - no principal in Context",
@@ -82,7 +80,7 @@ public class AuthorizeTagTests extends TestCase {
 
     public void testPreventsBodyOutputIfNoSecureContext()
         throws JspException {
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
         authorizeTag.setIfAnyGranted("ROLE_BANKER");
 
         assertEquals("prevents output - no context defined", Tag.SKIP_BODY,
@@ -117,13 +115,10 @@ public class AuthorizeTagTests extends TestCase {
                         "ROLE_SUPERVISOR"), new GrantedAuthorityImpl(
                         "ROLE_TELLER"),});
 
-        context = new SecureContextImpl();
-        context.setAuthentication(currentUser);
-
-        ContextHolder.setContext(context);
+        SecurityContext.setAuthentication(currentUser);
     }
 
     protected void tearDown() throws Exception {
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 }

@@ -17,28 +17,24 @@ package net.sf.acegisecurity.ui.x509;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.providers.x509.X509TestUtils;
-import net.sf.acegisecurity.providers.x509.X509AuthenticationToken;
-import net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.AuthenticationManager;
 import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.MockAuthenticationManager;
+import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.providers.x509.X509AuthenticationToken;
+import net.sf.acegisecurity.providers.x509.X509TestUtils;
 import net.sf.acegisecurity.ui.AbstractProcessingFilter;
 import net.sf.acegisecurity.util.MockFilterChain;
 
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+import java.security.cert.X509Certificate;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import java.security.cert.X509Certificate;
+
 
 /**
  * Tests {@link net.sf.acegisecurity.ui.x509.X509ProcessingFilter}.
@@ -64,18 +60,29 @@ public class X509ProcessingFilterTests extends TestCase {
     }
 
     public void tearDown() {
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
-    public void testNeedsAuthenticationManager() throws Exception {
+    public void testAuthenticationIsNullWithNoCertificate()
+        throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        FilterChain chain = new MockFilterChain(true);
+
+        AuthenticationManager authMgr = new MockX509AuthenticationManager();
         X509ProcessingFilter filter = new X509ProcessingFilter();
 
-        try {
-            filter.afterPropertiesSet();
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException failed) {
-            // ignored
-        }
+        filter.setAuthenticationManager(authMgr);
+
+        SecurityContext.setAuthentication(null);
+        filter.doFilter(request, response, chain);
+
+        Object lastException = request.getSession().getAttribute(AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY);
+
+        assertNull("Authentication should be null",
+            SecurityContext.getAuthentication());
+        assertTrue("BadCredentialsException should have been thrown",
+            lastException instanceof BadCredentialsException);
     }
 
     public void testDoFilterWithNonHttpServletRequestDetected()
@@ -106,6 +113,41 @@ public class X509ProcessingFilterTests extends TestCase {
         }
     }
 
+    public void testFailedAuthentication() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        FilterChain chain = new MockFilterChain(true);
+
+        request.setAttribute("javax.servlet.request.X509Certificate",
+            new X509Certificate[] {X509TestUtils.buildTestCertificate()});
+
+        AuthenticationManager authMgr = new MockAuthenticationManager(false);
+
+        SecurityContext.setAuthentication(null);
+
+        X509ProcessingFilter filter = new X509ProcessingFilter();
+
+        filter.setAuthenticationManager(authMgr);
+        filter.afterPropertiesSet();
+        filter.init(null);
+        filter.doFilter(request, response, chain);
+        filter.destroy();
+
+        Authentication result = SecurityContext.getAuthentication();
+
+        assertNull(result);
+    }
+
+    public void testNeedsAuthenticationManager() throws Exception {
+        X509ProcessingFilter filter = new X509ProcessingFilter();
+
+        try {
+            filter.afterPropertiesSet();
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException failed) {
+            // ignored
+        }
+    }
 
     public void testNormalOperation() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -113,15 +155,11 @@ public class X509ProcessingFilterTests extends TestCase {
         FilterChain chain = new MockFilterChain(true);
 
         request.setAttribute("javax.servlet.request.X509Certificate",
-                new X509Certificate[] {X509TestUtils.buildTestCertificate()});
+            new X509Certificate[] {X509TestUtils.buildTestCertificate()});
 
         AuthenticationManager authMgr = new MockX509AuthenticationManager();
 
-        ContextHolder.setContext(new SecureContextImpl());
-
-        SecureContext ctx = SecureContextUtils.getSecureContext();
-
-        ctx.setAuthentication(null);
+        SecurityContext.setAuthentication(null);
 
         X509ProcessingFilter filter = new X509ProcessingFilter();
 
@@ -131,99 +169,27 @@ public class X509ProcessingFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
         filter.destroy();
 
-        Authentication result = ctx.getAuthentication();
+        Authentication result = SecurityContext.getAuthentication();
 
         assertNotNull(result);
     }
 
-    public void testFailedAuthentication() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterChain chain = new MockFilterChain(true);
-
-        request.setAttribute("javax.servlet.request.X509Certificate",
-                new X509Certificate[] {X509TestUtils.buildTestCertificate()});
-
-        AuthenticationManager authMgr = new MockAuthenticationManager(false);
-
-        ContextHolder.setContext(new SecureContextImpl());
-
-        SecureContext ctx = SecureContextUtils.getSecureContext();
-
-        ctx.setAuthentication(null);
-
-        X509ProcessingFilter filter = new X509ProcessingFilter();
-
-        filter.setAuthenticationManager(authMgr);
-        filter.afterPropertiesSet();
-        filter.init(null);
-        filter.doFilter(request, response, chain);
-        filter.destroy();
-
-        Authentication result = ctx.getAuthentication();
-
-        assertNull(result);
-    }
-
-    public void testAuthenticationIsNullWithNoCertificate() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterChain chain = new MockFilterChain(true);
-
-        AuthenticationManager authMgr = new MockX509AuthenticationManager();
-        X509ProcessingFilter filter = new X509ProcessingFilter();
-
-        filter.setAuthenticationManager(authMgr);
-
-        ContextHolder.setContext(new SecureContextImpl());
-        filter.doFilter(request, response, chain);
-
-        SecureContext ctx = SecureContextUtils.getSecureContext();
-
-        Object lastException = request.getSession().getAttribute(
-                AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY);
-
-        assertNull("Authentication should be null", ctx.getAuthentication());
-        assertTrue("BadCredentialsException should have been thrown",
-                 lastException instanceof BadCredentialsException);
-    }
-
-
-    public void testDoesNothingWithExistingSecurityContext() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterChain chain = new MockFilterChain(true);
-
-        Authentication token = new AnonymousAuthenticationToken("dummy", "dummy",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
-
-        ContextHolder.setContext(new SecureContextImpl());
-        SecureContext ctx = SecureContextUtils.getSecureContext();
-
-        ctx.setAuthentication(token);
-
-        X509ProcessingFilter filter = new X509ProcessingFilter();
-
-        filter.doFilter(request, response, chain);
-        assertEquals("Existing token should be unchanged", token, ctx.getAuthentication());
-    }
-
     //~ Inner Classes ==========================================================
 
-    private static class MockX509AuthenticationManager implements AuthenticationManager {
-
+    private static class MockX509AuthenticationManager
+        implements AuthenticationManager {
         public Authentication authenticate(Authentication a) {
-            if(!(a instanceof X509AuthenticationToken)) {
-                TestCase.fail("Needed an X509Authentication token but found " + a);
+            if (!(a instanceof X509AuthenticationToken)) {
+                TestCase.fail("Needed an X509Authentication token but found "
+                    + a);
             }
 
-            if(a.getCredentials() == null) {
-                throw new BadCredentialsException("Mock authentication manager rejecting null certificate");
+            if (a.getCredentials() == null) {
+                throw new BadCredentialsException(
+                    "Mock authentication manager rejecting null certificate");
             }
 
             return a;
         }
     }
-
-
 }

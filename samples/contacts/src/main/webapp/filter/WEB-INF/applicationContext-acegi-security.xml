@@ -87,7 +87,6 @@
    </bean>
 
    <bean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter">
-      <property name="context"><value>net.sf.acegisecurity.context.security.SecureContextImpl</value></property>
    </bean>
 
    <bean id="rememberMeProcessingFilter" class="net.sf.acegisecurity.ui.rememberme.RememberMeProcessingFilter">

@@ -17,10 +17,13 @@ package net.sf.acegisecurity.intercept.web;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.*;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.AccessDeniedException;
+import net.sf.acegisecurity.BadCredentialsException;
+import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.GrantedAuthorityImpl;
+import net.sf.acegisecurity.MockAuthenticationEntryPoint;
+import net.sf.acegisecurity.MockPortResolver;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
 import net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
 
@@ -80,11 +83,9 @@ public class SecurityEnforcementFilterTests extends TestCase {
                 false, false, false);
 
         // Setup ContextHolder, as filter needs to check if user is anonymous
-        SecureContext sc = new SecureContextImpl();
-        sc.setAuthentication(new AnonymousAuthenticationToken("ignored",
-                "ignored",
+        SecurityContext.setAuthentication(new AnonymousAuthenticationToken(
+                "ignored", "ignored",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("IGNORED")}));
-        ContextHolder.setContext(sc);
 
         // Test
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
@@ -112,9 +113,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
                 false, false, false);
 
         // Setup ContextHolder, as filter needs to check if user is anonymous
-        SecureContext sc = new SecureContextImpl();
-        sc.setAuthentication(null);
-        ContextHolder.setContext(sc);
+        SecurityContext.setAuthentication(null);
 
         // Test
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
@@ -357,7 +356,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     //~ Inner Classes ==========================================================

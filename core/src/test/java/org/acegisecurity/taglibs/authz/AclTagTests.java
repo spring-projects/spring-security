@@ -25,9 +25,7 @@ import net.sf.acegisecurity.acl.AclEntry;
 import net.sf.acegisecurity.acl.AclManager;
 import net.sf.acegisecurity.acl.basic.MockAclObjectIdentity;
 import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 
 import org.springframework.context.ApplicationContext;
@@ -55,64 +53,34 @@ public class AclTagTests extends TestCase {
         throws JspException {
         Authentication auth = new TestingAuthenticationToken("marissa",
                 "koala", new GrantedAuthority[] {});
-        SecureContext sc = new SecureContextImpl();
-        sc.setAuthentication(auth);
-        ContextHolder.setContext(sc);
+        SecurityContext.setAuthentication(auth);
 
         aclTag.setHasPermission(new Long(SimpleAclEntry.ADMINISTRATION)
             .toString());
         aclTag.setDomainObject(new Integer(54));
         assertEquals(Tag.SKIP_BODY, aclTag.doStartTag());
 
-        ContextHolder.setContext(null);
-    }
-
-    public void testInclusionDeniedWhenAuthenticationEmpty()
-        throws JspException {
-        ContextHolder.setContext(new SecureContextImpl());
-
-        aclTag.setHasPermission(new Long(SimpleAclEntry.ADMINISTRATION)
-            .toString());
-        aclTag.setDomainObject("object1");
-        assertEquals(Tag.SKIP_BODY, aclTag.doStartTag());
-
-        ContextHolder.setContext(null);
-    }
-
-    public void testInclusionDeniedWhenContextHolderEmpty()
-        throws JspException {
-        ContextHolder.setContext(null);
-
-        aclTag.setHasPermission(new Long(SimpleAclEntry.ADMINISTRATION)
-            .toString());
-        aclTag.setDomainObject("object1");
-        assertEquals(Tag.SKIP_BODY, aclTag.doStartTag());
-
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     public void testInclusionDeniedWhenNoListOfPermissionsGiven()
         throws JspException {
         Authentication auth = new TestingAuthenticationToken("marissa",
                 "koala", new GrantedAuthority[] {});
-        SecureContext sc = new SecureContextImpl();
-        sc.setAuthentication(auth);
-        ContextHolder.setContext(sc);
+        SecurityContext.setAuthentication(auth);
 
         aclTag.setHasPermission(null);
         aclTag.setDomainObject("object1");
         assertEquals(Tag.SKIP_BODY, aclTag.doStartTag());
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     public void testInclusionDeniedWhenPrincipalDoesNotHoldAnyPermissions()
         throws JspException {
         Authentication auth = new TestingAuthenticationToken("john", "crow",
                 new GrantedAuthority[] {});
-        SecureContext sc = new SecureContextImpl();
-        sc.setAuthentication(auth);
-        ContextHolder.setContext(sc);
+        SecurityContext.setAuthentication(auth);
 
         aclTag.setHasPermission(new Integer(SimpleAclEntry.ADMINISTRATION)
             + "," + new Integer(SimpleAclEntry.READ));
@@ -122,22 +90,32 @@ public class AclTagTests extends TestCase {
         assertEquals("object1", aclTag.getDomainObject());
         assertEquals(Tag.SKIP_BODY, aclTag.doStartTag());
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     public void testInclusionDeniedWhenPrincipalDoesNotHoldRequiredPermissions()
         throws JspException {
         Authentication auth = new TestingAuthenticationToken("marissa",
                 "koala", new GrantedAuthority[] {});
-        SecureContext sc = new SecureContextImpl();
-        sc.setAuthentication(auth);
-        ContextHolder.setContext(sc);
+        SecurityContext.setAuthentication(auth);
 
         aclTag.setHasPermission(new Integer(SimpleAclEntry.DELETE).toString());
         aclTag.setDomainObject("object1");
         assertEquals(Tag.SKIP_BODY, aclTag.doStartTag());
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
+    }
+
+    public void testInclusionDeniedWhenSecurityContextEmpty()
+        throws JspException {
+        SecurityContext.setAuthentication(null);
+
+        aclTag.setHasPermission(new Long(SimpleAclEntry.ADMINISTRATION)
+            .toString());
+        aclTag.setDomainObject("object1");
+        assertEquals(Tag.SKIP_BODY, aclTag.doStartTag());
+
+        SecurityContext.setAuthentication(null);
     }
 
     public void testInclusionPermittedWhenDomainObjectIsNull()
@@ -151,9 +129,7 @@ public class AclTagTests extends TestCase {
         throws JspException {
         Authentication auth = new TestingAuthenticationToken("john", "crow",
                 new GrantedAuthority[] {});
-        SecureContext sc = new SecureContextImpl();
-        sc.setAuthentication(auth);
-        ContextHolder.setContext(sc);
+        SecurityContext.setAuthentication(auth);
 
         aclTag.setHasPermission("0,5, 6"); // shouldn't be any space
 
@@ -164,38 +140,34 @@ public class AclTagTests extends TestCase {
             assertTrue(true);
         }
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     public void testOperationWhenPrincipalHoldsPermissionOfMultipleList()
         throws JspException {
         Authentication auth = new TestingAuthenticationToken("marissa",
                 "koala", new GrantedAuthority[] {});
-        SecureContext sc = new SecureContextImpl();
-        sc.setAuthentication(auth);
-        ContextHolder.setContext(sc);
+        SecurityContext.setAuthentication(auth);
 
         aclTag.setHasPermission(new Integer(SimpleAclEntry.ADMINISTRATION)
             + "," + new Integer(SimpleAclEntry.READ));
         aclTag.setDomainObject("object1");
         assertEquals(Tag.EVAL_BODY_INCLUDE, aclTag.doStartTag());
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     public void testOperationWhenPrincipalHoldsPermissionOfSingleList()
         throws JspException {
         Authentication auth = new TestingAuthenticationToken("marissa",
                 "koala", new GrantedAuthority[] {});
-        SecureContext sc = new SecureContextImpl();
-        sc.setAuthentication(auth);
-        ContextHolder.setContext(sc);
+        SecurityContext.setAuthentication(auth);
 
         aclTag.setHasPermission(new Integer(SimpleAclEntry.READ).toString());
         aclTag.setDomainObject("object1");
         assertEquals(Tag.EVAL_BODY_INCLUDE, aclTag.doStartTag());
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     //~ Inner Classes ==========================================================

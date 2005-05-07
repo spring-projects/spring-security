@@ -16,8 +16,7 @@
 package net.sf.acegisecurity.providers.jaas;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.SecurityContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,8 +37,8 @@ import javax.security.auth.spi.LoginModule;
  * conjunction. <br>
  * The {@link JaasAuthenticationProvider} allows Acegi to authenticate against
  * Jaas. <br>
- * The SecureContextLoginModule allows a Jaas based application to authenticate
- * against Acegi.
+ * The SecureContextLoginModule allows a Jaas based application to
+ * authenticate against Acegi.
  *
  * @author Brian Moseley
  * @author Ray Krueger
@@ -123,19 +122,7 @@ public class SecureContextLoginModule implements LoginModule {
      * @throws LoginException if the authentication fails
      */
     public boolean login() throws LoginException {
-        if (ContextHolder.getContext() == null) {
-            log.debug("no security context found");
-            return false;
-        }
-
-        if (!(ContextHolder.getContext() instanceof SecureContext)) {
-            log.debug("security context not instance of SecureContext");
-
-            return false;
-        }
-
-        SecureContext context = (SecureContext) ContextHolder.getContext();
-        authen = context.getAuthentication();
+        authen = SecurityContext.getAuthentication();
 
         if (authen == null) {
             throw new LoginException("Authentication not found in security"

@@ -16,9 +16,7 @@
 package sample.contact;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -64,9 +62,7 @@ public class ClientApplication {
         Map contactServices = this.beanFactory.getBeansOfType(ContactManager.class,
                 true, true);
 
-        SecureContext secureContext = new SecureContextImpl();
-        secureContext.setAuthentication(authentication);
-        ContextHolder.setContext(secureContext);
+        SecurityContext.setAuthentication(authentication);
 
         for (Iterator it = contactServices.keySet().iterator(); it.hasNext();) {
             String beanName = (String) it.next();
@@ -140,7 +136,7 @@ public class ClientApplication {
             System.out.println(stopWatch.prettyPrint());
         }
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     public static void main(String[] args) {

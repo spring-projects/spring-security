@@ -18,10 +18,8 @@ package net.sf.acegisecurity.context.httpinvoker;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.ContextHolder;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.context.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import java.io.IOException;
@@ -59,11 +57,9 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests
 
     public void testNormalOperation() throws Exception {
         // Setup client-side context
-        SecureContext clientSideContext = new SecureContextImpl();
         Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("Aladdin",
                 "open sesame");
-        clientSideContext.setAuthentication(clientSideAuthentication);
-        ContextHolder.setContext(clientSideContext);
+        SecurityContext.setAuthentication(clientSideAuthentication);
 
         // Create a connection and ensure our executor sets its
         // properties correctly
@@ -78,28 +74,11 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests
         assertEquals("Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==",
             conn.getRequestProperty("Authorization"));
 
-        ContextHolder.setContext(null);
-    }
-
-    public void testNullAuthenticationIsNull() throws Exception {
-        // Setup client-side context
-        SecureContext clientSideContext = new SecureContextImpl();
-        clientSideContext.setAuthentication(null);
-        ContextHolder.setContext(clientSideContext);
-
-        // Create a connection and ensure our executor sets its
-        // properties correctly
-        AuthenticationSimpleHttpInvokerRequestExecutor executor = new AuthenticationSimpleHttpInvokerRequestExecutor();
-        HttpURLConnection conn = new MockHttpURLConnection(new URL(
-                    "http://localhost/"));
-        executor.prepareConnection(conn, 10);
-
-        // Check connection properties (shouldn't be an Authorization header)
-        assertNull(conn.getRequestProperty("Authorization"));
+        SecurityContext.setAuthentication(null);
     }
 
     public void testNullContextHolderIsNull() throws Exception {
-        ContextHolder.setContext(null); // just to be explicit
+        SecurityContext.setAuthentication(null);
 
         // Create a connection and ensure our executor sets its
         // properties correctly

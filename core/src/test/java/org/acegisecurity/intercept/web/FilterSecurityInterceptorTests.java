@@ -30,10 +30,11 @@ import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockRunAsManager;
 import net.sf.acegisecurity.RunAsManager;
 import net.sf.acegisecurity.SecurityConfig;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
@@ -43,9 +44,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.mock.web.MockHttpServletRequest;
 
 
 /**
@@ -169,19 +167,17 @@ public class FilterSecurityInterceptorTests extends TestCase {
         request.setServerPort(443);
 
         // Setup a Context
-        SecureContext context = new SecureContextImpl();
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_OK")});
-        context.setAuthentication(token);
-        ContextHolder.setContext(context);
+        SecurityContext.setAuthentication(token);
 
         // Create and test our secure object
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         interceptor.invoke(fi);
 
         // Destroy the Context
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     public void testNormalStartupAndGetter() throws Exception {
@@ -229,19 +225,17 @@ public class FilterSecurityInterceptorTests extends TestCase {
         request.setServletPath("/secure/page.html");
 
         // Setup a Context
-        SecureContext context = new SecureContextImpl();
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_OK")});
-        context.setAuthentication(token);
-        ContextHolder.setContext(context);
+        SecurityContext.setAuthentication(token);
 
         // Create and test our secure object
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         interceptor.invoke(fi);
 
         // Destroy the Context
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     //~ Inner Classes ==========================================================

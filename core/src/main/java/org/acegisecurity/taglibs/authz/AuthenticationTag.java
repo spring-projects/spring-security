@@ -17,8 +17,7 @@ package net.sf.acegisecurity.taglibs.authz;
 
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
+import net.sf.acegisecurity.context.SecurityContext;
 
 import java.io.IOException;
 
@@ -32,11 +31,10 @@ import javax.servlet.jsp.tagext.TagSupport;
  * convenient access to the current <code>Authentication</code> object.
  * 
  * <p>
- * Whilst JSPs can access the <code>ContextHolder</code> directly, this tag
- * avoids handling <code>null</code> and the incorrect type of
- * <code>Context</code> in the <code>ContextHolder</code>. The tag also
- * properly accommodates <code>Authentication.getPrincipal()</code>, which can
- * either be a <code>String</code> or a <code>UserDetails</code>.
+ * Whilst JSPs can access the <code>SecurityContext</code> directly, this tag
+ * avoids handling <code>null</code> conditions. The tag also properly
+ * accommodates <code>Authentication.getPrincipal()</code>, which can either
+ * be a <code>String</code> or a <code>UserDetails</code>.
  * </p>
  *
  * @author Ben Alex
@@ -70,14 +68,11 @@ public class AuthenticationTag extends TagSupport {
             throw new JspException("Unsupported use of auth:authentication tag");
         }
 
-        if ((ContextHolder.getContext() == null)
-            || !(ContextHolder.getContext() instanceof SecureContext)
-            || (((SecureContext) ContextHolder.getContext()).getAuthentication() == null)) {
+        if (SecurityContext.getAuthentication() == null) {
             return Tag.SKIP_BODY;
         }
 
-        Authentication auth = ((SecureContext) ContextHolder.getContext())
-            .getAuthentication();
+        Authentication auth = SecurityContext.getAuthentication();
 
         if (auth.getPrincipal() == null) {
             return Tag.SKIP_BODY;

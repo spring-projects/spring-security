@@ -15,8 +15,8 @@
 
 package net.sf.acegisecurity.context.rmi;
 
-import net.sf.acegisecurity.context.Context;
-import net.sf.acegisecurity.context.ContextHolder;
+import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.context.SecurityContext;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -30,18 +30,20 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * The actual <code>RemoteInvocation</code> that is passed from the client to
- * the server, which contains the contents of {@link ContextHolder}.
+ * the server, which contains the contents of {@link SecurityContext}, being
+ * an {@link Authentication} object.
  * 
  * <p>
  * When constructed on the client via {@link
  * net.sf.acegisecurity.context.rmi.ContextPropagatingRemoteInvocationFactory},
- * the contents of the <code>ContextHolder</code> are stored inside the
+ * the contents of the <code>SecurityContext</code> are stored inside the
  * object. The object is then passed to the server that is processing the
  * remote invocation. Upon the server invoking the remote invocation, it will
- * retrieve the passed contents of the <code>ContextHolder</code> and set them
- * to the server-side <code>ContextHolder</code> whilst the target object is
- * invoked. When the target invocation has been completed, the server-side
- * <code>ContextHolder</code> will be reset to <code>null</code>.
+ * retrieve the passed contents of the <code>SecurityContext</code> and set
+ * them to the server-side <code>SecurityContext</code> whilst the target
+ * object is invoked. When the target invocation has been completed, the
+ * server-side <code>SecurityContext</code> will be reset to
+ * <code>null</code>.
  * </p>
  *
  * @author James Monaghan
@@ -55,7 +57,7 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 
     //~ Instance fields ========================================================
 
-    private Context context;
+    private Authentication authentication;
 
     //~ Constructors ===========================================================
 
@@ -67,10 +69,11 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
      */
     public ContextPropagatingRemoteInvocation(MethodInvocation methodInvocation) {
         super(methodInvocation);
-        context = ContextHolder.getContext();
+        authentication = SecurityContext.getAuthentication();
 
         if (logger.isDebugEnabled()) {
-            logger.debug("RemoteInvocation now has context of: " + context);
+            logger.debug("RemoteInvocation now has authentication: "
+                + authentication);
         }
     }
 
@@ -91,18 +94,18 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
     public Object invoke(Object targetObject)
         throws NoSuchMethodException, IllegalAccessException, 
             InvocationTargetException {
-        ContextHolder.setContext(context);
+        SecurityContext.setAuthentication(authentication);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Set ContextHolder to contain: " + context);
+            logger.debug("Set SecurityContext to contain: " + authentication);
         }
 
         Object result = super.invoke(targetObject);
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Set ContextHolder to null");
+            logger.debug("Set SecurityContext to null");
         }
 
         return result;

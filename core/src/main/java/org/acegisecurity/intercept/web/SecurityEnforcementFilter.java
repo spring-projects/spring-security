@@ -15,8 +15,12 @@
 
 package net.sf.acegisecurity.intercept.web;
 
-import net.sf.acegisecurity.*;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
+import net.sf.acegisecurity.AccessDeniedException;
+import net.sf.acegisecurity.AuthenticationException;
+import net.sf.acegisecurity.AuthenticationTrustResolver;
+import net.sf.acegisecurity.AuthenticationTrustResolverImpl;
+import net.sf.acegisecurity.InsufficientAuthenticationException;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.ui.AbstractProcessingFilter;
 import net.sf.acegisecurity.util.PortResolver;
 import net.sf.acegisecurity.util.PortResolverImpl;
@@ -30,7 +34,12 @@ import org.springframework.util.Assert;
 
 import java.io.IOException;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -184,7 +193,7 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
             sendStartAuthentication(fi, authentication);
         } catch (AccessDeniedException accessDenied) {
             if (authenticationTrustResolver.isAnonymous(
-                    SecureContextUtils.getSecureContext().getAuthentication())) {
+                    SecurityContext.getAuthentication())) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Access is denied (user is anonymous); redirecting to authentication entry point",
                         accessDenied);

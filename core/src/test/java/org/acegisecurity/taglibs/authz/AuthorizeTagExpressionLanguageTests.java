@@ -19,8 +19,7 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 
 import org.springframework.mock.web.MockPageContext;
@@ -37,7 +36,6 @@ public class AuthorizeTagExpressionLanguageTests extends TestCase {
 
     private final AuthorizeTag authorizeTag = new AuthorizeTag();
     private MockPageContext pageContext;
-    private SecureContextImpl context;
     private TestingAuthenticationToken currentUser;
 
     //~ Methods ================================================================
@@ -78,13 +76,10 @@ public class AuthorizeTagExpressionLanguageTests extends TestCase {
         currentUser = new TestingAuthenticationToken("abc", "123",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_TELLER"),});
 
-        context = new SecureContextImpl();
-        context.setAuthentication(currentUser);
-
-        ContextHolder.setContext(context);
+        SecurityContext.setAuthentication(currentUser);
     }
 
     protected void tearDown() throws Exception {
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 }

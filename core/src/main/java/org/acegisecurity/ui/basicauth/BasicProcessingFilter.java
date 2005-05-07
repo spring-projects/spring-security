@@ -18,9 +18,7 @@ package net.sf.acegisecurity.ui.basicauth;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.ui.WebAuthenticationDetails;
@@ -30,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.util.Assert;
 
 import java.io.IOException;
@@ -133,8 +132,10 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.authenticationManager, "An AuthenticationManager is required");
-        Assert.notNull(this.authenticationEntryPoint, "An AuthenticationEntryPoint is required");
+        Assert.notNull(this.authenticationManager,
+            "An AuthenticationManager is required");
+        Assert.notNull(this.authenticationEntryPoint,
+            "An AuthenticationEntryPoint is required");
     }
 
     public void destroy() {}
@@ -176,7 +177,6 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
             authRequest.setDetails(new WebAuthenticationDetails(httpRequest));
 
             Authentication authResult;
-            SecureContext sc = SecureContextUtils.getSecureContext();
 
             try {
                 authResult = authenticationManager.authenticate(authRequest);
@@ -187,8 +187,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                         + " failed: " + failed.toString());
                 }
 
-                sc.setAuthentication(null);
-                ContextHolder.setContext(sc);
+                SecurityContext.setAuthentication(null);
                 authenticationEntryPoint.commence(request, response, failed);
 
                 return;
@@ -199,8 +198,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                 logger.debug("Authentication success: " + authResult.toString());
             }
 
-            sc.setAuthentication(authResult);
-            ContextHolder.setContext(sc);
+            SecurityContext.setAuthentication(authResult);
         }
 
         chain.doFilter(request, response);

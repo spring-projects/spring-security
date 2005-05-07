@@ -15,6 +15,15 @@
 
 package net.sf.acegisecurity.ui.rememberme;
 
+import net.sf.acegisecurity.context.SecurityContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.util.Assert;
+
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -26,18 +35,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
-
 
 /**
  * Detects if there is no <code>Authentication</code> object in the
- * <code>ContextHolder</code>, and populates it with a remember-me
+ * <code>SecurityContext</code>, and populates it with a remember-me
  * authentication token if a {@link
  * net.sf.acegisecurity.ui.rememberme.RememberMeServices} implementation so
  * requests.
@@ -48,7 +49,7 @@ import org.springframework.util.Assert;
  * net.sf.acegisecurity.ui.rememberme.RememberMeServices#autoLogin(HttpServletRequest,
  * HttpServletResponse)} method called by this filter. The
  * <code>Authentication</code> or <code>null</code> returned by that method
- * will be placed into the <code>ContextHolder</code>.
+ * will be placed into the <code>SecurityContext</code>.
  * </p>
  * 
  * <P>
@@ -70,6 +71,14 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean {
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
 
     //~ Methods ================================================================
+
+    public void setRememberMeServices(RememberMeServices rememberMeServices) {
+        this.rememberMeServices = rememberMeServices;
+    }
+
+    public RememberMeServices getRememberMeServices() {
+        return rememberMeServices;
+    }
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(rememberMeServices);
@@ -93,21 +102,19 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        SecureContext sc = SecureContextUtils.getSecureContext();
-
-        if (sc.getAuthentication() == null) {
-            sc.setAuthentication(rememberMeServices.autoLogin(httpRequest,
-                    httpResponse));
+        if (SecurityContext.getAuthentication() == null) {
+            SecurityContext.setAuthentication(rememberMeServices.autoLogin(
+                    httpRequest, httpResponse));
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Replaced ContextHolder with remember-me token: '"
-                    + sc.getAuthentication() + "'");
+                    + SecurityContext.getAuthentication() + "'");
             }
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug(
                     "ContextHolder not replaced with remember-me token, as ContextHolder already contained: '"
-                    + sc.getAuthentication() + "'");
+                    + SecurityContext.getAuthentication() + "'");
             }
         }
 
@@ -122,10 +129,4 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean {
      * @throws ServletException not thrown
      */
     public void init(FilterConfig arg0) throws ServletException {}
-	public RememberMeServices getRememberMeServices() {
-		return rememberMeServices;
-	}
-	public void setRememberMeServices(RememberMeServices rememberMeServices) {
-		this.rememberMeServices = rememberMeServices;
-	}
 }

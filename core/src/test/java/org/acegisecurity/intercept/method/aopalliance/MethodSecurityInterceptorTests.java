@@ -33,10 +33,7 @@ import net.sf.acegisecurity.MockAfterInvocationManager;
 import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockRunAsManager;
 import net.sf.acegisecurity.RunAsManager;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.ContextImpl;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.intercept.method.AbstractMethodDefinitionSource;
 import net.sf.acegisecurity.intercept.method.MockMethodDefinitionSource;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
@@ -81,48 +78,32 @@ public class MethodSecurityInterceptorTests extends TestCase {
         throws Exception {
         ITargetObject target = makeInterceptedTarget();
         String result = target.publicMakeLowerCase("HELLO");
-        assertEquals("hello ContextHolder Not Security Aware", result);
-
-        ContextHolder.setContext(null);
-    }
-
-    public void testCallingAPublicMethodWhenPresentingASecureContextButWithoutAnyAuthenticationObject()
-        throws Exception {
-        SecureContext context = new SecureContextImpl();
-        ContextHolder.setContext(context);
-
-        ITargetObject target = makeInterceptedTarget();
-        String result = target.publicMakeLowerCase("HELLO");
         assertEquals("hello Authentication empty", result);
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     public void testCallingAPublicMethodWhenPresentingAnAuthenticationObjectWillProperlySetItsIsAuthenticatedProperty()
         throws Exception {
-        SecureContext context = new SecureContextImpl();
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_THIS_IS_NOT_REQUIRED_AS_IT_IS_PUBLIC")});
         assertTrue(!token.isAuthenticated());
-        context.setAuthentication(token);
-        ContextHolder.setContext(context);
+        SecurityContext.setAuthentication(token);
 
         ITargetObject target = makeInterceptedTarget();
         String result = target.publicMakeLowerCase("HELLO");
         assertEquals("hello net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken false",
             result);
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     public void testDeniesWhenAppropriate() throws Exception {
-        SecureContext context = new SecureContextImpl();
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_NO_BENEFIT_TO_THIS_GRANTED_AUTHORITY")});
-        context.setAuthentication(token);
-        ContextHolder.setContext(context);
+        SecurityContext.setAuthentication(token);
 
         ITargetObject target = makeInterceptedTarget();
 
@@ -133,7 +114,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
             assertTrue(true);
         }
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     public void testGetters() {
@@ -159,30 +140,26 @@ public class MethodSecurityInterceptorTests extends TestCase {
     }
 
     public void testMethodCallWithRunAsReplacement() throws Exception {
-        SecureContext context = new SecureContextImpl();
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_UPPER")});
-        context.setAuthentication(token);
-        ContextHolder.setContext(context);
+        SecurityContext.setAuthentication(token);
 
         ITargetObject target = makeInterceptedTarget();
         String result = target.makeUpperCase("hello");
         assertEquals("HELLO net.sf.acegisecurity.MockRunAsAuthenticationToken true",
             result);
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     public void testMethodCallWithoutRunAsReplacement()
         throws Exception {
-        SecureContext context = new SecureContextImpl();
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_LOWER")});
         assertTrue(!token.isAuthenticated());
-        context.setAuthentication(token);
-        ContextHolder.setContext(context);
+        SecurityContext.setAuthentication(token);
 
         ITargetObject target = makeInterceptedTargetWithoutAnAfterInvocationManager();
         String result = target.makeLowerCase("HELLO");
@@ -191,10 +168,10 @@ public class MethodSecurityInterceptorTests extends TestCase {
         assertEquals("hello net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken true",
             result);
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
-    public void testRejectionOfEmptyContextHolder() throws Exception {
+    public void testRejectionOfEmptySecurityContext() throws Exception {
         ITargetObject target = makeInterceptedTarget();
 
         try {
@@ -204,40 +181,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
         } catch (AuthenticationCredentialsNotFoundException expected) {
             assertTrue(true);
         }
-    }
-
-    public void testRejectionOfNonSecureContextOnContextHolder()
-        throws Exception {
-        ContextHolder.setContext(new ContextImpl());
-
-        ITargetObject target = makeInterceptedTarget();
-
-        try {
-            target.makeUpperCase("hello");
-            fail(
-                "Should have thrown AuthenticationCredentialsNotFoundException");
-        } catch (AuthenticationCredentialsNotFoundException expected) {
-            assertTrue(true);
-        }
-
-        ContextHolder.setContext(null);
-    }
-
-    public void testRejectionOfSecureContextThatContainsNoAuthenticationObject()
-        throws Exception {
-        ContextHolder.setContext(new SecureContextImpl());
-
-        ITargetObject target = makeInterceptedTarget();
-
-        try {
-            target.makeUpperCase("hello");
-            fail(
-                "Should have thrown AuthenticationCredentialsNotFoundException");
-        } catch (AuthenticationCredentialsNotFoundException expected) {
-            assertTrue(true);
-        }
-
-        ContextHolder.setContext(null);
     }
 
     public void testRejectsAccessDecisionManagersThatDoNotSupportMethodInvocation()
@@ -259,13 +202,11 @@ public class MethodSecurityInterceptorTests extends TestCase {
 
     public void testRejectsCallsWhenAuthenticationIsIncorrect()
         throws Exception {
-        SecureContext context = new SecureContextImpl();
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_LOWER")});
         assertTrue(!token.isAuthenticated());
-        context.setAuthentication(token);
-        ContextHolder.setContext(context);
+        SecurityContext.setAuthentication(token);
 
         ITargetObject target = makeInterceptedTargetRejectsAuthentication();
 
@@ -276,7 +217,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
             assertTrue(true);
         }
 
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     public void testRejectsCallsWhenObjectDefinitionSourceDoesNotSupportObject()

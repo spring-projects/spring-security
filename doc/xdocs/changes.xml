@@ -26,6 +26,7 @@
   </properties>
   <body>
     <release version="0.9.0" date="In CVS">
+      <action dev="benalex" type="update">ContextHolder and related classes removed and replaced with SecurityContext</action>        
       <action dev="luke_t" type="update">Changed order of credentials verification and expiry checking in DaoAuthenticationProvider. Password must now be successfully verified before expired credentials are reported. </action>        
       <action dev="benalex" type="update">AnonymousProcessingFilter offers protected method to control when it should execute</action>
       <action dev="benalex" type="fix">AbstractAuthenticationToken.getName() now returns username alone if UserDetails present</action>

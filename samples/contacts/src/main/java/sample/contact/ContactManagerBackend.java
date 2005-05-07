@@ -21,11 +21,12 @@ import net.sf.acegisecurity.acl.basic.AclObjectIdentity;
 import net.sf.acegisecurity.acl.basic.BasicAclExtendedDao;
 import net.sf.acegisecurity.acl.basic.NamedEntityObjectIdentity;
 import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
+import net.sf.acegisecurity.context.SecurityContext;
 
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.context.support.ApplicationObjectSupport;
+
 import org.springframework.util.Assert;
 
 import java.util.List;
@@ -172,8 +173,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport
     }
 
     protected String getUsername() {
-        Authentication auth = SecureContextUtils.getSecureContext()
-                                                .getAuthentication();
+        Authentication auth = SecurityContext.getAuthentication();
 
         if (auth.getPrincipal() instanceof UserDetails) {
             return ((UserDetails) auth.getPrincipal()).getUsername();

@@ -20,9 +20,7 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.MockFilterConfig;
 import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.providers.dao.AuthenticationDao;
 import net.sf.acegisecurity.providers.dao.UserCache;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
@@ -32,12 +30,16 @@ import org.apache.commons.codec.binary.Base64;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import org.springframework.dao.DataAccessException;
-import org.springframework.util.StringUtils;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+import org.springframework.util.StringUtils;
+
 import java.io.IOException;
+
 import java.util.Map;
 
 import javax.servlet.Filter;
@@ -117,7 +119,8 @@ public class DigestProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization",
-                createAuthorizationHeader(username, realm, nonce, uri, responseDigest, qop, nc, cnonce));
+            createAuthorizationHeader(username, realm, nonce, uri,
+                responseDigest, qop, nc, cnonce));
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -138,10 +141,11 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
         assertEquals(401, response.getStatus());
 
-        String header = response.getHeader("WWW-Authenticate").toString().substring(7);
+        String header = response.getHeader("WWW-Authenticate").toString()
+                                .substring(7);
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
         Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries,
                 "=", "\"");
@@ -171,7 +175,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
     }
 
     public void testGettersSetters() {
@@ -216,7 +220,7 @@ public class DigestProcessingFilterTests extends TestCase {
             chain);
         assertEquals(401, response.getStatus());
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
     }
 
     public void testMalformedHeaderReturnsForbidden() throws Exception {
@@ -242,7 +246,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -264,7 +268,8 @@ public class DigestProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization",
-                createAuthorizationHeader(username, realm, nonce, uri, responseDigest, qop, nc, cnonce));
+            createAuthorizationHeader(username, realm, nonce, uri,
+                responseDigest, qop, nc, cnonce));
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -284,7 +289,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -307,7 +312,8 @@ public class DigestProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization",
-                createAuthorizationHeader(username, realm, nonce, uri, responseDigest, qop, nc, cnonce));
+            createAuthorizationHeader(username, realm, nonce, uri,
+                responseDigest, qop, nc, cnonce));
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -327,7 +333,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -350,7 +356,8 @@ public class DigestProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization",
-                createAuthorizationHeader(username, realm, nonce, uri, responseDigest, qop, nc, cnonce));
+            createAuthorizationHeader(username, realm, nonce, uri,
+                responseDigest, qop, nc, cnonce));
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -370,7 +377,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -393,7 +400,8 @@ public class DigestProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization",
-                createAuthorizationHeader(username, realm, nonce, uri, responseDigest, qop, nc, cnonce));
+            createAuthorizationHeader(username, realm, nonce, uri,
+                responseDigest, qop, nc, cnonce));
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -413,7 +421,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -434,7 +442,8 @@ public class DigestProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization",
-                createAuthorizationHeader(username, realm, nonce, uri, responseDigest, qop, nc, cnonce));
+            createAuthorizationHeader(username, realm, nonce, uri,
+                responseDigest, qop, nc, cnonce));
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -454,10 +463,9 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNotNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNotNull(SecurityContext.getAuthentication());
         assertEquals("marissa",
-            ((UserDetails) SecureContextUtils.getSecureContext()
-                                             .getAuthentication().getPrincipal())
+            ((UserDetails) SecurityContext.getAuthentication().getPrincipal())
             .getUsername());
     }
 
@@ -485,7 +493,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
     }
 
     public void testStartupDetectsMissingAuthenticationDao()
@@ -532,7 +540,8 @@ public class DigestProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization",
-                createAuthorizationHeader(username, realm, nonce, uri, responseDigest, qop, nc, cnonce));
+            createAuthorizationHeader(username, realm, nonce, uri,
+                responseDigest, qop, nc, cnonce));
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -552,7 +561,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNotNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNotNull(SecurityContext.getAuthentication());
 
         // Now retry, giving an invalid nonce
         password = "WRONG_PASSWORD";
@@ -561,12 +570,13 @@ public class DigestProcessingFilterTests extends TestCase {
 
         request = new MockHttpServletRequest();
         request.addHeader("Authorization",
-                createAuthorizationHeader(username, realm, nonce, uri, responseDigest, qop, nc, cnonce));
+            createAuthorizationHeader(username, realm, nonce, uri,
+                responseDigest, qop, nc, cnonce));
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
         // Check we lost our previous authentication
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -588,7 +598,8 @@ public class DigestProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization",
-                createAuthorizationHeader(username, realm, nonce, uri, responseDigest, qop, nc, cnonce));
+            createAuthorizationHeader(username, realm, nonce, uri,
+                responseDigest, qop, nc, cnonce));
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -608,7 +619,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -629,7 +640,8 @@ public class DigestProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization",
-                createAuthorizationHeader(username, realm, nonce, uri, responseDigest, qop, nc, cnonce));
+            createAuthorizationHeader(username, realm, nonce, uri,
+                responseDigest, qop, nc, cnonce));
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -649,7 +661,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -670,7 +682,8 @@ public class DigestProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization",
-                createAuthorizationHeader(username, realm, nonce, uri, responseDigest, qop, nc, cnonce));
+            createAuthorizationHeader(username, realm, nonce, uri,
+                responseDigest, qop, nc, cnonce));
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -690,7 +703,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -711,7 +724,8 @@ public class DigestProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization",
-                createAuthorizationHeader(username, realm, nonce, uri, responseDigest, qop, nc, cnonce));
+            createAuthorizationHeader(username, realm, nonce, uri,
+                responseDigest, qop, nc, cnonce));
         request.setServletPath("/some_file.html");
 
         // Launch an application context and access our bean
@@ -731,18 +745,27 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecureContextUtils.getSecureContext().getAuthentication());
+        assertNull(SecurityContext.getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        ContextHolder.setContext(new SecureContextImpl());
+        SecurityContext.setAuthentication(null);
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
+    }
+
+    private String createAuthorizationHeader(String username, String realm,
+        String nonce, String uri, String responseDigest, String qop, String nc,
+        String cnonce) {
+        return "Digest username=\"" + username + "\", realm=\"" + realm
+        + "\", nonce=\"" + nonce + "\", uri=\"" + uri + "\", response=\""
+        + responseDigest + "\", qop=" + qop + ", nc=" + nc + ", cnonce=\""
+        + cnonce + "\"";
     }
 
     private void executeFilterInContainerSimulator(FilterConfig filterConfig,
@@ -763,31 +786,19 @@ public class DigestProcessingFilterTests extends TestCase {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/some_path");
+
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         ep.commence(request, response, new DisabledException("foobar"));
 
         // Break up response header
-        String header = response.getHeader("WWW-Authenticate").toString().substring(7);
+        String header = response.getHeader("WWW-Authenticate").toString()
+                                .substring(7);
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
         Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries,
                 "=", "\"");
 
         return headerMap;
-    }
-    
-    private String createAuthorizationHeader(String username, 
-                                             String realm, 
-                                             String nonce, 
-                                             String uri,
-                                             String responseDigest,
-                                             String qop,
-                                             String nc,
-                                             String cnonce) {
-        return "Digest username=\"" + username + "\", realm=\"" + realm
-            + "\", nonce=\"" + nonce + "\", uri=\"" + uri + "\", response=\""
-            + responseDigest + "\", qop=" + qop + ", nc=" + nc + ", cnonce=\""
-            + cnonce + "\"";
     }
 
     //~ Inner Classes ==========================================================

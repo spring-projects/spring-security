@@ -48,7 +48,6 @@
    </bean>
 
    <bean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter">
-      <property name="context"><value>net.sf.acegisecurity.context.security.SecureContextImpl</value></property>
    </bean>
 
 	<bean id="x509AuthenticationProvider" class="net.sf.acegisecurity.providers.x509.X509AuthenticationProvider">

@@ -18,8 +18,7 @@ package sample.attributes;
 import net.sf.acegisecurity.AccessDeniedException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -67,12 +66,10 @@ public class Main {
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_TELLER"), new GrantedAuthorityImpl(
                         "ROLE_PERMISSION_LIST")});
 
-        SecureContextImpl secureContext = new SecureContextImpl();
-        secureContext.setAuthentication(auth);
-        ContextHolder.setContext(secureContext);
+        SecurityContext.setAuthentication(auth);
     }
 
     private static void destroySecureContext() {
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 }

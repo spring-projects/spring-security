@@ -16,9 +16,7 @@
 package net.sf.acegisecurity.adapters.jboss;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
+import net.sf.acegisecurity.context.SecurityContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,12 +71,10 @@ public class JbossIntegrationFilter implements Filter {
 
     public void doFilter(ServletRequest request, ServletResponse response,
         FilterChain chain) throws IOException, ServletException {
-        SecureContext sc = SecureContextUtils.getSecureContext();
-
         Object principal = extractFromContainer(request);
 
         if ((principal != null) && principal instanceof Authentication) {
-            sc.setAuthentication((Authentication) principal);
+            SecurityContext.setAuthentication((Authentication) principal);
 
             if (logger.isDebugEnabled()) {
                 logger.debug(

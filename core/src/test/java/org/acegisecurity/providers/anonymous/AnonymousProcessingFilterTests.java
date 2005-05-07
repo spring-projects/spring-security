@@ -21,15 +21,12 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.MockFilterConfig;
-
-
-
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.memory.UserAttribute;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
@@ -39,9 +36,6 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -112,12 +106,10 @@ public class AnonymousProcessingFilterTests extends TestCase {
     public void testOperationWhenAuthenticationExistsInContextHolder()
         throws Exception {
         // Put an Authentication object into the ContextHolder
-        SecureContext sc = SecureContextUtils.getSecureContext();
         Authentication originalAuth = new TestingAuthenticationToken("user",
                 "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
-        sc.setAuthentication(originalAuth);
-        ContextHolder.setContext(sc);
+        SecurityContext.setAuthentication(originalAuth);
 
         // Setup our filter correctly
         UserAttribute user = new UserAttribute();
@@ -133,12 +125,10 @@ public class AnonymousProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("x");
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
-                request, new MockHttpServletResponse(),
-            new MockFilterChain(true));
+            request, new MockHttpServletResponse(), new MockFilterChain(true));
 
         // Ensure filter didn't change our original object
-        assertEquals(originalAuth,
-            SecureContextUtils.getSecureContext().getAuthentication());
+        assertEquals(originalAuth, SecurityContext.getAuthentication());
     }
 
     public void testOperationWhenNoAuthenticationInContextHolder()
@@ -155,11 +145,9 @@ public class AnonymousProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("x");
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
-                request, new MockHttpServletResponse(),
-            new MockFilterChain(true));
+            request, new MockHttpServletResponse(), new MockFilterChain(true));
 
-        Authentication auth = SecureContextUtils.getSecureContext()
-                                                .getAuthentication();
+        Authentication auth = SecurityContext.getAuthentication();
         assertEquals("anonymousUsername", auth.getPrincipal());
         assertEquals(new GrantedAuthorityImpl("ROLE_ANONYMOUS"),
             auth.getAuthorities()[0]);
@@ -167,12 +155,12 @@ public class AnonymousProcessingFilterTests extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        ContextHolder.setContext(new SecureContextImpl());
+        SecurityContext.setAuthentication(null);
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        ContextHolder.setContext(null);
+        SecurityContext.setAuthentication(null);
     }
 
     private void executeFilterInContainerSimulator(FilterConfig filterConfig,

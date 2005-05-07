@@ -326,115 +326,67 @@
     <sect1 id="security-request-contexts">
       <title>Request Contexts</title>
 
-      <sect2 id="security-contexts">
-        <title>Contexts</title>
+      <sect2 id="security-contexts-history">
+        <title>Historical Approach</title>
 
-        <para>Many applications require a way of sharing objects between
-        classes, but without resorting to passing them in method signatures.
-        This is commonly achieved by using a <literal>ThreadLocal</literal>.
-        The Acegi Security System for Spring uses
-        <literal>ThreadLocal</literal> functionality and introduces the
-        concept of "request contexts".</para>
-
-        <para>By placing an object into a request context, that object becomes
-        available to any other object on the current thread of execution. The
-        request context is not passed around as a method parameter, but is
-        held in a <literal>ThreadLocal</literal>. The Acegi Security System
-        for Spring uses the request context to pass around the authentication
-        request and response.</para>
-
-        <para><mediaobject>
-            <imageobject role="html">
-              <imagedata align="center" fileref="images/Context.gif"
-                         format="GIF" />
-            </imageobject>
-
-            <caption>
-              <para>Figure 2: The ContextHolder</para>
-            </caption>
-          </mediaobject></para>
-
-        <para>A request context is a concrete implementation of the
-        <literal>Context</literal> interface, which exposes a single
-        method:</para>
-
-        <programlisting>public void validate() throws ContextInvalidException;</programlisting>
-
-        <para>This <literal>validate()</literal> method is called to confirm
-        the <literal>Context</literal> is properly setup. An implementation
-        will typically use this method to check that the objects it holds are
-        properly setup.</para>
-
-        <para>The <literal>ContextHolder</literal> class makes the
-        <literal>Context</literal> available to the current thread of
-        execution using a <literal>ThreadLocal</literal>. A
-        <literal>ContextInterceptor</literal> is also provided, which is
-        intended to be chained into the bean context using
-        <literal>ProxyFactoryBean</literal>. The
-        <literal>ContextInterceptor</literal> simply calls
-        <literal>Context.validate()</literal>, which guarantees to business
-        methods that a valid <literal>Context</literal> is available from the
-        <literal>ContextHolder</literal>.</para>
+        <para>Prior to release 0.9.0, Acegi Security used a
+        <literal>ContextHolder</literal> to store a <literal>Context</literal>
+        between sessions. A particular subclass of <literal>Context</literal>,
+        <literal>SecureContext</literal> defined an interface used for storage
+        of the <literal>Authentication</literal> object. The
+        <literal>ContextHolder</literal> was a <literal>ThreadLocal</literal>.
+        This was removed from 0.9.0 after discussion with other Spring
+        developers for the sake of consistency. See for example
+        <literal>http://article.gmane.org/gmane.comp.java.springframework.devel/8290</literal>.
+        This history is mentioned as the long period
+        <literal>ContextHolder</literal> was used will likely mean that
+        certain documentation you encounter concerning Acegi Security might
+        still refer to <literal>ContextHolder</literal>. Generally you can
+        just substitute "<literal>SecurityContext</literal>" for
+        "<literal>ContextHolder</literal>" and you'll have the primary meaning
+        of such documentation.</para>
       </sect2>
 
-      <sect2 id="security-contexts-secure-contexts">
-        <title>Secure Contexts</title>
+      <sect2 id="security-contexts-security-context">
+        <title>SecurityContext</title>
 
-        <para>The Acegi Security System for Spring requires the
-        <literal>ContextHolder</literal> to contain a request context that
-        implements the <literal>SecureContext</literal> interface. An
-        implementation is provided named <literal>SecureContextImpl</literal>.
-        The <literal>SecureContext</literal> simply extends the
-        <literal>Context</literal> discussed above and adds a holder and
-        validation for an <literal>Authentication</literal> object.</para>
-      </sect2>
-
-      <sect2 id="security-contexts-custom-contexts">
-        <title>Custom Contexts</title>
-
-        <para>Developers can create their own request context classes to store
-        application-specific objects. Such request context classes will need
-        to implement the <literal>Context</literal> interface. If the Acegi
-        Security System for Spring is to be used, developers must ensure any
-        custom request contexts implement the <literal>SecureContext</literal>
-        interface.</para>
+        <para>The Acegi Security System for Spring uses a
+        <literal>SecurityContext</literal> to store the
+        <literal>Authentication</literal>. All Acegi Security classes query
+        the <literal>SecurityContext</literal> for obtaining the currently
+        principal. <literal>SecurityContext</literal> is an
+        <literal>InheritableThreadLocal</literal>, meaning it is associated
+        with the current thread of execution.
+        <literal>SecurityContext</literal> simply provides a single getter and
+        setter pair for the <literal>Authentication</literal> object.</para>
       </sect2>
 
       <sect2 id="security-contexts-storage">
         <title>Context Storage</title>
 
         <para>Central to Acegi Security's design is that the contents of the
-        <literal>ContextHolder</literal> (ie the <literal>Context</literal>)
-        can be stored between web requests. This is so that a successfully
-        authenticated principal can be identified on subsequent requests
-        through the <literal>Authentication</literal> stored inside a
-        <literal>SecureContext</literal> implementation. The
+        <literal>SecurityContext</literal> (which is simply an
+        <literal>Authentication</literal> object) can be stored between web
+        requests. This is so that a successfully authenticated principal can
+        be identified on subsequent requests through the
+        <literal>Authentication</literal> stored inside a
+        <literal>SecurityContext</literal>. The
         <literal>HttpSessionContextIntegrationFilter</literal> exists to
         automatically copy the contents of a well-defined
         <literal>HttpSession</literal> attribute into the
-        <literal>ContextHolder</literal>, then at the end of each request,
-        copy the <literal>ContextHolder</literal> contents back into the
+        <literal>SecurityContext</literal>, then at the end of each request,
+        copy the <literal>SecurityContext</literal> contents back into the
         <literal>HttpSession</literal> ready for next request.</para>
 
         <para>It is essential - and an extremely common error of end users -
         that <literal>HttpSessionContextIntegrationFilter</literal> appears
-        before any other Acegi Security filter. This is because other Acegi
-        Security filters (along with all Acegi Security classes) expect the
-        <literal>ContextHolder</literal> to contain a valid
-        <literal>SecureContext</literal> by the time they are called. Acegi
-        Security filters also expect to be able to modify the
-        <literal>ContextHolder</literal> contents as they see fit, and
-        something else will store those between requests if necessary. This is
-        why <literal>HttpSessionContextIntegrationFilter</literal> must be the
+        before any other Acegi Security filter. Acegi Security filters expect
+        to be able to modify the <literal>SecurityContext</literal> contents
+        as they see fit, and something else (namely
+        <literal>HttpSessionContextIntegrationFilter</literal>) will store
+        those between requests if necessary. This is why
+        <literal>HttpSessionContextIntegrationFilter</literal> must be the
         first filter used.</para>
-
-        <para>The <literal>HttpSessionContextIntegrationFilter</literal> has
-        been designed to store all types of <literal>Context</literal> objects
-        - not merely Acegi Security related contexts. This means, for example,
-        that you can extend <literal>SecureContextImpl</literal> to store a
-        locale or some other parameter, and
-        <literal>HttpSessionContextIntegrationFilter</literal> will
-        automatically manage it between web requests.</para>
       </sect2>
     </sect1>
 

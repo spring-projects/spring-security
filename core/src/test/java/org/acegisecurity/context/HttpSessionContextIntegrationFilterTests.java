@@ -23,9 +23,9 @@ import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.MockFilterConfig;
 import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
 import net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
-import net.sf.acegisecurity.context.security.SecureContextUtils;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
@@ -35,10 +35,6 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpSession;
-import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
@@ -64,26 +60,6 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         junit.textui.TestRunner.run(HttpSessionContextIntegrationFilterTests.class);
     }
 
-    public void testDetectsMissingOrInvalidContext() throws Exception {
-        HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
-
-        try {
-            filter.afterPropertiesSet();
-            fail("Shown have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-
-        try {
-            filter.setContext(Integer.class);
-            assertEquals(Integer.class, filter.getContext());
-            filter.afterPropertiesSet();
-            fail("Shown have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-    }
-
     public void testExistingContextContentsCopiedIntoContextHolderFromSessionAndChangesToContextCopiedBackToSession()
         throws Exception {
         // Build an Authentication object we simulate came from HttpSession
@@ -96,15 +72,10 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
                 "someone", "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_DIFFERENT_ROLE")});
 
-        // Build a Context to store in HttpSession (simulating prior request)
-        SecureContext sc = new SecureContextImpl();
-        sc.setAuthentication(sessionPrincipal);
-
         // Build a mock request
-
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.getSession().setAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY,
-            sc);
+        request.getSession().setAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_CONTEXT_KEY,
+            sessionPrincipal);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain chain = new MockFilterChain(sessionPrincipal,
@@ -112,17 +83,15 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
         // Prepare filter
         HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
-        filter.setContext(SecureContextImpl.class);
-        filter.afterPropertiesSet();
 
         // Execute filter
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
             request, response, chain);
 
         // Obtain new/update Authentication from HttpSession
-        Context context = (Context) request.getSession().getAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
-        assertEquals(updatedPrincipal,
-            ((SecureContext) context).getAuthentication());
+        Authentication auth = (Authentication) request.getSession()
+                                                      .getAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_CONTEXT_KEY);
+        assertEquals(updatedPrincipal, auth);
     }
 
     public void testHttpSessionCreatedWhenContextHolderChanges()
@@ -139,16 +108,15 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
         // Prepare filter
         HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
-        filter.setContext(SecureContextImpl.class);
-        filter.afterPropertiesSet();
 
         // Execute filter
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
             request, response, chain);
 
         // Obtain new/update Authentication from HttpSession
-        Context context = (Context) request.getSession(false).getAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
-        assertEquals(updatedPrincipal, ((SecureContext) context).getAuthentication());
+        Authentication auth = (Authentication) request.getSession(false)
+                                                      .getAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_CONTEXT_KEY);
+        assertEquals(updatedPrincipal, auth);
     }
 
     public void testHttpSessionNotCreatedUnlessContextHolderChanges()
@@ -160,8 +128,6 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
         // Prepare filter
         HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
-        filter.setContext(SecureContextImpl.class);
-        filter.afterPropertiesSet();
 
         // Execute filter
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
@@ -179,26 +145,24 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
                 new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_DIFFERENT_ROLE")});
 
         // Build a mock request
-
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.getSession().setAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY,
+        request.getSession().setAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_CONTEXT_KEY,
             "NOT_A_CONTEXT_OBJECT");
+
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain chain = new MockFilterChain(null, updatedPrincipal);
 
         // Prepare filter
         HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
-        filter.setContext(SecureContextImpl.class);
-        filter.afterPropertiesSet();
 
         // Execute filter
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
             request, response, chain);
 
         // Obtain new/update Authentication from HttpSession
-        Context context = (Context) request.getSession().getAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
-        assertEquals(updatedPrincipal,
-            ((SecureContext) context).getAuthentication());
+        Authentication auth = (Authentication) request.getSession()
+                                                      .getAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_CONTEXT_KEY);
+        assertEquals(updatedPrincipal, auth);
     }
 
     private void executeFilterInContainerSimulator(FilterConfig filterConfig,
@@ -227,13 +191,11 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
             throws IOException, ServletException {
             if (expectedOnContextHolder != null) {
                 assertEquals(expectedOnContextHolder,
-                    SecureContextUtils.getSecureContext().getAuthentication());
+                    SecurityContext.getAuthentication());
             }
 
             if (changeContextHolder != null) {
-                SecureContext sc = SecureContextUtils.getSecureContext();
-                sc.setAuthentication(changeContextHolder);
-                ContextHolder.setContext(sc);
+                SecurityContext.setAuthentication(changeContextHolder);
             }
         }
     }

@@ -19,9 +19,7 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.context.ContextHolder;
-import net.sf.acegisecurity.context.security.SecureContext;
-import net.sf.acegisecurity.context.security.SecureContextImpl;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.User;
 
@@ -42,32 +40,10 @@ public class AuthenticationTagTests extends TestCase {
 
     //~ Methods ================================================================
 
-    public void testOperationWhenAuthenticationIsNull()
-        throws JspException {
-        ContextHolder.setContext(new SecureContextImpl());
-
-        authenticationTag.setOperation("principal");
-        assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
-        assertEquals(null, authenticationTag.getLastMessage());
-
-        ContextHolder.setContext(null);
-    }
-
-    public void testOperationWhenContextHolderIsNull()
-        throws JspException {
-        ContextHolder.setContext(null);
-
-        authenticationTag.setOperation("principal");
-        assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
-        assertEquals(null, authenticationTag.getLastMessage());
-    }
-
     public void testOperationWhenPrincipalIsAString() throws JspException {
         Authentication auth = new TestingAuthenticationToken("marissaAsString",
                 "koala", new GrantedAuthority[] {});
-        SecureContext sc = new SecureContextImpl();
-        sc.setAuthentication(auth);
-        ContextHolder.setContext(sc);
+        SecurityContext.setAuthentication(auth);
 
         authenticationTag.setOperation("principal");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
@@ -80,9 +56,7 @@ public class AuthenticationTagTests extends TestCase {
                     "marissaUserDetails", "koala", true, true, true, true,
                     new GrantedAuthority[] {}), "koala",
                 new GrantedAuthority[] {});
-        SecureContext sc = new SecureContextImpl();
-        sc.setAuthentication(auth);
-        ContextHolder.setContext(sc);
+        SecurityContext.setAuthentication(auth);
 
         authenticationTag.setOperation("principal");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
@@ -92,12 +66,21 @@ public class AuthenticationTagTests extends TestCase {
     public void testOperationWhenPrincipalIsNull() throws JspException {
         Authentication auth = new TestingAuthenticationToken(null, "koala",
                 new GrantedAuthority[] {});
-        SecureContext sc = new SecureContextImpl();
-        sc.setAuthentication(auth);
-        ContextHolder.setContext(sc);
+        SecurityContext.setAuthentication(auth);
 
         authenticationTag.setOperation("principal");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
+    }
+
+    public void testOperationWhenSecurityContextIsNull()
+        throws JspException {
+        SecurityContext.setAuthentication(null);
+
+        authenticationTag.setOperation("principal");
+        assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
+        assertEquals(null, authenticationTag.getLastMessage());
+
+        SecurityContext.setAuthentication(null);
     }
 
     public void testSkipsBodyIfNullOrEmptyOperation() throws Exception {

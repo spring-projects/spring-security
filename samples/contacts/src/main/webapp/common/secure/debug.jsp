@@ -1,19 +1,10 @@
-<%@ page import="net.sf.acegisecurity.context.Context" %>
-<%@ page import="net.sf.acegisecurity.context.ContextHolder" %>
-<%@ page import="net.sf.acegisecurity.context.security.SecureContext" %>
+<%@ page import="net.sf.acegisecurity.context.SecurityContext" %>
 <%@ page import="net.sf.acegisecurity.Authentication" %>
 <%@ page import="net.sf.acegisecurity.GrantedAuthority" %>
 <%@ page import="net.sf.acegisecurity.adapters.AuthByAdapter" %>
 
-<% Context context = ContextHolder.getContext();
-if (context != null) { %>
-	Context on ContextHolder is of type: <%= context.getClass().getName() %><BR><BR>
-	
-<%	if (context instanceof SecureContext) { %>
-		The Context implements SecureContext.<BR><BR>
-<%		SecureContext sc = (SecureContext) context;
-		
-		Authentication auth = sc.getAuthentication();
+<% 
+		Authentication auth = SecurityContext.getAuthentication();
 		if (auth != null) { %>
 			Authentication object is of type: <%= auth.getClass().getName() %><BR><BR>
 			Authentication object as a String: <%= auth.toString() %><BR><BR>
@@ -34,13 +25,4 @@ if (context != null) { %>
 			Authentication object is null.<BR>
 			This is an error and your Acegi Security application will not operate properly until corrected.<BR><BR>
 <%		}
-	} else { %>
-		<B>ContextHolder does not contain a SecureContext.</B><BR>
-		This is an error and your Acegi Security application will not operate properly until corrected.<BR><BR>
-<%	}
-} else { %>
-	<B>ContextHolder on ContextHolder is null.</B><BR>
-	This indicates improper setup of the Acegi Security application. Refer to the reference documentation.<BR>
-<%}
 %>
-
