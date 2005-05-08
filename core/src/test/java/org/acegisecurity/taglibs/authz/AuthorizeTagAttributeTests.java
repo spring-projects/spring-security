@@ -19,7 +19,8 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.context.SecurityContextImpl;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 
 import javax.servlet.jsp.JspException;
@@ -93,10 +94,10 @@ public class AuthorizeTagAttributeTests extends TestCase {
                         "ROLE_SUPERVISOR"), new GrantedAuthorityImpl(
                         "ROLE_RESTRICTED"),});
 
-        SecurityContext.setAuthentication(currentUser);
+        SecurityContextHolder.getContext().setAuthentication(currentUser);
     }
 
     protected void tearDown() throws Exception {
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 }

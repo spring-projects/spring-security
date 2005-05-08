@@ -17,23 +17,24 @@ package net.sf.acegisecurity.context;
 
 import junit.framework.TestCase;
 
+import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 
 /**
- * Tests {@link SecurityContext}.
+ * Tests {@link SecurityContextImpl}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class SecurityContextTests extends TestCase {
+public class SecurityContextImplTests extends TestCase {
     //~ Constructors ===========================================================
 
-    public SecurityContextTests() {
+    public SecurityContextImplTests() {
         super();
     }
 
-    public SecurityContextTests(String arg0) {
+    public SecurityContextImplTests(String arg0) {
         super(arg0);
     }
 
@@ -44,20 +45,21 @@ public class SecurityContextTests extends TestCase {
     }
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(SecurityContextTests.class);
+        junit.textui.TestRunner.run(SecurityContextImplTests.class);
     }
 
-    public void tearDown() {
-        SecurityContext.setAuthentication(null);
+    public void testEmptyObjectsAreEquals() {
+        SecurityContextImpl obj1 = new SecurityContextImpl();
+        SecurityContextImpl obj2 = new SecurityContextImpl();
+        assertTrue(obj1.equals(obj2));
     }
 
-    public void testContextHolderGetterSetter() {
-        assertEquals(null, SecurityContext.getAuthentication());
-
-        SecurityContext.setAuthentication(new UsernamePasswordAuthenticationToken(
-                "ben", "12345"));
-
-        assertEquals("12345",
-            SecurityContext.getAuthentication().getCredentials());
+    public void testSecurityContextCorrectOperation() {
+        SecurityContext context = new SecurityContextImpl();
+        Authentication auth = new UsernamePasswordAuthenticationToken("marissa",
+                "koala");
+        context.setAuthentication(auth);
+        assertEquals(auth, context.getAuthentication());
+        assertTrue(context.toString().lastIndexOf("marissa") != -1);
     }
 }

@@ -18,7 +18,7 @@ package net.sf.acegisecurity.ui.basicauth;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.ui.WebAuthenticationDetails;
@@ -187,7 +187,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                         + " failed: " + failed.toString());
                 }
 
-                SecurityContext.setAuthentication(null);
+                SecurityContextHolder.getContext().setAuthentication(null);
                 authenticationEntryPoint.commence(request, response, failed);
 
                 return;
@@ -198,7 +198,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                 logger.debug("Authentication success: " + authResult.toString());
             }
 
-            SecurityContext.setAuthentication(authResult);
+            SecurityContextHolder.getContext().setAuthentication(authResult);
         }
 
         chain.doFilter(request, response);

@@ -20,7 +20,8 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.MockMethodInvocation;
 import net.sf.acegisecurity.TargetObject;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.context.SecurityContextImpl;
 import net.sf.acegisecurity.context.rmi.ContextPropagatingRemoteInvocation;
 import net.sf.acegisecurity.context.rmi.ContextPropagatingRemoteInvocationFactory;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
@@ -58,14 +59,14 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
         // Setup client-side context
         Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("marissa",
                 "koala");
-        SecurityContext.setAuthentication(clientSideAuthentication);
+        SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 
         ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
 
         // Set to null, as ContextPropagatingRemoteInvocation already obtained
         // a copy and nulling is necessary to ensure the Context delivered by
         // ContextPropagatingRemoteInvocation is used on server-side
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
 
         // The result from invoking the TargetObject should contain the
         // Authentication class delivered via the ContextHolder
@@ -75,10 +76,10 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
 
     public void testNullContextHolderDoesNotCauseInvocationProblems()
         throws Exception {
-        SecurityContext.setAuthentication(null); // just to be explicit
+        SecurityContextHolder.getContext().setAuthentication(null); // just to be explicit
 
         ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
-        SecurityContext.setAuthentication(null); // unnecessary, but for explicitness
+        SecurityContextHolder.getContext().setAuthentication(null); // unnecessary, but for explicitness
 
         assertEquals("some_string Authentication empty",
             remoteInvocation.invoke(new TargetObject()));

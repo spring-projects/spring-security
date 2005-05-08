@@ -18,7 +18,7 @@ package net.sf.acegisecurity.taglibs.authz;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 
 import org.springframework.util.StringUtils;
 
@@ -122,7 +122,8 @@ public class AuthorizeTag extends TagSupport {
     }
 
     private Collection getPrincipalAuthorities() {
-        Authentication currentUser = SecurityContext.getAuthentication();
+        Authentication currentUser = SecurityContextHolder.getContext()
+                                                          .getAuthentication();
 
         if (null == currentUser) {
             return Collections.EMPTY_LIST;

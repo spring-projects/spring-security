@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 import net.sf.acegisecurity.util.MockFilterChain;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -63,13 +63,14 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
 
         filter.doFilter(request, response, chain);
 
-        if (!(SecurityContext.getAuthentication() instanceof PrincipalAcegiUserToken)) {
-            System.out.println(SecurityContext.getAuthentication());
+        if (!(SecurityContextHolder.getContext().getAuthentication() instanceof PrincipalAcegiUserToken)) {
+            System.out.println(SecurityContextHolder.getContext()
+                                                    .getAuthentication());
             fail("Should have returned PrincipalAcegiUserToken");
         }
 
-        PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) SecurityContext
-            .getAuthentication();
+        PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) SecurityContextHolder.getContext()
+                                                                                            .getAuthentication();
         assertEquals(principal, castResult);
     }
 
@@ -91,18 +92,18 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain(true);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         filter.doFilter(request, response, chain);
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 }

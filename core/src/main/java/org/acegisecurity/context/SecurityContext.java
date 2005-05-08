@@ -19,26 +19,35 @@ import net.sf.acegisecurity.Authentication;
 
 
 /**
- * Associates a given {@link Authentication} with the current execution thread,
- * along with new threads the current execution thread may spawn.
+ * Interface defining the minimum security information associated with the
+ * current thread of execution.
+ * 
+ * <p>
+ * Stored in {@link net.sf.acegisecurity.context.SecurityContextHolder}.
+ * </p>
  *
  * @author Ben Alex
  * @version $Id$
- *
- * @see java.lang.InheritableThreadLocal
  */
-public class SecurityContext {
-    //~ Static fields/initializers =============================================
-
-    private static InheritableThreadLocal authenticationHolder = new InheritableThreadLocal();
-
+public interface SecurityContext {
     //~ Methods ================================================================
 
-    public static void setAuthentication(Authentication authentication) {
-        authenticationHolder.set(authentication);
-    }
+    /**
+     * Changes the currently authenticated principal, or removes the
+     * authentication information.
+     *
+     * @param authentication the new <code>Authentication</code> token, or
+     *        <code>null</code> if no further authentication information
+     *        should be stored
+     */
+    public void setAuthentication(Authentication authentication);
 
-    public static Authentication getAuthentication() {
-        return (Authentication) authenticationHolder.get();
-    }
+    /**
+     * Obtains the currently authenticated principal, or an authentication
+     * request token.
+     *
+     * @return the <code>Authentication</code> or <code>null</code> if no
+     *         authentication information is available
+     */
+    public Authentication getAuthentication();
 }

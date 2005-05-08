@@ -19,7 +19,7 @@ import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationServiceException;
 import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.AuthenticationDao;
 import net.sf.acegisecurity.providers.dao.UserCache;
@@ -371,7 +371,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
                     user.getPassword());
             authRequest.setDetails(new WebAuthenticationDetails(httpRequest));
 
-            SecurityContext.setAuthentication(authRequest);
+            SecurityContextHolder.getContext().setAuthentication(authRequest);
         }
 
         chain.doFilter(request, response);
@@ -436,7 +436,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
 
     private void fail(ServletRequest request, ServletResponse response,
         AuthenticationException failed) throws IOException, ServletException {
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
 
         if (logger.isDebugEnabled()) {
             logger.debug(failed);

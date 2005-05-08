@@ -24,7 +24,8 @@ import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.context.SecurityContextImpl;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.ui.rememberme.TokenBasedRememberMeServices;
 
@@ -129,7 +130,7 @@ public class AbstractProcessingFilterTests extends TestCase {
             chain);
 
         assertEquals("/myApp/failed.jsp", response.getRedirectedUrl());
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
 
         //Prepare again, this time using the exception mapping
         filter = new MockAbstractProcessingFilter(new AccountExpiredException(
@@ -147,7 +148,7 @@ public class AbstractProcessingFilterTests extends TestCase {
             chain);
 
         assertEquals("/myApp/accountExpired.jsp", response.getRedirectedUrl());
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testFilterProcessesUrlVariationsRespected()
@@ -173,9 +174,10 @@ public class AbstractProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/logged_in.jsp", response.getRedirectedUrl());
-        assertNotNull(SecurityContext.getAuthentication());
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test",
-            SecurityContext.getAuthentication().getPrincipal().toString());
+            SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+                                 .toString());
     }
 
     public void testGettersSetters() {
@@ -247,9 +249,10 @@ public class AbstractProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/logged_in.jsp", response.getRedirectedUrl());
-        assertNotNull(SecurityContext.getAuthentication());
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test",
-            SecurityContext.getAuthentication().getPrincipal().toString());
+            SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+                                 .toString());
     }
 
     public void testStartupDetectsInvalidAuthenticationFailureUrl()
@@ -338,9 +341,10 @@ public class AbstractProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/logged_in.jsp", response.getRedirectedUrl());
-        assertNotNull(SecurityContext.getAuthentication());
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test",
-            SecurityContext.getAuthentication().getPrincipal().toString());
+            SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+                                 .toString());
 
         // Now try again but this time have filter deny access
         // Setup our HTTP request
@@ -356,7 +360,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Test
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testSuccessfulAuthenticationButWithAlwaysUseDefaultTargetUrlCausesRedirectToDefaultTargetUrl()
@@ -385,7 +389,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/foobar", response.getRedirectedUrl());
-        assertNotNull(SecurityContext.getAuthentication());
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testSuccessfulAuthenticationCausesRedirectToSessionSpecifiedUrl()
@@ -410,17 +414,17 @@ public class AbstractProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
         assertEquals("/my-destination", response.getRedirectedUrl());
-        assertNotNull(SecurityContext.getAuthentication());
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     private MockHttpServletRequest createMockRequest() {

@@ -27,7 +27,7 @@ import net.sf.acegisecurity.OtherTargetObject;
 import net.sf.acegisecurity.SecurityConfig;
 import net.sf.acegisecurity.TargetObject;
 import net.sf.acegisecurity.acl.basic.SomeDomain;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.context.ApplicationContext;
@@ -168,14 +168,14 @@ public class MethodDefinitionAttributesTests extends TestCase {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_INTERFACE_METHOD_MAKE_UPPER_CASE")});
-        SecurityContext.setAuthentication(token);
+        SecurityContextHolder.getContext().setAuthentication(token);
 
         ITargetObject target = makeInterceptedTarget();
         String result = target.makeUpperCase("hello");
         assertEquals("HELLO net.sf.acegisecurity.MockRunAsAuthenticationToken true",
             result);
 
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testMethodCallWithoutRunAsReplacement()
@@ -183,7 +183,7 @@ public class MethodDefinitionAttributesTests extends TestCase {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_INTERFACE_METHOD_MAKE_LOWER_CASE")});
-        SecurityContext.setAuthentication(token);
+        SecurityContextHolder.getContext().setAuthentication(token);
 
         ITargetObject target = makeInterceptedTarget();
         String result = target.makeLowerCase("HELLO");
@@ -191,7 +191,7 @@ public class MethodDefinitionAttributesTests extends TestCase {
         assertEquals("hello net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken true",
             result);
 
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testNullReturnedIfZeroAttributesDefinedForMethodInvocation()

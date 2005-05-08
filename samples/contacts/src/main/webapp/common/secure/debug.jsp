@@ -1,10 +1,10 @@
-<%@ page import="net.sf.acegisecurity.context.SecurityContext" %>
+<%@ page import="net.sf.acegisecurity.context.SecurityContextHolder" %>
 <%@ page import="net.sf.acegisecurity.Authentication" %>
 <%@ page import="net.sf.acegisecurity.GrantedAuthority" %>
 <%@ page import="net.sf.acegisecurity.adapters.AuthByAdapter" %>
 
 <% 
-		Authentication auth = SecurityContext.getAuthentication();
+		Authentication auth = SecurityContextHolder.getAuthentication();
 		if (auth != null) { %>
 			Authentication object is of type: <%= auth.getClass().getName() %><BR><BR>
 			Authentication object as a String: <%= auth.toString() %><BR><BR>

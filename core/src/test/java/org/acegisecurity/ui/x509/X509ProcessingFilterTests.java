@@ -21,7 +21,7 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationManager;
 import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 import net.sf.acegisecurity.providers.x509.X509AuthenticationToken;
 import net.sf.acegisecurity.providers.x509.X509TestUtils;
 import net.sf.acegisecurity.ui.AbstractProcessingFilter;
@@ -60,7 +60,7 @@ public class X509ProcessingFilterTests extends TestCase {
     }
 
     public void tearDown() {
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testAuthenticationIsNullWithNoCertificate()
@@ -74,13 +74,13 @@ public class X509ProcessingFilterTests extends TestCase {
 
         filter.setAuthenticationManager(authMgr);
 
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
         filter.doFilter(request, response, chain);
 
         Object lastException = request.getSession().getAttribute(AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY);
 
         assertNull("Authentication should be null",
-            SecurityContext.getAuthentication());
+            SecurityContextHolder.getContext().getAuthentication());
         assertTrue("BadCredentialsException should have been thrown",
             lastException instanceof BadCredentialsException);
     }
@@ -123,7 +123,7 @@ public class X509ProcessingFilterTests extends TestCase {
 
         AuthenticationManager authMgr = new MockAuthenticationManager(false);
 
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
 
         X509ProcessingFilter filter = new X509ProcessingFilter();
 
@@ -133,7 +133,8 @@ public class X509ProcessingFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
         filter.destroy();
 
-        Authentication result = SecurityContext.getAuthentication();
+        Authentication result = SecurityContextHolder.getContext()
+                                                     .getAuthentication();
 
         assertNull(result);
     }
@@ -159,7 +160,7 @@ public class X509ProcessingFilterTests extends TestCase {
 
         AuthenticationManager authMgr = new MockX509AuthenticationManager();
 
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
 
         X509ProcessingFilter filter = new X509ProcessingFilter();
 
@@ -169,7 +170,8 @@ public class X509ProcessingFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
         filter.destroy();
 
-        Authentication result = SecurityContext.getAuthentication();
+        Authentication result = SecurityContextHolder.getContext()
+                                                     .getAuthentication();
 
         assertNotNull(result);
     }

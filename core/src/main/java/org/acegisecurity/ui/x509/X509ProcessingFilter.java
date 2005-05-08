@@ -18,7 +18,7 @@ package net.sf.acegisecurity.ui.x509;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 import net.sf.acegisecurity.providers.x509.X509AuthenticationToken;
 import net.sf.acegisecurity.ui.AbstractProcessingFilter;
 import net.sf.acegisecurity.ui.WebAuthenticationDetails;
@@ -126,10 +126,10 @@ public class X509ProcessingFilter implements Filter, InitializingBean {
 
         if (logger.isDebugEnabled()) {
             logger.debug("Checking secure context token: "
-                + SecurityContext.getAuthentication());
+                + SecurityContextHolder.getContext().getAuthentication());
         }
 
-        if (SecurityContext.getAuthentication() == null) {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
             Authentication authResult = null;
             X509Certificate clientCertificate = extractClientCertificate(httpRequest);
 
@@ -166,7 +166,7 @@ public class X509ProcessingFilter implements Filter, InitializingBean {
             logger.debug("Authentication success: " + authResult);
         }
 
-        SecurityContext.setAuthentication(authResult);
+        SecurityContextHolder.getContext().setAuthentication(authResult);
     }
 
     /**
@@ -179,7 +179,7 @@ public class X509ProcessingFilter implements Filter, InitializingBean {
      */
     protected void unsuccessfulAuthentication(HttpServletRequest request,
         HttpServletResponse response, AuthenticationException failed) {
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Updated ContextHolder to contain null Authentication");

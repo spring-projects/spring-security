@@ -30,7 +30,8 @@ import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockRunAsManager;
 import net.sf.acegisecurity.RunAsManager;
 import net.sf.acegisecurity.SecurityConfig;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.context.SecurityContextImpl;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -170,14 +171,14 @@ public class FilterSecurityInterceptorTests extends TestCase {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_OK")});
-        SecurityContext.setAuthentication(token);
+        SecurityContextHolder.getContext().setAuthentication(token);
 
         // Create and test our secure object
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         interceptor.invoke(fi);
 
         // Destroy the Context
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     public void testNormalStartupAndGetter() throws Exception {
@@ -228,14 +229,14 @@ public class FilterSecurityInterceptorTests extends TestCase {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_OK")});
-        SecurityContext.setAuthentication(token);
+        SecurityContextHolder.getContext().setAuthentication(token);
 
         // Create and test our secure object
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         interceptor.invoke(fi);
 
         // Destroy the Context
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     //~ Inner Classes ==========================================================

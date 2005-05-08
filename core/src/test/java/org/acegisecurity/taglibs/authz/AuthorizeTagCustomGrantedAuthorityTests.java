@@ -18,7 +18,8 @@ package net.sf.acegisecurity.taglibs.authz;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.context.SecurityContextImpl;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 
 import javax.servlet.jsp.JspException;
@@ -49,7 +50,7 @@ public class AuthorizeTagCustomGrantedAuthorityTests extends TestCase {
     public void testRejectsRequestWhenCustomAuthorityReturnsNull()
         throws JspException {
         authorizeTag.setIfAnyGranted("ROLE_TELLER");
-        SecurityContext.setAuthentication(new TestingAuthenticationToken(
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(
                 "abc", "123",
                 new GrantedAuthority[] {new CustomGrantedAuthority(null)}));
 
@@ -68,11 +69,11 @@ public class AuthorizeTagCustomGrantedAuthorityTests extends TestCase {
                 new GrantedAuthority[] {new CustomGrantedAuthority(
                         "ROLE_TELLER")});
 
-        SecurityContext.setAuthentication(currentUser);
+        SecurityContextHolder.getContext().setAuthentication(currentUser);
     }
 
     protected void tearDown() throws Exception {
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     //~ Inner Classes ==========================================================

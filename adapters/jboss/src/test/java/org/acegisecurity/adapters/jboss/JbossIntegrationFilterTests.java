@@ -20,7 +20,8 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.context.SecurityContextImpl;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -79,8 +80,9 @@ public class JbossIntegrationFilterTests extends TestCase {
 
         filter.doFilter(request, null, chain);
 
-        assertEquals(principal, SecurityContext.getAuthentication());
-        SecurityContext.setAuthentication(null);
+        assertEquals(principal,
+            SecurityContextHolder.getContext().getAuthentication());
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     public void testReturnsNullIfContextReturnsSomethingOtherThanASubject()
@@ -92,7 +94,7 @@ public class JbossIntegrationFilterTests extends TestCase {
         MockFilterChain chain = new MockFilterChain();
 
         filter.doFilter(request, null, chain);
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testReturnsNullIfInitialContextHasNullPrincipal()
@@ -104,7 +106,7 @@ public class JbossIntegrationFilterTests extends TestCase {
         MockFilterChain chain = new MockFilterChain();
 
         filter.doFilter(request, null, chain);
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testReturnsNullIfInitialContextHasNullSubject()
@@ -116,7 +118,7 @@ public class JbossIntegrationFilterTests extends TestCase {
         MockFilterChain chain = new MockFilterChain();
 
         filter.doFilter(request, null, chain);
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testReturnsNullIfInitialContextIsNull()
@@ -127,7 +129,7 @@ public class JbossIntegrationFilterTests extends TestCase {
         MockFilterChain chain = new MockFilterChain();
 
         filter.doFilter(request, null, chain);
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testReturnsNullIfPrincipalNotAnAuthenticationImplementation()
@@ -143,7 +145,7 @@ public class JbossIntegrationFilterTests extends TestCase {
         MockFilterChain chain = new MockFilterChain();
 
         filter.doFilter(request, null, chain);
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testTestingObjectReturnsInitialContext()
@@ -154,12 +156,12 @@ public class JbossIntegrationFilterTests extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     private void executeFilterInContainerSimulator(FilterConfig filterConfig,

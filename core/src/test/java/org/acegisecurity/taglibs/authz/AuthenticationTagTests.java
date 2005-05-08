@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.User;
 
@@ -43,7 +43,7 @@ public class AuthenticationTagTests extends TestCase {
     public void testOperationWhenPrincipalIsAString() throws JspException {
         Authentication auth = new TestingAuthenticationToken("marissaAsString",
                 "koala", new GrantedAuthority[] {});
-        SecurityContext.setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         authenticationTag.setOperation("principal");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
@@ -56,7 +56,7 @@ public class AuthenticationTagTests extends TestCase {
                     "marissaUserDetails", "koala", true, true, true, true,
                     new GrantedAuthority[] {}), "koala",
                 new GrantedAuthority[] {});
-        SecurityContext.setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         authenticationTag.setOperation("principal");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
@@ -66,7 +66,7 @@ public class AuthenticationTagTests extends TestCase {
     public void testOperationWhenPrincipalIsNull() throws JspException {
         Authentication auth = new TestingAuthenticationToken(null, "koala",
                 new GrantedAuthority[] {});
-        SecurityContext.setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         authenticationTag.setOperation("principal");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
@@ -74,13 +74,13 @@ public class AuthenticationTagTests extends TestCase {
 
     public void testOperationWhenSecurityContextIsNull()
         throws JspException {
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
 
         authenticationTag.setOperation("principal");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
         assertEquals(null, authenticationTag.getLastMessage());
 
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testSkipsBodyIfNullOrEmptyOperation() throws Exception {

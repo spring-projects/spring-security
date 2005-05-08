@@ -15,7 +15,7 @@
 
 package net.sf.acegisecurity.ui.rememberme;
 
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -102,19 +102,22 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        if (SecurityContext.getAuthentication() == null) {
-            SecurityContext.setAuthentication(rememberMeServices.autoLogin(
-                    httpRequest, httpResponse));
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            SecurityContextHolder.getContext().setAuthentication(rememberMeServices
+                .autoLogin(httpRequest, httpResponse));
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Replaced ContextHolder with remember-me token: '"
-                    + SecurityContext.getAuthentication() + "'");
+                logger.debug(
+                    "Replaced SecurityContextHolder with remember-me token: '"
+                    + SecurityContextHolder.getContext().getAuthentication()
+                    + "'");
             }
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug(
-                    "ContextHolder not replaced with remember-me token, as ContextHolder already contained: '"
-                    + SecurityContext.getAuthentication() + "'");
+                    "SecurityContextHolder not replaced with remember-me token, as SecurityContextHolder already contained: '"
+                    + SecurityContextHolder.getContext().getAuthentication()
+                    + "'");
             }
         }
 

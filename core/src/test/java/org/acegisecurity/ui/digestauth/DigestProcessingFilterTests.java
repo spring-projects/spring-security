@@ -20,7 +20,8 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.MockFilterConfig;
 import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.context.SecurityContextImpl;
 import net.sf.acegisecurity.providers.dao.AuthenticationDao;
 import net.sf.acegisecurity.providers.dao.UserCache;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
@@ -141,7 +142,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
 
         String header = response.getHeader("WWW-Authenticate").toString()
@@ -175,7 +176,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testGettersSetters() {
@@ -220,7 +221,7 @@ public class DigestProcessingFilterTests extends TestCase {
             chain);
         assertEquals(401, response.getStatus());
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testMalformedHeaderReturnsForbidden() throws Exception {
@@ -246,7 +247,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -289,7 +290,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -333,7 +334,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -377,7 +378,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -421,7 +422,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -463,9 +464,9 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNotNull(SecurityContext.getAuthentication());
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("marissa",
-            ((UserDetails) SecurityContext.getAuthentication().getPrincipal())
+            ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
             .getUsername());
     }
 
@@ -493,7 +494,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testStartupDetectsMissingAuthenticationDao()
@@ -561,7 +562,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNotNull(SecurityContext.getAuthentication());
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
 
         // Now retry, giving an invalid nonce
         password = "WRONG_PASSWORD";
@@ -576,7 +577,7 @@ public class DigestProcessingFilterTests extends TestCase {
             chain);
 
         // Check we lost our previous authentication
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -619,7 +620,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -661,7 +662,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -703,7 +704,7 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -745,18 +746,18 @@ public class DigestProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     private String createAuthorizationHeader(String username, String realm,

@@ -26,7 +26,7 @@ import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockJoinPoint;
 import net.sf.acegisecurity.MockRunAsManager;
 import net.sf.acegisecurity.TargetObject;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 import net.sf.acegisecurity.intercept.method.MethodDefinitionMap;
 import net.sf.acegisecurity.intercept.method.MethodDefinitionSourceEditor;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
@@ -86,7 +86,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
 
         MockAspectJCallback aspectJCallback = new MockAspectJCallback();
 
-        SecurityContext.setAuthentication(new TestingAuthenticationToken(
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(
                 "marissa", "koala",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_ONE")}));
 
@@ -94,7 +94,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
 
         assertEquals("object proceeded", result);
 
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testCallbackIsNotInvokedWhenPermissionDenied()
@@ -122,7 +122,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         MockAspectJCallback aspectJCallback = new MockAspectJCallback();
         aspectJCallback.setThrowExceptionIfInvoked(true);
 
-        SecurityContext.setAuthentication(new TestingAuthenticationToken(
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(
                 "marissa", "koala", new GrantedAuthority[] {}));
 
         try {
@@ -132,7 +132,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
             assertTrue(true);
         }
 
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     //~ Inner Classes ==========================================================

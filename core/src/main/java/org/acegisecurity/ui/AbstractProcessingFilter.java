@@ -18,7 +18,7 @@ package net.sf.acegisecurity.ui;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 import net.sf.acegisecurity.ui.rememberme.NullRememberMeServices;
 import net.sf.acegisecurity.ui.rememberme.RememberMeServices;
 
@@ -369,11 +369,11 @@ public abstract class AbstractProcessingFilter implements Filter,
             logger.debug("Authentication success: " + authResult.toString());
         }
 
-        SecurityContext.setAuthentication(authResult);
+        SecurityContextHolder.getContext().setAuthentication(authResult);
 
         if (logger.isDebugEnabled()) {
             logger.debug(
-                "Updated ContextHolder to contain the following Authentication: '"
+                "Updated SecurityContextHolder to contain the following Authentication: '"
                 + authResult + "'");
         }
 
@@ -404,10 +404,11 @@ public abstract class AbstractProcessingFilter implements Filter,
     protected void unsuccessfulAuthentication(HttpServletRequest request,
         HttpServletResponse response, AuthenticationException failed)
         throws IOException {
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Updated ContextHolder to contain null Authentication");
+            logger.debug(
+                "Updated SecurityContextHolder to contain null Authentication");
         }
 
         String failureUrl = exceptionMappings.getProperty(failed.getClass()

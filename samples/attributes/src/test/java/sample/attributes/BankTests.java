@@ -20,7 +20,8 @@ import junit.framework.TestCase;
 import net.sf.acegisecurity.AccessDeniedException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.context.SecurityContextImpl;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -85,10 +86,10 @@ public class BankTests extends TestCase {
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_TELLER"), new GrantedAuthorityImpl(
                         "ROLE_PERMISSION_LIST")});
 
-        SecurityContext.setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     private static void destroySecureContext() {
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 }

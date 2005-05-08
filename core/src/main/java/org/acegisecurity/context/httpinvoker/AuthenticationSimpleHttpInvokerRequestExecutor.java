@@ -17,7 +17,7 @@ package net.sf.acegisecurity.context.httpinvoker;
 
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationCredentialsNotFoundException;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -86,7 +86,8 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor
         throws IOException, AuthenticationCredentialsNotFoundException {
         super.prepareConnection(con, contentLength);
 
-        Authentication auth = SecurityContext.getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext()
+                                                   .getAuthentication();
 
         if ((auth != null) && (auth.getPrincipal() != null)
             && (auth.getCredentials() != null)) {

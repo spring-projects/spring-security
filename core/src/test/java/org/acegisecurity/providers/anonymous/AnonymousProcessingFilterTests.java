@@ -21,7 +21,8 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.MockFilterConfig;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.context.SecurityContextImpl;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.memory.UserAttribute;
 
@@ -109,7 +110,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
         Authentication originalAuth = new TestingAuthenticationToken("user",
                 "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
-        SecurityContext.setAuthentication(originalAuth);
+        SecurityContextHolder.getContext().setAuthentication(originalAuth);
 
         // Setup our filter correctly
         UserAttribute user = new UserAttribute();
@@ -128,7 +129,8 @@ public class AnonymousProcessingFilterTests extends TestCase {
             request, new MockHttpServletResponse(), new MockFilterChain(true));
 
         // Ensure filter didn't change our original object
-        assertEquals(originalAuth, SecurityContext.getAuthentication());
+        assertEquals(originalAuth,
+            SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testOperationWhenNoAuthenticationInContextHolder()
@@ -147,7 +149,8 @@ public class AnonymousProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
             request, new MockHttpServletResponse(), new MockFilterChain(true));
 
-        Authentication auth = SecurityContext.getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext()
+                                                   .getAuthentication();
         assertEquals("anonymousUsername", auth.getPrincipal());
         assertEquals(new GrantedAuthorityImpl("ROLE_ANONYMOUS"),
             auth.getAuthorities()[0]);
@@ -155,12 +158,12 @@ public class AnonymousProcessingFilterTests extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     private void executeFilterInContainerSimulator(FilterConfig filterConfig,

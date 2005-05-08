@@ -17,7 +17,8 @@ package net.sf.acegisecurity.providers.jaas;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.context.SecurityContextImpl;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import java.util.HashSet;
@@ -44,7 +45,7 @@ public class SecureContextLoginModuleTest extends TestCase {
 
     public void testAbort() throws Exception {
         assertFalse("Should return false, no auth is set", module.abort());
-        SecurityContext.setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(auth);
         module.login();
         module.commit();
         assertTrue(module.abort());
@@ -59,7 +60,7 @@ public class SecureContextLoginModuleTest extends TestCase {
     }
 
     public void testLoginSuccess() throws Exception {
-        SecurityContext.setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(auth);
         assertTrue("Login should succeed, there is an authentication set",
             module.login());
         assertTrue("The authentication is not null, this should return true",
@@ -69,7 +70,7 @@ public class SecureContextLoginModuleTest extends TestCase {
     }
 
     public void testLogout() throws Exception {
-        SecurityContext.setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(auth);
         module.login();
         assertTrue("Should return true as it succeeds", module.logout());
         assertEquals("Authentication should be null", null,
@@ -81,7 +82,7 @@ public class SecureContextLoginModuleTest extends TestCase {
 
     public void testNullAuthenticationInSecureContext()
         throws Exception {
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
         assertFalse("Should return false and ask to be ignored", module.login());
     }
 
@@ -92,11 +93,11 @@ public class SecureContextLoginModuleTest extends TestCase {
     protected void setUp() throws Exception {
         module = new SecureContextLoginModule();
         module.initialize(subject, null, null, null);
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     protected void tearDown() throws Exception {
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
         module = null;
     }
 }

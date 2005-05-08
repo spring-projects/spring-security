@@ -17,7 +17,7 @@ package net.sf.acegisecurity.taglibs.authz;
 
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 
 import java.io.IOException;
 
@@ -68,11 +68,12 @@ public class AuthenticationTag extends TagSupport {
             throw new JspException("Unsupported use of auth:authentication tag");
         }
 
-        if (SecurityContext.getAuthentication() == null) {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
             return Tag.SKIP_BODY;
         }
 
-        Authentication auth = SecurityContext.getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext()
+                                                   .getAuthentication();
 
         if (auth.getPrincipal() == null) {
             return Tag.SKIP_BODY;

@@ -15,7 +15,7 @@
 
 package net.sf.acegisecurity;
 
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 
 
 /**
@@ -47,7 +47,8 @@ public class TargetObject implements ITargetObject {
      *         <code>Authentication</code> object is authenticated or not
      */
     public String makeLowerCase(String input) {
-        Authentication auth = SecurityContext.getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext()
+                                                   .getAuthentication();
 
         if (auth == null) {
             return input.toLowerCase() + " Authentication empty";
@@ -69,7 +70,8 @@ public class TargetObject implements ITargetObject {
      *         <code>Authentication</code> object is authenticated or not
      */
     public String makeUpperCase(String input) {
-        Authentication auth = SecurityContext.getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext()
+                                                   .getAuthentication();
 
         return input.toUpperCase() + " " + auth.getClass().getName() + " "
         + auth.isAuthenticated();

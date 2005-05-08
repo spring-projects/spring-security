@@ -16,7 +16,7 @@
 package net.sf.acegisecurity.providers.jaas;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -122,7 +122,7 @@ public class SecureContextLoginModule implements LoginModule {
      * @throws LoginException if the authentication fails
      */
     public boolean login() throws LoginException {
-        authen = SecurityContext.getAuthentication();
+        authen = SecurityContextHolder.getContext().getAuthentication();
 
         if (authen == null) {
             throw new LoginException("Authentication not found in security"

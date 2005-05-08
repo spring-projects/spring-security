@@ -19,7 +19,7 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.acl.AclEntry;
 import net.sf.acegisecurity.acl.AclManager;
 import net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -133,16 +133,17 @@ public class AclTag extends TagSupport {
             return Tag.EVAL_BODY_INCLUDE;
         }
 
-        if (SecurityContext.getAuthentication() == null) {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug(
-                    "SecurityContext did not return a non-null Authentication object, so skipping tag body");
+                    "SecurityContextHolder did not return a non-null Authentication object, so skipping tag body");
             }
 
             return Tag.SKIP_BODY;
         }
 
-        Authentication auth = SecurityContext.getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext()
+                                                   .getAuthentication();
 
         ApplicationContext context = getContext(pageContext);
         Map beans = context.getBeansOfType(AclManager.class, false, false);

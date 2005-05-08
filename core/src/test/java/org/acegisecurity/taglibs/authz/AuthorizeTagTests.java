@@ -19,7 +19,8 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.context.SecurityContextImpl;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 
 import javax.servlet.jsp.JspException;
@@ -42,7 +43,7 @@ public class AuthorizeTagTests extends TestCase {
 
     public void testAlwaysReturnsUnauthorizedIfNoUserFound()
         throws JspException {
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
 
         authorizeTag.setIfAllGranted("ROLE_TELLER");
         assertEquals("prevents request - no principal in Context",
@@ -80,7 +81,7 @@ public class AuthorizeTagTests extends TestCase {
 
     public void testPreventsBodyOutputIfNoSecureContext()
         throws JspException {
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
         authorizeTag.setIfAnyGranted("ROLE_BANKER");
 
         assertEquals("prevents output - no context defined", Tag.SKIP_BODY,
@@ -115,10 +116,10 @@ public class AuthorizeTagTests extends TestCase {
                         "ROLE_SUPERVISOR"), new GrantedAuthorityImpl(
                         "ROLE_TELLER"),});
 
-        SecurityContext.setAuthentication(currentUser);
+        SecurityContextHolder.getContext().setAuthentication(currentUser);
     }
 
     protected void tearDown() throws Exception {
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 }

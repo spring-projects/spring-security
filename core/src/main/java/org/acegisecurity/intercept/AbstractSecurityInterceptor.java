@@ -25,7 +25,7 @@ import net.sf.acegisecurity.AuthenticationManager;
 import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.RunAsManager;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 import net.sf.acegisecurity.intercept.event.AuthenticationCredentialsNotFoundEvent;
 import net.sf.acegisecurity.intercept.event.AuthenticationFailureEvent;
 import net.sf.acegisecurity.intercept.event.AuthorizationFailureEvent;
@@ -328,7 +328,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                     + token.getAuthentication().toString());
             }
 
-            SecurityContext.setAuthentication(token.getAuthentication());
+            SecurityContextHolder.getContext().setAuthentication(token
+                .getAuthentication());
         }
 
         if (afterInvocationManager != null) {
@@ -358,7 +359,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 
             // We check for just the property we're interested in (we do
             // not call Context.validate() like the ContextInterceptor)
-            if (SecurityContext.getAuthentication() == null) {
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 credentialsNotFound("Authentication credentials were not found in the SecurityContext",
                     object, attr);
             }
@@ -367,11 +368,12 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
             Authentication authenticated;
 
             try {
-                authenticated = this.authenticationManager.authenticate(SecurityContext
-                        .getAuthentication());
+                authenticated = this.authenticationManager.authenticate(SecurityContextHolder.getContext()
+                                                                                             .getAuthentication());
             } catch (AuthenticationException authenticationException) {
                 AuthenticationFailureEvent event = new AuthenticationFailureEvent(object,
-                        attr, SecurityContext.getAuthentication(),
+                        attr,
+                        SecurityContextHolder.getContext().getAuthentication(),
                         authenticationException);
                 this.context.publishEvent(event);
 
@@ -384,7 +386,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                 logger.debug("Authenticated: " + authenticated.toString());
             }
 
-            SecurityContext.setAuthentication(authenticated);
+            SecurityContextHolder.getContext().setAuthentication(authenticated);
 
             // Attempt authorization
             try {
@@ -423,7 +425,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                         + runAs.toString());
                 }
 
-                SecurityContext.setAuthentication(runAs);
+                SecurityContextHolder.getContext().setAuthentication(runAs);
 
                 return new InterceptorStatusToken(authenticated, true, attr,
                     object); // revert to token.Authenticated post-invocation
@@ -436,16 +438,16 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
             this.context.publishEvent(new PublicInvocationEvent(object));
 
             // Set Authentication object (if it exists) to be unauthenticated
-            if (SecurityContext.getAuthentication() != null) {
+            if (SecurityContextHolder.getContext().getAuthentication() != null) {
                 if (logger.isDebugEnabled()) {
                     logger.debug(
                         "Authentication object detected and tagged as unauthenticated");
                 }
 
-                Authentication authenticated = SecurityContext
-                    .getAuthentication();
+                Authentication authenticated = SecurityContextHolder.getContext()
+                                                                    .getAuthentication();
                 authenticated.setAuthenticated(false);
-                SecurityContext.setAuthentication(authenticated);
+                SecurityContextHolder.getContext().setAuthentication(authenticated);
             }
 
             return null; // no further work post-invocation

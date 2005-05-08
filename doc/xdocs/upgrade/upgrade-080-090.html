@@ -18,21 +18,21 @@ applications:
     <code>ContextHolder</code> allowed. <b>This is an important change in 0.9.0.</b> Many applications
     will need to modify their code (and possibly web views) if they directly interact with the old 
     <code>ContextHolder</code>. The replacement security <code>ThreadLocal</code> is called
-    <a href="../multiproject/acegi-security/xref/net/sf/acegisecurity/context/SecurityContext.html">
-    SecurityContext</a> and provides a single getter/setter for <code>Authentication</code>. There is
-    thus no need to work with <code>SecureContext</code> or <code>Context</code> anymore. <BR><BR>
+    <a href="../multiproject/acegi-security/xref/net/sf/acegisecurity/context/SecurityContextHolder.html">
+    SecurityContextHolder</a> and provides a single getter/setter for a
+    <a href="../multiproject/acegi-security/xref/net/sf/acegisecurity/context/SecurityContextHolder.html">SecurityContext</a>.
+    <code>SecurityContextHolder</code> guarantees to never return a <cod>null</code> <code>SecurityContext</code>.
+    <code>SecurityContext</code> provides single getter/setter for <code>Authentication</code>.<BR><BR>
     
     To migrate, simply modify all your code that previously worked with <code>ContextHolder</code>,
-    <code>SecureContext</code> and <code>Context</code> to directly call <code>SecurityContext</code>.
-    You will also note that the <code>HttpSessionContextIntegrationFilter</code> no longer provides
-    a <code>context</code> property, so remove it from your application context XML. For the relatively 
-    small number of users who had customised their context, you will need to write your own 
-    <code>ThreadLocal</code> to provide functionality for your specific use case.<BR><BR>    
+    <code>SecureContext</code> and <code>Context</code> to directly call <code>SecurityContextHolder</code>
+    and work with the <code>SecurityContext</code> (instead of the now removed <code>Context</code>
+    and <code>SecureContext</code> interfaces).<br><br>
     
     We apologise for the inconvenience, but on a more positive note this means you receive strict
     type checking, you no longer need to mess around with casting to and from <code>Context</code>
     implementations, your applications no longer need to perform checking of <code>null</code> and
-    unexpected <code>Context</code> implementation types, and the new <code>SecurityContext</code>
+    unexpected <code>Context</code> implementation types, and the new <code>SecurityContextHolder</code>
     is an <code>InheritableThreadLocal</code> - which should make life easier in rich client 
     environments.<br><br></li>
 

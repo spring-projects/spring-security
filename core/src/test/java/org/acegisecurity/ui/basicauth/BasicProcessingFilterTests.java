@@ -21,7 +21,8 @@ import net.sf.acegisecurity.MockAuthenticationEntryPoint;
 import net.sf.acegisecurity.MockAuthenticationManager;
 import net.sf.acegisecurity.MockFilterConfig;
 import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.context.SecurityContextImpl;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -115,7 +116,7 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testGettersSetters() {
@@ -154,7 +155,7 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testNormalOperation() throws Exception {
@@ -182,10 +183,10 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNotNull(SecurityContext.getAuthentication());
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("marissa",
-            ((UserDetails) SecurityContext.getAuthentication().getPrincipal())
-            .getUsername());
+            ((UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                                                .getPrincipal()).getUsername());
     }
 
     public void testOtherAuthorizationSchemeIsIgnored()
@@ -212,7 +213,7 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testStartupDetectsMissingAuthenticationEntryPoint()
@@ -268,10 +269,10 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNotNull(SecurityContext.getAuthentication());
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("marissa",
-            ((UserDetails) SecurityContext.getAuthentication().getPrincipal())
-            .getUsername());
+            ((UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                                                .getPrincipal()).getUsername());
 
         // NOW PERFORM FAILED AUTHENTICATION
         // Setup our HTTP request
@@ -289,7 +290,7 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
@@ -318,18 +319,18 @@ public class BasicProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
-        assertNull(SecurityContext.getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     private void executeFilterInContainerSimulator(FilterConfig filterConfig,

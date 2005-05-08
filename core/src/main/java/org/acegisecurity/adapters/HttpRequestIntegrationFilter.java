@@ -16,7 +16,7 @@
 package net.sf.acegisecurity.adapters;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,7 +75,7 @@ public class HttpRequestIntegrationFilter implements Filter {
                 .getUserPrincipal();
 
             if ((principal != null) && principal instanceof Authentication) {
-                SecurityContext.setAuthentication((Authentication) principal);
+                SecurityContextHolder.getContext().setAuthentication((Authentication) principal);
 
                 if (logger.isDebugEnabled()) {
                     logger.debug(

@@ -20,7 +20,7 @@ import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.AuthenticationTrustResolver;
 import net.sf.acegisecurity.AuthenticationTrustResolverImpl;
 import net.sf.acegisecurity.InsufficientAuthenticationException;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 import net.sf.acegisecurity.ui.AbstractProcessingFilter;
 import net.sf.acegisecurity.util.PortResolver;
 import net.sf.acegisecurity.util.PortResolverImpl;
@@ -193,7 +193,7 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
             sendStartAuthentication(fi, authentication);
         } catch (AccessDeniedException accessDenied) {
             if (authenticationTrustResolver.isAnonymous(
-                    SecurityContext.getAuthentication())) {
+                    SecurityContextHolder.getContext().getAuthentication())) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Access is denied (user is anonymous); redirecting to authentication entry point",
                         accessDenied);

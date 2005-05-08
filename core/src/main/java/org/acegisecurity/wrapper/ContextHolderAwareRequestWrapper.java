@@ -19,7 +19,7 @@ import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationTrustResolver;
 import net.sf.acegisecurity.AuthenticationTrustResolverImpl;
 import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 
 import java.security.Principal;
 
@@ -116,7 +116,8 @@ public class ContextHolderAwareRequestWrapper extends HttpServletRequestWrapper 
      * @return the authentication object or <code>null</code>
      */
     private Authentication getAuthentication() {
-        Authentication auth = SecurityContext.getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext()
+                                                   .getAuthentication();
 
         if (!authenticationTrustResolver.isAnonymous(auth)) {
             return auth;

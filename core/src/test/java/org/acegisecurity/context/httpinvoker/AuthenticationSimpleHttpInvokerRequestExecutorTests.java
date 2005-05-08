@@ -18,7 +18,7 @@ package net.sf.acegisecurity.context.httpinvoker;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
 import net.sf.acegisecurity.context.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
@@ -59,7 +59,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests
         // Setup client-side context
         Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("Aladdin",
                 "open sesame");
-        SecurityContext.setAuthentication(clientSideAuthentication);
+        SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 
         // Create a connection and ensure our executor sets its
         // properties correctly
@@ -74,11 +74,11 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests
         assertEquals("Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==",
             conn.getRequestProperty("Authorization"));
 
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testNullContextHolderIsNull() throws Exception {
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
 
         // Create a connection and ensure our executor sets its
         // properties correctly

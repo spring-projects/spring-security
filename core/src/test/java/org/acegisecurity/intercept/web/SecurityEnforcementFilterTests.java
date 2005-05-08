@@ -23,7 +23,8 @@ import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.MockAuthenticationEntryPoint;
 import net.sf.acegisecurity.MockPortResolver;
-import net.sf.acegisecurity.context.SecurityContext;
+import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.context.SecurityContextImpl;
 import net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
 import net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
 
@@ -83,7 +84,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
                 false, false, false);
 
         // Setup ContextHolder, as filter needs to check if user is anonymous
-        SecurityContext.setAuthentication(new AnonymousAuthenticationToken(
+        SecurityContextHolder.getContext().setAuthentication(new AnonymousAuthenticationToken(
                 "ignored", "ignored",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("IGNORED")}));
 
@@ -113,7 +114,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
                 false, false, false);
 
         // Setup ContextHolder, as filter needs to check if user is anonymous
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.getContext().setAuthentication(null);
 
         // Test
         SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
@@ -356,7 +357,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        SecurityContext.setAuthentication(null);
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     //~ Inner Classes ==========================================================
