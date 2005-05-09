@@ -342,51 +342,61 @@
         <literal>ContextHolder</literal> was used will likely mean that
         certain documentation you encounter concerning Acegi Security might
         still refer to <literal>ContextHolder</literal>. Generally you can
-        just substitute "<literal>SecurityContext</literal>" for
-        "<literal>ContextHolder</literal>" and you'll have the primary meaning
-        of such documentation.</para>
+        just substitute "<literal>SecurityContextHolder</literal>" for
+        "<literal>ContextHolder</literal>", and
+        "<literal>SecurityContext</literal>" for
+        "<literal>SecureContext</literal>", and you'll have the primary
+        meaning of such documentation.</para>
       </sect2>
 
       <sect2 id="security-contexts-security-context">
         <title>SecurityContext</title>
 
         <para>The Acegi Security System for Spring uses a
-        <literal>SecurityContext</literal> to store the
+        <literal>SecurityContextHolder</literal> to store the
+        <literal>SecurityContext</literal>. The
+        <literal>SecurityContext</literal> contains a single getter/setter for
         <literal>Authentication</literal>. All Acegi Security classes query
-        the <literal>SecurityContext</literal> for obtaining the currently
-        principal. <literal>SecurityContext</literal> is an
+        the <literal>SecurityContextHolder</literal> for obtaining the current
+        <literal>SecurityContext</literal> (and in turn the principal).
+        <literal>SecurityContextHolder</literal> is an
         <literal>InheritableThreadLocal</literal>, meaning it is associated
-        with the current thread of execution.
-        <literal>SecurityContext</literal> simply provides a single getter and
-        setter pair for the <literal>Authentication</literal> object.</para>
+        with the current thread of execution. </para>
       </sect2>
 
       <sect2 id="security-contexts-storage">
         <title>Context Storage</title>
 
         <para>Central to Acegi Security's design is that the contents of the
-        <literal>SecurityContext</literal> (which is simply an
-        <literal>Authentication</literal> object) can be stored between web
-        requests. This is so that a successfully authenticated principal can
-        be identified on subsequent requests through the
-        <literal>Authentication</literal> stored inside a
-        <literal>SecurityContext</literal>. The
+        <literal>SecurityContextHolder</literal> (which is simply a
+        <literal>SecurityContext</literal> implementation) can be stored
+        between web requests. This is so that a successfully authenticated
+        principal can be identified on subsequent requests through the
+        <literal>Authentication</literal> stored inside the
+        <literal>SecurityContext</literal> obtained from the
+        <literal>SecurityContextHolder</literal>. The
         <literal>HttpSessionContextIntegrationFilter</literal> exists to
         automatically copy the contents of a well-defined
         <literal>HttpSession</literal> attribute into the
-        <literal>SecurityContext</literal>, then at the end of each request,
-        copy the <literal>SecurityContext</literal> contents back into the
-        <literal>HttpSession</literal> ready for next request.</para>
+        <literal>SecurityContextHolder</literal>, then at the end of each
+        request, copy the <literal>SecurityContextHolder</literal> contents
+        back into the <literal>HttpSession</literal> ready for next
+        request.</para>
 
         <para>It is essential - and an extremely common error of end users -
         that <literal>HttpSessionContextIntegrationFilter</literal> appears
         before any other Acegi Security filter. Acegi Security filters expect
-        to be able to modify the <literal>SecurityContext</literal> contents
-        as they see fit, and something else (namely
+        to be able to modify the <literal>SecurityContextHolder</literal>
+        contents as they see fit, and something else (namely
         <literal>HttpSessionContextIntegrationFilter</literal>) will store
         those between requests if necessary. This is why
         <literal>HttpSessionContextIntegrationFilter</literal> must be the
         first filter used.</para>
+
+        <para>You can define a custom <literal>SecurityContext</literal>
+        implementation be used in your application by setting the
+        <literal>context</literal> property on the
+        <literal>HttpSessionContextIntegrationFilter</literal> bean.</para>
       </sect2>
     </sect1>
 
