@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -142,7 +142,7 @@ public class MethodDefinitionAttributes extends AbstractMethodDefinitionSource {
 
             try {
                 Method m = clazz.getDeclaredMethod(method.getName(),
-                        method.getParameterTypes());
+                        (Class[]) method.getParameterTypes());
                 addMethodAttributes(definition, m);
             } catch (Exception e) {
                 // this won't happen since we are getting a method from an interface that 

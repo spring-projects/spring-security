@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.util.Assert;
 
 import java.lang.reflect.InvocationTargetException;
@@ -195,12 +196,15 @@ public class BasicAclEntryVoter implements AccessDecisionVoter,
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(processConfigAttribute, "A processConfigAttribute is mandatory");
+        Assert.notNull(processConfigAttribute,
+            "A processConfigAttribute is mandatory");
         Assert.notNull(aclManager, "An aclManager is mandatory");
-        Assert.notNull(processDomainObjectClass, "A processDomainObjectClass is mandatory");
+        Assert.notNull(processDomainObjectClass,
+            "A processDomainObjectClass is mandatory");
 
         if ((requirePermission == null) || (requirePermission.length == 0)) {
-            throw new IllegalArgumentException("One or more requirePermission entries is mandatory");
+            throw new IllegalArgumentException(
+                "One or more requirePermission entries is mandatory");
         }
     }
 
@@ -248,8 +252,10 @@ public class BasicAclEntryVoter implements AccessDecisionVoter,
                 if ((internalMethod != null) && !"".equals(internalMethod)) {
                     try {
                         Class clazz = domainObject.getClass();
-                        Method method = clazz.getMethod(internalMethod, null);
-                        domainObject = method.invoke(domainObject, null);
+                        Method method = clazz.getMethod(internalMethod,
+                                new Class[] {});
+                        domainObject = method.invoke(domainObject,
+                                new Object[] {});
                     } catch (NoSuchMethodException nsme) {
                         throw new AuthorizationServiceException(
                             "Object of class '" + domainObject.getClass()

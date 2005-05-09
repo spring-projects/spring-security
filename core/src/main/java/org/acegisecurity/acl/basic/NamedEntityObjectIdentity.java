@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,12 +74,12 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
         Class clazz = object.getClass();
 
         try {
-            Method method = clazz.getMethod("getId", null);
-            Object result = method.invoke(object, null);
+            Method method = clazz.getMethod("getId", new Class[] {});
+            Object result = method.invoke(object, new Object[] {});
             this.id = result.toString();
         } catch (NoSuchMethodException nsme) {
             throw new IllegalArgumentException("Object of class '" + clazz
-                    + "' does not provide the required getId() method: " + object);
+                + "' does not provide the required getId() method: " + object);
         }
     }
 

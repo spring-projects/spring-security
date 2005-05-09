@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package net.sf.acegisecurity.providers.dao.salt;
 import net.sf.acegisecurity.AuthenticationServiceException;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.dao.SaltSource;
-import net.sf.acegisecurity.providers.dao.User;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -64,9 +63,9 @@ public class ReflectionSaltSource implements SaltSource, InitializingBean {
     public Object getSalt(UserDetails user) {
         try {
             Method reflectionMethod = user.getClass().getMethod(this.userPropertyToUse,
-                    null);
+                    new Class[] {});
 
-            return reflectionMethod.invoke(user, null);
+            return reflectionMethod.invoke(user, new Object[] {});
         } catch (Exception exception) {
             throw new AuthenticationServiceException(exception.getMessage());
         }

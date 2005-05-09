@@ -15,8 +15,6 @@
 
 package net.sf.acegisecurity;
 
-import net.sf.acegisecurity.providers.dao.User;
-
 import java.io.Serializable;
 
 
