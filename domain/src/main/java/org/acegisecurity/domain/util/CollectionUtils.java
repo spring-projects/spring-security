@@ -53,7 +53,7 @@ public class CollectionUtils {
      *
      * @return
      */
-    public static Set add(Set set, Object object) {
+    public static <E> Set<E> add(Set<E> set, E object) {
         set.add(object);
 
         return set;
@@ -67,7 +67,7 @@ public class CollectionUtils {
      *
      * @return
      */
-    public static List add(List list, Object object) {
+    public static <E> List<E> add(List<E> list, E object) {
         list.add(object);
 
         return list;
@@ -83,20 +83,20 @@ public class CollectionUtils {
      *
      * @throws IllegalArgumentException DOCUMENT ME!
      */
-    public static Collection clone(Collection collection) {
+    public static <E> Collection<E> clone(Collection<E> collection) {
         if (collection == null) {
             return null;
         }
 
         Class clazz = collection.getClass();
-        Collection clone = null;
+        Collection<E> clone = null;
 
         if (List.class.isAssignableFrom(clazz)) {
-            clone = new ArrayList(collection);
+            clone = new ArrayList<E>(collection);
         } else if (SortedSet.class.isAssignableFrom(clazz)) {
-            clone = new TreeSet(collection);
+            clone = new TreeSet<E>(collection);
         } else if (Set.class.isAssignableFrom(clazz)) {
-            clone = new HashSet(collection);
+            clone = new HashSet<E>(collection);
         } else {
             throw new IllegalArgumentException("Unknown collection class: "
                 + clazz);
@@ -117,18 +117,18 @@ public class CollectionUtils {
      * @throws IllegalArgumentException if the <code>Map</code> implementation
      *         is not supported by this method
      */
-    public static Map clone(Map map) {
+    public static <K,V> Map<K,V> clone(Map<K,V> map) {
         if (map == null) {
             return null;
         }
 
         Class clazz = map.getClass();
-        Map clone = null;
+        Map<K,V> clone = null;
 
         if (SortedMap.class.isAssignableFrom(clazz)) {
-            clone = new TreeMap(map);
+            clone = new TreeMap<K,V>(map);
         } else if (Map.class.isAssignableFrom(clazz)) {
-            clone = new HashMap(map);
+            clone = new HashMap<K,V>(map);
         } else {
             throw new IllegalArgumentException("Unknown map class: " + clazz);
         }
@@ -144,8 +144,8 @@ public class CollectionUtils {
      *
      * @return
      */
-    public static List newList(Object object) {
-        return add(new ArrayList(1), object);
+    public static <E> List<E> newList(E object) {
+        return add(new ArrayList<E>(1), object);
     }
 
     /**
@@ -156,7 +156,7 @@ public class CollectionUtils {
      *
      * @return
      */
-    public static Set newSet(Object object) {
-        return add(new HashSet(), object);
+    public static <E> Set<E> newSet(E object) {
+        return add(new HashSet<E>(), object);
     }
 }

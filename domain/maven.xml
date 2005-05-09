@@ -24,6 +24,9 @@
    xmlns:util="jelly:util"
    xmlns:maven="jelly:maven"
   >
+<!--
+	Disabled signing the domain JAR for now because it causes Hibernate issues
+    if people subclass from the net.sf.acegitech.domain.impl package. 
 
     <postGoal name="jar:jar">
         <j:if test="${context.getVariable('signature.alias') != null}">
@@ -35,5 +38,5 @@
 			</ant:signjar>
         </j:if>
     </postGoal>
-
+-->
 </project>

@@ -220,5 +220,13 @@
 		<attributes>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/ejb-3.0-edr2.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-annotations-3.0-beta1.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>

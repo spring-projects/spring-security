@@ -34,7 +34,7 @@ import org.springframework.util.Assert;
  * 
  * <p>
  * For each method invocation, any argument that is assignable from {@link
- * #argumentClasses}<b>and</b> is non-<code>null</code> will be passed to the
+ * #argumentClasses} <b>and</b> is non-<code>null</code> will be passed to the
  * {@link net.sf.acegisecurity.domain.validation.ValidationManager} for
  * processing.
  * </p>
@@ -48,7 +48,7 @@ public class ValidationInterceptor implements MethodInterceptor,
 
     protected final Log logger = LogFactory.getLog(getClass());
     private ValidationManager validationManager;
-    private Class[] argumentClasses = {BusinessObject.class, PersistableEntity.class};
+    private Class<?>[] argumentClasses = {BusinessObject.class, PersistableEntity.class};
 
     //~ Methods ================================================================
 

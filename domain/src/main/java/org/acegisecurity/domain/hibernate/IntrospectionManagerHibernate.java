@@ -35,6 +35,7 @@ import org.springframework.util.Assert;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -90,17 +91,17 @@ public class IntrospectionManagerHibernate implements IntrospectionManager,
         Assert.notNull(sessionFactory, "SessionFactory is required");
 
         // Eagerly pre-register Validators for all Hibernate metadata-defined classes
-        Collection mappedClasses = this.sessionFactory.getAllClassMetadata()
-                                                      .keySet();
+		Map<String,ClassMetadata> metadataMap = this.sessionFactory.getAllClassMetadata();
+        Collection<String> mappedClasses = metadataMap.keySet();
 
-        for (Iterator iter = mappedClasses.iterator(); iter.hasNext();) {
-            String className = (String) iter.next();
+        for (Iterator<String> iter = mappedClasses.iterator(); iter.hasNext();) {
+            String className = iter.next();
             this.validationRegistryManager.findValidator(Class.forName(
                     className));
         }
     }
 
-    public void obtainImmediateChildren(Object parentObject, List allObjects) {
+    public void obtainImmediateChildren(Object parentObject, List<Object> allObjects) {
         Assert.notNull(parentObject,
             "Violation of interface contract: parentObject null");
         Assert.notNull(allObjects,

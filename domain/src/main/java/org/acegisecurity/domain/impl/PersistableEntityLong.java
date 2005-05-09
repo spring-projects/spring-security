@@ -17,6 +17,7 @@ package net.sf.acegisecurity.domain.impl;
 
 import java.io.Serializable;
 
+import javax.persistence.Transient;
 
 /**
  * A persistable entity that uses a <code>Long</code> based identity.
@@ -27,7 +28,7 @@ import java.io.Serializable;
 public abstract class PersistableEntityLong extends AbstractPersistableEntity {
     //~ Instance fields ========================================================
 
-    private Long id;
+    protected Long id;
 
     //~ Methods ================================================================
 
@@ -47,14 +48,12 @@ public abstract class PersistableEntityLong extends AbstractPersistableEntity {
 
     /**
      * Obtains the persistence identity of this instance.
-     *
-     * @return the instance's identity
-     *
-     * @hibernate.id generator-class="native"
+     * 
+     * <p>Marked as abstract to remind users to implement. They'll need to implement
+     * so their annotations reflect the correct sequence name.
      */
-    public Long getId() {
-        return id;
-    }
+	@Transient
+    public abstract Long getId();
 
     /**
      * DO NOT USE DIRECTLY.
@@ -72,6 +71,7 @@ public abstract class PersistableEntityLong extends AbstractPersistableEntity {
      *
      * @return the instance's identity
      */
+	@Transient
     public Serializable getInternalId() {
         return this.getId();
     }

@@ -30,7 +30,7 @@ import java.util.Vector;
 
 /**
  * <p>
- * Represents a paginated <code>List</code>.
+ * JDK1.5 compatible paginated <code>List</code>.
  * </p>
  * 
  * <p>
@@ -52,11 +52,11 @@ import java.util.Vector;
  * @author Ben Alex
  * @version $Id$
  */
-public class PaginatedList implements List {
+public class PaginatedList<E extends PersistableEntity> implements List<E> {
     //~ Instance fields ========================================================
 
     protected final transient Log logger = LogFactory.getLog(getClass());
-    private List list;
+    private List<E> list;
     private int firstElement;
     private int maxElements;
     private int size;
@@ -73,23 +73,23 @@ public class PaginatedList implements List {
      * @param entity the entity to include (can be <code>null</code>, which
      *        indicates an empty <code>PaginatedList</code> should be created)
      */
-    public PaginatedList(PersistableEntity entity) {
+    public PaginatedList(E entity) {
         if (entity == null) {
-            this.list = new Vector();
+            this.list = new Vector<E>();
             this.firstElement = 0;
             this.maxElements = Integer.MAX_VALUE;
             this.size = 0;
         } else {
-            List list = new Vector();
-            list.add(entity);
-            this.list = list;
+            List<E> myList = new Vector<E>();
+            myList.add(entity);
+            this.list = myList;
             this.firstElement = 0;
             this.maxElements = Integer.MAX_VALUE;
             this.size = 1;
         }
     }
 
-    public PaginatedList(List list, int firstElement, int maxElements, int size) {
+    public PaginatedList(List<E> list, int firstElement, int maxElements, int size) {
         this.list = list;
         this.firstElement = firstElement;
         this.maxElements = maxElements;
@@ -133,7 +133,7 @@ public class PaginatedList implements List {
         return (size() - 1) / getMaxElements();
     }
 
-    public void setList(List list) {
+    public void setList(List<E> list) {
         this.list = list;
     }
 
@@ -142,7 +142,7 @@ public class PaginatedList implements List {
      *
      * @return this page of the results
      */
-    public List getList() {
+    public List<E> getList() {
         return list;
     }
 
@@ -196,7 +196,7 @@ public class PaginatedList implements List {
      *
      * @see java.util.List#add(int, java.lang.Object)
      */
-    public void add(int arg0, Object arg1) {
+    public void add(int arg0, E arg1) {
         throw new UnsupportedOperationException();
     }
 
@@ -211,7 +211,7 @@ public class PaginatedList implements List {
      *
      * @see java.util.Collection#add(java.lang.Object)
      */
-    public boolean add(Object arg0) {
+    public boolean add(E arg0) {
         throw new UnsupportedOperationException();
     }
 
@@ -226,7 +226,7 @@ public class PaginatedList implements List {
      *
      * @see java.util.Collection#addAll(java.util.Collection)
      */
-    public boolean addAll(Collection arg0) {
+    public boolean addAll(Collection<? extends E> arg0) {
         throw new UnsupportedOperationException();
     }
 
@@ -242,7 +242,7 @@ public class PaginatedList implements List {
      *
      * @see java.util.List#addAll(int, java.util.Collection)
      */
-    public boolean addAll(int arg0, Collection arg1) {
+    public boolean addAll(int arg0, Collection<? extends E> arg1) {
         throw new UnsupportedOperationException();
     }
 
@@ -283,7 +283,7 @@ public class PaginatedList implements List {
      *
      * @see java.util.Collection#containsAll(java.util.Collection)
      */
-    public boolean containsAll(Collection arg0) {
+    public boolean containsAll(Collection<?> arg0) {
         throw new UnsupportedOperationException();
     }
 
@@ -296,7 +296,7 @@ public class PaginatedList implements List {
      *
      * @see java.util.List#get(int)
      */
-    public Object get(int arg0) {
+    public E get(int arg0) {
         return list.get(arg0);
     }
 
@@ -315,7 +315,7 @@ public class PaginatedList implements List {
         throw new UnsupportedOperationException();
     }
 
-    public Iterator iterator() {
+    public Iterator<E> iterator() {
         return new PaginatedListIterator();
     }
 
@@ -343,7 +343,7 @@ public class PaginatedList implements List {
      *
      * @see java.util.List#listIterator()
      */
-    public ListIterator listIterator() {
+    public ListIterator<E> listIterator() {
         throw new UnsupportedOperationException();
     }
 
@@ -358,7 +358,7 @@ public class PaginatedList implements List {
      *
      * @see java.util.List#listIterator(int)
      */
-    public ListIterator listIterator(int arg0) {
+    public ListIterator<E> listIterator(int arg0) {
         throw new UnsupportedOperationException();
     }
 
@@ -373,7 +373,7 @@ public class PaginatedList implements List {
      *
      * @see java.util.List#remove(int)
      */
-    public Object remove(int arg0) {
+    public E remove(int arg0) {
         throw new UnsupportedOperationException();
     }
 
@@ -418,7 +418,7 @@ public class PaginatedList implements List {
      *
      * @see java.util.Collection#retainAll(java.util.Collection)
      */
-    public boolean retainAll(Collection arg0) {
+    public boolean retainAll(Collection<?> arg0) {
         throw new UnsupportedOperationException();
     }
 
@@ -434,7 +434,7 @@ public class PaginatedList implements List {
      *
      * @see java.util.List#set(int, java.lang.Object)
      */
-    public Object set(int arg0, Object arg1) {
+    public E set(int arg0, E arg1) {
         throw new UnsupportedOperationException();
     }
 
@@ -459,7 +459,7 @@ public class PaginatedList implements List {
      *
      * @see java.util.List#subList(int, int)
      */
-    public List subList(int arg0, int arg1) {
+    public List<E> subList(int arg0, int arg1) {
         throw new UnsupportedOperationException();
     }
 
@@ -467,7 +467,7 @@ public class PaginatedList implements List {
         return list.toArray();
     }
 
-    public Object[] toArray(Object[] arg0) {
+    public <T> T[] toArray(T[] arg0) {
         if (logger.isDebugEnabled()) {
             logger.debug("List size when convert to array "
                 + list.toArray().length);
@@ -475,57 +475,61 @@ public class PaginatedList implements List {
 
         return list.toArray(arg0);
     }
+	
+	
+	private class PaginatedListIterator implements Iterator<E> {
+	    //~ Instance fields ========================================================
 
-    //~ Inner Classes ==========================================================
+	    private Iterator<E> iterator;
+	    private int i = 0;
 
-    private class PaginatedListIterator implements Iterator {
-        private Iterator iterator;
-        private int i = 0;
+	    /**
+	     * @see java.util.Iterator#hasNext()
+	     */
+	    public boolean hasNext() {
+	        return i < size();
+	    }
 
-        /**
-         * @see java.util.Iterator#hasNext()
-         */
-        public boolean hasNext() {
-            return i < size();
-        }
+	    /**
+	     * This method follows the rules of Iterator.next() except that it returns
+	     * null when requesting an element that it's not in the current page.
+	     *
+	     * @see java.util.Iterator#next()
+	     */
+	    public E next() {
+	        if (i == getFirstElement()) {
+	            iterator = getList().iterator();
+	        }
 
-        /**
-         * This method follows the rules of Iterator.next() except that it
-         * returns null when requesting an element that it's not in the
-         * current page.
-         *
-         * @see java.util.Iterator#next()
-         */
-        public Object next() {
-            if (i == getFirstElement()) {
-                iterator = getList().iterator();
-            }
+	        if ((i >= getFirstElement())
+	            && (i < (getFirstElement() + getMaxElements()))) {
+	            i++;
 
-            if ((i >= getFirstElement())
-                && (i < (getFirstElement() + getMaxElements()))) {
-                i++;
+	            return iterator.next();
+	        }
 
-                return iterator.next();
-            }
+	        if (hasNext()) {
+	            i++;
 
-            if (hasNext()) {
-                i++;
+	            return null;
+	        } else {
+	            throw new NoSuchElementException();
+	        }
+	    }
 
-                return null;
-            } else {
-                throw new NoSuchElementException();
-            }
-        }
-
-        /**
-         * Unsupported operation
-         *
-         * @throws UnsupportedOperationException
-         *
-         * @see java.util.Iterator#remove()
-         */
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-    }
+	    /**
+	     * Unsupported operation
+	     *
+	     * @throws UnsupportedOperationException
+	     *
+	     * @see java.util.Iterator#remove()
+	     */
+	    public void remove() {
+	        throw new UnsupportedOperationException();
+	    }
+	}
+	
+	
+	
+	
 }

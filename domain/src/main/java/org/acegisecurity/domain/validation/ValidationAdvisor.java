@@ -47,7 +47,7 @@ public class ValidationAdvisor extends StaticMethodMatcherPointcutAdvisor
     implements InitializingBean {
     //~ Instance fields ========================================================
 
-    private Class supportsClass;
+    private Class<? extends Object> supportsClass;
     private String[] methods = {"create", "update", "createOrUpdate"};
 
     //~ Constructors ===========================================================
@@ -72,7 +72,7 @@ public class ValidationAdvisor extends StaticMethodMatcherPointcutAdvisor
         return methods;
     }
 
-    public void setSupportsClass(Class clazz) {
+    public void setSupportsClass(Class<? extends Object> clazz) {
         this.supportsClass = clazz;
     }
 

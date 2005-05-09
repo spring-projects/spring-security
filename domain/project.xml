@@ -17,6 +17,21 @@
       <artifactId>hibernate</artifactId>
       <version>3.0.1</version>
       <type>jar</type>
+      <url>http://www.hibernate.org</url>
+    </dependency>
+    <dependency>
+      <groupId>hibernate</groupId>
+      <artifactId>ejb</artifactId>
+      <version>3.0-edr2</version>
+      <type>jar</type>
+      <url>http://www.hibernate.org</url>
+    </dependency>
+    <dependency>
+      <groupId>hibernate</groupId>
+      <artifactId>hibernate-annotations</artifactId>
+      <version>3.0-beta1</version>
+      <type>jar</type>
+      <url>http://www.hibernate.org</url>
     </dependency>
     <dependency>
       <groupId>commons-lang</groupId>

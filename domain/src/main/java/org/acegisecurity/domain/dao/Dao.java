@@ -22,10 +22,9 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-
 /**
  * Provides fundamental DAO capabilities for a single concrete {@link
- * PersistableEntity}.
+ * PersistableEntity}, using JDK 1.5 generics.
  * 
  * <P>
  * This interface provides a portable approach to Data Access Object (DAO)
@@ -60,7 +59,7 @@ import java.util.List;
  * @author Ben Alex
  * @version $Id$
  */
-public interface Dao {
+public interface Dao<E extends PersistableEntity> {
     //~ Methods ================================================================
 
     /**
@@ -71,7 +70,7 @@ public interface Dao {
      *
      * @return the value created (with the identity property initialised)
      */
-    public PersistableEntity create(PersistableEntity value);
+    public E create(E value);
 
     /**
      * Saves an existing object to the persistence layer, or creates a new
@@ -84,14 +83,14 @@ public interface Dao {
      *
      * @return the saved or updated (as appropriate) value
      */
-    public PersistableEntity createOrUpdate(PersistableEntity value);
+    public E createOrUpdate(E value);
 
     /**
      * Delete an object.
      *
      * @param value the value to delete
      */
-    public void delete(PersistableEntity value);
+    public void delete(E value);
 
     /**
      * Return all persistent instances, including subclasses.
@@ -99,7 +98,7 @@ public interface Dao {
      * @return all persistence instances (an empty <code>List</code> will be
      *         returned if no matches are found)
      */
-    public List findAll();
+    public List<E> findAll();
 
     /**
      * Find a <code>List</code> of <code>PersistableEntity</code>s, searched by
@@ -110,7 +109,7 @@ public interface Dao {
      * @return the values with those identifiers (an empty <code>List</code>
      *         will be returned if no matches are found)
      */
-    public List findId(Collection ids);
+    public List<E> findId(Collection<Serializable> ids);
 
     /**
      * Load a persistent instance by its identifier.
@@ -120,7 +119,7 @@ public interface Dao {
      *
      * @return the request item, or <code>null</code> if not found
      */
-    public PersistableEntity readId(Serializable id);
+    public E readId(Serializable id);
 
     /**
      * Find persistent instances with properties matching those of the passed
@@ -133,8 +132,8 @@ public interface Dao {
      * the query by example evaluation.
      * </p>
      *
-     * @param value parameters to filter on (the class of this object will be
-     *        added to the filter)
+     * @param value parameters to filter on (the class of this object will
+     * be added to the filter)
      * @param firstElement the first result (start at zero to obtain all
      *        results)
      * @param maxElements the maximum number of results desired for this page
@@ -146,17 +145,17 @@ public interface Dao {
      * @return the requested page of the result list (a properly formed
      *         <code>PaginatedList</code> is returned if no results match)
      */
-    public PaginatedList scroll(PersistableEntity value, int firstElement,
+    public PaginatedList<E> scroll(E value, int firstElement,
         int maxElements, String orderByAsc);
 
-    /**
+	/**
      * Find persistent instances with properties matching those of the passed
      * <code>PersistableEntity</code>, ignoring the class of the passed
      * <code>PersistableEntity</code> (useful if you pass a superclass, as you
      * want to find all subclass instances which match).
-     *
-     * @param value parameters to filter on (the class of this object will NOT
-     *        be added to the filter)
+	 * 
+     * @param value parameters to filter on (the class of this object will
+     * NOT be added to the filter)
      * @param firstElement the first result (start at zero to obtain all
      *        results)
      * @param maxElements the maximum number of results desired for this page
@@ -167,11 +166,11 @@ public interface Dao {
      *
      * @return the requested page of the result list (a properly formed
      *         <code>PaginatedList</code> is returned if no results match)
-     */
-    public PaginatedList scrollWithSubclasses(PersistableEntity value,
-        int firstElement, int maxElements, String orderByAsc);
+	 */
+    public PaginatedList<E> scrollWithSubclasses(E value, int firstElement,
+	        int maxElements, String orderByAsc);
 
-    /**
+	/**
      * Indicates whether the DAO instance provides persistence services for the
      * specified class.
      *
@@ -191,5 +190,5 @@ public interface Dao {
      *
      * @return the updated value
      */
-    public PersistableEntity update(PersistableEntity value);
+    public E update(E value);
 }

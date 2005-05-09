@@ -116,7 +116,7 @@ public class ValidationManagerImpl implements InitializingBean,
             "Cannot validate a null domain object, as unable to getClass()");
 
         // Construct a list of objects to be validated and adds self
-        List allObjects = new Vector();
+        List<Object> allObjects = new Vector<Object>();
         allObjects.add(domainObject);
 
         // Add all children (and grandchildren, great-grandchildren etc)
@@ -128,7 +128,7 @@ public class ValidationManagerImpl implements InitializingBean,
             "The list of objects to be validated was empty");
 
         // Process list of objects to be validated by validating each
-        Iterator iter = allObjects.iterator();
+        Iterator<Object> iter = allObjects.iterator();
 
         while (iter.hasNext()) {
             Object currentDomainObject = iter.next();
@@ -204,7 +204,7 @@ public class ValidationManagerImpl implements InitializingBean,
      * @param parentObject the object we wish to locate all children for
      * @param allObjects the list to add the located children to
      */
-    private void obtainAllChildren(Object parentObject, List allObjects) {
+    private void obtainAllChildren(Object parentObject, List<Object> allObjects) {
         Assert.notNull(parentObject, "Violation of parentObject method contract");
         Assert.notNull(allObjects, "Violation of allObjects method contract");
         Assert.isTrue(allObjects.contains(parentObject),
@@ -215,7 +215,7 @@ public class ValidationManagerImpl implements InitializingBean,
 		}
 		
         // Add immediate children of this domain object
-        List currentChildren = new Vector();
+        List<Object> currentChildren = new Vector<Object>();
         introspectionManager.obtainImmediateChildren(parentObject,
             currentChildren);
 
@@ -223,7 +223,7 @@ public class ValidationManagerImpl implements InitializingBean,
         allObjects.addAll(currentChildren);
 
         // Now iterate the children, adding their children to the object list
-        Iterator childrenIter = currentChildren.iterator();
+        Iterator<Object> childrenIter = currentChildren.iterator();
 
         while (childrenIter.hasNext()) {
             Object childObject = childrenIter.next();

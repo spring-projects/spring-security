@@ -51,5 +51,5 @@ public interface IntrospectionManager {
      * @param allObjects the list to which this method should append each
      *        immediate child (guaranteed to never be <code>null</code>)
      */
-    public void obtainImmediateChildren(Object parentObject, List allObjects);
+    public void obtainImmediateChildren(Object parentObject, List<Object> allObjects);
 }

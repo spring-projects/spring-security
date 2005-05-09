@@ -38,15 +38,14 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.util.Assert;
 
-
 /**
- * {@link Dao} implementation that uses Hibernate 3 for persistence.
+ * Generics supporting {@link Dao} implementation that uses Hibernate 3 for persistence.
  *
  * @author Ben Alex
  * @author Matthew Porter
  * @version $Id$
  */
-public class DaoHibernate extends HibernateDaoSupport implements Dao,
+public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSupport implements Dao<E>,
     EvictionCapable {
     //~ Instance fields ========================================================
 
@@ -63,21 +62,21 @@ public class DaoHibernate extends HibernateDaoSupport implements Dao,
         return supportsClass;
     }
 
-    public PersistableEntity create(PersistableEntity value) {
+    public E create(E value) {
         Assert.notNull(value);
         getHibernateTemplate().save(value);
 
         return readId(value.getInternalId());
     }
 
-    public PersistableEntity createOrUpdate(PersistableEntity value) {
+    public E createOrUpdate(E value) {
         Assert.notNull(value);
         getHibernateTemplate().saveOrUpdate(value);
 
         return readId(value.getInternalId());
     }
 
-    public void delete(PersistableEntity value) {
+    public void delete(E value) {
         Assert.notNull(value);
         getHibernateTemplate().delete(value);
     }
@@ -87,24 +86,24 @@ public class DaoHibernate extends HibernateDaoSupport implements Dao,
         getHibernateTemplate().evict(entity);
     }
 
-    public List findAll() {
+    public List<E> findAll() {
         return getHibernateTemplate().loadAll(supportsClass);
     }
 
-    public List findId(Collection ids) {
+    public List<E> findId(Collection<Serializable> ids) {
         Assert.notNull(ids, "Collection of IDs cannot be null");
         Assert.notEmpty(ids, "There must be some values in the Collection list");
 
         return (List) getHibernateTemplate().execute(getFindByIdCallback(ids));
     }
 
-    public PersistableEntity readId(Serializable id) {
+    public E readId(Serializable id) {
         Assert.notNull(id);
 		
-        return (PersistableEntity) getHibernateTemplate().get(supportsClass, id);
+        return (E) getHibernateTemplate().get(supportsClass, id);
     }
 
-    public PaginatedList scroll(PersistableEntity value, int firstElement,
+    public PaginatedList<E> scroll(E value, int firstElement,
         int maxElements, String orderByAsc) {
         Assert.notNull(value);
         Assert.hasText(orderByAsc,
@@ -112,10 +111,10 @@ public class DaoHibernate extends HibernateDaoSupport implements Dao,
 		Assert.isInstanceOf(this.supportsClass, value, "Can only scroll with values this DAO supports");
 
         return (PaginatedList) getHibernateTemplate().execute(getFindByValueCallback(
-				value.getClass(), value, firstElement, maxElements, Order.asc(orderByAsc)));
+                value.getClass(), value, firstElement, maxElements, Order.asc(orderByAsc)));
     }
 
-    public PaginatedList scrollWithSubclasses(PersistableEntity value, int firstElement,
+    public PaginatedList<E> scrollWithSubclasses(E value, int firstElement,
 	        int maxElements, String orderByAsc) {
 	        Assert.notNull(value);
 	        Assert.hasText(orderByAsc,
@@ -123,7 +122,7 @@ public class DaoHibernate extends HibernateDaoSupport implements Dao,
 			Assert.isInstanceOf(this.supportsClass, value, "Can only scroll with values this DAO supports");
 
 	        return (PaginatedList) getHibernateTemplate().execute(getFindByValueCallback(
-					this.supportsClass, value, firstElement, maxElements, Order.asc(orderByAsc)));
+	                this.supportsClass, value, firstElement, maxElements, Order.asc(orderByAsc)));
 	    }
 
 	public boolean supports(Class clazz) {
@@ -132,7 +131,7 @@ public class DaoHibernate extends HibernateDaoSupport implements Dao,
         return this.supportsClass.equals(clazz);
     }
 
-    public PersistableEntity update(PersistableEntity value) {
+    public E update(E value) {
         Assert.notNull(value);
         getHibernateTemplate().update(value);
 
@@ -167,7 +166,7 @@ public class DaoHibernate extends HibernateDaoSupport implements Dao,
      *
      * @return a <code>List</code> containing the matching objects
      */
-    private HibernateCallback getFindByIdCallback(final Collection ids) {
+    private HibernateCallback getFindByIdCallback(final Collection<Serializable> ids) {
         return new HibernateCallback() {
                 public Object doInHibernate(Session session)
                     throws HibernateException {
@@ -263,10 +262,9 @@ public class DaoHibernate extends HibernateDaoSupport implements Dao,
                      */
                     int size = criteria.list().size();
 
-                    List list = criteria.setFirstResult(firstElement)
-                                        .setMaxResults(count).list();
+                    List<E> list = criteria.setFirstResult(firstElement).setMaxResults(count).list();
 
-                    return new PaginatedList(list, firstElement, count, size);
+                    return new PaginatedList<E>(list, firstElement, count, size);
                 }
             };
     }

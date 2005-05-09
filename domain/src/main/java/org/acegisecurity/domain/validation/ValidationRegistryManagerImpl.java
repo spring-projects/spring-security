@@ -46,7 +46,7 @@ public class ValidationRegistryManagerImpl implements ValidationRegistryManager,
     //~ Instance fields ========================================================
 
     private ListableBeanFactory bf;
-    private Map validatorMap = new HashMap();
+    private Map<Class,String> validatorMap = new HashMap<Class,String>();
 
     //~ Methods ================================================================
 
@@ -68,11 +68,11 @@ public class ValidationRegistryManagerImpl implements ValidationRegistryManager,
 		}
 		
 		// Attempt to find Validator via introspection
-		Map beans = BeanFactoryUtils.beansOfTypeIncludingAncestors(bf, Validator.class, true, true);
-		Iterator iter = beans.keySet().iterator();
+		Map<String,Validator> beans = BeanFactoryUtils.beansOfTypeIncludingAncestors(bf, Validator.class, true, true);
+		Iterator<String> iter = beans.keySet().iterator();
 		while (iter.hasNext()) {
-			String beanName = (String) iter.next();
-			Validator validator = (Validator) beans.get(beanName);
+			String beanName = iter.next();
+			Validator validator = beans.get(beanName);
 			if (validator.supports(domainClass)) {
 				this.validatorMap.put(domainClass, beanName);
 				return validator;

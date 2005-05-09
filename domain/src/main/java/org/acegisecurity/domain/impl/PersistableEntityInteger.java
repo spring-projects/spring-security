@@ -17,9 +17,10 @@ package net.sf.acegisecurity.domain.impl;
 
 import java.io.Serializable;
 
+import javax.persistence.Transient;
 
 /**
- * A persistable entity that uses an <code>Integer</code> based identity.
+ * A persistable entity that uses a <code>Integer</code> based identity.
  *
  * @author Ben Alex
  * @version $Id$
@@ -27,7 +28,7 @@ import java.io.Serializable;
 public abstract class PersistableEntityInteger extends AbstractPersistableEntity {
     //~ Instance fields ========================================================
 
-    private Integer id;
+    protected Integer id;
 
     //~ Methods ================================================================
 
@@ -47,14 +48,12 @@ public abstract class PersistableEntityInteger extends AbstractPersistableEntity
 
     /**
      * Obtains the persistence identity of this instance.
-     *
-     * @return the instance's identity
-     *
-     * @hibernate.id generator-class="native"
+     * 
+     * <p>Marked as abstract to remind users to implement. They'll need to implement
+     * so their annotations reflect the correct sequence name.
      */
-    public Integer getId() {
-        return id;
-    }
+	@Transient
+    public abstract Integer getId();
 
     /**
      * DO NOT USE DIRECTLY.
@@ -72,6 +71,7 @@ public abstract class PersistableEntityInteger extends AbstractPersistableEntity
      *
      * @return the instance's identity
      */
+	@Transient
     public Serializable getInternalId() {
         return this.getId();
     }

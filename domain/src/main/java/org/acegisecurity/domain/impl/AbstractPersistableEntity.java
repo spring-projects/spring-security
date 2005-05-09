@@ -15,8 +15,11 @@
 
 package net.sf.acegisecurity.domain.impl;
 
-import net.sf.acegisecurity.domain.PersistableEntity;
+import javax.persistence.Column;
+import javax.persistence.Transient;
+import javax.persistence.Version;
 
+import net.sf.acegisecurity.domain.PersistableEntity;
 
 /**
  * An abstract implementation of {@link
@@ -24,6 +27,8 @@ import net.sf.acegisecurity.domain.PersistableEntity;
  *
  * @author Ben Alex
  * @version $Id$
+ *
+ * 
  */
 public abstract class AbstractPersistableEntity extends BusinessObject
     implements PersistableEntity {
@@ -45,6 +50,7 @@ public abstract class AbstractPersistableEntity extends BusinessObject
      * @return <code>true</code> if the instance has not been persisted,
      *         <code>false</code> otherwise
      */
+	@Transient
     public final boolean isNew() {
         return (getInternalId() == null);
     }
@@ -60,6 +66,8 @@ public abstract class AbstractPersistableEntity extends BusinessObject
      *
      * @return the version
      */
+    @Version
+    @Column(name="version", nullable=false)
     public final int getVersion() {
         return version;
     }
@@ -68,8 +76,6 @@ public abstract class AbstractPersistableEntity extends BusinessObject
      * Sets the version numbers. Should only be used by the persistence layer.
      *
      * @param version the new version number to use
-     *
-     * @hibernate.version type="integer"
      */
     protected final void setVersion(int version) {
         this.version = version;
