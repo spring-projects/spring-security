@@ -120,11 +120,11 @@
 		<attributes>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2-SNAPSHOT.jar">
+	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2-rc2.jar">
 		<attributes>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2-rc1.jar">
+	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2-rc2.jar">
 		<attributes>
 		</attributes>
 	</classpathentry>
