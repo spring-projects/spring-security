@@ -15,7 +15,7 @@
 
 package net.sf.acegisecurity.domain.impl;
 
-import net.sf.acegisecurity.domain.util.CollectionIgnoringReflectionToStringBuilder;
+import net.sf.acegisecurity.domain.util.ReflectionToStringBuilder;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
@@ -77,6 +77,6 @@ public abstract class BusinessObject implements Serializable, Cloneable {
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        return new CollectionIgnoringReflectionToStringBuilder(this).toString();
+        return new ReflectionToStringBuilder(this).toString();
     }
 }

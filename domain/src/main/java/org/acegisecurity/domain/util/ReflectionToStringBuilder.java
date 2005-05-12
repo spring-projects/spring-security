@@ -15,28 +15,34 @@
 
 package net.sf.acegisecurity.domain.util;
 
-import org.apache.commons.lang.builder.ToStringStyle;
-
+import java.io.Serializable;
 import java.lang.reflect.Field;
-
 import java.text.DateFormat;
-
 import java.util.Calendar;
+import java.util.Collection;
+
+import net.sf.acegisecurity.domain.PersistableEntity;
+
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
- * Customized Commons Lang <code>ReflectionToStringBuilder</code>.
+ * Customized Commons Lang <code>ReflectionToStringBuilder</code>
+ * that ignores collections and inaccessible (ie lazy-loaded) fields.
  *
  * @author Carlos Sanchez
- * @version $Revision$
- *
- * @see org.apache.commons.lang.builder.ReflectionToStringBuilder
+ * @author Ben Alex
+ * @version $Id$
  */
 public class ReflectionToStringBuilder
     extends org.apache.commons.lang.builder.ReflectionToStringBuilder {
     //~ Static fields/initializers =============================================
 
-    private static DateFormat formatter = DateFormat.getDateTimeInstance();
+    protected final transient Log logger = LogFactory.getLog(getClass());
+
+	private static DateFormat formatter = DateFormat.getDateTimeInstance();
 
     //~ Constructors ===========================================================
 
@@ -64,4 +70,38 @@ public class ReflectionToStringBuilder
             return value;
         }
     }
+	
+    protected boolean accept(Field field) {
+		// Ignore if field inaccessible or collection
+		try {
+			Object o = getValue(field);
+			if (o != null) {
+				if (o instanceof PersistableEntity) {
+					Serializable id = ((PersistableEntity)o).getInternalId();
+					if (logger.isDebugEnabled()) {
+						logger.debug(field + " id: " + id);
+					}
+				}
+				if (o instanceof Collection) {
+					int size = ((Collection)o).size();
+					this.append(field.getName(), "<collection with " + size + " elements>");
+					if (logger.isDebugEnabled()) {
+						logger.debug(field + " size: " + size);
+					}
+				}
+			}
+		} catch (Exception fieldInaccessible) {
+			this.append(field.getName(), "<inaccessible>");
+			if (logger.isDebugEnabled()) {
+				logger.debug("Inaccessible: " + field);
+			}
+			return false;
+		}
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("Accessible: " + field);
+		}
+		
+        return true;
+    }	
 }
