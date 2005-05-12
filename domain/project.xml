@@ -15,7 +15,7 @@
     <dependency>
       <groupId>hibernate</groupId>
       <artifactId>hibernate</artifactId>
-      <version>3.0.1</version>
+      <version>3.0.3</version>
       <type>jar</type>
       <url>http://www.hibernate.org</url>
     </dependency>

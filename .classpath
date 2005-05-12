@@ -204,7 +204,7 @@
 		<attributes>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0.1.jar">
+	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0.3.jar">
 		<attributes>
 		</attributes>
 	</classpathentry>
