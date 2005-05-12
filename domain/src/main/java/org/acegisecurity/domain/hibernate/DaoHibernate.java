@@ -22,6 +22,7 @@ import java.util.List;
 import net.sf.acegisecurity.domain.PersistableEntity;
 import net.sf.acegisecurity.domain.dao.Dao;
 import net.sf.acegisecurity.domain.dao.EvictionCapable;
+import net.sf.acegisecurity.domain.dao.InitializationCapable;
 import net.sf.acegisecurity.domain.dao.PaginatedList;
 
 import org.hibernate.Criteria;
@@ -46,7 +47,7 @@ import org.springframework.util.Assert;
  * @version $Id$
  */
 public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSupport implements Dao<E>,
-    EvictionCapable {
+    EvictionCapable, InitializationCapable {
     //~ Instance fields ========================================================
 
     /** The class that this instance provides services for */
@@ -158,7 +159,11 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
      */
     protected void initHibernateDao() throws Exception {}
 
-    /**
+    public void initialize(Object entity) {
+		Hibernate.initialize(entity);
+	}
+
+	/**
      * Provides a <code>HibernateCallback</code> that will load a list of
      * objects by a <code>Collection</code> of identities.
      *
@@ -211,6 +216,8 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
                                                       .getClassMetadata(bean
                             .getClass());
 
+					Assert.notNull(classMetadata, "ClassMetadata for " + bean.getClass() + " unavailable from Hibernate - have you mapped this class against the SessionFactory?");
+					
                     /* get persistent properties */
                     Type[] propertyTypes = classMetadata.getPropertyTypes();
                     String[] propertyNames = classMetadata.getPropertyNames();
