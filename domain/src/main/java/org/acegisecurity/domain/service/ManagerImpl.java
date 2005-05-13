@@ -123,7 +123,12 @@ public class ManagerImpl<E extends PersistableEntity> extends ApplicationObjectS
         return dao.readId(id);
     }
 
-    public PaginatedList<E> scroll(E value, int firstElement,
+    public E readPopulatedId(Serializable id) {
+		Assert.notNull(id);
+		return dao.readPopulatedId(id);
+	}
+
+	public PaginatedList<E> scroll(E value, int firstElement,
         int maxElements) {
         Assert.notNull(value);
 		Assert.isInstanceOf(this.supportsClass, value, "Can only scroll with values this manager supports");

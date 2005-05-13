@@ -19,6 +19,7 @@ import net.sf.acegisecurity.domain.validation.IntrospectionManager;
 import net.sf.acegisecurity.domain.validation.ValidationRegistryManager;
 
 import org.hibernate.EntityMode;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 
@@ -120,11 +121,12 @@ public class IntrospectionManagerHibernate implements IntrospectionManager,
                     Type propertyType = classMetadata.getPropertyType(propertyNames[i]);
 
                     // Add this property to the List of Objects to validate
-                    // only if a Validator is registered for that Object
+                    // only if a Validator is registered for that Object AND
+					// the object is initialized (ie not lazy loaded)
                     if (this.validationRegistryManager.findValidator(
                             propertyType.getReturnedClass()) != null) {
                         Object childObject = classMetadata.getPropertyValue(parentObject, propertyNames[i], EntityMode.POJO);
-                        if (childObject != null) {
+                        if (childObject != null && Hibernate.isInitialized(childObject)) {
                             allObjects.add(childObject);
                         }
                     }

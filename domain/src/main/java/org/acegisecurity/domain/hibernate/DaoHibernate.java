@@ -16,6 +16,7 @@
 package net.sf.acegisecurity.domain.hibernate;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,6 +25,7 @@ import net.sf.acegisecurity.domain.dao.Dao;
 import net.sf.acegisecurity.domain.dao.EvictionCapable;
 import net.sf.acegisecurity.domain.dao.InitializationCapable;
 import net.sf.acegisecurity.domain.dao.PaginatedList;
+import net.sf.acegisecurity.domain.validation.ValidationManager;
 
 import org.hibernate.Criteria;
 import org.hibernate.EntityMode;
@@ -35,9 +37,12 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.Type;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.util.Assert;
+import org.springframework.validation.BindException;
+
 
 /**
  * Generics supporting {@link Dao} implementation that uses Hibernate 3 for persistence.
@@ -52,6 +57,9 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
 
     /** The class that this instance provides services for */
     private Class supportsClass;
+	
+	/** Enables mutator methods to validate an object prior to persistence */
+	private ValidationManager validationManager;
 
     //~ Methods ================================================================
 
@@ -63,15 +71,33 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
         return supportsClass;
     }
 
-    public E create(E value) {
+    public ValidationManager getValidationManager() {
+		return validationManager;
+	}
+
+	public void setValidationManager(ValidationManager validationManager) {
+		this.validationManager = validationManager;
+	}
+
+	public E create(E value) {
         Assert.notNull(value);
+		validate(value);
         getHibernateTemplate().save(value);
 
         return readId(value.getInternalId());
     }
+	
+	protected void validate(E value) throws DataIntegrityViolationException {
+		try {
+			validationManager.validate(value);
+		} catch (BindException bindException) {
+			throw new DataIntegrityViolationException("Entity state is invalid", bindException);
+		}
+	}
 
     public E createOrUpdate(E value) {
         Assert.notNull(value);
+		validate(value);
         getHibernateTemplate().saveOrUpdate(value);
 
         return readId(value.getInternalId());
@@ -79,6 +105,7 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
 
     public void delete(E value) {
         Assert.notNull(value);
+		validate(value);
         getHibernateTemplate().delete(value);
     }
 
@@ -104,6 +131,37 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
         return (E) getHibernateTemplate().get(supportsClass, id);
     }
 
+	public E readPopulatedId(Serializable id) {
+        Assert.notNull(id);
+        E result = readId(id);
+		initializeAllZeroArgumentGetters(result);
+		return result;
+	}
+	
+	/**
+	 * Locates every <code>get*()</code> method against the passed entity
+	 * and calls it. This method does not nest its initialization beyond
+	 * the immediately passed entity.
+	 * 
+	 * <p>For example, a Foo object might provide a getBar() method.
+	 * Passing the Foo instance to this method will guarantee getBar() is
+	 * available to the services layer. However, it getBar() returned a Bar
+	 * which in turn provided a getCar() method, there is NO GUARANTEE
+	 * the getCar() method will be initialized.
+	 * 
+	 * @param entity for which its immediate getters should be initialized
+	 */
+	protected void initializeAllZeroArgumentGetters(E entity) {
+		Method[] methods = entity.getClass().getMethods();
+		for (int i = 0; i < methods.length; i++) {
+			if (methods[i].getName().startsWith("get") && methods[i].getParameterTypes().length == 0) {
+				try {
+					Hibernate.initialize(methods[i].invoke(entity, new Object[] {}));
+				} catch (Exception ignored) {}
+			}
+		}
+	}
+	
     public PaginatedList<E> scroll(E value, int firstElement,
         int maxElements, String orderByAsc) {
         Assert.notNull(value);
@@ -134,6 +192,7 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
 
     public E update(E value) {
         Assert.notNull(value);
+		validate(value);
         getHibernateTemplate().update(value);
 
         return readId(value.getInternalId());
@@ -146,6 +205,7 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
      */
     protected final void initDao() throws Exception {
         Assert.notNull(supportsClass, "supportClass is required");
+		Assert.notNull(validationManager, "validationManager is required");
         Assert.isTrue(PersistableEntity.class.isAssignableFrom(supportsClass),
             "supportClass is not an implementation of PersistableEntity");
         initHibernateDao();

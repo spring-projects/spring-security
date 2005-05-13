@@ -19,6 +19,7 @@ import net.sf.acegisecurity.domain.PersistableEntity;
 
 import org.springframework.util.Assert;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -52,6 +53,39 @@ public class EvictionUtils {
     }
 
     /**
+     * Evicts the <code>PersistableEntity</code> using the passed
+     * <code>Object</code> (provided that the passed <code>Object</code>
+     * implements <code>EvictionCapable</code>), along with expressly
+     * evicting every <code>PersistableEntity</code> returned by the
+     * <code>PersistableEntity</code>'s getters.
+     *
+     * @param daoOrServices the potential source for
+     *        <code>EvictionCapable</code> services (never <code>null</code>)
+     * @param entity to evict includnig its getter results (can be <code>null</code>)
+     */
+    public static void evictPopulatedIfRequired(Object daoOrServices,
+        PersistableEntity entity) {
+        EvictionCapable evictor = getEvictionCapable(daoOrServices);
+
+        if (evictor != null && entity != null) {
+            evictor.evict(entity);
+			
+			Method[] methods = entity.getClass().getMethods();
+			for (int i = 0; i < methods.length; i++) {
+				if (methods[i].getName().startsWith("get") && methods[i].getParameterTypes().length == 0) {
+					try {
+						Object result = methods[i].invoke(entity, new Object[] {});
+						if (result instanceof PersistableEntity) {
+							evictor.evict((PersistableEntity) result);
+						}
+					} catch (Exception ignored) {}
+				}
+			}
+			
+        }
+    }
+
+	/**
      * Evicts each <code>PersistableEntity</code> element of the passed
      * <code>Collection</code> using the passed <code>Object</code> (provided
      * that the passed <code>Object</code> implements

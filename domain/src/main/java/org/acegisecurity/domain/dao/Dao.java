@@ -112,7 +112,9 @@ public interface Dao<E extends PersistableEntity> {
     public List<E> findId(Collection<Serializable> ids);
 
     /**
-     * Load a persistent instance by its identifier.
+     * Load a persistent instance by its identifier, although some properties
+     * may be lazy loaded depending on the underlying DAO implementation and/or
+     * persistence engine mapping document.
      *
      * @param id the identifier of the persistent instance desired to be
      *        retrieved
@@ -121,6 +123,17 @@ public interface Dao<E extends PersistableEntity> {
      */
     public E readId(Serializable id);
 
+	/**
+	 * Loads a persistent instance by its identifier, along with any
+	 * lazy loaded properties associated with that instance.
+	 * 
+     * @param id the identifier of the persistent instance desired to be
+     *        retrieved
+     *
+     * @return the request item, or <code>null</code> if not found
+	 */
+	public E readPopulatedId(Serializable id);
+	
     /**
      * Find persistent instances with properties matching those of the passed
      * <code>PersistableEntity</code>.

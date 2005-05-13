@@ -8,12 +8,12 @@ will need to wire a suitable {@link IntrospectionManager} against the
 <code>ValidationManager</code> so that children of a domain object presented
 for validation can be identified and in turn also validated.
 
-<p>The {@link ValidationInterceptor} and {@link ValidationAdvisor} should be
-used against each of your data access object (DAO) mutator methods, such as
-<code>SomeDao.create(Object)</code> and <code>SomeDao.update(Object)</code>.
-The interceptor will cause the <code>Object</code> to be presented to the
-<code>ValidationManager</code>, thus ensuring the domain object instance is in
-a valid state before being persisted.</p>
+<p>The {@link ValidationInterceptor} and {@link ValidationAdvisor} are provided,
+although their use is not recommended against DAOs given many <code>Validator</code>s
+require a DAO and this will cause a loop that results in the DAO not being
+advised. Instead your DAO implementations should have their mutator methods
+pass the object to the <code>ValidationManager</code> prior to persistence. This
+is a non-AOP approach, but represetns a practical solution.</p>
 
 <p>If you domain objects themselves wish to ensure they are in a valid state
 prior to internal business methods being invoked, it is suggested they provide
@@ -32,14 +32,10 @@ directly, as it ignores classes that do not implement
 
 <p>Finally, sometimes <code>Validator</code>s might need to perform queries
 against a persistence or services layer. For example, the <code>Validator</code>
-may be checking no other user has this username. If using an ORM tool such as
-Hibernate, it is recommended your <code>Validator</code>s subclass a common
-abstract parent that provides an <code>evict(Object)</code> and 
-<code>evict(Collection)</code> method. That way your <code>Validator</code>s
-can utilise standard services layer or DAO methods as required to retrieve
-other domain objects, and flush them from the session cache afterwards. Whilst
-this is more a <code>Validator</code> design choice than something mandated by
-this package, we have found it a worthwhile pattern in real-world applications.
+may be checking no other user has this username, or comparing the object's old
+state to detect modifications that violate business rules. If using an ORM tool
+such as Hibernate, it is recommended you use the <code>EvictionUtils</code>
+static methods to remove objects from the session.
 </p>
 </body>
 </html>
