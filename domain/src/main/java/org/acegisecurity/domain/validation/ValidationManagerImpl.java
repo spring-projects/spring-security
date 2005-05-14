@@ -148,11 +148,12 @@ public class ValidationManagerImpl implements InitializingBean,
                 // Handle validation outcome
                 if (errors.getErrorCount() == 0) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Validated '" + clazz + "' successfully");
+                        logger.debug("Validated '" + clazz + "' successfully using '"
+							+ v.getClass() + "'");
                     }
                 } else {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Validated '" + clazz
+                        logger.debug("Validated '" + clazz + "' using '" + v.getClass()
                             + "' but errors detected");
                     }
 
