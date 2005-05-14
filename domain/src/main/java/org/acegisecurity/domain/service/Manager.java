@@ -175,6 +175,32 @@ public interface Manager<E extends PersistableEntity> {
     public PaginatedList<E> scroll(E value, int firstElement,
         int maxElements);
 
+    /**
+     * Find persistent instances with properties matching those of the passed
+     * <code>PersistableEntity</code>, with a guarantee the returned results
+     * will have each of the <code>value</code> class' immediate properties
+     * initialized.
+     * 
+     * <P>
+     * Persistent instances are matched on the basis of query by example.
+     * Properties whose value is <code>null</code>, empty
+     * <code>String</code>s, and any <code>Collection</code>s are ignored in
+     * the query by example evaluation.
+     * </p>
+     *
+     * @param value parameters to filter on (the class of this object will
+     * be added to the filter)
+     * @param firstElement the first result (start at zero to obtain all
+     *        results)
+     * @param maxElements the maximum number of results desired for this page
+     *        of the result set
+     *
+     * @return the requested page of the result list (a properly formed
+     *         <code>PaginatedList</code> is returned if no results match)
+     */
+    public PaginatedList<E> scrollPopulated(E value, int firstElement,
+        int maxElements);
+
 	/**
      * Find persistent instances with properties matching those of the passed
      * <code>PersistableEntity</code>, ignoring the class of the passed
@@ -194,6 +220,27 @@ public interface Manager<E extends PersistableEntity> {
     public PaginatedList<E> scrollWithSubclasses(E value, int firstElement,
 	        int maxElements);
 
+	/**
+     * Find persistent instances with properties matching those of the passed
+     * <code>PersistableEntity</code>, ignoring the class of the passed
+     * <code>PersistableEntity</code> (useful if you pass a superclass, as you
+     * want to find all subclass instances which match). Guarantees the returned 
+     * results will have each of the DAO's <code>supports</code> class' immediate
+     * properties initialized.
+	 * 
+     * @param value parameters to filter on (the class of this object will
+     * NOT be added to the filter)
+     * @param firstElement the first result (start at zero to obtain all
+     *        results)
+     * @param maxElements the maximum number of results desired for this page
+     *        of the result set
+     *
+     * @return the requested page of the result list (a properly formed
+     *         <code>PaginatedList</code> is returned if no results match)
+	 */
+    public PaginatedList<E> scrollPopulatedWithSubclasses(E value, int firstElement,
+	        int maxElements);
+	
 	/**
      * Indicates whether the DAO instance provides persistence services for the
      * specified class.

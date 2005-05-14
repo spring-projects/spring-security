@@ -46,5 +46,22 @@ public class InitializationUtils {
 			((InitializationCapable) daoOrServices).initialize(entity);
 		}
     }
-
+	
+	/**
+	 * Indicates whether the passed entity has been initialized, by delegating
+	 * to the passed daoOrServices (provided that the passed daoOrServices
+	 * implements <code>InitializationCapable</code>.
+	 * 
+	 * @param entity to determine whether initialized or not
+	 * @return <code>true</code> if initialized, <code>false</code> if it is
+	 * 			uninitialized or the passed daoOrServices does not provide
+	 * 			initialization querying support
+	 */
+	public static boolean isInitialized(Object daoOrServices, Object entity) {
+		Assert.notNull(daoOrServices);
+		if (daoOrServices instanceof InitializationCapable) {
+			return ((InitializationCapable) daoOrServices).isInitialized(entity);
+		}
+		return false;
+	}
 }

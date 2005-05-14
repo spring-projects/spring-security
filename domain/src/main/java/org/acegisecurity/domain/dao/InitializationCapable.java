@@ -72,4 +72,13 @@ public interface InitializationCapable {
      * @param entity to initialize
      */
     public void initialize(Object entity);
+	
+	/**
+	 * Indicaets whether the passed object is initialized or not.
+	 * 
+	 * @param entity to determine if initialized
+	 * @return <code>true</code> if initialized, <code>false</code> is uninitialized or
+	 * 		   the initialization status is unknown
+	 */
+	public boolean isInitialized(Object entity);
 }

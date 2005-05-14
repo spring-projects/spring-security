@@ -29,6 +29,7 @@ import net.sf.acegisecurity.domain.validation.ValidationManager;
 
 import org.hibernate.Criteria;
 import org.hibernate.EntityMode;
+import org.hibernate.FetchMode;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -164,25 +165,38 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
 	
     public PaginatedList<E> scroll(E value, int firstElement,
         int maxElements, String orderByAsc) {
-        Assert.notNull(value);
-        Assert.hasText(orderByAsc,
-            "An orderByAsc is required (why not use your identity property?)");
-		Assert.isInstanceOf(this.supportsClass, value, "Can only scroll with values this DAO supports");
-
+		validateScrollMethod(value, firstElement, maxElements, orderByAsc);
         return (PaginatedList) getHibernateTemplate().execute(getFindByValueCallback(
-                value.getClass(), value, firstElement, maxElements, Order.asc(orderByAsc)));
+                value.getClass(), false, value, firstElement, maxElements, Order.asc(orderByAsc)));
     }
 
     public PaginatedList<E> scrollWithSubclasses(E value, int firstElement,
 	        int maxElements, String orderByAsc) {
-	        Assert.notNull(value);
-	        Assert.hasText(orderByAsc,
-	            "An orderByAsc is required (why not use your identity property?)");
-			Assert.isInstanceOf(this.supportsClass, value, "Can only scroll with values this DAO supports");
-
+			validateScrollMethod(value, firstElement, maxElements, orderByAsc);
 	        return (PaginatedList) getHibernateTemplate().execute(getFindByValueCallback(
-	                this.supportsClass, value, firstElement, maxElements, Order.asc(orderByAsc)));
+	                this.supportsClass, false, value, firstElement, maxElements, Order.asc(orderByAsc)));
 	    }
+	
+    public PaginatedList<E> scrollPopulated(E value, int firstElement,
+	        int maxElements, String orderByAsc) {
+			validateScrollMethod(value, firstElement, maxElements, orderByAsc);
+	        return (PaginatedList) getHibernateTemplate().execute(getFindByValueCallback(
+	                value.getClass(), true, value, firstElement, maxElements, Order.asc(orderByAsc)));
+	    }
+
+	public PaginatedList<E> scrollPopulatedWithSubclasses(E value, int firstElement,
+		        int maxElements, String orderByAsc) {
+				validateScrollMethod(value, firstElement, maxElements, orderByAsc);
+		        return (PaginatedList) getHibernateTemplate().execute(getFindByValueCallback(
+		                this.supportsClass, true, value, firstElement, maxElements, Order.asc(orderByAsc)));
+		    }
+
+	private void validateScrollMethod(E value, int firstElement, int MaxElements, String orderByAsc) {
+        Assert.notNull(value);
+        Assert.hasText(orderByAsc,
+            "An orderByAsc is required (why not use your identity property?)");
+		Assert.isInstanceOf(this.supportsClass, value, "Can only scroll with values this DAO supports");
+	}
 
 	public boolean supports(Class clazz) {
         Assert.notNull(clazz);
@@ -223,6 +237,10 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
 		Hibernate.initialize(entity);
 	}
 
+	public boolean isInitialized(Object entity) {
+		return Hibernate.isInitialized(entity);
+	}
+
 	/**
      * Provides a <code>HibernateCallback</code> that will load a list of
      * objects by a <code>Collection</code> of identities.
@@ -256,6 +274,9 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
      * the "version" name. If the property is mapped as String find a partial
      * match, otherwise find by exact match.
      *
+     * @param whichClass the class (and subclasses) which results will be limited to including
+     * @param initializeAllProperties indicates whether lazy initialized properties
+     *        should be initialized in the returned results
      * @param bean bean with the values of the parameters
      * @param firstElement the first result, numbered from 0
      * @param count the maximum number of results
@@ -263,7 +284,7 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
      *
      * @return a PaginatedList containing the requested objects
      */
-    private HibernateCallback getFindByValueCallback(final Class whichClass, final Object bean,
+    private HibernateCallback getFindByValueCallback(final Class whichClass, final boolean initializeAllProperties, final Object bean,
         final int firstElement, final int count, final Order order) {
         return new HibernateCallback() {
                 public Object doInHibernate(Session session)
@@ -286,6 +307,11 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
                     for (int i = 0; i < propertyNames.length; i++) {
                         String name = propertyNames[i];
                         
+						// Indicate preferred fetching here
+						if (initializeAllProperties) {
+							criteria.setFetchMode(name, FetchMode.JOIN);
+						}
+						
                         // TODO: Check if EntityMode.POJO appropriate
                         Object value = classMetadata.getPropertyValue(bean, name, EntityMode.POJO);
 

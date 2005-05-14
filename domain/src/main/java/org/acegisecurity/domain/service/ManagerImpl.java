@@ -136,13 +136,27 @@ public class ManagerImpl<E extends PersistableEntity> extends ApplicationObjectS
         return dao.scroll(value, firstElement, maxElements, getDefaultSortOrder());
     }
 
-    public PaginatedList<E> scrollWithSubclasses(E value, int firstElement,
+    public PaginatedList<E> scrollPopulated(E value, int firstElement, int maxElements) {
+        Assert.notNull(value);
+		Assert.isInstanceOf(this.supportsClass, value, "Can only scroll with values this manager supports");
+		
+		return dao.scrollPopulated(value, firstElement, maxElements, getDefaultSortOrder());
+	}
+
+	public PaginatedList<E> scrollWithSubclasses(E value, int firstElement,
 	        int maxElements) {
 	        Assert.notNull(value);
 			Assert.isInstanceOf(this.supportsClass, value, "Can only scroll with values this manager supports");
 
 	        return dao.scrollWithSubclasses(value, firstElement, maxElements, getDefaultSortOrder());
 	    }
+
+	public PaginatedList<E> scrollPopulatedWithSubclasses(E value, int firstElement, int maxElements) {
+        Assert.notNull(value);
+		Assert.isInstanceOf(this.supportsClass, value, "Can only scroll with values this manager supports");
+
+		return dao.scrollPopulatedWithSubclasses(value, firstElement, maxElements, getDefaultSortOrder());
+	}
 
 	public boolean supports(Class clazz) {
         Assert.notNull(clazz);
