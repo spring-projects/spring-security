@@ -117,18 +117,23 @@ public class ValidationRegistryManagerImpl implements ValidationRegistryManager,
 			return beans.get(validator);
 		} else {
 			// Try to locate an entry with simple class name in it
+			StringBuffer sb = new StringBuffer();
 			Iterator<String> iterCandidates = candidateValidatorNames.iterator();
 			String lastFound = null;
 			int numberFound = 0;
 			while (iterCandidates.hasNext()) {
 				String candidate = iterCandidates.next();
+				sb.append(candidate);
+				if (iterCandidates.hasNext()) {
+					sb.append(",");
+				}
 				if (candidate.toLowerCase().contains(domainClass.getSimpleName().toLowerCase())) {
 					numberFound++;
 					lastFound = candidate;
 				}
 			}
 			if (numberFound != 1) {
-				throw new IllegalArgumentException("More than one Validator found that supports '" + domainClass + "' and cannot determine most specific Validator to use; give a hint by making bean name include the simple name of the target class");
+				throw new IllegalArgumentException("More than one Validator found (" + sb.toString() + ") that supports '" + domainClass + "', but cannot determine the most specific Validator to use; give a hint by making bean name include the simple name of the target class ('" + domainClass.getSimpleName().toString() + "')");
 			}
 			this.validatorMap.put(domainClass, lastFound);
 			return beans.get(lastFound);
