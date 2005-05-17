@@ -51,7 +51,7 @@ public abstract class AbstractPersistableEntity extends BusinessObject
      *         <code>false</code> otherwise
      */
 	@Transient
-    public final boolean isNew() {
+    public boolean isNew() {
         return (getInternalId() == null);
     }
 
@@ -68,16 +68,16 @@ public abstract class AbstractPersistableEntity extends BusinessObject
      */
     @Version
     @Column(name="version", nullable=false)
-    public final int getVersion() {
+    public int getVersion() {
         return version;
     }
 
     /**
-     * Sets the version numbers. Should only be used by the persistence layer.
+     * Sets the version numbers.
      *
      * @param version the new version number to use
      */
-    protected final void setVersion(int version) {
+    public void setVersion(int version) {
         this.version = version;
     }
 }
