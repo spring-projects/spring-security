@@ -15,6 +15,8 @@
 
 package net.sf.acegisecurity.acl;
 
+import java.io.Serializable;
+
 /**
  * Marker interface representing an access control list entry associated with a
  * specific domain object instance.
@@ -22,4 +24,4 @@ package net.sf.acegisecurity.acl;
  * @author Ben Alex
  * @version $Id$
  */
-public interface AclEntry {}
+public interface AclEntry extends Serializable {}
