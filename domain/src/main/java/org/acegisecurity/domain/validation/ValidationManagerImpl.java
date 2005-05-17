@@ -220,20 +220,24 @@ public class ValidationManagerImpl implements InitializingBean,
         introspectionManager.obtainImmediateChildren(parentObject,
             currentChildren);
 
-        // Add the children
-        allObjects.addAll(currentChildren);
-
         // Now iterate the children, adding their children to the object list
         Iterator<Object> childrenIter = currentChildren.iterator();
 
         while (childrenIter.hasNext()) {
             Object childObject = childrenIter.next();
 
-            if (childObject != null && !allObjects.contains(childObject)) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("New child class found; searching for children of: " + childObject);
+            if (childObject != null) {
+				if (allObjects.contains(childObject)) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Already processed this object (will not re-add): " + childObject);
+					}
+				} else {
+					if (logger.isDebugEnabled()) {
+						logger.debug("New child object found; adding child object to list of objects, and searching for its children: " + childObject);
+					}
+					allObjects.add(childObject);
+	                obtainAllChildren(childObject, allObjects);
 				}
-                obtainAllChildren(childObject, allObjects);
             }
         }
     }
