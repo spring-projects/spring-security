@@ -13,6 +13,9 @@
 	<P>username <b>dianne</b>, password <b>emu</b>
 	<p>username <b>scott</b>, password <b>wombat</b>
 	<p>username <b>peter</b>, password <b>opal</b> (user disabled)
+	<p>username <b>bill</b>, password <b>wombat</b>
+	<p>username <b>bob</b>, password <b>wombat</b>
+	<p>username <b>jane</b>, password <b>wombat</b>
 	<p>
 	
     <%-- this form-login-page form is also used as the 
