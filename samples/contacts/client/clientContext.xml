@@ -27,10 +27,9 @@
 			<ref local="remoteInvocationFactory"/>
 		</property>
 	</bean>
-	-->
 	 
-	<!-- Automatically propagates ContextHolder contents when using the RMI proxy -->
 	<bean id="remoteInvocationFactory" class="net.sf.acegisecurity.ui.rmi.ContextPropagatingRemoteInvocationFactory"/>
+	-->
 	
 	<!-- Proxy for the HTTP-invoker-exported ContactManager -->
 	<!-- Spring's HTTP invoker uses Java serialization via HTTP  -->
@@ -50,8 +49,7 @@
 		 and credentials to a HTTP invoker BASIC authentication header -->
 	<bean id="httpInvokerRequestExecutor" class="net.sf.acegisecurity.context.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor"/>
 
-	<!-- Proxy for the Hessian-exported ContactManager -->
-	<!-- Hessian is a slim binary HTTP remoting protocol -->
+	<!-- Proxy for the Hessian-exported ContactManager
 	<bean id="hessianProxy" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
 		<property name="serviceInterface">
 			<value>sample.contact.ContactManager</value>
@@ -60,9 +58,9 @@
 			<value>http://${serverName}:${httpPort}${contextPath}/remoting/ContactManager-hessian</value>
 		</property>
 	</bean>
-
-	<!-- Proxy for the Burlap-exported ContactManager -->
-	<!-- Burlap is a slim XML-based HTTP remoting protocol -->
+	-->
+	
+	<!-- Proxy for the Burlap-exported ContactManager
 	<bean id="burlapProxy" class="org.springframework.remoting.caucho.BurlapProxyFactoryBean">
 		<property name="serviceInterface">
 			<value>sample.contact.ContactManager</value>
@@ -71,5 +69,6 @@
 			<value>http://${serverName}:${httpPort}${contextPath}/remoting/ContactManager-burlap</value>
 		</property>
 	</bean>
-
+	-->
+	
 </beans>
