@@ -26,6 +26,7 @@
   </properties>
   <body>
     <release version="0.9.0" date="In CVS">
+      <action dev="benalex" type="update">Reorder DaoAuthenticationProvider exception logic as per developer list discussion</action>        
       <action dev="benalex" type="update">ContextHolder refactored and replaced by SecurityContextHolder</action>        
       <action dev="benalex" type="fix">Made AclEntry Serializable (correct issue with BasicAclEntryCache)</action>        
       <action dev="luke_t" type="update">Changed order of credentials verification and expiry checking in DaoAuthenticationProvider. Password must now be successfully verified before expired credentials are reported. </action>        

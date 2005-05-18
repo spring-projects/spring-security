@@ -237,24 +237,6 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             }
         }
 
-        if (!user.isEnabled()) {
-            if (this.context != null) {
-                context.publishEvent(new AuthenticationFailureDisabledEvent(
-                        authentication, user));
-            }
-
-            throw new DisabledException("User is disabled");
-        }
-
-        if (!user.isAccountNonExpired()) {
-            if (this.context != null) {
-                context.publishEvent(new AuthenticationFailureAccountExpiredEvent(
-                        authentication, user));
-            }
-
-            throw new AccountExpiredException("User account has expired");
-        }
-
         if (!user.isAccountNonLocked()) {
             if (this.context != null) {
                 context.publishEvent(new AuthenticationFailureAccountLockedEvent(
@@ -281,7 +263,25 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             }
         }
 
-        if (!user.isCredentialsNonExpired()) {
+        if (!user.isEnabled()) {
+            if (this.context != null) {
+                context.publishEvent(new AuthenticationFailureDisabledEvent(
+                        authentication, user));
+            }
+
+            throw new DisabledException("User is disabled");
+        }
+
+        if (!user.isAccountNonExpired()) {
+            if (this.context != null) {
+                context.publishEvent(new AuthenticationFailureAccountExpiredEvent(
+                        authentication, user));
+            }
+
+            throw new AccountExpiredException("User account has expired");
+        }
+
+		if (!user.isCredentialsNonExpired()) {
             if (this.context != null) {
                 context.publishEvent(new AuthenticationFailureCredentialsExpiredEvent(
                         authentication, user));
