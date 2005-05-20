@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Array;
@@ -98,6 +99,7 @@ import java.util.Set;
  * </p>
  *
  * @author Ben Alex
+ * @author Paulo Neves
  * @version $Id$
  */
 public class BasicAclEntryAfterInvocationCollectionFilteringProvider
@@ -139,11 +141,13 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(processConfigAttribute, "A processConfigAttribute is mandatory");
+        Assert.notNull(processConfigAttribute,
+            "A processConfigAttribute is mandatory");
         Assert.notNull(aclManager, "An aclManager is mandatory");
 
         if ((requirePermission == null) || (requirePermission.length == 0)) {
-            throw new IllegalArgumentException("One or more requirePermission entries is mandatory");
+            throw new IllegalArgumentException(
+                "One or more requirePermission entries is mandatory");
         }
     }
 
@@ -302,6 +306,10 @@ class CollectionFilterer implements Filterer {
     //~ Instance fields ========================================================
 
     private Collection collection;
+
+    // collectionIter offers significant performance optimisations (as
+    // per acegisecurity-developer mailing list conversation 19/5/05)
+    private Iterator collectionIter;
     private Set removeList;
 
     //~ Constructors ===========================================================
@@ -346,14 +354,16 @@ class CollectionFilterer implements Filterer {
      * @see net.sf.acegisecurity.afterinvocation.Filterer#iterator()
      */
     public Iterator iterator() {
-        return collection.iterator();
+        collectionIter = collection.iterator();
+
+        return collectionIter;
     }
 
     /**
      * @see net.sf.acegisecurity.afterinvocation.Filterer#remove(java.lang.Object)
      */
     public void remove(Object object) {
-        removeList.add(object);
+        collectionIter.remove();
     }
 }
 
