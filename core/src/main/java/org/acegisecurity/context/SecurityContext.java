@@ -17,6 +17,8 @@ package net.sf.acegisecurity.context;
 
 import net.sf.acegisecurity.Authentication;
 
+import java.io.Serializable;
+
 
 /**
  * Interface defining the minimum security information associated with the
@@ -29,7 +31,7 @@ import net.sf.acegisecurity.Authentication;
  * @author Ben Alex
  * @version $Id$
  */
-public interface SecurityContext {
+public interface SecurityContext extends Serializable {
     //~ Methods ================================================================
 
     /**
