@@ -97,6 +97,11 @@
       <id>raykrueger</id>
       <email>raykrueger at users.sourceforge.net</email>
     </developer>
+    <developer>
+      <name>Robert Sanders</name>
+      <id>robertsanders</id>
+      <email>robertsanders at users.sourceforge.net</email>
+    </developer>
   </developers>
   <contributors>
     <contributor>
@@ -140,7 +145,7 @@
       <name>Sergio Berna</name>
     </contributor>
     <contributor>
-      <name>Robert Sanders</name>
+      <name>Paulo Neves</name>
     </contributor>
   </contributors>
   <dependencies>
