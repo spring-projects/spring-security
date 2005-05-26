@@ -17,8 +17,6 @@ package net.sf.acegisecurity.domain.impl;
 
 import java.io.Serializable;
 
-import javax.persistence.Transient;
-
 /**
  * A persistable entity that uses a <code>Integer</code> based identity.
  *
@@ -52,7 +50,6 @@ public abstract class PersistableEntityInteger extends AbstractPersistableEntity
      * <p>Marked as abstract to remind users to implement. They'll need to implement
      * so their annotations reflect the correct sequence name.
      */
-	@Transient
     public abstract Integer getId();
 
     /**
@@ -71,7 +68,6 @@ public abstract class PersistableEntityInteger extends AbstractPersistableEntity
      *
      * @return the instance's identity
      */
-	@Transient
     public Serializable getInternalId() {
         return this.getId();
     }

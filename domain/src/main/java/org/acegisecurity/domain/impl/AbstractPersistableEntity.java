@@ -15,10 +15,6 @@
 
 package net.sf.acegisecurity.domain.impl;
 
-import javax.persistence.Column;
-import javax.persistence.Transient;
-import javax.persistence.Version;
-
 import net.sf.acegisecurity.domain.PersistableEntity;
 
 /**
@@ -50,7 +46,6 @@ public abstract class AbstractPersistableEntity extends BusinessObject
      * @return <code>true</code> if the instance has not been persisted,
      *         <code>false</code> otherwise
      */
-	@Transient
     public boolean isNew() {
         return (getInternalId() == null);
     }
@@ -66,8 +61,6 @@ public abstract class AbstractPersistableEntity extends BusinessObject
      *
      * @return the version
      */
-    @Version
-    @Column(name="version", nullable=false)
     public int getVersion() {
         return version;
     }
