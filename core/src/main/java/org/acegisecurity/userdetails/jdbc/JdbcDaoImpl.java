@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,6 +84,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
     private String authoritiesByUsernameQuery;
     private String rolePrefix = "";
     private String usersByUsernameQuery;
+    private boolean usernameBasedPrimaryKey = true;
 
     //~ Constructors ===========================================================
 
@@ -139,6 +140,28 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
         return rolePrefix;
     }
 
+    /**
+     * If <code>true</code> (the default), indicates the {@link
+     * #getUsersByUsernameMapping()} returns a username in response to a
+     * query. If <code>false</code>, indicates that a primary key is used
+     * instead. If set to <code>true</code>, the class will use the
+     * database-derived username in the returned <code>UserDetails</code>. If
+     * <code>false</code>, the class will use the {@link
+     * #loadUserByUsername(String)} derived username in the returned
+     * <code>UserDetails</code>.
+     *
+     * @param usernameBasedPrimaryKey <code>true</code> if the mapping queries
+     *        return the username <code>String</code>, or <code>false</code>
+     *        if the mapping returns a database primary key.
+     */
+    public void setUsernameBasedPrimaryKey(boolean usernameBasedPrimaryKey) {
+        this.usernameBasedPrimaryKey = usernameBasedPrimaryKey;
+    }
+
+    public boolean isUsernameBasedPrimaryKey() {
+        return usernameBasedPrimaryKey;
+    }
+
     public void setUsersByUsernameMapping(MappingSqlQuery usersByUsernameQuery) {
         this.usersByUsernameMapping = usersByUsernameQuery;
     }
@@ -191,8 +214,14 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
 
         arrayAuths = (GrantedAuthority[]) dbAuths.toArray(arrayAuths);
 
-        return new User(user.getUsername(), user.getPassword(),
-            user.isEnabled(), true, true, true, arrayAuths);
+        String returnUsername = user.getUsername();
+
+        if (!usernameBasedPrimaryKey) {
+            returnUsername = username;
+        }
+
+        return new User(returnUsername, user.getPassword(), user.isEnabled(),
+            true, true, true, arrayAuths);
     }
 
     /**

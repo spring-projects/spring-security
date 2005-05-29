@@ -26,6 +26,7 @@
   </properties>
   <body>
     <release version="0.9.0" date="In CVS">
+      <action dev="benalex" type="update">JdbcDaoImpl modified to support synthetic primary keys</action>        
       <action dev="benalex" type="update">Greatly improve BasicAclEntryAfterInvocationCollectionFilteringProvider performance with large collections (if the principal has access to relatively few collection elements)</action>        
       <action dev="benalex" type="update">Reorder DaoAuthenticationProvider exception logic as per developer list discussion</action>        
       <action dev="benalex" type="update">ContextHolder refactored and replaced by SecurityContextHolder</action>        
@@ -34,6 +35,7 @@
       <action dev="benalex" type="update">AnonymousProcessingFilter offers protected method to control when it should execute</action>
       <action dev="benalex" type="fix">AbstractAuthenticationToken.getName() now returns username alone if UserDetails present</action>
       <action dev="raykrueger" type="update">AuthorityGranter.grant now returns a java.util.Set of role names, instead of a single role name</action>  
+      <action dev="benalex" type="update">JavaDoc improvements</action>  
     </release>
     <release version="0.8.2" date="2005-04-20">
       <action dev="benalex" type="fix">Correct location of AuthenticationSimpleHttpInvokerRequestExecutor in clientContext.xml</action>
