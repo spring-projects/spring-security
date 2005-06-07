@@ -1,11 +1,18 @@
 package net.sf.acegisecurity.providers.dao.ldap;
 
 import java.util.Hashtable;
-
+import java.util.Map;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
+import org.springframework.dao.DataAccessResourceFailureException;
 
+/**
+ * @see http://java.sun.com/products/jndi/tutorial/ldap/connect/config.html
+ * 
+ * @author robert.sanders
+ *
+ */
 public class LdapSupport {
     
     /**
@@ -45,16 +52,45 @@ public class LdapSupport {
      **/
     private String initialContextFactory = "com.sun.jndi.ldap.LdapCtxFactory";
 
-    public InitialDirContext getInitialContext() throws NamingException {
-        Hashtable env = new Hashtable(11);
-        env.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
-        env.put(Context.PROVIDER_URL, getInitialContextURL());
-        env.put(Context.SECURITY_AUTHENTICATION, authenticationType);
+    /** Allows extra environment variables to be added at config time. */
+    private Map extraEnvVars = null;
+    
+    /** Use the LDAP Connection pool (in SUN JVMs)?; if true, then the 
+     *  LDAP environment property "com.sun.jndi.ldap.connect.pool" is added 
+     *  to any other JNDI properties. 
+     *  @see http://java.sun.com/products/jndi/tutorial/ldap/connect/pool.html 
+     *  @see http://java.sun.com/products/jndi/tutorial/ldap/connect/config.html
+     */
+    private boolean connectionPoolEnabled = true;
+    
+    public InitialDirContext getInitialContext() throws DataAccessResourceFailureException {
+        Hashtable env = getEnvironment();
         if (managerUser != null) {
             env.put(Context.SECURITY_PRINCIPAL, managerUser);
             env.put(Context.SECURITY_CREDENTIALS, managerPassword);
         }
-        return new InitialDirContext(env);
+        try {
+            return new InitialDirContext(env);
+        } catch (NamingException nx) {
+            throw new DataAccessResourceFailureException("Unable to connect to LDAP Server; check managerUser and managerPassword.", nx);
+        }
+    }
+    
+    /** 
+     * @return The Hashtable describing the base DirContext that will be created; minus the username/password if any.
+     */
+    protected Hashtable getEnvironment() {
+        Hashtable env = new Hashtable(11);
+        env.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
+        env.put(Context.PROVIDER_URL, getInitialContextURL());
+        env.put(Context.SECURITY_AUTHENTICATION, authenticationType);
+        if (connectionPoolEnabled) {
+            env.put("com.sun.jndi.ldap.connect.pool", "true");
+        }
+        if ((extraEnvVars != null) && (extraEnvVars.size() > 0)) {
+            env.putAll(extraEnvVars);
+        }
+        return env;
     }
     
     /** 
@@ -155,6 +191,20 @@ public class LdapSupport {
      */
     public void setURL(String url) {
         URL = url;
+    }
+
+    /**
+     * @return Allows extra environment variables to be added at config time.
+     */
+    public Map getExtraEnvVars() {
+        return extraEnvVars;
+    }
+
+    /**
+     * @param extraEnvVars Allows extra environment variables to be added at config time.
+     */
+    public void setExtraEnvVars(Map extraEnvVars) {
+        this.extraEnvVars = extraEnvVars;
     }
     
 }
