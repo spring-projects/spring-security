@@ -361,7 +361,7 @@
         <literal>SecurityContext</literal> (and in turn the principal).
         <literal>SecurityContextHolder</literal> is an
         <literal>InheritableThreadLocal</literal>, meaning it is associated
-        with the current thread of execution. </para>
+        with the current thread of execution.</para>
       </sect2>
 
       <sect2 id="security-contexts-storage">
@@ -1114,8 +1114,8 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
             </listitem>
 
             <listitem>
-              <para><literal>RunAsImplAuthenticationToken</literal> is able to
-              authenticate a <literal>RunAsUserToken</literal>. This is
+              <para><literal>RunAsImplAuthenticationProvider</literal> is able
+              to authenticate a <literal>RunAsUserToken</literal>. This is
               discussed further in the Run-As Authentication Replacement
               section. You would not register this
               <literal>AuthenticationProvider</literal> if you were not using
