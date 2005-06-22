@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,15 +95,6 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
 
     //~ Methods ================================================================
 
-    public void setAuthoritiesByUsernameMapping(
-        MappingSqlQuery authoritiesByUsernameQuery) {
-        this.authoritiesByUsernameMapping = authoritiesByUsernameQuery;
-    }
-
-    public MappingSqlQuery getAuthoritiesByUsernameMapping() {
-        return authoritiesByUsernameMapping;
-    }
-
     /**
      * Allows the default query string used to retrieve authorities based on
      * username to be overriden, if default table or column names need to be
@@ -160,14 +151,6 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
 
     public boolean isUsernameBasedPrimaryKey() {
         return usernameBasedPrimaryKey;
-    }
-
-    public void setUsersByUsernameMapping(MappingSqlQuery usersByUsernameQuery) {
-        this.usersByUsernameMapping = usersByUsernameQuery;
-    }
-
-    public MappingSqlQuery getUsersByUsernameMapping() {
-        return usersByUsernameMapping;
     }
 
     /**
@@ -243,9 +226,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
      * in a subclass
      */
     protected void initMappingSqlQueries() {
-        setUsersByUsernameMapping(new UsersByUsernameMapping(getDataSource()));
-        setAuthoritiesByUsernameMapping(new AuthoritiesByUsernameMapping(
-                getDataSource()));
+        this.usersByUsernameMapping = new UsersByUsernameMapping(getDataSource());
+        this.authoritiesByUsernameMapping = new AuthoritiesByUsernameMapping(getDataSource());
     }
 
     //~ Inner Classes ==========================================================

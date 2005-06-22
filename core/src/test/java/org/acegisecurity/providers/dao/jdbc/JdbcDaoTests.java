@@ -87,12 +87,6 @@ public class JdbcDaoTests extends TestCase {
 
         dao.setUsersByUsernameQuery("SELECT USERS FROM FOO");
         assertEquals("SELECT USERS FROM FOO", dao.getUsersByUsernameQuery());
-
-        dao.setAuthoritiesByUsernameMapping(new MockMappingSqlQuery());
-        assertTrue(dao.getAuthoritiesByUsernameMapping() != null);
-
-        dao.setUsersByUsernameMapping(new MockMappingSqlQuery());
-        assertTrue(dao.getUsersByUsernameMapping() != null);
     }
 
     public void testLookupFailsIfUserHasNoGrantedAuthorities()

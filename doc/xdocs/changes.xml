@@ -39,6 +39,7 @@
       <action dev="benalex" type="fix">Correct synchronization issue with FilterToBeanProxy initialization</action>
       <action dev="benalex" type="update">Refactor Authentication.isAuthenticated() handling to be more performance</action>
       <action dev="benalex" type="fix">Silently catch NotSerializableException in AbstractProcessingFilter if rootCause is not Serializable</action>
+      <action dev="benalex" type="fix">Remove getters and setters from JdbcDaoImpl so IoC container cannot modify MappingSqlQuerys</action>
     </release>
     <release version="0.8.2" date="2005-04-20">
       <action dev="benalex" type="fix">Correct location of AuthenticationSimpleHttpInvokerRequestExecutor in clientContext.xml</action>
