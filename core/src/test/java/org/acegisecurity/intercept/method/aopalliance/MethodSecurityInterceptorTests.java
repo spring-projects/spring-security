@@ -83,14 +83,14 @@ public class MethodSecurityInterceptorTests extends TestCase {
         SecurityContextHolder.getContext().setAuthentication(null);
     }
 
-    public void testCallingAPublicMethodWhenPresentingAnAuthenticationObjectWillProperlySetItsIsAuthenticatedProperty()
+    public void testCallingAPublicMethodWhenPresentingAnAuthenticationObjectWillNotChangeItsIsAuthenticatedProperty()
         throws Exception {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_THIS_IS_NOT_REQUIRED_AS_IT_IS_PUBLIC")});
+                "Password");
         assertTrue(!token.isAuthenticated());
         SecurityContextHolder.getContext().setAuthentication(token);
 
+        // The associated MockAuthenticationManager WILL accept the above UsernamePasswordAuthenticationToken
         ITargetObject target = makeInterceptedTarget();
         String result = target.publicMakeLowerCase("HELLO");
         assertEquals("hello net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken false",
@@ -158,13 +158,13 @@ public class MethodSecurityInterceptorTests extends TestCase {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_LOWER")});
-        assertTrue(!token.isAuthenticated());
+        assertTrue(token.isAuthenticated());
         SecurityContextHolder.getContext().setAuthentication(token);
 
         ITargetObject target = makeInterceptedTargetWithoutAnAfterInvocationManager();
         String result = target.makeLowerCase("HELLO");
 
-        // Note we check the isAuthenticated becomes true in following line
+        // Note we check the isAuthenticated remained true in following line
         assertEquals("hello net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken true",
             result);
 
@@ -203,11 +203,11 @@ public class MethodSecurityInterceptorTests extends TestCase {
     public void testRejectsCallsWhenAuthenticationIsIncorrect()
         throws Exception {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_LOWER")});
+                "Password");
         assertTrue(!token.isAuthenticated());
         SecurityContextHolder.getContext().setAuthentication(token);
 
+        // NB: The associated MockAuthenticationManager WILL reject the above UsernamePasswordAuthenticationToken
         ITargetObject target = makeInterceptedTargetRejectsAuthentication();
 
         try {

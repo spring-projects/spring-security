@@ -159,7 +159,6 @@ public class RememberMeAuthenticationTokenTests extends TestCase {
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")});
-        token2.setAuthenticated(true);
 
         assertFalse(token1.equals(token2));
     }
@@ -184,7 +183,7 @@ public class RememberMeAuthenticationTokenTests extends TestCase {
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")});
         assertTrue(token.isAuthenticated());
-        token.setAuthenticated(false); // ignored
-        assertTrue(token.isAuthenticated());
+        token.setAuthenticated(false);
+        assertTrue(!token.isAuthenticated());
     }
 }

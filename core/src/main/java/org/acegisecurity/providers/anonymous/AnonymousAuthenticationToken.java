@@ -18,9 +18,9 @@ package net.sf.acegisecurity.providers.anonymous;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.providers.AbstractAuthenticationToken;
 
-import java.io.Serializable;
-
 import org.springframework.util.Assert;
+
+import java.io.Serializable;
 
 
 /**
@@ -35,6 +35,7 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
 
     private Object principal;
     private GrantedAuthority[] authorities;
+    private boolean authenticated;
     private int keyHash;
 
     //~ Constructors ===========================================================
@@ -58,14 +59,15 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
         }
 
         for (int i = 0; i < authorities.length; i++) {
-            Assert.notNull(authorities[i], "Granted authority element "
-                    + i
-                    + " is null - GrantedAuthority[] cannot contain any null elements");
+            Assert.notNull(authorities[i],
+                "Granted authority element " + i
+                + " is null - GrantedAuthority[] cannot contain any null elements");
         }
 
         this.keyHash = key.hashCode();
         this.principal = principal;
         this.authorities = authorities;
+		this.authenticated = true;
     }
 
     protected AnonymousAuthenticationToken() {
@@ -74,22 +76,12 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
 
     //~ Methods ================================================================
 
-    /**
-     * Ignored (always <code>true</code>).
-     *
-     * @param isAuthenticated ignored
-     */
     public void setAuthenticated(boolean isAuthenticated) {
-        // ignored
+        this.authenticated = isAuthenticated;
     }
 
-    /**
-     * Always returns <code>true</code>.
-     *
-     * @return true
-     */
     public boolean isAuthenticated() {
-        return true;
+        return this.authenticated;
     }
 
     public GrantedAuthority[] getAuthorities() {

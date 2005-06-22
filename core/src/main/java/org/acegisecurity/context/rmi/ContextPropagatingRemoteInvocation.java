@@ -82,6 +82,15 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 
     /**
      * Invoked on the server-side as described in the class JavaDocs.
+     * 
+     * <p>
+     * Invocations will always have their {@link
+     * net.sf.acegisecurity.Authentication#setAuthenticated(boolean)} set to
+     * <code>false</code>, which is guaranteed to always be accepted by
+     * <code>Authentication</code> implementations. This ensures that even
+     * remotely authenticated <code>Authentication</code>s will be untrusted
+     * by the server-side, which is an appropriate security measure.
+     * </p>
      *
      * @param targetObject the target object to apply the invocation to
      *
@@ -96,6 +105,12 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
         throws NoSuchMethodException, IllegalAccessException, 
             InvocationTargetException {
         SecurityContextHolder.setContext(securityContext);
+
+        if ((SecurityContextHolder.getContext() != null)
+            && (SecurityContextHolder.getContext().getAuthentication() != null)) {
+            SecurityContextHolder.getContext().getAuthentication()
+                                 .setAuthenticated(false);
+        }
 
         if (logger.isDebugEnabled()) {
             logger.debug("Set SecurityContextHolder to contain: "

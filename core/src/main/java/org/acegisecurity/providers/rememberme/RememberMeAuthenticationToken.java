@@ -42,6 +42,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken
     private Object principal;
     private GrantedAuthority[] authorities;
     private int keyHash;
+	private boolean authenticated;
 
     //~ Constructors ===========================================================
 
@@ -72,6 +73,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken
         this.keyHash = key.hashCode();
         this.principal = principal;
         this.authorities = authorities;
+		this.authenticated = true;
     }
 
     protected RememberMeAuthenticationToken() {
@@ -80,22 +82,12 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken
 
     //~ Methods ================================================================
 
-    /**
-     * Ignored (always <code>true</code>).
-     *
-     * @param isAuthenticated ignored
-     */
     public void setAuthenticated(boolean isAuthenticated) {
-        // ignored
+        this.authenticated = isAuthenticated;
     }
 
-    /**
-     * Always returns <code>true</code>.
-     *
-     * @return true
-     */
     public boolean isAuthenticated() {
-        return true;
+        return this.authenticated;
     }
 
     public GrantedAuthority[] getAuthorities() {

@@ -327,7 +327,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
     public Authentication authenticate(Authentication auth)
         throws AuthenticationException {
         if (auth instanceof UsernamePasswordAuthenticationToken) {
-            UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) auth;
+            UsernamePasswordAuthenticationToken request = (UsernamePasswordAuthenticationToken) auth;
 
             try {
                 //Create the LoginContext object, and pass our InternallCallbackHandler
@@ -340,8 +340,8 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
                 //create a set to hold the authorities, and add any that have already been applied.
                 Set authorities = new HashSet();
 
-                if (token.getAuthorities() != null) {
-                    authorities.addAll(Arrays.asList(token.getAuthorities()));
+                if (request.getAuthorities() != null) {
+                    authorities.addAll(Arrays.asList(request.getAuthorities()));
                 }
 
                 //get the subject principals and pass them to each of the AuthorityGranters
@@ -368,19 +368,21 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
                 }
 
                 //Convert the authorities set back to an array and apply it to the token.
-                token.setAuthorities((GrantedAuthority[]) authorities.toArray(
-                        new GrantedAuthority[authorities.size()]));
+                UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(request
+                        .getPrincipal(), request.getCredentials(),
+                        (GrantedAuthority[]) authorities.toArray(
+                            new GrantedAuthority[authorities.size()]));
 
                 //Publish the success event
-                publishSuccessEvent(token);
+                publishSuccessEvent(result);
 
                 //we're done, return the token.
-                return token;
+                return result;
             } catch (LoginException loginException) {
                 AcegiSecurityException ase = loginExceptionResolver
                     .resolveException(loginException);
 
-                publishFailureEvent(token, ase);
+                publishFailureEvent(request, ase);
                 throw ase;
             }
         }

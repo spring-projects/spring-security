@@ -34,6 +34,7 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
     private Object principal;
     private GrantedAuthority[] authorities;
     private int keyHash;
+	private boolean authenticated;
 
     //~ Constructors ===========================================================
 
@@ -45,6 +46,7 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
         this.principal = principal;
         this.credentials = credentials;
         this.originalAuthentication = originalAuthentication;
+		this.authenticated = true;
     }
 
     protected RunAsUserToken() {
@@ -53,22 +55,12 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
 
     //~ Methods ================================================================
 
-    /**
-     * Setting is ignored. Always considered authenticated.
-     *
-     * @param ignored DOCUMENT ME!
-     */
-    public void setAuthenticated(boolean ignored) {
-        // ignored
+    public void setAuthenticated(boolean isAuthenticated) {
+        this.authenticated = isAuthenticated;
     }
 
-    /**
-     * Always returns <code>true</code>.
-     *
-     * @return DOCUMENT ME!
-     */
     public boolean isAuthenticated() {
-        return true;
+        return this.authenticated;
     }
 
     public GrantedAuthority[] getAuthorities() {

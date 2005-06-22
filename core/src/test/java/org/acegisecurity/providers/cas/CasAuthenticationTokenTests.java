@@ -223,7 +223,6 @@ public class CasAuthenticationTokenTests extends TestCase {
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")});
-        token2.setAuthenticated(true);
 
         assertTrue(!token1.equals(token2));
     }
@@ -295,15 +294,15 @@ public class CasAuthenticationTokenTests extends TestCase {
         assertTrue(!token1.equals(token2));
     }
 
-    public void testSetAuthenticatedIgnored() {
+    public void testSetAuthenticated() {
         CasAuthenticationToken token = new CasAuthenticationToken("key",
                 "Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), new Vector(),
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
         assertTrue(token.isAuthenticated());
-        token.setAuthenticated(false); // ignored
-        assertTrue(token.isAuthenticated());
+        token.setAuthenticated(false);
+        assertTrue(!token.isAuthenticated());
     }
 
     public void testToString() {

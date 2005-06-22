@@ -39,16 +39,55 @@ import java.security.Principal;
 public interface Authentication extends Principal, Serializable {
     //~ Methods ================================================================
 
-    public void setAuthenticated(boolean isAuthenticated);
+    /**
+     * See {@link #isAuthenticated()} for a full description.
+     * 
+     * <p>
+     * Implementations should <b>always</b> allow this method to be called with
+     * a <code>false</code> parameter, as this is used by various classes to
+     * specify the authentication token should not be trusted. If an
+     * implementation wishes to reject an invocation with a <code>true</code>
+     * parameter (which would indicate the authentication token is trusted - a
+     * potential security risk) the implementation should throw an {@link
+     * IllegalArgumentException}.
+     * </p>
+     *
+     * @param isAuthenticated <code>true</code> if the token should be trusted
+     *        (which may result in an exception) or <code>false</code> if the
+     *        token should not be trusted
+     *
+     * @throws IllegalArgumentException if an attempt to make the
+     *         authentication token trusted (by passing <code>true</code> as
+     *         the argument) is rejected due to the implementation being
+     *         immutable or implementing its own alternative approach to
+     *         {@link #isAuthenticated()}
+     */
+    public void setAuthenticated(boolean isAuthenticated)
+        throws IllegalArgumentException;
 
     /**
-     * Indicates whether or not authentication was attempted by the {@link
-     * net.sf.acegisecurity.intercept.AbstractSecurityInterceptor}. Note that
-     * classes should not rely on this value as being valid unless it has been
-     * set by a trusted <code>AbstractSecurityInterceptor</code>.
+     * Used to indicate to <code>AbstractSecurityInterceptor</code> whether it
+     * should present the authentication token to the
+     * <code>AuthenticationManager</code>. Typically an
+     * <code>AuthenticationManager</code> (or, more often, one of its
+     * <code>AuthenticationProvider</code>s) will return an immutable
+     * authentication token after successful authentication, in which case
+     * that token can safely return <code>true</code> to this method.
+     * Returning <code>true</code> will improve performance, as calling the
+     * <code>AuthenticationManager</code> for every request will no longer be
+     * necessary.
+     * 
+     * <p>
+     * For security reasons, implementations of this interface should be very
+     * careful about returning <code>true</code> to this method unless they
+     * are either immutable, or have some way of ensuring the properties have
+     * not been changed since original creation.
+     * </p>
      *
-     * @return true if authenticated by the
-     *         <code>AbstractSecurityInterceptor</code>
+     * @return true if the token has been authenticated and the
+     *         <code>AbstractSecurityInterceptor</code> does not need to
+     *         represent the token for re-authentication to the
+     *         <code>AuthenticationManager</code>
      */
     public boolean isAuthenticated();
 

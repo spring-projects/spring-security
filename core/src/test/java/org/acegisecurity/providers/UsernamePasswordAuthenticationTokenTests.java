@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,9 +51,30 @@ public class UsernamePasswordAuthenticationTokenTests extends TestCase {
     public void testAuthenticated() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password", null);
-        assertTrue(!token.isAuthenticated());
-        token.setAuthenticated(true);
+
+        // check default given we passed some GrantedAuthorty[]s (well, we passed null)
         assertTrue(token.isAuthenticated());
+
+        // check explicit set to untrusted (we can safely go from trusted to untrusted, but not the reverse)
+        token.setAuthenticated(false);
+        assertTrue(!token.isAuthenticated());
+
+        // Now let's create a UsernamePasswordAuthenticationToken without any GrantedAuthorty[]s (different constructor)
+        token = new UsernamePasswordAuthenticationToken("Test", "Password");
+
+        assertTrue(!token.isAuthenticated());
+
+        // check we're allowed to still set it to untrusted
+        token.setAuthenticated(false);
+        assertTrue(!token.isAuthenticated());
+
+        // check denied changing it to trusted
+        try {
+            token.setAuthenticated(true);
+            fail("Should have prohibited setAuthenticated(true)");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
     }
 
     public void testGetters() {
@@ -63,19 +84,6 @@ public class UsernamePasswordAuthenticationTokenTests extends TestCase {
                         "ROLE_TWO")});
         assertEquals("Test", token.getPrincipal());
         assertEquals("Password", token.getCredentials());
-        assertEquals("ROLE_ONE", token.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", token.getAuthorities()[1].getAuthority());
-    }
-
-    public void testNewAuthorities() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password", null);
-        assertEquals("Test", token.getPrincipal());
-        assertEquals("Password", token.getCredentials());
-        assertEquals(null, token.getAuthorities());
-
-        token.setAuthorities(new GrantedAuthority[] {new GrantedAuthorityImpl(
-                    "ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
         assertEquals("ROLE_ONE", token.getAuthorities()[0].getAuthority());
         assertEquals("ROLE_TWO", token.getAuthorities()[1].getAuthority());
     }

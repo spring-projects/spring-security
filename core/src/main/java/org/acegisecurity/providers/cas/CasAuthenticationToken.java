@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.AbstractAuthenticationToken;
 
+import org.springframework.util.Assert;
+
 import java.io.Serializable;
 
 import java.util.List;
-
-import org.springframework.util.Assert;
 
 
 /**
@@ -42,6 +42,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
     private String proxyGrantingTicketIou;
     private UserDetails userDetails;
     private GrantedAuthority[] authorities;
+    private boolean authenticated;
     private int keyHash;
 
     //~ Constructors ===========================================================
@@ -79,9 +80,9 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
         }
 
         for (int i = 0; i < authorities.length; i++) {
-            Assert.notNull(authorities[i], "Granted authority element "
-                    + i
-                    + " is null - GrantedAuthority[] cannot contain any null elements");
+            Assert.notNull(authorities[i],
+                "Granted authority element " + i
+                + " is null - GrantedAuthority[] cannot contain any null elements");
         }
 
         this.keyHash = key.hashCode();
@@ -91,6 +92,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
         this.userDetails = userDetails;
         this.proxyList = proxyList;
         this.proxyGrantingTicketIou = proxyGrantingTicketIou;
+        this.authenticated = true;
     }
 
     protected CasAuthenticationToken() {
@@ -99,22 +101,12 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
 
     //~ Methods ================================================================
 
-    /**
-     * Ignored (always <code>true</code>).
-     *
-     * @param isAuthenticated ignored
-     */
     public void setAuthenticated(boolean isAuthenticated) {
-        // ignored
+        this.authenticated = isAuthenticated;
     }
 
-    /**
-     * Always returns <code>true</code>.
-     *
-     * @return true
-     */
     public boolean isAuthenticated() {
-        return true;
+        return this.authenticated;
     }
 
     public GrantedAuthority[] getAuthorities() {

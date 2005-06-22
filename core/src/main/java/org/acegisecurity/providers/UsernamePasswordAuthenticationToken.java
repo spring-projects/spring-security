@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,21 +40,42 @@ public class UsernamePasswordAuthenticationToken
     private Object details = null;
     private Object principal;
     private GrantedAuthority[] authorities;
-    private boolean authenticated = false;
+    private boolean authenticated;
 
     //~ Constructors ===========================================================
 
+    /**
+     * This constructor can be safely used by any code that wishes to create a
+     * <code>UsernamePasswordAuthenticationToken</code>, as the {@link
+     * #isAuthenticated()} will return <code>false</code>.
+     *
+     * @param principal DOCUMENT ME!
+     * @param credentials DOCUMENT ME!
+     */
     public UsernamePasswordAuthenticationToken(Object principal,
         Object credentials) {
         this.principal = principal;
         this.credentials = credentials;
+        this.authenticated = false;
     }
 
+    /**
+     * This constructor should only be used by
+     * <code>AuthenticationManager</code> or
+     * <code>AuthenticationProvider</code> implementations that are satisfied
+     * with producing a trusted (ie {@link #isAuthenticated()} =
+     * <code>true</code>) authentication token.
+     *
+     * @param principal
+     * @param credentials
+     * @param authorities
+     */
     public UsernamePasswordAuthenticationToken(Object principal,
         Object credentials, GrantedAuthority[] authorities) {
         this.principal = principal;
         this.credentials = credentials;
         this.authorities = authorities;
+        this.authenticated = true;
     }
 
     protected UsernamePasswordAuthenticationToken() {
@@ -63,24 +84,18 @@ public class UsernamePasswordAuthenticationToken
 
     //~ Methods ================================================================
 
-    public void setAuthenticated(boolean isAuthenticated) {
+    public void setAuthenticated(boolean isAuthenticated)
+        throws IllegalArgumentException {
+        if (isAuthenticated) {
+            throw new IllegalArgumentException(
+                "Cannot set this token to trusted - use constructor containing GrantedAuthority[]s instead");
+        }
+
         this.authenticated = isAuthenticated;
     }
 
     public boolean isAuthenticated() {
         return this.authenticated;
-    }
-
-    /**
-     * Generally you should not call this method, because on subsequent
-     * requests the <code>Authentication</code> will be recreated by the
-     * relevant <code>AuthenticationManager</code>. This method is mostly of
-     * interest to <code>AuthenticationManager</code>s and unit tests.
-     *
-     * @param authorities the new authorities to apply
-     */
-    public void setAuthorities(GrantedAuthority[] authorities) {
-        this.authorities = authorities;
     }
 
     public GrantedAuthority[] getAuthorities() {

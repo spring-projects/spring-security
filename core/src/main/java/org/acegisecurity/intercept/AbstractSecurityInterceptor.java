@@ -364,29 +364,41 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                     object, attr);
             }
 
-            // Attempt authentication
+            // Attempt authentication if not already authenticated
             Authentication authenticated;
 
-            try {
-                authenticated = this.authenticationManager.authenticate(SecurityContextHolder.getContext()
-                                                                                             .getAuthentication());
-            } catch (AuthenticationException authenticationException) {
-                AuthenticationFailureEvent event = new AuthenticationFailureEvent(object,
-                        attr,
-                        SecurityContextHolder.getContext().getAuthentication(),
-                        authenticationException);
-                this.context.publishEvent(event);
+            if (!SecurityContextHolder.getContext().getAuthentication()
+                                      .isAuthenticated()) {
+                try {
+                    authenticated = this.authenticationManager.authenticate(SecurityContextHolder.getContext()
+                                                                                                 .getAuthentication());
+                } catch (AuthenticationException authenticationException) {
+                    AuthenticationFailureEvent event = new AuthenticationFailureEvent(object,
+                            attr,
+                            SecurityContextHolder.getContext()
+                                                 .getAuthentication(),
+                            authenticationException);
+                    this.context.publishEvent(event);
 
-                throw authenticationException;
+                    throw authenticationException;
+                }
+
+                // We don't authenticated.setAuthentication(true), because each provider should do that
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Successfully Authenticated: "
+                        + authenticated.toString());
+                }
+
+                SecurityContextHolder.getContext().setAuthentication(authenticated);
+            } else {
+                authenticated = SecurityContextHolder.getContext()
+                                                     .getAuthentication();
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Previously Authenticated: "
+                        + authenticated.toString());
+                }
             }
-
-            authenticated.setAuthenticated(true);
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Authenticated: " + authenticated.toString());
-            }
-
-            SecurityContextHolder.getContext().setAuthentication(authenticated);
 
             // Attempt authorization
             try {
