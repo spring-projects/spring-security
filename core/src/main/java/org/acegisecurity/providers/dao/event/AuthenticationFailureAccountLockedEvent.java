@@ -26,7 +26,8 @@ import net.sf.acegisecurity.UserDetails;
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthenticationFailureAccountLockedEvent extends AuthenticationEvent {
+public class AuthenticationFailureAccountLockedEvent
+    extends AuthenticationFailureEvent {
     //~ Constructors ===========================================================
 
     public AuthenticationFailureAccountLockedEvent(

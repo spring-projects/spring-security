@@ -20,17 +20,16 @@ import net.sf.acegisecurity.UserDetails;
 
 
 /**
- * Application event which indicates authentication failure due to invalid
- * password.
+ * Abstract application event which indicates authentication failure for some
+ * reason.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthenticationFailurePasswordEvent
-    extends AuthenticationFailureEvent {
+public abstract class AuthenticationFailureEvent extends AuthenticationEvent {
     //~ Constructors ===========================================================
 
-    public AuthenticationFailurePasswordEvent(Authentication authentication,
+    public AuthenticationFailureEvent(Authentication authentication,
         UserDetails user) {
         super(authentication, user);
     }
