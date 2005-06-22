@@ -211,7 +211,7 @@
     <dependency>
       <groupId>servletapi</groupId>
       <artifactId>servletapi</artifactId>
-      <version>2.4</version>
+      <version>2.4-20040521</version>
       <type>jar</type>
       <url>http://java.sun.com/products/servlet</url>
     </dependency>
@@ -329,7 +329,7 @@
     <dependency>
       <groupId>jspapi</groupId>
       <artifactId>jsp-api</artifactId>
-      <version>2.0</version>
+      <version>2.0-20040521</version>
       <type>jar</type>
       <url>http://java.sun.com/products/jsp</url>
       <properties>
