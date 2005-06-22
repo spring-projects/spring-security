@@ -33,7 +33,12 @@ import java.io.IOException;
 
 import java.util.Properties;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -419,8 +424,10 @@ public abstract class AbstractProcessingFilter implements Filter,
             logger.debug("Authentication request failed: " + failed.toString());
         }
 
-        request.getSession().setAttribute(ACEGI_SECURITY_LAST_EXCEPTION_KEY,
-            failed);
+        try {
+            request.getSession().setAttribute(ACEGI_SECURITY_LAST_EXCEPTION_KEY,
+                failed);
+        } catch (Exception ignored) {}
 
         onUnsuccessfulAuthentication(request, response);
 

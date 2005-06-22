@@ -36,8 +36,9 @@
       <action dev="benalex" type="fix">AbstractAuthenticationToken.getName() now returns username alone if UserDetails present</action>
       <action dev="raykrueger" type="update">AuthorityGranter.grant now returns a java.util.Set of role names, instead of a single role name</action>
       <action dev="benalex" type="update">JavaDoc improvements</action>
-      <action dev="benalex" type="fix">Correct synchronization issue with FilterToBeanProxy initialization (as per developer list discussion)</action>
-      <action dev="benalex" type="update">Refactor Authentication.isAuthenticated() handling to be more performance (as per developer list discussion)</action>
+      <action dev="benalex" type="fix">Correct synchronization issue with FilterToBeanProxy initialization</action>
+      <action dev="benalex" type="update">Refactor Authentication.isAuthenticated() handling to be more performance</action>
+      <action dev="benalex" type="fix">Silently catch NotSerializableException in AbstractProcessingFilter if rootCause is not Serializable</action>
     </release>
     <release version="0.8.2" date="2005-04-20">
       <action dev="benalex" type="fix">Correct location of AuthenticationSimpleHttpInvokerRequestExecutor in clientContext.xml</action>
