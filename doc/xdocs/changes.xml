@@ -36,6 +36,7 @@
       <action dev="benalex" type="fix">AbstractAuthenticationToken.getName() now returns username alone if UserDetails present</action>
       <action dev="raykrueger" type="update">AuthorityGranter.grant now returns a java.util.Set of role names, instead of a single role name</action>  
       <action dev="benalex" type="update">JavaDoc improvements</action>  
+      <action dev="benalex" type="fix">Correct synchronization issue with FilterToBeanProxy initialization</action>        
     </release>
     <release version="0.8.2" date="2005-04-20">
       <action dev="benalex" type="fix">Correct location of AuthenticationSimpleHttpInvokerRequestExecutor in clientContext.xml</action>

@@ -150,7 +150,12 @@ public class FilterToBeanProxy implements Filter {
             .getServletContext());
     }
 
-    private void doInit() throws ServletException {
+    private synchronized void doInit() throws ServletException {
+        if (initialized) {
+            // already initialized, so don't re-initialize
+            return;
+        }
+
         initialized = true;
 
         String targetBean = filterConfig.getInitParameter("targetBean");
