@@ -74,6 +74,7 @@ public class UserSearchBean implements InitializingBean {
         }
         SearchResult searchResult = (SearchResult)enm.next();
         UserSearchResults userSearchResults = new UserSearchResults(searchResult);
+        userSearchResults.setUserSearchBean(this);
         
         String userDN = searchResult.getName();
         if (searchResult.isRelative()) {
