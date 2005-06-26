@@ -45,7 +45,7 @@ public class LdapPassword2AuthenticationDao implements PasswordAuthenticationDao
     
     /** Array of LdapSearchBean which will be used to search the context.
      */
-    private UserSearchBean[] ldapSearchBeans;
+    private UserSearchBean[] userSearchBeans;
     
     private String defaultRole;
 
@@ -99,9 +99,9 @@ public class LdapPassword2AuthenticationDao implements PasswordAuthenticationDao
         InitialDirContext ctx = ldapSupport.getInitialContext();
         UserSearchResults userSearchResults = null;
         try {
-            for (int i = 0; (i < ldapSearchBeans.length) && (null == userSearchResults); i++) {
+            for (int i = 0; (i < userSearchBeans.length) && (null == userSearchResults); i++) {
                 try {
-                    userSearchResults = ldapSearchBeans[i].searchForUser(ctx, username);
+                    userSearchResults = userSearchBeans[i].searchForUser(ctx, username);
                 } catch (NamingException nx) {
                     logger.warn(nx);
                 }
@@ -131,7 +131,7 @@ public class LdapPassword2AuthenticationDao implements PasswordAuthenticationDao
     
     protected GrantedAuthority[] getUserRolesLdap(DirContext ctx, String[] roleAttrs) {
         try {
-            NamingEnumeration enm = ctx.search((Name)null, null, roleAttrs, null);
+            NamingEnumeration enm = ctx.search("", null, roleAttrs);
             if (!enm.hasMore()) {
                 return null;
             }
@@ -139,7 +139,6 @@ public class LdapPassword2AuthenticationDao implements PasswordAuthenticationDao
             // LDAP Search result which SHOULD contain the user's roles
             SearchResult searchResult = (SearchResult)enm.next();
             Attributes attrs = searchResult.getAttributes();
-            
             
             ArrayList roleList = new ArrayList(attrs.size());
             NamingEnumeration attrEnm = attrs.getAll();
@@ -172,6 +171,46 @@ public class LdapPassword2AuthenticationDao implements PasswordAuthenticationDao
     public void setDefaultRole(String defaultRole) {
         this.defaultRole = defaultRole;
     }
+
+    /**
+     * @return Returns the userSearchBeans.
+     */
+    public UserSearchBean[] getUserSearchBeans() {
+        return userSearchBeans;
+    }
+
+    /**
+     * @param userSearchBeans The userSearchBeans to set.
+     */
+    public void setUserSearchBeans(UserSearchBean[] userSearchBeans) {
+        this.userSearchBeans = userSearchBeans;
+    }
+    
+    /** Convience method to set only one userSearchBean.
+     *  <b>NOTE:</b> this method resets the entire userSearchBeans array, 
+     *   and can therefore not be used to append entries to the array.
+     *   
+     * @param userSearchBean
+     */
+    public void setUserSearchBean(UserSearchBean userSearchBean) {
+        this.userSearchBeans = new UserSearchBean[]{userSearchBean};
+    }
+
+    /**
+     * @return Returns the ldapSupport.
+     */
+    public LdapSupport getLdapSupport() {
+        return ldapSupport;
+    }
+
+    /**
+     * @param ldapSupport The ldapSupport to set.
+     */
+    public void setLdapSupport(LdapSupport ldapSupport) {
+        this.ldapSupport = ldapSupport;
+    }
+    
+    
     
     
 }
