@@ -41,7 +41,7 @@ public class LdapPassword2AuthenticationDao implements PasswordAuthenticationDao
     private static final transient Log logger = LogFactory.getLog(LdapPassword2AuthenticationDao.class);
     
     /** Ldap base settings. */
-    private LdapSupport ldapSupport;
+    private InitialDirContextFactory initialDirContextFactory;
     
     /** Array of LdapSearchBean which will be used to search the context.
      */
@@ -96,7 +96,7 @@ public class LdapPassword2AuthenticationDao implements PasswordAuthenticationDao
     }
     
     protected UserSearchResults getUserBySearch(String username) throws DataAccessException, BadCredentialsException {
-        InitialDirContext ctx = ldapSupport.getInitialContext();
+        InitialDirContext ctx = initialDirContextFactory.newInitialDirContext();
         UserSearchResults userSearchResults = null;
         try {
             for (int i = 0; (i < userSearchBeans.length) && (null == userSearchResults); i++) {
@@ -118,7 +118,7 @@ public class LdapPassword2AuthenticationDao implements PasswordAuthenticationDao
     
     
     protected DirContext loginToUserDirContext(String username, String password) {
-        Hashtable baseEnv = ldapSupport.getEnvironment();
+        Hashtable baseEnv = initialDirContextFactory.getEnvironment();
         baseEnv.put(Context.SECURITY_PRINCIPAL, username);
         baseEnv.put(Context.SECURITY_CREDENTIALS, password);
         try {
@@ -199,15 +199,15 @@ public class LdapPassword2AuthenticationDao implements PasswordAuthenticationDao
     /**
      * @return Returns the ldapSupport.
      */
-    public LdapSupport getLdapSupport() {
-        return ldapSupport;
+    public InitialDirContextFactory getInitialDirContextFactory() {
+        return initialDirContextFactory;
     }
 
     /**
      * @param ldapSupport The ldapSupport to set.
      */
-    public void setLdapSupport(LdapSupport ldapSupport) {
-        this.ldapSupport = ldapSupport;
+    public void setInitialDirContextFactory(InitialDirContextFactory initialDirContextFactory) {
+        this.initialDirContextFactory = initialDirContextFactory;
     }
     
     
