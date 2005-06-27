@@ -51,6 +51,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor {
     //~ Instance fields ========================================================
 
     private FilterInvocationDefinitionSource objectDefinitionSource;
+    private boolean observeOncePerRequest = true;
 
     //~ Methods ================================================================
 
@@ -63,14 +64,37 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor {
         return this.objectDefinitionSource;
     }
 
+    public void setObserveOncePerRequest(boolean observeOncePerRequest) {
+        this.observeOncePerRequest = observeOncePerRequest;
+    }
+
+    /**
+     * Indicates whether once-per-request handling will be observed. By default
+     * this is <code>true</code>, meaning the
+     * <code>FilterSecurityInterceptor</code> will only execute
+     * once-per-request. Sometimes users may wish it to execute more than once
+     * per request, such as when JSP forwards are being used and filter
+     * security is desired on each included fragment of the HTTP request.
+     *
+     * @return <code>true</code> (the default) if once-per-request is honoured,
+     *         otherwise <code>false</code> if
+     *         <code>FilterSecurityInterceptor</code> will enforce
+     *         authorizations for each and every fragment of the HTTP request.
+     */
+    public boolean isObserveOncePerRequest() {
+        return observeOncePerRequest;
+    }
+
     public Class getSecureObjectClass() {
         return FilterInvocation.class;
     }
 
     public void invoke(FilterInvocation fi) throws Throwable {
         if ((fi.getRequest() != null)
-            && (fi.getRequest().getAttribute(FILTER_APPLIED) != null)) {
-            // filter already applied to this request, so don't re-do security checking
+            && (fi.getRequest().getAttribute(FILTER_APPLIED) != null)
+            && observeOncePerRequest) {
+            // filter already applied to this request and user wants us to observce
+            // once-per-request handling, so don't re-do security checking
             fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
         } else {
             // first time this request being called, so perform security checking
