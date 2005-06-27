@@ -42,6 +42,7 @@
       <action dev="benalex" type="fix">Remove getters and setters from JdbcDaoImpl so IoC container cannot modify MappingSqlQuerys</action>
       <action dev="benalex" type="update">Refactor DAO authentication failure events under a consistent abstract superclass</action>
       <action dev="benalex" type="fix">JBoss container adapter to use getName() instead to toString() (see http://opensource.atlassian.com/projects/spring/browse/SEC-22)</action>
+      <action dev="benalex" type="fix">HttpSessionContextIntegrationFilter elegantly handles IOExceptions and ServletExceptions within filter chain (see http://opensource.atlassian.com/projects/spring/browse/SEC-20)</action>
     </release>
     <release version="0.8.2" date="2005-04-20">
       <action dev="benalex" type="fix">Correct location of AuthenticationSimpleHttpInvokerRequestExecutor in clientContext.xml</action>

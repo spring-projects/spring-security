@@ -212,64 +212,73 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean,
             httpSession = null;
 
             // Proceed with chain
-            chain.doFilter(request, response);
-
-            // Store context back to HttpSession
             try {
-                httpSession = ((HttpServletRequest) request).getSession(false);
-            } catch (IllegalStateException ignored) {}
+                chain.doFilter(request, response);
+            } catch (IOException ioe) {
+                throw ioe;
+            } catch (ServletException se) {
+                throw se;
+            } finally {
+                // do clean up, even if there was an exception
+                // Store context back to HttpSession
+                try {
+                    httpSession = ((HttpServletRequest) request).getSession(false);
+                } catch (IllegalStateException ignored) {}
 
-            if ((httpSession == null) && httpSessionExistedAtStartOfRequest) {
+                if ((httpSession == null) && httpSessionExistedAtStartOfRequest) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(
+                            "HttpSession is now null, but was not null at start of request; session was invalidated, so do not create a new session");
+                    }
+                }
+
+                // Generate a HttpSession only if we need to
+                if ((httpSession == null)
+                    && !httpSessionExistedAtStartOfRequest) {
+                    if (!allowSessionCreation) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(
+                                "The HttpSession is currently null, and the HttpSessionContextIntegrationFilter is prohibited from creating a HttpSession (because the allowSessionCreation property is false) - SecurityContext thus not stored for next request");
+                        }
+                    } else if (!contextObject.equals(
+                            SecurityContextHolder.getContext())) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(
+                                "HttpSession being created as SecurityContextHolder contents are non-default");
+                        }
+
+                        try {
+                            httpSession = ((HttpServletRequest) request)
+                                .getSession(true);
+                        } catch (IllegalStateException ignored) {}
+                    } else {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(
+                                "HttpSession is null, but SecurityContextHolder has not changed from default: ' "
+                                + SecurityContextHolder.getContext()
+                                + "'; not creating HttpSession or storing SecurityContextHolder contents");
+                        }
+                    }
+                }
+
+                // If HttpSession exists, store current SecurityContextHolder contents
+                if (httpSession != null) {
+                    httpSession.setAttribute(ACEGI_SECURITY_CONTEXT_KEY,
+                        SecurityContextHolder.getContext());
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("SecurityContext stored to HttpSession: '"
+                            + SecurityContextHolder.getContext() + "'");
+                    }
+                }
+
+                // Remove SecurityContextHolder contents
+                SecurityContextHolder.setContext(generateNewContext());
+
                 if (logger.isDebugEnabled()) {
                     logger.debug(
-                        "HttpSession is now null, but was not null at start of request; session was invalidated, so do not create a new session");
+                        "SecurityContextHolder set to new context, as request processing completed");
                 }
-            }
-
-            // Generate a HttpSession only if we need to
-            if ((httpSession == null) && !httpSessionExistedAtStartOfRequest) {
-                if (!allowSessionCreation) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(
-                            "The HttpSession is currently null, and the HttpSessionContextIntegrationFilter is prohibited from creating a HttpSession (because the allowSessionCreation property is false) - SecurityContext thus not stored for next request");
-                    }
-                } else if (!contextObject.equals(
-                        SecurityContextHolder.getContext())) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(
-                            "HttpSession being created as SecurityContextHolder contents are non-default");
-                    }
-
-                    try {
-                        httpSession = ((HttpServletRequest) request).getSession(true);
-                    } catch (IllegalStateException ignored) {}
-                } else {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(
-                            "HttpSession is null, but SecurityContextHolder has not changed from default: ' "
-                            + SecurityContextHolder.getContext()
-                            + "'; not creating HttpSession or storing SecurityContextHolder contents");
-                    }
-                }
-            }
-
-            // If HttpSession exists, store current SecurityContextHolder contents
-            if (httpSession != null) {
-                httpSession.setAttribute(ACEGI_SECURITY_CONTEXT_KEY,
-                    SecurityContextHolder.getContext());
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("SecurityContext stored to HttpSession: '"
-                        + SecurityContextHolder.getContext() + "'");
-                }
-            }
-
-            // Remove SecurityContextHolder contents
-            SecurityContextHolder.setContext(generateNewContext());
-
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "SecurityContextHolder set to new context, as request processing completed");
             }
         }
     }

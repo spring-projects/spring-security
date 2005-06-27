@@ -83,6 +83,46 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         }
     }
 
+    public void testExceptionWithinFilterChainStillClearsSecurityContextHolder()
+        throws Exception {
+        // Build an Authentication object we simulate came from HttpSession
+        PrincipalAcegiUserToken sessionPrincipal = new PrincipalAcegiUserToken("key",
+                "someone", "password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")});
+
+        // Build a Context to store in HttpSession (simulating prior request)
+        SecurityContext sc = new SecurityContextImpl();
+        sc.setAuthentication(sessionPrincipal);
+
+        // Build a mock request
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.getSession().setAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY,
+            sc);
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        FilterChain chain = new MockFilterChain(sessionPrincipal, null,
+                new IOException());
+
+        // Prepare filter
+        HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
+        filter.setContext(SecurityContextImpl.class);
+        filter.afterPropertiesSet();
+
+        // Execute filter
+        try {
+            executeFilterInContainerSimulator(new MockFilterConfig(), filter,
+                request, response, chain);
+            fail(
+                "We should have received the IOException thrown inside the filter chain here");
+        } catch (IOException ioe) {
+            assertTrue(true);
+        }
+
+        // Check the SecurityContextHolder is null, even though an exception was thrown during chain
+        assertEquals(new SecurityContextImpl(),
+            SecurityContextHolder.getContext());
+    }
+
     public void testExistingContextContentsCopiedIntoContextHolderFromSessionAndChangesToContextCopiedBackToSession()
         throws Exception {
         // Build an Authentication object we simulate came from HttpSession
@@ -106,7 +146,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain chain = new MockFilterChain(sessionPrincipal,
-                updatedPrincipal);
+                updatedPrincipal, null);
 
         // Prepare filter
         HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
@@ -134,7 +174,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         // Build a mock request
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterChain chain = new MockFilterChain(null, updatedPrincipal);
+        FilterChain chain = new MockFilterChain(null, updatedPrincipal, null);
 
         // Prepare filter
         HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
@@ -157,7 +197,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         // Build a mock request
         MockHttpServletRequest request = new MockHttpServletRequest(null, null);
         MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterChain chain = new MockFilterChain(null, null);
+        FilterChain chain = new MockFilterChain(null, null, null);
 
         // Prepare filter
         HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
@@ -185,7 +225,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
             "NOT_A_CONTEXT_OBJECT");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterChain chain = new MockFilterChain(null, updatedPrincipal);
+        FilterChain chain = new MockFilterChain(null, updatedPrincipal, null);
 
         // Prepare filter
         HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
@@ -216,11 +256,13 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
     private class MockFilterChain extends TestCase implements FilterChain {
         private Authentication changeContextHolder;
         private Authentication expectedOnContextHolder;
+        private IOException toThrowDuringChain;
 
         public MockFilterChain(Authentication expectedOnContextHolder,
-            Authentication changeContextHolder) {
+            Authentication changeContextHolder, IOException toThrowDuringChain) {
             this.expectedOnContextHolder = expectedOnContextHolder;
             this.changeContextHolder = changeContextHolder;
+            this.toThrowDuringChain = toThrowDuringChain;
         }
 
         private MockFilterChain() {}
@@ -236,6 +278,10 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
                 SecurityContext sc = SecurityContextHolder.getContext();
                 sc.setAuthentication(changeContextHolder);
                 SecurityContextHolder.setContext(sc);
+            }
+
+            if (toThrowDuringChain != null) {
+                throw toThrowDuringChain;
             }
         }
     }
