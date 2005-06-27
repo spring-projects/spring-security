@@ -5,20 +5,25 @@
  | $Id$
  -->
 
-
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
 <xsl:output doctype-public="-//SPRING//DTD BEAN//EN"
             doctype-system="http://www.springframework.org/dtd/spring-beans.dtd"
             indent="yes"/>
 
+<!-- Variables for case conversions -->
 <xsl:variable name="lowercase" select="'abcdefghijklmnopqrstuvwxyz'"/>
 <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>    
-    
+
 <xsl:variable name="welcome-files" select="web-app/welcome-file-list/welcome-file"/>
-<!-- convert the auth-method content to upper case -->
+
+<!-- Convert the auth-method content to upper case -->
 <xsl:variable name="auth-method" select="translate(string(web-app/login-config/auth-method), $lowercase, $uppercase)"/>
 
+<!-- 
+ | Find the security-role elements in the file and uses them to build a list of 
+ | all defined roles. 
+ -->
 <xsl:variable name="all-roles">
     <xsl:for-each select="web-app/security-role/role-name">
         <xsl:text>ROLE_</xsl:text>
@@ -27,7 +32,9 @@
     </xsl:for-each>    
 </xsl:variable>
 
-<!-- The list of filters for use in filterToBeanProxy -->
+<!-- 
+ | The list of filters for use in filterToBeanProxy 
+ -->
 <xsl:variable name="filter-list">
 <xsl:text>/**=httpSessionContextIntegrationFilter</xsl:text>
 <xsl:choose>
@@ -44,8 +51,9 @@
 <xsl:text>,rememberMeProcessingFilter,anonymousProcessingFilter,securityEnforcementFilter</xsl:text>
 </xsl:variable>
     
-    
-    
+<!-- 
+ | The main template (where the processing work starts)
+ -->    
 <xsl:template match = "web-app">
 
 <beans>
@@ -57,6 +65,10 @@
 </beans>
 </xsl:template>
 
+<!--
+ | Mainly static set of beans. The InMemoryDaoImpl instance is created with a single user
+ | called "superuser" who has all the defined roles in the web.xml file.
+ -->   
 <xsl:template name="authentication-beans">
     <xsl:comment>======================== AUTHENTICATION =======================</xsl:comment>
     
@@ -110,9 +122,26 @@
     </bean>    
 </xsl:template>
 
-<!-- login configuration -->
+<!-- 
+ | Processes the login-config definition and inserts the SecurityEnforcementFilter with 
+ | the appropriate beans for either form or basic authentication.
+ -->
 <xsl:template match="login-config">
-    <xsl:call-template name="security-enforcement-filter"/>
+
+   <bean id="securityEnforcementFilter" class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter">
+      <property name="filterSecurityInterceptor"><ref local="filterInvocationInterceptor"/></property>
+      <property name="authenticationEntryPoint">
+    <xsl:choose>
+        <xsl:when test="$auth-method = 'FORM'">
+      <ref local="authenticationProcessingFilterEntryPoint"/>
+        </xsl:when>
+        <xsl:when test="$auth-method = 'BASIC'">
+      <ref local="basicProcessingFilterEntryPoint"/>              
+        </xsl:when>
+    </xsl:choose>
+      </property>
+   </bean>    
+
     <xsl:choose>
         <xsl:when test="$auth-method = 'FORM'">
             <xsl:call-template name="form-login"/>
@@ -132,23 +161,29 @@
 </xsl:template>
 
 <!-- 
- | Inserts the security enforcement filter bean with the appropriate entry point 
- | (depending on whether FORM or BASIC authentication is selected in web.xml). 
- -->    
-<xsl:template name="security-enforcement-filter">
-   <bean id="securityEnforcementFilter" class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter">
-      <property name="filterSecurityInterceptor"><ref local="filterInvocationInterceptor"/></property>
-      <property name="authenticationEntryPoint">
-    <xsl:choose>
-        <xsl:when test="$auth-method = 'FORM'">
-      <ref local="authenticationProcessingFilterEntryPoint"/>
-        </xsl:when>
-        <xsl:when test="$auth-method = 'BASIC'">
-      <ref local="basicProcessingFilterEntryPoint"/>              
-        </xsl:when>
-    </xsl:choose>
-      </property>
+ |   Converts a form login configuration to an Acegi AuthenticationProcessingFilter and its entry point.
+ |   The content of the form-login-page element is used for the loginFormUrl property of the entry point 
+ |   and the form-error-page is used for the authenticationFailureUrl property of the filter.
+ |   
+ |   The user must manually change the form Url to "j_acegi_security_check" in their login page.
+ -->
+<xsl:template name="form-login">
+    <xsl:message>Processing form login configuration</xsl:message>
+    <xsl:message>Remember to switch your login form action from "j_security_check" to "j_acegi_security_check"</xsl:message>       
+        
+   <bean id="authenticationProcessingFilter" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
+      <property name="authenticationManager"><ref bean="authenticationManager"/></property>
+      <property name="authenticationFailureUrl"><value><xsl:value-of select="form-login-config/form-error-page"/></value></property>
+      <property name="defaultTargetUrl"><value></value></property>
+      <property name="filterProcessesUrl"><value>/j_acegi_security_check</value></property>
+      <property name="rememberMeServices"><ref local="rememberMeServices"/></property>
    </bean>
+
+   <bean id="authenticationProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+      <property name="loginFormUrl"><value><xsl:value-of select="form-login-config/form-login-page"/></value></property>
+      <property name="forceHttps"><value>false</value></property>
+   </bean> 
+        
 </xsl:template>
     
 <!--
@@ -171,88 +206,63 @@
 
 </xsl:template>
     
-<!-- 
-    Converts a form login configuration to an Acegi AuthenticationProcessingFilter and its entry point.
-    The content of the form-login-page element is used for the loginFormUrl property of the entry point 
-    and the form-error-page is used for the authenticationFailureUrl property of the filter.
-    
-    The user must manually change the form Url to "j_acegi_security_check"
- -->
-    <xsl:template name="form-login">
-        <xsl:message>Processing form login configuration</xsl:message>
-        <xsl:message>Remember to switch your login form action from "j_security_check" to "j_acegi_security_check"</xsl:message>       
+<xsl:template name="filter-invocation-interceptor">
+    <bean id="httpRequestAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
+        <property name="allowIfAllAbstainDecisions"><value>false</value></property>
+        <property name="decisionVoters">
+            <list>
+                <ref bean="roleVoter"/>
+            </list>
+        </property>
+    </bean>
         
-   <bean id="authenticationProcessingFilter" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
-      <property name="authenticationManager"><ref bean="authenticationManager"/></property>
-      <property name="authenticationFailureUrl"><value><xsl:value-of select="form-login-config/form-error-page"/></value></property>
-      <property name="defaultTargetUrl"><value></value></property>
-      <property name="filterProcessesUrl"><value>/j_acegi_security_check</value></property>
-      <property name="rememberMeServices"><ref local="rememberMeServices"/></property>
-   </bean>
-
-   <bean id="authenticationProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
-      <property name="loginFormUrl"><value><xsl:value-of select="form-login-config/form-login-page"/></value></property>
-      <property name="forceHttps"><value>false</value></property>
-   </bean> 
-        
-    </xsl:template>
-    
-    <xsl:template name="filter-invocation-interceptor">
-        <bean id="httpRequestAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
-            <property name="allowIfAllAbstainDecisions"><value>false</value></property>
-            <property name="decisionVoters">
-                <list>
-                    <ref bean="roleVoter"/>
-                </list>
-            </property>
-        </bean>
-        
-       <!-- An access decision voter that reads ROLE_* configuration settings -->
+    <xsl:comment>An access decision voter that reads ROLE_* configuration settings</xsl:comment>
         <bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>        
         
         <xsl:text>&#xA;</xsl:text>
-       <xsl:comment> 
+    <xsl:comment> 
        Note the order that entries are placed against the objectDefinitionSource is critical.
        The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
        Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last
-       </xsl:comment>
-        <bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
-          <property name="authenticationManager"><ref bean="authenticationManager"/></property>
-          <property name="accessDecisionManager"><ref local="httpRequestAccessDecisionManager"/></property>
-          <property name="objectDefinitionSource">
-             <value>
-                <xsl:text>&#xA;CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON&#xA;</xsl:text>                 
-                <xsl:text>PATTERN_TYPE_APACHE_ANT&#xA;</xsl:text>
-                <xsl:apply-templates select="security-constraint"/>
-             </value>
-          </property>
-        </bean>        
-    </xsl:template>
+    </xsl:comment>
+    <bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
+      <property name="authenticationManager"><ref bean="authenticationManager"/></property>
+      <property name="accessDecisionManager"><ref local="httpRequestAccessDecisionManager"/></property>
+      <property name="objectDefinitionSource">
+         <value>
+            <xsl:text>&#xA;CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON&#xA;</xsl:text>                 
+            <xsl:text>PATTERN_TYPE_APACHE_ANT&#xA;</xsl:text>
+            <xsl:apply-templates select="security-constraint"/>
+         </value>
+      </property>
+    </bean>        
+</xsl:template>
     
-    <xsl:template match="security-constraint">
-        <xsl:value-of select="web-resource-collection/url-pattern"/>
-        <xsl:text>=</xsl:text>
-        <xsl:for-each select="./auth-constraint/role-name">
-            <xsl:choose>
-                <xsl:when test="string() = '*'">
-                    <xsl:value-of select="$all-roles"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:text>ROLE_</xsl:text>
-                    <xsl:value-of select="translate(string(), $lowercase, $uppercase)"/>
-                </xsl:otherwise>
-            </xsl:choose>
-            <xsl:if test="position() != last()">,</xsl:if>
-        </xsl:for-each>
-        <xsl:text>&#xA;</xsl:text>
-    </xsl:template>
+<!-- 
+ | Converts a security-constraint (a url-pattern and the associated role-name elements)
+ | to the form
+ |     antUrlPattern=list of allowed roles
+ | Roles are converted to upper case and have the "ROLE_" prefix appended.
+ |
+ | In the case of role-name='*', signifying "any authenticated role", the complete list of roles 
+ | defined in the web.xml file is used. 
+ -->
+<xsl:template match="security-constraint">
+    <xsl:value-of select="web-resource-collection/url-pattern"/>
+    <xsl:text>=</xsl:text>
+    <xsl:for-each select="./auth-constraint/role-name">
+        <xsl:choose>
+            <xsl:when test="string() = '*'">
+                <xsl:value-of select="$all-roles"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:text>ROLE_</xsl:text>
+                <xsl:value-of select="translate(string(), $lowercase, $uppercase)"/>
+            </xsl:otherwise>
+        </xsl:choose>
+        <xsl:if test="position() != last()">,</xsl:if>
+    </xsl:for-each>
+    <xsl:text>&#xA;</xsl:text>
+</xsl:template>
 
-    <xsl:template name="list-roles">
-        <xsl:for-each select="security-role/role-name">
-            <xsl:text>ROLE_</xsl:text>
-            <xsl:value-of select="translate(string(), $lowercase, $uppercase)"/>           
-            <xsl:if test="position() != last()">,</xsl:if>
-        </xsl:for-each>
-    </xsl:template>    
-    
 </xsl:stylesheet>
