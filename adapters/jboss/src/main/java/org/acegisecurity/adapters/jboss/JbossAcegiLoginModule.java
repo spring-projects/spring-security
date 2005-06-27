@@ -239,7 +239,7 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
             super.log.debug("user is logged. redirecting to jaas classes");
 
             identity = new PrincipalAcegiUserToken(this.key,
-                    response.getPrincipal().toString(),
+                    response.getName(),
                     response.getCredentials().toString(),
                     response.getAuthorities());
         }
