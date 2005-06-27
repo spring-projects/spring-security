@@ -21,12 +21,16 @@ import net.sf.acegisecurity.AuthenticationManager;
 import net.sf.acegisecurity.context.SecurityContextHolder;
 import net.sf.acegisecurity.providers.x509.X509AuthenticationToken;
 import net.sf.acegisecurity.ui.AbstractProcessingFilter;
+import net.sf.acegisecurity.ui.InteractiveAuthenticationSuccesEvent;
 import net.sf.acegisecurity.ui.WebAuthenticationDetails;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import org.springframework.util.Assert;
 
@@ -55,6 +59,14 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
+ * If authentication is successful, an {@link
+ * net.sf.acegisecurity.ui.InteractiveAuthenticationSuccesEvent} will be
+ * published to the application context. No events will be published if
+ * authentication was unsuccessful, because this would generally be recorded
+ * via an <code>AuthenticationManager</code>-specific application event.
+ * </p>
+ * 
+ * <p>
  * <b>Do not use this class directly.</b> Instead configure
  * <code>web.xml</code> to use the {@link
  * net.sf.acegisecurity.util.FilterToBeanProxy}.
@@ -63,16 +75,22 @@ import javax.servlet.http.HttpServletResponse;
  * @author Luke Taylor
  * @version $Id$
  */
-public class X509ProcessingFilter implements Filter, InitializingBean {
+public class X509ProcessingFilter implements Filter, InitializingBean,
+    ApplicationContextAware {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(X509ProcessingFilter.class);
 
     //~ Instance fields ========================================================
 
+    private ApplicationContext context;
     private AuthenticationManager authenticationManager;
 
     //~ Methods ================================================================
+
+    public void setApplicationContext(ApplicationContext context) {
+        this.context = context;
+    }
 
     public void setAuthenticationManager(
         AuthenticationManager authenticationManager) {
@@ -167,6 +185,12 @@ public class X509ProcessingFilter implements Filter, InitializingBean {
         }
 
         SecurityContextHolder.getContext().setAuthentication(authResult);
+
+        // Fire event
+        if (this.context != null) {
+            context.publishEvent(new InteractiveAuthenticationSuccesEvent(
+                    authResult, this.getClass()));
+        }
     }
 
     /**

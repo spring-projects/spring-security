@@ -16,11 +16,15 @@
 package net.sf.acegisecurity.ui.rememberme;
 
 import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.ui.InteractiveAuthenticationSuccesEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import org.springframework.util.Assert;
 
@@ -52,6 +56,14 @@ import javax.servlet.http.HttpServletResponse;
  * will be placed into the <code>SecurityContext</code>.
  * </p>
  * 
+ * <p>
+ * If authentication is successful, an {@link
+ * net.sf.acegisecurity.ui.InteractiveAuthenticationSuccesEvent} will be
+ * published to the application context. No events will be published if
+ * authentication was unsuccessful, because this would generally be recorded
+ * via an <code>AuthenticationManager</code>-specific application event.
+ * </p>
+ * 
  * <P>
  * <B>Do not use this class directly.</B> Instead configure
  * <code>web.xml</code> to use the {@link
@@ -61,16 +73,22 @@ import javax.servlet.http.HttpServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class RememberMeProcessingFilter implements Filter, InitializingBean {
+public class RememberMeProcessingFilter implements Filter, InitializingBean,
+    ApplicationContextAware {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(RememberMeProcessingFilter.class);
 
     //~ Instance fields ========================================================
 
+    private ApplicationContext context;
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
 
     //~ Methods ================================================================
+
+    public void setApplicationContext(ApplicationContext context) {
+        this.context = context;
+    }
 
     public void setRememberMeServices(RememberMeServices rememberMeServices) {
         this.rememberMeServices = rememberMeServices;
@@ -111,6 +129,13 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean {
                     "Replaced SecurityContextHolder with remember-me token: '"
                     + SecurityContextHolder.getContext().getAuthentication()
                     + "'");
+            }
+
+            // Fire event
+            if (this.context != null) {
+                context.publishEvent(new InteractiveAuthenticationSuccesEvent(
+                        SecurityContextHolder.getContext().getAuthentication(),
+                        this.getClass()));
             }
         } else {
             if (logger.isDebugEnabled()) {

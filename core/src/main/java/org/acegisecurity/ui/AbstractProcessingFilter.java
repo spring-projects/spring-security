@@ -27,6 +27,9 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
 import org.springframework.util.Assert;
 
 import java.io.IOException;
@@ -112,6 +115,14 @@ import javax.servlet.http.HttpServletResponse;
  * <code>exceptionMappings</code> will be redirected to the
  * <code>authenticationFailureUrl</code>
  * </p>
+ * 
+ * <p>
+ * If authentication is successful, an {@link
+ * net.sf.acegisecurity.ui.InteractiveAuthenticationSuccesEvent} will be
+ * published to the application context. No events will be published if
+ * authentication was unsuccessful, because this would generally be recorded
+ * via an <code>AuthenticationManager</code>-specific application event.
+ * </p>
  *
  * @author Ben Alex
  * @author colin sampaleanu
@@ -119,7 +130,7 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public abstract class AbstractProcessingFilter implements Filter,
-    InitializingBean {
+    InitializingBean, ApplicationContextAware {
     //~ Static fields/initializers =============================================
 
     public static final String ACEGI_SECURITY_TARGET_URL_KEY = "ACEGI_SECURITY_TARGET_URL";
@@ -128,6 +139,7 @@ public abstract class AbstractProcessingFilter implements Filter,
 
     //~ Instance fields ========================================================
 
+    private ApplicationContext context;
     private AuthenticationManager authenticationManager;
     private Properties exceptionMappings = new Properties();
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
@@ -172,6 +184,10 @@ public abstract class AbstractProcessingFilter implements Filter,
         return alwaysUseDefaultTargetUrl;
     }
 
+    public void setApplicationContext(ApplicationContext context) {
+        this.context = context;
+    }
+
     public void setContinueChainBeforeSuccessfulAuthentication(
         boolean continueChainBeforeSuccessfulAuthentication) {
         this.continueChainBeforeSuccessfulAuthentication = continueChainBeforeSuccessfulAuthentication;
@@ -189,12 +205,28 @@ public abstract class AbstractProcessingFilter implements Filter,
      */
     public abstract String getDefaultFilterProcessesUrl();
 
+    public void setDefaultTargetUrl(String defaultTargetUrl) {
+        this.defaultTargetUrl = defaultTargetUrl;
+    }
+
+    public String getDefaultTargetUrl() {
+        return defaultTargetUrl;
+    }
+
     public void setExceptionMappings(Properties exceptionMappings) {
         this.exceptionMappings = exceptionMappings;
     }
 
     public Properties getExceptionMappings() {
         return new Properties(exceptionMappings);
+    }
+
+    public void setFilterProcessesUrl(String filterProcessesUrl) {
+        this.filterProcessesUrl = filterProcessesUrl;
+    }
+
+    public String getFilterProcessesUrl() {
+        return filterProcessesUrl;
     }
 
     public void setRememberMeServices(RememberMeServices rememberMeServices) {
@@ -233,22 +265,6 @@ public abstract class AbstractProcessingFilter implements Filter,
 
     public AuthenticationManager getAuthenticationManager() {
         return authenticationManager;
-    }
-
-    public void setDefaultTargetUrl(String defaultTargetUrl) {
-        this.defaultTargetUrl = defaultTargetUrl;
-    }
-
-    public String getDefaultTargetUrl() {
-        return defaultTargetUrl;
-    }
-
-    public void setFilterProcessesUrl(String filterProcessesUrl) {
-        this.filterProcessesUrl = filterProcessesUrl;
-    }
-
-    public String getFilterProcessesUrl() {
-        return filterProcessesUrl;
     }
 
     public void afterPropertiesSet() throws Exception {
@@ -402,6 +418,12 @@ public abstract class AbstractProcessingFilter implements Filter,
         onSuccessfulAuthentication(request, response, authResult);
 
         rememberMeServices.loginSuccess(request, response, authResult);
+
+        // Fire event
+        if (this.context != null) {
+            context.publishEvent(new InteractiveAuthenticationSuccesEvent(
+                    authResult, this.getClass()));
+        }
 
         response.sendRedirect(response.encodeRedirectURL(targetUrl));
     }
