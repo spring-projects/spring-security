@@ -4,7 +4,7 @@
 <!--
   - Contacts web application
   -
-  - web.xml for "cas" artifact only.
+  - web.xml for "x509" artifact only.
   -
   - $Id$
   -->
@@ -31,14 +31,6 @@
 		<param-value>/WEB-INF/classes/log4j.properties</param-value>
 	</context-param>
 -->
-	<!-- Required for CAS ProxyTicketReceptor servlet. This is the
-	     URL to CAS' "proxy" actuator, where a PGT and TargetService can
-	     be presented to obtain a new proxy ticket. THIS CAN BE
-	     REMOVED IF THE APPLICATION DOESN'T NEED TO ACT AS A PROXY -->
-    <context-param>
-        <param-name>edu.yale.its.tp.cas.proxyUrl</param-name>
-        <param-value>http://localhost:8433/cas/proxy</param-value>
-    </context-param>
 
     <filter>
         <filter-name>Acegi Filter Chain Proxy</filter-name>
