@@ -59,8 +59,8 @@ import java.util.Set;
  * 
  * <ol>
  * <li>
- * Extract the {@link SecureContext} from the {@link ContextHolder}, handling
- * any errors such as invalid or <code>null</code> objects.
+ * Extract the {@link SecureContext} from the {@link SecurityContextHolder},
+ * handling any errors such as invalid or <code>null</code> objects.
  * </li>
  * <li>
  * Obtain the {@link Authentication} object from the extracted
@@ -77,9 +77,12 @@ import java.util.Set;
  * 
  * <ol type="a">
  * <li>
- * Authenticate the request against the configured {@link
- * AuthenticationManager}, replacing the <code>Authentication</code> object on
- * the <code>ContextHolder</code> with the returned value.
+ * If either the {@link net.sf.acegisecurity.Authentication#isAuthenticated()}
+ * returns <code>false</code>, or the {@link #alwaysReauthenticate} is
+ * <code>true</code>,  authenticate the request against the configured {@link
+ * AuthenticationManager}. When authenticated, replace the
+ * <code>Authentication</code> object on the
+ * <code>SecurityContextHolder</code> with the returned value.
  * </li>
  * <li>
  * Authorize the request against the configured {@link AccessDecisionManager}.
@@ -101,8 +104,8 @@ import java.util.Set;
  * </li>
  * <li>
  * If the <code>RunAsManager</code> replaced the <code>Authentication</code>
- * object, return the <code>ContextHolder</code> to the object that existed
- * after the call to <code>AuthenticationManager</code>.
+ * object, return the <code>SecurityContextHolder</code> to the object that
+ * existed after the call to <code>AuthenticationManager</code>.
  * </li>
  * <li>
  * If an <code>AfterInvocationManager</code> is defined, invoke the invocation
@@ -117,11 +120,6 @@ import java.util.Set;
  * <code>ConfigAttributeDefinition</code> for the secure object invocation):
  * 
  * <ol type="a">
- * <li>
- * If the <code>ContextHolder</code> contains a <code>SecureContext</code>, set
- * the <code>isAuthenticated</code> flag on the <code>Authentication</code>
- * object to false.
- * </li>
  * <li>
  * As described above, the concrete subclass will be returned an
  * <code>InterceptorStatusToken</code> which is subsequently re-presented to
@@ -157,6 +155,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
     private ApplicationContext context;
     private AuthenticationManager authenticationManager;
     private RunAsManager runAsManager = new NullRunAsManager();
+    private boolean alwaysReauthenticate = false;
     private boolean validateConfigAttributes = true;
 
     //~ Methods ================================================================
@@ -168,6 +167,27 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 
     public AfterInvocationManager getAfterInvocationManager() {
         return afterInvocationManager;
+    }
+
+    /**
+     * Indicates whether the <code>AbstractSecurityInterceptor</code> should
+     * ignore the {@link Authentication#isAuthenticated()} property. Defaults
+     * to <code>false</code>, meaning by default the
+     * <code>Authentication.isAuthenticated()</code> property is trusted and
+     * re-authentication will not occur if the principal has already been
+     * authenticated.
+     *
+     * @param alwaysReauthenticate <code>true</code> to force
+     *        <code>AbstractSecurityInterceptor</code> to disregard the value
+     *        of <code>Authentication.isAuthenticated()</code> and always
+     *        re-authenticate the request (defaults to <code>false</code>).
+     */
+    public void setAlwaysReauthenticate(boolean alwaysReauthenticate) {
+        this.alwaysReauthenticate = alwaysReauthenticate;
+    }
+
+    public boolean isAlwaysReauthenticate() {
+        return alwaysReauthenticate;
     }
 
     public void setApplicationContext(ApplicationContext applicationContext)
@@ -364,11 +384,12 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                     object, attr);
             }
 
-            // Attempt authentication if not already authenticated
+            // Attempt authentication if not already authenticated, or user always wants reauthentication
             Authentication authenticated;
 
             if (!SecurityContextHolder.getContext().getAuthentication()
-                                      .isAuthenticated()) {
+                                      .isAuthenticated()
+                || alwaysReauthenticate) {
                 try {
                     authenticated = this.authenticationManager.authenticate(SecurityContextHolder.getContext()
                                                                                                  .getAuthentication());

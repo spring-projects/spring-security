@@ -37,7 +37,7 @@
       <action dev="raykrueger" type="update">AuthorityGranter.grant now returns a java.util.Set of role names, instead of a single role name</action>
       <action dev="benalex" type="update">JavaDoc improvements</action>
       <action dev="benalex" type="fix">Correct synchronization issue with FilterToBeanProxy initialization</action>
-      <action dev="benalex" type="update">Refactor Authentication.isAuthenticated() handling to be more performance</action>
+      <action dev="benalex" type="update">Refactor Authentication.isAuthenticated() handling to be more performant</action>
       <action dev="benalex" type="fix">Silently catch NotSerializableException in AbstractProcessingFilter if rootCause is not Serializable</action>
       <action dev="benalex" type="fix">Remove getters and setters from JdbcDaoImpl so IoC container cannot modify MappingSqlQuerys</action>
       <action dev="benalex" type="update">Refactor DAO authentication failure events under a consistent abstract superclass</action>
