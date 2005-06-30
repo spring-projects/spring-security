@@ -3,7 +3,10 @@ package net.sf.acegisecurity.util;
 import junit.framework.TestCase;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.beans.factory.BeanFactory;
+import org.springframework.core.io.AbstractResource;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.w3c.dom.Node;
 
 import net.sf.acegisecurity.providers.ProviderManager;
 import net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider;
@@ -13,22 +16,30 @@ import net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter;
 
 import net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.IOException;
+
 /**
- * Tests the WebXmlSecurityToSpringBeansTranslator by applying it
- * to a test sample web.xml file.
+ * Tests the WebXmlToAcegiSecurityConverter by applying it to a sample web.xml file.
  *
  * @author Luke Taylor
  * @version $Id$
  */
-public class WebXmlSecurityToSpringBeansTranslatorTests extends TestCase {
+public class WebXmlToAcegiSecurityConverterTests extends TestCase {
 
-    public void testFileTranslation() throws Exception {
-        WebXmlSecurityToSpringBeansTranslator t = new WebXmlSecurityToSpringBeansTranslator();
+    public void testFileConversion() throws Exception {
+        WebXmlToAcegiSecurityConverter t = new WebXmlToAcegiSecurityConverter();
 
         Resource r = new ClassPathResource("test-web.xml");
-        t.translate(r.getInputStream());
+        t.setInput(r.getInputStream());
+        t.doConversion();
 
-        BeanFactory bf = t.getBeanFactory();
+
+        DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
+        XmlBeanDefinitionReader beanReader = new XmlBeanDefinitionReader(bf);
+
+        int nBeans = beanReader.loadBeanDefinitions(new InMemoryResource(t.getAcegiBeansXml()));
         assertNotNull(bf.getBean("filterChainProxy"));
 
         ProviderManager pm = (ProviderManager) bf.getBean("authenticationManager");
@@ -55,5 +66,25 @@ public class WebXmlSecurityToSpringBeansTranslatorTests extends TestCase {
         assertNotNull(sef.getAuthenticationEntryPoint());
         FilterSecurityInterceptor fsi = sef.getFilterSecurityInterceptor();
 
+    }
+
+    private static class InMemoryResource extends AbstractResource {
+        ByteArrayInputStream in;
+
+        public InMemoryResource(ByteArrayInputStream in) {
+            this.in = in;
+        }
+
+        public InMemoryResource(String source) {
+            in = new ByteArrayInputStream(source.getBytes());
+        }
+
+        public String getDescription() {
+            return in.toString();
+        }
+
+        public InputStream getInputStream() throws IOException {
+            return in;
+        }
     }
 }
