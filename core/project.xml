@@ -29,6 +29,14 @@
         </includes>
         <filtering>false</filtering>
       </resource>
+      <resource>
+        <directory>${basedir}/src/main/resources/</directory>
+        <targetPath>/</targetPath>
+        <includes>
+          <include>*.xsl</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
     </resources>
   </build>
 </project>
