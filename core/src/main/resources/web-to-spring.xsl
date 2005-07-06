@@ -238,17 +238,22 @@
     </bean>        
 </xsl:template>
     
-<!-- 
+<!--
  | Converts a security-constraint (a url-pattern and the associated role-name elements)
  | to the form
  |     antUrlPattern=list of allowed roles
  | Roles are converted to upper case and have the "ROLE_" prefix appended.
  |
- | In the case of role-name='*', signifying "any authenticated role", the complete list of roles 
- | defined in the web.xml file is used. 
+ | In the case of role-name='*', signifying "any authenticated role", the complete list of roles
+ | defined in the web.xml file is used.
+ |
+ | URLs which end in a wild card, will be converted to end in the recursive path version '**',
+ | e.g. /private/* becomes /private/**
  -->
 <xsl:template match="security-constraint">
-    <xsl:value-of select="web-resource-collection/url-pattern"/>
+    <xsl:variable name="url" select="web-resource-collection/url-pattern"/>
+    <xsl:value-of select="$url"/>
+    <xsl:if test="substring($url, string-length($url)) = '*'">*</xsl:if>
     <xsl:text>=</xsl:text>
     <xsl:for-each select="./auth-constraint/role-name">
         <xsl:choose>
