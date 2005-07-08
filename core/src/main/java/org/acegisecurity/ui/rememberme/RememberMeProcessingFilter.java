@@ -17,6 +17,7 @@ package net.sf.acegisecurity.ui.rememberme;
 
 import net.sf.acegisecurity.context.SecurityContextHolder;
 import net.sf.acegisecurity.ui.InteractiveAuthenticationSuccesEvent;
+import net.sf.acegisecurity.Authentication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -103,7 +104,7 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean,
     }
 
     /**
-     * Does nothing - we reply on IoC lifecycle services instead.
+     * Does nothing - we rely on IoC lifecycle services instead.
      */
     public void destroy() {}
 
@@ -121,21 +122,25 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean,
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            SecurityContextHolder.getContext().setAuthentication(rememberMeServices
-                .autoLogin(httpRequest, httpResponse));
+            Authentication rememberMeAuth =
+                    rememberMeServices.autoLogin(httpRequest, httpResponse);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "Replaced SecurityContextHolder with remember-me token: '"
-                    + SecurityContextHolder.getContext().getAuthentication()
-                    + "'");
-            }
+            if(rememberMeAuth != null) {
+                SecurityContextHolder.getContext().setAuthentication(rememberMeAuth);
 
-            // Fire event
-            if (this.context != null) {
-                context.publishEvent(new InteractiveAuthenticationSuccesEvent(
-                        SecurityContextHolder.getContext().getAuthentication(),
-                        this.getClass()));
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "Replaced SecurityContextHolder with remember-me token: '"
+                        + SecurityContextHolder.getContext().getAuthentication()
+                        + "'");
+                }
+
+                // Fire event
+                if (this.context != null) {
+                    context.publishEvent(new InteractiveAuthenticationSuccesEvent(
+                            SecurityContextHolder.getContext().getAuthentication(),
+                            this.getClass()));
+                }
             }
         } else {
             if (logger.isDebugEnabled()) {
@@ -150,7 +155,7 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean,
     }
 
     /**
-     * Does nothing - we reply on IoC lifecycle services instead.
+     * Does nothing - we rely on IoC lifecycle services instead.
      *
      * @param arg0 not used
      *
