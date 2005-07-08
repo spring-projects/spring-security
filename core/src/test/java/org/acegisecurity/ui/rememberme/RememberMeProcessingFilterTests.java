@@ -157,9 +157,6 @@ public class RememberMeProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
             request, new MockHttpServletResponse(), new MockFilterChain(true));
 
-        Authentication auth = SecurityContextHolder.getContext()
-                                                   .getAuthentication();
-
         // Ensure filter setup with our remembered authentication object
         assertEquals(remembered,
             SecurityContextHolder.getContext().getAuthentication());
