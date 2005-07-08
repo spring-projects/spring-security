@@ -13,9 +13,9 @@
   </repository>
   <dependencies>
     <dependency>
-      <groupId>xjavadoc</groupId>
+      <groupId>xdoclet</groupId>
       <artifactId>xjavadoc</artifactId>
-      <version>1.0</version>
+      <version>1.0.2</version>
     </dependency>
     <dependency>
       <groupId>commons-collections</groupId>
