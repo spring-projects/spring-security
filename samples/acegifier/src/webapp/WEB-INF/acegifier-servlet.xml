@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+ | Spring web setup for the acegifier.
+ |
+ | $Id$
+ -->
+
+<beans>
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename"><value>messages</value></property>
+	</bean>
+
+    <bean id="conversionController" class="acegifier.web.AcegifierController">
+        <property name="formView" value="acegificationForm" />
+        <property name="commandClass" value="acegifier.web.AcegifierForm"/>
+    </bean>
+
+
+    <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+        <property name="mappings">
+            <props>
+                <prop key="/convert.htm">conversionController</prop>
+			</props>
+        </property>
+    </bean>
+<!--
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix"><value>/WEB-INF/jsp/</value></property>
+		<property name="suffix"><value>.jsp</value></property>
+	</bean>
+ -->       
+    <bean
+      id="freemarkerConfig"
+      class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+      <property name="templateLoaderPath"><value>/WEB-INF/freemarker/</value></property>
+      <property name="freemarkerVariables">
+        <map>
+          <entry key="xml_escape"><ref local="fmXmlEscape"/></entry>
+        </map>
+      </property>
+    </bean>
+
+    <bean id="fmXmlEscape" class="freemarker.template.utility.XmlEscape"/>
+
+    <bean
+      id="viewResolver"
+      class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+      <property name="exposeSpringMacroHelpers"><value>true</value></property>        
+      <property name="cache"><value>true</value></property>
+      <property name="prefix"><value></value></property>
+      <property name="suffix"><value>.ftl</value></property>
+    </bean>
+
+</beans>
