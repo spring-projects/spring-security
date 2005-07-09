@@ -1,5 +1,13 @@
 <web-app>
   <display-name>login-xml</display-name>
+  
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>
+    	/WEB-INF/applicationContext-business.xml
+    	/WEB-INF/applicationContext-dao.xml
+    </param-value>
+  </context-param>
 
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>

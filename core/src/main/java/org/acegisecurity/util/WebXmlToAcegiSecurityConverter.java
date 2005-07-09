@@ -39,7 +39,7 @@ public class WebXmlToAcegiSecurityConverter {
 
     /**
      * The name of the spring-beans file which the beans will be stored in.
-     * This is required when writing the new web.xml file.
+     * This is required when writing the new web.xml content.
      */
     private String acegiOutputFileName = "applicationContext-acegi-security.xml";
 
@@ -70,12 +70,12 @@ public class WebXmlToAcegiSecurityConverter {
 
         // Create the modified web.xml file
         ByteArrayOutputStream output = new ByteArrayOutputStream();
+        newWebXmlTransformer.setParameter("acegi-security-context-file", acegiOutputFileName);
+//        newWebXmlTransformer.setParameter("cas-proxy-url", "http://localhost:8433/cas/proxy");        
         newWebXmlTransformer.transform(xmlSource, new StreamResult(output));
         newWebXml = output.toString();
         output.reset();
 
-//        acegiSecurityTransformer.setParameter("cas-proxy-url", "http://localhost:8433/cas/proxy");
-        acegiSecurityTransformer.setParameter("acegi-security-context-file", acegiOutputFileName);
         acegiSecurityTransformer.transform(xmlSource, new StreamResult(output));
         acegiBeansXml = output.toString();
     }

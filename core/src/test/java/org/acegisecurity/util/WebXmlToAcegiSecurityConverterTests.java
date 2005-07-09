@@ -29,17 +29,16 @@ import java.io.IOException;
 public class WebXmlToAcegiSecurityConverterTests extends TestCase {
 
     public void testFileConversion() throws Exception {
-        WebXmlToAcegiSecurityConverter t = new WebXmlToAcegiSecurityConverter();
+        WebXmlToAcegiSecurityConverter converter = new WebXmlToAcegiSecurityConverter();
 
         Resource r = new ClassPathResource("test-web.xml");
-        t.setInput(r.getInputStream());
-        t.doConversion();
-
+        converter.setInput(r.getInputStream());
+        converter.doConversion();
 
         DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
         XmlBeanDefinitionReader beanReader = new XmlBeanDefinitionReader(bf);
 
-        int nBeans = beanReader.loadBeanDefinitions(new InMemoryResource(t.getAcegiBeansXml()));
+        int nBeans = beanReader.loadBeanDefinitions(new InMemoryResource(converter.getAcegiBeansXml()));
         assertNotNull(bf.getBean("filterChainProxy"));
 
         ProviderManager pm = (ProviderManager) bf.getBean("authenticationManager");
@@ -66,25 +65,5 @@ public class WebXmlToAcegiSecurityConverterTests extends TestCase {
         assertNotNull(sef.getAuthenticationEntryPoint());
         FilterSecurityInterceptor fsi = sef.getFilterSecurityInterceptor();
 
-    }
-
-    private static class InMemoryResource extends AbstractResource {
-        ByteArrayInputStream in;
-
-        public InMemoryResource(ByteArrayInputStream in) {
-            this.in = in;
-        }
-
-        public InMemoryResource(String source) {
-            in = new ByteArrayInputStream(source.getBytes());
-        }
-
-        public String getDescription() {
-            return in.toString();
-        }
-
-        public InputStream getInputStream() throws IOException {
-            return in;
-        }
     }
 }
