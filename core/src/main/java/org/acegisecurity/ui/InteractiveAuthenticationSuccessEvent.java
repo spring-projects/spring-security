@@ -33,14 +33,14 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class InteractiveAuthenticationSuccesEvent extends ApplicationEvent {
+public class InteractiveAuthenticationSuccessEvent extends ApplicationEvent {
     //~ Instance fields ========================================================
 
     private Class generatedBy;
 
     //~ Constructors ===========================================================
 
-    public InteractiveAuthenticationSuccesEvent(Authentication authentication,
+    public InteractiveAuthenticationSuccessEvent(Authentication authentication,
         Class generatedBy) {
         super(authentication);
         Assert.notNull(generatedBy);

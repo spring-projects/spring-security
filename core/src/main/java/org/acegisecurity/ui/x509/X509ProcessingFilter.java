@@ -21,7 +21,7 @@ import net.sf.acegisecurity.AuthenticationManager;
 import net.sf.acegisecurity.context.SecurityContextHolder;
 import net.sf.acegisecurity.providers.x509.X509AuthenticationToken;
 import net.sf.acegisecurity.ui.AbstractProcessingFilter;
-import net.sf.acegisecurity.ui.InteractiveAuthenticationSuccesEvent;
+import net.sf.acegisecurity.ui.InteractiveAuthenticationSuccessEvent;
 import net.sf.acegisecurity.ui.WebAuthenticationDetails;
 
 import org.apache.commons.logging.Log;
@@ -60,7 +60,7 @@ import javax.servlet.http.HttpServletResponse;
  * 
  * <p>
  * If authentication is successful, an {@link
- * net.sf.acegisecurity.ui.InteractiveAuthenticationSuccesEvent} will be
+ * net.sf.acegisecurity.ui.InteractiveAuthenticationSuccessEvent} will be
  * published to the application context. No events will be published if
  * authentication was unsuccessful, because this would generally be recorded
  * via an <code>AuthenticationManager</code>-specific application event.
@@ -188,7 +188,7 @@ public class X509ProcessingFilter implements Filter, InitializingBean,
 
         // Fire event
         if (this.context != null) {
-            context.publishEvent(new InteractiveAuthenticationSuccesEvent(
+            context.publishEvent(new InteractiveAuthenticationSuccessEvent(
                     authResult, this.getClass()));
         }
     }

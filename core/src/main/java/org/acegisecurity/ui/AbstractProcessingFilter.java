@@ -118,7 +118,7 @@ import javax.servlet.http.HttpServletResponse;
  * 
  * <p>
  * If authentication is successful, an {@link
- * net.sf.acegisecurity.ui.InteractiveAuthenticationSuccesEvent} will be
+ * net.sf.acegisecurity.ui.InteractiveAuthenticationSuccessEvent} will be
  * published to the application context. No events will be published if
  * authentication was unsuccessful, because this would generally be recorded
  * via an <code>AuthenticationManager</code>-specific application event.
@@ -421,7 +421,7 @@ public abstract class AbstractProcessingFilter implements Filter,
 
         // Fire event
         if (this.context != null) {
-            context.publishEvent(new InteractiveAuthenticationSuccesEvent(
+            context.publishEvent(new InteractiveAuthenticationSuccessEvent(
                     authResult, this.getClass()));
         }
 
