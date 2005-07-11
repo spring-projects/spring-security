@@ -168,22 +168,22 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean,
             if (httpSession != null) {
                 httpSessionExistedAtStartOfRequest = true;
 
-                Object contextObject = httpSession.getAttribute(ACEGI_SECURITY_CONTEXT_KEY);
+                Object contextFromSessionObject = httpSession.getAttribute(ACEGI_SECURITY_CONTEXT_KEY);
 
-                if (contextObject != null) {
-                    if (contextObject instanceof SecurityContext) {
+                if (contextFromSessionObject != null) {
+                    if (contextFromSessionObject instanceof SecurityContext) {
                         if (logger.isDebugEnabled()) {
                             logger.debug(
                                 "Obtained from ACEGI_SECURITY_CONTEXT a valid SecurityContext and set to SecurityContextHolder: '"
-                                + contextObject + "'");
+                                + contextFromSessionObject + "'");
                         }
 
-                        SecurityContextHolder.setContext((SecurityContext) contextObject);
+                        SecurityContextHolder.setContext((SecurityContext) contextFromSessionObject);
                     } else {
                         if (logger.isWarnEnabled()) {
                             logger.warn(
                                 "ACEGI_SECURITY_CONTEXT did not contain a SecurityContext but contained: '"
-                                + contextObject
+                                + contextFromSessionObject
                                 + "'; are you improperly modifying the HttpSession directly (you should always use SecurityContextHolder) or using the HttpSession attribute reserved for this class? - new SecurityContext instance associated with SecurityContextHolder");
                         }
 
