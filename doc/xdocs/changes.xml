@@ -46,6 +46,15 @@
       <action dev="benalex" type="update">Form, CAS, X509 and Remember-Me authentication mechanisms now publish an InteractiveAuthenticationSuccessEvent (see http://opensource.atlassian.com/projects/spring/browse/SEC-5)</action>
       <action dev="benalex" type="update">FilterSecurityInterceptor now has an observeOncePerRequest boolean property, allowing multiple fragments of the HTTP request to be individually authorized (see http://opensource.atlassian.com/projects/spring/browse/SEC-14)</action>
     </release>
+    <release version="0.8.3" date="2005-05-12">
+      <action dev="benalex" type="fix">HttpSessionContextIntegrationFilter elegantly handles IOExceptions and ServletExceptions within filter chain (see http://opensource.atlassian.com/projects/spring/browse/SEC-20)</action>
+    </release>
+    <release version="0.8.1.1" date="2005-07-12">
+      <action dev="benalex" type="fix">HttpSessionContextIntegrationFilter elegantly handles IOExceptions and ServletExceptions within filter chain (see http://opensource.atlassian.com/projects/spring/browse/SEC-20)</action>
+    </release>
+    <release version="0.7.1" date="2005-07-12">
+      <action dev="benalex" type="fix">AbstractIntegrationFilter elegantly handles IOExceptions and ServletExceptions within filter chain (see http://opensource.atlassian.com/projects/spring/browse/SEC-20)</action>
+    </release>
     <release version="0.8.2" date="2005-04-20">
       <action dev="benalex" type="fix">Correct location of AuthenticationSimpleHttpInvokerRequestExecutor in clientContext.xml</action>
       <action dev="benalex" type="fix">TokenBasedRememberMeServices changed to use long instead of int for tokenValiditySeconds (SPR-807)</action>

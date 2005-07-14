@@ -431,6 +431,11 @@
       <tag>release_0_7_0</tag>
     </version>
     <version>
+      <id>0.7.1</id>
+      <name>0.7.1</name>
+      <tag>release_0_7_1</tag>
+    </version>
+    <version>
       <id>0.8.0</id>
       <name>0.8.0</name>
       <tag>release_0_8_0</tag>
@@ -441,9 +446,19 @@
       <tag>release_0_8_1</tag>
     </version>
     <version>
+      <id>0.8.1.1</id>
+      <name>0.8.1.1</name>
+      <tag>release_0_8_1_1</tag>
+    </version>
+    <version>
       <id>0.8.2</id>
       <name>0.8.2</name>
       <tag>release_0_8_2</tag>
+    </version>
+    <version>
+      <id>0.8.3</id>
+      <name>0.8.3</name>
+      <tag>release_0_8_3</tag>
     </version>
   </versions>
 </project>
