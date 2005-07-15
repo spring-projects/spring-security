@@ -59,7 +59,7 @@ public interface RememberMeServices {
      * system wishes to provide an implementation with an opportunity to
      * authenticate the request using remember-me capabilities. Acegi Security
      * makes no attempt whatsoever to determine whether the browser has
-     * requested remember-me services or presented a vaild cookie. Such
+     * requested remember-me services or presented a valid cookie. Such
      * determinations are left to the implementation. If a browser has
      * presented an unauthorised cookie for whatever reason, it should be
      * silently ignored and invalidated using the
