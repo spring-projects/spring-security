@@ -2813,7 +2813,7 @@ key:              A private key to prevent modification of the remember-me token
 &lt;/bean&gt;</programlisting>Don't forget to add your
         <literal>RememberMeServices</literal> implementation to your
         <literal>AuthenticationProcessingFilter.setRememberMeServices()</literal>
-        property, include the <literal>RememberMeProcessingFilter</literal> in
+        property, include the <literal>RememberMeAuthenticationProvider</literal> in
         your <literal>AuthenticationManager.setProviders()</literal> list, and
         add a call to <literal>RememberMeProcessingFilter</literal> into your
         <literal>FilterChainProxy</literal> (typically immediately after your
