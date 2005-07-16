@@ -61,7 +61,8 @@
     
   <xsl:apply-templates select="filter-mapping"/>
 
-  <xsl:if test="not(./listener/listener-class[string()='org.springframework.web.context.ContextLoaderListener')">
+  <!-- Only add a spring context loader listener if there isn't one there already -->
+  <xsl:if test="not(./listener/listener-class[string()='org.springframework.web.context.ContextLoaderListener'])">
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
