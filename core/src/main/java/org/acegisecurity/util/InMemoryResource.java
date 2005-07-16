@@ -21,12 +21,12 @@ public class InMemoryResource extends AbstractResource {
     ByteArrayInputStream in;
     String description;
 
-    public InMemoryResource(String source) {
+    public InMemoryResource(byte[] source) {
         this(source, null);
     }
 
-    public InMemoryResource(String source, String description) {
-        in = new ByteArrayInputStream(source.getBytes());
+    public InMemoryResource(byte[] source, String description) {
+        in = new ByteArrayInputStream(source);
         this.description = description;
     }
 
