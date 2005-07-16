@@ -3,22 +3,26 @@ package acegifier.web;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.validation.BindException;
+import org.springframework.validation.Errors;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.beans.BeansException;
 import net.sf.acegisecurity.util.InMemoryResource;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXParseException;
+import org.dom4j.Document;
+import org.dom4j.io.XMLWriter;
+import org.dom4j.io.OutputFormat;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.acegisecurity.util.WebXmlToAcegiSecurityConverter;
+import net.sf.acegisecurity.util.FilterChainProxy;
+import acegifier.WebXmlConverter;
 
 /**
  * Takes a submitted web.xml, applies the transformer to it and returns the resulting
@@ -28,10 +32,8 @@ import net.sf.acegisecurity.util.WebXmlToAcegiSecurityConverter;
  * @version $Id$
  */
 public class AcegifierController extends SimpleFormController {
-    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
     public AcegifierController() {
-        dbf.setValidating(false);
     }
 
     public ModelAndView onSubmit(
@@ -39,23 +41,20 @@ public class AcegifierController extends SimpleFormController {
                 throws Exception {
 
         AcegifierForm conversion = (AcegifierForm)command;
-
         ByteArrayInputStream in = new ByteArrayInputStream(conversion.getWebXml().getBytes());
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        Document doc = null;
-        WebXmlToAcegiSecurityConverter converter = null;
+        WebXmlConverter converter = null;
         int nBeans = 0;
+        Document newWebXml = null, acegiBeans = null;
 
         try {
-            doc = db.parse(in);
-            converter = new WebXmlToAcegiSecurityConverter();
-            converter.setInput(doc);
+            converter = new WebXmlConverter();
+            converter.setInput(in);
             converter.doConversion();
-            nBeans = createBeanFactory(converter.getAcegiBeansXml());
+            newWebXml = converter.getNewWebXml();
+            acegiBeans = converter.getAcegiBeans();
+            nBeans = validateAcegiBeans(conversion, acegiBeans, errors);
         } catch (SAXParseException spe) {
             errors.rejectValue("webXml","parseFailure","Your Web XML Document failed to parse: " + spe.getMessage());
-        } catch (BeansException be) {
-            errors.rejectValue("webXml","invalidBeans","There was a problem validating the Spring beans: " + be.getMessage());
         }
 
         if(errors.hasErrors()) {
@@ -63,19 +62,49 @@ public class AcegifierController extends SimpleFormController {
         }
 
         Map model = new HashMap();
-        model.put("webXml", converter.getNewWebXml());
-        model.put("acegiBeansXml", converter.getAcegiBeansXml());
+        model.put("webXml", prettyPrint(newWebXml));
+        model.put("acegiBeansXml", prettyPrint(acegiBeans));
         model.put("nBeans", new Integer(nBeans));
 
         return new ModelAndView("acegificationResults", model);
     }
 
-    /** Creates a BeanFactory from the transformed XML to make sure the results are valid */
-    private int createBeanFactory(String beansXml) {
+    /** Creates a formatted XML string from the supplied document */
+    private String prettyPrint(Document document) throws IOException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        OutputFormat format = OutputFormat.createPrettyPrint();
+        format.setTrimText(false);
+        XMLWriter writer = new XMLWriter(output, format);
+        writer.write(document);
+        writer.flush();
+        writer.close();
+        return output.toString();
+    }
+
+    /**
+     * Validates the acegi beans, based on the input form data, and returns the number
+     * of spring beans defined in the document.
+     */
+    private int validateAcegiBeans(AcegifierForm conversion, Document beans, Errors errors) throws IOException {
+        DefaultListableBeanFactory bf = createBeanFactory(beans);
+
+        //TODO: actually do some proper validation!
+
+        try {
+            bf.getBean("filterChainProxy", FilterChainProxy.class);
+        } catch (BeansException be) {
+            errors.rejectValue("webXml","beansInvalid","There was an error creating or accessing the bean factory " + be.getMessage());
+        }
+        return bf.getBeanDefinitionCount();
+    }
+
+    /** Creates a BeanFactory from the spring beans XML document */
+    private DefaultListableBeanFactory createBeanFactory(Document beans) {
         DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
         XmlBeanDefinitionReader beanReader = new XmlBeanDefinitionReader(bf);
+        beanReader.loadBeanDefinitions(new InMemoryResource(beans.asXML().getBytes()));
 
-        return beanReader.loadBeanDefinitions(new InMemoryResource(beansXml));
+        return bf;
     }
 
 }
