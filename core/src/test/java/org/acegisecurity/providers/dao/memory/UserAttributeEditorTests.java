@@ -123,4 +123,15 @@ public class UserAttributeEditorTests extends TestCase {
         UserAttribute user = (UserAttribute) editor.getValue();
         assertTrue(user == null);
     }
+
+    public void testCorrectOperationWithTrailingSpaces() {
+        UserAttributeEditor editor = new UserAttributeEditor();
+        editor.setAsText("password ,ROLE_ONE,ROLE_TWO ");
+
+        UserAttribute user = (UserAttribute) editor.getValue();
+        assertEquals("password", user.getPassword());
+        assertEquals(2, user.getAuthorities().length);
+        assertEquals("ROLE_ONE", user.getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_TWO", user.getAuthorities()[1].getAuthority());
+    }
 }

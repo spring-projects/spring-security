@@ -33,14 +33,12 @@ public class UserAttributeEditor extends PropertyEditorSupport {
     //~ Methods ================================================================
 
     public void setAsText(String s) throws IllegalArgumentException {
-        if ((s == null) || "".equals(s)) {
-            setValue(null);
-        } else {
+        if (StringUtils.hasText(s)) {
             String[] tokens = StringUtils.commaDelimitedListToStringArray(s);
             UserAttribute userAttrib = new UserAttribute();
 
             for (int i = 0; i < tokens.length; i++) {
-                String currentToken = tokens[i];
+                String currentToken = tokens[i].trim();
 
                 if (i == 0) {
                     userAttrib.setPassword(currentToken);
@@ -61,6 +59,8 @@ public class UserAttributeEditor extends PropertyEditorSupport {
             } else {
                 setValue(null);
             }
+        } else {
+            setValue(null);
         }
     }
 }
