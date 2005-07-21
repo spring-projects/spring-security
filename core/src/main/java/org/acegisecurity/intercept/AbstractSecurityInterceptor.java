@@ -59,12 +59,8 @@ import java.util.Set;
  * 
  * <ol>
  * <li>
- * Extract the {@link SecureContext} from the {@link SecurityContextHolder},
- * handling any errors such as invalid or <code>null</code> objects.
- * </li>
- * <li>
- * Obtain the {@link Authentication} object from the extracted
- * <code>SecureContext</code>.
+ * Obtain the {@link Authentication} object from the 
+ * {@link SecurityContextHolder}.
  * </li>
  * <li>
  * Determine if the request relates to a secured or public invocation by
