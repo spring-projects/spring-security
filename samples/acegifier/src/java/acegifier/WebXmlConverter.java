@@ -5,17 +5,16 @@ import org.springframework.util.Assert;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.DocumentException;
+import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.DocumentSource;
 import org.dom4j.io.DocumentResult;
 
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * A utility to translate a web.xml file into a set of acegi security spring beans.
@@ -47,7 +46,7 @@ public class WebXmlConverter {
     /** The results of the conversion */
     private Document newWebXml, acegiBeansXml;
 
-    public WebXmlConverter() throws Exception {
+    public WebXmlConverter() throws IOException, TransformerConfigurationException {
         TransformerFactory tf = TransformerFactory.newInstance();
 
         acegiSecurityTransformer = tf.newTransformer(createTransformerSource(WEB_TO_SPRING_XSL_FILE));
@@ -81,15 +80,35 @@ public class WebXmlConverter {
 
     /** Set the input as an xml string */
     public void setInput(String xml) throws DocumentException {
-        Document document = DocumentHelper.parseText(xml);
+        setInput(DocumentHelper.parseText(xml));
+    }
+
+    /** Set the input as a stream */
+    public void setInput(InputStream in) throws DocumentException {
+        SAXReader reader = new SAXReader();
+        setInput(reader.read(in));
+    }
+
+    /** set the input as a dom4j document */
+    public void setInput(Document document) throws DocumentException {
+        validateWebXml(document);
         xmlSource = new DocumentSource(document);
     }
 
-    /** set the input as an InputStream */
-    public void setInput(InputStream xmlIn) throws Exception {
-        SAXReader reader = new SAXReader();
-        Document document = reader.read(xmlIn);
-        xmlSource = new DocumentSource(document);
+    /** Checks the web.xml to make sure it contains correct data */
+    private void validateWebXml(Document document) throws DocumentException {
+        Node authMethodNode =
+                document.selectSingleNode("/web-app/login-config/auth-method");
+        if(authMethodNode == null)
+            throw new DocumentException("login-config and auth-method must be present");
+        String authMethod =  authMethodNode.getStringValue().toUpperCase();
+        if(!authMethod.equals("BASIC") && !authMethod.equals("FORM")) {
+            throw new DocumentException("unsupported auth-method: " + authMethod);
+        }
+        List roles = document.selectNodes("/web-app/security-role");
+        if(roles.isEmpty()) {
+            throw new DocumentException("Each role used must be defined in a security-role element");
+        }
     }
 
     public String getAcegiOutputFileName() {
@@ -112,5 +131,4 @@ public class WebXmlConverter {
     public Document getAcegiBeans() {
         return acegiBeansXml;
     }
-
 }

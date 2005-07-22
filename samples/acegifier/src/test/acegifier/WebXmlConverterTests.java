@@ -64,6 +64,7 @@ public class WebXmlConverterTests extends TestCase {
         assertNotNull(sef);
         assertNotNull(sef.getAuthenticationEntryPoint());
         FilterSecurityInterceptor fsi = sef.getFilterSecurityInterceptor();
+        System.out.println(prettyPrint(converter.getNewWebXml()));
         System.out.println(prettyPrint(converter.getAcegiBeans()));
 
     }

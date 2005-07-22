@@ -8,14 +8,15 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.beans.BeansException;
 import net.sf.acegisecurity.util.InMemoryResource;
-import org.xml.sax.SAXParseException;
+
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.io.XMLWriter;
 import org.dom4j.io.OutputFormat;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
+import javax.xml.transform.TransformerException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -41,20 +42,20 @@ public class AcegifierController extends SimpleFormController {
                 throws Exception {
 
         AcegifierForm conversion = (AcegifierForm)command;
-        ByteArrayInputStream in = new ByteArrayInputStream(conversion.getWebXml().getBytes());
-        WebXmlConverter converter = null;
+        WebXmlConverter converter = new WebXmlConverter();
         int nBeans = 0;
         Document newWebXml = null, acegiBeans = null;
 
         try {
-            converter = new WebXmlConverter();
-            converter.setInput(in);
+            converter.setInput(conversion.getWebXml());
             converter.doConversion();
             newWebXml = converter.getNewWebXml();
             acegiBeans = converter.getAcegiBeans();
             nBeans = validateAcegiBeans(conversion, acegiBeans, errors);
-        } catch (SAXParseException spe) {
-            errors.rejectValue("webXml","parseFailure","Your Web XML Document failed to parse: " + spe.getMessage());
+        } catch (DocumentException de) {
+            errors.rejectValue("webXml","webXmlDocError","There was a problem with your web.xml: " + de.getMessage());
+        } catch (TransformerException te) {
+            errors.rejectValue("webXml","transFailure","There was an error during the XSL transformation: " + te.getMessage());
         }
 
         if(errors.hasErrors()) {
@@ -85,7 +86,7 @@ public class AcegifierController extends SimpleFormController {
      * Validates the acegi beans, based on the input form data, and returns the number
      * of spring beans defined in the document.
      */
-    private int validateAcegiBeans(AcegifierForm conversion, Document beans, Errors errors) throws IOException {
+    private int validateAcegiBeans(AcegifierForm conversion, Document beans, Errors errors) {
         DefaultListableBeanFactory bf = createBeanFactory(beans);
 
         //TODO: actually do some proper validation!

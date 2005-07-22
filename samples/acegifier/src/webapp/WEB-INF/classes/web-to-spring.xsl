@@ -248,6 +248,7 @@
           <xsl:text>&#xA;        CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON</xsl:text>
           <xsl:text>&#xA;        PATTERN_TYPE_APACHE_ANT</xsl:text>
           <xsl:apply-templates select="security-constraint"/>
+          <xsl:text>&#xA;        /*=ROLE_ANONYMOUS</xsl:text> <!-- by default allow anonymous access to top level urls --> 
           <xsl:text>&#xA;      </xsl:text>
         </value>
       </property>
