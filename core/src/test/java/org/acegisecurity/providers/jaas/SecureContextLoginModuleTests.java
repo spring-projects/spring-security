@@ -22,6 +22,8 @@ import net.sf.acegisecurity.context.SecurityContextImpl;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import java.util.HashSet;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
@@ -32,7 +34,7 @@ import javax.security.auth.login.LoginException;
  *
  * @author Ray Krueger
  */
-public class SecureContextLoginModuleTest extends TestCase {
+public class SecureContextLoginModuleTests extends TestCase {
     //~ Instance fields ========================================================
 
     private SecureContextLoginModule module = null;
@@ -82,6 +84,22 @@ public class SecureContextLoginModuleTest extends TestCase {
 
     public void testNullAuthenticationInSecureContext()
         throws Exception {
+        try {
+            SecurityContextHolder.getContext().setAuthentication(null);
+            module.login();
+            fail("LoginException expected, the authentication is null in the SecureContext");
+        } catch (Exception e) {
+        }
+    }
+
+    public void testNullAuthenticationInSecureContextIgnored()
+        throws Exception {
+        module = new SecureContextLoginModule();
+
+        Map options = new HashMap();
+        options.put("ignoreMissingAuthentication", "true");
+
+        module.initialize(subject, null, null, options);
         SecurityContextHolder.getContext().setAuthentication(null);
         assertFalse("Should return false and ask to be ignored", module.login());
     }

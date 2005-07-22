@@ -38,7 +38,13 @@ import javax.security.auth.spi.LoginModule;
  * The {@link JaasAuthenticationProvider} allows Acegi to authenticate against
  * Jaas. <br>
  * The SecureContextLoginModule allows a Jaas based application to
- * authenticate against Acegi.
+ * authenticate against Acegi.  If there is no Authentication in the {@link
+ * SecurityContextHolder} the login() method will throw a LoginException by
+ * default. This functionality can be changed with the
+ * <tt>ignoreMissingAuthentication</tt> option by setting it to "true".
+ * Setting  ignoreMissingAuthentication=true will tell the
+ * SecureContextLoginModule to simply return false and be ignored if the
+ * authentication is null.
  *
  * @author Brian Moseley
  * @author Ray Krueger
@@ -52,6 +58,7 @@ public class SecureContextLoginModule implements LoginModule {
 
     private Authentication authen;
     private Subject subject;
+    private boolean ignoreMissingAuthentication = false;
 
     //~ Methods ================================================================
 
@@ -109,6 +116,11 @@ public class SecureContextLoginModule implements LoginModule {
     public void initialize(Subject subject, CallbackHandler callbackHandler,
         Map sharedState, Map options) {
         this.subject = subject;
+
+        if (options != null) {
+            ignoreMissingAuthentication = "true".equals(options.get(
+                        "ignoreMissingAuthentication"));
+        }
     }
 
     /**
@@ -125,8 +137,15 @@ public class SecureContextLoginModule implements LoginModule {
         authen = SecurityContextHolder.getContext().getAuthentication();
 
         if (authen == null) {
-            throw new LoginException("Authentication not found in security"
-                + " context");
+            String msg = "Login cannot complete, authentication not found in security context";
+
+            if (ignoreMissingAuthentication) {
+                log.warn(msg);
+
+                return false;
+            } else {
+                throw new LoginException(msg);
+            }
         }
 
         return true;
