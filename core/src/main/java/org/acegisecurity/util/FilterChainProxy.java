@@ -135,7 +135,7 @@ public class FilterChainProxy implements Filter, InitializingBean,
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(filterInvocationDefinitionSource, "filterInvocationDefinitionSource must be specified");
-        Assert.notNull(this.filterInvocationDefinitionSource.getConfigAttributeDefinitions(), "FilterChainProxy requires the FitlerInvocationDefinitionSource to return a non-null response to getConfigAttributeDefinitions()");
+        Assert.notNull(this.filterInvocationDefinitionSource.getConfigAttributeDefinitions(), "FilterChainProxy requires the FilterInvocationDefinitionSource to return a non-null response to getConfigAttributeDefinitions()");
     }
 
     public void destroy() {
