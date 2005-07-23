@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package net.sf.acegisecurity.providers.anonymous;
 
 import net.sf.acegisecurity.Authentication;
@@ -38,49 +37,8 @@ import javax.servlet.ServletResponse;
 
 /**
  * Detects if there is no <code>Authentication</code> object in the
- * <code>ContextHolder</code>,  and populates it with one if needed.
- * 
- * <P></p>
- * 
- * <p>
- * In summary, this filter is responsible for processing any request that has a
- * HTTP request header of <code>Authorization</code> with an authentication
- * scheme of <code>Basic</code> and a Base64-encoded
- * <code>username:password</code> token. For example, to authenticate user
- * "Aladdin" with password "open sesame" the following header would be
- * presented:
- * </p>
- * 
- * <p>
- * <code>Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==</code>.
- * </p>
- * 
- * <p>
- * This filter can be used to provide BASIC authentication services to both
- * remoting protocol clients (such as Hessian and SOAP) as well as standard
- * user agents (such as Internet Explorer and Netscape).
- * </p>
- * 
- * <P>
- * If authentication is successful, the resulting {@link Authentication} object
- * will be placed into the <code>ContextHolder</code>.
- * </p>
- * 
- * <p>
- * If authentication fails, an {@link AuthenticationEntryPoint} implementation
- * is called. Usually this should be {@link BasicProcessingFilterEntryPoint},
- * which will prompt the user to authenticate again via BASIC authentication.
- * </p>
- * 
- * <P>
- * Basic authentication is an attractive protocol because it is simple and
- * widely deployed. However, it still transmits a password in clear text and
- * as such is undesirable in many situations. Digest authentication is also
- * provided by Acegi Security and should be used instead of Basic
- * authentication wherever possible. See {@link
- * net.sf.acegisecurity.ui.digestauth.DigestProcessingFilter}.
- * </p>
- * 
+ * <code>SecurityContextHolder</code>,  and populates it with one if needed.
+ *
  * <P>
  * <B>Do not use this class directly.</B> Instead configure
  * <code>web.xml</code> to use the {@link
@@ -91,16 +49,10 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 public class AnonymousProcessingFilter implements Filter, InitializingBean {
-    //~ Static fields/initializers =============================================
-
     private static final Log logger = LogFactory.getLog(AnonymousProcessingFilter.class);
-
-    //~ Instance fields ========================================================
-
     private String key;
     private UserAttribute userAttribute;
-
-    //~ Methods ================================================================
+    private boolean removeAfterRequest = true;
 
     public void setKey(String key) {
         this.key = key;
@@ -126,32 +78,42 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
     /**
      * Does nothing - we reply on IoC lifecycle services instead.
      */
-    public void destroy() {}
+    public void destroy() {
+    }
 
     public void doFilter(ServletRequest request, ServletResponse response,
         FilterChain chain) throws IOException, ServletException {
+        boolean addedToken = false;
+
         if (applyAnonymousForThisRequest(request)) {
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 SecurityContextHolder.getContext().setAuthentication(createAuthentication(
                         request));
+                addedToken = true;
 
                 if (logger.isDebugEnabled()) {
                     logger.debug(
-                        "Replaced SecurityContextHolder with anonymous token: '"
-                        + SecurityContextHolder.getContext().getAuthentication()
-                        + "'");
+                        "Replaced SecurityContextHolder with anonymous token: '" +
+                        SecurityContextHolder.getContext().getAuthentication() +
+                        "'");
                 }
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug(
-                        "SecurityContextHolder not replaced with anonymous token, as ContextHolder already contained: '"
-                        + SecurityContextHolder.getContext().getAuthentication()
-                        + "'");
+                        "SecurityContextHolder not replaced with anonymous token, as ContextHolder already contained: '" +
+                        SecurityContextHolder.getContext().getAuthentication() +
+                        "'");
                 }
             }
         }
 
-        chain.doFilter(request, response);
+        try {
+            chain.doFilter(request, response);
+        } finally {
+            if (addedToken && removeAfterRequest) {
+                SecurityContextHolder.getContext().setAuthentication(null);
+            }
+        }
     }
 
     /**
@@ -161,7 +123,8 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
      *
      * @throws ServletException DOCUMENT ME!
      */
-    public void init(FilterConfig arg0) throws ServletException {}
+    public void init(FilterConfig arg0) throws ServletException {
+    }
 
     /**
      * Enables subclasses to determine whether or not an anonymous
@@ -184,5 +147,25 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
     protected Authentication createAuthentication(ServletRequest request) {
         return new AnonymousAuthenticationToken(key,
             userAttribute.getPassword(), userAttribute.getAuthorities());
+    }
+
+    public boolean isRemoveAfterRequest() {
+        return removeAfterRequest;
+    }
+
+    /**
+     * Controls whether the filter will remove the Anonymous token
+     * after the request is complete. Generally this is desired to
+     * avoid the expense of a session being created by
+     * {@link net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter} simply
+     * to store the Anonymous authentication token.
+     *
+     * <p>Defaults to <code>true</code>,
+     * being the most optimal and appropriate option (ie <code>AnonymousProcessingFilter</code>
+     * will clear the token at the end of each request, thus avoiding the session creation
+     * overhead in a typical configuration.
+     */
+    public void setRemoveAfterRequest(boolean removeAfterRequest) {
+        this.removeAfterRequest = removeAfterRequest;
     }
 }

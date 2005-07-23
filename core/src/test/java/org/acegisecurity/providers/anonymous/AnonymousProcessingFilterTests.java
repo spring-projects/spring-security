@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package net.sf.acegisecurity.providers.anonymous;
 
 import junit.framework.TestCase;
@@ -46,8 +45,6 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 public class AnonymousProcessingFilterTests extends TestCase {
-    //~ Constructors ===========================================================
-
     public AnonymousProcessingFilterTests() {
         super();
     }
@@ -55,8 +52,6 @@ public class AnonymousProcessingFilterTests extends TestCase {
     public AnonymousProcessingFilterTests(String arg0) {
         super(arg0);
     }
-
-    //~ Methods ================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AnonymousProcessingFilterTests.class);
@@ -98,10 +93,13 @@ public class AnonymousProcessingFilterTests extends TestCase {
         AnonymousProcessingFilter filter = new AnonymousProcessingFilter();
         filter.setKey("qwerty");
         filter.setUserAttribute(user);
+        assertTrue(filter.isRemoveAfterRequest());
         filter.afterPropertiesSet();
 
         assertEquals("qwerty", filter.getKey());
         assertEquals(user, filter.getUserAttribute());
+        filter.setRemoveAfterRequest(false);
+        assertFalse(filter.isRemoveAfterRequest());
     }
 
     public void testOperationWhenAuthenticationExistsInContextHolder()
@@ -109,7 +107,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
         // Put an Authentication object into the ContextHolder
         Authentication originalAuth = new TestingAuthenticationToken("user",
                 "password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
+                new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A") });
         SecurityContextHolder.getContext().setAuthentication(originalAuth);
 
         // Setup our filter correctly
@@ -133,7 +131,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
             SecurityContextHolder.getContext().getAuthentication());
     }
 
-    public void testOperationWhenNoAuthenticationInContextHolder()
+    public void testOperationWhenNoAuthenticationInSecurityContextHolder()
         throws Exception {
         UserAttribute user = new UserAttribute();
         user.setPassword("anonymousUsername");
@@ -142,6 +140,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
         AnonymousProcessingFilter filter = new AnonymousProcessingFilter();
         filter.setKey("qwerty");
         filter.setUserAttribute(user);
+        filter.setRemoveAfterRequest(false); // set to non-default value
         filter.afterPropertiesSet();
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -154,6 +153,13 @@ public class AnonymousProcessingFilterTests extends TestCase {
         assertEquals("anonymousUsername", auth.getPrincipal());
         assertEquals(new GrantedAuthorityImpl("ROLE_ANONYMOUS"),
             auth.getAuthorities()[0]);
+        SecurityContextHolder.getContext().setAuthentication(null); // so anonymous fires again
+
+        // Now test operation if we have removeAfterRequest = true
+        filter.setRemoveAfterRequest(true); // set to default value
+        executeFilterInContainerSimulator(new MockFilterConfig(), filter,
+            request, new MockHttpServletResponse(), new MockFilterChain(true));
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     protected void setUp() throws Exception {
@@ -173,8 +179,6 @@ public class AnonymousProcessingFilterTests extends TestCase {
         filter.doFilter(request, response, filterChain);
         filter.destroy();
     }
-
-    //~ Inner Classes ==========================================================
 
     private class MockFilterChain implements FilterChain {
         private boolean expectToProceed;

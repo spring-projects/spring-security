@@ -40,6 +40,12 @@ applications:
     authentication exception directions. See the <a href="../multiproject/acegi-security/xref/net/sf/acegisecurity/ui/AbstractProcessingFilter.html">
     AbstractProcessingFilter JavaDocs</a> to learn more.<br><br></li>
     
+    <li>AnonymousProcessingFilter now has a removeAfterRequest property, which defaults to true. This
+    will cause the anonymous authentication token to be set to null at the end of each request, thus
+    avoiding the expense of creating a HttpSession in HttpSessionContextIntegrationFilter. You may
+    set this property to false if you would like the anoymous authentication token to be preserved,
+    which would be an unusual requirement.<br><br></li>
+    
     </ul>
 
 </body>

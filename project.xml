@@ -147,6 +147,9 @@
     <contributor>
       <name>Paulo Neves</name>
     </contributor>
+    <contributor>
+      <name>Mike Perham</name>
+    </contributor>
   </contributors>
   <dependencies>
     <dependency>
