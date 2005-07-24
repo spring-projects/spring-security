@@ -1,0 +1,6 @@
+dist
+target
+build.properties
+*.log
+.clover
+*.keystore
