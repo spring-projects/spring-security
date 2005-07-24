@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!--
  * ========================================================================
  * 
@@ -212,10 +212,9 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>servletapi</groupId>
-      <artifactId>servletapi</artifactId>
-      <version>2.4-20040521</version>
-      <type>jar</type>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.4</version>
       <url>http://java.sun.com/products/servlet</url>
     </dependency>
     <dependency>
@@ -330,10 +329,9 @@
       <type>plugin</type>
     </dependency>
     <dependency>
-      <groupId>jspapi</groupId>
+      <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
-      <version>2.0-20040521</version>
-      <type>jar</type>
+      <version>2.0</version>
       <url>http://java.sun.com/products/jsp</url>
       <properties>
         <war.bundle>false</war.bundle>
