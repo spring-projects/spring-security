@@ -32,7 +32,7 @@ import net.sf.acegisecurity.ui.WebAuthenticationDetails;
  * getting to this filter, so we're really only using it for identification and not authentication.
  * Set the <code>siteminderUsernameHeaderKey</code> value to tell the filter where to greb the "username"
  * value.  You'll typically also set the <code>siteminderPasswordHeaderKey</code> to the same header key.
- * Just remember to modify your AuthenticationDAO so that it can handle identity-only requests! * 
+ * Just remember to modify your AuthenticationDAO so that it can handle identity-only requests! 
  * </P>
  * 
  * <P>
