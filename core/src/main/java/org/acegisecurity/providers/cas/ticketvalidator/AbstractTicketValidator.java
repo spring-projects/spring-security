@@ -18,6 +18,8 @@ package net.sf.acegisecurity.providers.cas.ticketvalidator;
 import net.sf.acegisecurity.providers.cas.TicketValidator;
 import net.sf.acegisecurity.ui.cas.ServiceProperties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
@@ -30,6 +32,10 @@ import org.springframework.util.Assert;
  */
 public abstract class AbstractTicketValidator implements TicketValidator,
     InitializingBean {
+    //~ Static fields/initializers =============================================
+
+    private static final Log logger = LogFactory.getLog(CasProxyTicketValidator.class);
+    
     //~ Instance fields ========================================================
 
     private ServiceProperties serviceProperties;
@@ -85,6 +91,10 @@ public abstract class AbstractTicketValidator implements TicketValidator,
         Assert.notNull(serviceProperties, "serviceProperties must be specified");
 
         if ((trustStore != null) && (!"".equals(trustStore))) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Setting system property 'javax.net.ssl.trustStore'" +
+                        " to value [" + trustStore + "]");
+            }
             System.setProperty("javax.net.ssl.trustStore", trustStore);
         }
     }
