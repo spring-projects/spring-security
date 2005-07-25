@@ -164,8 +164,16 @@ public class AuthorizeTag extends TagSupport {
 
         for (int i = 0; i < authorities.length; i++) {
             String authority = authorities[i];
-            String role = authority.replaceAll("\\s+", "");
-            requiredAuthorities.add(new GrantedAuthorityImpl(role));
+
+         // Remove the role's whitespace characters without depending on JDK 1.4+ 
+         // Includes space, tab, new line, carriage return and form feed. 
+         String role = StringUtils.replace(authority, " ", ""); 
+         role = StringUtils.replace(role, "\t", ""); 
+         role = StringUtils.replace(role, "\r", ""); 
+         role = StringUtils.replace(role, "\n", ""); 
+         role = StringUtils.replace(role, "\f", ""); 
+
+         requiredAuthorities.add(new GrantedAuthorityImpl(role));
         }
 
         return requiredAuthorities;
