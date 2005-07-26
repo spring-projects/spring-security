@@ -69,8 +69,7 @@ public class FilterChainProxyTests extends TestCase {
             filterChainProxy.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-        	System.out.println(expected.getMessage());
-            assertEquals("Exception message mismatch", "FilterChainProxy requires the FilterInvocationDefinitionSource to return a non-null response to getConfigAttributeDefinitions()",
+            assertEquals("FilterChainProxy requires the FilterInvocationDefinitionSource to return a non-null response to getConfigAttributeDefinitions()",
                 expected.getMessage());
         }
     }
