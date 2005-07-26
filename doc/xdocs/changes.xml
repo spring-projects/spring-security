@@ -55,6 +55,7 @@
       <action dev="smccrory" type="fix">AuthorizeTag no longer depends on JDK 1.4.  Tested on Websphere 5.0 w/JDK 1.3 (see http://opensource.atlassian.com/projects/spring/browse/SEC-11)</action>
       <action dev="smccrory" type="update">Added debug statement to AbstractTicketValidator to help with Acegi+CAS+SSL setup (thanks Seth Ladd for the patch) (see http://opensource.atlassian.com/projects/spring/browse/SEC-34)</action>
       <action dev="smccrory" type="update">Added package.html files to empty resources dirs so CVS serves them to new developers</action>
+      <action dev="smccrory" type="update">Added package.html files to reamining java packages (see http://opensource.atlassian.com/projects/spring/browse/SEC-41)</action>
     </release>
     <release version="0.8.3" date="2005-05-12">
       <action dev="benalex" type="fix">HttpSessionContextIntegrationFilter elegantly handles IOExceptions and ServletExceptions within filter chain (see http://opensource.atlassian.com/projects/spring/browse/SEC-20)</action>
