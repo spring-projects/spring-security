@@ -4,7 +4,7 @@
 <%@ page import="net.sf.acegisecurity.adapters.AuthByAdapter" %>
 
 <% 
-		Authentication auth = SecurityContextHolder.getAuthentication();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null) { %>
 			Authentication object is of type: <%= auth.getClass().getName() %><BR><BR>
 			Authentication object as a String: <%= auth.toString() %><BR><BR>
