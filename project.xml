@@ -338,7 +338,7 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>apache-directory</groupId>
+      <groupId>directory</groupId>
       <artifactId>apacheds-main</artifactId>
       <version>0.9-SNAPSHOT</version>
       <type>jar</type>
