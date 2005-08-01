@@ -50,8 +50,6 @@ public class BaseLdapTestCase extends TestCase {
 		}
     }
 
-    //~ Methods ================================================================
-
     /** Returns a 'client' connection to the embedded LDAP Server, using 
      *  JNDI to connect.
      */
@@ -67,6 +65,14 @@ public class BaseLdapTestCase extends TestCase {
     }
 
     /**
+     * This is a LDAP DirContext which connects directly to the 
+     * embedded Apache Directory Server against which the Unit tests 
+     * are run, as such the normal Unit tests should never need to 
+     * reference it (with the possible exception of comparing return values 
+     * between the Server Context and the Client Context).
+     * 
+     * @see net.sf.acegisecurity.providers.dao.ldap.support.EmbeddedLdapServerController
+     * @see net.sf.acegisecurity.providers.dao.ldap.support.LdapDirInitializer
      *
      * @return The server context for LDAP operations; used for things like
      *         addding/removing users to to test against.
