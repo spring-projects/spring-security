@@ -62,7 +62,7 @@ public class LdapDirInitializer {
 	}
 	
 	private void dirInit_SimpleCnUser(DirContext ctx) throws NamingException {
-		String name = "cn=user.two,ou=users";
+		String name = "cn=User Two,ou=users";
         Attributes attrs = new BasicAttributes();
         attrs.put("dn", name + ",ou=system");
         attrs.put("cn", "Two User");
