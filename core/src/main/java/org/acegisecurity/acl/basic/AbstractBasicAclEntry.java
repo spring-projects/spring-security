@@ -102,7 +102,7 @@ public abstract class AbstractBasicAclEntry implements BasicAclEntry {
     /**
      * Subclasses must indicate the permissions they support. Each base
      * permission should be an integer with a base 2. ie: the first permission
-     * is 2^^0 (1), the second permission is 2^^1 (1), the third permission is
+     * is 2^^0 (1), the second permission is 2^^1 (2), the third permission is
      * 2^^2 (4) etc. Each base permission should be exposed by the subclass as
      * a <code>public static final int</code>. It is further recommended that
      * valid combinations of permissions are also exposed as <code>public
