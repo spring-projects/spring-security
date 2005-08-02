@@ -3,7 +3,7 @@
 
 <taglib>
 
-	<tlib-version>1.0</tlib-version>
+	<tlib-version>1.1.1</tlib-version>
 
 	<jsp-version>1.2</jsp-version>
 
@@ -13,6 +13,7 @@
 
 	<description>Spring Framework JSP Tag Library. Authors: Rod Johnson, Juergen Hoeller</description>
 
+
 	<tag>
 
 		<name>htmlEscape</name>
@@ -21,6 +22,7 @@
 
 		<description>
 			Sets default HTML escape value for the current page.
+			Overrides a "defaultHtmlEscape" context-param in web.xml, if any.
 		</description>
 
 		<attribute>
@@ -31,6 +33,34 @@
 
 	</tag>
 
+
+	<tag>
+
+		<name>escapeBody</name>
+		<tag-class>org.springframework.web.servlet.tags.EscapeBodyTag</tag-class>
+		<body-content>JSP</body-content>
+
+		<description>
+			Escapes its enclosed body content, applying HTML escaping and/or JavaScript escaping.
+			The HTML escaping flag participates in a page-wide or application-wide setting
+			(i.e. by HtmlEscapeTag or a "defaultHtmlEscape" context-param in web.xml).
+		</description>
+
+		<attribute>
+			<name>htmlEscape</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<name>javaScriptEscape</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+	</tag>
+
+
 	<tag>
 
 		<name>message</name>
@@ -39,10 +69,18 @@
 
 		<description>
 			Retrieves the message with the given code, or text if code isn't resolvable.
+			The HTML escaping flag participates in a page-wide or application-wide setting
+			(i.e. by HtmlEscapeTag or a "defaultHtmlEscape" context-param in web.xml).
 		</description>
 
 		<attribute>
 			<name>code</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<name>arguments</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
@@ -54,12 +92,31 @@
 		</attribute>
 
 		<attribute>
+			<name>var</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<name>scope</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
 			<name>htmlEscape</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 
+		<attribute>
+			<name>javaScriptEscape</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
 	</tag>
+
 
 	<tag>
 
@@ -69,10 +126,18 @@
 
 		<description>
 			Retrieves the theme message with the given code, or text if code isn't resolvable.
+			The HTML escaping flag participates in a page-wide or application-wide setting
+			(i.e. by HtmlEscapeTag or a "defaultHtmlEscape" context-param in web.xml).
 		</description>
 
 		<attribute>
 			<name>code</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<name>arguments</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
@@ -84,12 +149,31 @@
 		</attribute>
 
 		<attribute>
+			<name>var</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<name>scope</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
 			<name>htmlEscape</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 
+		<attribute>
+			<name>javaScriptEscape</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
 	</tag>
+
 
 	<tag>
 
@@ -99,15 +183,15 @@
 
 		<description>
 			Provides Errors instance in case of bind errors.
+			The HTML escaping flag participates in a page-wide or application-wide setting
+			(i.e. by HtmlEscapeTag or a "defaultHtmlEscape" context-param in web.xml).
 		</description>
 
-		<!-- Note: Was "Integer count" in earlier version -->
 		<variable>
 			<name-given>errors</name-given>
 			<variable-class>org.springframework.validation.Errors</variable-class>
 		</variable>
 
-		<!-- Note: Now one Errors instance per bind object -> name of object needed -->
 		<attribute>
 			<name>name</name>
 			<required>true</required>
@@ -122,6 +206,31 @@
 
 	</tag>
 
+
+	<tag>
+
+		<name>nestedPath</name>
+		<tag-class>org.springframework.web.servlet.tags.NestedPathTag</tag-class>
+		<body-content>JSP</body-content>
+
+		<description>
+			Sets a nested path to be used by the bind tag's path.
+		</description>
+
+		<variable>
+			<name-given>nestedPath</name-given>
+			<variable-class>java.lang.String</variable-class>
+		</variable>
+
+		<attribute>
+			<name>path</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+	</tag>
+
+
 	<tag>
 
 		<name>bind</name>
@@ -129,19 +238,25 @@
 		<body-content>JSP</body-content>
 
 		<description>
-			Provides BindStatus instance for certain bind path.
+			Provides BindStatus object for the given bind path.
+			The HTML escaping flag participates in a page-wide or application-wide setting
+			(i.e. by HtmlEscapeTag or a "defaultHtmlEscape" context-param in web.xml).
 		</description>
 
-		<!-- Note: Was "bind" in earlier version -->
 		<variable>
 			<name-given>status</name-given>
-			<variable-class>org.springframework.web.servlet.tags.BindStatus</variable-class>
+			<variable-class>org.springframework.web.servlet.support.BindStatus</variable-class>
 		</variable>
 
-		<!-- Note: Was "value" in earlier version -->
 		<attribute>
 			<name>path</name>
 			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<name>ignoreNestedPath</name>
+			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 
@@ -152,7 +267,8 @@
 		</attribute>
 
 	</tag>
-	
+
+
 	<tag>
 
 		<name>transform</name>
@@ -160,15 +276,17 @@
 		<body-content>JSP</body-content>
 
 		<description>
-			Provides transformation of variables to Strings using appropriate
-            Custom Editor from BindTag (can only be used inside BindTag)
+			Provides transformation of variables to Strings, using an appropriate
+			custom PropertyEditor from BindTag (can only be used inside BindTag).
+			The HTML escaping flag participates in a page-wide or application-wide setting
+			(i.e. by HtmlEscapeTag or a "defaultHtmlEscape" context-param in web.xml).
 		</description>
 
-        <attribute>
-            <name>value</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
+		<attribute>
+			<name>value</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
 
 		<attribute>
 			<name>var</name>
