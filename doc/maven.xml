@@ -80,6 +80,9 @@
 			<ant:fileset dir="${basedir}/../core/src/main/java">
 				<ant:include name="**/*"/>
 			</ant:fileset>
+			<ant:fileset dir="${basedir}/../domain/src/main/java">
+				<ant:include name="**/*"/>
+			</ant:fileset>
 			<ant:fileset dir="${basedir}/../adapters/cas/src/main/java">
 				<ant:include name="**/*"/>
 			</ant:fileset>
