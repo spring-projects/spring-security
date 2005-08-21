@@ -96,7 +96,7 @@ public class EvictionUtils {
      * @param collection whose members to evict (never <code>null</code>)
      */
     public static void evictIfRequired(Object daoOrServices,
-        Collection<Object> collection) {
+        Collection<? extends Object> collection) {
         Assert.notNull(collection, "Cannot evict a null Collection");
 
         if (getEvictionCapable(daoOrServices) == null) {
@@ -104,7 +104,7 @@ public class EvictionUtils {
             return;
         }
 
-        Iterator<Object> iter = collection.iterator();
+        Iterator<? extends Object> iter = collection.iterator();
 
         while (iter.hasNext()) {
             Object obj = iter.next();
