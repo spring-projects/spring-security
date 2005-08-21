@@ -135,12 +135,12 @@ public class ValidationManagerImpl implements InitializingBean,
             Class clazz = currentDomainObject.getClass();
 
             try {
+                // Call bindSupport() if this class wishes
+                BindBeforeValidationUtils.bindIfRequired(currentDomainObject);
+
                 Errors errors = new BindException(currentDomainObject,
                         clazz.getName());
                 Validator v = findValidator(clazz);
-
-                // Call bindSupport() if this class wishes
-                BindBeforeValidationUtils.bindIfRequired(currentDomainObject);
 
                 // Perform validation
                 v.validate(currentDomainObject, errors);
