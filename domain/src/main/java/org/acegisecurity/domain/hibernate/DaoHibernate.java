@@ -25,6 +25,7 @@ import net.sf.acegisecurity.domain.dao.Dao;
 import net.sf.acegisecurity.domain.dao.EvictionCapable;
 import net.sf.acegisecurity.domain.dao.InitializationCapable;
 import net.sf.acegisecurity.domain.dao.PaginatedList;
+import net.sf.acegisecurity.domain.util.GenericsUtils;
 import net.sf.acegisecurity.domain.validation.ValidationManager;
 
 import org.hibernate.Criteria;
@@ -62,6 +63,15 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
 	/** Enables mutator methods to validate an object prior to persistence */
 	private ValidationManager validationManager;
 
+	public DaoHibernate() {
+		this.supportsClass = GenericsUtils.getGeneric(getClass());
+		if (this.supportsClass == null) {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Could not determine the generics type - you will need to set manually");
+			}
+		}
+	}
+	
     //~ Methods ================================================================
 
     public void setSupportsClass(Class supportClass) {
@@ -220,8 +230,7 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
     protected final void initDao() throws Exception {
         Assert.notNull(supportsClass, "supportClass is required");
 		Assert.notNull(validationManager, "validationManager is required");
-        Assert.isTrue(PersistableEntity.class.isAssignableFrom(supportsClass),
-            "supportClass is not an implementation of PersistableEntity");
+        Assert.isTrue(PersistableEntity.class.isAssignableFrom(supportsClass), "supportClass is not an implementation of PersistableEntity");
         initHibernateDao();
     }
 
@@ -337,6 +346,10 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
 
                         if (name.equals("version")) {
                             continue;
+                        }
+                        
+                        if (name.equals("lastUpdatedUsername") || name.equals("lastUpdatedDate")) {
+                        	continue;
                         }
 
                         if (type.equals(Hibernate.STRING)) {

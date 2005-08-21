@@ -16,13 +16,17 @@
 package net.sf.acegisecurity.domain.service;
 
 import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 
 import net.sf.acegisecurity.domain.PersistableEntity;
 import net.sf.acegisecurity.domain.dao.Dao;
 import net.sf.acegisecurity.domain.dao.PaginatedList;
+import net.sf.acegisecurity.domain.util.GenericsUtils;
 
+import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,10 +44,20 @@ public class ManagerImpl<E extends PersistableEntity> extends ApplicationObjectS
 
     /** The class that this instance provides services for */
     private Class supportsClass;
+	private String beanName;
 	
 	protected Dao<E> dao;
 
     //~ Methods ================================================================
+	
+	public ManagerImpl() {
+		this.supportsClass = GenericsUtils.getGeneric(getClass());
+		if (supportsClass == null) {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Could not determine the generics type - you will need to set manually");
+			}
+		}
+	}
 
     public void setSupportsClass(Class supportClass) {
         this.supportsClass = supportClass;
@@ -171,4 +185,8 @@ public class ManagerImpl<E extends PersistableEntity> extends ApplicationObjectS
 		}
         return dao.update(value);
     }
+
+	public void setBeanName(String beanName) {
+		this.beanName = beanName;
+	}
 }
