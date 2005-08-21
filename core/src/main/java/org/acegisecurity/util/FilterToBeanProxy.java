@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package net.sf.acegisecurity.util;
 
 import org.springframework.beans.factory.BeanFactoryUtils;
@@ -35,13 +34,13 @@ import javax.servlet.ServletResponse;
 
 /**
  * Delegates <code>Filter</code> requests to a Spring-managed bean.
- * 
+ *
  * <p>
  * This class acts as a proxy on behalf of a target <code>Filter</code> that is
  * defined in the Spring bean context. It is necessary to specify which target
  * <code>Filter</code> should be proxied as a filter initialization parameter.
  * </p>
- * 
+ *
  * <p>
  * On filter initialisation, the class will use Spring's {@link
  * WebApplicationContextUtils#getWebApplicationContext(ServletContext sc)}
@@ -49,12 +48,12 @@ import javax.servlet.ServletResponse;
  * expect to find the target <code>Filter</code> in this
  * <code>ApplicationContext</code>.
  * </p>
- * 
+ *
  * <p>
  * To use this filter, it is necessary to specify <b>one</b> of the following
  * filter initialization parameters:
  * </p>
- * 
+ *
  * <ul>
  * <li>
  * <code>targetClass</code> indicates the class of the target
@@ -67,10 +66,10 @@ import javax.servlet.ServletResponse;
  * <code>targetBean</code> indicates the bean name of the target class.
  * </li>
  * </ul>
- * 
+ *
  * If both initialization parameters are specified, <code>targetBean</code>
  * takes priority.
- * 
+ *
  * <P>
  * An additional initialization parameter, <code>init</code>, is also
  * supported. If set to "<code>lazy</code>" the initialization will take place
@@ -79,7 +78,7 @@ import javax.servlet.ServletResponse;
  * <code>ContextLoaderServlet</code>. Where possible you should not use this
  * initialization parameter, instead using <code>ContextLoaderListener</code>.
  * </p>
- * 
+ *
  * <p>
  * A final optional initialization parameter, <code>lifecycle</code>,
  * determines whether the servlet container or the IoC container manages the
@@ -101,14 +100,10 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 public class FilterToBeanProxy implements Filter {
-    //~ Instance fields ========================================================
-
     private Filter delegate;
     private FilterConfig filterConfig;
     private boolean initialized = false;
     private boolean servletContainerManaged = false;
-
-    //~ Methods ================================================================
 
     public void destroy() {
         if ((delegate != null) && servletContainerManaged) {
@@ -146,8 +141,7 @@ public class FilterToBeanProxy implements Filter {
      * @return the Spring application context
      */
     protected ApplicationContext getContext(FilterConfig filterConfig) {
-        return WebApplicationContextUtils.getRequiredWebApplicationContext(filterConfig
-            .getServletContext());
+        return WebApplicationContextUtils.getRequiredWebApplicationContext(filterConfig.getServletContext());
     }
 
     private synchronized void doInit() throws ServletException {
@@ -155,8 +149,6 @@ public class FilterToBeanProxy implements Filter {
             // already initialized, so don't re-initialize
             return;
         }
-
-        initialized = true;
 
         String targetBean = filterConfig.getInitParameter("targetBean");
 
@@ -177,8 +169,8 @@ public class FilterToBeanProxy implements Filter {
         if ((targetBean != null) && ctx.containsBean(targetBean)) {
             beanName = targetBean;
         } else if (targetBean != null) {
-            throw new ServletException("targetBean '" + targetBean
-                + "' not found in context");
+            throw new ServletException("targetBean '" + targetBean +
+                "' not found in context");
         } else {
             String targetClassString = filterConfig.getInitParameter(
                     "targetClass");
@@ -194,8 +186,8 @@ public class FilterToBeanProxy implements Filter {
                 targetClass = Thread.currentThread().getContextClassLoader()
                                     .loadClass(targetClassString);
             } catch (ClassNotFoundException ex) {
-                throw new ServletException("Class of type " + targetClassString
-                    + " not found in classloader");
+                throw new ServletException("Class of type " +
+                    targetClassString + " not found in classloader");
             }
 
             Map beans = BeanFactoryUtils.beansOfTypeIncludingAncestors(ctx,
@@ -203,8 +195,8 @@ public class FilterToBeanProxy implements Filter {
 
             if (beans.size() == 0) {
                 throw new ServletException(
-                    "Bean context must contain at least one bean of type "
-                    + targetClassString);
+                    "Bean context must contain at least one bean of type " +
+                    targetClassString);
             }
 
             beanName = (String) beans.keySet().iterator().next();
@@ -213,8 +205,8 @@ public class FilterToBeanProxy implements Filter {
         Object object = ctx.getBean(beanName);
 
         if (!(object instanceof Filter)) {
-            throw new ServletException("Bean '" + beanName
-                + "' does not implement javax.servlet.Filter");
+            throw new ServletException("Bean '" + beanName +
+                "' does not implement javax.servlet.Filter");
         }
 
         delegate = (Filter) object;
@@ -222,5 +214,10 @@ public class FilterToBeanProxy implements Filter {
         if (servletContainerManaged) {
             delegate.init(filterConfig);
         }
+
+        // Set initialized to true at the end of the synchronized method, so
+        // that invocations of doFilter() before this method has completed will not
+        // cause NullPointerException
+        initialized = true;
     }
 }
