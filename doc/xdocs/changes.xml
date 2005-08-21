@@ -27,6 +27,7 @@
   <body>
     <release version="0.9.0" date="In CVS">
       <action dev="markstg" type="add">SwitchUserProcessingFilter to provide user security context switching</action>
+      <action dev="markstg" type="add">Java 1.5 annotation support</action>
       <action dev="benalex" type="update">JdbcDaoImpl modified to support synthetic primary keys</action>
       <action dev="benalex" type="update">Greatly improve BasicAclEntryAfterInvocationCollectionFilteringProvider performance with large collections (if the principal has access to relatively few collection elements)</action>
       <action dev="benalex" type="update">Reorder DaoAuthenticationProvider exception logic as per developer list discussion</action>
