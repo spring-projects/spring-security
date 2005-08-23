@@ -16,6 +16,7 @@
 package net.sf.acegisecurity.providers.jaas;
 
 import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.UserDetails;
 
 import java.io.IOException;
 
@@ -54,10 +55,21 @@ public class JaasNameCallbackHandler
      * @throws UnsupportedCallbackException
      */
     public void handle(Callback callback, Authentication authentication)
-        throws IOException, UnsupportedCallbackException {
+            throws IOException, UnsupportedCallbackException {
+
         if (callback instanceof NameCallback) {
+
             NameCallback ncb = (NameCallback) callback;
-            ncb.setName(authentication.getPrincipal().toString());
+            String username = "";
+
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                username = ((UserDetails) principal).getUsername();
+            } else {
+                username = principal.toString();
+            }
+
+            ncb.setName(username);
         }
     }
 }
