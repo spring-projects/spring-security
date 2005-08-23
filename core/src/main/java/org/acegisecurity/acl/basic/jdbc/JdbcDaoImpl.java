@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,16 +106,13 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
      *         <code>AclObjectIdentity</code> was requested
      */
     public BasicAclEntry[] getAcls(AclObjectIdentity aclObjectIdentity) {
-        // Ensure we can process this type of AclObjectIdentity
-        if (!(aclObjectIdentity instanceof NamedEntityObjectIdentity)) {
-            return null;
+        String aclObjectIdentityString;
+
+        try {
+            aclObjectIdentityString = convertAclObjectIdentityToString(aclObjectIdentity);
+        } catch (IllegalArgumentException unsupported) {
+            return null; // pursuant to contract described in JavaDocs above
         }
-
-        NamedEntityObjectIdentity neoi = (NamedEntityObjectIdentity) aclObjectIdentity;
-
-        // Compose the String we expect to find in the RDBMS
-        String aclObjectIdentityString = neoi.getClassname() + ":"
-            + neoi.getId();
 
         // Lookup the object's main properties from the RDBMS (guaranteed no nulls)
         List objects = objectProperties.execute(aclObjectIdentityString);
@@ -187,6 +184,31 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
 
     public String getObjectPropertiesQuery() {
         return objectPropertiesQuery;
+    }
+
+    /**
+     * Responsible for covering a <code>AclObjectIdentity</code> to a
+     * <code>String</code> that can be located in the RDBMS.
+     *
+     * @param aclObjectIdentity to locate
+     *
+     * @return the object identity as a <code>String</code>
+     *
+     * @throws IllegalArgumentException DOCUMENT ME!
+     */
+    protected String convertAclObjectIdentityToString(
+        AclObjectIdentity aclObjectIdentity) {
+        // Ensure we can process this type of AclObjectIdentity
+        if (!(aclObjectIdentity instanceof NamedEntityObjectIdentity)) {
+            throw new IllegalArgumentException(
+                "Only aclObjectIdentity of type NamedEntityObjectIdentity supported (was passed: "
+                + aclObjectIdentity + ")");
+        }
+
+        NamedEntityObjectIdentity neoi = (NamedEntityObjectIdentity) aclObjectIdentity;
+
+        // Compose the String we expect to find in the RDBMS
+        return neoi.getClassname() + ":" + neoi.getId();
     }
 
     protected void initDao() throws ApplicationContextException {

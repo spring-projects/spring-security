@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package net.sf.acegisecurity.acl.basic.jdbc;
 import net.sf.acegisecurity.acl.basic.AclObjectIdentity;
 import net.sf.acegisecurity.acl.basic.BasicAclEntry;
 import net.sf.acegisecurity.acl.basic.BasicAclExtendedDao;
-import net.sf.acegisecurity.acl.basic.NamedEntityObjectIdentity;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -293,30 +292,6 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         aclPermissionDelete = new AclPermissionDelete(getDataSource());
         aclObjectIdentityDelete = new AclObjectIdentityDelete(getDataSource());
         aclPermissionUpdate = new AclPermissionUpdate(getDataSource());
-    }
-
-    /**
-     * Responsible for covering a <code>AclObjectIdentity</code> to a
-     * <code>String</code> that can be located in the RDBMS.
-     *
-     * @param aclObjectIdentity to locate
-     *
-     * @return the object identity as a <code>String</code>
-     *
-     * @throws IllegalArgumentException DOCUMENT ME!
-     */
-    String convertAclObjectIdentityToString(AclObjectIdentity aclObjectIdentity) {
-        // Ensure we can process this type of AclObjectIdentity
-        if (!(aclObjectIdentity instanceof NamedEntityObjectIdentity)) {
-            throw new IllegalArgumentException(
-                "Only aclObjectIdentity of type NamedEntityObjectIdentity supported (was passed: "
-                + aclObjectIdentity + ")");
-        }
-
-        NamedEntityObjectIdentity neoi = (NamedEntityObjectIdentity) aclObjectIdentity;
-
-        // Compose the String we expect to find in the RDBMS
-        return neoi.getClassname() + ":" + neoi.getId();
     }
 
     /**
