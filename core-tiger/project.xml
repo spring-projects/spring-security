@@ -2,14 +2,14 @@
 <project>
   <extend>${basedir}/../project.xml</extend>
   <pomVersion>3</pomVersion>
-  <artifactId>acegi-security-core-tiger</artifactId>
+  <artifactId>acegi-security-tiger</artifactId>
   <name>Acegi Security System for Spring - Java 5 (Tiger)</name>
   <groupId>acegisecurity</groupId>
-  <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs/multiproject/acegi-security-core-tiger</siteDirectory>
+  <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs/multiproject/acegi-security-tiger</siteDirectory>
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
     <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
-    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/domain/</url>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/core-tiger/</url>
   </repository>
   <dependencies>
     <dependency>
