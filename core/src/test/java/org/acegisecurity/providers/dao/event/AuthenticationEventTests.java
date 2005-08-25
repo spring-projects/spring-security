@@ -22,6 +22,7 @@ import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.ui.switchuser.SwitchUserGrantedAuthority;
 
 
 /**
@@ -88,6 +89,16 @@ public class AuthenticationEventTests extends TestCase {
         assertEquals(user, event.getUser());
     }
 
+    public void testSwitchUserContextEvent() {
+        Authentication auth = getAuthentication();
+        User targetUser = getUser();
+        
+        AuthenticationSwitchUserEvent event = new AuthenticationSwitchUserEvent(auth,
+                targetUser);
+        assertEquals(auth, event.getAuthentication());
+        assertEquals(targetUser, event.getUser());
+    }    
+    
     private Authentication getAuthentication() {
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
                 "Credentials");

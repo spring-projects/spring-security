@@ -16,7 +16,6 @@
 package net.sf.acegisecurity.ui.switchuser;
 
 import junit.framework.TestCase;
-
 import net.sf.acegisecurity.AccountExpiredException;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
@@ -33,7 +32,6 @@ import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 import net.sf.acegisecurity.util.MockFilterChain;
 
 import org.springframework.dao.DataAccessException;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -191,34 +189,6 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testBadConfigMissingExitUserUrl() {
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setAuthenticationDao(new MockAuthenticationDaoUserJackLord());
-        filter.setSwitchUserUrl("/j_acegi_switch_user");
-        filter.setTargetUrl("/main.jsp");
-
-        try {
-            filter.afterPropertiesSet();
-            fail("Expect to fail due to missing 'exitUserUrl'");
-        } catch (Exception expected) {
-            // expected exception
-        }
-    }
-
-    public void testBadConfigMissingSwitchUserUrl() {
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setAuthenticationDao(new MockAuthenticationDaoUserJackLord());
-        filter.setExitUserUrl("/j_acegi_exit_user");
-        filter.setTargetUrl("/main.jsp");
-
-        try {
-            filter.afterPropertiesSet();
-            fail("Expect to fail due to missing 'switchUserUrl'");
-        } catch (Exception expected) {
-            // expected exception
-        }
-    }
-
     public void testBadConfigMissingTargetUrl() {
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setAuthenticationDao(new MockAuthenticationDaoUserJackLord());
@@ -233,11 +203,6 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testDefaultExitProcessUrl() {
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        assertEquals("/j_acegi_exit_user", filter.getDefaultExitUserUrl());
-    }
-
     public void testDefaultProcessesFilterUrlWithPathParameter() {
         MockHttpServletRequest request = createMockSwitchRequest();
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
@@ -246,11 +211,6 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         request.setRequestURI(
             "/webapp/j_acegi_switch_user;jsessionid=8JHDUD723J8");
         assertTrue(filter.requiresSwitchUser(request));
-    }
-
-    public void testDefaultSwitchProcessUrl() {
-        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        assertEquals("/j_acegi_switch_user", filter.getDefaultSwitchUserUrl());
     }
 
     public void testExitRequestUserJackLordToDano() throws Exception {
