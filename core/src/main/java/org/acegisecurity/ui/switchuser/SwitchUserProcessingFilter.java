@@ -204,7 +204,8 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
             SecurityContextHolder.getContext().setAuthentication(targetUser);
 
             // redirect to target url
-            httpResponse.sendRedirect(httpResponse.encodeRedirectURL(targetUrl));
+            httpResponse.sendRedirect(httpResponse.encodeRedirectURL(httpRequest
+                    .getContextPath() + targetUrl));
 
             return;
         } else if (requiresExitUser(httpRequest)) {
@@ -215,7 +216,8 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
             SecurityContextHolder.getContext().setAuthentication(originalUser);
 
             // redirect to target url
-            httpResponse.sendRedirect(httpResponse.encodeRedirectURL(targetUrl));
+            httpResponse.sendRedirect(httpResponse.encodeRedirectURL(httpRequest
+                    .getContextPath() + targetUrl));
 
             return;
         }
