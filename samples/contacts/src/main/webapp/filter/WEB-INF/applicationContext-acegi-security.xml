@@ -180,4 +180,13 @@
       </property>
    </bean>
 
+   <!-- Filter used to switch the user context. Note: the switch and exit url must be secured 
+        based on the role granted the ability to 'switch' to another user -->
+   <bean id="switchUserProcessingFilter" class="net.sf.acegisecurity.ui.switchuser.SwitchUserProcessingFilter">
+      <property name="authenticationDao" ref="jdbcDaoImpl" />
+	  <property name="switchUserUrl"><value>/j_acegi_switch_user</value></property>
+	  <property name="exitUserUrl"><value>/j_acegi_exit_user</value></property>
+	  <property name="targetUrl"><value>/secure/index.htm</value></property>
+   </bean>    
+
 </beans>
