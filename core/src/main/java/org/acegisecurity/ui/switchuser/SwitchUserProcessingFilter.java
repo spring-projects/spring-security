@@ -15,7 +15,35 @@
 
 package net.sf.acegisecurity.ui.switchuser;
 
+import net.sf.acegisecurity.AccountExpiredException;
+import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.AuthenticationCredentialsNotFoundException;
+import net.sf.acegisecurity.AuthenticationException;
+import net.sf.acegisecurity.CredentialsExpiredException;
+import net.sf.acegisecurity.DisabledException;
+import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.UserDetails;
+import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import net.sf.acegisecurity.providers.dao.AuthenticationDao;
+import net.sf.acegisecurity.providers.dao.User;
+import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
+import net.sf.acegisecurity.providers.dao.event.AuthenticationSwitchUserEvent;
+import net.sf.acegisecurity.ui.WebAuthenticationDetails;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
+import org.springframework.util.Assert;
+
 import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,29 +56,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.sf.acegisecurity.AccountExpiredException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationCredentialsNotFoundException;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.CredentialsExpiredException;
-import net.sf.acegisecurity.DisabledException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.providers.dao.AuthenticationDao;
-import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
-import net.sf.acegisecurity.providers.dao.event.AuthenticationSwitchUserEvent;
-import net.sf.acegisecurity.ui.WebAuthenticationDetails;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.util.Assert;
 
 
 /**
@@ -184,9 +189,8 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
      */
     public void doFilter(ServletRequest request, ServletResponse response,
         FilterChain chain) throws IOException, ServletException {
-    	
-    	Assert.isInstanceOf(HttpServletRequest.class,request);
-    	Assert.isInstanceOf(HttpServletResponse.class,response);
+        Assert.isInstanceOf(HttpServletRequest.class, request);
+        Assert.isInstanceOf(HttpServletResponse.class, response);
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -198,7 +202,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
 
             // update the current context to the new target user
             SecurityContextHolder.getContext().setAuthentication(targetUser);
-            
+
             // redirect to target url
             httpResponse.sendRedirect(httpResponse.encodeRedirectURL(targetUrl));
 
@@ -252,12 +256,20 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
             throw new AuthenticationCredentialsNotFoundException(
                 "Could not find original Authentication object!");
         }
-        
-        // TODO: fix target user on exit
+
+        // get the source user details
+        UserDetails originalUser = null;
+        Object obj = original.getPrincipal();
+
+        if ((obj != null) && obj instanceof User) {
+            originalUser = (User) obj;
+        }
+
+        // publish event
         if (this.context != null) {
-            context.publishEvent(new AuthenticationSwitchUserEvent(
-            		current, null) );
-        }           
+            context.publishEvent(new AuthenticationSwitchUserEvent(current,
+                    originalUser));
+        }
 
         return original;
     }
@@ -326,10 +338,10 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
         // publish event
         if (this.context != null) {
             context.publishEvent(new AuthenticationSwitchUserEvent(
-            		SecurityContextHolder.getContext().getAuthentication(),
-            		targetUser) );
-        }        
-        
+                    SecurityContextHolder.getContext().getAuthentication(),
+                    targetUser));
+        }
+
         return targetUserRequest;
     }
 
