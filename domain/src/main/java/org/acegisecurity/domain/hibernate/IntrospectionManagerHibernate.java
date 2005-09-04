@@ -64,17 +64,17 @@ public class IntrospectionManagerHibernate implements IntrospectionManager,
     InitializingBean {
     //~ Instance fields ========================================================
 
-    private SessionFactory sessionFactory;
+    private SessionFactory[] sessionFactories;
     private ValidationRegistryManager validationRegistryManager;
 
     //~ Methods ================================================================
 
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    public void setSessionFactories(SessionFactory[] sessionFactorys) {
+        this.sessionFactories = sessionFactorys;
     }
 
-    public SessionFactory getSessionFactory() {
-        return this.sessionFactory;
+    public SessionFactory[] getSessionFactories() {
+        return this.sessionFactories;
     }
 
     public void setValidationRegistryManager(
@@ -87,18 +87,19 @@ public class IntrospectionManagerHibernate implements IntrospectionManager,
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(validationRegistryManager,
-            "ValidationRegistryManager is required");
-        Assert.notNull(sessionFactory, "SessionFactory is required");
-
+        Assert.notNull(validationRegistryManager, "ValidationRegistryManager is required");
+        Assert.notNull(sessionFactories, "SessionFactories are required");
+        Assert.notEmpty(sessionFactories, "SessionFactories are required");
+        
         // Eagerly pre-register Validators for all Hibernate metadata-defined classes
-		Map<String,ClassMetadata> metadataMap = this.sessionFactory.getAllClassMetadata();
-        Collection<String> mappedClasses = metadataMap.keySet();
+        for (int i = 0; i < sessionFactories.length; i++) {
+    		Map<String,ClassMetadata> metadataMap = this.sessionFactories[i].getAllClassMetadata();
+            Collection<String> mappedClasses = metadataMap.keySet();
 
-        for (Iterator<String> iter = mappedClasses.iterator(); iter.hasNext();) {
-            String className = iter.next();
-            this.validationRegistryManager.findValidator(Class.forName(
-                    className));
+            for (Iterator<String> iter = mappedClasses.iterator(); iter.hasNext();) {
+                String className = iter.next();
+                this.validationRegistryManager.findValidator(Class.forName(className));
+            }
         }
     }
 
@@ -111,8 +112,7 @@ public class IntrospectionManagerHibernate implements IntrospectionManager,
         ClassMetadata classMetadata = null;
 
         try {
-            classMetadata = sessionFactory.getClassMetadata(parentObject
-                    .getClass());
+            classMetadata = findMetadata(parentObject.getClass());
 
             if (classMetadata != null) {
                 String[] propertyNames = classMetadata.getPropertyNames();
@@ -135,5 +135,15 @@ public class IntrospectionManagerHibernate implements IntrospectionManager,
         } catch (HibernateException he) {
             throw new HibernateSystemException(he);
         }
+    }
+    
+    private ClassMetadata findMetadata(Class clazz) throws HibernateSystemException {
+    	for (int i = 0; i < sessionFactories.length; i++) {
+    		ClassMetadata result = sessionFactories[i].getClassMetadata(clazz);
+    		if (result != null) {
+    			return result;
+    		}
+    	}
+    	return null;
     }
 }
