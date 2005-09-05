@@ -59,5 +59,8 @@
 	<classpathentry kind="src" path="core-tiger/src/test/java"/>
 	<classpathentry kind="src" path="core-tiger/src/main/resources"/>
 	<classpathentry kind="src" path="core-tiger/src/test/resources"/>
+	<classpathentry kind="src" path="samples/annotations/src/main/java"/>
+	<classpathentry kind="src" path="samples/annotations/src/main/resources"/>
+	<classpathentry kind="src" path="samples/annotations/src/test/java"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>
