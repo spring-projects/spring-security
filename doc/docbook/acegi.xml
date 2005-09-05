@@ -542,13 +542,14 @@
         configured with configuration attributes in three ways. The first is
         via a property editor and the application context, which is shown
         above. The second is via defining the configuration attributes in your
-        source code using Jakarta Commons Attributes. The third is via writing
-        your own <literal>ObjectDefinitionSource</literal>, although this is
-        beyond the scope of this document. Irrespective of the approach used,
-        the <literal>ObjectDefinitionSource</literal> is responsible for
-        returning a <literal>ConfigAttributeDefinition</literal> object that
-        contains all of the configuration attributes associated with a single
-        secure method.</para>
+        source code using Jakarta Commons Attributes or Java 5 Annotations.
+        The third is via writing your own
+        <literal>ObjectDefinitionSource</literal>, although this is beyond the
+        scope of this document. Irrespective of the approach used, the
+        <literal>ObjectDefinitionSource</literal> is responsible for returning
+        a <literal>ConfigAttributeDefinition</literal> object that contains
+        all of the configuration attributes associated with a single secure
+        method.</para>
 
         <para>It should be noted that the
         <literal>MethodSecurityInterceptor.setObjectDefinitionSource()</literal>
@@ -570,8 +571,8 @@
         object. The <literal>SecurityConfig</literal> object is discussed in
         the High Level Design section.</para>
 
-        <para>If using the Jakarta Commons Attributes approach, your bean
-        context will be configured differently:</para>
+        <para>If you are using the Jakarta Commons Attributes approach, your
+        bean context will be configured differently:</para>
 
         <para><programlisting>&lt;bean id="attributes" class="org.springframework.metadata.commons.CommonsAttributes"/&gt;
 &lt;bean id="objectDefinitionSource" class="net.sf.acegisecurity.intercept.method.MethodDefinitionAttributes"&gt;
@@ -614,6 +615,52 @@
      * @@SecurityConfig("BANKSECURITY_CUSTOMER")
      * @@SecurityConfig("RUN_AS_SERVER")
      */
+    public float getBalance(int id);
+}</programlisting></para>
+
+        <para>If you are using the Spring Security Java 5 Annotations
+        approach, your bean context will be configured as follows:</para>
+
+        <para><programlisting>&lt;bean id="attributes" class="net.sf.acegisecurity.annotation.SecurityAnnotationAttributes"/&gt;
+&lt;bean id="objectDefinitionSource" class="net.sf.acegisecurity.intercept.method.MethodDefinitionAttributes"&gt;
+  &lt;property name="attributes"&gt;&lt;ref local="attributes"/&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor"&gt;
+  &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+  &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
+  &lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
+  &lt;property name="objectDefinitionSource"&gt;&lt;ref bean="objectDefinitionSource"/&gt;&lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>In addition, your source code will contain the Acegi Java 5
+        Security Annotations that represent the
+        <literal>ConfigAttribute</literal>. The following example uses the
+        <literal>@Secured</literal> annotations to represent the configuration
+        attributes, and results in the same security configuration as provided
+        by the property editor approach:</para>
+
+        <para><programlisting>import net.sf.acegisecurity.annotation.Secured;
+
+public interface BankManager {
+
+    /**
+     * Delete something
+     */
+    @Secured({"ROLE_SUPERVISOR","RUN_AS_SERVER" })
+    public void deleteSomething(int id);
+
+    /**
+     * Delete another
+     */
+    @Secured({"ROLE_SUPERVISOR","RUN_AS_SERVER" })
+    public void deleteAnother(int id);
+
+    /**
+     * Get balance
+     */
+    @Secured({"ROLE_TELLER","ROLE_SUPERVISOR","BANKSECURITY_CUSTOMER","RUN_AS_SERVER" })
     public float getBalance(int id);
 }</programlisting></para>
 
@@ -2813,9 +2860,10 @@ key:              A private key to prevent modification of the remember-me token
 &lt;/bean&gt;</programlisting>Don't forget to add your
         <literal>RememberMeServices</literal> implementation to your
         <literal>AuthenticationProcessingFilter.setRememberMeServices()</literal>
-        property, include the <literal>RememberMeAuthenticationProvider</literal> in
-        your <literal>AuthenticationManager.setProviders()</literal> list, and
-        add a call to <literal>RememberMeProcessingFilter</literal> into your
+        property, include the
+        <literal>RememberMeAuthenticationProvider</literal> in your
+        <literal>AuthenticationManager.setProviders()</literal> list, and add
+        a call to <literal>RememberMeProcessingFilter</literal> into your
         <literal>FilterChainProxy</literal> (typically immediately after your
         <literal>AuthenticationProcessingFilter</literal>).</para>
       </sect2>
