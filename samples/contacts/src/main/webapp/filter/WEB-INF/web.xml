@@ -44,7 +44,7 @@
       <filter-name>Acegi Filter Chain Proxy</filter-name>
       <url-pattern>/*</url-pattern>
     </filter-mapping>
-
+	
 	<!--
 	  - Loads the root application context of this web app at startup.
 	  - The application context is then available via 
@@ -98,6 +98,11 @@
  	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
+	
+	<error-page>
+		<error-code>403</error-code>
+		<location>/error.html</location>
+	</error-page>
 
   	<taglib>
       <taglib-uri>/spring</taglib-uri>
