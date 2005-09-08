@@ -466,19 +466,6 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 
             this.context.publishEvent(new PublicInvocationEvent(object));
 
-            // Set Authentication object (if it exists) to be unauthenticated
-            if (SecurityContextHolder.getContext().getAuthentication() != null) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(
-                        "Authentication object detected and tagged as unauthenticated");
-                }
-
-                Authentication authenticated = SecurityContextHolder.getContext()
-                                                                    .getAuthentication();
-                authenticated.setAuthenticated(false);
-                SecurityContextHolder.getContext().setAuthentication(authenticated);
-            }
-
             return null; // no further work post-invocation
         }
     }
