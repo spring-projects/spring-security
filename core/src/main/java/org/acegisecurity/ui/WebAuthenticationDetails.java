@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package net.sf.acegisecurity.ui;
 
 import java.io.Serializable;
@@ -27,16 +26,12 @@ import javax.servlet.http.HttpServletRequest;
  * @version $Id$
  */
 public class WebAuthenticationDetails implements Serializable {
-    //~ Instance fields ========================================================
-
     private String remoteAddress;
     private String sessionId;
 
-    //~ Constructors ===========================================================
-
     /**
      * Constructor.
-     * 
+     *
      * <p>
      * NB: This constructor will cause a <code>HttpSession</code> to be created
      * (this is considered reasonable as all Acegi Security authentication
@@ -48,15 +43,20 @@ public class WebAuthenticationDetails implements Serializable {
      */
     public WebAuthenticationDetails(HttpServletRequest request) {
         this.remoteAddress = request.getRemoteAddr();
-        this.sessionId = request.getSession().getId();
+        this.sessionId = request.getSession(true).getId();
+        doPopulateAdditionalInformation(request);
+    }
+
+    public WebAuthenticationDetails(HttpServletRequest request,
+        boolean forceSessionCreation) {
+        this.remoteAddress = request.getRemoteAddr();
+        this.sessionId = request.getSession(forceSessionCreation).getId();
         doPopulateAdditionalInformation(request);
     }
 
     protected WebAuthenticationDetails() {
         throw new IllegalArgumentException("Cannot use default constructor");
     }
-
-    //~ Methods ================================================================
 
     /**
      * Indicates the TCP/IP address the authentication request was received
@@ -92,5 +92,6 @@ public class WebAuthenticationDetails implements Serializable {
      *
      * @param request that the authentication request was received from
      */
-    protected void doPopulateAdditionalInformation(HttpServletRequest request) {}
+    protected void doPopulateAdditionalInformation(HttpServletRequest request) {
+    }
 }
