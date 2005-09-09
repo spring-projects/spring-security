@@ -15,6 +15,8 @@
 
 package net.sf.acegisecurity.domain.validation;
 
+import net.sf.acegisecurity.domain.dao.DetachmentContextHolder;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -134,6 +136,7 @@ public class ValidationManagerImpl implements InitializingBean,
             Object currentDomainObject = iter.next();
             Class clazz = currentDomainObject.getClass();
 
+            DetachmentContextHolder.setForceReturnOfDetachedInstances(true);
             try {
                 // Call bindSupport() if this class wishes
                 BindBeforeValidationUtils.bindIfRequired(currentDomainObject);
@@ -172,6 +175,8 @@ public class ValidationManagerImpl implements InitializingBean,
                     logger.debug("Could not locate validator for class '"
                         + clazz + "'; skipping without error");
                 }
+            } finally {
+            	DetachmentContextHolder.setForceReturnOfDetachedInstances(false);
             }
         }
     }

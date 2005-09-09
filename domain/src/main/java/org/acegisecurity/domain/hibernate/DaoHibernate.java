@@ -22,6 +22,7 @@ import java.util.List;
 
 import net.sf.acegisecurity.domain.PersistableEntity;
 import net.sf.acegisecurity.domain.dao.Dao;
+import net.sf.acegisecurity.domain.dao.DetachmentContextHolder;
 import net.sf.acegisecurity.domain.dao.EvictionCapable;
 import net.sf.acegisecurity.domain.dao.InitializationCapable;
 import net.sf.acegisecurity.domain.dao.PaginatedList;
@@ -41,6 +42,7 @@ import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.Type;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.util.Assert;
 import org.springframework.validation.BindException;
@@ -56,7 +58,7 @@ import org.springframework.validation.BindException;
 public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSupport implements Dao<E>,
     EvictionCapable, InitializationCapable {
     //~ Instance fields ========================================================
-
+	
     /** The class that this instance provides services for */
     private Class supportsClass;
 	
@@ -74,6 +76,31 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
 	
     //~ Methods ================================================================
 
+	/**
+	 * Obtains a <code>HibernateTemplate</code> that uses the appropriate <code>Session</code>
+	 * based on the value of {@link DetachmentContextHolder}.
+	 * 
+	 * <p>Specifically, if <code>DetachmentContextHolder</code> requires detached instances,
+	 * the method will build a new <code>Session</code> (ignore the current thread-bound
+	 * <code>Session</code>) and use that new <code>Session</code> in the <code>HibernateTemplate</code>.
+	 * If <code>DetachmentContextHolder</code> is at its fault <code>false</code> value, the
+	 * returned <code>HibernateTemplate</code> will simply use the <code>Session</code> obtained
+	 * from the superclass, which is generally the same <code>Session</code> as used for the
+	 * transaction.
+	 * 
+	 * @return the template, containing the correct <code>Session</code> based on the
+	 * <code>DetachmentContactHolder</code> request
+	 */
+	protected HibernateTemplate doGetHibernateTemplate() {
+		if (DetachmentContextHolder.isForceReturnOfDetachedInstances()) {
+			HibernateTemplate hibernateTemplate = new HibernateTemplate(getSessionFactory());
+			hibernateTemplate.setAlwaysUseNewSession(true);
+			return hibernateTemplate;
+		} else {
+			return super.getHibernateTemplate();
+		}
+	}
+	
     public void setSupportsClass(Class supportClass) {
         this.supportsClass = supportClass;
     }
@@ -93,7 +120,7 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
 	public E create(E value) {
         Assert.notNull(value);
 		validate(value);
-        getHibernateTemplate().save(value);
+        doGetHibernateTemplate().save(value);
 
         return readId(value.getInternalId());
     }
@@ -106,47 +133,49 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
 		}
 	}
 
-    public E createOrUpdate(E value) {
-        Assert.notNull(value);
-		validate(value);
-        getHibernateTemplate().saveOrUpdate(value);
-
-        return readId(value.getInternalId());
-    }
-
     public void delete(E value) {
         Assert.notNull(value);
 		validate(value);
-        getHibernateTemplate().delete(value);
+        doGetHibernateTemplate().delete(value);
     }
 
     public void evict(PersistableEntity entity) {
         Assert.notNull(entity);
-        getHibernateTemplate().evict(entity);
+        doGetHibernateTemplate().evict(entity);
     }
 
     public List<E> findAll() {
-        return getHibernateTemplate().loadAll(supportsClass);
+        return doGetHibernateTemplate().loadAll(supportsClass);
     }
 
     public List<E> findId(Collection<Serializable> ids) {
         Assert.notNull(ids, "Collection of IDs cannot be null");
         Assert.notEmpty(ids, "There must be some values in the Collection list");
 
-        return (List) getHibernateTemplate().execute(getFindByIdCallback(ids));
+        return (List) doGetHibernateTemplate().execute(getFindByIdCallback(ids));
+    }
+
+    private E readId(final Serializable id, final boolean populate) {
+        Assert.notNull(id);
+		return (E) doGetHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				E obj = (E) session.get(supportsClass, id);
+				if (populate) {
+					initializeAllZeroArgumentGetters(obj);
+				}
+				return obj;
+			}
+		}, true);
     }
 
     public E readId(Serializable id) {
         Assert.notNull(id);
-		
-        return (E) getHibernateTemplate().get(supportsClass, id);
+		return readId(id, false);
     }
 
 	public E readPopulatedId(Serializable id) {
         Assert.notNull(id);
-        E result = readId(id);
-		initializeAllZeroArgumentGetters(result);
-		return result;
+        return readId(id, true);
 	}
 	
 	/**
@@ -156,7 +185,7 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
 	 * 
 	 * <p>For example, a Foo object might provide a getBar() method.
 	 * Passing the Foo instance to this method will guarantee getBar() is
-	 * available to the services layer. However, it getBar() returned a Bar
+	 * available to the services layer. However, if getBar() returned a Bar
 	 * which in turn provided a getCar() method, there is NO GUARANTEE
 	 * the getCar() method will be initialized.
 	 * 
@@ -176,28 +205,28 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
     public PaginatedList<E> scroll(E value, int firstElement,
         int maxElements, String orderByAsc) {
 		validateScrollMethod(value, firstElement, maxElements, orderByAsc);
-        return (PaginatedList) getHibernateTemplate().execute(getFindByValueCallback(
+        return (PaginatedList) doGetHibernateTemplate().execute(getFindByValueCallback(
                 value.getClass(), false, value, firstElement, maxElements, Order.asc(orderByAsc)));
     }
 
     public PaginatedList<E> scrollWithSubclasses(E value, int firstElement,
 	        int maxElements, String orderByAsc) {
 			validateScrollMethod(value, firstElement, maxElements, orderByAsc);
-	        return (PaginatedList) getHibernateTemplate().execute(getFindByValueCallback(
+	        return (PaginatedList) doGetHibernateTemplate().execute(getFindByValueCallback(
 	                this.supportsClass, false, value, firstElement, maxElements, Order.asc(orderByAsc)));
 	    }
 	
     public PaginatedList<E> scrollPopulated(E value, int firstElement,
 	        int maxElements, String orderByAsc) {
 			validateScrollMethod(value, firstElement, maxElements, orderByAsc);
-	        return (PaginatedList) getHibernateTemplate().execute(getFindByValueCallback(
+	        return (PaginatedList) doGetHibernateTemplate().execute(getFindByValueCallback(
 	                value.getClass(), true, value, firstElement, maxElements, Order.asc(orderByAsc)));
 	    }
 
 	public PaginatedList<E> scrollPopulatedWithSubclasses(E value, int firstElement,
 		        int maxElements, String orderByAsc) {
 				validateScrollMethod(value, firstElement, maxElements, orderByAsc);
-		        return (PaginatedList) getHibernateTemplate().execute(getFindByValueCallback(
+		        return (PaginatedList) doGetHibernateTemplate().execute(getFindByValueCallback(
 		                this.supportsClass, true, value, firstElement, maxElements, Order.asc(orderByAsc)));
 		    }
 
@@ -217,7 +246,7 @@ public class DaoHibernate<E extends PersistableEntity> extends HibernateDaoSuppo
     public E update(E value) {
         Assert.notNull(value);
 		validate(value);
-        getHibernateTemplate().update(value);
+        doGetHibernateTemplate().update(value);
 
         return readId(value.getInternalId());
     }
