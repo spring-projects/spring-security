@@ -31,26 +31,11 @@ public abstract class PersistableEntityLong extends AbstractPersistableEntity {
     //~ Methods ================================================================
 
     /**
-     * DO NOT USE DIRECTLY.
-     * 
-     * <p>
-     * Typically only used by the persistence layer, but provided with public
-     * visibility to not limit flexibility.
-     * </p>
-     *
-     * @param id the new instance identity
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    /**
      * Obtains the persistence identity of this instance.
-     * 
-     * <p>Marked as abstract to remind users to implement. They'll need to implement
-     * so their annotations reflect the correct sequence name.
      */
-    public abstract Long getId();
+    public Long getId() {
+    	return this.id;
+    }
 
     /**
      * DO NOT USE DIRECTLY.
