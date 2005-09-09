@@ -73,19 +73,6 @@ public interface Dao<E extends PersistableEntity> {
     public E create(E value);
 
     /**
-     * Saves an existing object to the persistence layer, or creates a new
-     * object in the persistence layer. Implementations typically rely on
-     * {@link PersistableEntity#getInternalId()} being non-<code>null</code>
-     * to differentiate between persistence instances previous saved and those
-     * requiring initial creation.
-     *
-     * @param value to save or update
-     *
-     * @return the saved or updated (as appropriate) value
-     */
-    public E createOrUpdate(E value);
-
-    /**
      * Delete an object.
      *
      * @param value the value to delete

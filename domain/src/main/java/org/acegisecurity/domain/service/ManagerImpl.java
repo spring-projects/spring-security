@@ -16,8 +16,6 @@
 package net.sf.acegisecurity.domain.service;
 
 import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,7 +24,6 @@ import net.sf.acegisecurity.domain.dao.Dao;
 import net.sf.acegisecurity.domain.dao.PaginatedList;
 import net.sf.acegisecurity.domain.util.GenericsUtils;
 
-import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.transaction.annotation.Transactional;
@@ -106,12 +103,19 @@ public class ManagerImpl<E extends PersistableEntity> extends ApplicationObjectS
         return dao.create(value);
     }
 
+	/**
+	 * Delegates to the appropriate services layer method (not the DAO).
+	 */
     public E createOrUpdate(E value) {
         Assert.notNull(value);
 		if (logger.isDebugEnabled()) {
 			logger.debug("CreatingOrUpdating: " + value);
 		}
-        return dao.createOrUpdate(value);
+		if (value.getInternalId() == null) {
+			return create(value);
+		} else {
+			return update(value);
+		}
     }
 
     public void delete(E value) {
