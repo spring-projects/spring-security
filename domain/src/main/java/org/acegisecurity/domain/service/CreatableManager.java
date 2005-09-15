@@ -17,21 +17,22 @@ package net.sf.acegisecurity.domain.service;
 
 import net.sf.acegisecurity.domain.PersistableEntity;
 
-import org.springframework.util.Assert;
-
 /**
- * Base {@link Manager} implementation.
- *
+ * Adds a creation method to the <code>ImmutableManager</code>.
+ * 
  * @author Ben Alex
  * @version $Id$
  */
-public class ManagerImpl<E extends PersistableEntity> extends UpdatableManagerImpl<E> implements Manager<E> {
-    public void delete(E value) {
-        Assert.notNull(value);
-		if (logger.isDebugEnabled()) {
-			logger.debug("Deleting: " + value);
-		}
-        dao.delete(value);
-    }
+public interface CreatableManager<E extends PersistableEntity> extends ImmutableManager<E> {
+    //~ Methods ================================================================
 
+    /**
+     * Create a new object, with the current {@link
+     * PersistableEntity#getInternalId()} value being ignored.
+     *
+     * @param value (without the identity property initialized)
+     *
+     * @return the value created (with the identity property initialised)
+     */
+    public E create(E value);
 }

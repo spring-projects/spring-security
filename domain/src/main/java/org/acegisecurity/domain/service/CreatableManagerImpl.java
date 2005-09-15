@@ -20,18 +20,17 @@ import net.sf.acegisecurity.domain.PersistableEntity;
 import org.springframework.util.Assert;
 
 /**
- * Base {@link Manager} implementation.
+ * Base {@link CreatableManager} implementation.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class ManagerImpl<E extends PersistableEntity> extends UpdatableManagerImpl<E> implements Manager<E> {
-    public void delete(E value) {
+public class CreatableManagerImpl<E extends PersistableEntity> extends ImmutableManagerImpl<E> implements CreatableManager<E> {
+	public E create(E value) {
         Assert.notNull(value);
 		if (logger.isDebugEnabled()) {
-			logger.debug("Deleting: " + value);
+			logger.debug("Creating: " + value);
 		}
-        dao.delete(value);
+        return dao.create(value);
     }
-
 }

@@ -20,18 +20,33 @@ import net.sf.acegisecurity.domain.PersistableEntity;
 import org.springframework.util.Assert;
 
 /**
- * Base {@link Manager} implementation.
+ * Base {@link UpdatableManager} implementation.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class ManagerImpl<E extends PersistableEntity> extends UpdatableManagerImpl<E> implements Manager<E> {
-    public void delete(E value) {
+public class UpdatableManagerImpl<E extends PersistableEntity> extends CreatableManagerImpl<E> implements UpdatableManager<E> {
+
+    public E update(E value) {
         Assert.notNull(value);
 		if (logger.isDebugEnabled()) {
-			logger.debug("Deleting: " + value);
+			logger.debug("Updating: " + value);
 		}
-        dao.delete(value);
+        return dao.update(value);
     }
-
+    
+    /**
+	 * Delegates to the appropriate services layer method (not the DAO).
+	 */
+    public E createOrUpdate(E value) {
+        Assert.notNull(value);
+		if (logger.isDebugEnabled()) {
+			logger.debug("CreatingOrUpdating: " + value);
+		}
+		if (value.getInternalId() == null) {
+			return create(value);
+		} else {
+			return update(value);
+		}
+    }
 }
