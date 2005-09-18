@@ -249,7 +249,17 @@ public class CaptchaChannelProcessorTests extends TestCase {
 			assertTrue(true);
 		}
 	}
-
+/*
+  
+ // TODO: Re-enable these tests.
+  
+   Commented out by Ben Alex on 19 Sep 05 as the Thread.sleep(100) approach to simulating
+   request age caused intermittent problems. An alternative approach should be used
+   instead, such as (a) modifying the CaptchaSecurityContextImpl (why not make a package
+   protected setLastPassedCaptchaDateInMillis) or (b) providing a package protected method
+   so that the unit test can modify the time being used by CaptchaChannelProcesor instead
+   of using System.currentTimeMillis().
+   
 	public void testDecideMillis() throws Exception {
 		ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
 		cad.addConfigAttribute(new SecurityConfig("SOME_IGNORED_ATTRIBUTE"));
@@ -436,7 +446,7 @@ public class CaptchaChannelProcessorTests extends TestCase {
 		assertEquals("http://localhost:8000/demo/jcaptcha.do", response
 				.getRedirectedUrl());
 	}
-
+*/
 	public void testGettersSetters() {
 		CaptchaChannelProcessor processor = new CaptchaChannelProcessor();
 		assertEquals("REQUIRES_HUMAN_AFTER_MAX_MILLIS", processor
