@@ -31,6 +31,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 
 import java.io.IOException;
 
@@ -137,6 +138,7 @@ public class BasicProcessingFilterTests extends TestCase {
         request.addHeader("Authorization",
             "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
+        request.setSession(new MockHttpSession());
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
@@ -165,6 +167,7 @@ public class BasicProcessingFilterTests extends TestCase {
         request.addHeader("Authorization",
             "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
+        request.setSession(new MockHttpSession());
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
@@ -251,6 +254,7 @@ public class BasicProcessingFilterTests extends TestCase {
         request.addHeader("Authorization",
             "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
+        request.setSession(new MockHttpSession());
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
@@ -281,6 +285,7 @@ public class BasicProcessingFilterTests extends TestCase {
         request.addHeader("Authorization",
             "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
+        request.setSession(new MockHttpSession());
 
         // Setup our expectation that the filter chain will not be invoked, as we get a 403 forbidden response
         chain = new MockFilterChain(false);
@@ -301,6 +306,7 @@ public class BasicProcessingFilterTests extends TestCase {
         request.addHeader("Authorization",
             "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
+        request.setSession(new MockHttpSession());
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
