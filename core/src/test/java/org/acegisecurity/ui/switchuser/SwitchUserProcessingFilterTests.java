@@ -355,7 +355,8 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         Authentication targetAuth = SecurityContextHolder.getContext()
                                                          .getAuthentication();
         assertNotNull(targetAuth);
-        assertEquals("jacklord", targetAuth.getPrincipal());
+        assertTrue(targetAuth.getPrincipal() instanceof UserDetails);
+        assertEquals("jacklord", ((User)targetAuth.getPrincipal()).getUsername());        
     }
 
     private MockHttpServletRequest createMockSwitchRequest() {

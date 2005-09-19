@@ -462,7 +462,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
         authorities = (GrantedAuthority[]) newAuths.toArray(authorities);
 
         // create the new authentication token
-        targetUserRequest = new UsernamePasswordAuthenticationToken(username,
+        targetUserRequest = new UsernamePasswordAuthenticationToken(targetUser,
                 targetUser.getPassword(), authorities);
 
         // set details
