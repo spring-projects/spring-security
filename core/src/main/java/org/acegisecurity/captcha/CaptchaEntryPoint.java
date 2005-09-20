@@ -14,274 +14,365 @@
  */
 package net.sf.acegisecurity.captcha;
 
-import java.io.IOException;
-import java.util.Enumeration;
+import net.sf.acegisecurity.securechannel.ChannelEntryPoint;
+import net.sf.acegisecurity.util.PortMapper;
+import net.sf.acegisecurity.util.PortMapperImpl;
+import net.sf.acegisecurity.util.PortResolver;
+import net.sf.acegisecurity.util.PortResolverImpl;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.sf.acegisecurity.securechannel.ChannelEntryPoint;
-import net.sf.acegisecurity.util.PortMapper;
-import net.sf.acegisecurity.util.PortMapperImpl;
-import net.sf.acegisecurity.util.PortResolver;
-import net.sf.acegisecurity.util.PortResolverImpl;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Enumeration;
 
 /**
  * The captcha entry point : redirect to the captcha test page. <br/>
- * 
+ * <p/>
  * This entry point can force the use of SSL : see {@link #getForceHttps()}<br/>
- * 
- * This entry point allows internal OR external redirect : see
- * {@link #setOutsideWebApp(boolean)}<br/>/ Original request can be added to
- * the redirect path using a special parameter : see
- * {@link #getOriginalRequestParameterName()} and
- * {@link #setIncludeOriginalRequest()} <br/> <br/> Default values :<br/>
- * forceHttps = false<br/> includesOriginalRequest = false<br/>
- * originalRequestParameterName= "originalRequest"<br/> isOutsideWebApp=false<br/>
- * 
+ * <p/>
+ * This entry point allows internal OR external redirect : see {@link #setOutsideWebApp(boolean)}<br/>/ Original request
+ * can be added to the redirect path using a custom translation : see {@link #setIncludeOriginalRequest(boolean)} <br/>
+ * Original request is translated using URLEncoding and the following translation mapping in the redirect url : <ul>
+ * <li>original url => {@link #getOriginalRequestUrlParameterName()}</li> <li> If {@link
+ * #isIncludeOriginalParameters()}</li> <li>original method => {@link #getOriginalRequestMethodParameterName()} </li>
+ * <li>original parameters => {@link #getOriginalRequestParametersParameterName()} </li> <li>The orinial parameters
+ * string is contructed using :</li> <ul> <li>a parameter separator {@link #getOriginalRequestParametersSeparator()}
+ * </li> <li>a parameter name value pair separator for each parameter {@link #getOriginalRequestParametersNameValueSeparator()}
+ * </li> </ul> </ul>
+ * <p/>
+ * <p/>
+ * <p/>
+ * <br/> Default values :<br/> forceHttps = false<br/> includesOriginalRequest = true<br/> includesOriginalParameters =
+ * false<br/> isOutsideWebApp=false<br/> originalRequestUrlParameterName  ="original_requestUrl" <br/>
+ * originalRequestParametersParameterName = "original_request_parameters";<br/>
+ * <p/>
+ * originalRequestParametersNameValueSeparator = "@@";        <br/>
+ * <p/>
+ * originalRequestParametersSeparator = ";;";         <br/>
+ * <p/>
+ * originalRequestMethodParameterName = "original_request_method";  <br/>
+ * <p/>
+ * urlEncodingCharset = "UTF-8";             <br/>
+ *
  * @author marc antoine Garrigue
  * @version $Id$
  */
 public class CaptchaEntryPoint implements ChannelEntryPoint, InitializingBean {
-	// ~ Static fields/initializers
-	// =============================================
+    // ~ Static fields/initializers
+    // =============================================
 
-	private static final Log logger = LogFactory
-			.getLog(CaptchaEntryPoint.class);
+    private static final Log logger = LogFactory
+            .getLog(CaptchaEntryPoint.class);
 
-	// ~ Instance fields
-	// ========================================================
+    // ~ Instance fields
+    // ========================================================
 
-	private PortMapper portMapper = new PortMapperImpl();
+    private PortMapper portMapper = new PortMapperImpl();
 
-	private PortResolver portResolver = new PortResolverImpl();
+    private PortResolver portResolver = new PortResolverImpl();
 
-	private String captchaFormUrl;
+    private String captchaFormUrl;
 
-	private boolean forceHttps = false;
+    private boolean forceHttps = false;
 
-	private String originalRequestParameterName = "originalRequest";
+    private String originalRequestUrlParameterName = "original_requestUrl";
 
-	private boolean isOutsideWebApp = false;
+    private String originalRequestParametersParameterName = "original_request_parameters";
 
-	private boolean includeOriginalRequest = false;
+    private String originalRequestParametersNameValueSeparator = "@@";
 
-	// ~ Methods
-	// ================================================================
+    private String originalRequestParametersSeparator = ";;";
 
-	/**
-	 * Set to true to force captcha form access to be via https. If this value
-	 * is ture (the default is false), and the incoming request for the
-	 * protected resource which triggered the interceptor was not already
-	 * <code>https</code>, then
-	 * 
-	 * @param forceHttps
-	 */
-	public void setForceHttps(boolean forceHttps) {
-		this.forceHttps = forceHttps;
-	}
+    private String originalRequestMethodParameterName = "original_request_method";
 
-	public boolean getForceHttps() {
-		return forceHttps;
-	}
+    private String urlEncodingCharset = "UTF-8";
 
-	/**
-	 * The URL where the <code>CaptchaProcessingFilter</code> login page can
-	 * be found. Should be relative to the web-app context path, and include a
-	 * leading <code>/</code>
-	 * 
-	 * @param captchaFormUrl
-	 */
-	public void setCaptchaFormUrl(String loginFormUrl) {
-		this.captchaFormUrl = loginFormUrl;
-	}
+    private boolean isOutsideWebApp = false;
 
-	/**
-	 * @return the captcha test page to redirect to.
-	 */
-	public String getCaptchaFormUrl() {
-		return captchaFormUrl;
-	}
+    private boolean includeOriginalRequest = true;
 
-	public void setPortMapper(PortMapper portMapper) {
-		this.portMapper = portMapper;
-	}
+    private boolean includeOriginalParameters = false;
 
-	public PortMapper getPortMapper() {
-		return portMapper;
-	}
+    // ~ Methods
+    // ================================================================
 
-	public void setPortResolver(PortResolver portResolver) {
-		this.portResolver = portResolver;
-	}
+    /**
+     * Set to true to force captcha form access to be via https. If this value is ture (the default is false), and the
+     * incoming request for the protected resource which triggered the interceptor was not already <code>https</code>,
+     * then
+     */
+    public void setForceHttps(boolean forceHttps) {
+        this.forceHttps = forceHttps;
+    }
 
-	public PortResolver getPortResolver() {
-		return portResolver;
-	}
+    public boolean getForceHttps() {
+        return forceHttps;
+    }
 
-	public boolean isOutsideWebApp() {
-		return isOutsideWebApp;
-	}
+    /**
+     * The URL where the <code>CaptchaProcessingFilter</code> login page can be found. Should be relative to the web-app
+     * context path, and include a leading <code>/</code>
+     */
+    public void setCaptchaFormUrl(String captchaFormUrl) {
+        this.captchaFormUrl = captchaFormUrl;
+    }
 
-	/**
-	 * if set to true, the {@link #commence(ServletRequest, ServletResponse)}
-	 * method uses the {@link #getCaptchaFormUrl()} as a complete URL, else it
-	 * as a 'inside WebApp' path.
-	 * 
-	 * @param isOutsideWebApp
-	 */
-	public void setOutsideWebApp(boolean isOutsideWebApp) {
-		this.isOutsideWebApp = isOutsideWebApp;
-	}
+    /**
+     * @return the captcha test page to redirect to.
+     */
+    public String getCaptchaFormUrl() {
+        return captchaFormUrl;
+    }
 
-	public String getOriginalRequestParameterName() {
-		return originalRequestParameterName;
-	}
+    public void setPortMapper(PortMapper portMapper) {
+        this.portMapper = portMapper;
+    }
 
-	/**
-	 * sets the parameter under which the original request url will be appended
-	 * to the redirect url (only if {@link #isIncludeOriginalRequest()}==true).
-	 * 
-	 * @param originalRequestParameterName
-	 */
-	public void setOriginalRequestParameterName(
-			String originalRequestParameterName) {
-		this.originalRequestParameterName = originalRequestParameterName;
-	}
+    public PortMapper getPortMapper() {
+        return portMapper;
+    }
 
-	public boolean isIncludeOriginalRequest() {
-		return includeOriginalRequest;
-	}
+    public void setPortResolver(PortResolver portResolver) {
+        this.portResolver = portResolver;
+    }
 
-	/**
-	 * If set to true, the original request url will be appended to the redirect
-	 * url using the {@link #getOriginalRequestParameterName()}.
-	 * 
-	 * @param includeOriginalRequest
-	 */
-	public void setIncludeOriginalRequest(boolean includeOriginalRequest) {
-		this.includeOriginalRequest = includeOriginalRequest;
-	}
+    public PortResolver getPortResolver() {
+        return portResolver;
+    }
 
-	public void afterPropertiesSet() throws Exception {
-		Assert.hasLength(captchaFormUrl, "captchaFormUrl must be specified");
-		Assert.notNull(portMapper, "portMapper must be specified");
-		Assert.notNull(portResolver, "portResolver must be specified");
-	}
 
-	public void commence(ServletRequest request, ServletResponse response)
-			throws IOException, ServletException {
-		StringBuffer redirectUrl = new StringBuffer();
-		HttpServletRequest req = (HttpServletRequest) request;
+    public boolean isOutsideWebApp() {
+        return isOutsideWebApp;
+    }
 
-		if (isOutsideWebApp) {
-			redirectUrl = redirectUrl.append(captchaFormUrl);
-		} else {
-			buildInternalRedirect(redirectUrl, req);
-		}
 
-		if (includeOriginalRequest) {
-			includeOriginalRequest(redirectUrl, req);
-		}
-		// add post parameter? TODO?
-		if (logger.isDebugEnabled()) {
-			logger.debug("Redirecting to: " + redirectUrl);
-		}
+    public String getOriginalRequestUrlParameterName() {
+        return originalRequestUrlParameterName;
+    }
 
-		((HttpServletResponse) response)
-				.sendRedirect(((HttpServletResponse) response)
-						.encodeRedirectURL(redirectUrl.toString()));
-	}
+    public void setOriginalRequestUrlParameterName(String originalRequestUrlParameterName) {
+        this.originalRequestUrlParameterName = originalRequestUrlParameterName;
+    }
 
-	private void includeOriginalRequest(StringBuffer redirectUrl,
-			HttpServletRequest req) {
-		// add original request to the url
-		if (redirectUrl.indexOf("?") >= 0) {
-			redirectUrl.append("&");
-		} else {
-			redirectUrl.append("?");
-		}
-		redirectUrl.append(originalRequestParameterName);
-		redirectUrl.append("=");
-		redirectUrl.append(req.getRequestURL().toString());
-		// append query params
-		Enumeration parameters = req.getParameterNames();
-		if (parameters != null && parameters.hasMoreElements()) {
-			redirectUrl.append("?");
-			while (parameters.hasMoreElements()) {
-				String name = parameters.nextElement().toString();
-				String value = req.getParameter(name);
-				redirectUrl.append(name);
-				redirectUrl.append("=");
-				redirectUrl.append(value);
-				if (parameters.hasMoreElements()) {
-					redirectUrl.append("&");
-				}
-			}
-		}
+    public String getOriginalRequestParametersParameterName() {
+        return originalRequestParametersParameterName;
+    }
 
-	}
+    public void setOriginalRequestParametersParameterName(String originalRequestParametersParameterName) {
+        this.originalRequestParametersParameterName = originalRequestParametersParameterName;
+    }
 
-	private void buildInternalRedirect(StringBuffer redirectUrl,
-			HttpServletRequest req) {
-		// construct it
-		StringBuffer simpleRedirect = new StringBuffer();
+    public String getOriginalRequestParametersNameValueSeparator() {
+        return originalRequestParametersNameValueSeparator;
+    }
 
-		String scheme = req.getScheme();
-		String serverName = req.getServerName();
-		int serverPort = portResolver.getServerPort(req);
-		String contextPath = req.getContextPath();
-		boolean includePort = true;
-		if ("http".equals(scheme.toLowerCase()) && (serverPort == 80)) {
-			includePort = false;
-		}
-		if ("https".equals(scheme.toLowerCase()) && (serverPort == 443)) {
-			includePort = false;
-		}
+    public void setOriginalRequestParametersNameValueSeparator(String originalRequestParametersNameValueSeparator) {
+        this.originalRequestParametersNameValueSeparator = originalRequestParametersNameValueSeparator;
+    }
 
-		simpleRedirect.append(scheme);
-		simpleRedirect.append("://");
-		simpleRedirect.append(serverName);
-		if (includePort) {
-			simpleRedirect.append(":");
-			simpleRedirect.append(serverPort);
-		}
-		simpleRedirect.append(contextPath);
-		simpleRedirect.append(captchaFormUrl);
+    public String getOriginalRequestParametersSeparator() {
+        return originalRequestParametersSeparator;
+    }
 
-		if (forceHttps && req.getScheme().equals("http")) {
-			Integer httpPort = new Integer(portResolver.getServerPort(req));
-			Integer httpsPort = (Integer) portMapper.lookupHttpsPort(httpPort);
+    public void setOriginalRequestParametersSeparator(String originalRequestParametersSeparator) {
+        this.originalRequestParametersSeparator = originalRequestParametersSeparator;
+    }
 
-			if (httpsPort != null) {
-				if (httpsPort.intValue() == 443) {
-					includePort = false;
-				} else {
-					includePort = true;
-				}
+    public String getOriginalRequestMethodParameterName() {
+        return originalRequestMethodParameterName;
+    }
 
-				redirectUrl.append("https://");
-				redirectUrl.append(serverName);
-				if (includePort) {
-					redirectUrl.append(":");
-					redirectUrl.append(httpsPort);
-				}
-				redirectUrl.append(contextPath);
-				redirectUrl.append(captchaFormUrl);
-			} else {
-				redirectUrl.append(simpleRedirect);
-			}
-		} else {
-			redirectUrl.append(simpleRedirect);
-		}
-	}
+    public void setOriginalRequestMethodParameterName(String originalRequestMethodParameterName) {
+        this.originalRequestMethodParameterName = originalRequestMethodParameterName;
+    }
+
+    public String getUrlEncodingCharset() {
+        return urlEncodingCharset;
+    }
+
+    public void setUrlEncodingCharset(String urlEncodingCharset) {
+        this.urlEncodingCharset = urlEncodingCharset;
+    }
+
+    /**
+     * if set to true, the {@link #commence(ServletRequest, ServletResponse)} method uses the {@link
+     * #getCaptchaFormUrl()} as a complete URL, else it as a 'inside WebApp' path.
+     */
+    public void setOutsideWebApp(boolean isOutsideWebApp) {
+        this.isOutsideWebApp = isOutsideWebApp;
+    }
+
+
+    public boolean isIncludeOriginalRequest() {
+        return includeOriginalRequest;
+    }
+
+    /**
+     * If set to true, the original request url will be appended to the redirect url using the {@link
+     * #getOriginalRequestParameterName()}.
+     */
+    public void setIncludeOriginalRequest(boolean includeOriginalRequest) {
+        this.includeOriginalRequest = includeOriginalRequest;
+    }
+
+    public boolean isIncludeOriginalParameters() {
+        return includeOriginalParameters;
+    }
+
+    public void setIncludeOriginalParameters(boolean includeOriginalParameters) {
+        this.includeOriginalParameters = includeOriginalParameters;
+    }
+
+    public void afterPropertiesSet() throws Exception {
+        Assert.hasLength(captchaFormUrl, "captchaFormUrl must be specified");
+        Assert.hasLength(originalRequestMethodParameterName, "originalRequestMethodParameterName must be specified");
+        Assert.hasLength(originalRequestParametersNameValueSeparator, "originalRequestParametersNameValueSeparator must be specified");
+        Assert.hasLength(originalRequestParametersParameterName, "originalRequestParametersParameterName must be specified");
+        Assert.hasLength(originalRequestParametersSeparator, "originalRequestParametersSeparator must be specified");
+        Assert.hasLength(originalRequestUrlParameterName, "originalRequestUrlParameterName must be specified");
+        Assert.hasLength(urlEncodingCharset, "urlEncodingCharset must be specified");
+        Assert.notNull(portMapper, "portMapper must be specified");
+        Assert.notNull(portResolver, "portResolver must be specified");
+        URLEncoder.encode("   fzaef é& à ", urlEncodingCharset);
+    }
+
+    public void commence(ServletRequest request, ServletResponse response)
+            throws IOException, ServletException {
+        StringBuffer redirectUrl = new StringBuffer();
+        HttpServletRequest req = (HttpServletRequest) request;
+
+        if (isOutsideWebApp) {
+            redirectUrl = redirectUrl.append(captchaFormUrl);
+        } else {
+            buildInternalRedirect(redirectUrl, req);
+        }
+
+        if (includeOriginalRequest) {
+            includeOriginalRequest(redirectUrl, req);
+        }
+        // add post parameter? DONE!
+        if (logger.isDebugEnabled()) {
+            logger.debug("Redirecting to: " + redirectUrl);
+        }
+
+        ((HttpServletResponse) response)
+                .sendRedirect(redirectUrl.toString());
+    }
+
+    private void includeOriginalRequest(StringBuffer redirectUrl,
+                                        HttpServletRequest req) {
+        // add original request to the url
+        if (redirectUrl.indexOf("?") >= 0) {
+            redirectUrl.append("&");
+        } else {
+            redirectUrl.append("?");
+        }
+
+        redirectUrl.append(originalRequestUrlParameterName);
+        redirectUrl.append("=");
+        try {
+            redirectUrl.append(URLEncoder.encode(req.getRequestURL().toString(), urlEncodingCharset));
+        } catch (UnsupportedEncodingException e) {
+            logger.warn(e);
+        }
+
+        //append method
+        redirectUrl.append("&");
+        redirectUrl.append(originalRequestMethodParameterName);
+        redirectUrl.append("=");
+        redirectUrl.append(req.getMethod());
+        if (includeOriginalParameters) {
+
+            // append query params
+
+            redirectUrl.append("&");
+            redirectUrl.append(originalRequestParametersParameterName);
+            redirectUrl.append("=");
+            StringBuffer qp = new StringBuffer();
+            Enumeration parameters = req.getParameterNames();
+            if (parameters != null && parameters.hasMoreElements()) {
+                //qp.append("?");
+                while (parameters.hasMoreElements()) {
+                    String name = parameters.nextElement().toString();
+                    String value = req.getParameter(name);
+                    qp.append(name);
+                    qp.append(originalRequestParametersNameValueSeparator);
+                    qp.append(value);
+                    if (parameters.hasMoreElements()) {
+                        qp.append(originalRequestParametersSeparator);
+                    }
+                }
+            }
+            try {
+                redirectUrl.append(URLEncoder.encode(qp.toString(), urlEncodingCharset));
+            } catch (Exception e) {
+                logger.warn(e);
+            }
+        }
+
+    }
+
+    private void buildInternalRedirect(StringBuffer redirectUrl,
+                                       HttpServletRequest req) {
+        // construct it
+        StringBuffer simpleRedirect = new StringBuffer();
+
+        String scheme = req.getScheme();
+        String serverName = req.getServerName();
+        int serverPort = portResolver.getServerPort(req);
+        String contextPath = req.getContextPath();
+        boolean includePort = true;
+        if ("http".equals(scheme.toLowerCase()) && (serverPort == 80)) {
+            includePort = false;
+        }
+        if ("https".equals(scheme.toLowerCase()) && (serverPort == 443)) {
+            includePort = false;
+        }
+
+        simpleRedirect.append(scheme);
+        simpleRedirect.append("://");
+        simpleRedirect.append(serverName);
+        if (includePort) {
+            simpleRedirect.append(":");
+            simpleRedirect.append(serverPort);
+        }
+        simpleRedirect.append(contextPath);
+        simpleRedirect.append(captchaFormUrl);
+
+        if (forceHttps && req.getScheme().equals("http")) {
+            Integer httpPort = new Integer(portResolver.getServerPort(req));
+            Integer httpsPort = (Integer) portMapper.lookupHttpsPort(httpPort);
+
+            if (httpsPort != null) {
+                if (httpsPort.intValue() == 443) {
+                    includePort = false;
+                } else {
+                    includePort = true;
+                }
+
+                redirectUrl.append("https://");
+                redirectUrl.append(serverName);
+                if (includePort) {
+                    redirectUrl.append(":");
+                    redirectUrl.append(httpsPort);
+                }
+                redirectUrl.append(contextPath);
+                redirectUrl.append(captchaFormUrl);
+            } else {
+                redirectUrl.append(simpleRedirect);
+            }
+        } else {
+            redirectUrl.append(simpleRedirect);
+        }
+    }
 
 }

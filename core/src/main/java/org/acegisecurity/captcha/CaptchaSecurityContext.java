@@ -30,13 +30,11 @@ public interface CaptchaSecurityContext extends SecurityContext {
 
 	/**
 	 * set human attribute, should called after captcha validation.
-	 * 
-	 * @param human
 	 */
 	void setHuman();
 
 	/**
-	 * 
+	 *
 	 * @return number of human restricted resources requests since the last
 	 *         passed captcha.
 	 */

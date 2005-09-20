@@ -119,7 +119,7 @@ public class HttpSessionEventPublisher implements HttpSessionListener,
     }
 
     ApplicationContext getContext() {
-        Assert.notNull(context, "setContext(...) never called, ApplicationContext must not be null");
+       Assert.notNull(context, "setContext(...) never called, ApplicationContext must not be null");
         return context;
     }
 }

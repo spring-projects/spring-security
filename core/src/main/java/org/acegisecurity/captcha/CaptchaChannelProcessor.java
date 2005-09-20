@@ -79,7 +79,7 @@ import org.springframework.util.Assert;
  * 
  * 
  * 
- * <li>{@link #getRequiresHumanUntilMaxRequestsKeyword()} <br>
+ * <li>{@link #getRequiresHumanAfterMaxRequestsKeyword()} <br>
  * default value = <code>REQUIRES_HUMAN_AFTER_MAX_MILLIS</code> <br>
  * if detected, checks if :
  * 
@@ -138,7 +138,7 @@ import org.springframework.util.Assert;
  * and the REQUIRES_HUMAN_AFTER_MAX_REQUESTS keywords <br>
  * with a maxRequestsBeforeReTest=20 <br>
  * and a maxMillisBeforeReTest=3600000 <br>
- * and amaxRequestsBeforeFirstTest=1000</li>
+ * and a maxRequestsBeforeFirstTest=1000</li>
  * 
  * </ul>
  * 
@@ -158,7 +158,10 @@ public class CaptchaChannelProcessor implements ChannelProcessor,
 
 	private String requiresHumanAfterMaxMillisKeyword = "REQUIRES_HUMAN_AFTER_MAX_MILLIS";
 
-	private ChannelEntryPoint entryPoint;
+    private String keywordPrefix = "";
+
+
+    private ChannelEntryPoint entryPoint;
 
 	private int maxRequestsBeforeReTest = -1;
 
@@ -166,7 +169,15 @@ public class CaptchaChannelProcessor implements ChannelProcessor,
 
 	private long maxMillisBeforeReTest = -1;
 
-	public String getRequiresHumanAfterMaxMillisKeyword() {
+    public String getKeywordPrefix() {
+        return keywordPrefix;
+    }
+
+    public void setKeywordPrefix(String keywordPrefix) {
+        this.keywordPrefix = keywordPrefix;
+    }
+
+    public String getRequiresHumanAfterMaxMillisKeyword() {
 		return requiresHumanAfterMaxMillisKeyword;
 	}
 
@@ -227,28 +238,21 @@ public class CaptchaChannelProcessor implements ChannelProcessor,
 		if ((invocation == null) || (config == null)) {
 			throw new IllegalArgumentException("Nulls cannot be provided");
 		}
-		CaptchaSecurityContext context = (CaptchaSecurityContext) SecurityContextHolder
-				.getContext();
+        CaptchaSecurityContext context = null;
+        context = (CaptchaSecurityContext) SecurityContextHolder
+                    .getContext();
 
-		Iterator iter = config.getConfigAttributes();
-		boolean shouldRedirect = true;
+        Iterator iter = config.getConfigAttributes();
+		boolean shouldRedirect = false;
 
 		while (iter.hasNext()) {
 			ConfigAttribute attribute = (ConfigAttribute) iter.next();
-
 			if (supports(attribute)) {
 				logger.debug("supports this attribute : " + attribute);
-				if (isContextValidForAttribute(context, attribute)) {
-					shouldRedirect = false;
-				} else {
-					// reset if already passed a constraint
-
+				if (!isContextValidForAttribute(context, attribute)) {
 					shouldRedirect = true;
-					// break at first unsatisfy contraint
-					break;
-				}
-
-			}
+                }
+            }
 		}
 		if (shouldRedirect) {
 			logger
@@ -270,8 +274,7 @@ public class CaptchaChannelProcessor implements ChannelProcessor,
 		if ((attribute != null) || (attribute.getAttribute() != null)) {
 
 			// test the REQUIRES_HUMAN_AFTER_MAX_REQUESTS keyword
-			if (attribute.getAttribute().equals(
-					getRequiresHumanAfterMaxRequestsKeyword())) {
+			if (isKeywordMaxRequest(attribute)) {
 				if (isContextValidConcerningHumanOrFirstTest(context)
 						&& isContextValidConcerningReTest(context)) {
 					valid = true;
@@ -279,8 +282,7 @@ public class CaptchaChannelProcessor implements ChannelProcessor,
 			}
 
 			// test the REQUIRES_HUMAN_AFTER_MAX_MILLIS keyword
-			if (attribute.getAttribute().equals(
-					getRequiresHumanAfterMaxMillisKeyword())) {
+			if (isKeywordMillis(attribute)) {
 				if (isContextValidConcerningHumanOrFirstTest(context)
 						&& isContextValidConcerningMaxMillis(context)) {
 					valid = true;
@@ -346,10 +348,7 @@ public class CaptchaChannelProcessor implements ChannelProcessor,
 	public boolean supports(ConfigAttribute attribute) {
 		if ((attribute != null)
 				&& (attribute.getAttribute() != null)
-				&& (attribute.getAttribute().equals(
-						getRequiresHumanAfterMaxRequestsKeyword()) || attribute
-						.getAttribute().equals(
-								getRequiresHumanAfterMaxMillisKeyword())
+				&& (isKeywordMaxRequest(attribute) || isKeywordMillis(attribute)
 
 				)) {
 			return true;
@@ -357,5 +356,16 @@ public class CaptchaChannelProcessor implements ChannelProcessor,
 			return false;
 		}
 	}
+
+    private boolean isKeywordMillis(ConfigAttribute attribute) {
+        return attribute
+                .getAttribute().equals(
+                        getKeywordPrefix()+getRequiresHumanAfterMaxMillisKeyword());
+    }
+
+    private boolean isKeywordMaxRequest(ConfigAttribute attribute) {
+        return attribute.getAttribute().equals(
+                getKeywordPrefix()+getRequiresHumanAfterMaxRequestsKeyword());
+    }
 
 }

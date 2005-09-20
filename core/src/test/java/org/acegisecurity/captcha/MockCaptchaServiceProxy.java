@@ -15,18 +15,20 @@
 
 package net.sf.acegisecurity.captcha;
 
-import javax.servlet.ServletRequest;
-
+/**
+ * @author marc antoine Garrigue
+ * @version $Id$
+ */
 public class MockCaptchaServiceProxy implements CaptchaServiceProxy {
 
-	public boolean valid = false;
+    public boolean valid = false;
 
-	public boolean hasBeenCalled = false;
+    public boolean hasBeenCalled = false;
 
-	public boolean validateRequest(ServletRequest request) {
-		hasBeenCalled = true;
-		return valid;
+    public boolean validateReponseForId(String id, Object response) {
+        hasBeenCalled = true;
+        return valid;
 
-	}
+    }
 
 }
