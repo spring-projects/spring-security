@@ -263,8 +263,8 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
         UserDetails originalUser = null;
         Object obj = original.getPrincipal();
 
-        if ((obj != null) && obj instanceof User) {
-            originalUser = (User) obj;
+        if ((obj != null) && obj instanceof UserDetails) {
+            originalUser = (UserDetails) obj;
         }
 
         // publish event
