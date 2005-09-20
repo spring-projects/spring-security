@@ -153,6 +153,32 @@
 	<code>UserDetails</code>, we suggest you write the
 	<code>UserDetails</code> object to the log and check it looks correct.</p>
 
+  <h2>Common Problem #1: My application goes into an "endless loop" when I try to login, what's going on?</h2>
+  <p>A common user problem with infinite loop and redirecting to the login page
+     is caused by accidently configuring the login page as a "secured" resource.
+     See this forum <a href="http://forum.springframework.org/viewtopic.php?t=8766">post</a> for more details.</p>
+
+  <h2>Common Problem #2: My application pages don't seem to be protected.</h2>
+  <p>If you are securing web resources and they dont seem to be matched in the URL patterns,
+     check the objectDefinitionSource in the FilterSecurityInterceptor.
+     If you are using the <tt>CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON</tt> setting,
+     then the URL patterns configured MUST be in lowercase.
+  <p>
+     For example, making a request ending in <tt>/someAction.do</tt> will need 
+     to be configured as: <tt>/someaction.do</tt> (Note the case).
+<pre>
+&lt;property name="objectDefinitionSource">
+  &lt;value>
+    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+    PATTERN_TYPE_APACHE_ANT
+    /index.jsp=ROLE_ANONYMOUS,ROLE_USER
+    /someaction.do=ROLE_USER     			    
+  &lt;value>
+&lt;/property>     
+</pre>
+   <p>	
+   See this forum <a href="http://forum.springframework.org/viewtopic.php?t=8746">post</a> for more details.</p>
+
   <h2>I need some help. What files should I post?</h2>
   <p>The most important things to post with any support requests on the
 	<a href="http://forum.springframework.org">Spring Forums</a> are your
