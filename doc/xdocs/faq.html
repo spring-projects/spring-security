@@ -179,6 +179,35 @@
    <p>	
    See this forum <a href="http://forum.springframework.org/viewtopic.php?t=8746">post</a> for more details.</p>
 
+  <h2>Common Problem #3: How do I disable a user after a number of failed logins?</h2>
+  <p>A common user requirement is to disable / lock an account after a number of failed login attempts.
+     Acegi itself does not provide anything "out of the box", however in your application you can implement 
+     and register an <tt>org.springframework.context.ApplicationListener</tt>. Inside your application
+     event listener you can then check for an instanceof the particular <tt>AuthenticationFailureEvent</tt>
+     and then call your application user management interface to update the user details.
+     <p>
+     For example:
+     <pre>
+     public void onApplicationEvent(ApplicationEvent event) {
+     
+       // check failed event
+       if(event instanceof AuthenticationFailurePasswordEvent){
+          // call user management interface to increment failed login attempts, etc.
+          . . .
+       }  
+     }
+     </pre>
+     See this forum <a href="http://forum.springframework.org/viewtopic.php?t=8525">post</a> for more details.</p>
+
+  <h2>Common Problem #4: I am changing my password using a web controller and DAO, why is my password still not being refreshed?</h2>
+  <p>There are three things you must do to make a user password change take affect:
+  <ul>
+  <li> Change the password using your authentication DAO</li>
+  <li> Remove the user from the User Cache (i.e. if you have a cache configured) </li>
+  <li> Update the <tt>ContextHolder</tt> to include the new <tt>Authentication</tt> object and password</li>
+  </ul>
+  See this forum <a href="http://forum.springframework.org/viewtopic.php?t=4624">post</a> for more details.</p>
+
   <h2>I need some help. What files should I post?</h2>
   <p>The most important things to post with any support requests on the
 	<a href="http://forum.springframework.org">Spring Forums</a> are your
