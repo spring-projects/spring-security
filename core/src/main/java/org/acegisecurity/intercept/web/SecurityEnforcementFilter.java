@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package net.sf.acegisecurity.intercept.web;
 
 import net.sf.acegisecurity.AccessDeniedException;
@@ -46,19 +45,19 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Wraps requests to the {@link FilterSecurityInterceptor}.
- * 
+ *
  * <p>
  * This filter is necessary because it provides the bridge between incoming
  * requests and the <code>FilterSecurityInterceptor</code> instance.
  * </p>
- * 
+ *
  * <p>
  * If an {@link AuthenticationException} is detected, the filter will launch
  * the <code>authenticationEntryPoint</code>. This allows common handling of
  * authentication failures originating from any subclass of {@link
  * net.sf.acegisecurity.intercept.AbstractSecurityInterceptor}.
  * </p>
- * 
+ *
  * <p>
  * If an {@link AccessDeniedException} is detected, the filter will determine
  * whether or not the user is an anonymous user. If they are an anonymous
@@ -71,11 +70,11 @@ import javax.servlet.http.HttpServletResponse;
  * trace etc). Again, this allows common access denied handling irrespective
  * of the originating security interceptor.
  * </p>
- * 
+ *
  * <p>
  * To use this filter, it is necessary to specify the following properties:
  * </p>
- * 
+ *
  * <ul>
  * <li>
  * <code>filterSecurityInterceptor</code> indicates the
@@ -93,7 +92,7 @@ import javax.servlet.http.HttpServletResponse;
  * request was received on.
  * </li>
  * </ul>
- * 
+ *
  * <P>
  * <B>Do not use this class directly.</B> Instead configure
  * <code>web.xml</code> to use the {@link
@@ -105,19 +104,13 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public class SecurityEnforcementFilter implements Filter, InitializingBean {
-    //~ Static fields/initializers =============================================
-
     private static final Log logger = LogFactory.getLog(SecurityEnforcementFilter.class);
     public static final String ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY = "ACEGI_SECURITY_403_EXCEPTION";
-
-    //~ Instance fields ========================================================
-
     private AuthenticationEntryPoint authenticationEntryPoint;
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
     private FilterSecurityInterceptor filterSecurityInterceptor;
     private PortResolver portResolver = new PortResolverImpl();
-
-    //~ Methods ================================================================
+    private boolean createSessionAllowed = true;
 
     public void setAuthenticationEntryPoint(
         AuthenticationEntryPoint authenticationEntryPoint) {
@@ -131,6 +124,27 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
     public void setAuthenticationTrustResolver(
         AuthenticationTrustResolver authenticationTrustResolver) {
         this.authenticationTrustResolver = authenticationTrustResolver;
+    }
+
+    /**
+     * If <code>true</code>, indicates that <code>SecurityEnforcementFilter</code> is permitted
+     * to store the target URL and exception information in the <code>HttpSession</code> (the
+     * default). In situations where you do not wish to unnecessarily create <code>HttpSession</code>s
+     * - because the user agent will know the failed URL, such as with BASIC or Digest authentication
+     * - you may wish to set this property to <code>false</code>. Remember to also set the
+     * {@link net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter#allowSessionCreation}
+     * to <code>false</code> if you set this property to <code>false</code>.
+     *
+     * @return <code>true</code> if the <code>HttpSession</code> will be used to store information
+     * about the failed request, <code>false</code> if the <code>HttpSession</code> will not be
+     * used
+     */
+    public boolean isCreateSessionAllowed() {
+        return createSessionAllowed;
+    }
+
+    public void setCreateSessionAllowed(boolean createSessionAllowed) {
+        this.createSessionAllowed = createSessionAllowed;
     }
 
     public AuthenticationTrustResolver getAuthenticationTrustResolver() {
@@ -164,7 +178,8 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
             "authenticationTrustResolver must be specified");
     }
 
-    public void destroy() {}
+    public void destroy() {
+    }
 
     public void doFilter(ServletRequest request, ServletResponse response,
         FilterChain chain) throws IOException, ServletException {
@@ -193,7 +208,7 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
             sendStartAuthentication(fi, authentication);
         } catch (AccessDeniedException accessDenied) {
             if (authenticationTrustResolver.isAnonymous(
-                    SecurityContextHolder.getContext().getAuthentication())) {
+                        SecurityContextHolder.getContext().getAuthentication())) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Access is denied (user is anonymous); redirecting to authentication entry point",
                         accessDenied);
@@ -219,13 +234,17 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
         }
     }
 
-    public void init(FilterConfig filterConfig) throws ServletException {}
+    public void init(FilterConfig filterConfig) throws ServletException {
+    }
 
     protected void sendAccessDeniedError(FilterInvocation fi,
         AccessDeniedException accessDenied)
         throws ServletException, IOException {
-        ((HttpServletRequest) fi.getRequest()).getSession().setAttribute(ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY,
-            accessDenied);
+        if (createSessionAllowed) {
+            ((HttpServletRequest) fi.getRequest()).getSession().setAttribute(ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY,
+                accessDenied);
+        }
+
         ((HttpServletResponse) fi.getResponse()).sendError(HttpServletResponse.SC_FORBIDDEN,
             accessDenied.getMessage()); // 403
     }
@@ -245,18 +264,21 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
             includePort = false;
         }
 
-        String targetUrl = request.getScheme() + "://"
-            + request.getServerName() + ((includePort) ? (":" + port) : "")
-            + request.getContextPath() + fi.getRequestUrl();
+        String targetUrl = request.getScheme() + "://" +
+            request.getServerName() + ((includePort) ? (":" + port) : "") +
+            request.getContextPath() + fi.getRequestUrl();
 
         if (logger.isDebugEnabled()) {
             logger.debug(
-                "Authentication entry point being called; target URL added to Session: "
-                + targetUrl);
+                "Authentication entry point being called; target URL added to Session: " +
+                targetUrl);
         }
 
-        ((HttpServletRequest) request).getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
-            targetUrl);
+        if (createSessionAllowed) {
+            ((HttpServletRequest) request).getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
+                targetUrl);
+        }
+
         authenticationEntryPoint.commence(request,
             (HttpServletResponse) fi.getResponse(), reason);
     }
