@@ -17,6 +17,7 @@ package net.sf.acegisecurity.ui;
 import java.io.Serializable;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 
 /**
@@ -50,7 +51,9 @@ public class WebAuthenticationDetails implements Serializable {
     public WebAuthenticationDetails(HttpServletRequest request,
         boolean forceSessionCreation) {
         this.remoteAddress = request.getRemoteAddr();
-        this.sessionId = request.getSession(forceSessionCreation).getId();
+        HttpSession session = request.getSession(forceSessionCreation);
+        this.sessionId = session != null ? session.getId() : null;
+
         doPopulateAdditionalInformation(request);
     }
 
