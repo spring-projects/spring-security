@@ -10,48 +10,43 @@ import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.ui.WebAuthenticationDetails;
 
 /**
- * Extends Acegi's AuthenticationProcessingFilter to use Siteminder's headers for identification.
+ * Extends Acegi's AuthenticationProcessingFilter to pick up Netegrity
+ * Siteminder's headers.
  * 
  * <P>
- * Provides the ability set all source key names and also provides form-based authentication as a backup.
- * </P>
- *
- * <P>
- * You must set the Siteminder header keys, otherwise Siteminder checks will be skipped (there
- * are no defaults).  If the <I>Siteminder</I> check is unsuccessful or if the headers are not
- * defined/found in the HTTP request, then the <I>form</I> parameters will be checked (see below).
- * This allows applications to  function even when their Siteminder infrastructure
- * is unavailable, as is often the case during development.  If you do not wish to use backup
- * form-based authentication, then set the form parameter keys to null/blank. 
+ * Also provides a backup form-based authentication and the ability set source
+ * key names.
  * </P>
  * 
  * <P>
- * <B>Siteminder</B> must present at least one HTTP <I>header</I> to this filter - typically
- * containing a unique identifier such a username, an employee number or a national ID.
- * This makes sense because Siteminder has already <I>authenticated</I> the user prior to
- * getting to this filter, so we're really only using it for identification and not authentication.
- * Set the <code>siteminderUsernameHeaderKey</code> value to tell the filter where to greb the "username"
- * value.  You'll typically also set the <code>siteminderPasswordHeaderKey</code> to the same header key.
- * Just remember to modify your AuthenticationDAO so that it can handle identity-only requests! 
+ * <B>Siteminder</B> must present two <B>headers</B> to this filter, a
+ * username and password. You must set the header keys before this filter is
+ * used for authentication, otherwise Siteminder checks will be skipped. If the
+ * Siteminder check is unsuccessful (i.e. if the headers are not found), then
+ * the form parameters will be checked (see next paragraph). This allows
+ * applications to optionally function even when their Siteminder infrastructure
+ * is unavailable, as is often the case during development.
  * </P>
  * 
  * <P>
- * <B>Forms</B> must present two <I>parameters</I> to this filter: a username and a password.
- * If not specified, the parameter names to use are defaulted to the static fields
- * {@link #ACEGI_SECURITY_FORM_USERNAME_KEY} and {@link #ACEGI_SECURITY_FORM_PASSWORD_KEY}.
+ * <B>Login forms</B> must present two <B>parameters</B> to this filter: a
+ * username and password. If not specified, the parameter names to use are
+ * contained in the static fields {@link #ACEGI_SECURITY_FORM_USERNAME_KEY} and
+ * {@link #ACEGI_SECURITY_FORM_PASSWORD_KEY}.
  * </P>
  * 
  * <P>
- * <B>Do not use this class directly.</B> Instead, configure <code>web.xml</code> 
- * to use the {@link net.sf.acegisecurity.util.FilterChainProxy} and include this filter.
+ * <B>Do not use this class directly.</B> Instead, configure
+ * <code>web.xml</code> to use the
+ * {@link net.sf.acegisecurity.util.FilterToBeanProxy}.
  * </P>
  * 
  * @author <a href="mailto:scott@mccrory.us">Scott McCrory</a>
- * @author Ben Alex
- * @since 0.9.0
- * @version CVS $Id$
+ * @version CVS $Id: SiteminderAuthenticationProcessingFilter.java,v 1.6
+ *          2005/08/19 14:31:30 E099544 Exp $
  */
-public class SiteminderAuthenticationProcessingFilter extends AuthenticationProcessingFilter {
+public class SiteminderAuthenticationProcessingFilter extends
+		AuthenticationProcessingFilter {
 
 	/**
 	 * Siteminder username header key.
@@ -80,106 +75,128 @@ public class SiteminderAuthenticationProcessingFilter extends AuthenticationProc
 		super();
 	}
 
-	/***
-		* This filter by default responds to <code>/j_acegi_security_check</code>.
-		*
-		* @return the default
-		*/
+	/***************************************************************************
+	 * This filter by default responds to <code>/j_acegi_security_check</code>.
+	 * 
+	 * @return the default
+	 */
 	public String getDefaultFilterProcessesUrl() {
 		return "/j_acegi_security_check";
 	}
 
-	public Authentication attemptAuthentication(HttpServletRequest request) throws AuthenticationException {
+	/**
+	 * @see net.sf.acegisecurity.ui.AbstractProcessingFilter#attemptAuthentication(javax.servlet.http.HttpServletRequest)
+	 */
+	public Authentication attemptAuthentication(HttpServletRequest request)
+			throws AuthenticationException {
 
 		String username = null;
 		String password = null;
 
 		// Check the Siteminder headers for authentication info
 		if (siteminderUsernameHeaderKey != null
-			&& siteminderUsernameHeaderKey.length() > 0
-			&& siteminderPasswordHeaderKey != null
-			&& siteminderPasswordHeaderKey.length() > 0) {
+				&& siteminderUsernameHeaderKey.length() > 0
+				&& siteminderPasswordHeaderKey != null
+				&& siteminderPasswordHeaderKey.length() > 0) {
 
 			username = request.getHeader(siteminderUsernameHeaderKey);
 			password = request.getHeader(siteminderPasswordHeaderKey);
 
 		}
 
-		// If the Siteminder authentication info wasn't available, then get it from the form parameters
-		if (username == null || username.length() == 0 || password == null || password.length() == 0) {
+		// If the Siteminder authentication info wasn't available, then get it
+		// from the form parameters
+		if (username == null || username.length() == 0 || password == null
+				|| password.length() == 0) {
 
-			//System.out.println("Siteminder headers not found for authentication");
+			System.out
+					.println("Siteminder headers not found for authentication, so trying to use form values");
 
-			if (formUsernameParameterKey != null && formUsernameParameterKey.length() > 0) {
+			if (formUsernameParameterKey != null
+					&& formUsernameParameterKey.length() > 0) {
 				username = request.getParameter(formUsernameParameterKey);
-			}
-			else {
-				username = request.getParameter(ACEGI_SECURITY_FORM_USERNAME_KEY);
+			} else {
+				username = request
+						.getParameter(ACEGI_SECURITY_FORM_USERNAME_KEY);
 			}
 
 			password = obtainPassword(request);
 
 		}
 
-		// If either are null, set them to blank to avoid a NPE.
-		if (username == null) {
+		// Convert username and password to upper case. This is normally not a
+		// good practice but we do it here because Siteminder gives us the username
+		// in lower case, while most backing systems store it in upper case.
+		if (username != null) {
+			username = username.toUpperCase();
+		} else {
+			// If username is null, set to blank to avoid a NPE.
 			username = "";
 		}
-		if (password == null) {
+		if (password != null) {
+			password = password.toUpperCase();
+		} else {
+			// If password is null, set to blank to avoid a NPE.
 			password = "";
 		}
 
-		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
+				username, password);
 
 		// Allow subclasses to set the "details" property
 		setDetails(request, authRequest);
 
 		// Place the last username attempted into HttpSession for views
-		request.getSession().setAttribute(ACEGI_SECURITY_LAST_USERNAME_KEY, username);
+		request.getSession().setAttribute(ACEGI_SECURITY_LAST_USERNAME_KEY,
+				username);
 
 		return this.getAuthenticationManager().authenticate(authRequest);
+
 	}
 
+	/**
+	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
+	 */
 	public void init(FilterConfig filterConfig) throws ServletException {
 	}
 
-	/***
-		* Provided so that subclasses may configure what is put into the
-		* authentication request's details property. The default implementation
-		* simply constructs {@link WebAuthenticationDetails}.
-		*
-		* @param request that an authentication request is being created for
-		* @param authRequest the authentication request object that should have
-		*        its details set
-		*/
-	protected void setDetails(HttpServletRequest request, UsernamePasswordAuthenticationToken authRequest) {
+	/***************************************************************************
+	 * Provided so that subclasses may configure what is put into the
+	 * authentication request's details property. The default implementation
+	 * simply constructs {@link WebAuthenticationDetails}.
+	 * 
+	 * @param request that an authentication request is being created for
+	 * @param authRequest the authentication request object that should have its details set
+	 */
+	protected void setDetails(HttpServletRequest request,
+			UsernamePasswordAuthenticationToken authRequest) {
 		authRequest.setDetails(new WebAuthenticationDetails(request));
 	}
 
-	/***
-		* Enables subclasses to override the composition of the password, such as
-		* by including additional values and a separator.
-		* 
-		* <p>
-		* This might be used for example if a postcode/zipcode was required in
-		* addition to the password. A delimiter such as a pipe (|) should be used
-		* to separate the password and extended value(s). The
-		* <code>AuthenticationDao</code> will need to generate the expected
-		* password in a corresponding manner.
-		* </p>
-		*
-		* @param request so that request attributes can be retrieved
-		*
-		* @return the password that will be presented in the
-		*         <code>Authentication</code> request token to the
-		*         <code>AuthenticationManager</code>
-		*/
+	/***************************************************************************
+	 * Enables subclasses to override the composition of the password, such as
+	 * by including additional values and a separator.
+	 * 
+	 * <p>
+	 * This might be used for example if a postcode/zipcode was required in
+	 * addition to the password. A delimiter such as a pipe (|) should be used
+	 * to separate the password and extended value(s). The
+	 * <code>AuthenticationDao</code> will need to generate the expected
+	 * password in a corresponding manner.
+	 * </p>
+	 * 
+	 * @param request so that request attributes can be retrieved
+	 * 
+	 * @return the password that will be presented in the
+	 *         <code>Authentication</code> request token to the
+	 *         <code>AuthenticationManager</code>
+	 */
 	protected String obtainPassword(HttpServletRequest request) {
 
-		if (formPasswordParameterKey != null && formPasswordParameterKey.length() > 0) {
+		if (formPasswordParameterKey != null
+				&& formPasswordParameterKey.length() > 0) {
 			return request.getParameter(formPasswordParameterKey);
-		}
-		else {
+		} else {
 			return request.getParameter(ACEGI_SECURITY_FORM_PASSWORD_KEY);
 		}
 
