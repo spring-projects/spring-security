@@ -62,5 +62,6 @@
 	<classpathentry kind="src" path="samples/annotations/src/main/java"/>
 	<classpathentry kind="src" path="samples/annotations/src/main/resources"/>
 	<classpathentry kind="src" path="samples/annotations/src/test/java"/>
+	<classpathentry kind="src" path="samples/contacts-tiger/src/main/java"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Application context containing business beans.
+  -
+  - Used by all artifacts.
+  -
+  - $Id$
+  -->
+
+<beans>
+
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName">
+            <value>org.hsqldb.jdbcDriver</value>
+        </property>
+        <property name="url">
+            <value>jdbc:hsqldb:mem:contacts</value>
+        </property>
+        <property name="username">
+            <value>sa</value>
+        </property>
+        <property name="password">
+            <value></value>
+        </property>
+    </bean>
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource"><ref local="dataSource"/></property>
+	</bean>
+	
+   <bean id="dataSourcePopulator" class="sample.contact.DataSourcePopulator">
+	   <property name="dataSource"><ref local="dataSource"/></property>
+   </bean>
+   
+   <bean id="contactDao" class="sample.contact.ContactDaoSpring">
+	   <property name="dataSource"><ref local="dataSource"/></property>
+   </bean>
+   
+   
+   <!-- Advised Contact Manager using Java 5 Annotations --> 
+   <bean id="contactManager" class="sample.contact.annotation.ContactManagerBackend">
+	   <property name="contactDao"><ref local="contactDao"/></property>
+	   <property name="basicAclExtendedDao"><ref bean="basicAclExtendedDao"/></property>
+   </bean>
+
+</beans>

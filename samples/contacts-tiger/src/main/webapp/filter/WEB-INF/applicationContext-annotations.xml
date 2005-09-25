@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Application context containing authentication beans.
+  -
+  - $Id$
+  -->
+
+<beans>
+
+   <!-- ~~~~~~~~~~~~~~~~~~ "BEFORE INVOCATION" AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~ -->
+
+   <!-- ACL permission masks used by this application -->
+   <bean id="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+      <property name="staticField"><value>net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION</value></property>
+   </bean>
+   <bean id="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+      <property name="staticField"><value>net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ</value></property>
+   </bean>
+   <bean id="net.sf.acegisecurity.acl.basic.SimpleAclEntry.DELETE" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+      <property name="staticField"><value>net.sf.acegisecurity.acl.basic.SimpleAclEntry.DELETE</value></property>
+   </bean>
+
+
+   <!-- An access decision voter that reads ROLE_* configuration settings -->
+   <bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
+
+   <!-- An access decision voter that reads ACL_CONTACT_READ configuration settings -->
+   <bean id="aclContactReadVoter" class="net.sf.acegisecurity.vote.BasicAclEntryVoter">
+      <property name="processConfigAttribute"><value>ACL_CONTACT_READ</value></property>
+      <property name="processDomainObjectClass"><value>sample.contact.Contact</value></property>
+      <property name="aclManager"><ref local="aclManager"/></property>
+      <property name="requirePermission">
+        <list>
+          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ"/>
+        </list>
+      </property>
+   </bean>
+
+   <!-- An access decision voter that reads ACL_CONTACT_DELETE configuration settings -->
+   <bean id="aclContactDeleteVoter" class="net.sf.acegisecurity.vote.BasicAclEntryVoter">
+      <property name="processConfigAttribute"><value>ACL_CONTACT_DELETE</value></property>
+      <property name="processDomainObjectClass"><value>sample.contact.Contact</value></property>
+      <property name="aclManager"><ref local="aclManager"/></property>
+      <property name="requirePermission">
+        <list>
+          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.DELETE"/>
+        </list>
+      </property>
+   </bean>
+
+   <!-- An access decision voter that reads ACL_CONTACT_ADMIN configuration settings -->
+   <bean id="aclContactAdminVoter" class="net.sf.acegisecurity.vote.BasicAclEntryVoter">
+      <property name="processConfigAttribute"><value>ACL_CONTACT_ADMIN</value></property>
+      <property name="processDomainObjectClass"><value>sample.contact.Contact</value></property>
+      <property name="aclManager"><ref local="aclManager"/></property>
+      <property name="requirePermission">
+        <list>
+          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+        </list>
+      </property>
+   </bean>
+
+   <!-- An access decision manager used by the business objects -->
+   <bean id="businessAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
+      <property name="allowIfAllAbstainDecisions"><value>false</value></property>
+      <property name="decisionVoters">
+         <list>
+            <ref local="roleVoter"/>
+            <ref local="aclContactReadVoter"/>
+            <ref local="aclContactDeleteVoter"/>
+            <ref local="aclContactAdminVoter"/>
+         </list>
+      </property>
+   </bean>
+
+   <!-- ========= ACCESS CONTROL LIST LOOKUP MANAGER DEFINITIONS ========= -->
+
+   <bean id="aclManager" class="net.sf.acegisecurity.acl.AclProviderManager">
+      <property name="providers">
+         <list>
+            <ref local="basicAclProvider"/>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="basicAclProvider" class="net.sf.acegisecurity.acl.basic.BasicAclProvider">
+      <property name="basicAclDao"><ref local="basicAclExtendedDao"/></property>
+   </bean>
+
+   <bean id="basicAclExtendedDao" class="net.sf.acegisecurity.acl.basic.jdbc.JdbcExtendedDaoImpl">
+      <property name="dataSource"><ref bean="dataSource"/></property>
+   </bean>
+
+   <!-- ============== "AFTER INTERCEPTION" AUTHORIZATION DEFINITIONS =========== -->
+
+   <bean id="afterInvocationManager" class="net.sf.acegisecurity.afterinvocation.AfterInvocationProviderManager">
+      <property name="providers">
+         <list>
+            <ref local="afterAclRead"/>
+            <ref local="afterAclCollectionRead"/>
+         </list>
+      </property>
+   </bean>
+   
+   <!-- Processes AFTER_ACL_COLLECTION_READ configuration settings -->
+   <bean id="afterAclCollectionRead" class="net.sf.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationCollectionFilteringProvider">
+      <property name="aclManager"><ref local="aclManager"/></property>
+      <property name="requirePermission">
+        <list>
+          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ"/>
+        </list>
+      </property>
+   </bean>
+   
+   <!-- Processes AFTER_ACL_READ configuration settings -->
+   <bean id="afterAclRead" class="net.sf.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationProvider">
+      <property name="aclManager"><ref local="aclManager"/></property>
+      <property name="requirePermission">
+        <list>
+          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ"/>
+        </list>
+      </property>
+   </bean>
+
+
+    <!-- ================= METHOD INVOCATION AUTHORIZATION ==================== -->
+
+	<bean id="attributes" class="net.sf.acegisecurity.annotation.SecurityAnnotationAttributes"/>
+	
+	<bean id="objectDefinitionSource" class="net.sf.acegisecurity.intercept.method.MethodDefinitionAttributes">
+		<property name="attributes"><ref local="attributes"/></property>
+	</bean>
+
+	<!-- We don't validate config attributes, as it's unsupported by MethodDefinitionAttributes -->
+	<bean id="securityInterceptor" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
+    	<property name="validateConfigAttributes"><value>false</value></property>
+    	<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+    	<property name="accessDecisionManager"><ref bean="businessAccessDecisionManager"/></property>
+    	<property name="afterInvocationManager"><ref bean="afterInvocationManager"/></property>
+ 		<property name="objectDefinitionSource"><ref bean="objectDefinitionSource"/></property>
+	</bean>
+	
+	<!--
+		This bean is a postprocessor that will automatically apply relevant advisors
+		to any bean in child factories.
+	-->
+	<bean id="autoproxy" 
+		class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
+	</bean>
+
+	<!--
+		AOP advisor that will automatically wire the MethodSecurityInterceptor (above)
+		The configuration attributes used are obtained from the securityInterceptor.objectDefinitionSouce, 
+		which in the above configuration is a JDK 5 Annotations Attributes-based source.
+	-->
+	<bean id="methodSecurityAdvisor"
+		class="net.sf.acegisecurity.intercept.method.aopalliance.MethodDefinitionSourceAdvisor"
+		autowire="constructor" >
+	</bean>
+		   
+	<!--
+		AOP advisor used for declarative transaction management
+	-->
+	<bean class="org.springframework.transaction.interceptor.TransactionAttributeSourceAdvisor">
+		<property name="transactionInterceptor" ref="transactionInterceptor"/>
+	</bean>
+
+	<!--
+		Transaction interceptor to use for auto-proxy creation
+	-->
+	<bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+		<property name="transactionManager" ref="transactionManager"/>
+		<property name="transactionAttributeSource">
+			<bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
+		</property>
+	</bean>		   
+
+</beans>

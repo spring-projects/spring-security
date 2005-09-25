@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <extend>${basedir}/../project.xml</extend>
+  <pomVersion>3</pomVersion>
+  <artifactId>acegi-security-sample-contacts-tiger</artifactId>
+  <name>Acegi Security System for Spring - Contacts sample (Java 5)</name>
+  <groupId>acegisecurity</groupId>
+  <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs/multiproject/acegi-security-sample-contacts-tiger</siteDirectory>
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
+    <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/samples/contacts-tiger/</url>
+  </repository>
+  <dependencies>
+    <dependency>
+      <groupId>hessian</groupId>
+      <artifactId>hessian</artifactId>
+      <version>3.0.1</version>
+      <type>jar</type>
+      <url>http://www.caucho.com</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>burlap</groupId>
+      <artifactId>burlap</artifactId>
+      <version>2.1.7</version>
+      <type>jar</type>
+      <url>http://www.caucho.com</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>acegisecurity</groupId>
+      <artifactId>acegi-security-tiger</artifactId>
+      <version>0.9.0-SNAPSHOT</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+  </dependencies>
+</project>
+
