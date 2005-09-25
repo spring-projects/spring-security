@@ -42,8 +42,7 @@ import net.sf.acegisecurity.ui.WebAuthenticationDetails;
  * </P>
  * 
  * @author <a href="mailto:scott@mccrory.us">Scott McCrory</a>
- * @version CVS $Id: SiteminderAuthenticationProcessingFilter.java,v 1.6
- *          2005/08/19 14:31:30 E099544 Exp $
+ * @version CVS $Id$
  */
 public class SiteminderAuthenticationProcessingFilter extends
 		AuthenticationProcessingFilter {
