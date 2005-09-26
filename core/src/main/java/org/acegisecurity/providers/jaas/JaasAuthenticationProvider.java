@@ -58,13 +58,13 @@ import javax.security.auth.login.LoginException;
 /**
  * An {@link AuthenticationProvider} implementation that retrieves user details
  * from a JAAS login configuration.
- * 
+ *
  * <p>
  * This <code>AuthenticationProvider</code> is capable of validating {@link
  * net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken}
  * requests contain the correct username and password.
  * </p>
- * 
+ *
  * <p>
  * This implementation is backed by a <a
  * href="http://java.sun.com/j2se/1.4.2/docs/guide/security/jaas/JAASRefGuide.html">JAAS</a>
@@ -74,7 +74,7 @@ import javax.security.auth.login.LoginException;
  * configuration file containing an index matching the {@link
  * #setLoginContextName(java.lang.String) loginContextName} property.
  * </p>
- * 
+ *
  * <p>
  * For example: If this JaasAuthenticationProvider were configured in a Spring
  * WebApplicationContext the xml to set the loginConfiguration could be as
@@ -85,7 +85,7 @@ import javax.security.auth.login.LoginException;
  *  &lt;/property&gt;
  *  </pre>
  * </p>
- * 
+ *
  * <p>
  * The loginContextName should coincide with a given index in the loginConfig
  * specifed. The loginConfig file used in the JUnit tests appears as the
@@ -103,7 +103,7 @@ import javax.security.auth.login.LoginException;
  *  &lt;/property&gt;
  *  </pre>
  * </p>
- * 
+ *
  * <p>
  * When using JAAS login modules as the authentication source, sometimes the <a
  * href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/login/LoginContext.html">LoginContext</a>
@@ -115,7 +115,7 @@ import javax.security.auth.login.LoginException;
  * CallbackHandler, control is passed to each {@link
  * JaasAuthenticationCallbackHandler} for each Callback passed.
  * </p>
- * 
+ *
  * <p>
  * {{@link JaasAuthenticationCallbackHandler}s are passed to the
  * JaasAuthenticationProvider through the {@link
@@ -131,7 +131,7 @@ import javax.security.auth.login.LoginException;
  *  &lt;/property&gt;
  *  </pre>
  * </p>
- * 
+ *
  * <p>
  * After calling LoginContext.login(), the JaasAuthenticationProvider will
  * retrieve the returned Principals from the Subject
@@ -143,7 +143,7 @@ import javax.security.auth.login.LoginException;
  * method. The returned role will be applied to the Authorization object as a
  * {@link GrantedAuthority}.
  * </p>
- * 
+ *
  * <p>
  * AuthorityGranters are configured in spring xml as follows...
  * <pre>
@@ -155,6 +155,11 @@ import javax.security.auth.login.LoginException;
  *  <p/>
  *  </pre>
  * </p>
+ *
+ * A configuration note:
+ * The JaasAuthenticationProvider configures jaas using the system property 'java.security.auth.login.config' by default.
+ * If use of the java.security.auth.login.config property is not allowed by the Security property 'policy.allowSystemProperty', OR if the JaasAuthenticationProvider
+ * useSystemProperty option is false, then Jaas will be configured using the 'login.config.url.x' properties.
  *
  * @author Ray Krueger
  * @version $Id$
@@ -174,6 +179,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
     private String loginContextName = "ACEGI";
     private AuthorityGranter[] authorityGranters;
     private JaasAuthenticationCallbackHandler[] callbackHandlers;
+    private boolean useSystemProperty = true;
 
     //~ Methods ================================================================
 
@@ -297,12 +303,16 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
         boolean allowed = "true".equalsIgnoreCase(Security.getProperty(
                     "policy.allowSystemProperty"));
 
-        if (allowed && (System.getProperty(SYSPROP) == null)) {
+        if (useSystemProperty && allowed) {
             log.debug("Setting system property [" + SYSPROP + "] to: "
                 + loginConfigStr);
             System.setProperty(SYSPROP, loginConfigStr);
         } else {
-            setPropertyUsingLoop(loginConfigStr);
+            if (useSystemProperty && !allowed) {
+                log.warn("useSystemProperty is true, but the security property 'policy.allowSystemProperty' is false. " +
+                        "Jaas will be configured using the login.config.url property.");
+            }
+            setPropertyUsingLoop(loginConfig.getURL().toString());
         }
 
         Assert.notNull(Configuration.getConfiguration(),
@@ -453,6 +463,19 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
         }
     }
 
+    public boolean isUseSystemProperty() {
+        return useSystemProperty;
+    }
+
+    /**
+     * If true, the JaasAuthenticationProvider will configure Jaas using the system property 'java.security.auth.login.config'.
+     * If false, the JaasAuthenticationProvider will configure Jaas using the 'login.config.url.x' property.
+     * <br/><b>Default:True</b>
+     * @param useSystemProperty
+     */
+    public void setUseSystemProperty(boolean useSystemProperty) {
+        this.useSystemProperty = useSystemProperty;
+    }
     //~ Inner Classes ==========================================================
 
     /**
