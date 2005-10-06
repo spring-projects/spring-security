@@ -1,0 +1,29 @@
+<model>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>net.sf.acegisecurity</groupId>
+    <artifactId>acegi-security-parent</artifactId>
+    <version>0.9.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>acegi-security-tiger</artifactId>
+  <name>Acegi Security System for Spring - Java 5 (Tiger)</name>
+  <dependencies>
+    <dependency>
+      <groupId>net.sf.acegisecurity</groupId>
+      <artifactId>acegi-security</artifactId>
+      <version>0.9.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</model>

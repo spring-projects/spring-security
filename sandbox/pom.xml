@@ -1,0 +1,35 @@
+<model>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>net.sf.acegisecurity</groupId>
+    <artifactId>acegi-security-parent</artifactId>
+    <version>0.9.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>acegi-security-sandbox</artifactId>
+  <name>Acegi Security System for Spring - Sandbox</name>
+  <dependencies>
+    <dependency>
+      <groupId>net.sf.acegisecurity</groupId>
+      <artifactId>acegi-security</artifactId>
+      <version>0.9.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>directory</groupId>
+      <artifactId>apacheds-main</artifactId>
+      <version>0.9-SNAPSHOT</version>
+      <type>jar</type>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</model>
