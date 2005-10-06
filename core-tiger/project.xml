@@ -4,7 +4,6 @@
   <pomVersion>3</pomVersion>
   <artifactId>acegi-security-tiger</artifactId>
   <name>Acegi Security System for Spring - Java 5 (Tiger)</name>
-  <groupId>acegisecurity</groupId>
   <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs/multiproject/acegi-security-tiger</siteDirectory>
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>

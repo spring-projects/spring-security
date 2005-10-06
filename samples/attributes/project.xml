@@ -4,7 +4,6 @@
   <pomVersion>3</pomVersion>
   <artifactId>acegi-security-sample-attributes</artifactId>
   <name>Acegi Security System for Spring - Attributes sample</name>
-  <groupId>acegisecurity</groupId>
   <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs/multiproject/acegi-security-sample-attributes</siteDirectory>
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
@@ -31,6 +30,12 @@
       <groupId>commons-attributes</groupId>
       <artifactId>commons-attributes-api</artifactId>
       <version>2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-attributes</groupId>
+      <artifactId>commons-attributes-plugin</artifactId>
+      <version>2.1</version>
+      <type>plugin</type>
     </dependency>
   </dependencies>
 </project>

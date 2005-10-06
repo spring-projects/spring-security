@@ -4,7 +4,6 @@
   <pomVersion>3</pomVersion>
   <artifactId>acegi-security-domain</artifactId>
   <name>Acegi Security System for Spring - Domain Object Support</name>
-  <groupId>acegisecurity</groupId>
   <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs/multiproject/acegi-security-domain</siteDirectory>
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
