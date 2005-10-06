@@ -12,16 +12,14 @@
   </repository>
   <dependencies>
     <dependency>
-      <groupId>resin</groupId>
+      <groupId>com.caucho</groupId>
       <artifactId>resin</artifactId>
       <version>3.0.9</version>
-      <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>retroweaver</groupId>
+      <groupId>net.sourceforge.retroweaver</groupId>
       <artifactId>retroweaver</artifactId>
       <version>1.0fcs</version>
-      <type>jar</type>
     </dependency>
   </dependencies>
   <build>
