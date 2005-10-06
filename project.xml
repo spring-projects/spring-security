@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
  * ========================================================================
  * 
@@ -111,7 +111,6 @@
   <contributors>
     <contributor>
       <name>Cameron Braid</name>
-      <id>CameronBraid</id>
     </contributor>
     <contributor>
       <name>Patrick Burleson</name>
@@ -322,18 +321,6 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>maven-plugins</groupId>
-      <artifactId>maven-findbugs-plugin</artifactId>
-      <version>0.8.4</version>
-      <type>plugin</type>
-    </dependency>
-    <dependency>
-      <groupId>statcvs</groupId>
-      <artifactId>maven-statcvs-plugin</artifactId>
-      <version>2.5</version>
-      <type>plugin</type>
-    </dependency>
-    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
       <version>2.0</version>
@@ -348,6 +335,21 @@
       <version>0.9-SNAPSHOT</version>
       <type>jar</type>
     </dependency>
+
+    <!-- plugins not bundled with maven 1.0.2 -->
+    <dependency>
+      <groupId>statcvs</groupId>
+      <artifactId>maven-statcvs-plugin</artifactId>
+      <version>2.5</version>
+      <type>plugin</type>
+    </dependency>
+    <dependency>
+      <groupId>maven-plugins</groupId>
+      <artifactId>maven-findbugs-plugin</artifactId>
+      <version>0.9.2</version>
+      <type>plugin</type>
+    </dependency>
+
   </dependencies>
   <build>
     <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
