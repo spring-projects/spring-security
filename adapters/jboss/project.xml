@@ -13,12 +13,6 @@
   <dependencies>
     <dependency>
       <groupId>jboss</groupId>
-      <artifactId>jboss-jmx</artifactId>
-      <version>3.2.1</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>jboss</groupId>
       <artifactId>jboss-common</artifactId>
       <version>3.2.3</version>
       <type>jar</type>
