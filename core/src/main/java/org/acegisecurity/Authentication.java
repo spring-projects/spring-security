@@ -30,7 +30,7 @@ import java.security.Principal;
  * 
  * <p>
  * Stored in a request {@link
- * net.sf.acegisecurity.context.security.SecureContext}.
+ * net.sf.acegisecurity.context.security.SecurityContext}.
  * </p>
  *
  * @author Ben Alex
