@@ -44,9 +44,9 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Processes a HTTP request's BASIC authorization headers, putting the result
- * into the <code>ContextHolder</code>.
+ * into the <code>SecurityContextHolder</code>.
  *
- * <P>
+ * <p>
  * For a detailed background on what this filter is designed to process, refer
  * to <A HREF="http://www.faqs.org/rfcs/rfc1945.html">RFC 1945, Section
  * 11.1</A>. Any realm name presented in the HTTP request is ignored.
@@ -73,7 +73,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * <P>
  * If authentication is successful, the resulting {@link Authentication} object
- * will be placed into the <code>ContextHolder</code>.
+ * will be placed into the <code>SecurityContextHolder</code>.
  * </p>
  *
  * <p>
@@ -82,7 +82,7 @@ import javax.servlet.http.HttpServletResponse;
  * which will prompt the user to authenticate again via BASIC authentication.
  * </p>
  *
- * <P>
+ * <p>
  * Basic authentication is an attractive protocol because it is simple and
  * widely deployed. However, it still transmits a password in clear text and
  * as such is undesirable in many situations. Digest authentication is also
@@ -91,8 +91,8 @@ import javax.servlet.http.HttpServletResponse;
  * net.sf.acegisecurity.ui.digestauth.DigestProcessingFilter}.
  * </p>
  *
- * <P>
- * <B>Do not use this class directly.</B> Instead configure
+ * <p>
+ * <b>Do not use this class directly.</b> Instead configure
  * <code>web.xml</code> to use the {@link
  * net.sf.acegisecurity.util.FilterToBeanProxy}.
  * </p>
