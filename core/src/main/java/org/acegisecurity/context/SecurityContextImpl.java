@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package net.sf.acegisecurity.context;
 
 import net.sf.acegisecurity.Authentication;
@@ -20,7 +19,7 @@ import net.sf.acegisecurity.Authentication;
 
 /**
  * Base implementation of {@link SecurityContext}.
- * 
+ *
  * <p>
  * Used by default by {@link
  * net.sf.acegisecurity.context.SecurityContextHolder} and {@link
@@ -31,11 +30,7 @@ import net.sf.acegisecurity.Authentication;
  * @version $Id$
  */
 public class SecurityContextImpl implements SecurityContext {
-    //~ Instance fields ========================================================
-
     private Authentication authentication;
-
-    //~ Methods ================================================================
 
     public void setAuthentication(Authentication authentication) {
         this.authentication = authentication;
@@ -49,14 +44,14 @@ public class SecurityContextImpl implements SecurityContext {
         if (obj instanceof SecurityContextImpl) {
             SecurityContextImpl test = (SecurityContextImpl) obj;
 
-            if ((this.getAuthentication() == null)
-                && (test.getAuthentication() == null)) {
+            if ((this.getAuthentication() == null) &&
+                    (test.getAuthentication() == null)) {
                 return true;
             }
 
-            if ((this.getAuthentication() != null)
-                && (test.getAuthentication() != null)
-                && this.getAuthentication().equals(test.getAuthentication())) {
+            if ((this.getAuthentication() != null) &&
+                    (test.getAuthentication() != null) &&
+                    this.getAuthentication().equals(test.getAuthentication())) {
                 return true;
             }
         }
@@ -75,5 +70,13 @@ public class SecurityContextImpl implements SecurityContext {
         }
 
         return sb.toString();
+    }
+
+    public int hashCode() {
+        if (this.authentication == null) {
+            return -1;
+        } else {
+            return this.authentication.hashCode();
+        }
     }
 }
