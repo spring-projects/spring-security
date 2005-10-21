@@ -579,7 +579,7 @@
   &lt;property name="attributes"&gt;&lt;ref local="attributes"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor"&gt;
+&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
   &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
@@ -626,7 +626,7 @@
   &lt;property name="attributes"&gt;&lt;ref local="attributes"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.intercept.method.MethodSecurityInterceptor"&gt;
+&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
   &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
