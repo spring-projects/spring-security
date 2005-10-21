@@ -59,6 +59,7 @@ included in the /docs directory of official release ZIPs.
 
 Be sure to read the Reference Guide, which is available from the web site (and
 /docs directory as described above). Every class also has thorough JavaDocs.
+The core JavaDocs can be found in /docs/multiproject/acegi-security/apidocs/.
 
 -------------------------------------------------------------------------------
 OBTAINING SUPPORT

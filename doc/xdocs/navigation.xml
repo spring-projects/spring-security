@@ -39,6 +39,7 @@
       <item name="Sample SQL Schema" href="dbinit.txt"/>
       <item name="FAQ" href="faq.html"/>
       <item name="External Web Articles" href="articles.html"/>
+      <item name="Products using Acegi" href="powering.html"/>
       <item name="Use without Spring" href="standalone.html"/>
       <item name="Upgrading to 0.8.0" href="upgrade/upgrade-070-080.html"/>
       <item name="Upgrading to 0.7.0" href="upgrade/upgrade-06-070.html"/>
