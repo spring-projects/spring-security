@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package net.sf.acegisecurity.ui.webapp;
 
 import net.sf.acegisecurity.AuthenticationException;
@@ -26,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.util.Assert;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ import javax.servlet.http.HttpServletResponse;
  * holds the location of the login form, relative to the web app context path,
  * and is used to commence a redirect to that form.
  * </p>
- * 
+ *
  * <p>
  * By setting the <em>forceHttps</em> property to true, you may configure the
  * class to force the protocol used for the login form to be
@@ -57,22 +57,16 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Ben Alex
  * @author colin sampaleanu
+ * @author Omri Spector
  * @version $Id$
  */
 public class AuthenticationProcessingFilterEntryPoint
     implements AuthenticationEntryPoint, InitializingBean {
-    //~ Static fields/initializers =============================================
-
     private static final Log logger = LogFactory.getLog(AuthenticationProcessingFilterEntryPoint.class);
-
-    //~ Instance fields ========================================================
-
     private PortMapper portMapper = new PortMapperImpl();
     private PortResolver portResolver = new PortResolverImpl();
     private String loginFormUrl;
     private boolean forceHttps = false;
-
-    //~ Methods ================================================================
 
     /**
      * Set to true to force login form access to be via https. If this value is
@@ -122,7 +116,7 @@ public class AuthenticationProcessingFilterEntryPoint
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.hasLength(loginFormUrl,"loginFormUrl must be specified");
+        Assert.hasLength(loginFormUrl, "loginFormUrl must be specified");
         Assert.notNull(portMapper, "portMapper must be specified");
         Assert.notNull(portResolver, "portResolver must be specified");
     }
@@ -136,7 +130,11 @@ public class AuthenticationProcessingFilterEntryPoint
         int serverPort = portResolver.getServerPort(request);
         String contextPath = req.getContextPath();
 
-        boolean includePort = true;
+        boolean inHttp = "http".equals(scheme.toLowerCase());
+        boolean inHttps = "https".equals(scheme.toLowerCase());
+
+        boolean includePort = ((inHttp && (serverPort == 80)) ||
+            (inHttps && (serverPort == 443)));
 
         if ("http".equals(scheme.toLowerCase()) && (serverPort == 80)) {
             includePort = false;
@@ -146,11 +144,9 @@ public class AuthenticationProcessingFilterEntryPoint
             includePort = false;
         }
 
-        String redirectUrl = scheme + "://" + serverName
-            + ((includePort) ? (":" + serverPort) : "") + contextPath
-            + loginFormUrl;
+        String redirectUrl = contextPath + loginFormUrl;
 
-        if (forceHttps && req.getScheme().equals("http")) {
+        if (forceHttps && inHttp) {
             Integer httpPort = new Integer(portResolver.getServerPort(request));
             Integer httpsPort = (Integer) portMapper.lookupHttpsPort(httpPort);
 
@@ -161,9 +157,9 @@ public class AuthenticationProcessingFilterEntryPoint
                     includePort = true;
                 }
 
-                redirectUrl = "https://" + serverName
-                    + ((includePort) ? (":" + httpsPort) : "") + contextPath
-                    + loginFormUrl;
+                redirectUrl = "https://" + serverName +
+                    ((includePort) ? (":" + httpsPort) : "") + contextPath +
+                    loginFormUrl;
             }
         }
 
@@ -171,7 +167,7 @@ public class AuthenticationProcessingFilterEntryPoint
             logger.debug("Redirecting to: " + redirectUrl);
         }
 
-        ((HttpServletResponse) response).sendRedirect(((HttpServletResponse) response)
-            .encodeRedirectURL(redirectUrl));
+        ((HttpServletResponse) response).sendRedirect(((HttpServletResponse) response).encodeRedirectURL(
+                redirectUrl));
     }
 }

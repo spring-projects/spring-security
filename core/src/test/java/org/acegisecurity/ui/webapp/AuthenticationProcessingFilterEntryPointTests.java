@@ -12,22 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package net.sf.acegisecurity.ui.webapp;
 
 import junit.framework.TestCase;
 
-
-
 import net.sf.acegisecurity.MockPortResolver;
-
 import net.sf.acegisecurity.util.PortMapperImpl;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -38,8 +34,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @version $Id$
  */
 public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
-    //~ Methods ================================================================
-
     public final void setUp() throws Exception {
         super.setUp();
     }
@@ -178,15 +172,13 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
 
         ep.commence(request, response, null);
-        assertEquals("https://www.example.com/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("/bigWebApp/hello", response.getRedirectedUrl());
 
         request.setServerPort(8443);
         response = new MockHttpServletResponse();
         ep.setPortResolver(new MockPortResolver(8080, 8443));
         ep.commence(request, response, null);
-        assertEquals("https://www.example.com:8443/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("/bigWebApp/hello", response.getRedirectedUrl());
     }
 
     public void testNormalOperation() throws Exception {
@@ -208,8 +200,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
 
         ep.afterPropertiesSet();
         ep.commence(request, response, null);
-        assertEquals("http://www.example.com/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("/bigWebApp/hello", response.getRedirectedUrl());
     }
 
     public void testOperationWhenHttpsRequestsButHttpsPortUnknown()
@@ -235,7 +226,6 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         ep.commence(request, response, null);
 
         // Response doesn't switch to HTTPS, as we didn't know HTTP port 8888 to HTTP port mapping
-        assertEquals("http://www.example.com:8888/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("/bigWebApp/hello", response.getRedirectedUrl());
     }
 }
