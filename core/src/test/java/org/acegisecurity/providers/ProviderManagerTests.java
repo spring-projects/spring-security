@@ -18,6 +18,8 @@ package net.sf.acegisecurity.providers;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.*;
+import net.sf.acegisecurity.concurrent.ConcurrentSessionControllerImpl;
+import net.sf.acegisecurity.concurrent.NullConcurrentSessionController;
 
 import java.util.List;
 import java.util.Vector;

@@ -12,21 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package net.sf.acegisecurity.providers;
+package net.sf.acegisecurity.concurrent;
 
 import net.sf.acegisecurity.AuthenticationException;
 
 
 /**
- * Thrown by the ConcurrentSessionController when the number of sessions
- * allowed is attempting to be exceeded.
+ * Thrown by <code>ConcurrentSessionControllerImpl</code> if
+ * an attempt is made to login and the user has already exceeded
+ * their maxmimum allowed sessions.
  *
- * @author Ray Krueger
+ * @author Ben Alex
+ * @version $Id$
  */
 public class ConcurrentLoginException extends AuthenticationException {
-    //~ Constructors ===========================================================
-
     public ConcurrentLoginException(String msg) {
         super(msg);
     }

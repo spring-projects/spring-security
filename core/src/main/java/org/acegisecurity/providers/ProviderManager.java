@@ -18,6 +18,8 @@ package net.sf.acegisecurity.providers;
 import net.sf.acegisecurity.AbstractAuthenticationManager;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
+import net.sf.acegisecurity.concurrent.ConcurrentSessionController;
+import net.sf.acegisecurity.concurrent.NullConcurrentSessionController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -146,7 +148,7 @@ public class ProviderManager extends AbstractAuthenticationManager
 
         Class toTest = authentication.getClass();
 
-        sessionController.beforeAuthentication(authentication);
+        sessionController.checkAuthenticationAllowed(authentication);
 
         while (iter.hasNext()) {
             AuthenticationProvider provider = (AuthenticationProvider) iter
@@ -159,7 +161,7 @@ public class ProviderManager extends AbstractAuthenticationManager
                 Authentication result = provider.authenticate(authentication);
 
                 if (result != null) {
-                    sessionController.afterAuthentication(authentication, result);
+                    sessionController.registerSuccessfulAuthentication(result);
 
                     return result;
                 }

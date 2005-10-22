@@ -13,24 +13,25 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers;
+package net.sf.acegisecurity.concurrent;
 
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 
 
 /**
- * See: {@link ConcurrentSessionControllerImpl}
+ * No-op implementation of {@link
+ * net.sf.acegisecurity.concurrent.ConcurrentSessionController}.
  *
- * @author Ray Krueger
- * @see ConcurrentSessionControllerImpl
+ * @author Ben Alex
+ * @version $Id$
  */
-public interface ConcurrentSessionController {
+public class NullConcurrentSessionController
+    implements ConcurrentSessionController {
     //~ Methods ================================================================
 
-    void afterAuthentication(Authentication initialAuth, Authentication result)
-            throws AuthenticationException;
+    public void checkAuthenticationAllowed(Authentication request)
+        throws AuthenticationException {}
 
-    void beforeAuthentication(Authentication initialAuth)
-            throws AuthenticationException;
+    public void registerSuccessfulAuthentication(Authentication authentication) {}
 }
