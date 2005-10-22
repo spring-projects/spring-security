@@ -1,4 +1,4 @@
-package net.sf.acegisecurity.providers.dao.ldap;
+package net.sf.acegisecurity.providers.dao.ldap.revised;
 
 import java.util.Hashtable;
 import java.util.Map;

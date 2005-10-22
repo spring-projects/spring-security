@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.sf.acegisecurity.providers.dao.ldap;
+package net.sf.acegisecurity.providers.dao.ldap.revised;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
