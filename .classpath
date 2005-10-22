@@ -30,8 +30,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="MAVEN_REPO/resin/jars/resin-3.0.9.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/retroweaver/jars/retroweaver-1.0fcs.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.2.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.2.jar"/>
+	<classpathentry sourcepath="/MAVEN_REPO/springframework/src/spring-1.2.5.jar" kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.5.jar"/>
+	<classpathentry sourcepath="/MAVEN_REPO/springframework/src/spring-1.2.5.jar" kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.5.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/aopalliance/jars/aopalliance-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/aspectj/jars/aspectjrt-1.2.jar"/>

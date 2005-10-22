@@ -2,7 +2,7 @@
 <!--
  * ========================================================================
  * 
- * Copyright 2004 Acegi Technology Pty Limited
+ * Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -259,7 +259,7 @@
     <dependency>
       <groupId>springframework</groupId>
       <artifactId>spring</artifactId>
-      <version>1.2.2</version>
+      <version>1.2.5</version>
       <type>jar</type>
       <url>http://www.springframework.org</url>
       <properties>
@@ -269,7 +269,7 @@
     <dependency>
       <groupId>springframework</groupId>
       <artifactId>spring-mock</artifactId>
-      <version>1.2.2</version>
+      <version>1.2.5</version>
       <type>jar</type>
       <url>http://www.springframework.org</url>
     </dependency>
