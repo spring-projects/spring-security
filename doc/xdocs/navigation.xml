@@ -28,7 +28,7 @@
     </links>
 
     <menu name="Overview">
-      <item name="Home" href="index.html"/>
+      <item name="Home" href="/"/>
       <item name="Building with Maven" href="building.html"/>
       <item name="Downloads" href="downloads.html"/>
     </menu>

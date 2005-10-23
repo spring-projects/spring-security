@@ -10,7 +10,7 @@ The Acegi Security System for Spring provides security services for
 The Spring Framework (http://www.springframework.org).
 
 For a detailed list of features and access to the latest release, please visit
-http://acegisecurity.sourceforge.net.
+http://acegisecurity.org.
 
 -------------------------------------------------------------------------------
 SIGNED JAR FILES
@@ -38,24 +38,24 @@ BUILDING
 -------------------------------------------------------------------------------
 
 Acegi Security is built using Maven. Please read the "Building with Maven" page
-at http://acegisecurity.sourceforge.net. This page is also included in the
-/docs directory of official release ZIPs.
+at http://acegisecurity.org. This page is also included in the /docs directory
+of official release ZIPs.
 
 -------------------------------------------------------------------------------
 QUICK START
 -------------------------------------------------------------------------------
 
-We recommend you visit http://acegisecurity.sourceforge.net and read the
-"Suggested Steps" page. This page is also included in the /docs directory of
-official release ZIPs.
+We recommend you visit http://acegisecurity.org and read the "Suggested Steps"
+page. This page is also included in the /docs directory of official release
+ZIPs.
 
 -------------------------------------------------------------------------------
 DOCUMENTATION
 -------------------------------------------------------------------------------
 
-http://acegisecurity.sourceforge.net has a wide range of articles about Acegi
-security, including links to external resources. A copy of this web site is
-included in the /docs directory of official release ZIPs.
+http://acegisecurity.org has a wide range of articles about Acegi Security,
+including links to external resources. A copy of this web site is included in
+the /docs directory of official release ZIPs.
 
 Be sure to read the Reference Guide, which is available from the web site (and
 /docs directory as described above). Every class also has thorough JavaDocs.
@@ -78,7 +78,7 @@ discussions. You can join at:
   https://lists.sourceforge.net/lists/listinfo/acegisecurity-developer.
 
 Links to mailing list archives, the forums, and other useful resources are
-available from http://acegisecurity.sourceforge.net.
+available from http://acegisecurity.org.
 
 
 $Id$
