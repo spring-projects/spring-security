@@ -12,42 +12,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.sf.acegisecurity.captcha;
 
 import net.sf.acegisecurity.context.SecurityContext;
 
+
 /**
  * Interface that add humanity concerns to the SecurityContext
- * 
+ *
  * @author marc antoine garrigue
  */
 public interface CaptchaSecurityContext extends SecurityContext {
+    //~ Methods ================================================================
 
-	/**
-	 * @return true if the current user has already passed a captcha.
-	 */
-	boolean isHuman();
+    /**
+     * set human attribute, should called after captcha validation.
+     */
+    void setHuman();
 
-	/**
-	 * set human attribute, should called after captcha validation.
-	 */
-	void setHuman();
+    /**
+     * DOCUMENT ME!
+     *
+     * @return true if the current user has already passed a captcha.
+     */
+    boolean isHuman();
 
-	/**
-	 *
-	 * @return number of human restricted resources requests since the last
-	 *         passed captcha.
-	 */
-	int getHumanRestrictedResourcesRequestsCount();
+    /**
+     * DOCUMENT ME!
+     *
+     * @return number of human restricted resources requests since the last
+     *         passed captcha.
+     */
+    int getHumanRestrictedResourcesRequestsCount();
 
-	/**
-	 * @return the date of the last passed Captcha in millis, 0 if the user
-	 *         never passed captcha.
-	 */
-	long getLastPassedCaptchaDateInMillis();
+    /**
+     * DOCUMENT ME!
+     *
+     * @return the date of the last passed Captcha in millis, 0 if the user
+     *         never passed captcha.
+     */
+    long getLastPassedCaptchaDateInMillis();
 
-	/**
-	 * Method to increment the human Restricted Resrouces Requests Count;
-	 */
-	void incrementHumanRestrictedRessoucesRequestsCount();
+    /**
+     * Method to increment the human Restricted Resrouces Requests Count;
+     */
+    void incrementHumanRestrictedRessoucesRequestsCount();
 }

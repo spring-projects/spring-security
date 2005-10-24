@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,22 @@
 package net.sf.acegisecurity.captcha;
 
 /**
+ * DOCUMENT ME!
+ *
  * @author marc antoine Garrigue
  * @version $Id$
  */
 public class MockCaptchaServiceProxy implements CaptchaServiceProxy {
-
-    public boolean valid = false;
+    //~ Instance fields ========================================================
 
     public boolean hasBeenCalled = false;
+    public boolean valid = false;
+
+    //~ Methods ================================================================
 
     public boolean validateReponseForId(String id, Object response) {
         hasBeenCalled = true;
+
         return valid;
-
     }
-
 }
