@@ -1670,6 +1670,98 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         </sect3>
       </sect2>
 
+      <sect2 id="security-authentication-provider-siteminder">
+        <title>Siteminder Authentication</title>
+
+        <para>Acegi Security provides a web filter that can be used to process
+        requests that have been pre-authenticated using Computer
+        Associates'/Netegrity's Siteminder product. Acegi's support assumes
+        that you're using Siteminder for <emphasis>authentication</emphasis>,
+        and your application (or backing datasource) is used for
+        <emphasis>authorization</emphasis>. The use of Siteminder for
+        <emphasis>authorization</emphasis> is not yet directly
+        supported.</para>
+
+        <para>A Siteminder agent is typically set up on your web server to
+        intercept a user's first call to your application. This agent
+        redirects the user's initial request to a login page, and only after
+        successful authentication does your application receive the request.
+        Authenticated requests contain one or more HTTP headers populated by
+        the Siteminder agent. Below we'll assume that the primary request
+        header key is "SM_USER", but keep in mind that your organization's
+        header values may be different. Refer to your company's "single
+        sign-on" group for details.</para>
+
+        <sect3>
+          <title>SiteminderAuthenticationProcessingFilter</title>
+
+          <para>As mentioned above the
+          <literal>net.sf.acegisecurity.ui.webapp.SiteminderAuthenticationProcessingFilter</literal>
+          attempts to identify a user based on specified HTTP headers.</para>
+
+          <para>The first step is to define our
+          <literal>authenticationProcessingFilter</literal> bean and tell it
+          what <literal>authenticationManager</literal> to use, where to send
+          users upon success and failure and where to find the Siteminder
+          username and password values. Most people won't need the password
+          value since Siteminder has already authenticated the user, so it's
+          OK to use the same username header.</para>
+
+          <para><programlisting>    &lt;bean id="authenticationProcessingFilter" class="net.sf.acegisecurity.ui.webapp.SiteminderAuthenticationProcessingFilter"&gt;
+      &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
+      &lt;property name="authenticationFailureUrl"&gt;&lt;value&gt;/login.jsp?login_error=1&lt;/value&gt;&lt;/property&gt;
+      &lt;property name="defaultTargetUrl"&gt;&lt;value&gt;/security.do?method=getMainMenu&lt;/value&gt;&lt;/property&gt;
+      &lt;property name="filterProcessesUrl"&gt;&lt;value&gt;/j_acegi_security_check&lt;/value&gt;&lt;/property&gt;
+      &lt;property name="siteminderUsernameHeaderKey"&gt;&lt;value&gt;SM_USER&lt;/value&gt;&lt;/property&gt;
+      &lt;property name="siteminderPasswordHeaderKey"&gt;&lt;value&gt;SM_USER&lt;/value&gt;&lt;/property&gt;
+   &lt;/bean&gt;</programlisting></para>
+
+          <para>Since this <literal>authenticationProcessingFilter</literal>
+          depends on an <literal>authenticationManager</literal>, we'll need
+          to define one:</para>
+
+          <para><programlisting>    &lt;!-- ======================== AUTHENTICATION ======================= --&gt;
+    &lt;!--
+      - The top-level Authentication Manager is responsible for all application AUTHENTICATION
+      - operations.  Note that it must reference one or more provider(s) defined below.
+      --&gt;
+    &lt;bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager"&gt;
+        &lt;property name="providers"&gt;
+            &lt;list&gt;
+                &lt;ref local="daoAuthenticationProvider"/&gt;
+            &lt;/list&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;</programlisting></para>
+
+          <para>Note that your <literal>daoAuthenticationProvider</literal>
+          above will expect the password property to match what it expects.
+          Since authentication has already been handled by Siteminder and
+          you've specified the same HTTP header for both username and
+          password, <literal>daoAuthenticationProvider</literal> can simply
+          make sure the username and password values match.</para>
+
+          <para>Finally we need to tell the
+          <literal>filterChainProxy</literal> to include
+          <literal>authenticationProcessingFilter</literal> in its
+          operations.</para>
+
+          <para><programlisting>    &lt;!-- ======================== FILTER CHAIN ======================= --&gt;
+    &lt;!--
+      - The web.xml file has a single filter reference to this top-level bean, which
+      - invokes the chain of sub-filters specified below.
+      --&gt; 
+    &lt;bean id="filterChainProxy" class="net.sf.acegisecurity.util.FilterChainProxy"&gt;
+      &lt;property name="filterInvocationDefinitionSource"&gt;
+         &lt;value&gt;
+             CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+             PATTERN_TYPE_APACHE_ANT
+            /**=httpSessionContextIntegrationFilter,authenticationProcessingFilter,securityEnforcementFilter
+         &lt;/value&gt;
+      &lt;/property&gt;
+    &lt;/bean&gt;</programlisting></para>
+        </sect3>
+      </sect2>
+
       <sect2 id="security-authentication-recommendations">
         <title>Authentication Recommendations</title>
 
