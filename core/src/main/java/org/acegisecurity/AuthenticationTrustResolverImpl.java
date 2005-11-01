@@ -20,9 +20,9 @@ import net.sf.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
 
 
 /**
- * Basic implementation of {@link AuthenticationTrustResolverImpl}.
+ * Basic implementation of {@link AuthenticationTrustResolver}.
  * 
- * <P>
+ * <p>
  * Makes trust decisions based on whether the passed
  * <code>Authentication</code> is an instance of a defined class.
  * </p>
