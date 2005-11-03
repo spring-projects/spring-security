@@ -13,11 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui;
+package net.sf.acegisecurity.event.authentication;
 
 import net.sf.acegisecurity.Authentication;
-
-import org.springframework.context.ApplicationEvent;
 
 import org.springframework.util.Assert;
 
@@ -33,31 +31,22 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class InteractiveAuthenticationSuccessEvent extends ApplicationEvent {
+public class InteractiveAuthenticationSuccessEvent
+    extends AbstractAuthenticationEvent {
     //~ Instance fields ========================================================
 
     private Class generatedBy;
 
     //~ Constructors ===========================================================
 
-    public InteractiveAuthenticationSuccessEvent(Authentication authentication,
-        Class generatedBy) {
+    public InteractiveAuthenticationSuccessEvent(
+        Authentication authentication, Class generatedBy) {
         super(authentication);
         Assert.notNull(generatedBy);
         this.generatedBy = generatedBy;
     }
 
     //~ Methods ================================================================
-
-    /**
-     * Getters for the <code>Authentication</code> request that caused the
-     * event. Also available from <code>super.getSource()</code>.
-     *
-     * @return the authentication request
-     */
-    public Authentication getAuthentication() {
-        return (Authentication) super.getSource();
-    }
 
     /**
      * Getter for the <code>Class</code> that generated this event. This can be

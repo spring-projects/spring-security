@@ -16,7 +16,7 @@
 package net.sf.acegisecurity.ui.rememberme;
 
 import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.ui.InteractiveAuthenticationSuccessEvent;
+import net.sf.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
 import net.sf.acegisecurity.Authentication;
 
 import org.apache.commons.logging.Log;
@@ -59,7 +59,7 @@ import javax.servlet.http.HttpServletResponse;
  * 
  * <p>
  * If authentication is successful, an {@link
- * net.sf.acegisecurity.ui.InteractiveAuthenticationSuccessEvent} will be
+ * net.sf.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent} will be
  * published to the application context. No events will be published if
  * authentication was unsuccessful, because this would generally be recorded
  * via an <code>AuthenticationManager</code>-specific application event.
