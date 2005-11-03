@@ -22,7 +22,7 @@ import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.acl.AclEntry;
 import net.sf.acegisecurity.acl.AclManager;
-import net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry;
+import net.sf.acegisecurity.acl.basic.BasicAclEntry;
 import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
 
 import org.apache.commons.collections.iterators.ArrayIterator;
@@ -54,7 +54,7 @@ import java.util.Set;
  * (ACL) permissions associated with each <code>Collection</code>  domain
  * object instance element for the current <code>Authentication</code> object.
  * This class is designed to process {@link AclEntry}s that are subclasses of
- * {@link net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry} only.
+ * {@link net.sf.acegisecurity.acl.basic.BasicAclEntry} only.
  * Generally these are obtained by using the {@link
  * net.sf.acegisecurity.acl.basic.BasicAclProvider}.
  * </p>
@@ -64,7 +64,7 @@ import java.util.Set;
  * ConfigAttribute#getAttribute()} matches the {@link
  * #processConfigAttribute}. The provider will then lookup the ACLs from the
  * <code>AclManager</code> and ensure the principal is {@link
- * net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry#isPermitted(int)} for
+ * net.sf.acegisecurity.acl.basic.BasicAclEntry#isPermitted(int)} for
  * at least one of the {@link #requirePermission}s for each
  * <code>Collection</code> element. If the principal does not have at least
  * one of the permissions, that element will not be included in the returned
@@ -81,10 +81,10 @@ import java.util.Set;
  * <p>
  * The <code>AclManager</code> is allowed to return any implementations of
  * <code>AclEntry</code> it wishes. However, this provider will only be able
- * to validate against <code>AbstractBasicAclEntry</code>s, and thus a
+ * to validate against <code>BasicAclEntry</code>s, and thus a
  * <code>Collection</code> element will be filtered from the resulting
  * <code>Collection</code> if no <code>AclEntry</code> is of type
- * <code>AbstractBasicAclEntry</code>.
+ * <code>BasicAclEntry</code>.
  * </p>
  * 
  * <p>
@@ -202,8 +202,8 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
                     if ((acls != null) && (acls.length != 0)) {
                         for (int i = 0; i < acls.length; i++) {
                             // Locate processable AclEntrys
-                            if (acls[i] instanceof AbstractBasicAclEntry) {
-                                AbstractBasicAclEntry processableAcl = (AbstractBasicAclEntry) acls[i];
+                            if (acls[i] instanceof BasicAclEntry) {
+                            	BasicAclEntry processableAcl = (BasicAclEntry) acls[i];
 
                                 // See if principal has any of the required permissions
                                 for (int y = 0; y < requirePermission.length;

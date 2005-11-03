@@ -123,4 +123,12 @@ public interface BasicAclEntry extends AclEntry {
      *         <code>null</code>)
      */
     public Object getRecipient();
+    
+    /**
+     * Determine if the mask of this entry includes this permission or not
+     * 
+     * @param permissionToCheck
+     * @return if the entry's mask includes this permission
+     */
+    public boolean isPermitted(int permissionToCheck);
 }

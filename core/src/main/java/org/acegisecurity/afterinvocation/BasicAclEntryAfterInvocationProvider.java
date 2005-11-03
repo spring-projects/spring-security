@@ -21,7 +21,7 @@ import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.acl.AclEntry;
 import net.sf.acegisecurity.acl.AclManager;
-import net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry;
+import net.sf.acegisecurity.acl.basic.BasicAclEntry;
 import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
 
 import org.apache.commons.logging.Log;
@@ -45,7 +45,7 @@ import java.util.Iterator;
  * (ACL) permissions associated with a domain object instance for the current
  * <code>Authentication</code> object. This class is designed to process
  * {@link AclEntry}s that are subclasses of {@link
- * net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry} only. Generally these
+ * net.sf.acegisecurity.acl.basic.BasicAclEntry} only. Generally these
  * are obtained by using the {@link
  * net.sf.acegisecurity.acl.basic.BasicAclProvider}.
  * </p>
@@ -55,7 +55,7 @@ import java.util.Iterator;
  * ConfigAttribute#getAttribute()} matches the {@link
  * #processConfigAttribute}. The provider will then lookup the ACLs from the
  * <code>AclManager</code> and ensure the principal is {@link
- * net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry#isPermitted(int)} for
+ * net.sf.acegisecurity.acl.basic.BasicAclEntry#isPermitted(int)} for
  * at least one of the {@link #requirePermission}s.
  * </p>
  * 
@@ -74,9 +74,9 @@ import java.util.Iterator;
  * <p>
  * The <code>AclManager</code> is allowed to return any implementations of
  * <code>AclEntry</code> it wishes. However, this provider will only be able
- * to validate against <code>AbstractBasicAclEntry</code>s, and thus access
+ * to validate against <code>BasicAclEntry</code>s, and thus access
  * will be denied if no <code>AclEntry</code> is of type
- * <code>AbstractBasicAclEntry</code>.
+ * <code>BasicAclEntry</code>.
  * </p>
  * 
  * <p>
@@ -170,8 +170,8 @@ public class BasicAclEntryAfterInvocationProvider
 
                 for (int i = 0; i < acls.length; i++) {
                     // Locate processable AclEntrys
-                    if (acls[i] instanceof AbstractBasicAclEntry) {
-                        AbstractBasicAclEntry processableAcl = (AbstractBasicAclEntry) acls[i];
+                    if (acls[i] instanceof BasicAclEntry) {
+                    	BasicAclEntry processableAcl = (BasicAclEntry) acls[i];
 
                         // See if principal has any of the required permissions
                         for (int y = 0; y < requirePermission.length; y++) {

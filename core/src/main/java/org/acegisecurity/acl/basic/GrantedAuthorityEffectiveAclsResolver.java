@@ -80,11 +80,11 @@ public class GrantedAuthorityEffectiveAclsResolver
         }
 
         for (int i = 0; i < allAcls.length; i++) {
-            if (!(allAcls[i] instanceof AbstractBasicAclEntry)) {
+            if (!(allAcls[i] instanceof BasicAclEntry)) {
                 continue;
             }
 
-            Object recipient = ((AbstractBasicAclEntry) allAcls[i])
+            Object recipient = ((BasicAclEntry) allAcls[i])
                 .getRecipient();
 
             // Allow the Authentication's getPrincipal to decide whether

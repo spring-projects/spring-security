@@ -18,7 +18,7 @@ package net.sf.acegisecurity.taglibs.authz;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.acl.AclEntry;
 import net.sf.acegisecurity.acl.AclManager;
-import net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry;
+import net.sf.acegisecurity.acl.basic.BasicAclEntry;
 import net.sf.acegisecurity.context.SecurityContextHolder;
 
 import org.apache.commons.logging.Log;
@@ -47,7 +47,7 @@ import javax.servlet.jsp.tagext.TagSupport;
  * 
  * <P>
  * Only works with permissions that are subclasses of {@link
- * net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry}.
+ * net.sf.acegisecurity.acl.basic.BasicAclEntry}.
  * </p>
  * 
  * <p>
@@ -173,8 +173,8 @@ public class AclTag extends TagSupport {
 
         for (int i = 0; i < acls.length; i++) {
             // Locate processable AclEntrys
-            if (acls[i] instanceof AbstractBasicAclEntry) {
-                AbstractBasicAclEntry processableAcl = (AbstractBasicAclEntry) acls[i];
+            if (acls[i] instanceof BasicAclEntry) {
+            	BasicAclEntry processableAcl = (BasicAclEntry) acls[i];
 
                 // See if principal has any of the required permissions
                 for (int y = 0; y < requiredIntegers.length; y++) {

@@ -21,7 +21,7 @@ import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.acl.AclEntry;
 import net.sf.acegisecurity.acl.AclManager;
-import net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry;
+import net.sf.acegisecurity.acl.basic.BasicAclEntry;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -49,7 +49,7 @@ import java.util.Iterator;
  * (ACL) permissions associated with a domain object instance for the current
  * <code>Authentication</code> object. This class is designed to process
  * {@link AclEntry}s that are subclasses of {@link
- * net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry} only. Generally these
+ * net.sf.acegisecurity.acl.basic.BasicAclEntry} only. Generally these
  * are obtained by using the {@link
  * net.sf.acegisecurity.acl.basic.BasicAclProvider}.
  * </p>
@@ -60,7 +60,7 @@ import java.util.Iterator;
  * first method argument of type {@link #processDomainObjectClass}. Assuming
  * that method argument is non-null, the provider will then lookup the ACLs
  * from the <code>AclManager</code> and ensure the principal is {@link
- * net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry#isPermitted(int)} for
+ * net.sf.acegisecurity.acl.basic.BasicAclEntry#isPermitted(int)} for
  * at least one of the {@link #requirePermission}s.
  * </p>
  * 
@@ -304,8 +304,8 @@ public class BasicAclEntryVoter implements AccessDecisionVoter,
                 // Principal has some permissions for domain object, check them
                 for (int i = 0; i < acls.length; i++) {
                     // Locate processable AclEntrys
-                    if (acls[i] instanceof AbstractBasicAclEntry) {
-                        AbstractBasicAclEntry processableAcl = (AbstractBasicAclEntry) acls[i];
+                    if (acls[i] instanceof BasicAclEntry) {
+                    	BasicAclEntry processableAcl = (BasicAclEntry) acls[i];
 
                         // See if principal has any of the required permissions
                         for (int y = 0; y < requirePermission.length; y++) {
