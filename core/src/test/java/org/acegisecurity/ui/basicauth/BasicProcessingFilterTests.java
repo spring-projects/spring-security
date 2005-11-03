@@ -183,6 +183,7 @@ public class BasicProcessingFilterTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         // Test
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
 
@@ -280,7 +281,7 @@ public class BasicProcessingFilterTests extends TestCase {
 
         // NOW PERFORM FAILED AUTHENTICATION
         // Setup our HTTP request
-        token = "marissa:WRONG_PASSWORD";
+        token = "otherUser:WRONG_PASSWORD";
         request = new MockHttpServletRequest();
         request.addHeader("Authorization",
             "Basic " + new String(Base64.encodeBase64(token.getBytes())));

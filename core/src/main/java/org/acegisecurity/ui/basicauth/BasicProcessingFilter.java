@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.sf.acegisecurity.ui.basicauth;
 
 import net.sf.acegisecurity.Authentication;
@@ -45,13 +46,13 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Processes a HTTP request's BASIC authorization headers, putting the result
  * into the <code>SecurityContextHolder</code>.
- *
+ * 
  * <p>
  * For a detailed background on what this filter is designed to process, refer
  * to <A HREF="http://www.faqs.org/rfcs/rfc1945.html">RFC 1945, Section
  * 11.1</A>. Any realm name presented in the HTTP request is ignored.
  * </p>
- *
+ * 
  * <p>
  * In summary, this filter is responsible for processing any request that has a
  * HTTP request header of <code>Authorization</code> with an authentication
@@ -60,28 +61,28 @@ import javax.servlet.http.HttpServletResponse;
  * "Aladdin" with password "open sesame" the following header would be
  * presented:
  * </p>
- *
+ * 
  * <p>
  * <code>Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==</code>.
  * </p>
- *
+ * 
  * <p>
  * This filter can be used to provide BASIC authentication services to both
  * remoting protocol clients (such as Hessian and SOAP) as well as standard
  * user agents (such as Internet Explorer and Netscape).
  * </p>
- *
+ * 
  * <P>
  * If authentication is successful, the resulting {@link Authentication} object
  * will be placed into the <code>SecurityContextHolder</code>.
  * </p>
- *
+ * 
  * <p>
  * If authentication fails, an {@link AuthenticationEntryPoint} implementation
  * is called. Usually this should be {@link BasicProcessingFilterEntryPoint},
  * which will prompt the user to authenticate again via BASIC authentication.
  * </p>
- *
+ * 
  * <p>
  * Basic authentication is an attractive protocol because it is simple and
  * widely deployed. However, it still transmits a password in clear text and
@@ -90,7 +91,7 @@ import javax.servlet.http.HttpServletResponse;
  * authentication wherever possible. See {@link
  * net.sf.acegisecurity.ui.digestauth.DigestProcessingFilter}.
  * </p>
- *
+ * 
  * <p>
  * <b>Do not use this class directly.</b> Instead configure
  * <code>web.xml</code> to use the {@link
@@ -101,9 +102,16 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public class BasicProcessingFilter implements Filter, InitializingBean {
+    //~ Static fields/initializers =============================================
+
     private static final Log logger = LogFactory.getLog(BasicProcessingFilter.class);
+
+    //~ Instance fields ========================================================
+
     private AuthenticationEntryPoint authenticationEntryPoint;
     private AuthenticationManager authenticationManager;
+
+    //~ Methods ================================================================
 
     public void setAuthenticationEntryPoint(
         AuthenticationEntryPoint authenticationEntryPoint) {
@@ -130,8 +138,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
             "An AuthenticationEntryPoint is required");
     }
 
-    public void destroy() {
-    }
+    public void destroy() {}
 
     public void doFilter(ServletRequest request, ServletResponse response,
         FilterChain chain) throws IOException, ServletException {
@@ -165,40 +172,47 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                 password = token.substring(delim + 1);
             }
 
-            UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username,
-                    password);
-            authRequest.setDetails(new WebAuthenticationDetails(httpRequest,
-                    false));
+            // Only reauthenticate if username doesn't match ContextHolder and user isn't authenticated (see SEC-53)
+            Authentication existingAuth = SecurityContextHolder.getContext()
+                                                               .getAuthentication();
 
-            Authentication authResult;
+            if ((existingAuth == null)
+                || !existingAuth.getName().equals(username)
+                || !existingAuth.isAuthenticated()) {
+                UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username,
+                        password);
+                authRequest.setDetails(new WebAuthenticationDetails(
+                        httpRequest, false));
 
-            try {
-                authResult = authenticationManager.authenticate(authRequest);
-            } catch (AuthenticationException failed) {
-                // Authentication failed
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Authentication request for user: " +
-                        username + " failed: " + failed.toString());
+                Authentication authResult;
+
+                try {
+                    authResult = authenticationManager.authenticate(authRequest);
+                } catch (AuthenticationException failed) {
+                    // Authentication failed
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Authentication request for user: "
+                            + username + " failed: " + failed.toString());
+                    }
+
+                    SecurityContextHolder.getContext().setAuthentication(null);
+                    authenticationEntryPoint.commence(request, response, failed);
+
+                    return;
                 }
 
-                SecurityContextHolder.getContext().setAuthentication(null);
-                authenticationEntryPoint.commence(request, response, failed);
+                // Authentication success
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Authentication success: "
+                        + authResult.toString());
+                }
 
-                return;
+                SecurityContextHolder.getContext().setAuthentication(authResult);
             }
-
-            // Authentication success
-            if (logger.isDebugEnabled()) {
-                logger.debug("Authentication success: " +
-                    authResult.toString());
-            }
-
-            SecurityContextHolder.getContext().setAuthentication(authResult);
         }
 
         chain.doFilter(request, response);
     }
 
-    public void init(FilterConfig arg0) throws ServletException {
-    }
+    public void init(FilterConfig arg0) throws ServletException {}
 }
