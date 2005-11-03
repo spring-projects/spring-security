@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao;
+package net.sf.acegisecurity.providers.dao.ldap;
 
 import net.sf.acegisecurity.AccountExpiredException;
 import net.sf.acegisecurity.Authentication;
@@ -25,6 +25,8 @@ import net.sf.acegisecurity.LockedException;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.AuthenticationProvider;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider;
+import net.sf.acegisecurity.providers.dao.UserCache;
 import net.sf.acegisecurity.providers.dao.cache.NullUserCache;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -83,6 +85,7 @@ import org.springframework.util.Assert;
  * further information.
  * </p>
  *
+ * @deprecated instead subclass {@link net.sf.acegisecurity.providers.dao.AbstractUserDetailsAuthenticationProvider}
  * @author Karel Miarka
  */
 public class PasswordDaoAuthenticationProvider implements AuthenticationProvider,

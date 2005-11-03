@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao;
+package net.sf.acegisecurity.providers.dao.ldap;
 
 import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.UserDetails;
@@ -33,7 +33,8 @@ import org.springframework.dao.DataAccessException;
  * The interface requires only one read-only method, which simplifies support
  * of new data access strategies.
  * </p>
- *
+ * 
+ * @deprecated instead subclass {@link net.sf.acegisecurity.providers.dao.AbstractUserDetailsAuthenticationProvider}
  * @author Karel Miarka
  */
 public interface PasswordAuthenticationDao {

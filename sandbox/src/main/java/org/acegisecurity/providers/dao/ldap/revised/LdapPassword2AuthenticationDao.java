@@ -24,7 +24,7 @@ import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.dao.PasswordAuthenticationDao;
+import net.sf.acegisecurity.providers.dao.ldap.PasswordAuthenticationDao;
 
 /**
  * Re-written version of the ACEGI LDAP code, 
