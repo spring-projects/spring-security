@@ -300,8 +300,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
         private AclObjectIdentity aclObjectParentIdentity;
         private Class aclClass;
         private Object recipient;
-        private int foreignKeyId;
         private int mask;
+        private long foreignKeyId;
 
         /**
          * Record details of an individual ACL entry (usually from the
@@ -330,7 +330,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
          *        created for each individual ACL entry (or an inheritence
          *        "holder" class if there are no ACL entries)
          */
-        public AclDetailsHolder(int foreignKeyId,
+        public AclDetailsHolder(long foreignKeyId,
             AclObjectIdentity aclObjectIdentity,
             AclObjectIdentity aclObjectParentIdentity, Class aclClass) {
             this.foreignKeyId = foreignKeyId;
@@ -351,7 +351,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
             return aclObjectParentIdentity;
         }
 
-        public int getForeignKeyId() {
+        public long getForeignKeyId() {
             return foreignKeyId;
         }
 
@@ -384,7 +384,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
     protected class AclsByObjectIdentityMapping extends MappingSqlQuery {
         protected AclsByObjectIdentityMapping(DataSource ds) {
             super(ds, aclsByObjectIdentityQuery);
-            declareParameter(new SqlParameter(Types.INTEGER));
+            declareParameter(new SqlParameter(Types.BIGINT));
             compile();
         }
 
@@ -428,7 +428,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
 
         protected Object mapRow(ResultSet rs, int rownum)
             throws SQLException {
-            int id = rs.getInt(1); // required
+            long id = rs.getLong(1); // required
             String objectIdentity = rs.getString(2); // required
             String aclClass = rs.getString(3); // required
             String parentObjectIdentity = rs.getString(4); // optional
