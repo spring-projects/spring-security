@@ -21,7 +21,7 @@ import net.sf.acegisecurity.AuthenticationException;
 
 /**
  * Indicates a class can process a specific  {@link
- * net.sf.acegisecurity.Authentication}  implementation.
+ * net.sf.acegisecurity.Authentication} implementation.
  *
  * @author Ben Alex
  * @version $Id$
@@ -30,7 +30,7 @@ public interface AuthenticationProvider {
     //~ Methods ================================================================
 
     /**
-     * Performs authentication with the same contract as  {@link
+     * Performs authentication with the same contract as {@link
      * net.sf.acegisecurity.AuthenticationManager#authenticate(Authentication)}.
      *
      * @param authentication the authentication request object.
