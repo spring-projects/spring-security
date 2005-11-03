@@ -23,8 +23,6 @@ import net.sf.acegisecurity.acl.AclEntry;
 import net.sf.acegisecurity.acl.AclManager;
 import net.sf.acegisecurity.acl.basic.BasicAclEntry;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -49,8 +47,8 @@ import java.util.Iterator;
  * (ACL) permissions associated with a domain object instance for the current
  * <code>Authentication</code> object. This class is designed to process
  * {@link AclEntry}s that are subclasses of {@link
- * net.sf.acegisecurity.acl.basic.BasicAclEntry} only. Generally these
- * are obtained by using the {@link
+ * net.sf.acegisecurity.acl.basic.BasicAclEntry} only. Generally these are
+ * obtained by using the {@link
  * net.sf.acegisecurity.acl.basic.BasicAclProvider}.
  * </p>
  * 
@@ -60,8 +58,8 @@ import java.util.Iterator;
  * first method argument of type {@link #processDomainObjectClass}. Assuming
  * that method argument is non-null, the provider will then lookup the ACLs
  * from the <code>AclManager</code> and ensure the principal is {@link
- * net.sf.acegisecurity.acl.basic.BasicAclEntry#isPermitted(int)} for
- * at least one of the {@link #requirePermission}s.
+ * net.sf.acegisecurity.acl.basic.BasicAclEntry#isPermitted(int)} for at least
+ * one of the {@link #requirePermission}s.
  * </p>
  * 
  * <p>
@@ -126,8 +124,8 @@ import java.util.Iterator;
  * @author Ben Alex
  * @version $Id$
  */
-public class BasicAclEntryVoter implements AccessDecisionVoter,
-    InitializingBean {
+public class BasicAclEntryVoter extends AbstractAclVoter
+    implements InitializingBean {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(BasicAclEntryVoter.class);
@@ -135,7 +133,6 @@ public class BasicAclEntryVoter implements AccessDecisionVoter,
     //~ Instance fields ========================================================
 
     private AclManager aclManager;
-    private Class processDomainObjectClass;
     private String internalMethod;
     private String processConfigAttribute;
     private int[] requirePermission;
@@ -179,14 +176,6 @@ public class BasicAclEntryVoter implements AccessDecisionVoter,
         return processConfigAttribute;
     }
 
-    public void setProcessDomainObjectClass(Class processDomainObjectClass) {
-        this.processDomainObjectClass = processDomainObjectClass;
-    }
-
-    public Class getProcessDomainObjectClass() {
-        return processDomainObjectClass;
-    }
-
     public void setRequirePermission(int[] requirePermission) {
         this.requirePermission = requirePermission;
     }
@@ -199,8 +188,6 @@ public class BasicAclEntryVoter implements AccessDecisionVoter,
         Assert.notNull(processConfigAttribute,
             "A processConfigAttribute is mandatory");
         Assert.notNull(aclManager, "An aclManager is mandatory");
-        Assert.notNull(processDomainObjectClass,
-            "A processDomainObjectClass is mandatory");
 
         if ((requirePermission == null) || (requirePermission.length == 0)) {
             throw new IllegalArgumentException(
@@ -215,20 +202,6 @@ public class BasicAclEntryVoter implements AccessDecisionVoter,
         } else {
             return false;
         }
-    }
-
-    /**
-     * This implementation supports only
-     * <code>MethodSecurityInterceptor</code>, because it queries the
-     * presented <code>MethodInvocation</code>.
-     *
-     * @param clazz the secure object
-     *
-     * @return <code>true</code> if the secure object is
-     *         <code>MethodInvocation</code>, <code>false</code> otherwise
-     */
-    public boolean supports(Class clazz) {
-        return (MethodInvocation.class.isAssignableFrom(clazz));
     }
 
     public int vote(Authentication authentication, Object object,
@@ -305,7 +278,7 @@ public class BasicAclEntryVoter implements AccessDecisionVoter,
                 for (int i = 0; i < acls.length; i++) {
                     // Locate processable AclEntrys
                     if (acls[i] instanceof BasicAclEntry) {
-                    	BasicAclEntry processableAcl = (BasicAclEntry) acls[i];
+                        BasicAclEntry processableAcl = (BasicAclEntry) acls[i];
 
                         // See if principal has any of the required permissions
                         for (int y = 0; y < requirePermission.length; y++) {
@@ -323,23 +296,5 @@ public class BasicAclEntryVoter implements AccessDecisionVoter,
 
         // No configuration attribute matched, so abstain
         return AccessDecisionVoter.ACCESS_ABSTAIN;
-    }
-
-    private Object getDomainObjectInstance(Object secureObject) {
-        MethodInvocation invocation = (MethodInvocation) secureObject;
-
-        // Check if this MethodInvocation provides the required argument
-        Method method = invocation.getMethod();
-        Class[] params = method.getParameterTypes();
-
-        for (int i = 0; i < params.length; i++) {
-            if (processDomainObjectClass.isAssignableFrom(params[i])) {
-                return invocation.getArguments()[i];
-            }
-        }
-
-        throw new AuthorizationServiceException("MethodInvocation: "
-            + invocation + " did not provide any argument of type: "
-            + processDomainObjectClass);
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -156,22 +156,10 @@ public class BasicAclEntryVoterTests extends TestCase {
 
     public void testStartupRejectsMissingProcessDomainObjectClass()
         throws Exception {
-        AclManager aclManager = new MockAclManager("domain1", "marissa",
-                new AclEntry[] {new MockAclEntry(), new SimpleAclEntry(
-                        "marissa", new MockAclObjectIdentity(), null,
-                        SimpleAclEntry.ADMINISTRATION), new SimpleAclEntry(
-                        "marissa", new MockAclObjectIdentity(), null,
-                        SimpleAclEntry.READ), new SimpleAclEntry("marissa",
-                        new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)});
-
-        // Wire up a voter
         BasicAclEntryVoter voter = new BasicAclEntryVoter();
-        voter.setAclManager(aclManager);
-        voter.setProcessConfigAttribute("FOO_ADMIN_OR_WRITE_ACCESS");
-        voter.setRequirePermission(new int[] {SimpleAclEntry.ADMINISTRATION, SimpleAclEntry.WRITE});
 
         try {
-            voter.afterPropertiesSet();
+            voter.setProcessDomainObjectClass(null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
