@@ -17,6 +17,7 @@ package net.sf.acegisecurity.providers.dao;
 
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.UserDetails;
+
 import org.springframework.util.Assert;
 
 
@@ -135,9 +136,9 @@ public class User implements UserDetails {
         }
 
         for (int i = 0; i < authorities.length; i++) {
-            Assert.notNull(authorities[i], "Granted authority element "
-                    + i
-                    + " is null - GrantedAuthority[] cannot contain any null elements");
+            Assert.notNull(authorities[i],
+                "Granted authority element " + i
+                + " is null - GrantedAuthority[] cannot contain any null elements");
         }
 
         this.username = username;
@@ -181,6 +182,33 @@ public class User implements UserDetails {
 
     public String getUsername() {
         return username;
+    }
+
+    public boolean equals(Object rhs) {
+        if (!(rhs instanceof User) || (rhs == null)) {
+            return false;
+        }
+
+        User user = (User) rhs;
+
+        // We rely on constructor to guarantee any User has non-null and >0 authorities
+        if (user.getAuthorities().length != this.getAuthorities().length) {
+            return false;
+        }
+
+        for (int i = 0; i < this.getAuthorities().length; i++) {
+            if (!this.getAuthorities()[i].equals(user.getAuthorities()[i])) {
+                return false;
+            }
+        }
+
+        // We rely on constructor to guarantee non-null username and password
+        return (this.getPassword().equals(user.getPassword())
+        && this.getUsername().equals(user.getUsername())
+        && (this.isAccountNonExpired() == user.isAccountNonExpired())
+        && (this.isAccountNonLocked() == user.isAccountNonLocked())
+        && (this.isCredentialsNonExpired() == user.isCredentialsNonExpired())
+        && (this.isEnabled() == user.isEnabled()));
     }
 
     public String toString() {

@@ -49,6 +49,57 @@ public class UserTests extends TestCase {
         junit.textui.TestRunner.run(UserTests.class);
     }
 
+    public void testEquals() {
+        User user1 = new User("marissa", "koala", true, true, true, true,
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                        "ROLE_TWO")});
+
+        assertFalse(user1.equals(null));
+        assertFalse(user1.equals("A STRING"));
+
+        assertTrue(user1.equals(user1));
+
+        assertTrue(user1.equals(
+                new User("marissa", "koala", true, true, true, true,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                            "ROLE_TWO")})));
+
+        assertFalse(user1.equals(
+                new User("DIFFERENT_USERNAME", "koala", true, true, true, true,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                            "ROLE_TWO")})));
+
+        assertFalse(user1.equals(
+                new User("marissa", "DIFFERENT_PASSWORD", true, true, true,
+                    true,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                            "ROLE_TWO")})));
+
+        assertFalse(user1.equals(
+                new User("marissa", "koala", false, true, true, true,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                            "ROLE_TWO")})));
+
+        assertFalse(user1.equals(
+                new User("marissa", "koala", true, false, true, true,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                            "ROLE_TWO")})));
+
+        assertFalse(user1.equals(
+                new User("marissa", "koala", true, true, false, true,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                            "ROLE_TWO")})));
+
+        assertFalse(user1.equals(
+                new User("marissa", "koala", true, true, true, false,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                            "ROLE_TWO")})));
+
+        assertFalse(user1.equals(
+                new User("marissa", "koala", true, true, true, true,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE")})));
+    }
+
     public void testNoArgConstructor() {
         try {
             new User();
