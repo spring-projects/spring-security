@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package net.sf.acegisecurity.providers.dao.memory;
 import junit.framework.TestCase;
 
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
+
+import java.util.Properties;
 
 
 /**
@@ -68,7 +70,7 @@ public class InMemoryDaoTests extends TestCase {
         assertEquals("wombat", dao.loadUserByUsername("scott").getPassword());
     }
 
-    public void testLookupSuccessWithMixedeCase() throws Exception {
+    public void testLookupSuccessWithMixedCase() throws Exception {
         InMemoryDaoImpl dao = new InMemoryDaoImpl();
         dao.setUserMap(makeUserMap());
         dao.afterPropertiesSet();
@@ -104,6 +106,16 @@ public class InMemoryDaoTests extends TestCase {
         dao.setUserMap(makeUserMap());
         dao.afterPropertiesSet();
         assertEquals(2, dao.getUserMap().getUserCount());
+    }
+
+    public void testUseOfExternalPropertiesObject() throws Exception {
+        InMemoryDaoImpl dao = new InMemoryDaoImpl();
+        Properties props = new Properties();
+        props.put("marissa", "koala,ROLE_ONE,ROLE_TWO,enabled");
+        props.put("scott", "wombat,ROLE_ONE,ROLE_TWO,enabled");
+        dao.setUserProperties(props);
+        assertEquals("koala", dao.loadUserByUsername("marissa").getPassword());
+        assertEquals("wombat", dao.loadUserByUsername("scott").getPassword());
     }
 
     private UserMap makeUserMap() {

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,10 @@ import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.dao.DataAccessException;
+
 import org.springframework.util.Assert;
+
+import java.util.Properties;
 
 
 /**
@@ -46,8 +49,22 @@ public class InMemoryDaoImpl implements AuthenticationDao, InitializingBean {
         return userMap;
     }
 
+    /**
+     * Modifies the internal <code>UserMap</code> to reflect the
+     * <code>Properties</code> instance passed. This helps externalise user
+     * information to another file etc.
+     *
+     * @param props the account information in a <code>Properties</code> object
+     *        format
+     */
+    public void setUserProperties(Properties props) {
+        UserMap userMap = new UserMap();
+        this.userMap = UserMapEditor.addUsersFromProperties(userMap, props);
+    }
+
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.userMap, "A list of users, passwords, enabled/disabled status and their granted authorities must be set");
+        Assert.notNull(this.userMap,
+            "A list of users, passwords, enabled/disabled status and their granted authorities must be set");
     }
 
     public UserDetails loadUserByUsername(String username)

@@ -80,29 +80,35 @@ public class UserMapEditor extends PropertyEditorSupport {
             propertiesEditor.setAsText(s);
 
             Properties props = (Properties) propertiesEditor.getValue();
-
-            // Now we have properties, process each one individually
-            UserAttributeEditor configAttribEd = new UserAttributeEditor();
-
-            for (Iterator iter = props.keySet().iterator(); iter.hasNext();) {
-                String username = (String) iter.next();
-                String value = props.getProperty(username);
-
-                // Convert value to a password, enabled setting, and list of granted authorities
-                configAttribEd.setAsText(value);
-
-                UserAttribute attr = (UserAttribute) configAttribEd.getValue();
-
-                // Make a user object, assuming the properties were properly provided
-                if (attr != null) {
-                    UserDetails user = new User(username, attr.getPassword(),
-                            attr.isEnabled(), true, true, true,
-                            attr.getAuthorities());
-                    userMap.addUser(user);
-                }
-            }
+            addUsersFromProperties(userMap, props);
         }
 
         setValue(userMap);
+    }
+
+    public static UserMap addUsersFromProperties(UserMap userMap,
+        Properties props) {
+        // Now we have properties, process each one individually
+        UserAttributeEditor configAttribEd = new UserAttributeEditor();
+
+        for (Iterator iter = props.keySet().iterator(); iter.hasNext();) {
+            String username = (String) iter.next();
+            String value = props.getProperty(username);
+
+            // Convert value to a password, enabled setting, and list of granted authorities
+            configAttribEd.setAsText(value);
+
+            UserAttribute attr = (UserAttribute) configAttribEd.getValue();
+
+            // Make a user object, assuming the properties were properly provided
+            if (attr != null) {
+                UserDetails user = new User(username, attr.getPassword(),
+                        attr.isEnabled(), true, true, true,
+                        attr.getAuthorities());
+                userMap.addUser(user);
+            }
+        }
+
+        return userMap;
     }
 }
