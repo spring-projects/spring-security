@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,8 +114,14 @@ public class FilterInvocation {
         String pathInfo = getHttpRequest().getPathInfo();
         String queryString = getHttpRequest().getQueryString();
 
-        return getHttpRequest().getServletPath()
-        + ((pathInfo == null) ? "" : pathInfo)
+        String uri = getHttpRequest().getServletPath();
+
+        if (uri == null) {
+            uri = getHttpRequest().getRequestURI();
+            uri = uri.substring(getHttpRequest().getContextPath().length());
+        }
+
+        return uri + ((pathInfo == null) ? "" : pathInfo)
         + ((queryString == null) ? "" : ("?" + queryString));
     }
 
