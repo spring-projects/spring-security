@@ -35,6 +35,22 @@ import java.util.List;
  * AuthenticationProvider}s. Can optionally be configured with a {@link
  * ConcurrentSessionController} to limit the number of sessions a user can
  * have.
+ * 
+ * <p>
+ * <code>AuthenticationProvider</code>s are tried in order until one provides a
+ * non-null response. A non-null response indicates the provider had authority
+ * to decide on the authentication request and no further providers are tried.
+ * If an <code>AuthenticationException</code> is thrown by a provider, it is
+ * retained until subsequent providers are tried. If a subsequent provider
+ * successfully authenticates the request, the earlier authentication
+ * exception is disregarded and the successful authentication will be used. If
+ * no subsequent provider provides a non-null response, or a new
+ * <code>AuthenticationException</code>, the last
+ * <code>AuthenticationException</code> received will be used. If no provider
+ * returns a non-null response, or indicates it can even process an
+ * <code>Authentication</code>, the <code>ProviderManager</code> will throw a
+ * <code>ProviderNotFoundException</code>.
+ * </p>
  *
  * @author Ben Alex
  * @author Wesley Hall
@@ -107,7 +123,7 @@ public class ProviderManager extends AbstractAuthenticationManager
      * {@link NullConcurrentSessionController} if a specific one has not been
      * set.
      *
-     * @return{@link ConcurrentSessionController} instance
+     * @return {@link ConcurrentSessionController} instance
      */
     public ConcurrentSessionController getSessionController() {
         return sessionController;
@@ -150,6 +166,8 @@ public class ProviderManager extends AbstractAuthenticationManager
 
         sessionController.checkAuthenticationAllowed(authentication);
 
+        AuthenticationException lastException = null;
+
         while (iter.hasNext()) {
             AuthenticationProvider provider = (AuthenticationProvider) iter
                 .next();
@@ -158,7 +176,13 @@ public class ProviderManager extends AbstractAuthenticationManager
                 logger.debug("Authentication attempt using "
                     + provider.getClass().getName());
 
-                Authentication result = provider.authenticate(authentication);
+                Authentication result = null;
+
+                try {
+                    result = provider.authenticate(authentication);
+                } catch (AuthenticationException ae) {
+                    lastException = ae;
+                }
 
                 if (result != null) {
                     sessionController.registerSuccessfulAuthentication(result);
@@ -166,6 +190,10 @@ public class ProviderManager extends AbstractAuthenticationManager
                     return result;
                 }
             }
+        }
+
+        if (lastException != null) {
+            throw lastException;
         }
 
         throw new ProviderNotFoundException("No authentication provider for "
