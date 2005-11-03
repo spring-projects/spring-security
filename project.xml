@@ -311,6 +311,13 @@
       </properties>
     </dependency>
     <dependency>
+      <groupId>jcifs</groupId>
+      <artifactId>jcifs</artifactId>
+      <version>1.2.6</version>
+      <type>jar</type>
+      <url>http://jcifs.samba.org/</url>
+    </dependency>
+    <dependency>
       <groupId>aspectj</groupId>
       <artifactId>aspectjrt</artifactId>
       <version>1.2</version>
