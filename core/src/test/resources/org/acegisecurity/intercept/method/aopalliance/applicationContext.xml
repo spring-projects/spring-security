@@ -25,7 +25,7 @@
 	<bean id="accessDecision" class="net.sf.acegisecurity.MockAccessDecisionManager"/>
 	<bean id="runAs" class="net.sf.acegisecurity.MockRunAsManager"/>
 
-	<bean id="loggerListener" class="net.sf.acegisecurity.intercept.event.LoggerListener"/>
+   <bean id="secureObjectLoggerListener" class="net.sf.acegisecurity.event.authorization.LoggerListener"/>
 
 	<bean id="securityInterceptor" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
 		<property name="authenticationManager"><ref local="authentication"/></property>

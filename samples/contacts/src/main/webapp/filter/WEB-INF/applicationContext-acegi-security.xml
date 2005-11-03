@@ -65,8 +65,8 @@
       <property name="cache"><ref local="userCacheBackend"/></property>
    </bean>
 
-   <!-- Automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->
-   <bean id="loggerListener" class="net.sf.acegisecurity.providers.dao.event.LoggerListener"/>
+   <!-- Automatically receives AuthenticationEvent messages -->
+   <bean id="loggerListener" class="net.sf.acegisecurity.event.authentication.LoggerListener"/>
 
    <bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
       <property name="authenticationManager"><ref local="authenticationManager"/></property>

@@ -24,11 +24,10 @@ import net.sf.acegisecurity.DisabledException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.event.authentication.AuthenticationSwitchUserEvent;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.AuthenticationDao;
-import net.sf.acegisecurity.providers.dao.User;
 import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
-import net.sf.acegisecurity.providers.dao.event.AuthenticationSwitchUserEvent;
 import net.sf.acegisecurity.ui.WebAuthenticationDetails;
 
 import org.apache.commons.logging.Log;

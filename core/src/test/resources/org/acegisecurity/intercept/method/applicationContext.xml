@@ -50,6 +50,6 @@
       </property>
     </bean>
 
-	<bean id="loggerListener" class="net.sf.acegisecurity.intercept.event.LoggerListener"/>
+   <bean id="secureObjectLoggerListener" class="net.sf.acegisecurity.event.authorization.LoggerListener"/>
 
 </beans>

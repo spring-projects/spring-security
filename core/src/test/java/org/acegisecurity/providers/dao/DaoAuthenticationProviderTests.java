@@ -34,8 +34,6 @@ import net.sf.acegisecurity.providers.dao.cache.NullUserCache;
 import net.sf.acegisecurity.providers.dao.salt.SystemWideSaltSource;
 import net.sf.acegisecurity.providers.encoding.ShaPasswordEncoder;
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
@@ -67,8 +65,6 @@ public class DaoAuthenticationProviderTests extends TestCase {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
-        provider.setApplicationContext(new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/util/filtertest-valid.xml"));
 
         try {
             provider.authenticate(token);
@@ -92,16 +88,6 @@ public class DaoAuthenticationProviderTests extends TestCase {
         } catch (AccountExpiredException expected) {
             assertTrue(true);
         }
-
-        provider.setApplicationContext(new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/util/filtertest-valid.xml"));
-
-        try {
-            provider.authenticate(token);
-            fail("Should have thrown AccountExpiredException");
-        } catch (AccountExpiredException expected) {
-            assertTrue(true);
-        }
     }
 
     public void testAuthenticateFailsIfAccountLocked() {
@@ -115,16 +101,6 @@ public class DaoAuthenticationProviderTests extends TestCase {
         try {
             provider.authenticate(token);
             fail("Should have thrown LockedException");
-        } catch (LockedException expected) {
-            assertTrue(true);
-        }
-
-        provider.setApplicationContext(new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/util/filtertest-valid.xml"));
-
-        try {
-            provider.authenticate(token);
-            fail("Should have thrown CredentialsExpiredException");
         } catch (LockedException expected) {
             assertTrue(true);
         }
@@ -145,18 +121,9 @@ public class DaoAuthenticationProviderTests extends TestCase {
             assertTrue(true);
         }
 
-        provider.setApplicationContext(new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/util/filtertest-valid.xml"));
-
-        try {
-            provider.authenticate(token);
-            fail("Should have thrown CredentialsExpiredException");
-        } catch (CredentialsExpiredException expected) {
-            assertTrue(true);
-        }
-
         // Check that wrong password causes BadCredentialsException, rather than CredentialsExpiredException
-        token = new UsernamePasswordAuthenticationToken("peter", "wrong_password");
+        token = new UsernamePasswordAuthenticationToken("peter",
+                "wrong_password");
 
         try {
             provider.authenticate(token);
@@ -173,16 +140,6 @@ public class DaoAuthenticationProviderTests extends TestCase {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setAuthenticationDao(new MockAuthenticationDaoUserPeter());
         provider.setUserCache(new MockUserCache());
-
-        try {
-            provider.authenticate(token);
-            fail("Should have thrown DisabledException");
-        } catch (DisabledException expected) {
-            assertTrue(true);
-        }
-
-        provider.setApplicationContext(new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/util/filtertest-valid.xml"));
 
         try {
             provider.authenticate(token);
@@ -422,11 +379,6 @@ public class DaoAuthenticationProviderTests extends TestCase {
         assertFalse(provider.isForcePrincipalAsString());
         provider.setForcePrincipalAsString(true);
         assertTrue(provider.isForcePrincipalAsString());
-
-        provider.setApplicationContext(new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/util/filtertest-valid.xml"));
-        assertEquals(ClassPathXmlApplicationContext.class.getName(),
-            provider.getContext().getClass().getName());
     }
 
     public void testGoesBackToAuthenticationDaoToObtainLatestPasswordIfCachedPasswordSeemsIncorrect() {

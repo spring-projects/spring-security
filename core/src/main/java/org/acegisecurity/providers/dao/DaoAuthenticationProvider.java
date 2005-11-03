@@ -22,29 +22,18 @@ import net.sf.acegisecurity.AuthenticationServiceException;
 import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.CredentialsExpiredException;
 import net.sf.acegisecurity.DisabledException;
-import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.LockedException;
 import net.sf.acegisecurity.UserDetails;
 import net.sf.acegisecurity.providers.AuthenticationProvider;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.cache.NullUserCache;
-import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureAccountExpiredEvent;
-import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureAccountLockedEvent;
-import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureCredentialsExpiredEvent;
-import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureDisabledEvent;
-import net.sf.acegisecurity.providers.dao.event.AuthenticationFailurePasswordEvent;
-import net.sf.acegisecurity.providers.dao.event.AuthenticationFailureUsernameNotFoundEvent;
-import net.sf.acegisecurity.providers.dao.event.AuthenticationSuccessEvent;
 import net.sf.acegisecurity.providers.encoding.PasswordEncoder;
 import net.sf.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-
 import org.springframework.dao.DataAccessException;
+
 import org.springframework.util.Assert;
 
 
@@ -83,23 +72,14 @@ import org.springframework.util.Assert;
  * incorrect password, the {@link AuthenticationDao} will be queried to
  * confirm the most up-to-date password was used for comparison.
  * </p>
- * 
- * <P>
- * If an application context is detected (which is automatically the case when
- * the bean is started within a Spring container), application events will be
- * published to the context. See {@link
- * net.sf.acegisecurity.providers.dao.event.AuthenticationEvent} for further
- * information.
- * </p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class DaoAuthenticationProvider implements AuthenticationProvider,
-    InitializingBean, ApplicationContextAware {
+    InitializingBean {
     //~ Instance fields ========================================================
 
-    private ApplicationContext context;
     private AuthenticationDao authenticationDao;
     private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
     private SaltSource saltSource;
@@ -109,21 +89,12 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
     //~ Methods ================================================================
 
-    public void setApplicationContext(ApplicationContext applicationContext)
-        throws BeansException {
-        this.context = applicationContext;
-    }
-
     public void setAuthenticationDao(AuthenticationDao authenticationDao) {
         this.authenticationDao = authenticationDao;
     }
 
     public AuthenticationDao getAuthenticationDao() {
         return authenticationDao;
-    }
-
-    public ApplicationContext getContext() {
-        return context;
     }
 
     public void setForcePrincipalAsString(boolean forcePrincipalAsString) {
@@ -140,7 +111,7 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
      * password is incorrect. Setting this property to <code>false</code> will
      * cause <code>UsernameNotFoundException</code>s to be thrown instead for
      * the former. Note this is considered less secure than throwing
-     * <code>BadCredentialsException</code> for both events.
+     * <code>BadCredentialsException</code> for both exceptions.
      *
      * @param hideUserNotFoundExceptions set to <code>false</code> if you wish
      *        <code>UsernameNotFoundException</code>s to be thrown instead of
@@ -197,7 +168,8 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.authenticationDao, "An Authentication DAO must be set");
+        Assert.notNull(this.authenticationDao,
+            "An Authentication DAO must be set");
         Assert.notNull(this.userCache, "A user cache must be set");
     }
 
@@ -220,29 +192,10 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
 
         if (user == null) {
             cacheWasUsed = false;
-
-            try {
-                user = getUserFromBackend(username);
-            } catch (BadCredentialsException ex) {
-                if (this.context != null) {
-                    context.publishEvent(new AuthenticationFailureUsernameNotFoundEvent(
-                            authentication,
-                            new User("".equals(username)
-                                ? "EMPTY_STRING_PROVIDED" : username, "*****",
-                                false, false, false, false,
-                                new GrantedAuthority[0])));
-                }
-
-                throw ex;
-            }
+            user = getUserFromBackend(username);
         }
 
         if (!user.isAccountNonLocked()) {
-            if (this.context != null) {
-                context.publishEvent(new AuthenticationFailureAccountLockedEvent(
-                        authentication, user));
-            }
-
             throw new LockedException("User account is locked");
         }
 
@@ -254,52 +207,26 @@ public class DaoAuthenticationProvider implements AuthenticationProvider,
             }
 
             if (!isPasswordCorrect(authentication, user)) {
-                if (this.context != null) {
-                    context.publishEvent(new AuthenticationFailurePasswordEvent(
-                            authentication, user));
-                }
-
                 throw new BadCredentialsException("Bad credentials presented");
             }
         }
 
         if (!user.isEnabled()) {
-            if (this.context != null) {
-                context.publishEvent(new AuthenticationFailureDisabledEvent(
-                        authentication, user));
-            }
-
             throw new DisabledException("User is disabled");
         }
 
         if (!user.isAccountNonExpired()) {
-            if (this.context != null) {
-                context.publishEvent(new AuthenticationFailureAccountExpiredEvent(
-                        authentication, user));
-            }
-
             throw new AccountExpiredException("User account has expired");
         }
 
-		if (!user.isCredentialsNonExpired()) {
-            if (this.context != null) {
-                context.publishEvent(new AuthenticationFailureCredentialsExpiredEvent(
-                        authentication, user));
-            }
-
+        if (!user.isCredentialsNonExpired()) {
             throw new CredentialsExpiredException(
                 "User credentials have expired");
-        }        
+        }
 
         if (!cacheWasUsed) {
             // Put into cache
             this.userCache.putUserInCache(user);
-
-            // As this appears to be an initial login, publish the event
-            if (this.context != null) {
-                context.publishEvent(new AuthenticationSuccessEvent(
-                        authentication, user));
-            }
         }
 
         Object principalToReturn = user;

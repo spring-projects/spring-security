@@ -15,14 +15,20 @@
 
 package net.sf.acegisecurity.providers;
 
-import junit.framework.TestCase;
+import java.util.List;
+import java.util.Vector;
 
-import net.sf.acegisecurity.*;
+import junit.framework.TestCase;
+import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.AuthenticationException;
+import net.sf.acegisecurity.AuthenticationServiceException;
+import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.concurrent.ConcurrentSessionControllerImpl;
 import net.sf.acegisecurity.concurrent.NullConcurrentSessionController;
 
-import java.util.List;
-import java.util.Vector;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 
 
 /**
@@ -59,6 +65,7 @@ public class ProviderManagerTests extends TestCase {
                         "ROLE_TWO")});
 
         ProviderManager mgr = makeProviderManager();
+        mgr.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
 
         try {
             mgr.authenticate(token);
@@ -68,13 +75,14 @@ public class ProviderManagerTests extends TestCase {
         }
     }
 
-    public void testAuthenticationSuccess() {
+    public void testAuthenticationSuccess() throws Exception {
         TestingAuthenticationToken token = new TestingAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")});
 
         ProviderManager mgr = makeProviderManager();
+        mgr.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
         Authentication result = mgr.authenticate(token);
 
         if (!(result instanceof TestingAuthenticationToken)) {
@@ -95,6 +103,7 @@ public class ProviderManagerTests extends TestCase {
                         "ROLE_TWO")});
 
         ProviderManager mgr = makeProviderManagerWithMockProviderWhichReturnsNullInList();
+        mgr.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
         Authentication result = mgr.authenticate(token);
 
         if (!(result instanceof TestingAuthenticationToken)) {
@@ -166,14 +175,16 @@ public class ProviderManagerTests extends TestCase {
         assertEquals(1, mgr.getProviders().size());
     }
 
-    private ProviderManager makeProviderManager() {
+    private ProviderManager makeProviderManager() throws Exception {
         MockProvider provider1 = new MockProvider();
         List providers = new Vector();
         providers.add(provider1);
 
         ProviderManager mgr = new ProviderManager();
         mgr.setProviders(providers);
+        
 
+        mgr.afterPropertiesSet();
         return mgr;
     }
 
@@ -232,5 +243,19 @@ public class ProviderManagerTests extends TestCase {
                 return false;
             }
         }
+    }
+    
+    private class MockApplicationEventPublisher implements ApplicationEventPublisher {
+		private boolean expectedEvent;
+    	
+		public MockApplicationEventPublisher(boolean expectedEvent) {
+			this.expectedEvent = expectedEvent;
+		}
+		
+    	public void publishEvent(ApplicationEvent event) {
+			if (expectedEvent == false) {
+				throw new IllegalStateException("The ApplicationEventPublisher did not expect to receive this event");				
+			}
+		}
     }
 }

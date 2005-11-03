@@ -32,8 +32,6 @@ import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.providers.dao.cache.EhCacheBasedUserCache;
 import net.sf.acegisecurity.providers.dao.cache.NullUserCache;
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
@@ -87,16 +85,6 @@ public class PasswordDaoAuthenticationProviderTests extends TestCase {
         } catch (AccountExpiredException expected) {
             assertTrue(true);
         }
-
-        provider.setApplicationContext(new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/util/filtertest-valid.xml"));
-
-        try {
-            provider.authenticate(token);
-            fail("Should have thrown AccountExpiredException");
-        } catch (AccountExpiredException expected) {
-            assertTrue(true);
-        }
     }
 
     public void testAuthenticateFailsIfAccountLocked() {
@@ -113,16 +101,6 @@ public class PasswordDaoAuthenticationProviderTests extends TestCase {
         } catch (LockedException expected) {
             assertTrue(true);
         }
-
-        provider.setApplicationContext(new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/util/filtertest-valid.xml"));
-
-        try {
-            provider.authenticate(token);
-            fail("Should have thrown AccountExpiredException");
-        } catch (LockedException expected) {
-            assertTrue(true);
-        }
     }
 
     public void testAuthenticateFailsIfCredentialsExpired() {
@@ -132,16 +110,6 @@ public class PasswordDaoAuthenticationProviderTests extends TestCase {
         PasswordDaoAuthenticationProvider provider = new PasswordDaoAuthenticationProvider();
         provider.setPasswordAuthenticationDao(new MockAuthenticationDaoUserPeterCredentialsExpired());
         provider.setUserCache(new MockUserCache());
-
-        try {
-            provider.authenticate(token);
-            fail("Should have thrown CredentialsExpiredException");
-        } catch (CredentialsExpiredException expected) {
-            assertTrue(true);
-        }
-
-        provider.setApplicationContext(new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/util/filtertest-valid.xml"));
 
         try {
             provider.authenticate(token);

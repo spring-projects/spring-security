@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.sf.acegisecurity.intercept;
 
 import net.sf.acegisecurity.AccessDecisionManager;
@@ -25,11 +26,10 @@ import net.sf.acegisecurity.ConfigAttribute;
 import net.sf.acegisecurity.ConfigAttributeDefinition;
 import net.sf.acegisecurity.RunAsManager;
 import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.intercept.event.AuthenticationCredentialsNotFoundEvent;
-import net.sf.acegisecurity.intercept.event.AuthenticationFailureEvent;
-import net.sf.acegisecurity.intercept.event.AuthorizationFailureEvent;
-import net.sf.acegisecurity.intercept.event.AuthorizedEvent;
-import net.sf.acegisecurity.intercept.event.PublicInvocationEvent;
+import net.sf.acegisecurity.event.authorization.AuthenticationCredentialsNotFoundEvent;
+import net.sf.acegisecurity.event.authorization.AuthorizationFailureEvent;
+import net.sf.acegisecurity.event.authorization.AuthorizedEvent;
+import net.sf.acegisecurity.event.authorization.PublicInvocationEvent;
 import net.sf.acegisecurity.runas.NullRunAsManager;
 
 import org.apache.commons.logging.Log;
@@ -50,16 +50,16 @@ import java.util.Set;
 
 /**
  * Abstract class that implements security interception for secure objects.
- *
+ * 
  * <P>
  * The <code>AbstractSecurityInterceptor</code> will ensure the proper startup
  * configuration of the security interceptor. It will also implement the
  * proper handling of secure object invocations, being:
- *
+ * 
  * <ol>
  * <li>
- * Obtain the {@link Authentication} object from the
- * {@link SecurityContextHolder}.
+ * Obtain the {@link Authentication} object from the {@link
+ * SecurityContextHolder}.
  * </li>
  * <li>
  * Determine if the request relates to a secured or public invocation by
@@ -69,7 +69,7 @@ import java.util.Set;
  * <li>
  * For an invocation that is secured (there is a
  * <code>ConfigAttributeDefinition</code> for the secure object invocation):
- *
+ * 
  * <ol type="a">
  * <li>
  * If either the {@link net.sf.acegisecurity.Authentication#isAuthenticated()}
@@ -108,12 +108,12 @@ import java.util.Set;
  * caller.
  * </li>
  * </ol>
- *
+ * 
  * </li>
  * <li>
  * For an invocation that is public (there is no
  * <code>ConfigAttributeDefinition</code> for the secure object invocation):
- *
+ * 
  * <ol type="a">
  * <li>
  * As described above, the concrete subclass will be returned an
@@ -124,7 +124,7 @@ import java.util.Set;
  * Object)} is called.
  * </li>
  * </ol>
- *
+ * 
  * </li>
  * <li>
  * Control again returns to the concrete subclass, along with the
@@ -139,7 +139,12 @@ import java.util.Set;
  */
 public abstract class AbstractSecurityInterceptor implements InitializingBean,
     ApplicationContextAware {
+    //~ Static fields/initializers =============================================
+
     protected static final Log logger = LogFactory.getLog(AbstractSecurityInterceptor.class);
+
+    //~ Instance fields ========================================================
+
     private AccessDecisionManager accessDecisionManager;
     private AfterInvocationManager afterInvocationManager;
     private ApplicationContext context;
@@ -147,6 +152,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
     private RunAsManager runAsManager = new NullRunAsManager();
     private boolean alwaysReauthenticate = false;
     private boolean validateConfigAttributes = true;
+
+    //~ Methods ================================================================
 
     public void setAfterInvocationManager(
         AfterInvocationManager afterInvocationManager) {
@@ -245,27 +252,27 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 
         if (!this.obtainObjectDefinitionSource().supports(getSecureObjectClass())) {
             throw new IllegalArgumentException(
-                "ObjectDefinitionSource does not support secure object class: " +
-                getSecureObjectClass());
+                "ObjectDefinitionSource does not support secure object class: "
+                + getSecureObjectClass());
         }
 
         if (!this.runAsManager.supports(getSecureObjectClass())) {
             throw new IllegalArgumentException(
-                "RunAsManager does not support secure object class: " +
-                getSecureObjectClass());
+                "RunAsManager does not support secure object class: "
+                + getSecureObjectClass());
         }
 
         if (!this.accessDecisionManager.supports(getSecureObjectClass())) {
             throw new IllegalArgumentException(
-                "AccessDecisionManager does not support secure object class: " +
-                getSecureObjectClass());
+                "AccessDecisionManager does not support secure object class: "
+                + getSecureObjectClass());
         }
 
-        if ((this.afterInvocationManager != null) &&
-                !this.afterInvocationManager.supports(getSecureObjectClass())) {
+        if ((this.afterInvocationManager != null)
+            && !this.afterInvocationManager.supports(getSecureObjectClass())) {
             throw new IllegalArgumentException(
-                "AfterInvocationManager does not support secure object class: " +
-                getSecureObjectClass());
+                "AfterInvocationManager does not support secure object class: "
+                + getSecureObjectClass());
         }
 
         if (this.validateConfigAttributes) {
@@ -281,16 +288,18 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                 Set set = new HashSet();
 
                 while (iter.hasNext()) {
-                    ConfigAttributeDefinition def = (ConfigAttributeDefinition) iter.next();
+                    ConfigAttributeDefinition def = (ConfigAttributeDefinition) iter
+                        .next();
                     Iterator attributes = def.getConfigAttributes();
 
                     while (attributes.hasNext()) {
-                        ConfigAttribute attr = (ConfigAttribute) attributes.next();
+                        ConfigAttribute attr = (ConfigAttribute) attributes
+                            .next();
 
-                        if (!this.runAsManager.supports(attr) &&
-                                !this.accessDecisionManager.supports(attr) &&
-                                ((this.afterInvocationManager == null) ||
-                                !this.afterInvocationManager.supports(attr))) {
+                        if (!this.runAsManager.supports(attr)
+                            && !this.accessDecisionManager.supports(attr)
+                            && ((this.afterInvocationManager == null)
+                            || !this.afterInvocationManager.supports(attr))) {
                             set.add(attr);
                         }
                     }
@@ -302,8 +311,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                     }
                 } else {
                     throw new IllegalArgumentException(
-                        "Unsupported configuration attributes: " +
-                        set.toString());
+                        "Unsupported configuration attributes: "
+                        + set.toString());
                 }
             }
         }
@@ -330,16 +339,18 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 
         if (token.isContextHolderRefreshRequired()) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Reverting to original Authentication: " +
-                    token.getAuthentication().toString());
+                logger.debug("Reverting to original Authentication: "
+                    + token.getAuthentication().toString());
             }
 
-            SecurityContextHolder.getContext().setAuthentication(token.getAuthentication());
+            SecurityContextHolder.getContext().setAuthentication(token
+                .getAuthentication());
         }
 
         if (afterInvocationManager != null) {
-            returnedObject = afterInvocationManager.decide(token.getAuthentication(),
-                    token.getSecureObject(), token.getAttr(), returnedObject);
+            returnedObject = afterInvocationManager.decide(token
+                    .getAuthentication(), token.getSecureObject(),
+                    token.getAttr(), returnedObject);
         }
 
         return returnedObject;
@@ -348,18 +359,18 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
     protected InterceptorStatusToken beforeInvocation(Object object) {
         Assert.notNull(object, "Object was null");
         Assert.isTrue(getSecureObjectClass().isAssignableFrom(object.getClass()),
-            "Security invocation attempted for object " +
-            object.getClass().getName() +
-            " but AbstractSecurityInterceptor only configured to support secure objects of type: " +
-            getSecureObjectClass());
+            "Security invocation attempted for object "
+            + object.getClass().getName()
+            + " but AbstractSecurityInterceptor only configured to support secure objects of type: "
+            + getSecureObjectClass());
 
         ConfigAttributeDefinition attr = this.obtainObjectDefinitionSource()
                                              .getAttributes(object);
 
         if (attr != null) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Secure object: " + object.toString() +
-                    "; ConfigAttributes: " + attr.toString());
+                logger.debug("Secure object: " + object.toString()
+                    + "; ConfigAttributes: " + attr.toString());
             }
 
             // We check for just the property we're interested in (we do
@@ -373,26 +384,19 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
             Authentication authenticated;
 
             if (!SecurityContextHolder.getContext().getAuthentication()
-                                          .isAuthenticated() ||
-                    alwaysReauthenticate) {
+                                      .isAuthenticated()
+                || alwaysReauthenticate) {
                 try {
                     authenticated = this.authenticationManager.authenticate(SecurityContextHolder.getContext()
                                                                                                  .getAuthentication());
                 } catch (AuthenticationException authenticationException) {
-                    AuthenticationFailureEvent event = new AuthenticationFailureEvent(object,
-                            attr,
-                            SecurityContextHolder.getContext()
-                                                 .getAuthentication(),
-                            authenticationException);
-                    this.context.publishEvent(event);
-
                     throw authenticationException;
                 }
 
                 // We don't authenticated.setAuthentication(true), because each provider should do that
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Successfully Authenticated: " +
-                        authenticated.toString());
+                    logger.debug("Successfully Authenticated: "
+                        + authenticated.toString());
                 }
 
                 SecurityContextHolder.getContext().setAuthentication(authenticated);
@@ -401,8 +405,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                                                      .getAuthentication();
 
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Previously Authenticated: " +
-                        authenticated.toString());
+                    logger.debug("Previously Authenticated: "
+                        + authenticated.toString());
                 }
             }
 
@@ -439,8 +443,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                     object); // no further work post-invocation
             } else {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Switching to RunAs Authentication: " +
-                        runAs.toString());
+                    logger.debug("Switching to RunAs Authentication: "
+                        + runAs.toString());
                 }
 
                 SecurityContextHolder.getContext().setAuthentication(runAs);
@@ -462,7 +466,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
     /**
      * Helper method which generates an exception containing the passed reason,
      * and publishes an event to the application context.
-     *
+     * 
      * <P>
      * Always throws an exception.
      * </p>
