@@ -40,6 +40,20 @@ public class AuthenticationTagTests extends TestCase {
 
     //~ Methods ================================================================
 
+    public void testOperationAndMethodPrefixWhenPrincipalIsAUserDetailsInstance()
+        throws JspException {
+        Authentication auth = new TestingAuthenticationToken(new User(
+                    "marissaUserDetails", "koala", true, true, true, true,
+                    new GrantedAuthority[] {}), "koala",
+                new GrantedAuthority[] {});
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        authenticationTag.setOperation("username");
+        authenticationTag.setMethodPrefix("get");
+        assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
+        assertEquals("marissaUserDetails", authenticationTag.getLastMessage());
+    }
+
     public void testOperationWhenPrincipalIsAString() throws JspException {
         Authentication auth = new TestingAuthenticationToken("marissaAsString",
                 "koala", new GrantedAuthority[] {});
@@ -58,7 +72,7 @@ public class AuthenticationTagTests extends TestCase {
                 new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        authenticationTag.setOperation("principal");
+        authenticationTag.setOperation("username");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
         assertEquals("marissaUserDetails", authenticationTag.getLastMessage());
     }
@@ -89,7 +103,29 @@ public class AuthenticationTagTests extends TestCase {
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
     }
 
+    public void testThrowsExceptionForUnrecognisedMethodPrefix() {
+        Authentication auth = new TestingAuthenticationToken(new User(
+                    "marissaUserDetails", "koala", true, true, true, true,
+                    new GrantedAuthority[] {}), "koala",
+                new GrantedAuthority[] {});
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        authenticationTag.setOperation("username");
+        authenticationTag.setMethodPrefix("qrq");
+
+        try {
+            authenticationTag.doStartTag();
+            fail("Should have thrown a JspException");
+        } catch (JspException expected) {
+            assertTrue(true);
+        }
+    }
+
     public void testThrowsExceptionForUnrecognisedOperation() {
+        Authentication auth = new TestingAuthenticationToken(new User(
+                    "marissaUserDetails", "koala", true, true, true, true,
+                    new GrantedAuthority[] {}), "koala",
+                new GrantedAuthority[] {});
+        SecurityContextHolder.getContext().setAuthentication(auth);
         authenticationTag.setOperation("qsq");
 
         try {

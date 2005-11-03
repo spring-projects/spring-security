@@ -63,10 +63,21 @@
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
 			<description>
-                Must be "principal", for a String representation of the
-				username. An attribute to aid in future extension of the tag.
+                Must be one of the methods of an instance that implements the UserDetails 
+                interface. Use the JavaBean style property, you can provide a custom prefix 
+                for the method to call.
 			</description>
 		</attribute>
+		
+		<attribute>
+			<name>methodPrefix</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+                Must be get or is. This is used to determine the name of the 
+                method to be called. The default is get.
+			</description>
+		</attribute>		
 	</tag>
 
 
