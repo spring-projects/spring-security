@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,11 @@ import net.sf.acegisecurity.acl.AclManager;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import org.springframework.util.Assert;
+
 import org.springframework.web.bind.RequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
-import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -65,7 +66,8 @@ public class DeletePermissionController implements Controller, InitializingBean 
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(contactManager, "A ContactManager implementation is required");
+        Assert.notNull(contactManager,
+            "A ContactManager implementation is required");
         Assert.notNull(aclManager, "An aclManager implementation is required");
     }
 
@@ -76,7 +78,7 @@ public class DeletePermissionController implements Controller, InitializingBean 
         String recipient = RequestUtils.getRequiredStringParameter(request,
                 "recipient");
 
-        Contact contact = contactManager.getById(new Integer(contactId));
+        Contact contact = contactManager.getById(new Long(contactId));
 
         contactManager.deletePermission(contact, recipient);
 

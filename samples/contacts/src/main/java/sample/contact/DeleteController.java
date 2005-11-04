@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@ package sample.contact;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import org.springframework.util.Assert;
+
 import org.springframework.web.bind.RequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
-import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -51,13 +52,14 @@ public class DeleteController implements Controller, InitializingBean {
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(contactManager, "A ContactManager implementation is required");
+        Assert.notNull(contactManager,
+            "A ContactManager implementation is required");
     }
 
     public ModelAndView handleRequest(HttpServletRequest request,
         HttpServletResponse response) throws ServletException, IOException {
         int id = RequestUtils.getRequiredIntParameter(request, "contactId");
-        Contact contact = contactManager.getById(new Integer(id));
+        Contact contact = contactManager.getById(new Long(id));
         contactManager.delete(contact);
 
         return new ModelAndView("deleted", "contact", contact);

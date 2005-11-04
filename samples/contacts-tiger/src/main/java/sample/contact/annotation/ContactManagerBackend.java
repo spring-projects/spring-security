@@ -87,7 +87,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport
 
     @Secured ({"ROLE_USER","AFTER_ACL_READ"})
     @Transactional(readOnly=true)
-    public Contact getById(Integer id) {
+    public Contact getById(Long id) {
         if (logger.isDebugEnabled()) {
             logger.debug("Returning contact with id: " + id);
         }
@@ -143,7 +143,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport
     @Secured ({"ROLE_USER"})
     public void create(Contact contact) {
         // Create the Contact itself
-        contact.setId(new Integer(counter++));
+        contact.setId(new Long(counter++));
         contactDao.create(contact);
 
         // Grant the current principal access to the contact 

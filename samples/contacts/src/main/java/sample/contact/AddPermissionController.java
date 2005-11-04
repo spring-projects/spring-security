@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,14 @@ import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.dao.DataAccessException;
 
+import org.springframework.util.Assert;
+
 import org.springframework.validation.BindException;
 
 import org.springframework.web.bind.RequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 import org.springframework.web.servlet.view.RedirectView;
-import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -61,7 +62,8 @@ public class AddPermissionController extends SimpleFormController
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(contactManager, "A ContactManager implementation is required");
+        Assert.notNull(contactManager,
+            "A ContactManager implementation is required");
     }
 
     protected ModelAndView disallowDuplicateFormSubmission(
@@ -80,7 +82,7 @@ public class AddPermissionController extends SimpleFormController
         int contactId = RequestUtils.getRequiredIntParameter(request,
                 "contactId");
 
-        Contact contact = contactManager.getById(new Integer(contactId));
+        Contact contact = contactManager.getById(new Long(contactId));
 
         AddPermission addPermission = new AddPermission();
         addPermission.setContact(contact);

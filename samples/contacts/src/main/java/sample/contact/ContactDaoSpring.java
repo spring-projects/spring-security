@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,8 +48,8 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
 
     //~ Methods ================================================================
 
-    public Contact getById(Integer id) {
-        List list = contactsByIdQuery.execute(id.intValue());
+    public Contact getById(Long id) {
+        List list = contactsByIdQuery.execute(id.longValue());
 
         if (list.size() == 0) {
             return null;
@@ -59,10 +59,12 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
     }
 
     public void create(Contact contact) {
+        System.out.println("creating contact w/ id " + contact.getId() + " "
+            + contact.getEmail());
         contactInsert.insert(contact);
     }
 
-    public void delete(Integer contactId) {
+    public void delete(Long contactId) {
         contactDelete.delete(contactId);
     }
 
@@ -109,14 +111,14 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
 
         protected Object mapRow(ResultSet rs, int rownum)
             throws SQLException {
-            return new Integer(rs.getInt("id"));
+            return new Long(rs.getLong("id"));
         }
     }
 
     protected class AclObjectIdentityInsert extends SqlUpdate {
         protected AclObjectIdentityInsert(DataSource ds) {
             super(ds, "INSERT INTO acl_object_identity VALUES (?, ?, ?, ?)");
-            declareParameter(new SqlParameter(Types.INTEGER));
+            declareParameter(new SqlParameter(Types.BIGINT));
             declareParameter(new SqlParameter(Types.VARCHAR));
             declareParameter(new SqlParameter(Types.INTEGER));
             declareParameter(new SqlParameter(Types.VARCHAR));
@@ -124,7 +126,7 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         }
 
         protected int insert(String objectIdentity,
-            Integer parentAclObjectIdentity, String aclClass) {
+            Long parentAclObjectIdentity, String aclClass) {
             Object[] objs = new Object[] {null, objectIdentity, parentAclObjectIdentity, aclClass};
             super.update(objs);
 
@@ -135,19 +137,19 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
     protected class ContactDelete extends SqlUpdate {
         protected ContactDelete(DataSource ds) {
             super(ds, "DELETE FROM contacts WHERE id = ?");
-            declareParameter(new SqlParameter(Types.INTEGER));
+            declareParameter(new SqlParameter(Types.BIGINT));
             compile();
         }
 
-        protected void delete(Integer contactId) {
-            super.update(contactId.intValue());
+        protected void delete(Long contactId) {
+            super.update(contactId.longValue());
         }
     }
 
     protected class ContactInsert extends SqlUpdate {
         protected ContactInsert(DataSource ds) {
             super(ds, "INSERT INTO contacts VALUES (?, ?, ?)");
-            declareParameter(new SqlParameter(Types.INTEGER));
+            declareParameter(new SqlParameter(Types.BIGINT));
             declareParameter(new SqlParameter(Types.VARCHAR));
             declareParameter(new SqlParameter(Types.VARCHAR));
             compile();
@@ -166,7 +168,7 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
                 "UPDATE contacts SET contact_name = ?, address = ? WHERE id = ?");
             declareParameter(new SqlParameter(Types.VARCHAR));
             declareParameter(new SqlParameter(Types.VARCHAR));
-            declareParameter(new SqlParameter(Types.INTEGER));
+            declareParameter(new SqlParameter(Types.BIGINT));
             compile();
         }
 
@@ -186,7 +188,7 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         protected Object mapRow(ResultSet rs, int rownum)
             throws SQLException {
             Contact contact = new Contact();
-            contact.setId(new Integer(rs.getInt("id")));
+            contact.setId(new Long(rs.getLong("id")));
             contact.setName(rs.getString("contact_name"));
             contact.setEmail(rs.getString("email"));
 
@@ -198,14 +200,14 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         protected ContactsByIdQuery(DataSource ds) {
             super(ds,
                 "SELECT id, contact_name, email FROM contacts WHERE id = ? ORDER BY id");
-            declareParameter(new SqlParameter(Types.INTEGER));
+            declareParameter(new SqlParameter(Types.BIGINT));
             compile();
         }
 
         protected Object mapRow(ResultSet rs, int rownum)
             throws SQLException {
             Contact contact = new Contact();
-            contact.setId(new Integer(rs.getInt("id")));
+            contact.setId(new Long(rs.getLong("id")));
             contact.setName(rs.getString("contact_name"));
             contact.setEmail(rs.getString("email"));
 
@@ -217,12 +219,12 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         protected PermissionDelete(DataSource ds) {
             super(ds,
                 "DELETE FROM acl_permission WHERE ACL_OBJECT_IDENTITY = ? AND RECIPIENT = ?");
-            declareParameter(new SqlParameter(Types.INTEGER));
+            declareParameter(new SqlParameter(Types.BIGINT));
             declareParameter(new SqlParameter(Types.VARCHAR));
             compile();
         }
 
-        protected void delete(Integer aclObjectIdentity, String recipient) {
+        protected void delete(Long aclObjectIdentity, String recipient) {
             super.update(new Object[] {aclObjectIdentity, recipient});
         }
     }
@@ -230,14 +232,14 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
     protected class PermissionInsert extends SqlUpdate {
         protected PermissionInsert(DataSource ds) {
             super(ds, "INSERT INTO acl_permission VALUES (?, ?, ?, ?);");
-            declareParameter(new SqlParameter(Types.INTEGER));
-            declareParameter(new SqlParameter(Types.INTEGER));
+            declareParameter(new SqlParameter(Types.BIGINT));
+            declareParameter(new SqlParameter(Types.BIGINT));
             declareParameter(new SqlParameter(Types.VARCHAR));
             declareParameter(new SqlParameter(Types.INTEGER));
             compile();
         }
 
-        protected int insert(Integer aclObjectIdentity, String recipient,
+        protected int insert(Long aclObjectIdentity, String recipient,
             Integer mask) {
             Object[] objs = new Object[] {null, aclObjectIdentity, recipient, mask};
             super.update(objs);

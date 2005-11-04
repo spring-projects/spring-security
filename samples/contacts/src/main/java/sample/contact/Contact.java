@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import java.io.Serializable;
 public class Contact implements Serializable {
     //~ Instance fields ========================================================
 
-    private Integer id;
+    private Long id;
     private String email;
     private String name;
 
@@ -60,7 +60,7 @@ public class Contact implements Serializable {
         return email;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -69,7 +69,7 @@ public class Contact implements Serializable {
      *
      * @return Returns the id.
      */
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
