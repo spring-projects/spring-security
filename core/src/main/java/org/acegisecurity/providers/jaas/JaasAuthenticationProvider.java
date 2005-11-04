@@ -19,33 +19,23 @@ import net.sf.acegisecurity.AcegiSecurityException;
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter;
+import net.sf.acegisecurity.context.SecurityContext;
 import net.sf.acegisecurity.providers.AuthenticationProvider;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import net.sf.acegisecurity.providers.jaas.event.JaasAuthenticationFailedEvent;
 import net.sf.acegisecurity.providers.jaas.event.JaasAuthenticationSuccessEvent;
-
+import net.sf.acegisecurity.ui.session.HttpSessionDestroyedEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.core.io.Resource;
-
 import org.springframework.util.Assert;
-
-import java.io.IOException;
-
-import java.security.Principal;
-import java.security.Security;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -53,6 +43,13 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import java.io.IOException;
+import java.security.Principal;
+import java.security.Security;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 
 /**
@@ -157,15 +154,14 @@ import javax.security.auth.login.LoginException;
  * </p>
  *
  * A configuration note:
- * The JaasAuthenticationProvider configures jaas using the system property 'java.security.auth.login.config' by default.
- * If use of the java.security.auth.login.config property is not allowed by the Security property 'policy.allowSystemProperty', OR if the JaasAuthenticationProvider
- * useSystemProperty option is false, then Jaas will be configured using the 'login.config.url.x' properties.
+ * The JaasAuthenticationProvider uses the security properites &quote;login.config.url.X&quote; to configure jaas.
+ * If you would like to customize the way Jaas gets configured, create a subclass of this and override the {@link #configureJaas(Resource)} method.
  *
  * @author Ray Krueger
  * @version $Id$
  */
 public class JaasAuthenticationProvider implements AuthenticationProvider,
-    InitializingBean, ApplicationContextAware {
+        InitializingBean, ApplicationContextAware, ApplicationListener {
     //~ Static fields/initializers =============================================
 
     protected static final Log log = LogFactory.getLog(JaasAuthenticationProvider.class);
@@ -175,16 +171,15 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
     private ApplicationContext context;
     private LoginExceptionResolver loginExceptionResolver = new DefaultLoginExceptionResolver();
     private Resource loginConfig;
-    private final String SYSPROP = "java.security.auth.login.config";
+
     private String loginContextName = "ACEGI";
     private AuthorityGranter[] authorityGranters;
     private JaasAuthenticationCallbackHandler[] callbackHandlers;
-    private boolean useSystemProperty = true;
 
     //~ Methods ================================================================
 
     public void setApplicationContext(ApplicationContext applicationContext)
-        throws BeansException {
+            throws BeansException {
         this.context = applicationContext;
     }
 
@@ -197,7 +192,6 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
      * granted to the Authentication.
      *
      * @param authorityGranters AuthorityGranter array
-     *
      * @see JaasAuthenticationProvider
      */
     public void setAuthorityGranters(AuthorityGranter[] authorityGranters) {
@@ -210,8 +204,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
      * were ever set.
      *
      * @return The AuthorityGranter array, or null
-     *
-     * @see #setAuthorityGranters(net.sf.acegisecurity.providers.jaas.AuthorityGranter[])
+     * @see #setAuthorityGranters(AuthorityGranter[])
      */
     public AuthorityGranter[] getAuthorityGranters() {
         return authorityGranters;
@@ -224,7 +217,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
      * @param callbackHandlers Array of JAASAuthenticationCallbackHandlers
      */
     public void setCallbackHandlers(
-        JaasAuthenticationCallbackHandler[] callbackHandlers) {
+            JaasAuthenticationCallbackHandler[] callbackHandlers) {
         this.callbackHandlers = callbackHandlers;
     }
 
@@ -233,8 +226,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
      * none are set.
      *
      * @return the JAASAuthenticationCallbackHandlers.
-     *
-     * @see #setCallbackHandlers(net.sf.acegisecurity.providers.jaas.JaasAuthenticationCallbackHandler[])
+     * @see #setCallbackHandlers(JaasAuthenticationCallbackHandler[])
      */
     public JaasAuthenticationCallbackHandler[] getCallbackHandlers() {
         return callbackHandlers;
@@ -244,9 +236,8 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
      * Set the JAAS login configuration file.
      *
      * @param loginConfig <a
-     *        href="http://www.springframework.org/docs/api/org/springframework/core/io/Resource.html">Spring
-     *        Resource</a>
-     *
+     * href="http://www.springframework.org/docs/api/org/springframework/core/io/Resource.html">Spring
+     * Resource</a>
      * @see <a
      *      href="http://java.sun.com/j2se/1.4.2/docs/guide/security/jaas/JAASRefGuide.html">JAAS
      *      Reference</a>
@@ -274,7 +265,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
     }
 
     public void setLoginExceptionResolver(
-        LoginExceptionResolver loginExceptionResolver) {
+            LoginExceptionResolver loginExceptionResolver) {
         this.loginExceptionResolver = loginExceptionResolver;
     }
 
@@ -285,38 +276,52 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(loginConfig, "loginConfig must be set on " + getClass());
         Assert.hasLength(loginContextName,
-            "loginContextName must be set on " + getClass());
+                "loginContextName must be set on " + getClass());
 
-        String loginConfigStr = null;
-
-        try {
-            loginConfigStr = loginConfig.getFile().toString();
-        } catch (IOException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Could not resolve loginConfig [" + loginConfig
-                    + "] as a File, using URL");
-            }
-
-            loginConfigStr = loginConfig.getURL().toString();
-        }
-
-        boolean allowed = "true".equalsIgnoreCase(Security.getProperty(
-                    "policy.allowSystemProperty"));
-
-        if (useSystemProperty && allowed) {
-            log.debug("Setting system property [" + SYSPROP + "] to: "
-                + loginConfigStr);
-            System.setProperty(SYSPROP, loginConfigStr);
-        } else {
-            if (useSystemProperty && !allowed) {
-                log.warn("useSystemProperty is true, but the security property 'policy.allowSystemProperty' is false. " +
-                        "Jaas will be configured using the login.config.url property.");
-            }
-            setPropertyUsingLoop(loginConfig.getURL().toString());
-        }
+        configureJaas(loginConfig);
 
         Assert.notNull(Configuration.getConfiguration(),
-            "As per http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/Configuration.html \"If a Configuration object was set via the Configuration.setConfiguration method, then that object is returned. Otherwise, a default Configuration object is returned\". Your JRE returned null to Configuration.getConfiguration().");
+                "As per http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/Configuration.html \"If a Configuration object was set via the Configuration.setConfiguration method, then that object is returned. Otherwise, a default Configuration object is returned\". Your JRE returned null to Configuration.getConfiguration().");
+    }
+
+    /**
+     * Hook method for configuring Jaas
+     *
+     * @param loginConfigStr URL to Jaas login configuration
+     */
+    protected void configureJaas(Resource loginConfig) throws IOException {
+        configureJaasUsingLoop();
+    }
+
+    /**
+     * Loops through the login.config.url.1,login.config.url.2 properties
+     * looking for the login configuration. If it is not set, it will be set
+     * to the last available login.config.url.X property.
+     */
+    private void configureJaasUsingLoop() throws IOException {
+        String loginConfigUrl = loginConfig.getURL().toString();
+        boolean alreadySet = false;
+
+        int n = 1;
+        String prefix = "login.config.url.";
+        String existing = null;
+
+        while ((existing = Security.getProperty(prefix + n)) != null) {
+            alreadySet = existing.equals(loginConfigUrl);
+
+            if (alreadySet) {
+                break;
+            }
+
+            n++;
+        }
+
+        if (!alreadySet) {
+            String key = prefix + n;
+            log.debug("Setting security property [" + key + "] to: "
+                    + loginConfigUrl);
+            Security.setProperty(key, loginConfigUrl);
+        }
     }
 
     /**
@@ -324,28 +329,26 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
      * and credential
      *
      * @param auth The Authentication object to be authenticated.
-     *
      * @return The authenticated Authentication object, with it's
      *         grantedAuthorities set.
-     *
      * @throws AuthenticationException This implementation does not handle
-     *         'locked' or 'disabled' accounts. This method only throws a
-     *         AuthenticationServiceException, with the message of the
-     *         LoginException that will be thrown, should the
-     *         loginContext.login() method fail.
+     * 'locked' or 'disabled' accounts. This method only throws a
+     * AuthenticationServiceException, with the message of the
+     * LoginException that will be thrown, should the
+     * loginContext.login() method fail.
      */
     public Authentication authenticate(Authentication auth)
-        throws AuthenticationException {
+            throws AuthenticationException {
         if (auth instanceof UsernamePasswordAuthenticationToken) {
             UsernamePasswordAuthenticationToken request = (UsernamePasswordAuthenticationToken) auth;
 
             try {
                 //Create the LoginContext object, and pass our InternallCallbackHandler
-                LoginContext lc = new LoginContext(loginContextName,
+                LoginContext loginContext = new LoginContext(loginContextName,
                         new InternalCallbackHandler(auth));
 
                 //Attempt to login the user, the LoginContext will call our InternalCallbackHandler at this point.
-                lc.login();
+                loginContext.login();
 
                 //create a set to hold the authorities, and add any that have already been applied.
                 Set authorities = new HashSet();
@@ -355,10 +358,10 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
                 }
 
                 //get the subject principals and pass them to each of the AuthorityGranters
-                Set principals = lc.getSubject().getPrincipals();
+                Set principals = loginContext.getSubject().getPrincipals();
 
                 for (Iterator iterator = principals.iterator();
-                    iterator.hasNext();) {
+                     iterator.hasNext();) {
                     Principal principal = (Principal) iterator.next();
 
                     for (int i = 0; i < authorityGranters.length; i++) {
@@ -368,7 +371,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
                         //If the granter doesn't wish to grant any authorities, it should return null.
                         if ((roles != null) && !roles.isEmpty()) {
                             for (Iterator roleIterator = roles.iterator();
-                                roleIterator.hasNext();) {
+                                 roleIterator.hasNext();) {
                                 String role = roleIterator.next().toString();
                                 authorities.add(new JaasGrantedAuthority(role,
                                         principal));
@@ -378,10 +381,10 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
                 }
 
                 //Convert the authorities set back to an array and apply it to the token.
-                UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(request
+                JaasAuthenticationToken result = new JaasAuthenticationToken(request
                         .getPrincipal(), request.getCredentials(),
                         (GrantedAuthority[]) authorities.toArray(
-                            new GrantedAuthority[authorities.size()]));
+                                new GrantedAuthority[authorities.size()]), loginContext);
 
                 //Publish the success event
                 publishSuccessEvent(result);
@@ -390,7 +393,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
                 return result;
             } catch (LoginException loginException) {
                 AcegiSecurityException ase = loginExceptionResolver
-                    .resolveException(loginException);
+                        .resolveException(loginException);
 
                 publishFailureEvent(request, ase);
                 throw ase;
@@ -404,16 +407,48 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
         return UsernamePasswordAuthenticationToken.class.isAssignableFrom(aClass);
     }
 
+    public void onApplicationEvent(ApplicationEvent applicationEvent) {
+        if (applicationEvent instanceof HttpSessionDestroyedEvent) {
+            HttpSessionDestroyedEvent event = (HttpSessionDestroyedEvent) applicationEvent;
+            handleLogout(event);
+        }
+    }
+
+    /**
+     * Handles the logout by getting the SecurityContext for the session that was destroyed.
+     * <b>MUST NOT use SecurityContextHolder we are logging out a session that is not related to the current user.</b>
+     * @param event
+     */
+    protected void handleLogout(HttpSessionDestroyedEvent event) {
+        SecurityContext context = (SecurityContext) event.getSession().getAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
+        Authentication auth = context.getAuthentication();
+        if (auth instanceof JaasAuthenticationToken) {
+            JaasAuthenticationToken token = (JaasAuthenticationToken) auth;
+            try {
+                LoginContext loginContext = token.getLoginContext();
+                if (loginContext != null) {
+                    log.debug("Logging principal: [" + token.getPrincipal() + "] out of LoginContext");
+                    loginContext.logout();
+                } else {
+                    log.debug("Cannot logout principal: [" + token.getPrincipal() + "] from LoginContext. " +
+                            "The LoginContext is unavailable");
+                }
+            } catch (LoginException e) {
+                log.warn("Error error logging out of LoginContext", e);
+            }
+        }
+    }
+
     /**
      * Publishes the {@link JaasAuthenticationFailedEvent}. Can be overridden
      * by subclasses for different functionality
      *
      * @param token The {@link UsernamePasswordAuthenticationToken} being
-     *        processed
+     * processed
      * @param ase The {@link AcegiSecurityException} that caused the failure
      */
     protected void publishFailureEvent(
-        UsernamePasswordAuthenticationToken token, AcegiSecurityException ase) {
+            UsernamePasswordAuthenticationToken token, AcegiSecurityException ase) {
         getApplicationContext().publishEvent(new JaasAuthenticationFailedEvent(
                 token, ase));
     }
@@ -423,59 +458,14 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
      * by subclasses for different functionality.
      *
      * @param token The {@link UsernamePasswordAuthenticationToken} being
-     *        processed
+     * processed
      */
     protected void publishSuccessEvent(
-        UsernamePasswordAuthenticationToken token) {
+            UsernamePasswordAuthenticationToken token) {
         getApplicationContext().publishEvent(new JaasAuthenticationSuccessEvent(
                 token));
     }
 
-    /**
-     * Loops through the login.config.url.1,login.config.url.2 properties
-     * looking for the login configuration. If it is not set, it will be set
-     * to the last available login.config.url.X property.
-     *
-     * @param loginConfigStr
-     */
-    private void setPropertyUsingLoop(String loginConfigStr) {
-        boolean alreadySet = false;
-
-        int n = 1;
-        String prefix = "login.config.url.";
-        String existing = null;
-
-        while ((existing = Security.getProperty(prefix + n)) != null) {
-            alreadySet = existing.equals(loginConfigStr);
-
-            if (alreadySet) {
-                break;
-            }
-
-            n++;
-        }
-
-        if (!alreadySet) {
-            String key = prefix + n;
-            log.debug("Setting security property [" + key + "] to: "
-                + loginConfigStr);
-            Security.setProperty(key, loginConfigStr);
-        }
-    }
-
-    public boolean isUseSystemProperty() {
-        return useSystemProperty;
-    }
-
-    /**
-     * If true, the JaasAuthenticationProvider will configure Jaas using the system property 'java.security.auth.login.config'.
-     * If false, the JaasAuthenticationProvider will configure Jaas using the 'login.config.url.x' property.
-     * <br/><b>Default:True</b>
-     * @param useSystemProperty
-     */
-    public void setUseSystemProperty(boolean useSystemProperty) {
-        this.useSystemProperty = useSystemProperty;
-    }
     //~ Inner Classes ==========================================================
 
     /**
@@ -489,7 +479,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider,
         }
 
         public void handle(Callback[] callbacks)
-            throws IOException, UnsupportedCallbackException {
+                throws IOException, UnsupportedCallbackException {
             for (int i = 0; i < callbackHandlers.length; i++) {
                 JaasAuthenticationCallbackHandler handler = callbackHandlers[i];
 

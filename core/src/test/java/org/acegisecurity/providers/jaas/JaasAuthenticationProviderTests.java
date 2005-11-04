@@ -17,12 +17,17 @@ package net.sf.acegisecurity.providers.jaas;
 
 import junit.framework.TestCase;
 import net.sf.acegisecurity.*;
+import net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter;
+import net.sf.acegisecurity.context.SecurityContextImpl;
+import net.sf.acegisecurity.ui.session.HttpSessionDestroyedEvent;
 import net.sf.acegisecurity.providers.TestingAuthenticationToken;
 import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.mock.web.MockHttpSession;
 
 import javax.security.auth.login.LoginException;
+import javax.security.auth.login.LoginContext;
 import java.net.URL;
 import java.security.Security;
 import java.util.Arrays;
@@ -74,7 +79,6 @@ public class JaasAuthenticationProviderTests extends TestCase {
         String resName = "/" + getClass().getName().replace('.', '/') + ".conf";
         URL url = getClass().getResource(resName);
 
-        Security.setProperty("policy.allowSystemProperty", "false");
         Security.setProperty("login.config.url.1", url.toString());
 
         setUp();
@@ -211,10 +215,40 @@ public class JaasAuthenticationProviderTests extends TestCase {
                 new GrantedAuthority[]{})));
     }
 
+    public void testLogout() throws Exception {
+
+        MockLoginContext loginContext = new MockLoginContext(jaasProvider.getLoginContextName());
+
+        JaasAuthenticationToken token = new JaasAuthenticationToken(null, null, loginContext);
+
+        SecurityContextImpl context = new SecurityContextImpl();
+        context.setAuthentication(token);
+
+        MockHttpSession mockSession = new MockHttpSession();
+        mockSession.setAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY, context);
+
+        jaasProvider.onApplicationEvent(new HttpSessionDestroyedEvent(mockSession));
+
+        assertTrue(loginContext.loggedOut);
+    }
+
     protected void setUp() throws Exception {
         String resName = "/" + getClass().getName().replace('.', '/') + ".xml";
         context = new ClassPathXmlApplicationContext(resName);
         eventCheck = (JaasEventCheck) context.getBean("eventCheck");
         jaasProvider = (JaasAuthenticationProvider) context.getBean("jaasAuthenticationProvider");
+    }
+
+    private static class MockLoginContext extends LoginContext {
+
+        boolean loggedOut = false;
+
+        public MockLoginContext(String loginModule) throws LoginException {
+            super(loginModule);
+        }
+
+        public void logout() throws LoginException {
+            this.loggedOut = true;
+        }
     }
 }
