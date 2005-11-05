@@ -49,6 +49,9 @@ applications:
 	<li>Event publishing has been refactored. New event classes have been added, and the location of
 	LoggerListener has changed. See the net.sf.acegisecurity.event package.</li>
 		
+	<li>Users of the "authz" taglib will generally need to change the "operation"
+	to "username", as reflection is now used to retrieve the property.</li>
+		
     </ul>
 
 </body>
