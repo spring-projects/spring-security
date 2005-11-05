@@ -15,12 +15,6 @@
 
 package net.sf.acegisecurity.providers;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-
 import net.sf.acegisecurity.AbstractAuthenticationManager;
 import net.sf.acegisecurity.AccountExpiredException;
 import net.sf.acegisecurity.Authentication;
@@ -48,10 +42,20 @@ import net.sf.acegisecurity.providers.cas.ProxyUntrustedException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+
 import org.springframework.util.Assert;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
 
 /**
@@ -76,17 +80,22 @@ import org.springframework.util.Assert;
  * <code>ProviderNotFoundException</code>.
  * </p>
  * 
- * <p>If a valid <code>Authentication</code> is returned by an <code>AuthenticationProvider</code>,
- * the <code>ProviderManager</code> will publish an
- * {@link net.sf.acegisecurity.event.authentication.AuthenticationSuccessEvent}. If an
- * <code>AuthenticationException</code> is detected, the final <code>AuthenticationException</code> thrown
- * will be used to publish an appropriate failure event. By default <code>ProviderManager</code>
- * maps common exceptions to events, but this can be fine-tuned by providing a new
- * <code>exceptionMappings</code> <code>java.util.Properties</code> object. In the
- * properties object, each of the keys represent the fully qualified classname of
- * the exception, and each of the values represent the name of an event class which subclasses
- * {@link net.sf.acegisecurity.event.authentication.AbstractAuthenticationFailureEvent} and
- * provides its constructor.
+ * <p>
+ * If a valid <code>Authentication</code> is returned by an
+ * <code>AuthenticationProvider</code>, the <code>ProviderManager</code> will
+ * publish an {@link
+ * net.sf.acegisecurity.event.authentication.AuthenticationSuccessEvent}. If
+ * an <code>AuthenticationException</code> is detected, the final
+ * <code>AuthenticationException</code> thrown will be used to publish an
+ * appropriate failure event. By default <code>ProviderManager</code> maps
+ * common exceptions to events, but this can be fine-tuned by providing a new
+ * <code>exceptionMappings</code><code>java.util.Properties</code> object. In
+ * the properties object, each of the keys represent the fully qualified
+ * classname of the exception, and each of the values represent the name of an
+ * event class which subclasses {@link
+ * net.sf.acegisecurity.event.authentication.AbstractAuthenticationFailureEvent}
+ * and provides its constructor.
+ * </p>
  *
  * @author Ben Alex
  * @author Wesley Hall
@@ -103,12 +112,17 @@ public class ProviderManager extends AbstractAuthenticationManager
 
     //~ Instance fields ========================================================
 
+    private ApplicationEventPublisher applicationEventPublisher;
     private ConcurrentSessionController sessionController = new NullConcurrentSessionController();
     private List providers;
     private Properties exceptionMappings;
-    private ApplicationEventPublisher applicationEventPublisher;
 
     //~ Methods ================================================================
+
+    public void setApplicationEventPublisher(
+        ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
+    }
 
     /**
      * Sets the {@link AuthenticationProvider} objects to be used for
@@ -169,28 +183,30 @@ public class ProviderManager extends AbstractAuthenticationManager
 
     public void afterPropertiesSet() throws Exception {
         checkIfValidList(this.providers);
+
         if (exceptionMappings == null) {
-        	exceptionMappings = new Properties();
-        	exceptionMappings.put(AccountExpiredException.class.getName(), AuthenticationFailureExpiredEvent.class.getName());
-        	exceptionMappings.put(AuthenticationServiceException.class.getName(), AuthenticationFailureServiceExceptionEvent.class.getName());
-        	exceptionMappings.put(LockedException.class.getName(), AuthenticationFailureLockedEvent.class.getName());
-        	exceptionMappings.put(CredentialsExpiredException.class.getName(), AuthenticationFailureCredentialsExpiredEvent.class.getName());
-        	exceptionMappings.put(DisabledException.class.getName(), AuthenticationFailureDisabledEvent.class.getName());
-        	exceptionMappings.put(BadCredentialsException.class.getName(), AuthenticationFailureBadCredentialsEvent.class.getName());
-        	exceptionMappings.put(ConcurrentLoginException.class.getName(), AuthenticationFailureConcurrentLoginEvent.class.getName());
-        	exceptionMappings.put(ProviderNotFoundException.class.getName(), AuthenticationFailureProviderNotFoundEvent.class.getName());
-        	exceptionMappings.put(ProxyUntrustedException.class.getName(), AuthenticationFailureProxyUntrustedEvent.class.getName());
-        	doAddExtraDefaultExceptionMappings(exceptionMappings);
+            exceptionMappings = new Properties();
+            exceptionMappings.put(AccountExpiredException.class.getName(),
+                AuthenticationFailureExpiredEvent.class.getName());
+            exceptionMappings.put(AuthenticationServiceException.class.getName(),
+                AuthenticationFailureServiceExceptionEvent.class.getName());
+            exceptionMappings.put(LockedException.class.getName(),
+                AuthenticationFailureLockedEvent.class.getName());
+            exceptionMappings.put(CredentialsExpiredException.class.getName(),
+                AuthenticationFailureCredentialsExpiredEvent.class.getName());
+            exceptionMappings.put(DisabledException.class.getName(),
+                AuthenticationFailureDisabledEvent.class.getName());
+            exceptionMappings.put(BadCredentialsException.class.getName(),
+                AuthenticationFailureBadCredentialsEvent.class.getName());
+            exceptionMappings.put(ConcurrentLoginException.class.getName(),
+                AuthenticationFailureConcurrentLoginEvent.class.getName());
+            exceptionMappings.put(ProviderNotFoundException.class.getName(),
+                AuthenticationFailureProviderNotFoundEvent.class.getName());
+            exceptionMappings.put(ProxyUntrustedException.class.getName(),
+                AuthenticationFailureProxyUntrustedEvent.class.getName());
+            doAddExtraDefaultExceptionMappings(exceptionMappings);
         }
     }
-    
-    /**
-     * Provided so subclasses can add extra exception mappings during startup if no
-     * exception mappings are injected by the IoC container.
-     * 
-     * @param exceptionMappings the properties object, which already has entries in it
-     */
-    protected void doAddExtraDefaultExceptionMappings(Properties exceptionMappings) {}
 
     /**
      * Attempts to authenticate the passed {@link Authentication} object.
@@ -215,15 +231,12 @@ public class ProviderManager extends AbstractAuthenticationManager
      * @return a fully authenticated object including credentials.
      *
      * @throws AuthenticationException if authentication fails.
-     * @throws ProviderNotFoundException DOCUMENT ME!
      */
     public Authentication doAuthentication(Authentication authentication)
         throws AuthenticationException {
         Iterator iter = providers.iterator();
 
         Class toTest = authentication.getClass();
-
-        sessionController.checkAuthenticationAllowed(authentication);
 
         AuthenticationException lastException = null;
 
@@ -239,45 +252,64 @@ public class ProviderManager extends AbstractAuthenticationManager
 
                 try {
                     result = provider.authenticate(authentication);
+                    sessionController.checkAuthenticationAllowed(result);
                 } catch (AuthenticationException ae) {
                     lastException = ae;
                 }
 
                 if (result != null) {
                     sessionController.registerSuccessfulAuthentication(result);
-                    applicationEventPublisher.publishEvent(new AuthenticationSuccessEvent(result));
+                    applicationEventPublisher.publishEvent(new AuthenticationSuccessEvent(
+                            result));
+
                     return result;
                 }
             }
         }
 
         if (lastException == null) {
-        	lastException = new ProviderNotFoundException("No authentication provider for " + toTest.getName());
+            lastException = new ProviderNotFoundException(
+                    "No authentication provider for " + toTest.getName());
         }
 
-    	// Publish the event
-        String className = exceptionMappings.getProperty(lastException.getClass().getName());
+        // Publish the event
+        String className = exceptionMappings.getProperty(lastException.getClass()
+                                                                      .getName());
         AbstractAuthenticationEvent event = null;
+
         if (className != null) {
-        	try {
-        		Class clazz = getClass().getClassLoader().loadClass(className);
-        		Constructor constructor = clazz.getConstructor(new Class[] {Authentication.class, AuthenticationException.class});
-        		Object obj = constructor.newInstance(new Object[] {authentication, lastException});
-        		Assert.isInstanceOf(AbstractAuthenticationEvent.class, obj, "Must be an AbstractAuthenticationEvent");
-        		event = (AbstractAuthenticationEvent) obj;
-        	} catch (ClassNotFoundException ignored) {
-        	} catch (NoSuchMethodException ignored) {
-        	} catch (IllegalAccessException ignored) {
-        	} catch (InstantiationException ignored) {
-        	} catch (InvocationTargetException ignored) {
-        	}
+            try {
+                Class clazz = getClass().getClassLoader().loadClass(className);
+                Constructor constructor = clazz.getConstructor(new Class[] {Authentication.class, AuthenticationException.class});
+                Object obj = constructor.newInstance(new Object[] {authentication, lastException});
+                Assert.isInstanceOf(AbstractAuthenticationEvent.class, obj,
+                    "Must be an AbstractAuthenticationEvent");
+                event = (AbstractAuthenticationEvent) obj;
+            } catch (ClassNotFoundException ignored) {}
+            catch (NoSuchMethodException ignored) {}
+            catch (IllegalAccessException ignored) {}
+            catch (InstantiationException ignored) {}
+            catch (InvocationTargetException ignored) {}
         }
-        Assert.notNull(event, "A valid event must be available for the exception " + lastException.getClass().getName());
+
+        Assert.notNull(event,
+            "A valid event must be available for the exception "
+            + lastException.getClass().getName());
         applicationEventPublisher.publishEvent(event);
-        
+
         // Throw the exception
         throw lastException;
     }
+
+    /**
+     * Provided so subclasses can add extra exception mappings during startup
+     * if no exception mappings are injected by the IoC container.
+     *
+     * @param exceptionMappings the properties object, which already has
+     *        entries in it
+     */
+    protected void doAddExtraDefaultExceptionMappings(
+        Properties exceptionMappings) {}
 
     private void checkIfValidList(List listToCheck) {
         if ((listToCheck == null) || (listToCheck.size() == 0)) {
@@ -285,8 +317,4 @@ public class ProviderManager extends AbstractAuthenticationManager
                 "A list of AuthenticationManagers is required");
         }
     }
-
-	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-		this.applicationEventPublisher = applicationEventPublisher;		
-	}
 }
