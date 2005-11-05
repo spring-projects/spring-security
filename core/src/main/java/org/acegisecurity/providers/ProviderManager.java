@@ -39,6 +39,7 @@ import net.sf.acegisecurity.event.authentication.AuthenticationFailureProxyUntru
 import net.sf.acegisecurity.event.authentication.AuthenticationFailureServiceExceptionEvent;
 import net.sf.acegisecurity.event.authentication.AuthenticationSuccessEvent;
 import net.sf.acegisecurity.providers.cas.ProxyUntrustedException;
+import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -198,6 +199,8 @@ public class ProviderManager extends AbstractAuthenticationManager
                 AuthenticationFailureDisabledEvent.class.getName());
             exceptionMappings.put(BadCredentialsException.class.getName(),
                 AuthenticationFailureBadCredentialsEvent.class.getName());
+            exceptionMappings.put(UsernameNotFoundException.class.getName(),
+                    AuthenticationFailureBadCredentialsEvent.class.getName());
             exceptionMappings.put(ConcurrentLoginException.class.getName(),
                 AuthenticationFailureConcurrentLoginEvent.class.getName());
             exceptionMappings.put(ProviderNotFoundException.class.getName(),
