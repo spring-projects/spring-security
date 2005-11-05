@@ -78,7 +78,7 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
- * On successful switch, the user's  <code>SecureContextHolder</code> will be
+ * On successful switch, the user's  <code>SecurityContextHolder</code> will be
  * updated to reflect the specified user and will also contain an additinal
  * {@link net.sf.acegisecurity.ui.switchuser.SwitchUserGrantedAuthority }
  * which contains the original user.
@@ -224,7 +224,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
         chain.doFilter(request, response);
     }
 
-    public void init(FilterConfig filterConfig) throws ServletException {}
+    public void init(FilterConfig ignored) throws ServletException {}
 
     /**
      * Attempt to exit from an already switched user.

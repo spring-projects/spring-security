@@ -20,10 +20,10 @@ import org.springframework.util.Assert;
 
 /**
  * Associates a given {@link SecurityContext} with the current execution
- * thread, along with new threads the current execution thread may spawn.
+ * thread and any new threads the current execution thread may spawn.
  * 
  * <p>
- * To guarantee the {@link #getContext()} never returns <code>null</code>, this
+ * To guarantee that {@link #getContext()} never returns <code>null</code>, this
  * class defaults to returning <code>SecurityContextImpl</code> if no
  * <code>SecurityContext</code> has ever been associated with the current
  * thread of execution. Despite this behaviour, in general another class will

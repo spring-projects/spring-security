@@ -54,11 +54,11 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Processes a HTTP request's Digest authorization headers, putting the result
- * into the <code>ContextHolder</code>.
+ * into the <code>SecurityContextHolder</code>.
  * 
- * <P>
+ * <p>
  * For a detailed background on what this filter is designed to process, refer
- * to <A HREF="http://www.ietf.org/rfc/rfc2617.txt">RFC 2617</A> (which
+ * to <a href="http://www.ietf.org/rfc/rfc2617.txt">RFC 2617</a> (which
  * superseded RFC 2069, although this filter support clients that implement
  * either RFC 2617 or RFC 2069).
  * </p>
@@ -72,18 +72,18 @@ import javax.servlet.http.HttpServletResponse;
  * <p>
  * This Digest implementation has been designed to avoid needing to store
  * session state between invocations. All session management information is
- * stored in the "nonce" that is sent to the client by the {@link
- * net.sf.acegisecurity.ui.digestauth.DigestProcessingFilterEntryPoint}.
+ * stored in the "nonce" that is sent to the client by the {@link DigestProcessingFilterEntryPoint}.
  * </p>
  * 
  * <P>
- * If authentication is successful, the resulting {@link Authentication} object
- * will be placed into the <code>ContextHolder</code>.
+ * If authentication is successful, the resulting {@link net.sf.acegisecurity.Authentication Authentication}
+ * object will be placed into the <code>SecurityContextHolder</code>.
  * </p>
  * 
  * <p>
- * If authentication fails, an {@link AuthenticationEntryPoint} implementation
- * is called. This must always be {@link DigestProcessingFilterEntryPoint},
+ * If authentication fails, an
+ * {@link net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint AuthenticationEntryPoint}
+ * implementation is called. This must always be {@link DigestProcessingFilterEntryPoint},
  * which will prompt the user to authenticate again via Digest authentication.
  * </p>
  * 
@@ -432,7 +432,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
         return userCache;
     }
 
-    public void init(FilterConfig arg0) throws ServletException {}
+    public void init(FilterConfig ignored) throws ServletException {}
 
     private void fail(ServletRequest request, ServletResponse response,
         AuthenticationException failed) throws IOException, ServletException {

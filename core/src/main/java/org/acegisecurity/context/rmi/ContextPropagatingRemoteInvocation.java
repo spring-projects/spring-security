@@ -32,7 +32,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * The actual <code>RemoteInvocation</code> that is passed from the client to
  * the server, which contains the contents of {@link SecurityContextHolder},
- * being a {@link SecureContext} object.
+ * being a {@link SecurityContext} object.
  * 
  * <p>
  * When constructed on the client via {@link

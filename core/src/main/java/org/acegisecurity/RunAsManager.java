@@ -19,18 +19,18 @@ package net.sf.acegisecurity;
  * Creates a new temporary {@link Authentication} object for the current secure
  * object invocation only.
  * 
- * <P>
+ * <p>
  * This interface permits implementations to replace the
  * <code>Authentication</code> object that applies to the current secure
  * object invocation only. The {@link
  * net.sf.acegisecurity.intercept.AbstractSecurityInterceptor} will replace
- * the <code>Authentication</code> object held in the  {@link
- * net.sf.acegisecurity.context.security.SecureContext} for the duration of
- * the secure object callback only, returning it to the original
- * <code>Authentication</code> object when the callback ends.
+ * the <code>Authentication</code> object held in the
+ * {@link net.sf.acegisecurity.context.SecurityContext SecurityContext}
+ * for the duration of  the secure object callback only, returning it to
+ * the original <code>Authentication</code> object when the callback ends.
  * </p>
  * 
- * <P>
+ * <p>
  * This is provided so that systems with two layers of objects can be
  * established. One layer is public facing and has normal secure methods with
  * the granted authorities expected to be held by external callers. The other

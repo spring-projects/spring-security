@@ -83,7 +83,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
         MockFilterSecurityInterceptor interceptor = new MockFilterSecurityInterceptor(true,
                 false, false, false);
 
-        // Setup ContextHolder, as filter needs to check if user is anonymous
+        // Setup SecurityContextHolder, as filter needs to check if user is anonymous
         SecurityContextHolder.getContext().setAuthentication(new AnonymousAuthenticationToken(
                 "ignored", "ignored",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("IGNORED")}));
@@ -113,7 +113,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
         MockFilterSecurityInterceptor interceptor = new MockFilterSecurityInterceptor(true,
                 false, false, false);
 
-        // Setup ContextHolder, as filter needs to check if user is anonymous
+        // Setup SecurityContextHolder, as filter needs to check if user is anonymous
         SecurityContextHolder.getContext().setAuthentication(null);
 
         // Test

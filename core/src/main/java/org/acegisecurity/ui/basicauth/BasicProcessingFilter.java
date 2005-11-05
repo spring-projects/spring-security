@@ -172,7 +172,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                 password = token.substring(delim + 1);
             }
 
-            // Only reauthenticate if username doesn't match ContextHolder and user isn't authenticated (see SEC-53)
+            // Only reauthenticate if username doesn't match SecurityContextHolder and user isn't authenticated (see SEC-53)
             Authentication existingAuth = SecurityContextHolder.getContext()
                                                                .getAuthentication();
 

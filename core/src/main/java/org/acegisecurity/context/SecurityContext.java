@@ -25,7 +25,7 @@ import java.io.Serializable;
  * current thread of execution.
  * 
  * <p>
- * Stored in {@link net.sf.acegisecurity.context.SecurityContextHolder}.
+ * The security context is stored in a {@link SecurityContextHolder}.
  * </p>
  *
  * @author Ben Alex

@@ -53,7 +53,7 @@ public class ContextHolderAwareRequestWrapper extends HttpServletRequestWrapper 
 
     /**
      * Returns the principal's name, as obtained from the
-     * <code>ContextHolder</code>. Properly handles both
+     * <code>SecurityContextHolder</code>. Properly handles both
      * <code>String</code>-based and <code>UserDetails</code>-based
      * principals.
      *
@@ -78,7 +78,7 @@ public class ContextHolderAwareRequestWrapper extends HttpServletRequestWrapper 
      * GrantedAuthority#getAuthority()}.
      * 
      * <p>
-     * Will always return <code>false</code> if the <code>ContextHolder</code>
+     * Will always return <code>false</code> if the <code>SecurityContextHolder</code>
      * contains an <code>Authentication</code> with
      * <code>null</code><code>principal</code> and/or
      * <code>GrantedAuthority[]</code> objects.

@@ -18,14 +18,14 @@ package net.sf.acegisecurity.event.authorization;
 /**
  * Event that is generated whenever a public secure object is invoked.
  * 
- * <P>
+ * <p>
  * A public secure object is a secure object that has no
  * <code>ConfigAttributeDefinition</code> defined. A public secure object will
- * not cause the <code>ContextHolder</code> to be inspected or authenticated,
+ * not cause the <code>SecurityContextHolder</code> to be inspected or authenticated,
  * and no authorization will take place.
  * </p>
  * 
- * <P>
+ * <p>
  * Published just before the secure object attempts to proceed.
  * </p>
  *

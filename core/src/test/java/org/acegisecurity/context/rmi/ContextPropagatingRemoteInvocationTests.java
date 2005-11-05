@@ -69,7 +69,7 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
         SecurityContextHolder.setContext(new SecurityContextImpl());
 
         // The result from invoking the TargetObject should contain the
-        // Authentication class delivered via the ContextHolder
+        // Authentication class delivered via the SecurityContextHolder
         assertEquals("some_string net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken false",
             remoteInvocation.invoke(new TargetObject()));
     }

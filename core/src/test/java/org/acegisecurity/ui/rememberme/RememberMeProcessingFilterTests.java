@@ -118,7 +118,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
 
     public void testOperationWhenAuthenticationExistsInContextHolder()
         throws Exception {
-        // Put an Authentication object into the ContextHolder
+        // Put an Authentication object into the SecurityContextHolder
         Authentication originalAuth = new TestingAuthenticationToken("user",
                 "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});

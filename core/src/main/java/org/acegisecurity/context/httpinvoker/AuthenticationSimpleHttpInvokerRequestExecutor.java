@@ -61,14 +61,14 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor
     /**
      * Called every time a HTTP invocation is made.
      * 
-     * <P>
+     * <p>
      * Simply allows the parent to setup the connection, and then adds an
      * <code>Authorization</code> HTTP header property that will be used for
      * BASIC authentication.
      * </p>
      * 
-     * <P>
-     * The <code>ContextHolder</code> is used to obtain the relevant principal
+     * <p>
+     * The <code>SecurityContextHolder</code> is used to obtain the relevant principal
      * and credentials.
      * </p>
      *
@@ -77,7 +77,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor
      *
      * @throws IOException if thrown by HttpURLConnection methods
      * @throws AuthenticationCredentialsNotFoundException if the
-     *         <code>ContextHolder</code> does not contain a valid
+     *         <code>SecurityContextHolder</code> does not contain a valid
      *         <code>Authentication</code> with both its
      *         <code>principal</code> and <code>credentials</code> not
      *         <code>null</code>

@@ -165,7 +165,7 @@ public class X509ProcessingFilter implements Filter, InitializingBean,
         filterChain.doFilter(request, response);
     }
 
-    public void init(FilterConfig filterConfig) throws ServletException {}
+    public void init(FilterConfig ignored) throws ServletException {}
 
     /**
      * Puts the <code>Authentication</code> instance returned by the
@@ -206,7 +206,7 @@ public class X509ProcessingFilter implements Filter, InitializingBean,
         SecurityContextHolder.getContext().setAuthentication(null);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Updated ContextHolder to contain null Authentication");
+            logger.debug("Updated SecurityContextHolder to contain null Authentication");
         }
 
         request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY,

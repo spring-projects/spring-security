@@ -65,8 +65,8 @@ import javax.servlet.http.HttpServletResponse;
  * via an <code>AuthenticationManager</code>-specific application event.
  * </p>
  * 
- * <P>
- * <B>Do not use this class directly.</B> Instead configure
+ * <p>
+ * <b>Do not use this class directly.</b> Instead configure
  * <code>web.xml</code> to use the {@link
  * net.sf.acegisecurity.util.FilterToBeanProxy}.
  * </p>
@@ -130,7 +130,7 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean,
 
                 if (logger.isDebugEnabled()) {
                     logger.debug(
-                        "Replaced SecurityContextHolder with remember-me token: '"
+                        "SecurityContextHolder populated with remember-me token: '"
                         + SecurityContextHolder.getContext().getAuthentication()
                         + "'");
                 }
@@ -145,7 +145,7 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean,
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug(
-                    "SecurityContextHolder not replaced with remember-me token, as SecurityContextHolder already contained: '"
+                    "SecurityContextHolder not populated with remember-me token, as it already contained: '"
                     + SecurityContextHolder.getContext().getAuthentication()
                     + "'");
             }
@@ -157,9 +157,8 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean,
     /**
      * Does nothing - we rely on IoC lifecycle services instead.
      *
-     * @param arg0 not used
+     * @param ignored not used
      *
-     * @throws ServletException not thrown
      */
-    public void init(FilterConfig arg0) throws ServletException {}
+    public void init(FilterConfig ignored) throws ServletException {}
 }

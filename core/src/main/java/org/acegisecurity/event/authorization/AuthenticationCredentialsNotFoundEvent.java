@@ -22,7 +22,7 @@ import net.sf.acegisecurity.ConfigAttributeDefinition;
 /**
  * Indicates a secure object invocation failed because the
  * <code>Authentication</code> could not be obtained from the
- * <code>ContextHolder</code>.
+ * <code>SecurityContextHolder</code>.
  *
  * @author Ben Alex
  * @version $Id$

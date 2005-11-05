@@ -54,7 +54,7 @@ import javax.servlet.jsp.tagext.TagSupport;
  * One or more comma separate integer permissions are specified via the
  * <code>hasPermission</code> attribute. The tag will include its body if
  * <b>any</b> of the integer permissions have been granted to the current
- * <code>Authentication</code> (obtained from the <code>ContextHolder</code>).
+ * <code>Authentication</code> (obtained from the <code>SecurityContextHolder</code>).
  * </p>
  * 
  * <p>

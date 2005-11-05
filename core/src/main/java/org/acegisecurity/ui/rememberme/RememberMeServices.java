@@ -54,7 +54,7 @@ public interface RememberMeServices {
     //~ Methods ================================================================
 
     /**
-     * This method will be called whenever the <code>ContextHolder</code> does
+     * This method will be called whenever the <code>SecurityContextHolder</code> does
      * not contain an <code>Authentication</code> and the Acegi Security
      * system wishes to provide an implementation with an opportunity to
      * authenticate the request using remember-me capabilities. Acegi Security

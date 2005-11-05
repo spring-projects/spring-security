@@ -41,11 +41,11 @@ public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
      *
      * @param secureObject the secure object
      * @param configAttribs that apply to the secure object
-     * @param authentication that was found on the <code>ContextHolder</code>
+     * @param authentication that was found in the <code>SecurityContextHolder</code>
      * @param accessDeniedException that was returned by the
      *        <code>AccessDecisionManager</code>
      *
-     * @throws IllegalArgumentException DOCUMENT ME!
+     * @throws IllegalArgumentException if any null arguments are presented.
      */
     public AuthorizationFailureEvent(Object secureObject,
         ConfigAttributeDefinition configAttribs, Authentication authentication,

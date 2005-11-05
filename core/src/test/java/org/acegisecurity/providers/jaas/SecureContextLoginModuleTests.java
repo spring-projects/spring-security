@@ -30,7 +30,7 @@ import javax.security.auth.login.LoginException;
 
 
 /**
- * DOCUMENT ME!
+ * Testst SecureContextLoginModule
  *
  * @author Ray Krueger
  */
@@ -57,7 +57,7 @@ public class SecureContextLoginModuleTests extends TestCase {
         try {
             module.login();
             fail(
-                "LoginException expected, there is no Authentication in the SecureContext");
+                "LoginException expected, there is no Authentication in the SecurityContext");
         } catch (LoginException e) {}
     }
 
@@ -87,7 +87,7 @@ public class SecureContextLoginModuleTests extends TestCase {
         try {
             SecurityContextHolder.getContext().setAuthentication(null);
             module.login();
-            fail("LoginException expected, the authentication is null in the SecureContext");
+            fail("LoginException expected, the authentication is null in the SecurityContext");
         } catch (Exception e) {
         }
     }

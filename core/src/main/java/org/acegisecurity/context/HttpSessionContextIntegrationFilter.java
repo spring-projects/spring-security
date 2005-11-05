@@ -34,7 +34,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * <p>
- * Populates the <code>SecurityContextHolder</code> with information obtained
+ * Populates the {@link SecurityContextHolder}</code> with information obtained
  * from the <code>HttpSession</code>.
  * </p>
  * 
@@ -60,15 +60,15 @@ import javax.servlet.http.HttpSession;
  * No <code>HttpSession</code> will be created by this filter if one does not
  * already exist. If at the end of the web request the
  * <code>HttpSession</code> does not exist, a <code>HttpSession</code> will
- * <b>only</b> be created if the current contents of
- * <code>ContextHolder</code> are not {@link
+ * <b>only</b> be created if the current contents of the
+ * <code>SecurityContextHolder</code> are not {@link
  * java.lang.Object#equals(java.lang.Object)} to a <code>new</code> instance
  * of {@link #setContext(Class)}. This avoids needless
  * <code>HttpSession</code> creation, but automates the storage of changes
- * made to the <code>ContextHolder</code>.
+ * made to the <code>SecurityContextHolder</code>.
  * </p>
  * 
- * <P>
+ * <p>
  * This filter will only execute once per request, to resolve servlet container
  * (specifically Weblogic) incompatibilities.
  * </p>
@@ -79,16 +79,16 @@ import javax.servlet.http.HttpSession;
  * similar clients that will never present the same <code>jsessionid</code>
  * etc), the  {@link #setAllowSessionCreation(boolean)} should be set to
  * <code>false</code>. Only do this if you really need to conserve server
- * memory and ensure all classes using the <code>ContextHolder</code> are
- * designed to have no persistence of the <code>Context</code> between web
+ * memory and ensure all classes using the <code>SecurityContextHolder</code> are
+ * designed to have no persistence of the <code>SecurityContext</code> between web
  * requests.
  * </p>
  * 
  * <p>
  * This filter MUST be executed BEFORE any authentication procesing mechanisms.
  * Authentication processing mechanisms (eg BASIC, CAS processing filters etc)
- * expect the <code>ContextHolder</code> to contain a valid
- * <code>SecureContext</code> by the time they execute.
+ * expect the <code>SecurityContextHolder</code> to contain a valid
+ * <code>SecurityContext</code> by the time they execute.
  * </p>
  *
  * @author Ben Alex

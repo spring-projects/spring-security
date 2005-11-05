@@ -39,8 +39,8 @@ import javax.servlet.ServletResponse;
  * Detects if there is no <code>Authentication</code> object in the
  * <code>SecurityContextHolder</code>,  and populates it with one if needed.
  *
- * <P>
- * <B>Do not use this class directly.</B> Instead configure
+ * <p>
+ * <b>Do not use this class directly.</b> Instead configure
  * <code>web.xml</code> to use the {@link
  * net.sf.acegisecurity.util.FilterToBeanProxy}.
  * </p>
@@ -93,14 +93,14 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
 
                 if (logger.isDebugEnabled()) {
                     logger.debug(
-                        "Replaced SecurityContextHolder with anonymous token: '" +
+                        "Populated SecurityContextHolder with anonymous token: '" +
                         SecurityContextHolder.getContext().getAuthentication() +
                         "'");
                 }
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug(
-                        "SecurityContextHolder not replaced with anonymous token, as ContextHolder already contained: '" +
+                        "SecurityContextHolder not populated with anonymous token, as it already contained: '" +
                         SecurityContextHolder.getContext().getAuthentication() +
                         "'");
                 }
@@ -119,11 +119,10 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
     /**
      * Does nothing - we reply on IoC lifecycle services instead.
      *
-     * @param arg0 DOCUMENT ME!
+     * @param ignored not used
      *
-     * @throws ServletException DOCUMENT ME!
      */
-    public void init(FilterConfig arg0) throws ServletException {
+    public void init(FilterConfig ignored) throws ServletException {
     }
 
     /**
@@ -157,8 +156,8 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
      * Controls whether the filter will remove the Anonymous token
      * after the request is complete. Generally this is desired to
      * avoid the expense of a session being created by
-     * {@link net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter} simply
-     * to store the Anonymous authentication token.
+     * {@link net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter HttpSessionContextIntegrationFilter}
+     * simply to store the Anonymous authentication token.
      *
      * <p>Defaults to <code>true</code>,
      * being the most optimal and appropriate option (ie <code>AnonymousProcessingFilter</code>

@@ -238,7 +238,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
                         // Must do this after user lookup, as we need the DAO-derived password
                         // If efficiency was a major issue, just add in a UserCache implementation,
                         // but recall this method is usually only called one per HttpSession
-                        // (as if the token is valid, it will cause ContextHolder population, whilst
+                        // (as if the token is valid, it will cause SecurityContextHolder population, whilst
                         // if invalid, will cause the cookie to be cancelled)
                         String expectedTokenSignature = DigestUtils.md5Hex(userDetails
                                 .getUsername() + ":" + tokenExpiryTime + ":"

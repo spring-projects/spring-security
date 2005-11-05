@@ -21,9 +21,7 @@ import net.sf.acegisecurity.Authentication;
  * Base implementation of {@link SecurityContext}.
  *
  * <p>
- * Used by default by {@link
- * net.sf.acegisecurity.context.SecurityContextHolder} and {@link
- * net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter}.
+ * Used by default by {@link SecurityContextHolder} and {@link HttpSessionContextIntegrationFilter}.
  * </p>
  *
  * @author Ben Alex

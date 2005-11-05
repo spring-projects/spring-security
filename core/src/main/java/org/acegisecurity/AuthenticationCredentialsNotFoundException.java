@@ -17,8 +17,7 @@ package net.sf.acegisecurity;
 
 /**
  * Thrown if an authentication request is rejected because there is no {@link
- * Authentication} object in the  {@link
- * net.sf.acegisecurity.context.security.SecureContext}.
+ * Authentication} object in the  {@link net.sf.acegisecurity.context.SecurityContext SecurityContext}.
  *
  * @author Ben Alex
  * @version $Id$
