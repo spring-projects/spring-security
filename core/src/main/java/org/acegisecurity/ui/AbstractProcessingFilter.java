@@ -27,9 +27,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.BeansException;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.ApplicationEventPublisher;
 
 import org.springframework.util.Assert;
 
@@ -131,8 +134,8 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public abstract class AbstractProcessingFilter implements Filter,
-    InitializingBean, ApplicationContextAware {
-    //~ Static fields/initializers =============================================
+    InitializingBean, ApplicationEventPublisherAware  {
+    //~ Static fields/initializersApplicationContextAware =============================================
 
     public static final String ACEGI_SECURITY_TARGET_URL_KEY = "ACEGI_SECURITY_TARGET_URL";
     public static final String ACEGI_SECURITY_LAST_EXCEPTION_KEY = "ACEGI_SECURITY_LAST_EXCEPTION";
@@ -140,7 +143,7 @@ public abstract class AbstractProcessingFilter implements Filter,
 
     //~ Instance fields ========================================================
 
-    private ApplicationContext context;
+    private ApplicationEventPublisher eventPublisher;
     private AuthenticationManager authenticationManager;
     private Properties exceptionMappings = new Properties();
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
@@ -185,8 +188,8 @@ public abstract class AbstractProcessingFilter implements Filter,
         return alwaysUseDefaultTargetUrl;
     }
 
-    public void setApplicationContext(ApplicationContext context) {
-        this.context = context;
+    public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
     }
 
     public void setContinueChainBeforeSuccessfulAuthentication(
@@ -421,8 +424,8 @@ public abstract class AbstractProcessingFilter implements Filter,
         rememberMeServices.loginSuccess(request, response, authResult);
 
         // Fire event
-        if (this.context != null) {
-            context.publishEvent(new InteractiveAuthenticationSuccessEvent(
+        if (this.eventPublisher != null) {
+            eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(
                     authResult, this.getClass()));
         }
 

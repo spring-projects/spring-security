@@ -36,8 +36,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.ApplicationEventPublisher;
 
 import org.springframework.util.Assert;
 
@@ -110,7 +110,7 @@ import javax.servlet.http.HttpServletResponse;
  * @see net.sf.acegisecurity.ui.switchuser.SwitchUserGrantedAuthority
  */
 public class SwitchUserProcessingFilter implements Filter, InitializingBean,
-    ApplicationContextAware {
+        ApplicationEventPublisherAware {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(SwitchUserProcessingFilter.class);
@@ -122,7 +122,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
 
     //~ Instance fields ========================================================
 
-    private ApplicationContext context;
+    private ApplicationEventPublisher eventPublisher;
 
     // ~ Instance fields
     // ========================================================
@@ -133,9 +133,9 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
 
     //~ Methods ================================================================
 
-    public void setApplicationContext(ApplicationContext context)
+    public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher)
         throws BeansException {
-        this.context = context;
+        this.eventPublisher = eventPublisher;
     }
 
     /**
@@ -267,8 +267,8 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
         }
 
         // publish event
-        if (this.context != null) {
-            context.publishEvent(new AuthenticationSwitchUserEvent(current,
+        if (this.eventPublisher != null) {
+            eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(current,
                     originalUser));
         }
 
@@ -337,8 +337,8 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
         }
 
         // publish event
-        if (this.context != null) {
-            context.publishEvent(new AuthenticationSwitchUserEvent(
+        if (this.eventPublisher != null) {
+            eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(
                     SecurityContextHolder.getContext().getAuthentication(),
                     targetUser));
         }

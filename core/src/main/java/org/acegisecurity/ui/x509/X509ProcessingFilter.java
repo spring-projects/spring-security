@@ -29,8 +29,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.ApplicationEventPublisher;
 
 import org.springframework.util.Assert;
 
@@ -76,20 +76,20 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public class X509ProcessingFilter implements Filter, InitializingBean,
-    ApplicationContextAware {
+        ApplicationEventPublisherAware {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(X509ProcessingFilter.class);
 
     //~ Instance fields ========================================================
 
-    private ApplicationContext context;
+    private ApplicationEventPublisher eventPublisher;
     private AuthenticationManager authenticationManager;
 
     //~ Methods ================================================================
 
-    public void setApplicationContext(ApplicationContext context) {
-        this.context = context;
+    public void setApplicationEventPublisher(ApplicationEventPublisher context) {
+        this.eventPublisher = context;
     }
 
     public void setAuthenticationManager(
@@ -187,8 +187,8 @@ public class X509ProcessingFilter implements Filter, InitializingBean,
         SecurityContextHolder.getContext().setAuthentication(authResult);
 
         // Fire event
-        if (this.context != null) {
-            context.publishEvent(new InteractiveAuthenticationSuccessEvent(
+        if (this.eventPublisher != null) {
+            eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(
                     authResult, this.getClass()));
         }
     }

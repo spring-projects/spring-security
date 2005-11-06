@@ -147,7 +147,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
         interceptor.setRunAsManager(new MockRunAsManager());
-        interceptor.setApplicationContext(MockApplicationContext.getContext());
+        interceptor.setApplicationEventPublisher(MockApplicationContext.getContext());
 
         // Setup a mock config attribute definition
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
@@ -199,7 +199,6 @@ public class FilterSecurityInterceptorTests extends TestCase {
      * test  access denied events as the abstract parent enforces that logic,
      * which is extensively tested separately.
      *
-     * @throws Throwable DOCUMENT ME!
      */
     public void testSuccessfulInvocation() throws Throwable {
         // Setup the FilterSecurityInterceptor
@@ -207,7 +206,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
         interceptor.setRunAsManager(new MockRunAsManager());
-        interceptor.setApplicationContext(MockApplicationContext.getContext());
+        interceptor.setApplicationEventPublisher(MockApplicationContext.getContext());
 
         // Setup a mock config attribute definition
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();

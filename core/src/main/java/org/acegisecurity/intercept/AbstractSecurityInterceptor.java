@@ -35,11 +35,10 @@ import net.sf.acegisecurity.runas.NullRunAsManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.ApplicationEventPublisher;
 
 import org.springframework.util.Assert;
 
@@ -51,7 +50,7 @@ import java.util.Set;
 /**
  * Abstract class that implements security interception for secure objects.
  * 
- * <P>
+ * <p>
  * The <code>AbstractSecurityInterceptor</code> will ensure the proper startup
  * configuration of the security interceptor. It will also implement the
  * proper handling of secure object invocations, being:
@@ -138,7 +137,7 @@ import java.util.Set;
  * @version $Id$
  */
 public abstract class AbstractSecurityInterceptor implements InitializingBean,
-    ApplicationContextAware {
+        ApplicationEventPublisherAware {
     //~ Static fields/initializers =============================================
 
     protected static final Log logger = LogFactory.getLog(AbstractSecurityInterceptor.class);
@@ -147,7 +146,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 
     private AccessDecisionManager accessDecisionManager;
     private AfterInvocationManager afterInvocationManager;
-    private ApplicationContext context;
+    private ApplicationEventPublisher eventPublisher;
     private AuthenticationManager authenticationManager;
     private RunAsManager runAsManager = new NullRunAsManager();
     private boolean alwaysReauthenticate = false;
@@ -185,9 +184,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
         return alwaysReauthenticate;
     }
 
-    public void setApplicationContext(ApplicationContext applicationContext)
-        throws BeansException {
-        this.context = applicationContext;
+    public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
     }
 
     /**
@@ -416,7 +414,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
             } catch (AccessDeniedException accessDeniedException) {
                 AuthorizationFailureEvent event = new AuthorizationFailureEvent(object,
                         attr, authenticated, accessDeniedException);
-                this.context.publishEvent(event);
+                this.eventPublisher.publishEvent(event);
 
                 throw accessDeniedException;
             }
@@ -427,7 +425,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 
             AuthorizedEvent event = new AuthorizedEvent(object, attr,
                     authenticated);
-            this.context.publishEvent(event);
+            this.eventPublisher.publishEvent(event);
 
             // Attempt to run as a different user
             Authentication runAs = this.runAsManager.buildRunAs(authenticated,
@@ -457,7 +455,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                 logger.debug("Public object - authentication not attempted");
             }
 
-            this.context.publishEvent(new PublicInvocationEvent(object));
+            this.eventPublisher.publishEvent(new PublicInvocationEvent(object));
 
             return null; // no further work post-invocation
         }
@@ -467,7 +465,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
      * Helper method which generates an exception containing the passed reason,
      * and publishes an event to the application context.
      * 
-     * <P>
+     * <p>
      * Always throws an exception.
      * </p>
      *
@@ -481,7 +479,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 
         AuthenticationCredentialsNotFoundEvent event = new AuthenticationCredentialsNotFoundEvent(secureObject,
                 configAttribs, exception);
-        this.context.publishEvent(event);
+        this.eventPublisher.publishEvent(event);
 
         throw exception;
     }
