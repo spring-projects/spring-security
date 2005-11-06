@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 import javax.naming.Context;
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -16,15 +15,16 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchResult;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.dao.DataAccessException;
-import net.sf.acegisecurity.providers.dao.User;
 import net.sf.acegisecurity.BadCredentialsException;
 import net.sf.acegisecurity.GrantedAuthority;
 import net.sf.acegisecurity.GrantedAuthorityImpl;
 import net.sf.acegisecurity.UserDetails;
+import net.sf.acegisecurity.providers.dao.User;
 import net.sf.acegisecurity.providers.dao.ldap.PasswordAuthenticationDao;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.dao.DataAccessException;
 
 /**
  * Re-written version of the ACEGI LDAP code, 

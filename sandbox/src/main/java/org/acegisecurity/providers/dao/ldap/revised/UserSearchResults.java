@@ -3,9 +3,6 @@
  */
 package net.sf.acegisecurity.providers.dao.ldap.revised;
 
-import java.util.Hashtable;
-
-import javax.naming.Context;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 

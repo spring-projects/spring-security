@@ -15,7 +15,6 @@
 
 package net.sf.acegisecurity.captcha;
 
-import javax.servlet.ServletRequest;
 
 
 /**

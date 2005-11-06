@@ -15,8 +15,6 @@
 
 package net.sf.acegisecurity.concurrent;
 
-import java.util.Date;
-
 import net.sf.acegisecurity.Authentication;
 import net.sf.acegisecurity.AuthenticationException;
 

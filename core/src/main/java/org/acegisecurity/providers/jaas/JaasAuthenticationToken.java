@@ -1,11 +1,9 @@
 package net.sf.acegisecurity.providers.jaas;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.GrantedAuthority;
-
 import javax.security.auth.login.LoginContext;
+
+import net.sf.acegisecurity.GrantedAuthority;
+import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 /**
  * UsernamePasswordAuthenticationToken extension to carry the Jaas LoginContext that the user was logged into
