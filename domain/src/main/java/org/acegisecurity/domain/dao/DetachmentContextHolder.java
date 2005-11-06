@@ -15,8 +15,6 @@
 
 package net.sf.acegisecurity.domain.dao;
 
-import net.sf.acegisecurity.context.SecurityContextImpl;
-
 
 /**
  * <code>InheritableThreadLocal</code> which indicates whether a {@link Dao}
@@ -41,24 +39,19 @@ public class DetachmentContextHolder {
     //~ Methods ================================================================
 
     /**
-     * Specifies whether or not detached in <code>SecurityContext</code> with the current thread of
-     * execution.
+     * Sets whether or not detached domain object instances should be returned
+     * within the current thread of execution.
      *
-     * @param 
+     * @param alwaysReturnDetached if true then detached instances should be returned.
      */
     public static void setForceReturnOfDetachedInstances(boolean alwaysReturnDetached) {
         contextHolder.set(alwaysReturnDetached);
     }
 
     /**
-     * Obtains the <code>SecurityContext</code> associated with the current
-     * thread of execution. If no <code>SecurityContext</code> has been
-     * associated with the current thread of execution, a new instance of
-     * {@link SecurityContextImpl} is associated with the current thread and
-     * then returned.
+     * Returns the boolean value detachment policy which has been set for the current
+     * thread (defaults to false).
      *
-     * @return the current <code>SecurityContext</code> (guaranteed to never be
-     *         <code>null</code>)
      */
     public static boolean isForceReturnOfDetachedInstances() {
         if (contextHolder.get() == null) {
