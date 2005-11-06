@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 /**
  * An Acegi Security-aware <code>HttpServletRequestWrapper</code>, which uses
  * the <code>SecurityContext</code>-defined <code>Authentication</code> object
- * for {@link ContextHolderAwareRequestWrapper#isUserInRole(java.lang.String)}
+ * for {@link SecurityContextHolderAwareRequestWrapper#isUserInRole(java.lang.String)}
  * and {@link javax.servlet.http.HttpServletRequestWrapper#getRemoteUser()}
  * responses.
  *
@@ -38,14 +38,14 @@ import javax.servlet.http.HttpServletRequestWrapper;
  * @author Ben Alex
  * @version $Id$
  */
-public class ContextHolderAwareRequestWrapper extends HttpServletRequestWrapper {
+public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequestWrapper {
     //~ Instance fields ========================================================
 
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
     //~ Constructors ===========================================================
 
-    public ContextHolderAwareRequestWrapper(HttpServletRequest request) {
+    public SecurityContextHolderAwareRequestWrapper(HttpServletRequest request) {
         super(request);
     }
 

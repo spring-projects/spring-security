@@ -79,13 +79,13 @@ public class HttpRequestIntegrationFilter implements Filter {
 
                 if (logger.isDebugEnabled()) {
                     logger.debug(
-                        "SecurityContext updated with Authentication from container: '"
+                        "SecurityContextHolder updated with Authentication from container: '"
                         + principal + "'");
                 }
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug(
-                        "ContextHolder not set with new Authentication as Principal was: '"
+                        "SecurityContextHolder not set with new Authentication as Principal was: '"
                         + principal + "'");
                 }
             }

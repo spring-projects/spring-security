@@ -19,8 +19,8 @@ import junit.framework.TestCase;
 
 import net.sf.acegisecurity.MockFilterConfig;
 
-import net.sf.acegisecurity.wrapper.ContextHolderAwareRequestFilter;
-import net.sf.acegisecurity.wrapper.ContextHolderAwareRequestWrapper;
+import net.sf.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter;
+import net.sf.acegisecurity.wrapper.SecurityContextHolderAwareRequestWrapper;
 
 import java.io.IOException;
 
@@ -33,19 +33,19 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 
 /**
- * Tests {@link ContextHolderAwareRequestFilter}.
+ * Tests {@link SecurityContextHolderAwareRequestFilter}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class ContextHolderAwareRequestFilterTests extends TestCase {
+public class SecurityContextHolderAwareRequestFilterTests extends TestCase {
     //~ Constructors ===========================================================
 
-    public ContextHolderAwareRequestFilterTests() {
+    public SecurityContextHolderAwareRequestFilterTests() {
         super();
     }
 
-    public ContextHolderAwareRequestFilterTests(String arg0) {
+    public SecurityContextHolderAwareRequestFilterTests(String arg0) {
         super(arg0);
     }
 
@@ -56,18 +56,18 @@ public class ContextHolderAwareRequestFilterTests extends TestCase {
     }
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(ContextHolderAwareRequestFilterTests.class);
+        junit.textui.TestRunner.run(SecurityContextHolderAwareRequestFilterTests.class);
     }
 
     public void testCorrectOperation() throws Exception {
-        ContextHolderAwareRequestFilter filter = new ContextHolderAwareRequestFilter();
+        SecurityContextHolderAwareRequestFilter filter = new SecurityContextHolderAwareRequestFilter();
         filter.init(new MockFilterConfig());
         filter.doFilter(new MockHttpServletRequest(null, null), null,
-            new MockFilterChain(ContextHolderAwareRequestWrapper.class));
+            new MockFilterChain(SecurityContextHolderAwareRequestWrapper.class));
 
         // Now re-execute the filter, ensuring our replacement wrapper is still used
         filter.doFilter(new MockHttpServletRequest(null, null), null,
-            new MockFilterChain(ContextHolderAwareRequestWrapper.class));
+            new MockFilterChain(SecurityContextHolderAwareRequestWrapper.class));
 
         filter.destroy();
     }

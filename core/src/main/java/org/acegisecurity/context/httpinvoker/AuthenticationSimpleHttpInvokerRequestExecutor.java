@@ -98,7 +98,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor
 
             if (logger.isDebugEnabled()) {
                 logger.debug(
-                    "HttpInvocation now presenting via BASIC authentication ContextHolder-derived: "
+                    "HttpInvocation now presenting via BASIC authentication SecurityContextHolder-derived: "
                     + auth.toString());
             }
         } else {

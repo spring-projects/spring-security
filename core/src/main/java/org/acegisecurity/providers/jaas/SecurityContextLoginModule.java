@@ -38,22 +38,22 @@ import javax.security.auth.spi.LoginModule;
  * conjunction with it. <br />
  * The {@link JaasAuthenticationProvider} allows Acegi to authenticate against
  * Jaas. <br />
- * The SecureContextLoginModule allows a Jaas based application to
+ * The SecurityContextLoginModule allows a Jaas based application to
  * authenticate against Acegi. If there is no Authentication in the {@link
  * SecurityContextHolder} the login() method will throw a LoginException by
  * default. This functionality can be changed with the
  * <tt>ignoreMissingAuthentication</tt> option by setting it to "true".
  * Setting  ignoreMissingAuthentication=true will tell the
- * SecureContextLoginModule to simply return false and be ignored if the
+ * SecurityContextLoginModule to simply return false and be ignored if the
  * authentication is null.
  *
  * @author Brian Moseley
  * @author Ray Krueger
  */
-public class SecureContextLoginModule implements LoginModule {
+public class SecurityContextLoginModule implements LoginModule {
     //~ Static fields/initializers =============================================
 
-    private static final Log log = LogFactory.getLog(SecureContextLoginModule.class);
+    private static final Log log = LogFactory.getLog(SecurityContextLoginModule.class);
 
     //~ Instance fields ========================================================
 

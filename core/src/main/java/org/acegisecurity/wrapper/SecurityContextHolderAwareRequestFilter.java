@@ -28,12 +28,12 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * A <code>Filter</code> which populates the <code>ServletRequest</code> with
- * an {@link ContextHolderAwareRequestWrapper}.
+ * an {@link SecurityContextHolderAwareRequestWrapper}.
  *
  * @author Orlando Garcia Carmona
  * @version $Id$
  */
-public class ContextHolderAwareRequestFilter implements Filter {
+public class SecurityContextHolderAwareRequestFilter implements Filter {
     //~ Methods ================================================================
 
     public void destroy() {}
@@ -43,8 +43,8 @@ public class ContextHolderAwareRequestFilter implements Filter {
         throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
 
-        if (!(request instanceof ContextHolderAwareRequestWrapper)) {
-            request = new ContextHolderAwareRequestWrapper(request);
+        if (!(request instanceof SecurityContextHolderAwareRequestWrapper)) {
+            request = new SecurityContextHolderAwareRequestWrapper(request);
         }
 
         filterChain.doFilter(request, servletResponse);

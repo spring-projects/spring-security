@@ -30,14 +30,14 @@ import javax.security.auth.login.LoginException;
 
 
 /**
- * Testst SecureContextLoginModule
+ * Tests SecurityContextLoginModule
  *
  * @author Ray Krueger
  */
-public class SecureContextLoginModuleTests extends TestCase {
+public class SecurityContextLoginModuleTests extends TestCase {
     //~ Instance fields ========================================================
 
-    private SecureContextLoginModule module = null;
+    private SecurityContextLoginModule module = null;
     private Subject subject = new Subject(false, new HashSet(), new HashSet(),
             new HashSet());
     private UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("principal",
@@ -82,7 +82,7 @@ public class SecureContextLoginModuleTests extends TestCase {
             subject.getPrincipals().contains(auth));
     }
 
-    public void testNullAuthenticationInSecureContext()
+    public void testNullAuthenticationInSecurityContext()
         throws Exception {
         try {
             SecurityContextHolder.getContext().setAuthentication(null);
@@ -92,9 +92,9 @@ public class SecureContextLoginModuleTests extends TestCase {
         }
     }
 
-    public void testNullAuthenticationInSecureContextIgnored()
+    public void testNullAuthenticationInSecurityContextIgnored()
         throws Exception {
-        module = new SecureContextLoginModule();
+        module = new SecurityContextLoginModule();
 
         Map options = new HashMap();
         options.put("ignoreMissingAuthentication", "true");
@@ -109,7 +109,7 @@ public class SecureContextLoginModuleTests extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        module = new SecureContextLoginModule();
+        module = new SecurityContextLoginModule();
         module.initialize(subject, null, null, null);
         SecurityContextHolder.setContext(new SecurityContextImpl());
     }

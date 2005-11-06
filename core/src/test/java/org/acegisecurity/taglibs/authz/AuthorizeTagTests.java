@@ -79,7 +79,7 @@ public class AuthorizeTagTests extends TestCase {
             Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
     }
 
-    public void testPreventsBodyOutputIfNoSecureContext()
+    public void testPreventsBodyOutputIfNoSecurityContext()
         throws JspException {
         SecurityContextHolder.getContext().setAuthentication(null);
         authorizeTag.setIfAnyGranted("ROLE_BANKER");

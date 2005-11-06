@@ -181,7 +181,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
             request, response, chain);
 
-        // Obtain new/update Authentication from HttpSession
+        // Obtain new/updated Authentication from HttpSession
         SecurityContext context = (SecurityContext) request.getSession(false)
                                                            .getAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
         assertEquals(updatedPrincipal,
@@ -204,7 +204,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         executeFilterInContainerSimulator(new MockFilterConfig(), filter,
             request, response, chain);
 
-        // Obtain new/update Authentication from HttpSession
+        // Check the session is null
         assertNull(request.getSession(false));
     }
 
