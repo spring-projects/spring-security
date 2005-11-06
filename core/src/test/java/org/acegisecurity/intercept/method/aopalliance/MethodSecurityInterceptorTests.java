@@ -68,6 +68,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
 
     public final void setUp() throws Exception {
         super.setUp();
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public static void main(String[] args) {
@@ -79,8 +80,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
         ITargetObject target = makeInterceptedTarget();
         String result = target.publicMakeLowerCase("HELLO");
         assertEquals("hello Authentication empty", result);
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testCallingAPublicMethodWhenPresentingAnAuthenticationObjectWillNotChangeItsIsAuthenticatedProperty()
@@ -95,8 +94,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
         String result = target.publicMakeLowerCase("HELLO");
         assertEquals("hello net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken false",
             result);
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testDeniesWhenAppropriate() throws Exception {
@@ -113,8 +110,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
         } catch (AccessDeniedException expected) {
             assertTrue(true);
         }
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testGetters() {
@@ -149,8 +144,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
         String result = target.makeUpperCase("hello");
         assertEquals("HELLO net.sf.acegisecurity.MockRunAsAuthenticationToken true",
             result);
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testMethodCallWithoutRunAsReplacement()
@@ -167,8 +160,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
         // Note we check the isAuthenticated remained true in following line
         assertEquals("hello net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken true",
             result);
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testRejectionOfEmptySecurityContext() throws Exception {
@@ -216,8 +207,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
         } catch (AuthenticationException expected) {
             assertTrue(true);
         }
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testRejectsCallsWhenObjectDefinitionSourceDoesNotSupportObject()
