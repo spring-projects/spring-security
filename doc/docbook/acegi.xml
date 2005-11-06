@@ -106,12 +106,16 @@
         Portable Runtime Project versioning guidelines, available from
         <literal>http://apr.apache.org/versioning.html</literal>.</para>
 
-        <para>Some minor improvements are currently intended prior to the
-        1.0.0 release, although each of these represent additional
-        functionality that will in no way modify the project's central
-        interfaces or classes. Users of Acegi Security System for Spring
-        should therefore be comfortable depending on the current version of
-        the project in their applications.</para>
+        <para>We are now at release 0.9.0, and a lot of effort has been made
+        to implement all non-backward compatible changes either in or before
+        this release. Some minor improvements are currently intended to the
+        1.0.0 release, although they will in no way modify the project's
+        central interfaces or classes. Users of Acegi Security System for
+        Spring should therefore be comfortable depending on the current
+        version of the project in their applications. Please note that we will
+        be changing the package name prefix in the 1.0.0 release, but this
+        should be a simple "find and replace" type operation in your
+        code.</para>
       </sect2>
     </sect1>
 
@@ -143,7 +147,7 @@
           </listitem>
 
           <listitem>
-            <para>A <literal>ContextHolder</literal> which holds the
+            <para>A <literal>SecurityContextHolder</literal> which holds the
             <literal>Authentication</literal> object in a
             <literal>ThreadLocal</literal>-bound object.</para>
           </listitem>
@@ -335,10 +339,13 @@
         <literal>SecureContext</literal> defined an interface used for storage
         of the <literal>Authentication</literal> object. The
         <literal>ContextHolder</literal> was a <literal>ThreadLocal</literal>.
-        This was removed from 0.9.0 after discussion with other Spring
-        developers for the sake of consistency. See for example
-        <literal>http://article.gmane.org/gmane.comp.java.springframework.devel/8290</literal>.
-        This history is mentioned as the long period
+        A fuller discussion of the <literal>ThreadLocal</literal> usage with
+        Acegi Security follows in this document.
+        <literal>ContextHolder</literal> and <literal>SecureContext</literal>
+        was removed from 0.9.0 after discussion with other Spring developers
+        for the sake of consistency. See for example
+        <literal>http://article.gmane.org/gmane.comp.java.springframework.devel/8290</literal>
+        and JIRA task SEC-77. This history is mentioned as the long period
         <literal>ContextHolder</literal> was used will likely mean that
         certain documentation you encounter concerning Acegi Security might
         still refer to <literal>ContextHolder</literal>. Generally you can
@@ -432,7 +439,7 @@
           <listitem>
             <para>Pass the <literal>Authentication</literal> object to the
             <literal>AuthenticationManager</literal>, update the
-            <literal>ContextHolder</literal> with the response.</para>
+            <literal>SecurityContextHolder</literal> with the response.</para>
           </listitem>
 
           <listitem>
@@ -450,7 +457,7 @@
           <listitem>
             <para>If the <literal>RunAsManager</literal> returns a new
             <literal>Authentication</literal> object, update the
-            <literal>ContextHolder</literal> with it.</para>
+            <literal>SecurityContextHolder</literal> with it.</para>
           </listitem>
 
           <listitem>
@@ -461,7 +468,7 @@
           <listitem>
             <para>If the <literal>RunAsManager</literal> earlier returned a
             new <literal>Authentication</literal> object, update the
-            <literal>ContextHolder</literal> with the
+            <literal>SecurityContextHolder</literal> with the
             <literal>Authentication</literal> object that was previously
             returned by the <literal>AuthenticationManager</literal>.</para>
           </listitem>
@@ -1061,8 +1068,8 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <para>As discussed in the Security Interception section, the
         <literal>AbstractSecurityInterceptor</literal> extracts the
         <literal>Authentication</literal> object from the
-        <literal>SecureContext</literal> in the
-        <literal>ContextHolder</literal>. This is then passed to an
+        <literal>SecurityContext</literal> in the
+        <literal>SecurityContextHolder</literal>. This is then passed to an
         <literal>AuthenticationManager</literal>. The
         <literal>AuthenticationManager</literal> interface is very
         simple:</para>
@@ -1077,8 +1084,8 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <literal>GrantedAuthority</literal> objects. The
         <literal>SecurityInterceptor</literal> places the populated
         <literal>Authentication</literal> object back in the
-        <literal>SecureContext</literal> in the
-        <literal>ContextHolder</literal>, overwriting the original
+        <literal>SecurityContext</literal> in the
+        <literal>SecurityContextHolder</literal>, overwriting the original
         <literal>Authentication</literal> object.</para>
 
         <para>The <literal>AuthenticationException</literal> has a number of
@@ -1132,6 +1139,19 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <literal>AuthenticationException</literal>) if it none of the
         registered <literal>AuthenticationProviders</literal> can validate the
         <literal>Authentication</literal> object.</para>
+
+        <para>The <literal>ProviderManager</literal> also has several other
+        important functions. It integrates with concurrent session handling
+        supoprt, and it also converts any exceptions thrown by an
+        <literal>AuthenticationProvider</literal> and publishes a suitable
+        event. The events that are published are located in the
+        <literal>net.sf.acegisecurity.event.authentication</literal> package
+        and advanced users can map different exceptions to different events by
+        configuring the <literal>ProviderManager.exceptionMappings</literal>
+        property (generally this is not required and the default event
+        propagation is appropriate - especially as events will simply be
+        ignored if you don't have an <literal>ApplicationListener</literal>
+        configured in the <literal>ApplicationContext</literal>).</para>
 
         <para>Several <literal>AuthenticationProvider</literal>
         implementations are provided with the Acegi Security System for
@@ -1193,6 +1213,55 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
               below.</para>
             </listitem>
           </itemizedlist></para>
+      </sect2>
+
+      <sect2 id="security-authentication-concurrent-login">
+        <title>Concurrent Session Support</title>
+
+        <para>Acegi Security is able to stop the same principal authenticating
+        to the same web application multiple times concurrently. Put
+        differently, you can stop user "Batman" from logging into a web
+        application twice at the same time.</para>
+
+        <para>To use concurrent session support, you'll need to add the
+        following to web.xml:</para>
+
+        <para><programlisting>&lt;listener&gt;
+  &lt;listener-class&gt;net.sf.acegisecurity.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;
+&lt;/listener&gt;</programlisting></para>
+
+        <para>In addition, you will need to add the
+        <literal>net.sf.acegisecurity.concurrent.ConcurrentSessionFilter</literal>
+        to your <literal>FilterChainProxy</literal>. The
+        ConcurrentSessionFilter requires only one property, sessionRegistry,
+        which generally points to an instance of
+        <literal>SessionRegistryImpl</literal>.</para>
+
+        <para>The <literal>web.xml</literal>
+        <literal>HttpSessionEventPublisher</literal> causes an
+        <literal>ApplicationEvent</literal> to be published to the Spring
+        <literal>ApplicationContext</literal> every time a
+        <literal>HttpSession</literal> commences or terminates. This is
+        critical, as it allows the <literal>SessionRegistryImpl</literal> to
+        be notified when a session ends. </para>
+
+        <para>You will also need to wire up the
+        <literal>ConcurrentSessionControllerImpl</literal> and refer to it
+        from your <literal>ProviderManager</literal> bean:</para>
+
+        <para><programlisting>&lt;bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager"&gt;
+  &lt;property name="providers"&gt;
+    &lt;!-- your providers go here --&gt;
+  &lt;/property&gt;
+  &lt;property name="sessionController"&gt;&lt;ref bean="concurrentSessionController"/&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="concurrentSessionController" class="net.sf.acegisecurity.concurrent.ConcurrentSessionControllerImpl"&gt;
+  &lt;property name="maxSessions"&gt;&lt;value&gt;1&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="sessionRegistry"&gt;&lt;ref local="sessionRegistry"/&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="sessionRegistry" class="net.sf.acegisecurity.concurrent.SessionRegistryImpl"/&gt;</programlisting></para>
       </sect2>
 
       <sect2 id="security-authentication-provider-dao">
@@ -1325,89 +1394,6 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         context.</para>
       </sect2>
 
-      <sect2 id="security-authentication-provider-events">
-        <title>Event Publishing</title>
-
-        <para>The <literal>DaoAuthenticationProvider</literal> automatically
-        obtains the <literal>ApplicationContext</literal> it is running in at
-        startup time. This allows the provider to publish events through the
-        standard Spring event framework. Three types of event messages are
-        published:</para>
-
-        <itemizedlist spacing="compact">
-          <listitem>
-            <para><literal>AuthenticationSuccessEvent</literal> is published
-            when an authentication request is successful.</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>AuthenticationFailureDisabledEvent</literal> is
-            published when an authentication request is unsuccessful because
-            the returned <literal>UserDetails</literal> is disabled. This is
-            normally the case when an account is locked.</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>AuthenticationFailureAccountExpiredEvent</literal>
-            is published when an authentication request is unsuccessful
-            because the returned <literal>UserDetails</literal> indicates the
-            account has expired. Some applications may wish to distinguish
-            between an account being disabled and expired.</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>AuthenticationFailureCredentialsExpiredEvent</literal>
-            is published when an authentication request is unsuccessful
-            because the returned <literal>UserDetails</literal> indicates the
-            account's credentials have expired. Some applications may wish to
-            expire the credentials if, for example, a password is not changed
-            with sufficient regularity.</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>AuthenticationFailureUsernameNotFoundEvent</literal>
-            is published when an authentication request is unsuccessful
-            because the <literal>AuthenticationDao</literal> could not locate
-            the <literal>UserDetails</literal>.</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>AuthenticationFailurePasswordEvent</literal> is
-            published when an authentication request is unsuccessful because
-            the presented password did not match that in the
-            <literal>UserDetails</literal>.</para>
-          </listitem>
-        </itemizedlist>
-
-        <para>Each event contains two objects: the
-        <literal>Authentication</literal> object that represented the
-        authentication request, and the <literal>UserDetails</literal> object
-        that was found in response to the authentication request (clearly the
-        latter will be a dummy object in the case of
-        <literal>AuthenticationFailureUsernameNotFoundEvent</literal>). The
-        <literal>Authentication</literal> interface provides a
-        <literal>getDetails()</literal> method which often includes
-        information that event consumers may find useful (eg the TCP/IP
-        address that the authentication request originated from).</para>
-
-        <para>As per standard Spring event handling, you can receive these
-        events by adding a bean to the application context which implements
-        the <literal>ApplicationListener</literal> interface. Included with
-        Acegi Security is a <literal>LoggerListener</literal> class which
-        receives these events and publishes their details to Commons Logging.
-        Refer to the JavaDocs for <literal>LoggerListener</literal> for
-        details on the logging priorities used for different message
-        types.</para>
-
-        <para>This event publishing system enables you to implement account
-        locking and record authentication event history. This might be of
-        interest to application users, who can be advised of the times and
-        source IP address of all unsuccessful password attempts (and account
-        lockouts) since their last successful login. Such capabilities are
-        simple to implement and greatly improve the security of your
-        application.</para>
-      </sect2>
-
       <sect2 id="security-authentication-provider-in-memory">
         <title>In-Memory Authentication</title>
 
@@ -1443,6 +1429,14 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         authorities). Note that if a user has no password and/or no granted
         authorities, the user will not be created in the in-memory
         authentication repository.</para>
+
+        <para><literal>InMemoryDaoImpl</literal> also offers a
+        <literal>setUserProperties(Properties)</literal> method, which allows
+        you to externalise the <literal>java.util.Properties</literal> in
+        another Spring configured bean or an external properties file. This
+        might prove useful for simple applications that have a larger number
+        of users, or deployment-time configuration changes, but do not wish to
+        use a full database for authentication details.</para>
       </sect2>
 
       <sect2 id="security-authentication-provider-jdbc">
@@ -1474,77 +1468,6 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         customisation of the SQL statements. You may also subclass the
         <literal>JdbcDaoImpl</literal> if further customisation is necessary.
         Please refer to the JavaDocs for details.</para>
-
-        <para>The Acegi Security System for Spring ships with a Hypersonic SQL
-        instance that has the required authentication information and sample
-        data already populated. To use this server, simply execute the
-        <literal>server.bat</literal> or <literal>server.sh</literal> script
-        included in the distribution. This will load a new database server
-        instance that will service requests made to the URL indicated in the
-        bean context configuration shown above.</para>
-      </sect2>
-
-      <sect2 id="security-authentication-concurrent-login">
-        <title>Concurrent Session Support</title>
-
-        <para>Acegi Security is able to stop the same principal authenticating
-        to the same web application multiple times concurrently. Put
-        differently, you can stop user "Batman" from logging into a web
-        application twice at the same time.</para>
-
-        <para>To use concurrent session support, you'll need to add the
-        following to web.xml:</para>
-
-        <para><programlisting>&lt;listener&gt;
-  &lt;listener-class&gt;net.sf.acegisecurity.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;
-&lt;/listener&gt;</programlisting></para>
-
-        <para>The above code causes an <literal>ApplicationEvent</literal> to
-        be published to the Spring <literal>ApplicationContext</literal> every
-        time a <literal>HttpSession</literal> commences or terminates. This is
-        critical, as it allows the
-        <literal>ConcurrentSessionControllerImpl</literal> to be notified when
-        a session ends. Next up you'll need to wire the
-        <literal>ConcurrentSessionControllerImpl</literal> into your existing
-        <literal>ProviderManager</literal>:</para>
-
-        <para><programlisting>&lt;bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager"&gt;
-  &lt;property name="providers"&gt;
-    &lt;!-- your providers go here --&gt;
-  &lt;/property&gt;
-  &lt;property name="sessionController"&gt;&lt;ref bean="concurrentSessionController"/&gt;&lt;/property&gt;
-&lt;/bean&gt;
-
-&lt;bean id="concurrentSessionController" class="net.sf.acegisecurity.providers.ConcurrentSessionControllerImpl"&gt;
-  &lt;property name="maxSessions"&gt;&lt;value&gt;1&lt;/value&gt;&lt;/property&gt;
-&lt;/bean&gt;</programlisting></para>
-
-        <para>Ensure you do not in-line the
-        <literal>ConcurrentSessionControllerImpl</literal> when declaring it
-        in your XML. This is important, as it appears that in-lined bean
-        declarations do not receive ApplicationEvents.</para>
-
-        <para>The <literal>ConcurrentSessionControllerImpl</literal> relies
-        heavily on the
-        <literal>Authentication.getPrincipal().equals()</literal> method. If
-        you are using a custom <literal>Authentication</literal> object,
-        please keep this in mind. In order for the
-        <literal>ConcurrentSessionControllerImpl</literal> to release a given
-        <literal>HttpSession</literal>, and thus let the user log in to a new
-        <literal>HttpSession</literal>, the existing
-        <literal>HttpSession</literal> must be invalidated. For example, if
-        "Batman" logs into the web application, checks for crimes being
-        commited, and the just closes his browser with out "logging out", he
-        will not be able to log back in until his
-        <literal>HttpSession</literal> is timed out by the server (and a
-        corresponding <literal>ApplicationEvent</literal> is published via
-        <literal>HttpSessionEventPublisher</literal> to the
-        <literal>ConcurrentSessionControllerImpl</literal>). You would have to
-        look at your container's documentation to determine the default
-        timeout period. You can also configure the session timeout in your
-        <literal>web.xml</literal>:<programlisting>&lt;session-config&gt;
-  &lt;session-timeout&gt;30&lt;/session-timeout&gt;
-&lt;/session-config&gt;</programlisting></para>
       </sect2>
 
       <sect2 id="security-authentication-provider-jaas">
@@ -2165,23 +2088,20 @@ public boolean supports(Class clazz);</programlisting></para>
           <title>AuthenticationTag</title>
 
           <para><literal>AuthenticationTag</literal> is used to simply output
-          the current principal to the web page.</para>
+          a property of the current principal's
+          <literal>Authentication.getPrincipal()</literal> object to the web
+          page.</para>
 
           <para>The following JSP fragment illustrates how to use the
           <literal>AuthenticationTag</literal>:</para>
 
-          <para><programlisting>&lt;authz:authentication operation="principal"/&gt;</programlisting></para>
+          <para><programlisting>&lt;authz:authentication operation="username"/&gt;</programlisting></para>
 
-          <para>This tag would cause the principal's name to be output. The
-          taglib properly supports the various types of principals that can
-          exist in the <literal>Authentication</literal> object, such as a
-          <literal>String</literal> or <literal>UserDetails</literal>
-          instance.</para>
-
-          <para>The "operation" attribute must always be "principal". This may
-          be expanded in the future, such as obtaining other
-          <literal>Authentication</literal>-related properties such as email
-          address or telephone numbers.</para>
+          <para>This tag would cause the principal's name to be output. Here
+          we are assuming the <literal>Authentication.getPrincipal()</literal>
+          is a <literal>UserDetails</literal> object, which is generally the
+          case when using the typical
+          <literal>DaoAuthenticationProvider</literal>.</para>
         </sect3>
 
         <sect3>
@@ -2377,8 +2297,8 @@ public boolean supports(Class clazz);</programlisting></para>
 
         <para>The <literal>AbstractSecurityInterceptor</literal> is able to
         temporarily replace the <literal>Authentication</literal> object in
-        the <literal>SecureContext</literal> and
-        <literal>ContextHolder</literal> during the
+        the <literal>SecurityContext</literal> and
+        <literal>SecurityContextHolder</literal> during the
         <literal>SecurityInterceptorCallback</literal>. This only occurs if
         the original <literal>Authentication</literal> object was successfully
         processed by the <literal>AuthenticationManager</literal> and
@@ -2472,14 +2392,14 @@ public boolean supports(Class clazz);</programlisting></para>
     </sect1>
 
     <sect1 id="security-ui">
-      <title>User Interfacing with the ContextHolder</title>
+      <title>User Interfacing with the SecurityContextHolder</title>
 
       <sect2 id="security-ui-purpose">
         <title>Purpose</title>
 
         <para>Everything presented so far assumes one thing: the
-        <literal>ContextHolder</literal> is populated with a valid
-        <literal>SecureContext</literal>, which in turn contains a valid
+        <literal>SecurityContextHolder</literal> is populated with a valid
+        <literal>SecurityContext</literal>, which in turn contains a valid
         <literal>Authentication</literal> object. Developers are free to do
         this in whichever way they like, such as directly calling the relevant
         objects at runtime. However, several classes have been provided to
@@ -2491,16 +2411,20 @@ public boolean supports(Class clazz);</programlisting></para>
         processing mechanism is solely concerned with received an
         authentication request from the principal, testing if it seems valid,
         and if so, placing the authentication request token onto the
-        ContextHolder. Of course, if the authentication request is invalid,
-        the authentication processing mechanism is responsible for informing
-        the principal in whatever way is appropriate to the protocol.</para>
+        <literal>SecurityContextHolder</literal>. Of course, if the
+        authentication request is invalid, the authentication processing
+        mechanism is responsible for informing the principal in whatever way
+        is appropriate to the protocol.</para>
 
-        <para>Recall the HttpSessionContextIntegrationFilter (discussed in the
-        context section) is responsible for storing the ContextHolder contents
-        between invocations. This means no authentication processing mechanism
-        need ever interact directly with HttpSession. Indeed
-        HttpSessionContextIntegrationFilter has been designed to minimise the
-        unnecessary creation of HttpSessions, as might occur when using Basic
+        <para>Recall the
+        <literal>HttpSessionContextIntegrationFilter</literal> (discussed in
+        the context section) is responsible for storing the
+        <literal>SecurityContextHolder</literal> contents between invocations.
+        This means no authentication processing mechanism need ever interact
+        directly with <literal>HttpSession</literal>. Indeed
+        <literal>HttpSessionContextIntegrationFilter</literal> has been
+        designed to minimise the unnecessary creation of
+        <literal>HttpSession</literal>s, as might occur when using Basic
         authentication for example.</para>
 
         <para>There are several authentication processing mechanisms included
@@ -2567,12 +2491,12 @@ public boolean supports(Class clazz);</programlisting></para>
 
         <para>If authentication is successful, the resulting
         <literal>Authentication</literal> object will be placed into the
-        <literal>ContextHolder</literal>.</para>
+        <literal>SecurityContextHolder</literal>.</para>
 
-        <para>Once the <literal>ContextHolder</literal> has been updated, the
-        browser will need to be redirected to the target URL. The target URL
-        is usually indicated by the <literal>HttpSession</literal> attribute
-        specified by
+        <para>Once the <literal>SecurityContextHolder</literal> has been
+        updated, the browser will need to be redirected to the target URL. The
+        target URL is usually indicated by the <literal>HttpSession</literal>
+        attribute specified by
         <literal>AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY</literal>.
         This attribute is automatically set by the
         <literal>SecurityEnforcementFilter</literal> when an
@@ -2626,7 +2550,7 @@ public boolean supports(Class clazz);</programlisting></para>
         401 response with a suitable header to retry HTTP Basic
         authentication. If authentication is successful, the resulting
         <literal>Authentication</literal> object will be placed into the
-        <literal>ContextHolder</literal>.</para>
+        <literal>SecurityContextHolder</literal>.</para>
 
         <para>If the authentication event was successful, or authentication
         was not attempted because the HTTP header did not contain a supported
@@ -2747,8 +2671,8 @@ key:              A private key to prevent modification of the nonce token
         <para>Like <literal>BasicAuthenticationFilter</literal>, if
         authentication is successful an <literal>Authentication</literal>
         request token will be placed into the
-        <literal>ContextHolder</literal>. If the authentication event was
-        successful, or authentication was not attempted because the HTTP
+        <literal>SecurityContextHolder</literal>. If the authentication event
+        was successful, or authentication was not attempted because the HTTP
         header did not contain a Digest Authentication request, the filter
         chain will continue as normal. The only time the filter chain will be
         interrupted is if authentication fails and the
@@ -2777,10 +2701,11 @@ key:              A private key to prevent modification of the nonce token
         logout and home pages of an application. There are also other
         situations where anonymous authentication would be desired, such as
         when an auditing interceptor queries the
-        <literal>ContextHolder</literal> to identify which principal was
-        responsible for a given operation. Such classes can be authored with
-        more robustness if they know the <literal>ContextHolder</literal>
-        always contains an <literal>Authentication</literal> object, and never
+        <literal>SecurityContextHolder</literal> to identify which principal
+        was responsible for a given operation. Such classes can be authored
+        with more robustness if they know the
+        <literal>SecurityContextHolder</literal> always contains an
+        <literal>Authentication</literal> object, and never
         <literal>null</literal>.</para>
 
         <para>Acegi Security provides three classes that together provide an
@@ -2795,7 +2720,7 @@ key:              A private key to prevent modification of the nonce token
         Finally, there is an AnonymousProcessingFilter, which is chained after
         the normal authentication mechanisms and automatically add an
         <literal>AnonymousAuthenticationToken</literal> to the
-        <literal>ContextHolder</literal> if there is no existing
+        <literal>SecurityContextHolder</literal> if there is no existing
         <literal>Authentication</literal> held there. The definition of the
         filter and authentication provider appears as follows:</para>
 
@@ -2886,7 +2811,7 @@ public void loginSuccess(HttpServletRequest request, HttpServletResponse respons
         <literal>loginFail()</literal> and <literal>loginSuccess()</literal>
         methods. The <literal>autoLogin()</literal> method is called by
         <literal>RememberMeProcessingFilter</literal> whenever the
-        <literal>ContextHolder</literal> does not contain an
+        <literal>SecurityContextHolder</literal> does not contain an
         <literal>Authentication</literal>. This interface therefore provides
         the underlaying remember-me implementation with sufficient
         notification of authentication-related events, and delegates to the
@@ -2967,19 +2892,20 @@ key:              A private key to prevent modification of the remember-me token
         locations" in discussions about storing the
         <literal>Authentication</literal>. This approach did not explicitly
         separate the function of <literal>HttpSession</literal> storage of
-        <literal>ContextHolder</literal> contents from the processing of
-        authentication requests received through various protocols. In
+        <literal>SecurityContextHolder</literal> contents from the processing
+        of authentication requests received through various protocols. In
         addition, the previous approach did not facilitate storage of
         non-<literal>Authentication</literal> objects between requests, which
-        was limiting usefulness of the <literal>ContextHolder</literal> system
-        to member of the community. For these reasons, the notion of
-        well-known locations was abandoned, the
-        <literal>HttpSessionContextIntegrationFilter</literal> was
-        established, and the purpose of authentication processing mechanisms
-        was explicitly defined and limited to interaction with the
-        <literal>ContextHolder</literal> only. There is no need to refer to
-        well-known locations any more and we hope this clearer separation of
-        responsibilities enhances understanding of the project.</para>
+        was limiting usefulness of the
+        <literal>SecurityContextHolder</literal> system to member of the
+        community. For these reasons, the notion of well-known locations was
+        abandoned, the <literal>HttpSessionContextIntegrationFilter</literal>
+        was established, and the purpose of authentication processing
+        mechanisms was explicitly defined and limited to interaction with the
+        <literal>SecurityContextHolder</literal> only. There is no need to
+        refer to well-known locations any more and we hope this clearer
+        separation of responsibilities enhances understanding of the
+        design.</para>
       </sect2>
     </sect1>
 
@@ -3063,10 +2989,10 @@ key:              A private key to prevent modification of the remember-me token
         <literal>AuthByAdapter</literal> instance that contains a hash code of
         the key. Later, when an application calls a security interceptor
         managed resource, the <literal>AuthByAdapter</literal> instance in the
-        <literal>SecureContext</literal> in the
-        <literal>ContextHolder</literal> will be tested by the application's
-        <literal>AuthByAdapterProvider</literal>. There is no requirement for
-        additional authentication providers such as
+        <literal>SecurityContext</literal> in the
+        <literal>SecurityContextHolder</literal> will be tested by the
+        application's <literal>AuthByAdapterProvider</literal>. There is no
+        requirement for additional authentication providers such as
         <literal>DaoAuthenticationProvider</literal> within the
         application-specific application context, as the only type of
         <literal>Authentication</literal> instance that will be presented by
@@ -3672,7 +3598,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             authentication approach. Usually the
             <literal>HttpSessionIntegrationFilter</literal> will be used to
             associate the <literal>Authentication</literal> object with the
-            <literal>ContextHolder</literal> for the duration of each
+            <literal>SecurityContextHolder</literal> for the duration of each
             request.</para>
           </listitem>
         </orderedlist>
@@ -4108,7 +4034,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <title>Configuring the X509 Provider</title>
 
         <para>There is a version of the <link
-        linkend="security-sample">contacts sample application</link> which
+        linkend="security-sample">Contacts Sample Application</link> which
         uses X509. Copy the beans and filter setup from this as a starting
         point for configuring your own application. A set of example
         certificates is also included which you can use to configure your
@@ -4273,14 +4199,15 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         context.</para>
 
         <para>Note that the redirections are absolute (eg
-        http://www.company.com:8080/app/page), not relative (eg /app/page).
-        During testing it was discovered that Internet Explorer 6 Service Pack
-        1 has a bug whereby it does not respond correctly to a redirection
-        instruction which also changes the port to use. Accordingly, absolute
-        URLs are used in conjunction with bug detection logic in the
-        <literal>PortResolverImpl</literal> that is wired up by default to
-        many Acegi Security beans. Please refer to the JavaDocs for
-        <literal>PortResolverImpl</literal> for further details.</para>
+        <literal>http://www.company.com:8080/app/page</literal>), not relative
+        (eg <literal>/app/page</literal>). During testing it was discovered
+        that Internet Explorer 6 Service Pack 1 has a bug whereby it does not
+        respond correctly to a redirection instruction which also changes the
+        port to use. Accordingly, absolute URLs are used in conjunction with
+        bug detection logic in the <literal>PortResolverImpl</literal> that is
+        wired up by default to many Acegi Security beans. Please refer to the
+        JavaDocs for <literal>PortResolverImpl</literal> for further
+        details.</para>
       </sect2>
 
       <sect2 id="security-channels-usage">
@@ -4349,9 +4276,9 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
               could consult a collection within the
               <literal>Customer</literal> domain object instance to determine
               which users have access. By using the
-              <literal>ContextHolder.getContext()</literal> and casting it to
-              <literal>SecureContext</literal>, you'll be able to access the
-              <literal>Authentication</literal> object.</para>
+              <literal>SecurityContextHolder.getContext().getAuthentication()</literal>,
+              you'll be able to access the <literal>Authentication</literal>
+              object.</para>
             </listitem>
 
             <listitem>
@@ -4816,6 +4743,10 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
       <sect2 id="security-filters-filterchainproxy">
         <title>FilterChainProxy</title>
 
+        <para>We strongly recommend to use <literal>FilterChainProxy</literal>
+        instead of adding multiple filters to
+        <literal>web.xml</literal>.</para>
+
         <para>Whilst <literal>FilterToBeanProxy</literal> is a very useful
         class, the problem is that the lines of code required for
         <literal>&lt;filter&gt;</literal> and
@@ -4912,9 +4843,17 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
           </listitem>
 
           <listitem>
+            <para><literal>ConcurrentSessionFilter</literal>, because it
+            doesn't use any <literal>SecurityContextHolder</literal>
+            functionality but needs to update the
+            <literal>SessionRegistry</literal> to reflect ongoing requests
+            from the principal</para>
+          </listitem>
+
+          <listitem>
             <para><literal>HttpSessionContextIntegrationFilter</literal>, so a
             <literal>Context</literal> can be setup in the
-            <literal>ContextHolder</literal> at the beginning of a web
+            <literal>SecurityContextHolder</literal> at the beginning of a web
             request, and any changes to the Context can be copied to the
             <literal>HttpSession</literal> when the web request ends (ready
             for use with the next web request)</para>
@@ -4926,8 +4865,9 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
             <literal>CasProcessingFilter</literal>,
             <literal>BasicProcessingFilter, HttpRequestIntegrationFilter,
             JbossIntegrationFilter</literal> etc - so that the
-            <literal>ContextHolder</literal> can be modified to contain a
-            valid <literal>Authentication</literal> request token</para>
+            <literal>SecurityContextHolder</literal> can be modified to
+            contain a valid <literal>Authentication</literal> request
+            token</para>
           </listitem>
 
           <listitem>
@@ -4940,16 +4880,17 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
           <listitem>
             <para><literal>RememberMeProcessingFilter</literal>, so that if no
             earlier authentication processing mechanism updated the
-            <literal>ContextHolder</literal>, and the request presents a
-            cookie that enables remember-me services to take place, a suitable
-            remembered <literal><literal>Authentication</literal></literal>
-            object will be put there</para>
+            <literal>SecurityContextHolder</literal>, and the request presents
+            a cookie that enables remember-me services to take place, a
+            suitable remembered
+            <literal><literal>Authentication</literal></literal> object will
+            be put there</para>
           </listitem>
 
           <listitem>
             <para><literal>AnonymousProcessingFilter</literal>, so that if no
             earlier authentication processing mechanism updated the
-            <literal>ContextHolder</literal>, an anonymous
+            <literal>SecurityContextHolder</literal>, an anonymous
             <literal>Authentication</literal> object will be put there</para>
           </listitem>
 
@@ -4972,8 +4913,8 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
 
         <para>If you're using SiteMesh, ensure the Acegi Security filters
         execute before the SiteMesh filters are called. This enables the
-        <literal>ContextHolder</literal> to be populated in time for use by
-        SiteMesh decorators.</para>
+        <literal>SecurityContextHolder</literal> to be populated in time for
+        use by SiteMesh decorators.</para>
       </sect2>
     </sect1>
 
@@ -5016,7 +4957,7 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
       contain a success message similar to the following:</para>
 
       <blockquote>
-        <para>Context on ContextHolder is of type:
+        <para>Context on SecurityContextHolder is of type:
         net.sf.acegisecurity.context.secure.SecureContextImpl</para>
 
         <para>The Context implements SecureContext.</para>
@@ -5090,7 +5031,10 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
       Spring project. There are many ways of contributing, including reading
       the mailing list and responding to questions from other people, writing
       new code, improving existing code, assisting with documentation, or
-      simply making suggestions.</para>
+      simply making suggestions. Please read our project policies web page
+      that is available on the Acegi Security home page. This explains the
+      path to become a committer, and the administration approaches we use
+      with the project.</para>
 
       <para>SourceForge provides CVS services for the project, allowing
       anybody to access the latest code. If you wish to contribute new code,
@@ -5121,6 +5065,10 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
 
         <listitem>
           <para>Use CamelCase</para>
+        </listitem>
+
+        <listitem>
+          <para>Add code contributions to JIRA</para>
         </listitem>
 
         <listitem>
