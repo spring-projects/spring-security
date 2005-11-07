@@ -207,7 +207,7 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>jstl</groupId>
+      <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
       <version>1.0.6</version>
       <type>jar</type>
