@@ -120,7 +120,7 @@ public class DaoAuthenticationProvider
 
         if (!passwordEncoder.isPasswordValid(userDetails.getPassword(),
                 authentication.getCredentials().toString(), salt)) {
-            throw new BadCredentialsException("Bad credentials");
+            throw new BadCredentialsException("Bad credentials", userDetails);
         }
     }
 

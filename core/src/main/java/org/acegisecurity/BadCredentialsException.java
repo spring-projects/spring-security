@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,10 @@ package net.sf.acegisecurity;
  * @version $Id$
  */
 public class BadCredentialsException extends AuthenticationException {
+    //~ Instance fields ========================================================
+
+    private Object extraInformation;
+
     //~ Constructors ===========================================================
 
     /**
@@ -36,6 +40,11 @@ public class BadCredentialsException extends AuthenticationException {
         super(msg);
     }
 
+    public BadCredentialsException(String msg, Object extraInformation) {
+        super(msg);
+        this.extraInformation = extraInformation;
+    }
+
     /**
      * Constructs a <code>BadCredentialsException</code> with the specified
      * message and root cause.
@@ -45,5 +54,17 @@ public class BadCredentialsException extends AuthenticationException {
      */
     public BadCredentialsException(String msg, Throwable t) {
         super(msg, t);
+    }
+
+    //~ Methods ================================================================
+
+    /**
+     * Any additional information about the exception. Generally a
+     * <code>UserDetails</code> object.
+     *
+     * @return extra information or <code>null</code>
+     */
+    public Object getExtraInformation() {
+        return extraInformation;
     }
 }
