@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!--
  * ========================================================================
  * 
@@ -339,7 +339,7 @@
     <dependency>
       <groupId>directory</groupId>
       <artifactId>apacheds-main</artifactId>
-      <version>0.9-SNAPSHOT</version>
+      <version>0.9</version>
       <type>jar</type>
     </dependency>
 
