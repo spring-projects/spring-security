@@ -15,29 +15,7 @@
 
 package net.sf.acegisecurity.ui;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
-import net.sf.acegisecurity.ui.rememberme.NullRememberMeServices;
-import net.sf.acegisecurity.ui.rememberme.RememberMeServices;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.BeansException;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.context.ApplicationEventPublisher;
-
-import org.springframework.util.Assert;
-
 import java.io.IOException;
-
 import java.util.Properties;
 
 import javax.servlet.Filter;
@@ -48,6 +26,21 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import net.sf.acegisecurity.Authentication;
+import net.sf.acegisecurity.AuthenticationException;
+import net.sf.acegisecurity.AuthenticationManager;
+import net.sf.acegisecurity.context.SecurityContextHolder;
+import net.sf.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
+import net.sf.acegisecurity.ui.rememberme.NullRememberMeServices;
+import net.sf.acegisecurity.ui.rememberme.RememberMeServices;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.util.Assert;
 
 
 /**
