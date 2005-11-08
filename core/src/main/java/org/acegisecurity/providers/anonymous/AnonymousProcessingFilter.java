@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.sf.acegisecurity.providers.anonymous;
 
 import net.sf.acegisecurity.Authentication;
@@ -38,7 +39,7 @@ import javax.servlet.ServletResponse;
 /**
  * Detects if there is no <code>Authentication</code> object in the
  * <code>SecurityContextHolder</code>,  and populates it with one if needed.
- *
+ * 
  * <p>
  * <b>Do not use this class directly.</b> Instead configure
  * <code>web.xml</code> to use the {@link
@@ -49,10 +50,17 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 public class AnonymousProcessingFilter implements Filter, InitializingBean {
+    //~ Static fields/initializers =============================================
+
     private static final Log logger = LogFactory.getLog(AnonymousProcessingFilter.class);
+
+    //~ Instance fields ========================================================
+
     private String key;
     private UserAttribute userAttribute;
     private boolean removeAfterRequest = true;
+
+    //~ Methods ================================================================
 
     public void setKey(String key) {
         this.key = key;
@@ -60,6 +68,31 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
 
     public String getKey() {
         return key;
+    }
+
+    /**
+     * Controls whether the filter will remove the Anonymous token after the
+     * request is complete. Generally this is desired to avoid the expense of
+     * a session being created by {@link
+     * net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter
+     * HttpSessionContextIntegrationFilter} simply to store the Anonymous
+     * authentication token.
+     * 
+     * <p>
+     * Defaults to <code>true</code>, being the most optimal and appropriate
+     * option (ie <code>AnonymousProcessingFilter</code> will clear the token
+     * at the end of each request, thus avoiding the session creation overhead
+     * in a typical configuration.
+     * </p>
+     *
+     * @param removeAfterRequest DOCUMENT ME!
+     */
+    public void setRemoveAfterRequest(boolean removeAfterRequest) {
+        this.removeAfterRequest = removeAfterRequest;
+    }
+
+    public boolean isRemoveAfterRequest() {
+        return removeAfterRequest;
     }
 
     public void setUserAttribute(UserAttribute userAttributeDefinition) {
@@ -78,8 +111,7 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
     /**
      * Does nothing - we reply on IoC lifecycle services instead.
      */
-    public void destroy() {
-    }
+    public void destroy() {}
 
     public void doFilter(ServletRequest request, ServletResponse response,
         FilterChain chain) throws IOException, ServletException {
@@ -93,16 +125,16 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
 
                 if (logger.isDebugEnabled()) {
                     logger.debug(
-                        "Populated SecurityContextHolder with anonymous token: '" +
-                        SecurityContextHolder.getContext().getAuthentication() +
-                        "'");
+                        "Populated SecurityContextHolder with anonymous token: '"
+                        + SecurityContextHolder.getContext().getAuthentication()
+                        + "'");
                 }
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug(
-                        "SecurityContextHolder not populated with anonymous token, as it already contained: '" +
-                        SecurityContextHolder.getContext().getAuthentication() +
-                        "'");
+                        "SecurityContextHolder not populated with anonymous token, as it already contained: '"
+                        + SecurityContextHolder.getContext().getAuthentication()
+                        + "'");
                 }
             }
         }
@@ -110,7 +142,9 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
         try {
             chain.doFilter(request, response);
         } finally {
-            if (addedToken && removeAfterRequest) {
+            if (addedToken && removeAfterRequest
+                && createAuthentication(request).equals(SecurityContextHolder.getContext()
+                                                                             .getAuthentication())) {
                 SecurityContextHolder.getContext().setAuthentication(null);
             }
         }
@@ -121,9 +155,9 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
      *
      * @param ignored not used
      *
+     * @throws ServletException DOCUMENT ME!
      */
-    public void init(FilterConfig ignored) throws ServletException {
-    }
+    public void init(FilterConfig ignored) throws ServletException {}
 
     /**
      * Enables subclasses to determine whether or not an anonymous
@@ -146,25 +180,5 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
     protected Authentication createAuthentication(ServletRequest request) {
         return new AnonymousAuthenticationToken(key,
             userAttribute.getPassword(), userAttribute.getAuthorities());
-    }
-
-    public boolean isRemoveAfterRequest() {
-        return removeAfterRequest;
-    }
-
-    /**
-     * Controls whether the filter will remove the Anonymous token
-     * after the request is complete. Generally this is desired to
-     * avoid the expense of a session being created by
-     * {@link net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter HttpSessionContextIntegrationFilter}
-     * simply to store the Anonymous authentication token.
-     *
-     * <p>Defaults to <code>true</code>,
-     * being the most optimal and appropriate option (ie <code>AnonymousProcessingFilter</code>
-     * will clear the token at the end of each request, thus avoiding the session creation
-     * overhead in a typical configuration.
-     */
-    public void setRemoveAfterRequest(boolean removeAfterRequest) {
-        this.removeAfterRequest = removeAfterRequest;
     }
 }
