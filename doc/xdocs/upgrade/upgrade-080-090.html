@@ -29,6 +29,29 @@ applications:
     and work with the <code>SecurityContext</code> (instead of the now removed <code>Context</code>
     and <code>SecureContext</code> interfaces).<br><br>
     
+    For example, change:<br>
+    <code>
+	SecureContext ctx = SecureContextUtils.getSecureContext();<br> 
+	</code>
+	to:<br>
+    <code>
+	SecurityContext ctx = SecurityContextHolder.getContext();<br> 
+	</code>
+	<br>
+    and change:<br>
+    <code>
+	&ltbean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter"><br> 
+        &ltproperty name="context">&ltvalue>net.sf.acegisecurity.context.security.SecureContextImpl&lt/value>&lt/property><br> 
+	&lt/bean><br>
+	</code>
+	to:<br>
+    <code>
+	&ltbean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter"><br>
+        &ltproperty name="context">&ltvalue>net.sf.acegisecurity.context.SecurityContextImpl&lt/value>&lt/property><br>
+	&lt/bean><br>
+	</code>
+	<br>
+    
     We apologise for the inconvenience, but on a more positive note this means you receive strict
     type checking, you no longer need to mess around with casting to and from <code>Context</code>
     implementations, your applications no longer need to perform checking of <code>null</code> and
@@ -36,21 +59,31 @@ applications:
     is an <code>InheritableThreadLocal</code> - which should make life easier in rich client 
     environments.<br><br></li>
 
-    <li>AbstractProcessingFilter has changed its getter/setter approach used for customised
+    <li><code>AbstractProcessingFilter</code> has changed its getter/setter approach used for customised
     authentication exception directions. See the <a href="../multiproject/acegi-security/xref/net/sf/acegisecurity/ui/AbstractProcessingFilter.html">
-    AbstractProcessingFilter JavaDocs</a> to learn more.<br><br></li>
+    <code>AbstractProcessingFilter</code> JavaDocs</a> to learn more.<br><br></li>
     
-    <li>AnonymousProcessingFilter now has a removeAfterRequest property, which defaults to true. This
+    <li><code>AnonymousProcessingFilter</code> now has a <code>removeAfterRequest</code> property, which defaults to <code>true</code>. This
     will cause the anonymous authentication token to be set to null at the end of each request, thus
-    avoiding the expense of creating a HttpSession in HttpSessionContextIntegrationFilter. You may
+    avoiding the expense of creating a <code>HttpSession</code> in <code>HttpSessionContextIntegrationFilter</code>. You may
     set this property to false if you would like the anoymous authentication token to be preserved,
     which would be an unusual requirement.<br><br></li>
     
 	<li>Event publishing has been refactored. New event classes have been added, and the location of
-	LoggerListener has changed. See the net.sf.acegisecurity.event package.</li>
+	<code>LoggerListener</code> has changed. See the <code>net.sf.acegisecurity.event package</code>.<BR>
+	<br>
+    For example, change:<br>
+    <code>
+	&ltbean id="loggerListener" class="net.sf.acegisecurity.providers.dao.event.LoggerListener"/><br>
+	</code>
+	to:<br>
+    <code>
+	&ltbean id="loggerListener" class="net.sf.acegisecurity.providers.dao.event.authorization.LoggerListener"/> 
+	</code><br><br>	
+	</li>
 		
-	<li>Users of the "authz" taglib will generally need to change the "operation"
-	to "username", as reflection is now used to retrieve the property.</li>
+	<li>Users of the <code>&ltauthz:authentication></code> JSP tag will generally need to set the <code>operation</code>
+	property equal to "username", as reflection is now used to retrieve the property displayed.</li>
 		
     </ul>
 
