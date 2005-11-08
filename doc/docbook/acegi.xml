@@ -1243,7 +1243,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <literal>ApplicationContext</literal> every time a
         <literal>HttpSession</literal> commences or terminates. This is
         critical, as it allows the <literal>SessionRegistryImpl</literal> to
-        be notified when a session ends. </para>
+        be notified when a session ends.</para>
 
         <para>You will also need to wire up the
         <literal>ConcurrentSessionControllerImpl</literal> and refer to it
@@ -1691,13 +1691,15 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 
           <para>In summary, once the user has authenticated through
           Siteminder, their header-loaded request will be brokered by
-          <literal>filterChainProxy</literal> to <literal>authenticationProcessingFilter</literal>, which in turn
+          <literal>filterChainProxy</literal> to
+          <literal>authenticationProcessingFilter</literal>, which in turn
           will grab the user's identity from the SM_USER request header. The
-          user's identity will then be passed to the <literal>authenticationManager</literal> and
-          finally <literal>daoAuthenticationProvider</literal> will do the work of authorizing the user
-          against back-end databases, etc. and loading the <literal>UserDetails</literal>
-          implementation with roles, username and any other property you deem
-          relevant.</para>
+          user's identity will then be passed to the
+          <literal>authenticationManager</literal> and finally
+          <literal>daoAuthenticationProvider</literal> will do the work of
+          authorizing the user against back-end databases, etc. and loading
+          the <literal>UserDetails</literal> implementation with roles,
+          username and any other property you deem relevant.</para>
         </sect3>
       </sect2>
 
@@ -4922,7 +4924,7 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
         <literal>FilterToBeanProxy</literal> or
         <literal>FilterChainProxy</literal>, which is discussed in the
         previous sections. It is recommended that a single
-        <literal>FilterToBeProxy</literal> proxy through to a single
+        <literal>FilterToBeanProxy</literal> proxy through to a single
         <literal>FilterChainProxy</literal> for each application, with that
         <literal>FilterChainProxy</literal> defining all of the Acegi Security
         <literal>Filter</literal>s.</para>
