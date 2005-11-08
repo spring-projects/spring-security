@@ -366,9 +366,9 @@
         <literal>Authentication</literal>. All Acegi Security classes query
         the <literal>SecurityContextHolder</literal> for obtaining the current
         <literal>SecurityContext</literal> (and in turn the principal).
-        <literal>SecurityContextHolder</literal> is an
-        <literal>InheritableThreadLocal</literal>, meaning it is associated
-        with the current thread of execution.</para>
+        <literal>SecurityContextHolder</literal> is a
+        <literal>ThreadLocal</literal>, meaning it is associated with the
+        current thread of execution.</para>
       </sect2>
 
       <sect2 id="security-contexts-storage">

@@ -35,13 +35,13 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  *
- * @see java.lang.InheritableThreadLocal
+ * @see java.lang.ThreadLocal
  * @see net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter
  */
 public class SecurityContextHolder {
     //~ Static fields/initializers =============================================
 
-    private static InheritableThreadLocal contextHolder = new InheritableThreadLocal();
+    private static ThreadLocal contextHolder = new ThreadLocal();
 
     //~ Methods ================================================================
 
