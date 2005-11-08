@@ -12,7 +12,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * 
  * @author Ben Alex
  * @author <a href="mailto:scott@mccrory.us">Scott McCrory</a>
- * @version CVS $Id$
+ * @version CVS $Id: SiteminderAuthenticationProcessingFilterTests.java,v 1.1
+ *          2005/09/25 22:48:33 smccrory Exp $
  */
 public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
 
@@ -52,10 +53,37 @@ public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
 	/**
 	 * Tests the class' getters.
 	 */
-	public void testGetters() {
+	public void testAccessors() {
+
 		SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
-		assertEquals("/j_acegi_security_check", filter
-				.getDefaultFilterProcessesUrl());
+		
+		filter.setAlwaysUseDefaultTargetUrl(true);
+		assertTrue(filter.isAlwaysUseDefaultTargetUrl());
+		
+		filter.setAuthenticationFailureUrl("foo");
+		assertEquals("foo", filter.getAuthenticationFailureUrl());
+		
+		filter.setContinueChainBeforeSuccessfulAuthentication(true);
+		assertTrue(filter.isContinueChainBeforeSuccessfulAuthentication());
+		
+		filter.setDefaultTargetUrl("bar");
+		assertEquals("bar", filter.getDefaultTargetUrl());
+		
+		filter.setFilterProcessesUrl("foobar");
+		assertEquals("foobar", filter.getFilterProcessesUrl());
+		
+		filter.setFormPasswordParameterKey("passwordParamKey");
+		assertEquals("passwordParamKey", filter.getFormPasswordParameterKey());
+		
+		filter.setFormUsernameParameterKey("usernameParamKey");
+		assertEquals("usernameParamKey", filter.getFormUsernameParameterKey());
+		
+		filter.setSiteminderPasswordHeaderKey("passwordHeaderKey");
+		assertEquals("passwordHeaderKey", filter.getSiteminderPasswordHeaderKey());
+		
+		filter.setSiteminderUsernameHeaderKey("usernameHeaderKey");
+		assertEquals("usernameHeaderKey", filter.getSiteminderUsernameHeaderKey());
+
 	}
 
 	/**
