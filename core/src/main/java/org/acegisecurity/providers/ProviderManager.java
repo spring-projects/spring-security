@@ -200,7 +200,7 @@ public class ProviderManager extends AbstractAuthenticationManager
             exceptionMappings.put(BadCredentialsException.class.getName(),
                 AuthenticationFailureBadCredentialsEvent.class.getName());
             exceptionMappings.put(UsernameNotFoundException.class.getName(),
-                    AuthenticationFailureBadCredentialsEvent.class.getName());
+                AuthenticationFailureBadCredentialsEvent.class.getName());
             exceptionMappings.put(ConcurrentLoginException.class.getName(),
                 AuthenticationFailureConcurrentLoginEvent.class.getName());
             exceptionMappings.put(ProviderNotFoundException.class.getName(),
@@ -295,10 +295,14 @@ public class ProviderManager extends AbstractAuthenticationManager
             catch (InvocationTargetException ignored) {}
         }
 
-        Assert.notNull(event,
-            "A valid event must be available for the exception "
-            + lastException.getClass().getName());
-        applicationEventPublisher.publishEvent(event);
+        if (event != null) {
+            applicationEventPublisher.publishEvent(event);
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("No event was found for the exception "
+                    + lastException.getClass().getName());
+            }
+        }
 
         // Throw the exception
         throw lastException;
