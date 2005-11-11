@@ -40,15 +40,15 @@ applications:
 	<br>
     and change:<br>
     <code>
-	&ltbean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter"><br> 
-        &ltproperty name="context">&ltvalue>net.sf.acegisecurity.context.security.SecureContextImpl&lt/value>&lt/property><br> 
-	&lt/bean><br>
+	&lt;bean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter"><br> 
+        &lt;property name="context">&lt;value>net.sf.acegisecurity.context.security.SecureContextImpl&lt;/value>&lt;/property><br> 
+	&lt;/bean><br>
 	</code>
 	to:<br>
     <code>
-	&ltbean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter"><br>
-        &ltproperty name="context">&ltvalue>net.sf.acegisecurity.context.SecurityContextImpl&lt/value>&lt/property><br>
-	&lt/bean><br>
+	&lt;bean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter"><br>
+        &lt;property name="context">&lt;value>net.sf.acegisecurity.context.SecurityContextImpl&lt;/value>&lt;/property><br>
+	&lt;/bean><br>
 	</code>
 	<br>
     
@@ -74,16 +74,27 @@ applications:
 	<br>
     For example, change:<br>
     <code>
-	&ltbean id="loggerListener" class="net.sf.acegisecurity.providers.dao.event.LoggerListener"/><br>
+	&lt;bean id="loggerListener" class="net.sf.acegisecurity.providers.dao.event.LoggerListener"/><br>
 	</code>
 	to:<br>
     <code>
-	&ltbean id="loggerListener" class="net.sf.acegisecurity.providers.dao.event.authorization.LoggerListener"/> 
+	&lt;bean id="loggerListener" class="net.sf.acegisecurity.event.authentication.LoggerListener"/> 
 	</code><br><br>	
 	</li>
 		
-	<li>Users of the <code>&ltauthz:authentication></code> JSP tag will generally need to set the <code>operation</code>
-	property equal to "username", as reflection is now used to retrieve the property displayed.</li>
+	<li>Users of the <code>&lt;authz:authentication></code> JSP tag will generally need to set the <code>operation</code>
+	property equal to "username", as reflection is now used to retrieve the property displayed.<br><br></li>
+		
+	<li>
+	Users of net.sf.acegisecurity.wrapper.ContextHolderAwareRequestFilter should note that it has been
+	renamed to net.sf.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter.<br><br>
+	</li>
+		
+	<li>
+	The concurrent session support handling has changed. Please refer to the Reference Guide to
+	review the new configuration requirements.<br><br>
+	</li>
+				
 		
     </ul>
 
