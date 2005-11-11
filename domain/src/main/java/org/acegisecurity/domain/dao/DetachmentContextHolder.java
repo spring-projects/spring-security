@@ -45,7 +45,7 @@ public class DetachmentContextHolder {
      * @param alwaysReturnDetached if true then detached instances should be returned.
      */
     public static void setForceReturnOfDetachedInstances(boolean alwaysReturnDetached) {
-        contextHolder.set(alwaysReturnDetached);
+        contextHolder.set(new Boolean(alwaysReturnDetached));
     }
 
     /**
@@ -58,6 +58,6 @@ public class DetachmentContextHolder {
             contextHolder.set(Boolean.FALSE);
         }
 
-        return contextHolder.get();
+        return contextHolder.get().booleanValue();
     }
 }

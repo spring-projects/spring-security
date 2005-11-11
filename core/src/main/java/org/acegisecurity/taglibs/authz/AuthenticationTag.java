@@ -121,7 +121,7 @@ public class AuthenticationTag extends TagSupport {
         Method method = null;
 
         try {
-            method = clazz.getDeclaredMethod(methodName.toString(), null);
+            method = clazz.getDeclaredMethod(methodName.toString(), (Class[]) null);
         } catch (SecurityException se) {
             throw new JspException(se);
         } catch (NoSuchMethodException nsme) {
@@ -131,7 +131,7 @@ public class AuthenticationTag extends TagSupport {
         Object retVal = null;
 
         try {
-            retVal = method.invoke(obj, null);
+            retVal = method.invoke(obj, (Object[]) null);
         } catch (IllegalArgumentException iae) {
             throw new JspException(iae);
         } catch (IllegalAccessException iae) {
