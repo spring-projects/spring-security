@@ -41,6 +41,9 @@
 			<ant:fileset dir="${basedir}/../core/target/">
 				<ant:include name="*.jar"/>
 			</ant:fileset>
+			<ant:fileset dir="${basedir}/../core-tiger/target/">
+				<ant:include name="*.jar"/>
+			</ant:fileset>
 			<ant:fileset dir="${basedir}/../adapters/cas/target">
 				<ant:include name="*.jar"/>
 			</ant:fileset>
