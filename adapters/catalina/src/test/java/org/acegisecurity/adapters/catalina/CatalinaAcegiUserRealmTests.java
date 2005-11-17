@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters.catalina;
+package org.acegisecurity.adapters.catalina;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.adapters.PrincipalAcegiUserToken;
 
 import org.apache.catalina.LifecycleException;
 
@@ -271,7 +271,7 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
         throws Exception {
         CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
 
-        URL url = Thread.currentThread().getContextClassLoader().getResource("net/sf/acegisecurity/adapters/"
+        URL url = Thread.currentThread().getContextClassLoader().getResource("org/acegisecurity/adapters/"
                 + fileName);
 
         if (url == null) {

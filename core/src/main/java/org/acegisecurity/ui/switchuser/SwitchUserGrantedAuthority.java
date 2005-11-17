@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.switchuser;
+package org.acegisecurity.ui.switchuser;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.GrantedAuthorityImpl;
 
 
 /**
  * Custom <code>GrantedAuthority</code> used by {@link
- * net.sf.acegisecurity.ui.switchuser.SwitchUserProcessingFilter}
+ * org.acegisecurity.ui.switchuser.SwitchUserProcessingFilter}
  * 
  * <p>
  * Stores the <code>Authentication</code> object of the original user to be
@@ -31,7 +31,7 @@ import net.sf.acegisecurity.GrantedAuthorityImpl;
  * @author Mark St.Godard
  * @version $Id$
  *
- * @see net.sf.acegisecurity.ui.switchuser.SwitchUserProcessingFilter
+ * @see org.acegisecurity.ui.switchuser.SwitchUserProcessingFilter
  */
 public class SwitchUserGrantedAuthority extends GrantedAuthorityImpl {
     //~ Instance fields ========================================================

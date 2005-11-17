@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method.aspectj;
+package org.acegisecurity.intercept.method.aspectj;
 
 /**
  * Called by the {@link AspectJSecurityInterceptor} when it wishes for the

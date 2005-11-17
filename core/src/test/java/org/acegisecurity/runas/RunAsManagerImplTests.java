@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.runas;
+package org.acegisecurity.runas;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.RunAsManager;
-import net.sf.acegisecurity.SecurityConfig;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.RunAsManager;
+import org.acegisecurity.SecurityConfig;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 
 /**

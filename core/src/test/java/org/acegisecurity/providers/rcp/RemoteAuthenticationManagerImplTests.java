@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.rcp;
+package org.acegisecurity.providers.rcp;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.MockAuthenticationManager;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.MockAuthenticationManager;
 
 
 /**

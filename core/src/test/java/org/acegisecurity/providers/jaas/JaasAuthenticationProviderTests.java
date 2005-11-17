@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.jaas;
+package org.acegisecurity.providers.jaas;
 
 import junit.framework.TestCase;
-import net.sf.acegisecurity.*;
-import net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter;
-import net.sf.acegisecurity.context.SecurityContextImpl;
-import net.sf.acegisecurity.ui.session.HttpSessionDestroyedEvent;
-import net.sf.acegisecurity.providers.TestingAuthenticationToken;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.*;
+import org.acegisecurity.context.HttpSessionContextIntegrationFilter;
+import org.acegisecurity.context.SecurityContextImpl;
+import org.acegisecurity.ui.session.HttpSessionDestroyedEvent;
+import org.acegisecurity.providers.TestingAuthenticationToken;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mock.web.MockHttpSession;

@@ -1,4 +1,4 @@
-package net.sf.acegisecurity.annotation;
+package org.acegisecurity.annotation;
 
 @Secured ({"ROLE_USER"})
 public interface BusinessService {

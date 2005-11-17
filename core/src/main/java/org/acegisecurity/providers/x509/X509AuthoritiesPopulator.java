@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.x509;
+package org.acegisecurity.providers.x509;
 
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.AuthenticationException;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.AuthenticationException;
 
 import java.security.cert.X509Certificate;
 
@@ -27,7 +27,7 @@ import java.security.cert.X509Certificate;
  * Although the certificate will already have been validated by the web container,
  * implementations may choose to perform additional application-specific checks on
  * the certificate content here. If an implementation chooses to reject the certificate,
- * it should throw a {@link net.sf.acegisecurity.BadCredentialsException}.
+ * it should throw a {@link org.acegisecurity.BadCredentialsException}.
  * </p>
  *
  * @author Luke
@@ -46,7 +46,7 @@ public interface X509AuthoritiesPopulator {
      * @return the details of the indicated user (at minimum the granted
      *         authorities and the username)
      *
-     * @throws net.sf.acegisecurity.AuthenticationException if the user details are not available
+     * @throws org.acegisecurity.AuthenticationException if the user details are not available
      *  or the certificate isn't valid for the application's purpose.
      */
     UserDetails getUserDetails(X509Certificate userCertificate)

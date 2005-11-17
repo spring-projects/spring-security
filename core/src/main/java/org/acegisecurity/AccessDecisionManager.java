@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
 /**
  * Makes a final access control (authorization) decision.

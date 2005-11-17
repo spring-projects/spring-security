@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.impl;
+package org.acegisecurity.domain.impl;
 
 /**
  * A <i>value object</i>, which means a persistable business object  that does
@@ -21,7 +21,7 @@ package net.sf.acegisecurity.domain.impl;
  * 
  * <p>
  * Every value object belongs to a single {@link
- * net.sf.acegisecurity.domain.impl.AbstractPersistableEntity}. This is
+ * org.acegisecurity.domain.impl.AbstractPersistableEntity}. This is
  * necessary so that the value object has some sort of persistence
  * relationship/ownership.
  * </p>

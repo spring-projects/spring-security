@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.x509;
+package org.acegisecurity.providers.x509;
 
-import net.sf.acegisecurity.providers.AbstractAuthenticationToken;
-import net.sf.acegisecurity.GrantedAuthority;
+import org.acegisecurity.providers.AbstractAuthenticationToken;
+import org.acegisecurity.GrantedAuthority;
 
 import java.security.cert.X509Certificate;
 

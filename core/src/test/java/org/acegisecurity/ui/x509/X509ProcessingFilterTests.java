@@ -13,19 +13,19 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.x509;
+package org.acegisecurity.ui.x509;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.providers.x509.X509AuthenticationToken;
-import net.sf.acegisecurity.providers.x509.X509TestUtils;
-import net.sf.acegisecurity.ui.AbstractProcessingFilter;
-import net.sf.acegisecurity.util.MockFilterChain;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationManager;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.MockAuthenticationManager;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.providers.x509.X509AuthenticationToken;
+import org.acegisecurity.providers.x509.X509TestUtils;
+import org.acegisecurity.ui.AbstractProcessingFilter;
+import org.acegisecurity.util.MockFilterChain;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -37,7 +37,7 @@ import javax.servlet.ServletException;
 
 
 /**
- * Tests {@link net.sf.acegisecurity.ui.x509.X509ProcessingFilter}.
+ * Tests {@link org.acegisecurity.ui.x509.X509ProcessingFilter}.
  *
  * @author Luke Taylor
  * @version $Id$

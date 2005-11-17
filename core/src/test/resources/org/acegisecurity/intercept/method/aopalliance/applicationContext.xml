@@ -20,31 +20,31 @@
 
 <beans>
 
-	<bean id="afterInvocation" class="net.sf.acegisecurity.MockAfterInvocationManager"/>
-	<bean id="authentication" class="net.sf.acegisecurity.MockAuthenticationManager"/>
-	<bean id="accessDecision" class="net.sf.acegisecurity.MockAccessDecisionManager"/>
-	<bean id="runAs" class="net.sf.acegisecurity.MockRunAsManager"/>
+	<bean id="afterInvocation" class="org.acegisecurity.MockAfterInvocationManager"/>
+	<bean id="authentication" class="org.acegisecurity.MockAuthenticationManager"/>
+	<bean id="accessDecision" class="org.acegisecurity.MockAccessDecisionManager"/>
+	<bean id="runAs" class="org.acegisecurity.MockRunAsManager"/>
 
-   <bean id="secureObjectLoggerListener" class="net.sf.acegisecurity.event.authorization.LoggerListener"/>
+   <bean id="secureObjectLoggerListener" class="org.acegisecurity.event.authorization.LoggerListener"/>
 
-	<bean id="securityInterceptor" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
+	<bean id="securityInterceptor" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
 		<property name="authenticationManager"><ref local="authentication"/></property>
 		<property name="accessDecisionManager"><ref local="accessDecision"/></property>
 		<property name="afterInvocationManager"><ref local="afterInvocation"/></property>
 		<property name="runAsManager"><ref local="runAs"/></property>
 		<property name="objectDefinitionSource">
 			<value>
-				net.sf.acegisecurity.ITargetObject.makeLower*=MOCK_LOWER
-				net.sf.acegisecurity.ITargetObject.makeUpper*=MOCK_UPPER,RUN_AS
-				net.sf.acegisecurity.ITargetObject.computeHashCode*=MOCK_HASH,AFTER_INVOCATION_MOCK
+				org.acegisecurity.ITargetObject.makeLower*=MOCK_LOWER
+				org.acegisecurity.ITargetObject.makeUpper*=MOCK_UPPER,RUN_AS
+				org.acegisecurity.ITargetObject.computeHashCode*=MOCK_HASH,AFTER_INVOCATION_MOCK
 			</value>
 		</property>
 	</bean>
 	
-	<bean id="realTarget" class="net.sf.acegisecurity.TargetObject"/>
+	<bean id="realTarget" class="org.acegisecurity.TargetObject"/>
 
     <bean id="target" class="org.springframework.aop.framework.ProxyFactoryBean">
-      <property name="proxyInterfaces"><value>net.sf.acegisecurity.ITargetObject</value></property>
+      <property name="proxyInterfaces"><value>org.acegisecurity.ITargetObject</value></property>
       <property name="interceptorNames">
          <list>
             <idref local="securityInterceptor"/>

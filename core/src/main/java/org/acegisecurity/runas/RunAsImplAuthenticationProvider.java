@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.runas;
+package org.acegisecurity.runas;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.providers.AuthenticationProvider;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.providers.AuthenticationProvider;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;

@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.anonymous;
+package org.acegisecurity.providers.anonymous;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.providers.AuthenticationProvider;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.providers.AuthenticationProvider;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,11 +30,11 @@ import org.springframework.util.Assert;
 
 /**
  * An {@link AuthenticationProvider} implementation that validates {@link
- * net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationToken}s.
+ * org.acegisecurity.providers.anonymous.AnonymousAuthenticationToken}s.
  * 
  * <p>
  * To be successfully validated, the  {@link
- * net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationToken#getKeyHash()}
+ * org.acegisecurity.providers.anonymous.AnonymousAuthenticationToken#getKeyHash()}
  * must match this class' {@link #getKey()}.
  * </p>
  *

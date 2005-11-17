@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
 /**
  * Represents the interface of a secured object.

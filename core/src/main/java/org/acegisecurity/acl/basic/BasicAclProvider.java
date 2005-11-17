@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.acl.basic;
+package org.acegisecurity.acl.basic;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.acl.AclEntry;
-import net.sf.acegisecurity.acl.AclProvider;
-import net.sf.acegisecurity.acl.basic.cache.NullAclEntryCache;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.acl.AclEntry;
+import org.acegisecurity.acl.AclProvider;
+import org.acegisecurity.acl.basic.cache.NullAclEntryCache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

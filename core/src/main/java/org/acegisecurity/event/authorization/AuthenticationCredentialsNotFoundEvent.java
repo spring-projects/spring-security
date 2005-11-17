@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.event.authorization;
+package org.acegisecurity.event.authorization;
 
-import net.sf.acegisecurity.AuthenticationCredentialsNotFoundException;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.AuthenticationCredentialsNotFoundException;
+import org.acegisecurity.ConfigAttributeDefinition;
 
 
 /**

@@ -13,21 +13,21 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui;
+package org.acegisecurity.ui;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.AccountExpiredException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.context.SecurityContextImpl;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.ui.rememberme.TokenBasedRememberMeServices;
+import org.acegisecurity.AccountExpiredException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.MockAuthenticationManager;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.context.SecurityContextImpl;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices;
 
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;

@@ -15,7 +15,7 @@
 
 package sample.contact;
 
-import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
+import org.acegisecurity.acl.basic.SimpleAclEntry;
 
 import org.springframework.beans.factory.InitializingBean;
 

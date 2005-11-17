@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
 /**
  * Thrown if an authorization request could not be processed due to a system

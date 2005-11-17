@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.vote;
+package org.acegisecurity.vote;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
 
 import java.util.Iterator;
 
@@ -35,7 +35,7 @@ import java.util.Iterator;
  * <p>
  * Abstains from voting if no configuration attribute commences with the  role
  * prefix. Votes to grant access if there is an exact matching {@link
- * net.sf.acegisecurity.GrantedAuthority} to a <code>ConfigAttribute</code>
+ * org.acegisecurity.GrantedAuthority} to a <code>ConfigAttribute</code>
  * starting with the role prefix. Votes to deny access if there is no exact
  * matching <code>GrantedAuthority</code>  to a <code>ConfigAttribute</code>
  * starting with the role prefix.
@@ -49,7 +49,7 @@ import java.util.Iterator;
  * some use when using preexisting role names without a prefix, and no ability
  * exists to prefix them with a role prefix on reading them in, such as
  * provided for example in  {@link
- * net.sf.acegisecurity.providers.dao.jdbc.JdbcDaoImpl}.
+ * org.acegisecurity.providers.dao.jdbc.JdbcDaoImpl}.
  * </p>
  * 
  * <p>

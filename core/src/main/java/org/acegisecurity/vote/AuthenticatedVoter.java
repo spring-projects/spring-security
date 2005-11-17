@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.vote;
+package org.acegisecurity.vote;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationTrustResolver;
-import net.sf.acegisecurity.AuthenticationTrustResolverImpl;
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationTrustResolver;
+import org.acegisecurity.AuthenticationTrustResolverImpl;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
 
 import org.springframework.util.Assert;
 
@@ -39,9 +39,9 @@ import java.util.Iterator;
  * The current <code>Authentication</code> will be inspected to determine if
  * the principal has a particular level of authentication. The "FULLY"
  * authenticated option means the user is authenticated fully (ie {@link
- * net.sf.acegisecurity.AuthenticationTrustResolver#isAnonymous(Authentication)}
+ * org.acegisecurity.AuthenticationTrustResolver#isAnonymous(Authentication)}
  * is false and {@link
- * net.sf.acegisecurity.AuthenticationTrustResolver#isRememberMe(Authentication)}
+ * org.acegisecurity.AuthenticationTrustResolver#isRememberMe(Authentication)}
  * is false. The "REMEMBERED" will grant access if the principal was either
  * authenticated via remember-me OR is fully authenticated. The "ANONYMOUSLY"
  * will grant access if the principal was authenticated via remember-me, OR

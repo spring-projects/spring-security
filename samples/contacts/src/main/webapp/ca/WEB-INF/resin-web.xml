@@ -4,7 +4,7 @@
   -->
 <web-app>
       <authenticator>
-        <type>net.sf.acegisecurity.adapters.resin.ResinAcegiAuthenticator</type>
+        <type>org.acegisecurity.adapters.resin.ResinAcegiAuthenticator</type>
         <init>
           <app-context-location>resin-acegisecurity.xml</app-context-location>
            <key>my_password</key>

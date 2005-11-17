@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
 import java.io.Serializable;
 
@@ -28,8 +28,8 @@ import java.util.Vector;
  * 
  * <p>
  * All the <code>ConfigAttributeDefinition</code>s associated with a given
- * {@link net.sf.acegisecurity.intercept.AbstractSecurityInterceptor} are
- * stored in an {@link net.sf.acegisecurity.intercept.ObjectDefinitionSource}.
+ * {@link org.acegisecurity.intercept.AbstractSecurityInterceptor} are
+ * stored in an {@link org.acegisecurity.intercept.ObjectDefinitionSource}.
  * </p>
  *
  * @author Ben Alex

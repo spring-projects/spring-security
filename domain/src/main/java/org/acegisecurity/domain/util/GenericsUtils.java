@@ -1,4 +1,4 @@
-package net.sf.acegisecurity.domain.util;
+package org.acegisecurity.domain.util;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

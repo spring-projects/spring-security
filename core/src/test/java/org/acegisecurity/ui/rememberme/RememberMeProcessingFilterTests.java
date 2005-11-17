@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.rememberme;
+package org.acegisecurity.ui.rememberme;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.MockFilterConfig;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.context.SecurityContextImpl;
-import net.sf.acegisecurity.providers.TestingAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.MockFilterConfig;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.context.SecurityContextImpl;
+import org.acegisecurity.providers.TestingAuthenticationToken;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;

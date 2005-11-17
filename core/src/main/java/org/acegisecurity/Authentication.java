@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
 import java.io.Serializable;
 
@@ -30,7 +30,7 @@ import java.security.Principal;
  * 
  * <p>
  * Stored in a request {@link
- * net.sf.acegisecurity.context.security.SecurityContext}.
+ * org.acegisecurity.context.security.SecurityContext}.
  * </p>
  *
  * @author Ben Alex

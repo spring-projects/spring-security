@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method.aspectj;
+package org.acegisecurity.intercept.method.aspectj;
 
-import net.sf.acegisecurity.intercept.AbstractSecurityInterceptor;
-import net.sf.acegisecurity.intercept.InterceptorStatusToken;
-import net.sf.acegisecurity.intercept.ObjectDefinitionSource;
-import net.sf.acegisecurity.intercept.method.MethodDefinitionSource;
+import org.acegisecurity.intercept.AbstractSecurityInterceptor;
+import org.acegisecurity.intercept.InterceptorStatusToken;
+import org.acegisecurity.intercept.ObjectDefinitionSource;
+import org.acegisecurity.intercept.method.MethodDefinitionSource;
 
 import org.aspectj.lang.JoinPoint;
 

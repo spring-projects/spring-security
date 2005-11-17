@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.validation;
+package org.acegisecurity.domain.validation;
 
-import net.sf.acegisecurity.domain.dao.DetachmentContextHolder;
+import org.acegisecurity.domain.dao.DetachmentContextHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

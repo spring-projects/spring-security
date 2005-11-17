@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method;
+package org.acegisecurity.intercept.method;
 
-import net.sf.acegisecurity.ITargetObject;
-import net.sf.acegisecurity.OtherTargetObject;
-import net.sf.acegisecurity.SecurityConfig;
-import net.sf.acegisecurity.TargetObject;
+import org.acegisecurity.ITargetObject;
+import org.acegisecurity.OtherTargetObject;
+import org.acegisecurity.SecurityConfig;
+import org.acegisecurity.TargetObject;
 
 import org.springframework.metadata.Attributes;
 

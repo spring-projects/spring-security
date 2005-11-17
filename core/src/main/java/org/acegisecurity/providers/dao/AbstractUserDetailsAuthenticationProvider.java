@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao;
+package org.acegisecurity.providers.dao;
 
-import net.sf.acegisecurity.AccountExpiredException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.CredentialsExpiredException;
-import net.sf.acegisecurity.DisabledException;
-import net.sf.acegisecurity.LockedException;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.AuthenticationProvider;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.providers.dao.cache.NullUserCache;
+import org.acegisecurity.AccountExpiredException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.CredentialsExpiredException;
+import org.acegisecurity.DisabledException;
+import org.acegisecurity.LockedException;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.AuthenticationProvider;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.providers.dao.cache.NullUserCache;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
 
 /**
  * A base {@link AuthenticationProvider} that allows subclasses to override and
- * work with {@link net.sf.acegisecurity.UserDetails} objects. The class is
+ * work with {@link org.acegisecurity.UserDetails} objects. The class is
  * designed to respond to {@link UsernamePasswordAuthenticationToken}
  * authentication requests.
  * 

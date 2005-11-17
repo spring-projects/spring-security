@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept;
+package org.acegisecurity.intercept;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.MockAccessDecisionManager;
-import net.sf.acegisecurity.MockAfterInvocationManager;
-import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.MockMethodInvocation;
-import net.sf.acegisecurity.MockRunAsManager;
-import net.sf.acegisecurity.intercept.method.MockMethodDefinitionSource;
+import org.acegisecurity.MockAccessDecisionManager;
+import org.acegisecurity.MockAfterInvocationManager;
+import org.acegisecurity.MockAuthenticationManager;
+import org.acegisecurity.MockMethodInvocation;
+import org.acegisecurity.MockRunAsManager;
+import org.acegisecurity.intercept.method.MockMethodDefinitionSource;
 
 
 /**

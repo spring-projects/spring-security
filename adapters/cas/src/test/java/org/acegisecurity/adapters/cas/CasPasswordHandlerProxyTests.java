@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters.cas;
+package org.acegisecurity.adapters.cas;
 
 import junit.framework.TestCase;
 
@@ -54,7 +54,7 @@ public class CasPasswordHandlerProxyTests extends TestCase {
 
     public void testDetectsIfHttpServletRequestNotPassed() {
         CasPasswordHandlerProxy proxy = new MockCasPasswordHandlerProxy(
-                "net/sf/acegisecurity/adapters/cas/applicationContext-valid.xml");
+                "org/acegisecurity/adapters/cas/applicationContext-valid.xml");
 
         try {
             proxy.authenticate(null, "x", "y");
@@ -67,7 +67,7 @@ public class CasPasswordHandlerProxyTests extends TestCase {
 
     public void testDetectsMissingDelegate() {
         CasPasswordHandlerProxy proxy = new MockCasPasswordHandlerProxy(
-                "net/sf/acegisecurity/adapters/cas/applicationContext-invalid.xml");
+                "org/acegisecurity/adapters/cas/applicationContext-invalid.xml");
 
         try {
             proxy.authenticate(new MockHttpServletRequest(), "x", "y");
@@ -80,7 +80,7 @@ public class CasPasswordHandlerProxyTests extends TestCase {
 
     public void testNormalOperation() {
         CasPasswordHandlerProxy proxy = new MockCasPasswordHandlerProxy(
-                "net/sf/acegisecurity/adapters/cas/applicationContext-valid.xml");
+                "org/acegisecurity/adapters/cas/applicationContext-valid.xml");
         assertTrue(proxy.authenticate(new MockHttpServletRequest(), "marissa",
                 "koala"));
         assertFalse(proxy.authenticate(new MockHttpServletRequest(), "marissa",

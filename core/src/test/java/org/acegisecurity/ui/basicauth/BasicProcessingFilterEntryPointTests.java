@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.basicauth;
+package org.acegisecurity.ui.basicauth;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.DisabledException;
+import org.acegisecurity.DisabledException;
 
 
 

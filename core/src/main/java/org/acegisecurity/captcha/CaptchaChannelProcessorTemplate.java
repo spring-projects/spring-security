@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.captcha;
+package org.acegisecurity.captcha;
 
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.intercept.web.FilterInvocation;
-import net.sf.acegisecurity.securechannel.ChannelEntryPoint;
-import net.sf.acegisecurity.securechannel.ChannelProcessor;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.intercept.web.FilterInvocation;
+import org.acegisecurity.securechannel.ChannelEntryPoint;
+import org.acegisecurity.securechannel.ChannelProcessor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,7 +50,7 @@ import javax.servlet.ServletException;
  * <ul>
  * <li>
  * a keyword to be mapped to urls in the {@link
- * net.sf.acegisecurity.securechannel.ChannelProcessingFilter} configuration<br>
+ * org.acegisecurity.securechannel.ChannelProcessingFilter} configuration<br>
  * default value provided by sub classes.
  * </li>
  * <li>

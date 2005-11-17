@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.acl;
+package org.acegisecurity.acl;
 
-import net.sf.acegisecurity.Authentication;
+import org.acegisecurity.Authentication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

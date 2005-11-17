@@ -1,4 +1,4 @@
-<%@ page import="net.sf.acegisecurity.acl.basic.SimpleAclEntry" %>
+<%@ page import="org.acegisecurity.acl.basic.SimpleAclEntry" %>
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 
 <html>
@@ -12,7 +12,7 @@
 <P>
 <table cellpadding=3 border=0>
 <c:forEach var="acl" items="${model.acls}">
-  <c:if test="${acl.class.name eq 'net.sf.acegisecurity.acl.basic.SimpleAclEntry'}">
+  <c:if test="${acl.class.name eq 'org.acegisecurity.acl.basic.SimpleAclEntry'}">
     <tr>
       <td>
         <code>

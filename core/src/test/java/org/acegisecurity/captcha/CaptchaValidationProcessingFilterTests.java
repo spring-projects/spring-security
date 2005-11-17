@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.captcha;
+package org.acegisecurity.captcha;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.util.MockFilterChain;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.util.MockFilterChain;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -60,7 +60,7 @@ public class CaptchaValidationProcessingFilterTests extends TestCase {
 
     /*
      * Test method for
-     * 'net.sf.acegisecurity.captcha.CaptchaValidationProcessingFilter.doFilter(ServletRequest,
+     * 'org.acegisecurity.captcha.CaptchaValidationProcessingFilter.doFilter(ServletRequest,
      * ServletResponse, FilterChain)'
      */
     public void testDoFilterWithRequestParameter() throws Exception {
@@ -88,7 +88,7 @@ public class CaptchaValidationProcessingFilterTests extends TestCase {
 
     /*
      * Test method for
-     * 'net.sf.acegisecurity.captcha.CaptchaValidationProcessingFilter.doFilter(ServletRequest,
+     * 'org.acegisecurity.captcha.CaptchaValidationProcessingFilter.doFilter(ServletRequest,
      * ServletResponse, FilterChain)'
      */
     public void testDoFilterWithoutRequestParameter() throws Exception {

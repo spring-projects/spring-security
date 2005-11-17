@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.rcp;
+package org.acegisecurity.providers.rcp;
 
-import net.sf.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthority;
 
 
 /**

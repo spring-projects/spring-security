@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.afterinvocation;
+package org.acegisecurity.afterinvocation;
 
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthorizationServiceException;
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.acl.AclEntry;
-import net.sf.acegisecurity.acl.AclManager;
-import net.sf.acegisecurity.acl.basic.BasicAclEntry;
-import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthorizationServiceException;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.acl.AclEntry;
+import org.acegisecurity.acl.AclManager;
+import org.acegisecurity.acl.basic.BasicAclEntry;
+import org.acegisecurity.acl.basic.SimpleAclEntry;
 
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.logging.Log;
@@ -54,9 +54,9 @@ import java.util.Set;
  * (ACL) permissions associated with each <code>Collection</code>  domain
  * object instance element for the current <code>Authentication</code> object.
  * This class is designed to process {@link AclEntry}s that are subclasses of
- * {@link net.sf.acegisecurity.acl.basic.BasicAclEntry} only.
+ * {@link org.acegisecurity.acl.basic.BasicAclEntry} only.
  * Generally these are obtained by using the {@link
- * net.sf.acegisecurity.acl.basic.BasicAclProvider}.
+ * org.acegisecurity.acl.basic.BasicAclProvider}.
  * </p>
  * 
  * <p>
@@ -64,7 +64,7 @@ import java.util.Set;
  * ConfigAttribute#getAttribute()} matches the {@link
  * #processConfigAttribute}. The provider will then lookup the ACLs from the
  * <code>AclManager</code> and ensure the principal is {@link
- * net.sf.acegisecurity.acl.basic.BasicAclEntry#isPermitted(int)} for
+ * org.acegisecurity.acl.basic.BasicAclEntry#isPermitted(int)} for
  * at least one of the {@link #requirePermission}s for each
  * <code>Collection</code> element. If the principal does not have at least
  * one of the permissions, that element will not be included in the returned
@@ -330,7 +330,7 @@ class CollectionFilterer implements Filterer {
     //~ Methods ================================================================
 
     /**
-     * @see net.sf.acegisecurity.afterinvocation.Filterer#getFilteredObject()
+     * @see org.acegisecurity.afterinvocation.Filterer#getFilteredObject()
      */
     public Object getFilteredObject() {
         // Now the Iterator has ended, remove Objects from Collection
@@ -351,7 +351,7 @@ class CollectionFilterer implements Filterer {
     }
 
     /**
-     * @see net.sf.acegisecurity.afterinvocation.Filterer#iterator()
+     * @see org.acegisecurity.afterinvocation.Filterer#iterator()
      */
     public Iterator iterator() {
         collectionIter = collection.iterator();
@@ -360,7 +360,7 @@ class CollectionFilterer implements Filterer {
     }
 
     /**
-     * @see net.sf.acegisecurity.afterinvocation.Filterer#remove(java.lang.Object)
+     * @see org.acegisecurity.afterinvocation.Filterer#remove(java.lang.Object)
      */
     public void remove(Object object) {
         collectionIter.remove();
@@ -395,7 +395,7 @@ class ArrayFilterer implements Filterer {
     //~ Methods ================================================================
 
     /**
-     * @see net.sf.acegisecurity.afterinvocation.Filterer#getFilteredObject()
+     * @see org.acegisecurity.afterinvocation.Filterer#getFilteredObject()
      */
     public Object getFilteredObject() {
         // Recreate an array of same type and filter the removed objects.
@@ -424,14 +424,14 @@ class ArrayFilterer implements Filterer {
     }
 
     /**
-     * @see net.sf.acegisecurity.afterinvocation.Filterer#iterator()
+     * @see org.acegisecurity.afterinvocation.Filterer#iterator()
      */
     public Iterator iterator() {
         return new ArrayIterator(list);
     }
 
     /**
-     * @see net.sf.acegisecurity.afterinvocation.Filterer#remove(java.lang.Object)
+     * @see org.acegisecurity.afterinvocation.Filterer#remove(java.lang.Object)
      */
     public void remove(Object object) {
         removeList.add(object);

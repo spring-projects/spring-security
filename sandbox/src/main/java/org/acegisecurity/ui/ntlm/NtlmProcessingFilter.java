@@ -1,7 +1,7 @@
 /*
  * LICENSE IS UNKNOWN (SEE TODO COMMENT LATER IN SOURCE CODE)
  */
-package net.sf.acegisecurity.ui.ntlm;
+package org.acegisecurity.ui.ntlm;
 
 import jcifs.Config;
 import jcifs.UniAddress;
@@ -12,13 +12,13 @@ import jcifs.smb.NtlmChallenge;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbSession;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
-import net.sf.acegisecurity.providers.smb.NtlmAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationManager;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.intercept.web.AuthenticationEntryPoint;
+import org.acegisecurity.providers.smb.NtlmAuthenticationToken;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

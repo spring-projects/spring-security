@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters.jboss;
+package org.acegisecurity.adapters.jboss;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.context.SecurityContextHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,7 +42,7 @@ import javax.servlet.ServletResponse;
 
 
 /**
- * Populates a {@link net.sf.acegisecurity.context.security.SecureContext} from
+ * Populates a {@link org.acegisecurity.context.security.SecureContext} from
  * JBoss' <code>java:comp/env/security/subject</code>.
  * 
  * <p>

@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao.memory;
+package org.acegisecurity.providers.dao.memory;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
+import org.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import java.util.Properties;
 

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
 /**
  * Creates a new temporary {@link Authentication} object for the current secure
@@ -23,9 +23,9 @@ package net.sf.acegisecurity;
  * This interface permits implementations to replace the
  * <code>Authentication</code> object that applies to the current secure
  * object invocation only. The {@link
- * net.sf.acegisecurity.intercept.AbstractSecurityInterceptor} will replace
+ * org.acegisecurity.intercept.AbstractSecurityInterceptor} will replace
  * the <code>Authentication</code> object held in the
- * {@link net.sf.acegisecurity.context.SecurityContext SecurityContext}
+ * {@link org.acegisecurity.context.SecurityContext SecurityContext}
  * for the duration of  the secure object callback only, returning it to
  * the original <code>Authentication</code> object when the callback ends.
  * </p>

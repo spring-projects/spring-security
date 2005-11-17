@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.cas;
+package org.acegisecurity.providers.cas;
 
 import java.util.List;
 import java.util.Vector;

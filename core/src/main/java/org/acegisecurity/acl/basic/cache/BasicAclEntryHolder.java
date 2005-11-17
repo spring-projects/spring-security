@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.acl.basic.cache;
+package org.acegisecurity.acl.basic.cache;
 
-import net.sf.acegisecurity.acl.basic.BasicAclEntry;
+import org.acegisecurity.acl.basic.BasicAclEntry;
 
 import java.io.Serializable;
 

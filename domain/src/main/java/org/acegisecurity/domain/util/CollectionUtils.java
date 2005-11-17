@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.util;
+package org.acegisecurity.domain.util;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method.aopalliance;
+package org.acegisecurity.intercept.method.aopalliance;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.TargetObject;
-import net.sf.acegisecurity.intercept.method.MethodDefinitionMap;
-import net.sf.acegisecurity.intercept.method.MethodDefinitionSourceEditor;
+import org.acegisecurity.TargetObject;
+import org.acegisecurity.intercept.method.MethodDefinitionMap;
+import org.acegisecurity.intercept.method.MethodDefinitionSourceEditor;
 
 import org.springframework.aop.framework.AopConfigException;
 
@@ -131,7 +131,7 @@ public class MethodDefinitionSourceAdvisorTests extends TestCase {
     private MethodSecurityInterceptor getInterceptor() {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "net.sf.acegisecurity.TargetObject.countLength=ROLE_NOT_USED");
+            "org.acegisecurity.TargetObject.countLength=ROLE_NOT_USED");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
 

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.encoding;
+package org.acegisecurity.providers.encoding;
 
 import org.springframework.dao.DataAccessException;
 

@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.securechannel;
+package org.acegisecurity.securechannel;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
 
 
-import net.sf.acegisecurity.SecurityConfig;
+import org.acegisecurity.SecurityConfig;
 
-import net.sf.acegisecurity.intercept.web.FilterInvocation;
-import net.sf.acegisecurity.intercept.web.FilterInvocationDefinitionSource;
+import org.acegisecurity.intercept.web.FilterInvocation;
+import org.acegisecurity.intercept.web.FilterInvocationDefinitionSource;
 
 import java.io.IOException;
 

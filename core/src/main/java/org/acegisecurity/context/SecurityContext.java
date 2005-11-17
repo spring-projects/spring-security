@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.context;
+package org.acegisecurity.context;
 
-import net.sf.acegisecurity.Authentication;
+import org.acegisecurity.Authentication;
 
 import java.io.Serializable;
 

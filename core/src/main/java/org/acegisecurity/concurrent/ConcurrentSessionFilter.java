@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.concurrent;
+package org.acegisecurity.concurrent;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -37,16 +37,16 @@ import javax.servlet.http.HttpSession;
  * 
  * <p>
  * This filter performs two functions. First, it calls {@link
- * net.sf.acegisecurity.concurrent.SessionRegistry#refreshLastRequest(String)}
+ * org.acegisecurity.concurrent.SessionRegistry#refreshLastRequest(String)}
  * for each request. That way, registered sessions always have a correct "last
  * update" date/time. Second, it retrieves {@link
- * net.sf.acegisecurity.concurrent.SessionInformation} from the
+ * org.acegisecurity.concurrent.SessionInformation} from the
  * <code>SessionRegistry</code> for each request and checks if the session has
  * been marked as expired. If it has been marked as expired, the session is
  * invalidated. The invalidation of the session will also cause the request to
  * redirect to the URL specified, and a {@link
- * net.sf.acegisecurity.ui.session.HttpSessionDestroyedEvent} to be published
- * via the {@link net.sf.acegisecurity.ui.session.HttpSessionEventPublisher}
+ * org.acegisecurity.ui.session.HttpSessionDestroyedEvent} to be published
+ * via the {@link org.acegisecurity.ui.session.HttpSessionEventPublisher}
  * registered in <code>web.xml</code>.
  * </p>
  *

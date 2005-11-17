@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.cas;
+package org.acegisecurity.ui.cas;
 
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.intercept.web.AuthenticationEntryPoint;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;

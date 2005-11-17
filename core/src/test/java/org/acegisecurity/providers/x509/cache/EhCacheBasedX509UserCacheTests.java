@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.x509.cache;
+package org.acegisecurity.providers.x509.cache;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.MockApplicationContext;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.dao.User;
-import net.sf.acegisecurity.providers.x509.X509TestUtils;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.MockApplicationContext;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.dao.User;
+import org.acegisecurity.providers.x509.X509TestUtils;
 
 import net.sf.ehcache.Cache;
 

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.acl.basic;
+package org.acegisecurity.acl.basic;
 
 /**
  * Simple object to use when testing <code>NamedEntityObjectIdentity</code>.

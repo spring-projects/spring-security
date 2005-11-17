@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters;
+package org.acegisecurity.adapters;
 
 import java.security.Principal;
 

@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.cas.ticketvalidator;
+package org.acegisecurity.providers.cas.ticketvalidator;
 
-import net.sf.acegisecurity.providers.cas.TicketValidator;
-import net.sf.acegisecurity.ui.cas.ServiceProperties;
+import org.acegisecurity.providers.cas.TicketValidator;
+import org.acegisecurity.ui.cas.ServiceProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

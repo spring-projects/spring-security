@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.concurrent;
+package org.acegisecurity.concurrent;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
 
 
 /**
  * No-op implementation of {@link
- * net.sf.acegisecurity.concurrent.ConcurrentSessionController}.
+ * org.acegisecurity.concurrent.ConcurrentSessionController}.
  *
  * @author Ben Alex
  * @version $Id$

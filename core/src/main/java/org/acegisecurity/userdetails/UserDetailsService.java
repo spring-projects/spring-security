@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao;
+package org.acegisecurity.providers.dao;
 
-import net.sf.acegisecurity.UserDetails;
+import org.acegisecurity.UserDetails;
 
 import org.springframework.dao.DataAccessException;
 

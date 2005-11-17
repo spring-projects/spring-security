@@ -12,15 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.acegisecurity.captcha;
+package org.acegisecurity.captcha;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.MockFilterChain;
-import net.sf.acegisecurity.SecurityConfig;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.intercept.web.FilterInvocation;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.MockFilterChain;
+import org.acegisecurity.SecurityConfig;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.intercept.web.FilterInvocation;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -31,7 +31,7 @@ import javax.servlet.ServletException;
 
 
 /**
- * Tests {@link net.sf.acegisecurity.captcha.CaptchaChannelProcessorTemplate}
+ * Tests {@link org.acegisecurity.captcha.CaptchaChannelProcessorTemplate}
  *
  * @author marc antoine Garrigue
  * @version $Id$

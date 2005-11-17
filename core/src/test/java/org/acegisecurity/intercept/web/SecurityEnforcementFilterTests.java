@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.web;
+package org.acegisecurity.intercept.web;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.MockAuthenticationEntryPoint;
-import net.sf.acegisecurity.MockPortResolver;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.context.SecurityContextImpl;
-import net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
-import net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.MockAuthenticationEntryPoint;
+import org.acegisecurity.MockPortResolver;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.context.SecurityContextImpl;
+import org.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
+import org.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;

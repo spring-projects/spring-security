@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.event.authorization;
+package org.acegisecurity.event.authorization;
 
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.ConfigAttributeDefinition;
 
 
 /**

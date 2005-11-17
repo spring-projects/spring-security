@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.acl.basic.cache;
+package org.acegisecurity.acl.basic.cache;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.MockApplicationContext;
-import net.sf.acegisecurity.acl.basic.AclObjectIdentity;
-import net.sf.acegisecurity.acl.basic.BasicAclEntry;
-import net.sf.acegisecurity.acl.basic.NamedEntityObjectIdentity;
-import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
+import org.acegisecurity.MockApplicationContext;
+import org.acegisecurity.acl.basic.AclObjectIdentity;
+import org.acegisecurity.acl.basic.BasicAclEntry;
+import org.acegisecurity.acl.basic.NamedEntityObjectIdentity;
+import org.acegisecurity.acl.basic.SimpleAclEntry;
 
 import net.sf.ehcache.Cache;
 

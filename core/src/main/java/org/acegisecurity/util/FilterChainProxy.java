@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.util;
+package org.acegisecurity.util;
 
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.intercept.web.FilterInvocation;
-import net.sf.acegisecurity.intercept.web.FilterInvocationDefinitionSource;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.intercept.web.FilterInvocation;
+import org.acegisecurity.intercept.web.FilterInvocationDefinitionSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,7 +51,7 @@ import javax.servlet.ServletResponse;
  * 
  * <p>
  * The <code>FilterChainProxy</code> is loaded via a standard {@link
- * net.sf.acegisecurity.util.FilterToBeanProxy} declaration in
+ * org.acegisecurity.util.FilterToBeanProxy} declaration in
  * <code>web.xml</code>. <code>FilterChainProxy</code> will then pass {@link
  * #init(FilterConfig)}, {@link #destroy()}, {@link #doInit()} and {@link
  * #doFilter(ServletRequest, ServletResponse, FilterChain)} invocations
@@ -61,7 +61,7 @@ import javax.servlet.ServletResponse;
  * 
  * <p>
  * <code>FilterChainProxy</code> is configured using a standard {@link
- * net.sf.acegisecurity.intercept.web.FilterInvocationDefinitionSource}. Each
+ * org.acegisecurity.intercept.web.FilterInvocationDefinitionSource}. Each
  * possible URI pattern that <code>FilterChainProxy</code> should service must
  * be entered. The first matching URI pattern located by
  * <code>FilterInvocationDefinitionSource</code> for a given request will be
@@ -74,7 +74,7 @@ import javax.servlet.ServletResponse;
  * <code>FilterInvocationDefinitionSource</code> described the applicable URI
  * pattern to fire the filter chain, followed by a list of configuration
  * attributes. Each configuration attribute's {@link
- * net.sf.acegisecurity.ConfigAttribute#getAttribute()} corresponds to a bean
+ * org.acegisecurity.ConfigAttribute#getAttribute()} corresponds to a bean
  * name that is available from the application context.
  * </p>
  * 
@@ -90,7 +90,7 @@ import javax.servlet.ServletResponse;
  * <p>
  * It is particularly noted the <code>Filter</code> lifecycle mismatch between
  * the servlet container and IoC container. As per {@link
- * net.sf.acegisecurity.util.FilterToBeanProxy} JavaDocs, we recommend you
+ * org.acegisecurity.util.FilterToBeanProxy} JavaDocs, we recommend you
  * allow the IoC container to manage lifecycle instead of the servlet
  * container. By default the <code>FilterToBeanProxy</code> will never call
  * this class' {@link #init(FilterConfig)} and {@link #destroy()} methods,

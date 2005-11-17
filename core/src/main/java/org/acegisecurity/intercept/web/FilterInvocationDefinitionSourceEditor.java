@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.web;
+package org.acegisecurity.intercept.web;
 
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.ConfigAttributeEditor;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.ConfigAttributeEditor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

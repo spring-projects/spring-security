@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.basicauth;
+package org.acegisecurity.ui.basicauth;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.MockAuthenticationEntryPoint;
-import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.MockFilterConfig;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.context.SecurityContextImpl;
+import org.acegisecurity.MockAuthenticationEntryPoint;
+import org.acegisecurity.MockAuthenticationManager;
+import org.acegisecurity.MockFilterConfig;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.context.SecurityContextImpl;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -102,7 +102,7 @@ public class BasicProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/basicauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/basicauth/filtertest-valid.xml");
         BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
                 "basicProcessingFilter");
 
@@ -142,7 +142,7 @@ public class BasicProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/basicauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/basicauth/filtertest-valid.xml");
         BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
                 "basicProcessingFilter");
 
@@ -171,7 +171,7 @@ public class BasicProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/basicauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/basicauth/filtertest-valid.xml");
         BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
                 "basicProcessingFilter");
 
@@ -202,7 +202,7 @@ public class BasicProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/basicauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/basicauth/filtertest-valid.xml");
         BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
                 "basicProcessingFilter");
 
@@ -259,7 +259,7 @@ public class BasicProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/basicauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/basicauth/filtertest-valid.xml");
         BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
                 "basicProcessingFilter");
 
@@ -311,7 +311,7 @@ public class BasicProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/basicauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/basicauth/filtertest-valid.xml");
         BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
                 "basicProcessingFilter");
 

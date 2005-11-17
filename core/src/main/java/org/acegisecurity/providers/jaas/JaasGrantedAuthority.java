@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.jaas;
+package org.acegisecurity.providers.jaas;
 
-import net.sf.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.GrantedAuthorityImpl;
 
 import java.security.Principal;
 

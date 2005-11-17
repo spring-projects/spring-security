@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.concurrent;
+package org.acegisecurity.concurrent;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.ui.WebAuthenticationDetails;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.ui.WebAuthenticationDetails;
 
 import org.springframework.util.Assert;
 

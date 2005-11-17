@@ -13,31 +13,31 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method.aopalliance;
+package org.acegisecurity.intercept.method.aopalliance;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.AccessDecisionManager;
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.AfterInvocationManager;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationCredentialsNotFoundException;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.ITargetObject;
-import net.sf.acegisecurity.MockAccessDecisionManager;
-import net.sf.acegisecurity.MockAfterInvocationManager;
-import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.MockRunAsManager;
-import net.sf.acegisecurity.RunAsManager;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.intercept.method.AbstractMethodDefinitionSource;
-import net.sf.acegisecurity.intercept.method.MockMethodDefinitionSource;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.runas.RunAsManagerImpl;
+import org.acegisecurity.AccessDecisionManager;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.AfterInvocationManager;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationCredentialsNotFoundException;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.ITargetObject;
+import org.acegisecurity.MockAccessDecisionManager;
+import org.acegisecurity.MockAfterInvocationManager;
+import org.acegisecurity.MockAuthenticationManager;
+import org.acegisecurity.MockRunAsManager;
+import org.acegisecurity.RunAsManager;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.intercept.method.AbstractMethodDefinitionSource;
+import org.acegisecurity.intercept.method.MockMethodDefinitionSource;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.runas.RunAsManagerImpl;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -92,7 +92,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
         // The associated MockAuthenticationManager WILL accept the above UsernamePasswordAuthenticationToken
         ITargetObject target = makeInterceptedTarget();
         String result = target.publicMakeLowerCase("HELLO");
-        assertEquals("hello net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken false",
+        assertEquals("hello org.acegisecurity.providers.UsernamePasswordAuthenticationToken false",
             result);
     }
 
@@ -142,7 +142,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
 
         ITargetObject target = makeInterceptedTarget();
         String result = target.makeUpperCase("hello");
-        assertEquals("HELLO net.sf.acegisecurity.MockRunAsAuthenticationToken true",
+        assertEquals("HELLO org.acegisecurity.MockRunAsAuthenticationToken true",
             result);
     }
 
@@ -158,7 +158,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
         String result = target.makeLowerCase("HELLO");
 
         // Note we check the isAuthenticated remained true in following line
-        assertEquals("hello net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken true",
+        assertEquals("hello org.acegisecurity.providers.UsernamePasswordAuthenticationToken true",
             result);
     }
 
@@ -388,14 +388,14 @@ public class MethodSecurityInterceptorTests extends TestCase {
 
     private ITargetObject makeInterceptedTarget() {
         ApplicationContext context = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
+                "org/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
 
         return (ITargetObject) context.getBean("target");
     }
 
     private ITargetObject makeInterceptedTargetRejectsAuthentication() {
         ApplicationContext context = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
+                "org/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
 
         MockAuthenticationManager authenticationManager = new MockAuthenticationManager(false);
         MethodSecurityInterceptor si = (MethodSecurityInterceptor) context
@@ -407,7 +407,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
 
     private ITargetObject makeInterceptedTargetWithoutAnAfterInvocationManager() {
         ApplicationContext context = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
+                "org/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
 
         MethodSecurityInterceptor si = (MethodSecurityInterceptor) context
             .getBean("securityInterceptor");

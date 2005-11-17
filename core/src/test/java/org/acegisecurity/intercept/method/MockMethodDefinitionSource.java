@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method;
+package org.acegisecurity.intercept.method;
 
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.SecurityConfig;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.SecurityConfig;
 
 import java.lang.reflect.Method;
 

@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers;
+package org.acegisecurity.providers;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
 
 
 /**
  * Indicates a class can process a specific  {@link
- * net.sf.acegisecurity.Authentication} implementation.
+ * org.acegisecurity.Authentication} implementation.
  *
  * @author Ben Alex
  * @version $Id$
@@ -31,7 +31,7 @@ public interface AuthenticationProvider {
 
     /**
      * Performs authentication with the same contract as {@link
-     * net.sf.acegisecurity.AuthenticationManager#authenticate(Authentication)}.
+     * org.acegisecurity.AuthenticationManager#authenticate(Authentication)}.
      *
      * @param authentication the authentication request object.
      *

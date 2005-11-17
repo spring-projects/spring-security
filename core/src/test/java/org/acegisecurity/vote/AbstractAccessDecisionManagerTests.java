@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.vote;
+package org.acegisecurity.vote;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.SecurityConfig;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.SecurityConfig;
 
 import java.util.List;
 import java.util.Vector;

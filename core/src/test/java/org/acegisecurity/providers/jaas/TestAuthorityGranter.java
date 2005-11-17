@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.jaas;
+package org.acegisecurity.providers.jaas;
 
 import java.security.Principal;
 

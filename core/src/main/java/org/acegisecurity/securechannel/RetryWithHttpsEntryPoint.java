@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.securechannel;
+package org.acegisecurity.securechannel;
 
-import net.sf.acegisecurity.util.PortMapper;
-import net.sf.acegisecurity.util.PortMapperImpl;
-import net.sf.acegisecurity.util.PortResolver;
-import net.sf.acegisecurity.util.PortResolverImpl;
+import org.acegisecurity.util.PortMapper;
+import org.acegisecurity.util.PortMapperImpl;
+import org.acegisecurity.util.PortResolver;
+import org.acegisecurity.util.PortResolverImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

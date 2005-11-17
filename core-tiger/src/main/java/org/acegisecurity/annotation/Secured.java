@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.annotation;
+package org.acegisecurity.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

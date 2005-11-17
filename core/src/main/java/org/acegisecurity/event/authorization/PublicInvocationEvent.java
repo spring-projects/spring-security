@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.event.authorization;
+package org.acegisecurity.event.authorization;
 
 /**
  * Event that is generated whenever a public secure object is invoked.

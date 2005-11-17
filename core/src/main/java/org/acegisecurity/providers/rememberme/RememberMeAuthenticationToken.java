@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.rememberme;
+package org.acegisecurity.providers.rememberme;
 
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.providers.AbstractAuthenticationToken;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 import java.io.Serializable;
 

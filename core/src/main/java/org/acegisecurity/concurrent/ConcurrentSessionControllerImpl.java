@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.concurrent;
+package org.acegisecurity.concurrent;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -27,7 +27,7 @@ import org.springframework.util.Assert;
  * prohibits simultaneous logins.
  * 
  * <p>
- * By default uses {@link net.sf.acegisecurity.concurrent.SessionRegistryImpl},
+ * By default uses {@link org.acegisecurity.concurrent.SessionRegistryImpl},
  * although any <code>SessionRegistry</code> may be used.
  * </p>
  *

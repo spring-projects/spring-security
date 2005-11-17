@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.context.httpinvoker;
+package org.acegisecurity.context.httpinvoker;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.context.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.context.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import java.io.IOException;
 

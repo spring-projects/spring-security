@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters.jetty;
+package org.acegisecurity.adapters.jetty;
 
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.adapters.AbstractAdapterAuthenticationToken;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.adapters.AbstractAdapterAuthenticationToken;
 
 import org.mortbay.http.UserPrincipal;
 
 
 /**
- * A Jetty compatible {@link net.sf.acegisecurity.Authentication} object.
+ * A Jetty compatible {@link org.acegisecurity.Authentication} object.
  *
  * @author Ben Alex
  * @version $Id$

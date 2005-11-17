@@ -14,60 +14,60 @@
    <!-- ~~~~~~~~~~~~~~~~~~ "BEFORE INVOCATION" AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~ -->
 
    <!-- ACL permission masks used by this application -->
-   <bean id="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
-      <property name="staticField"><value>net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION</value></property>
+   <bean id="org.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+      <property name="staticField"><value>org.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION</value></property>
    </bean>
-   <bean id="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
-      <property name="staticField"><value>net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ</value></property>
+   <bean id="org.acegisecurity.acl.basic.SimpleAclEntry.READ" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+      <property name="staticField"><value>org.acegisecurity.acl.basic.SimpleAclEntry.READ</value></property>
    </bean>
-   <bean id="net.sf.acegisecurity.acl.basic.SimpleAclEntry.DELETE" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
-      <property name="staticField"><value>net.sf.acegisecurity.acl.basic.SimpleAclEntry.DELETE</value></property>
+   <bean id="org.acegisecurity.acl.basic.SimpleAclEntry.DELETE" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+      <property name="staticField"><value>org.acegisecurity.acl.basic.SimpleAclEntry.DELETE</value></property>
    </bean>
 
 
    <!-- An access decision voter that reads ROLE_* configuration settings -->
-   <bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
+   <bean id="roleVoter" class="org.acegisecurity.vote.RoleVoter"/>
 
    <!-- An access decision voter that reads ACL_CONTACT_READ configuration settings -->
-   <bean id="aclContactReadVoter" class="net.sf.acegisecurity.vote.BasicAclEntryVoter">
+   <bean id="aclContactReadVoter" class="org.acegisecurity.vote.BasicAclEntryVoter">
       <property name="processConfigAttribute"><value>ACL_CONTACT_READ</value></property>
       <property name="processDomainObjectClass"><value>sample.contact.Contact</value></property>
       <property name="aclManager"><ref local="aclManager"/></property>
       <property name="requirePermission">
         <list>
-          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
-          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ"/>
+          <ref local="org.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+          <ref local="org.acegisecurity.acl.basic.SimpleAclEntry.READ"/>
         </list>
       </property>
    </bean>
 
    <!-- An access decision voter that reads ACL_CONTACT_DELETE configuration settings -->
-   <bean id="aclContactDeleteVoter" class="net.sf.acegisecurity.vote.BasicAclEntryVoter">
+   <bean id="aclContactDeleteVoter" class="org.acegisecurity.vote.BasicAclEntryVoter">
       <property name="processConfigAttribute"><value>ACL_CONTACT_DELETE</value></property>
       <property name="processDomainObjectClass"><value>sample.contact.Contact</value></property>
       <property name="aclManager"><ref local="aclManager"/></property>
       <property name="requirePermission">
         <list>
-          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
-          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.DELETE"/>
+          <ref local="org.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+          <ref local="org.acegisecurity.acl.basic.SimpleAclEntry.DELETE"/>
         </list>
       </property>
    </bean>
 
    <!-- An access decision voter that reads ACL_CONTACT_ADMIN configuration settings -->
-   <bean id="aclContactAdminVoter" class="net.sf.acegisecurity.vote.BasicAclEntryVoter">
+   <bean id="aclContactAdminVoter" class="org.acegisecurity.vote.BasicAclEntryVoter">
       <property name="processConfigAttribute"><value>ACL_CONTACT_ADMIN</value></property>
       <property name="processDomainObjectClass"><value>sample.contact.Contact</value></property>
       <property name="aclManager"><ref local="aclManager"/></property>
       <property name="requirePermission">
         <list>
-          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+          <ref local="org.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
         </list>
       </property>
    </bean>
 
    <!-- An access decision manager used by the business objects -->
-   <bean id="businessAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
+   <bean id="businessAccessDecisionManager" class="org.acegisecurity.vote.AffirmativeBased">
       <property name="allowIfAllAbstainDecisions"><value>false</value></property>
       <property name="decisionVoters">
          <list>
@@ -81,7 +81,7 @@
 
    <!-- ========= ACCESS CONTROL LIST LOOKUP MANAGER DEFINITIONS ========= -->
 
-   <bean id="aclManager" class="net.sf.acegisecurity.acl.AclProviderManager">
+   <bean id="aclManager" class="org.acegisecurity.acl.AclProviderManager">
       <property name="providers">
          <list>
             <ref local="basicAclProvider"/>
@@ -89,17 +89,17 @@
       </property>
    </bean>
 
-   <bean id="basicAclProvider" class="net.sf.acegisecurity.acl.basic.BasicAclProvider">
+   <bean id="basicAclProvider" class="org.acegisecurity.acl.basic.BasicAclProvider">
       <property name="basicAclDao"><ref local="basicAclExtendedDao"/></property>
    </bean>
 
-   <bean id="basicAclExtendedDao" class="net.sf.acegisecurity.acl.basic.jdbc.JdbcExtendedDaoImpl">
+   <bean id="basicAclExtendedDao" class="org.acegisecurity.acl.basic.jdbc.JdbcExtendedDaoImpl">
       <property name="dataSource"><ref bean="dataSource"/></property>
    </bean>
 
    <!-- ============== "AFTER INTERCEPTION" AUTHORIZATION DEFINITIONS =========== -->
 
-   <bean id="afterInvocationManager" class="net.sf.acegisecurity.afterinvocation.AfterInvocationProviderManager">
+   <bean id="afterInvocationManager" class="org.acegisecurity.afterinvocation.AfterInvocationProviderManager">
       <property name="providers">
          <list>
             <ref local="afterAclRead"/>
@@ -109,23 +109,23 @@
    </bean>
    
    <!-- Processes AFTER_ACL_COLLECTION_READ configuration settings -->
-   <bean id="afterAclCollectionRead" class="net.sf.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationCollectionFilteringProvider">
+   <bean id="afterAclCollectionRead" class="org.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationCollectionFilteringProvider">
       <property name="aclManager"><ref local="aclManager"/></property>
       <property name="requirePermission">
         <list>
-          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
-          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ"/>
+          <ref local="org.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+          <ref local="org.acegisecurity.acl.basic.SimpleAclEntry.READ"/>
         </list>
       </property>
    </bean>
    
    <!-- Processes AFTER_ACL_READ configuration settings -->
-   <bean id="afterAclRead" class="net.sf.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationProvider">
+   <bean id="afterAclRead" class="org.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationProvider">
       <property name="aclManager"><ref local="aclManager"/></property>
       <property name="requirePermission">
         <list>
-          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
-          <ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ"/>
+          <ref local="org.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/>
+          <ref local="org.acegisecurity.acl.basic.SimpleAclEntry.READ"/>
         </list>
       </property>
    </bean>
@@ -143,7 +143,7 @@
     ACL_CONTACT_READ attribute, which also ensures the user has permission
     to the Contact presented as a method argument.
     -->
-   <bean id="contactManagerSecurity" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
+   <bean id="contactManagerSecurity" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
       <property name="authenticationManager"><ref bean="authenticationManager"/></property>
       <property name="accessDecisionManager"><ref local="businessAccessDecisionManager"/></property>
       <property name="afterInvocationManager"><ref local="afterInvocationManager"/></property>

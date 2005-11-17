@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.jaas;
+package org.acegisecurity.providers.jaas;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.context.SecurityContextHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,7 +31,7 @@ import javax.security.auth.spi.LoginModule;
 
 /**
  * An implementation of {@link LoginModule} that uses an Acegi Security
- * {@link net.sf.acegisecurity.context.SecurityContext SecurityContext}
+ * {@link org.acegisecurity.context.SecurityContext SecurityContext}
  * to provide authentication. <br />
  * This LoginModule provides opposite functionality to the {@link
  * JaasAuthenticationProvider} API, and should not really be used in

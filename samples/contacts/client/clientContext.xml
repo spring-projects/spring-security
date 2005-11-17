@@ -28,7 +28,7 @@
 		</property>
 	</bean>
 	 
-	<bean id="remoteInvocationFactory" class="net.sf.acegisecurity.ui.rmi.ContextPropagatingRemoteInvocationFactory"/>
+	<bean id="remoteInvocationFactory" class="org.acegisecurity.ui.rmi.ContextPropagatingRemoteInvocationFactory"/>
 	-->
 	
 	<!-- Proxy for the HTTP-invoker-exported ContactManager -->
@@ -47,7 +47,7 @@
 
 	<!-- Automatically propagates ContextHolder-managed Authentication principal
 		 and credentials to a HTTP invoker BASIC authentication header -->
-	<bean id="httpInvokerRequestExecutor" class="net.sf.acegisecurity.context.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor"/>
+	<bean id="httpInvokerRequestExecutor" class="org.acegisecurity.context.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor"/>
 
 	<!-- Proxy for the Hessian-exported ContactManager
 	<bean id="hessianProxy" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">

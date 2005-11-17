@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers;
+package org.acegisecurity.providers;
 
-import net.sf.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthority;
 
 
 /**
- * An {@link net.sf.acegisecurity.Authentication} implementation that is
+ * An {@link org.acegisecurity.Authentication} implementation that is
  * designed for use whilst unit testing.
  * 
  * <p>

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.web;
+package org.acegisecurity.intercept.web;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletRequest;
@@ -86,7 +86,7 @@ public class FilterInvocation {
      * 
      * <P>
      * The returned URL does <b>not</b> reflect the port number determined from
-     * a {@link net.sf.acegisecurity.util.PortResolver}.
+     * a {@link org.acegisecurity.util.PortResolver}.
      * </p>
      *
      * @return the full URL of this request

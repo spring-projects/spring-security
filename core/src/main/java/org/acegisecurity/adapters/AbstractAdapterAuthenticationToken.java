@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters;
+package org.acegisecurity.adapters;
 
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.providers.AbstractAuthenticationToken;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 
 /**

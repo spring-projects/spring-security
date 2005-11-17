@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao.memory;
+package org.acegisecurity.providers.dao.memory;
 
-import net.sf.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.GrantedAuthorityImpl;
 
 import org.springframework.util.StringUtils;
 

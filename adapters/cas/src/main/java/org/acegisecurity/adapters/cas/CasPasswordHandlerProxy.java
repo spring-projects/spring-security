@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters.cas;
+package org.acegisecurity.adapters.cas;
 
 import edu.yale.its.tp.cas.auth.PasswordHandler;
 
@@ -63,7 +63,7 @@ import javax.servlet.http.HttpServletRequest;
  * To configure CAS to use this class, edit CAS' <code>web.xml</code> and
  * define the <code>edu.yale.its.tp.cas.authHandler</code> context parameter
  * with the value
- * <code>net.sf.acegisecurity.adapters.cas.CasPasswordHandlerProxy</code>.
+ * <code>org.acegisecurity.adapters.cas.CasPasswordHandlerProxy</code>.
  * </p>
  *
  * @author Ben Alex

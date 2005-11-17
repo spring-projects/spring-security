@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.service;
+package org.acegisecurity.domain.service;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-import net.sf.acegisecurity.domain.PersistableEntity;
-import net.sf.acegisecurity.domain.dao.Dao;
-import net.sf.acegisecurity.domain.dao.PaginatedList;
-import net.sf.acegisecurity.domain.util.GenericsUtils;
+import org.acegisecurity.domain.PersistableEntity;
+import org.acegisecurity.domain.dao.Dao;
+import org.acegisecurity.domain.dao.PaginatedList;
+import org.acegisecurity.domain.util.GenericsUtils;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.support.ApplicationObjectSupport;

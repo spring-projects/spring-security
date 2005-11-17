@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.jaas.event;
+package org.acegisecurity.providers.jaas.event;
 
-import net.sf.acegisecurity.Authentication;
+import org.acegisecurity.Authentication;
 
 
 /**

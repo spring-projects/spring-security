@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.cas.populator;
+package org.acegisecurity.providers.cas.populator;
 
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.cas.CasAuthoritiesPopulator;
-import net.sf.acegisecurity.providers.dao.AuthenticationDao;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.cas.CasAuthoritiesPopulator;
+import org.acegisecurity.providers.dao.AuthenticationDao;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;

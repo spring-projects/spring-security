@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.securechannel;
+package org.acegisecurity.securechannel;
 
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.intercept.web.FilterInvocation;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.intercept.web.FilterInvocation;
 
 import java.io.IOException;
 
@@ -30,7 +30,7 @@ import javax.servlet.ServletException;
  * <P>
  * If necessary due to the nature of the redirection, implementations should
  * store the original destination of the request in {@link
- * net.sf.acegisecurity.ui.AbstractProcessingFilter#ACEGI_SECURITY_TARGET_URL_KEY}.
+ * org.acegisecurity.ui.AbstractProcessingFilter#ACEGI_SECURITY_TARGET_URL_KEY}.
  * </p>
  *
  * @author Ben Alex

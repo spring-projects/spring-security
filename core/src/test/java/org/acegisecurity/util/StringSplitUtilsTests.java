@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.util;
+package org.acegisecurity.util;
 
 import junit.framework.TestCase;
 
@@ -23,7 +23,7 @@ import java.util.Map;
 
 
 /**
- * Tests {@link net.sf.acegisecurity.util.StringSplitUtils}.
+ * Tests {@link org.acegisecurity.util.StringSplitUtils}.
  *
  * @author Ben Alex
  * @version $Id$

@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers;
+package org.acegisecurity.providers;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
 
 
 /**

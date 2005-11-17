@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.x509;
+package org.acegisecurity.providers.x509;
 
 import junit.framework.TestCase;
 

@@ -1,4 +1,4 @@
-<%@ page import="net.sf.acegisecurity.acl.basic.SimpleAclEntry" %>
+<%@ page import="org.acegisecurity.acl.basic.SimpleAclEntry" %>
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 
 <html>

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.captcha;
+package org.acegisecurity.captcha;
 
-import net.sf.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.context.SecurityContextHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

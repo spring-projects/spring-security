@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters.resin;
+package org.acegisecurity.adapters.resin;
 
 import com.caucho.http.security.AbstractAuthenticator;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationManager;
+import org.acegisecurity.adapters.PrincipalAcegiUserToken;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

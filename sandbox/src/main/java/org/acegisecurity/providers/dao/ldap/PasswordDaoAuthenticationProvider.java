@@ -13,21 +13,21 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao.ldap;
+package org.acegisecurity.providers.dao.ldap;
 
-import net.sf.acegisecurity.AccountExpiredException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationServiceException;
-import net.sf.acegisecurity.CredentialsExpiredException;
-import net.sf.acegisecurity.DisabledException;
-import net.sf.acegisecurity.LockedException;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.AuthenticationProvider;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider;
-import net.sf.acegisecurity.providers.dao.UserCache;
-import net.sf.acegisecurity.providers.dao.cache.NullUserCache;
+import org.acegisecurity.AccountExpiredException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationServiceException;
+import org.acegisecurity.CredentialsExpiredException;
+import org.acegisecurity.DisabledException;
+import org.acegisecurity.LockedException;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.AuthenticationProvider;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.providers.dao.DaoAuthenticationProvider;
+import org.acegisecurity.providers.dao.UserCache;
+import org.acegisecurity.providers.dao.cache.NullUserCache;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -81,11 +81,11 @@ import org.springframework.util.Assert;
  * If an application context is detected (which is automatically the case when
  * the bean is started within a Spring container), application events will be
  * published to the context. See {@link
- * net.sf.acegisecurity.event.authentication.AbstractAuthenticationEvent} for
+ * org.acegisecurity.event.authentication.AbstractAuthenticationEvent} for
  * further information.
  * </p>
  *
- * @deprecated instead subclass {@link net.sf.acegisecurity.providers.dao.AbstractUserDetailsAuthenticationProvider}
+ * @deprecated instead subclass {@link org.acegisecurity.providers.dao.AbstractUserDetailsAuthenticationProvider}
  * @author Karel Miarka
  */
 public class PasswordDaoAuthenticationProvider implements AuthenticationProvider,

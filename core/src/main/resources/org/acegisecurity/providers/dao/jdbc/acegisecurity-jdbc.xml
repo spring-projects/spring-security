@@ -18,17 +18,17 @@
 	</bean>
 
 	<!-- Data access object which stores authentication information -->
-	<bean id="jdbcDaoImpl" class="net.sf.acegisecurity.providers.dao.jdbc.JdbcDaoImpl">
+	<bean id="jdbcDaoImpl" class="org.acegisecurity.providers.dao.jdbc.JdbcDaoImpl">
   		<property name="dataSource"><ref bean="dataSource"/></property>
 	</bean>
 	
 	<!-- Authentication provider that queries our data access object  -->
-	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
+	<bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
      	<property name="authenticationDao"><ref bean="jdbcDaoImpl"/></property>
 	</bean>
 
 	<!-- The authentication manager that iterates through our only authentication provider -->
-	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+	<bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
 		<property name="providers">
 		  <list>
 		    <ref bean="daoAuthenticationProvider"/>

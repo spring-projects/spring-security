@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters.cas;
+package org.acegisecurity.adapters.cas;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.MockAuthenticationManager;
+import org.acegisecurity.MockAuthenticationManager;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 

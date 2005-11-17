@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.digestauth;
+package org.acegisecurity.ui.digestauth;
 
-import net.sf.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationException;
 
 
 /**

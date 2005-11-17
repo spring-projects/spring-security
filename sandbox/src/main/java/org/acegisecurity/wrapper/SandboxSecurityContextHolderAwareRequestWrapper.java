@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.wrapper;
+package org.acegisecurity.wrapper;
 
 import java.security.Principal;
 import java.text.SimpleDateFormat;
@@ -30,16 +30,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpSession;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationTrustResolver;
-import net.sf.acegisecurity.AuthenticationTrustResolverImpl;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.intercept.web.SandboxSecurityEnforcementFilter;
-import net.sf.acegisecurity.wrapper.redirect.Enumerator;
-import net.sf.acegisecurity.wrapper.redirect.FastHttpDateFormat;
-import net.sf.acegisecurity.wrapper.redirect.SavedHttpServletRequest;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationTrustResolver;
+import org.acegisecurity.AuthenticationTrustResolverImpl;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.intercept.web.SandboxSecurityEnforcementFilter;
+import org.acegisecurity.wrapper.redirect.Enumerator;
+import org.acegisecurity.wrapper.redirect.FastHttpDateFormat;
+import org.acegisecurity.wrapper.redirect.SavedHttpServletRequest;
 
 /**
  * An Acegi Security-aware <code>HttpServletRequestWrapper</code>, which uses

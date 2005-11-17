@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.acl.basic;
+package org.acegisecurity.acl.basic;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.PopulatedDatabase;
-import net.sf.acegisecurity.acl.AclEntry;
-import net.sf.acegisecurity.acl.basic.cache.BasicAclEntryHolder;
-import net.sf.acegisecurity.acl.basic.cache.NullAclEntryCache;
-import net.sf.acegisecurity.acl.basic.jdbc.JdbcDaoImpl;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.PopulatedDatabase;
+import org.acegisecurity.acl.AclEntry;
+import org.acegisecurity.acl.basic.cache.BasicAclEntryHolder;
+import org.acegisecurity.acl.basic.cache.NullAclEntryCache;
+import org.acegisecurity.acl.basic.jdbc.JdbcDaoImpl;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +38,7 @@ import java.util.Map;
 public class BasicAclProviderTests extends TestCase {
     //~ Static fields/initializers =============================================
 
-    public static final String OBJECT_IDENTITY = "net.sf.acegisecurity.acl.DomainObject";
+    public static final String OBJECT_IDENTITY = "org.acegisecurity.acl.DomainObject";
 
     //~ Constructors ===========================================================
 

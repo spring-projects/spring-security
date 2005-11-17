@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.context;
+package org.acegisecurity.context;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,7 +53,7 @@ import javax.servlet.http.HttpSession;
  * <code>SecurityContext</code> will be created and used instead.  The created
  * object will be of the instance defined by the {@link #setContext(Class)}
  * method (which defaults to {@link
- * net.sf.acegisecurity.context.SecurityContextImpl}.
+ * org.acegisecurity.context.SecurityContextImpl}.
  * </p>
  * 
  * <p>
@@ -137,7 +137,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean,
         if ((this.context == null)
             || (!SecurityContext.class.isAssignableFrom(this.context))) {
             throw new IllegalArgumentException(
-                "context must be defined and implement SecurityContext (typically use net.sf.acegisecurity.context.SecurityContextImpl; existing class is "
+                "context must be defined and implement SecurityContext (typically use org.acegisecurity.context.SecurityContextImpl; existing class is "
                 + this.context + ")");
         }
 

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.acl.basic;
+package org.acegisecurity.acl.basic;
 
-import net.sf.acegisecurity.acl.AclEntry;
+import org.acegisecurity.acl.AclEntry;
 
 
 /**

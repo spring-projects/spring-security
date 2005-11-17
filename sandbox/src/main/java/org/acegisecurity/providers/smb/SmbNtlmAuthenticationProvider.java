@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.smb;
+package org.acegisecurity.providers.smb;
 
 import jcifs.UniAddress;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.ui.ntlm.NtlmProcessingFilter;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.ui.ntlm.NtlmProcessingFilter;
 
 
 /**
@@ -31,7 +31,7 @@ import net.sf.acegisecurity.ui.ntlm.NtlmProcessingFilter;
  * @author Davide Baroncelli
  * @version $Id$
  *
- * @see net.sf.acegisecurity.ui.ntlm.NtlmProcessingFilter
+ * @see org.acegisecurity.ui.ntlm.NtlmProcessingFilter
  */
 public class SmbNtlmAuthenticationProvider
     extends AbstractSmbAuthenticationProvider {

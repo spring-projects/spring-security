@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.captcha;
+package org.acegisecurity.captcha;
 
 import junit.framework.*;
 
-import net.sf.acegisecurity.captcha.AlwaysTestAfterTimeInMillisCaptchaChannelProcessor;
+import org.acegisecurity.captcha.AlwaysTestAfterTimeInMillisCaptchaChannelProcessor;
 
 
 /**

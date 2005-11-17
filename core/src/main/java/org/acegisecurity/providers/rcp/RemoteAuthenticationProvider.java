@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.rcp;
+package org.acegisecurity.providers.rcp;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.providers.AuthenticationProvider;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.providers.AuthenticationProvider;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

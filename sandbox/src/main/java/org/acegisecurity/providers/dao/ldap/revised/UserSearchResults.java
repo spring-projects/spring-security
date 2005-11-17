@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.sf.acegisecurity.providers.dao.ldap.revised;
+package org.acegisecurity.providers.dao.ldap.revised;
 
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.smb;
+package org.acegisecurity.providers.smb;
 
 import jcifs.UniAddress;
 
@@ -22,11 +22,11 @@ import jcifs.smb.SmbAuthException;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbSession;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationServiceException;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.providers.AuthenticationProvider;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationServiceException;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.providers.AuthenticationProvider;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

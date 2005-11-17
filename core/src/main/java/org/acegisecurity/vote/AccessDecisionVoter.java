@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.vote;
+package org.acegisecurity.vote;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
 
 
 /**
@@ -26,7 +26,7 @@ import net.sf.acegisecurity.ConfigAttributeDefinition;
  * <p>
  * The coordination of voting (ie polling <code>AccessDecisionVoter</code>s,
  * tallying their responses, and making the final authorization decision) is
- * performed by an {@link net.sf.acegisecurity.AccessDecisionManager}.
+ * performed by an {@link org.acegisecurity.AccessDecisionManager}.
  * </p>
  *
  * @author Ben Alex
@@ -80,7 +80,7 @@ public interface AccessDecisionVoter {
      * can abstain (<code>ACCESS_ABSTAIN</code>) from voting. Under no
      * circumstances should implementing classes return any other value. If a
      * weighting of results is desired, this should be handled in a custom
-     * {@link net.sf.acegisecurity.AccessDecisionManager} instead.
+     * {@link org.acegisecurity.AccessDecisionManager} instead.
      * </p>
      * 
      * <P>

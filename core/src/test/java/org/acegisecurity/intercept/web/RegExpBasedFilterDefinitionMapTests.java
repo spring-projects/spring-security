@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.web;
+package org.acegisecurity.intercept.web;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.MockFilterChain;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.MockFilterChain;
 
 
-import net.sf.acegisecurity.SecurityConfig;
+import org.acegisecurity.SecurityConfig;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;

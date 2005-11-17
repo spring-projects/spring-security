@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao.memory;
+package org.acegisecurity.providers.dao.memory;
 
 import junit.framework.TestCase;
 

@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers;
+package org.acegisecurity.providers;
 
-import net.sf.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationException;
 
 
 /**
  * Thrown by {@link ProviderManager} if no  {@link AuthenticationProvider}
  * could be found that supports the presented {@link
- * net.sf.acegisecurity.Authentication} object.
+ * org.acegisecurity.Authentication} object.
  *
  * @author Ben Alex
  * @version $Id$

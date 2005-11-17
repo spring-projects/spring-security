@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.smb;
+package org.acegisecurity.providers.smb;
 
 import jcifs.UniAddress;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.providers.AbstractAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 
 /**
@@ -30,8 +30,8 @@ import net.sf.acegisecurity.providers.AbstractAuthenticationToken;
  * @author Davide Baroncelli
  * @version $Id$
  *
- * @see net.sf.acegisecurity.ui.ntlm.NtlmProcessingFilter
- * @see net.sf.acegisecurity.providers.smb.SmbNtlmAuthenticationProvider
+ * @see org.acegisecurity.ui.ntlm.NtlmProcessingFilter
+ * @see org.acegisecurity.providers.smb.SmbNtlmAuthenticationProvider
  */
 public class NtlmAuthenticationToken extends AbstractAuthenticationToken {
     //~ Instance fields ========================================================

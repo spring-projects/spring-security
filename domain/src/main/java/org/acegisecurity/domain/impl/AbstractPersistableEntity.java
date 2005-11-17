@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.impl;
+package org.acegisecurity.domain.impl;
 
-import net.sf.acegisecurity.domain.PersistableEntity;
+import org.acegisecurity.domain.PersistableEntity;
 
 /**
  * An abstract implementation of {@link
- * net.sf.acegisecurity.domain.PersistableEntity}.
+ * org.acegisecurity.domain.PersistableEntity}.
  *
  * @author Ben Alex
  * @version $Id$

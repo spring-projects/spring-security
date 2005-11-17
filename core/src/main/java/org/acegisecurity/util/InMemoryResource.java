@@ -1,4 +1,4 @@
-package net.sf.acegisecurity.util;
+package org.acegisecurity.util;
 
 import org.springframework.core.io.AbstractResource;
 

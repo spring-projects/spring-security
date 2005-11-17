@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.ntlm;
+package org.acegisecurity.ui.ntlm;
 
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.intercept.web.AuthenticationEntryPoint;
 
 import java.io.IOException;
 

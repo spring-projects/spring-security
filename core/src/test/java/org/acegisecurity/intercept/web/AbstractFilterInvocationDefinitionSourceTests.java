@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.web;
+package org.acegisecurity.intercept.web;
 
 import junit.framework.TestCase;
 

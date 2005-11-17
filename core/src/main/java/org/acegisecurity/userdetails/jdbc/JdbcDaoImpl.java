@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao.jdbc;
+package org.acegisecurity.providers.dao.jdbc;
 
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.dao.AuthenticationDao;
-import net.sf.acegisecurity.providers.dao.User;
-import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.dao.AuthenticationDao;
+import org.acegisecurity.providers.dao.User;
+import org.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

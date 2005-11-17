@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept;
+package org.acegisecurity.intercept;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.MockMethodInvocation;
-import net.sf.acegisecurity.SecurityConfig;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.MockMethodInvocation;
+import org.acegisecurity.SecurityConfig;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.aopalliance.intercept.MethodInvocation;
 

@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.rememberme;
+package org.acegisecurity.ui.rememberme;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
 
 
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.TestingAuthenticationToken;
-import net.sf.acegisecurity.providers.dao.AuthenticationDao;
-import net.sf.acegisecurity.providers.dao.User;
-import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.TestingAuthenticationToken;
+import org.acegisecurity.providers.dao.AuthenticationDao;
+import org.acegisecurity.providers.dao.User;
+import org.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -44,7 +44,7 @@ import javax.servlet.http.Cookie;
 
 /**
  * Tests {@link
- * net.sf.acegisecurity.ui.rememberme.TokenBasedRememberMeServices}.
+ * org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices}.
  *
  * @author Ben Alex
  * @version $Id$

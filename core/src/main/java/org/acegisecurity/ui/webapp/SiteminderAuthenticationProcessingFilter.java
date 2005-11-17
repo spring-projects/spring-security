@@ -1,13 +1,13 @@
-package net.sf.acegisecurity.ui.webapp;
+package org.acegisecurity.ui.webapp;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.ui.WebAuthenticationDetails;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.ui.WebAuthenticationDetails;
 
 /**
  * Extends Acegi's AuthenticationProcessingFilter to pick up Netegrity
@@ -38,7 +38,7 @@ import net.sf.acegisecurity.ui.WebAuthenticationDetails;
  * <P>
  * <B>Do not use this class directly.</B> Instead, configure
  * <code>web.xml</code> to use the
- * {@link net.sf.acegisecurity.util.FilterToBeanProxy}.
+ * {@link org.acegisecurity.util.FilterToBeanProxy}.
  * </P>
  * 
  * @author <a href="mailto:scott@mccrory.us">Scott McCrory</a>
@@ -84,7 +84,7 @@ public class SiteminderAuthenticationProcessingFilter extends
 	}
 
 	/**
-	 * @see net.sf.acegisecurity.ui.AbstractProcessingFilter#attemptAuthentication(javax.servlet.http.HttpServletRequest)
+	 * @see org.acegisecurity.ui.AbstractProcessingFilter#attemptAuthentication(javax.servlet.http.HttpServletRequest)
 	 */
 	public Authentication attemptAuthentication(HttpServletRequest request)
 			throws AuthenticationException {

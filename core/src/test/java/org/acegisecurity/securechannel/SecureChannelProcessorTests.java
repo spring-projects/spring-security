@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.securechannel;
+package org.acegisecurity.securechannel;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.MockFilterChain;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.MockFilterChain;
 
 
-import net.sf.acegisecurity.SecurityConfig;
+import org.acegisecurity.SecurityConfig;
 
-import net.sf.acegisecurity.intercept.web.FilterInvocation;
+import org.acegisecurity.intercept.web.FilterInvocation;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 

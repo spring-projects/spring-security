@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.securechannel;
+package org.acegisecurity.securechannel;
 
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.intercept.web.FilterInvocation;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.intercept.web.FilterInvocation;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;

@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.webapp;
+package org.acegisecurity.ui.webapp;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.ui.WebAuthenticationDetails;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.MockAuthenticationManager;
+import org.acegisecurity.ui.WebAuthenticationDetails;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 

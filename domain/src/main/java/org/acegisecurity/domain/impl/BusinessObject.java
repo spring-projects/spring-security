@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.impl;
+package org.acegisecurity.domain.impl;
 
-import net.sf.acegisecurity.domain.util.ReflectionToStringBuilder;
+import org.acegisecurity.domain.util.ReflectionToStringBuilder;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;

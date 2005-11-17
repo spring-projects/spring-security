@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.dao;
+package org.acegisecurity.domain.dao;
 
 import org.springframework.util.Assert;
 
@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
 /**
  * Convenience methods that support initialization of lazily loaded collections
  * and associations using DAOs and other objects that implement
- * {@link net.sf.acegisecurity.domain.dao.InitializationCapable}.
+ * {@link org.acegisecurity.domain.dao.InitializationCapable}.
  *
  * @author Ben Alex
  * @version $Id$

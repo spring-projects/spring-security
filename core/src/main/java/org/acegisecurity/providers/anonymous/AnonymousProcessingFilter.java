@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.anonymous;
+package org.acegisecurity.providers.anonymous;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.providers.dao.memory.UserAttribute;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.providers.dao.memory.UserAttribute;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +43,7 @@ import javax.servlet.ServletResponse;
  * <p>
  * <b>Do not use this class directly.</b> Instead configure
  * <code>web.xml</code> to use the {@link
- * net.sf.acegisecurity.util.FilterToBeanProxy}.
+ * org.acegisecurity.util.FilterToBeanProxy}.
  * </p>
  *
  * @author Ben Alex
@@ -74,7 +74,7 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
      * Controls whether the filter will remove the Anonymous token after the
      * request is complete. Generally this is desired to avoid the expense of
      * a session being created by {@link
-     * net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter
+     * org.acegisecurity.context.HttpSessionContextIntegrationFilter
      * HttpSessionContextIntegrationFilter} simply to store the Anonymous
      * authentication token.
      * 

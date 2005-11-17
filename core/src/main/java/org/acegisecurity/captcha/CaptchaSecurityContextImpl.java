@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.captcha;
+package org.acegisecurity.captcha;
 
-import net.sf.acegisecurity.context.SecurityContextImpl;
+import org.acegisecurity.context.SecurityContextImpl;
 
 
 /**
@@ -57,7 +57,7 @@ public class CaptchaSecurityContextImpl extends SecurityContextImpl
     /*
      * (non-Javadoc)
      *
-     * @see net.sf.acegisecurity.context.CaptchaSecurityContext#isHuman()
+     * @see org.acegisecurity.context.CaptchaSecurityContext#isHuman()
      */
     public boolean isHuman() {
         return human;
@@ -66,7 +66,7 @@ public class CaptchaSecurityContextImpl extends SecurityContextImpl
     /*
      * (non-Javadoc)
      *
-     * @see net.sf.acegisecurity.context.CaptchaSecurityContext#getHumanRestrictedResourcesRequestsCount()
+     * @see org.acegisecurity.context.CaptchaSecurityContext#getHumanRestrictedResourcesRequestsCount()
      */
     public int getHumanRestrictedResourcesRequestsCount() {
         return humanRestrictedResourcesRequestsCount;
@@ -75,7 +75,7 @@ public class CaptchaSecurityContextImpl extends SecurityContextImpl
     /*
      * (non-Javadoc)
      *
-     * @see net.sf.acegisecurity.context.CaptchaSecurityContext#getLastPassedCaptchaDateInMillis()
+     * @see org.acegisecurity.context.CaptchaSecurityContext#getLastPassedCaptchaDateInMillis()
      */
     public long getLastPassedCaptchaDateInMillis() {
         return lastPassedCaptchaDate;

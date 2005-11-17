@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.rememberme;
+package org.acegisecurity.ui.rememberme;
 
 import junit.framework.TestCase;
 
 
 /**
- * Tests {@link net.sf.acegisecurity.ui.rememberme.NullRememberMeServices}.
+ * Tests {@link org.acegisecurity.ui.rememberme.NullRememberMeServices}.
  *
  * @author Ben Alex
  * @version $Id$

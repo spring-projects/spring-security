@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.taglibs.authz;
+package org.acegisecurity.taglibs.authz;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.providers.TestingAuthenticationToken;
-import net.sf.acegisecurity.providers.dao.User;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.providers.TestingAuthenticationToken;
+import org.acegisecurity.providers.dao.User;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;

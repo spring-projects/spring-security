@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
 /**
  * Thrown if an authentication request is rejected because the credentials are
  * not sufficiently trusted.
  * 
  * <p>
- * {{@link net.sf.acegisecurity.vote.AccessDecisionVoter}s will typically throw
+ * {{@link org.acegisecurity.vote.AccessDecisionVoter}s will typically throw
  * this exception if they are dissatisfied with the level of the
  * authentication, such as if performed using a remember-me mechnanism or
  * anonymously. The commonly used {@link
- * net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter} will thus
+ * org.acegisecurity.intercept.web.SecurityEnforcementFilter} will thus
  * cause the <code>AuthenticationEntryPoint</code> to be called, allowing the
  * principal to authenticate with a stronger level of authentication. }
  * </p>

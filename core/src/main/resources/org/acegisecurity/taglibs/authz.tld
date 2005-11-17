@@ -6,7 +6,7 @@
 	<tlib-version>1.0</tlib-version>
 	<jsp-version>1.2</jsp-version>
 	<short-name>authz</short-name>
-	<uri>http://acegisecurity.sf.net/authz</uri>
+	<uri>http://acegisecurity.org/authz</uri>
 	<description>
         Acegi Security Systems Authorization Tag Library
 		$Id$
@@ -14,7 +14,7 @@
 
 	<tag>
 		<name>authorize</name>
-		<tag-class>net.sf.acegisecurity.taglibs.authz.AuthorizeTag</tag-class>
+		<tag-class>org.acegisecurity.taglibs.authz.AuthorizeTag</tag-class>
 		<description>
             A simple tag to output or not the body of the tag if the principal
             has or doesn't have certain authorities.
@@ -53,7 +53,7 @@
 
 	<tag>
 		<name>authentication</name>
-		<tag-class>net.sf.acegisecurity.taglibs.authz.AuthenticationTag</tag-class>
+		<tag-class>org.acegisecurity.taglibs.authz.AuthenticationTag</tag-class>
 		<description>
             Allows access to the current Authentication object.
 		</description>
@@ -83,7 +83,7 @@
 
 	<tag>
 		<name>acl</name>
-		<tag-class>net.sf.acegisecurity.taglibs.authz.AclTag</tag-class>
+		<tag-class>org.acegisecurity.taglibs.authz.AclTag</tag-class>
 		<description>
             Allows inclusion of a tag body if the current Authentication
 			has one of the specified permissions to the presented
@@ -99,7 +99,7 @@
 			<description>
                 A comma separated list of integers, each representing a
 				required bit mask permission from a subclass of
-				net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry.
+				org.acegisecurity.acl.basic.AbstractBasicAclEntry.
 			</description>
 		</attribute>
 		<attribute>

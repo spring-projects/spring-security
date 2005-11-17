@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.jaas;
+package org.acegisecurity.providers.jaas;
 
-import net.sf.acegisecurity.providers.jaas.event.JaasAuthenticationFailedEvent;
-import net.sf.acegisecurity.providers.jaas.event.JaasAuthenticationSuccessEvent;
+import org.acegisecurity.providers.jaas.event.JaasAuthenticationFailedEvent;
+import org.acegisecurity.providers.jaas.event.JaasAuthenticationSuccessEvent;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;

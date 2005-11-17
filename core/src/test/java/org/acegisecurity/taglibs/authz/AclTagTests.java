@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.taglibs.authz;
+package org.acegisecurity.taglibs.authz;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.MockAclManager;
-import net.sf.acegisecurity.MockApplicationContext;
-import net.sf.acegisecurity.acl.AclEntry;
-import net.sf.acegisecurity.acl.AclManager;
-import net.sf.acegisecurity.acl.basic.MockAclObjectIdentity;
-import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.providers.TestingAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.MockAclManager;
+import org.acegisecurity.MockApplicationContext;
+import org.acegisecurity.acl.AclEntry;
+import org.acegisecurity.acl.AclManager;
+import org.acegisecurity.acl.basic.MockAclObjectIdentity;
+import org.acegisecurity.acl.basic.SimpleAclEntry;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.providers.TestingAuthenticationToken;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;

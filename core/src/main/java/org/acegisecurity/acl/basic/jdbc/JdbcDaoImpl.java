@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.acl.basic.jdbc;
+package org.acegisecurity.acl.basic.jdbc;
 
-import net.sf.acegisecurity.acl.basic.AclObjectIdentity;
-import net.sf.acegisecurity.acl.basic.BasicAclDao;
-import net.sf.acegisecurity.acl.basic.BasicAclEntry;
-import net.sf.acegisecurity.acl.basic.NamedEntityObjectIdentity;
+import org.acegisecurity.acl.basic.AclObjectIdentity;
+import org.acegisecurity.acl.basic.BasicAclDao;
+import org.acegisecurity.acl.basic.BasicAclEntry;
+import org.acegisecurity.acl.basic.NamedEntityObjectIdentity;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

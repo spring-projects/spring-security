@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.vote;
+package org.acegisecurity.vote;
 
-import net.sf.acegisecurity.AccessDecisionManager;
-import net.sf.acegisecurity.ConfigAttribute;
+import org.acegisecurity.AccessDecisionManager;
+import org.acegisecurity.ConfigAttribute;
 
 import org.springframework.beans.factory.InitializingBean;
 

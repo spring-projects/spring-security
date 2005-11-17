@@ -218,8 +218,8 @@
         be written so this becomes possible.</para>
 
         <para>Each secure object has its own package under
-        <literal>net.sf.acegisecurity.intercept</literal>. Every other package
-        in the security system is secure object independent, in that it can
+        <literal>org.acegisecurity.intercept</literal>. Every other package in
+        the security system is secure object independent, in that it can
         support any type of secure object presented.</para>
 
         <para>Only developers contemplating an entirely new way of
@@ -519,7 +519,7 @@
         <literal>MethodSecurityInterceptor</literal> itself is configured as
         follows:</para>
 
-        <para><programlisting>&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
+        <para><programlisting>&lt;bean id="bankManagerSecurity" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
   &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;true&lt;/value&gt;&lt;/property&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
@@ -527,8 +527,8 @@
   &lt;property name="afterInvocationManager"&gt;&lt;ref bean="afterInvocationManager"/&gt;&lt;/property&gt;
   &lt;property name="objectDefinitionSource"&gt;
     &lt;value&gt;
-      net.sf.acegisecurity.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
-      net.sf.acegisecurity.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
+      org.acegisecurity.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
+      org.acegisecurity.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
     &lt;/value&gt;
   &lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -582,11 +582,11 @@
         bean context will be configured differently:</para>
 
         <para><programlisting>&lt;bean id="attributes" class="org.springframework.metadata.commons.CommonsAttributes"/&gt;
-&lt;bean id="objectDefinitionSource" class="net.sf.acegisecurity.intercept.method.MethodDefinitionAttributes"&gt;
+&lt;bean id="objectDefinitionSource" class="org.acegisecurity.intercept.method.MethodDefinitionAttributes"&gt;
   &lt;property name="attributes"&gt;&lt;ref local="attributes"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
+&lt;bean id="bankManagerSecurity" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
   &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
@@ -628,12 +628,12 @@
         <para>If you are using the Spring Security Java 5 Annotations
         approach, your bean context will be configured as follows:</para>
 
-        <para><programlisting>&lt;bean id="attributes" class="net.sf.acegisecurity.annotation.SecurityAnnotationAttributes"/&gt;
-&lt;bean id="objectDefinitionSource" class="net.sf.acegisecurity.intercept.method.MethodDefinitionAttributes"&gt;
+        <para><programlisting>&lt;bean id="attributes" class="org.acegisecurity.annotation.SecurityAnnotationAttributes"/&gt;
+&lt;bean id="objectDefinitionSource" class="org.acegisecurity.intercept.method.MethodDefinitionAttributes"&gt;
   &lt;property name="attributes"&gt;&lt;ref local="attributes"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
+&lt;bean id="bankManagerSecurity" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
   &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
@@ -648,7 +648,7 @@
         attributes, and results in the same security configuration as provided
         by the property editor approach:</para>
 
-        <para><programlisting>import net.sf.acegisecurity.annotation.Secured;
+        <para><programlisting>import org.acegisecurity.annotation.Secured;
 
 public interface BankManager {
 
@@ -709,7 +709,7 @@ public interface BankManager {
         <literal>AspectJSecurityInterceptor</literal> is configured in the
         Spring application context:</para>
 
-        <para><programlisting>&lt;bean id="bankManagerSecurity" class="net.sf.acegisecurity.intercept.method.aspectj.AspectJSecurityInterceptor"&gt;
+        <para><programlisting>&lt;bean id="bankManagerSecurity" class="org.acegisecurity.intercept.method.aspectj.AspectJSecurityInterceptor"&gt;
   &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;true&lt;/value&gt;&lt;/property&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
@@ -717,8 +717,8 @@ public interface BankManager {
   &lt;property name="afterInvocationManager"&gt;&lt;ref bean="afterInvocationManager"/&gt;&lt;/property&gt;
   &lt;property name="objectDefinitionSource"&gt;
     &lt;value&gt;
-      net.sf.acegisecurity.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
-      net.sf.acegisecurity.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
+      org.acegisecurity.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
+      org.acegisecurity.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
     &lt;/value&gt;
   &lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -738,10 +738,10 @@ public interface BankManager {
         <para>Next you'll need to define an AspectJ <literal>aspect</literal>.
         For example:</para>
 
-        <para><programlisting>package net.sf.acegisecurity.samples.aspectj;
+        <para><programlisting>package org.acegisecurity.samples.aspectj;
 
-import net.sf.acegisecurity.intercept.method.aspectj.AspectJSecurityInterceptor;
-import net.sf.acegisecurity.intercept.method.aspectj.AspectJCallback;
+import org.acegisecurity.intercept.method.aspectj.AspectJSecurityInterceptor;
+import org.acegisecurity.intercept.method.aspectj.AspectJCallback;
 import org.springframework.beans.factory.InitializingBean;
 
 public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
@@ -794,7 +794,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         declaration which achieves this is shown below:</para>
 
         <para><programlisting>&lt;bean id="domainObjectInstanceSecurityAspect" 
-    class="net.sf.acegisecurity.samples.aspectj.DomainObjectInstanceSecurityAspect"
+    class="org.acegisecurity.samples.aspectj.DomainObjectInstanceSecurityAspect"
     factory-method="aspectOf"&gt;
   &lt;property name="securityInterceptor"&gt;&lt;ref bean="aspectJSecurityInterceptor"/&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -813,10 +813,10 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         the <literal>SecurityEnforcementFilter</literal>. A typical
         configuration example is provided below: <programlisting>&lt;filter&gt;
   &lt;filter-name&gt;Acegi HTTP Request Security Filter&lt;/filter-name&gt;
-  &lt;filter-class&gt;net.sf.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
+  &lt;filter-class&gt;org.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
-    &lt;param-value&gt;net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter&lt;/param-value&gt;
+    &lt;param-value&gt;org.acegisecurity.intercept.web.SecurityEnforcementFilter&lt;/param-value&gt;
   &lt;/init-param&gt;
 &lt;/filter&gt;
 
@@ -833,17 +833,17 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <para>In the application context you will need to configure three
         beans:</para>
 
-        <programlisting>&lt;bean id="securityEnforcementFilter" class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter"&gt;
+        <programlisting>&lt;bean id="securityEnforcementFilter" class="org.acegisecurity.intercept.web.SecurityEnforcementFilter"&gt;
   &lt;property name="filterSecurityInterceptor"&gt;&lt;ref bean="filterInvocationInterceptor"/&gt;&lt;/property&gt;
   &lt;property name="authenticationEntryPoint"&gt;&lt;ref bean="authenticationEntryPoint"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="authenticationEntryPoint" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint"&gt;
+&lt;bean id="authenticationEntryPoint" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint"&gt;
   &lt;property name="loginFormUrl"&gt;&lt;value&gt;/acegilogin.jsp&lt;/value&gt;&lt;/property&gt;
   &lt;property name="forceHttps"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
+&lt;bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
   &lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
@@ -938,7 +938,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         earlier configuration could be generated using Apache Ant paths as
         follows:</para>
 
-        <para><programlisting>&lt;bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
+        <para><programlisting>&lt;bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
   &lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
@@ -1115,7 +1115,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <literal>ProviderManager</literal>, is configured via the bean context
         with a list of <literal>AuthenticationProvider</literal>s:</para>
 
-        <para><programlisting>&lt;bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager"&gt;
+        <para><programlisting>&lt;bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager"&gt;
   &lt;property name="providers"&gt;
     &lt;list&gt;
       &lt;ref bean="daoAuthenticationProvider"/&gt;
@@ -1145,8 +1145,8 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         supoprt, and it also converts any exceptions thrown by an
         <literal>AuthenticationProvider</literal> and publishes a suitable
         event. The events that are published are located in the
-        <literal>net.sf.acegisecurity.event.authentication</literal> package
-        and advanced users can map different exceptions to different events by
+        <literal>org.acegisecurity.event.authentication</literal> package and
+        advanced users can map different exceptions to different events by
         configuring the <literal>ProviderManager.exceptionMappings</literal>
         property (generally this is not required and the default event
         propagation is appropriate - especially as events will simply be
@@ -1227,11 +1227,11 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         following to web.xml:</para>
 
         <para><programlisting>&lt;listener&gt;
-  &lt;listener-class&gt;net.sf.acegisecurity.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;
+  &lt;listener-class&gt;org.acegisecurity.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;
 &lt;/listener&gt;</programlisting></para>
 
         <para>In addition, you will need to add the
-        <literal>net.sf.acegisecurity.concurrent.ConcurrentSessionFilter</literal>
+        <literal>org.acegisecurity.concurrent.ConcurrentSessionFilter</literal>
         to your <literal>FilterChainProxy</literal>. The
         ConcurrentSessionFilter requires only one property, sessionRegistry,
         which generally points to an instance of
@@ -1249,19 +1249,19 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <literal>ConcurrentSessionControllerImpl</literal> and refer to it
         from your <literal>ProviderManager</literal> bean:</para>
 
-        <para><programlisting>&lt;bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager"&gt;
+        <para><programlisting>&lt;bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager"&gt;
   &lt;property name="providers"&gt;
     &lt;!-- your providers go here --&gt;
   &lt;/property&gt;
   &lt;property name="sessionController"&gt;&lt;ref bean="concurrentSessionController"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="concurrentSessionController" class="net.sf.acegisecurity.concurrent.ConcurrentSessionControllerImpl"&gt;
+&lt;bean id="concurrentSessionController" class="org.acegisecurity.concurrent.ConcurrentSessionControllerImpl"&gt;
   &lt;property name="maxSessions"&gt;&lt;value&gt;1&lt;/value&gt;&lt;/property&gt;
   &lt;property name="sessionRegistry"&gt;&lt;ref local="sessionRegistry"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="sessionRegistry" class="net.sf.acegisecurity.concurrent.SessionRegistryImpl"/&gt;</programlisting></para>
+&lt;bean id="sessionRegistry" class="org.acegisecurity.concurrent.SessionRegistryImpl"/&gt;</programlisting></para>
       </sect2>
 
       <sect2 id="security-authentication-provider-dao">
@@ -1275,7 +1275,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         authentication details from a data access object configured at bean
         creation time:</para>
 
-        <para><programlisting>&lt;bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
+        <para><programlisting>&lt;bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
   &lt;property name="authenticationDao"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
   &lt;property name="saltSource"&gt;&lt;ref bean="saltSource"/&gt;&lt;/property&gt;
   &lt;property name="passwordEncoder"&gt;&lt;ref bean="passwordEncoder"/&gt;&lt;/property&gt;
@@ -1310,7 +1310,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <literal>EhCacheBasedUserCache</literal>, which is configured as
         follows:</para>
 
-        <para><programlisting>&lt;bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
+        <para><programlisting>&lt;bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
   &lt;property name="authenticationDao"&gt;&lt;ref bean="authenticationDao"/&gt;&lt;/property&gt;
   &lt;property name="userCache"&gt;&lt;ref bean="userCache"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
@@ -1330,7 +1330,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
   &lt;/property&gt;
 &lt;/bean&gt;
    
-&lt;bean id="userCache" class="net.sf.acegisecurity.providers.dao.cache.EhCacheBasedUserCache"&gt;
+&lt;bean id="userCache" class="org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache"&gt;
   &lt;property name="cache"&gt;&lt;ref local="userCacheBackend"/&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
 
@@ -1405,7 +1405,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         authentication repository in the application context itself using the
         <literal>InMemoryDaoImpl</literal>:</para>
 
-        <para><programlisting>&lt;bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl"&gt;
+        <para><programlisting>&lt;bean id="inMemoryDaoImpl" class="org.acegisecurity.providers.dao.memory.InMemoryDaoImpl"&gt;
   &lt;property name="userMap"&gt;
     &lt;value&gt;
       marissa=koala,ROLE_TELLER,ROLE_SUPERVISOR
@@ -1454,7 +1454,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
   &lt;property name="password"&gt;&lt;value&gt;&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="jdbcDaoImpl" class="net.sf.acegisecurity.providers.dao.jdbc.JdbcDaoImpl"&gt;
+&lt;bean id="jdbcDaoImpl" class="org.acegisecurity.providers.dao.jdbc.JdbcDaoImpl"&gt;
   &lt;property name="dataSource"&gt;&lt;ref bean="dataSource"/&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
 
@@ -1502,7 +1502,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
           application context. The following definitions would correspond to
           the above JAAS login configuration file:</para>
 
-          <para><programlisting>&lt;bean id="jaasAuthenticationProvider" class="net.sf.acegisecurity.providers.jaas.JaasAuthenticationProvider"&gt;
+          <para><programlisting>&lt;bean id="jaasAuthenticationProvider" class="org.acegisecurity.providers.jaas.JaasAuthenticationProvider"&gt;
   &lt;property name="loginConfig"&gt;
     &lt;value&gt;/WEB-INF/login.conf&lt;/value&gt;
   &lt;/property&gt;
@@ -1511,13 +1511,13 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
   &lt;/property&gt;
   &lt;property name="callbackHandlers"&gt;
     &lt;list&gt;
-      &lt;bean class="net.sf.acegisecurity.providers.jaas.JaasNameCallbackHandler"/&gt;
-      &lt;bean class="net.sf.acegisecurity.providers.jaas.JaasPasswordCallbackHandler"/&gt;
+      &lt;bean class="org.acegisecurity.providers.jaas.JaasNameCallbackHandler"/&gt;
+      &lt;bean class="org.acegisecurity.providers.jaas.JaasPasswordCallbackHandler"/&gt;
     &lt;/list&gt;
   &lt;/property&gt;
   &lt;property name="authorityGranters"&gt;
     &lt;list&gt;
-      &lt;bean class="net.sf.acegisecurity.providers.jaas.TestAuthorityGranter"/&gt;
+      &lt;bean class="org.acegisecurity.providers.jaas.TestAuthorityGranter"/&gt;
     &lt;/list&gt;
   &lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -1597,7 +1597,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <title>Siteminder Authentication</title>
 
         <para>Acegi Security provides a web filter
-        <literal>(net.sf.acegisecurity.ui.webapp.SiteminderAuthenticationProcessingFilter</literal>)
+        <literal>(org.acegisecurity.ui.webapp.SiteminderAuthenticationProcessingFilter</literal>)
         that can be used to process requests that have been pre-authenticated
         by Computer Associates' Siteminder. This filter assumes that you're
         using Siteminder for <emphasis>authentication</emphasis>, and your
@@ -1630,7 +1630,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
           both.</para>
 
           <para><programlisting>   &lt;!-- ======================== SITEMINDER AUTHENTICATION PROCESSING FILTER ======================= --&gt; 
-   &lt;bean id="authenticationProcessingFilter" class="net.sf.acegisecurity.ui.webapp.SiteminderAuthenticationProcessingFilter"&gt;
+   &lt;bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.SiteminderAuthenticationProcessingFilter"&gt;
       &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
       &lt;property name="authenticationFailureUrl"&gt;&lt;value&gt;/login.jsp?login_error=1&lt;/value&gt;&lt;/property&gt;
       &lt;property name="defaultTargetUrl"&gt;&lt;value&gt;/security.do?method=getMainMenu&lt;/value&gt;&lt;/property&gt;
@@ -1648,7 +1648,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
       - The top-level Authentication Manager is responsible for all application AUTHENTICATION
       - operations.  Note that it must reference one or more provider(s) defined below.
       --&gt;
-    &lt;bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager"&gt;
+    &lt;bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager"&gt;
         &lt;property name="providers"&gt;
             &lt;list&gt;
                 &lt;ref local="daoAuthenticationProvider"/&gt;
@@ -1679,7 +1679,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
       - The web.xml file has a single filter reference to this top-level bean, which
       - invokes the chain of sub-filters specified below.
       --&gt; 
-    &lt;bean id="filterChainProxy" class="net.sf.acegisecurity.util.FilterChainProxy"&gt;
+    &lt;bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy"&gt;
       &lt;property name="filterInvocationDefinitionSource"&gt;
          &lt;value&gt;
              CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -1942,26 +1942,26 @@ public boolean supports(Class clazz);</programlisting></para>
         designed to have multiple instances in the same application context,
         such as:</para>
 
-        <para><programlisting>&lt;bean id="aclContactReadVoter" class="net.sf.acegisecurity.vote.BasicAclEntryVoter"&gt;
+        <para><programlisting>&lt;bean id="aclContactReadVoter" class="org.acegisecurity.vote.BasicAclEntryVoter"&gt;
   &lt;property name="processConfigAttribute"&gt;&lt;value&gt;ACL_CONTACT_READ&lt;/value&gt;&lt;/property&gt;
   &lt;property name="processDomainObjectClass"&gt;&lt;value&gt;sample.contact.Contact&lt;/value&gt;&lt;/property&gt;
   &lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
   &lt;property name="requirePermission"&gt;
     &lt;list&gt;
-      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
-      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ"/&gt;
+      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.READ"/&gt;
     &lt;/list&gt;
   &lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="aclContactDeleteVoter" class="net.sf.acegisecurity.vote.BasicAclEntryVoter"&gt;
+&lt;bean id="aclContactDeleteVoter" class="org.acegisecurity.vote.BasicAclEntryVoter"&gt;
   &lt;property name="processConfigAttribute"&gt;&lt;value&gt;ACL_CONTACT_DELETE&lt;/value&gt;&lt;/property&gt;
   &lt;property name="processDomainObjectClass"&gt;&lt;value&gt;sample.contact.Contact&lt;/value&gt;&lt;/property&gt;
   &lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
   &lt;property name="requirePermission"&gt;
     &lt;list&gt;
-      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
-      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.DELETE"/&gt;
+      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.DELETE"/&gt;
     &lt;/list&gt;
   &lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -2257,12 +2257,12 @@ public boolean supports(Class clazz);</programlisting></para>
         <literal>BasicAclAfterInvocationProvider</literal> delivers a
         solution, and is configured as follows:</para>
 
-        <para><programlisting>&lt;bean id="afterAclRead" class="net.sf.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationProvider"&gt;
+        <para><programlisting>&lt;bean id="afterAclRead" class="org.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationProvider"&gt;
   &lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
   &lt;property name="requirePermission"&gt;
     &lt;list&gt;
-      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
-      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ"/&gt;
+      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.READ"/&gt;
     &lt;/list&gt;
   &lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -2285,12 +2285,12 @@ public boolean supports(Class clazz);</programlisting></para>
         an <literal>AccessDeniedException</literal> - simply silently removes
         the offending elements. The provider is configured as follows:</para>
 
-        <para><programlisting>&lt;bean id="afterAclCollectionRead" class="net.sf.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationCollectionFilteringProvider"&gt;
+        <para><programlisting>&lt;bean id="afterAclCollectionRead" class="org.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationCollectionFilteringProvider"&gt;
   &lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
   &lt;property name="requirePermission"&gt;
     &lt;list&gt;
-      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
-      &lt;ref local="net.sf.acegisecurity.acl.basic.SimpleAclEntry.READ"/&gt;
+      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.READ"/&gt;
     &lt;/list&gt;
   &lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -2395,9 +2395,9 @@ public boolean supports(Class clazz);</programlisting></para>
         <literal>RunAsImplAuthenticationProvider</literal> is created in the
         bean context with the same key:</para>
 
-        <para><programlisting>&lt;bean id="runAsManager" class="net.sf.acegisecurity.runas.RunAsManagerImpl"&gt;
+        <para><programlisting>&lt;bean id="runAsManager" class="org.acegisecurity.runas.RunAsManagerImpl"&gt;
   &lt;property name="key"&gt;&lt;value&gt;my_run_as_password&lt;/value&gt;&lt;/property&gt;
-&lt;/bean&gt;</programlisting><programlisting>&lt;bean id="runAsAuthenticationProvider" class="net.sf.acegisecurity.runas.RunAsImplAuthenticationProvider"&gt;
+&lt;/bean&gt;</programlisting><programlisting>&lt;bean id="runAsAuthenticationProvider" class="org.acegisecurity.runas.RunAsImplAuthenticationProvider"&gt;
   &lt;property name="key"&gt;&lt;value&gt;my_run_as_password&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
 
@@ -2424,7 +2424,7 @@ public boolean supports(Class clazz);</programlisting></para>
         make this process transparent in many situations. We call these
         classes "authentication mechanisms".</para>
 
-        <para>The <literal>net.sf.acegisecurity.ui</literal> package provides
+        <para>The <literal>org.acegisecurity.ui</literal> package provides
         what we call "authentication processing mechanisms". An authentication
         processing mechanism is solely concerned with received an
         authentication request from the principal, testing if it seems valid,
@@ -2475,10 +2475,10 @@ public boolean supports(Class clazz);</programlisting></para>
 
         <para><programlisting>&lt;filter&gt;
   &lt;filter-name&gt;Acegi Authentication Processing Filter&lt;/filter-name&gt;
-  &lt;filter-class&gt;net.sf.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
+  &lt;filter-class&gt;org.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
-    &lt;param-value&gt;net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter&lt;/param-value&gt;
+    &lt;param-value&gt;org.acegisecurity.ui.webapp.AuthenticationProcessingFilter&lt;/param-value&gt;
   &lt;/init-param&gt;
 &lt;/filter&gt;
 
@@ -2491,7 +2491,7 @@ public boolean supports(Class clazz);</programlisting></para>
         refer to the Filters section. The application context will need to
         define the <literal>AuthenticationProcessingFilter</literal>:</para>
 
-        <para><programlisting>&lt;bean id="authenticationProcessingFilter" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter"&gt;
+        <para><programlisting>&lt;bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="authenticationFailureUrl"&gt;&lt;value&gt;/acegilogin.jsp?login_error=1&lt;/value&gt;&lt;/property&gt;
   &lt;property name="defaultTargetUrl"&gt;&lt;value&gt;/&lt;/value&gt;&lt;/property&gt;
@@ -2551,12 +2551,12 @@ public boolean supports(Class clazz);</programlisting></para>
         <literal>BasicProcessingFilter</literal> and its required
         collaborator:</para>
 
-        <para><programlisting>&lt;bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter"&gt;
+        <para><programlisting>&lt;bean id="basicProcessingFilter" class="org.acegisecurity.ui.basicauth.BasicProcessingFilter"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="authenticationEntryPoint"&gt;&lt;ref bean="authenticationEntryPoint"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="authenticationEntryPoint" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint"&gt;
+&lt;bean id="authenticationEntryPoint" class="org.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint"&gt;
   &lt;property name="realmName"&gt;&lt;value&gt;Name Of Your Realm&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
 
@@ -2661,13 +2661,13 @@ key:              A private key to prevent modification of the nonce token
         <literal>DigestProcessingFilter</literal> and its required
         collaborators:</para>
 
-        <para><programlisting>&lt;bean id="digestProcessingFilter" class="net.sf.acegisecurity.ui.digestauth.DigestProcessingFilter"&gt;
+        <para><programlisting>&lt;bean id="digestProcessingFilter" class="org.acegisecurity.ui.digestauth.DigestProcessingFilter"&gt;
   &lt;property name="authenticationDao"&gt;&lt;ref local="jdbcDaoImpl"/&gt;&lt;/property&gt;
   &lt;property name="authenticationEntryPoint"&gt;&lt;ref local="digestProcessingFilterEntryPoint"/&gt;&lt;/property&gt;
   &lt;property name="userCache"&gt;&lt;ref local="userCache"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="digestProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.digestauth.DigestProcessingFilterEntryPoint"&gt;
+&lt;bean id="digestProcessingFilterEntryPoint" class="org.acegisecurity.ui.digestauth.DigestProcessingFilterEntryPoint"&gt;
   &lt;property name="realmName"&gt;&lt;value&gt;Contacts Realm via Digest Authentication&lt;/value&gt;&lt;/property&gt;
   &lt;property name="key"&gt;&lt;value&gt;acegi&lt;/value&gt;&lt;/property&gt;
   &lt;property name="nonceValiditySeconds"&gt;&lt;value&gt;10&lt;/value&gt;&lt;/property&gt;
@@ -2742,12 +2742,12 @@ key:              A private key to prevent modification of the nonce token
         <literal>Authentication</literal> held there. The definition of the
         filter and authentication provider appears as follows:</para>
 
-        <para><programlisting>&lt;bean id="anonymousProcessingFilter" class="net.sf.acegisecurity.providers.anonymous.AnonymousProcessingFilter"&gt;
+        <para><programlisting>&lt;bean id="anonymousProcessingFilter" class="org.acegisecurity.providers.anonymous.AnonymousProcessingFilter"&gt;
   &lt;property name="key"&gt;&lt;value&gt;foobar&lt;/value&gt;&lt;/property&gt;
   &lt;property name="userAttribute"&gt;&lt;value&gt;anonymousUser,ROLE_ANONYMOUS&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="anonymousAuthenticationProvider" class="net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider"&gt;
+&lt;bean id="anonymousAuthenticationProvider" class="org.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider"&gt;
   &lt;property name="key"&gt;&lt;value&gt;foobar&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
 
@@ -2764,7 +2764,7 @@ key:              A private key to prevent modification of the nonce token
         that all URI patterns can have security applied to them. For
         example:</para>
 
-        <para><programlisting>&lt;bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
+        <para><programlisting>&lt;bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref local="httpRequestAccessDecisionManager"/&gt;&lt;/property&gt;
   &lt;property name="objectDefinitionSource"&gt;
@@ -2881,16 +2881,16 @@ key:              A private key to prevent modification of the remember-me token
         <para>The beans required in an application context to enable
         remember-me services are as follows:</para>
 
-        <para><programlisting>&lt;bean id="rememberMeProcessingFilter" class="net.sf.acegisecurity.ui.rememberme.RememberMeProcessingFilter"&gt;
+        <para><programlisting>&lt;bean id="rememberMeProcessingFilter" class="org.acegisecurity.ui.rememberme.RememberMeProcessingFilter"&gt;
   &lt;property name="rememberMeServices"&gt;&lt;ref local="rememberMeServices"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="rememberMeServices" class="net.sf.acegisecurity.ui.rememberme.TokenBasedRememberMeServices"&gt;
+&lt;bean id="rememberMeServices" class="org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices"&gt;
   &lt;property name="authenticationDao"&gt;&lt;ref local="jdbcDaoImpl"/&gt;&lt;/property&gt;
   &lt;property name="key"&gt;&lt;value&gt;springRocks&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
    
-&lt;bean id="rememberMeAuthenticationProvider" class="net.sf.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider"&gt;
+&lt;bean id="rememberMeAuthenticationProvider" class="org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider"&gt;
   &lt;property name="key"&gt;&lt;value&gt;springRocks&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting>Don't forget to add your
         <literal>RememberMeServices</literal> implementation to your
@@ -2991,7 +2991,7 @@ key:              A private key to prevent modification of the remember-me token
         to be validated by the <literal>AuthByAdapterProvider</literal>. This
         authentication provider is defined as follows:</para>
 
-        <para><programlisting>&lt;bean id="authByAdapterProvider" class="net.sf.acegisecurity.adapters.AuthByAdapterProvider"&gt;
+        <para><programlisting>&lt;bean id="authByAdapterProvider" class="org.acegisecurity.adapters.AuthByAdapterProvider"&gt;
   &lt;property name="key"&gt;&lt;value&gt;my_password&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
 
@@ -3043,7 +3043,7 @@ key:              A private key to prevent modification of the remember-me token
         active <literal>&lt;Realm&gt;</literal> entry. An example realm
         entry:</para>
 
-        <para><programlisting>      &lt;Realm className="net.sf.acegisecurity.adapters.catalina.CatalinaAcegiUserRealm"
+        <para><programlisting>      &lt;Realm className="org.acegisecurity.adapters.catalina.CatalinaAcegiUserRealm"
              appContextLocation="conf/acegisecurity.xml"
              key="my_password" /&gt;</programlisting></para>
 
@@ -3112,7 +3112,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
         <para><programlisting>  &lt;Call name="addRealm"&gt;
     &lt;Arg&gt;
-      &lt;New class="net.sf.acegisecurity.adapters.jetty.JettyAcegiUserRealm"&gt;
+      &lt;New class="org.acegisecurity.adapters.jetty.JettyAcegiUserRealm"&gt;
         &lt;Arg&gt;Spring Powered Realm&lt;/Arg&gt;
         &lt;Arg&gt;my_password&lt;/Arg&gt;
         &lt;Arg&gt;etc/acegisecurity.xml&lt;/Arg&gt;
@@ -3182,7 +3182,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
         <para><programlisting>    &lt;application-policy name = "SpringPoweredRealm"&gt;
        &lt;authentication&gt;
-          &lt;login-module code = "net.sf.acegisecurity.adapters.jboss.JbossSpringLoginModule"
+          &lt;login-module code = "org.acegisecurity.adapters.jboss.JbossSpringLoginModule"
             flag = "required"&gt;
             &lt;module-option name = "appContextLocation"&gt;acegisecurity.xml&lt;/module-option&gt;
             &lt;module-option name = "key"&gt;my_password&lt;/module-option&gt;
@@ -3205,7 +3205,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
         <para><programlisting>    &lt;application-policy name = "SpringPoweredRealm"&gt;
        &lt;authentication&gt;
-          &lt;login-module code = "net.sf.acegisecurity.adapters.jboss.JbossSpringLoginModule"
+          &lt;login-module code = "org.acegisecurity.adapters.jboss.JbossSpringLoginModule"
             flag = "required"&gt;
             &lt;module-option name = "singletonId"&gt;springRealm&lt;/module-option&gt;
             &lt;module-option name = "key"&gt;my_password&lt;/module-option&gt;
@@ -3336,7 +3336,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
         <para><programlisting>&lt;web-app&gt;
   &lt;authenticator&gt;
-    &lt;type&gt;net.sf.acegisecurity.adapters.resin.ResinAcegiAuthenticator&lt;/type&gt;
+    &lt;type&gt;org.acegisecurity.adapters.resin.ResinAcegiAuthenticator&lt;/type&gt;
     &lt;init&gt;
       &lt;app-context-location&gt;WEB-INF/resin-acegisecurity.xml&lt;/app-context-location&gt;
       &lt;key&gt;my_password&lt;/key&gt;
@@ -3646,7 +3646,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <literal>/web/WEB-INF</literal> directory. A sample
         <literal>applicationContext.xml</literal> is included below:</para>
 
-        <programlisting>&lt;bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl"&gt;
+        <programlisting>&lt;bean id="inMemoryDaoImpl" class="org.acegisecurity.providers.dao.memory.InMemoryDaoImpl"&gt;
   &lt;property name="userMap"&gt;
     &lt;value&gt;
       marissa=koala,ROLES_IGNORED_BY_CAS
@@ -3657,11 +3657,11 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
   &lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
+&lt;bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
   &lt;property name="authenticationDao"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager"&gt;
+&lt;bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager"&gt;
   &lt;property name="providers"&gt;
     &lt;list&gt;
       &lt;ref bean="daoAuthenticationProvider"/&gt;
@@ -3669,7 +3669,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
   &lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="casPasswordHandler" class="net.sf.acegisecurity.adapters.cas.CasPasswordHandler"&gt;
+&lt;bean id="casPasswordHandler" class="org.acegisecurity.adapters.cas.CasPasswordHandler"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting>
 
@@ -3685,7 +3685,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
         <para><programlisting>&lt;context-param&gt;
   &lt;param-name&gt;edu.yale.its.tp.cas.authHandler&lt;/param-name&gt;
-  &lt;param-value&gt;net.sf.acegisecurity.adapters.cas.CasPasswordHandlerProxy&lt;/param-value&gt;
+  &lt;param-value&gt;org.acegisecurity.adapters.cas.CasPasswordHandlerProxy&lt;/param-value&gt;
 &lt;/context-param&gt;
 
 &lt;context-param&gt;
@@ -3723,7 +3723,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <para>You will need to add a <literal>ServiceProperties</literal> bean
         to your application context. This represents your service:</para>
 
-        <para><programlisting>&lt;bean id="serviceProperties" class="net.sf.acegisecurity.ui.cas.ServiceProperties"&gt;
+        <para><programlisting>&lt;bean id="serviceProperties" class="org.acegisecurity.ui.cas.ServiceProperties"&gt;
   &lt;property name="service"&gt;&lt;value&gt;https://localhost:8443/contacts-cas/j_acegi_cas_security_check&lt;/value&gt;&lt;/property&gt;
   &lt;property name="sendRenew"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -3739,19 +3739,19 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <para>The following beans should be configured to commence the CAS
         authentication process:</para>
 
-        <para><programlisting>&lt;bean id="casProcessingFilter" class="net.sf.acegisecurity.ui.cas.CasProcessingFilter"&gt;
+        <para><programlisting>&lt;bean id="casProcessingFilter" class="org.acegisecurity.ui.cas.CasProcessingFilter"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="authenticationFailureUrl"&gt;&lt;value&gt;/casfailed.jsp&lt;/value&gt;&lt;/property&gt;
   &lt;property name="defaultTargetUrl"&gt;&lt;value&gt;/&lt;/value&gt;&lt;/property&gt;
   &lt;property name="filterProcessesUrl"&gt;&lt;value&gt;/j_acegi_cas_security_check&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="securityEnforcementFilter" class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter"&gt;
+&lt;bean id="securityEnforcementFilter" class="org.acegisecurity.intercept.web.SecurityEnforcementFilter"&gt;
   &lt;property name="filterSecurityInterceptor"&gt;&lt;ref bean="filterInvocationInterceptor"/&gt;&lt;/property&gt;
   &lt;property name="authenticationEntryPoint"&gt;&lt;ref bean="casProcessingFilterEntryPoint"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="casProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.cas.CasProcessingFilterEntryPoint"&gt;
+&lt;bean id="casProcessingFilterEntryPoint" class="org.acegisecurity.ui.cas.CasProcessingFilterEntryPoint"&gt;
   &lt;property name="loginUrl"&gt;&lt;value&gt;https://localhost:8443/cas/login&lt;/value&gt;&lt;/property&gt;
   &lt;property name="serviceProperties"&gt;&lt;ref bean="serviceProperties"/&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -3761,10 +3761,10 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
         <para><programlisting>&lt;filter&gt;
   &lt;filter-name&gt;Acegi CAS Processing Filter&lt;/filter-name&gt;
-  &lt;filter-class&gt;net.sf.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
+  &lt;filter-class&gt;org.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
-    &lt;param-value&gt;net.sf.acegisecurity.ui.cas.CasProcessingFilter&lt;/param-value&gt;
+    &lt;param-value&gt;org.acegisecurity.ui.cas.CasProcessingFilter&lt;/param-value&gt;
   &lt;/init-param&gt;
 &lt;/filter&gt;
 
@@ -3792,7 +3792,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         that uses <literal>CasAuthenticationProvider</literal> and its
         collaborators:</para>
 
-        <para><programlisting>&lt;bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager"&gt;
+        <para><programlisting>&lt;bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager"&gt;
   &lt;property name="providers"&gt;
     &lt;list&gt;
       &lt;ref bean="casAuthenticationProvider"/&gt;
@@ -3800,7 +3800,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
   &lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="casAuthenticationProvider" class="net.sf.acegisecurity.providers.cas.CasAuthenticationProvider"&gt;
+&lt;bean id="casAuthenticationProvider" class="org.acegisecurity.providers.cas.CasAuthenticationProvider"&gt;
   &lt;property name="casAuthoritiesPopulator"&gt;&lt;ref bean="casAuthoritiesPopulator"/&gt;&lt;/property&gt;
   &lt;property name="casProxyDecider"&gt;&lt;ref bean="casProxyDecider"/&gt;&lt;/property&gt;
   &lt;property name="ticketValidator"&gt;&lt;ref bean="casProxyTicketValidator"/&gt;&lt;/property&gt;
@@ -3808,7 +3808,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
   &lt;property name="key"&gt;&lt;value&gt;my_password_for_this_auth_provider_only&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="casProxyTicketValidator" class="net.sf.acegisecurity.providers.cas.ticketvalidator.CasProxyTicketValidator"&gt;
+&lt;bean id="casProxyTicketValidator" class="org.acegisecurity.providers.cas.ticketvalidator.CasProxyTicketValidator"&gt;
   &lt;property name="casValidate"&gt;&lt;value&gt;https://localhost:8443/cas/proxyValidate&lt;/value&gt;&lt;/property&gt;
   &lt;property name="proxyCallbackUrl"&gt;&lt;value&gt;https://localhost:8443/contacts-cas/casProxy/receptor&lt;/value&gt;&lt;/property&gt;
   &lt;property name="serviceProperties"&gt;&lt;ref bean="serviceProperties"/&gt;&lt;/property&gt;
@@ -3830,15 +3830,15 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
   &lt;/property&gt;
 &lt;/bean&gt;
    
-&lt;bean id="statelessTicketCache" class="net.sf.acegisecurity.providers.cas.cache.EhCacheBasedTicketCache"&gt;
+&lt;bean id="statelessTicketCache" class="org.acegisecurity.providers.cas.cache.EhCacheBasedTicketCache"&gt;
   &lt;property name="cache"&gt;&lt;ref local="ticketCacheBackend"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="casAuthoritiesPopulator" class="net.sf.acegisecurity.providers.cas.populator.DaoCasAuthoritiesPopulator"&gt;
+&lt;bean id="casAuthoritiesPopulator" class="org.acegisecurity.providers.cas.populator.DaoCasAuthoritiesPopulator"&gt;
   &lt;property name="authenticationDao"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="casProxyDecider" class="net.sf.acegisecurity.providers.cas.proxy.RejectProxyTickets"/&gt;</programlisting></para>
+&lt;bean id="casProxyDecider" class="org.acegisecurity.providers.cas.proxy.RejectProxyTickets"/&gt;</programlisting></para>
 
         <para>The beans are all reasonable self-explanatory if you refer back
         to the "How CAS Works" section. Careful readers might notice one
@@ -4140,10 +4140,10 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 
         <para><programlisting>&lt;filter&gt;
   &lt;filter-name&gt;Acegi Channel Processing Filter&lt;/filter-name&gt;
-  &lt;filter-class&gt;net.sf.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
+  &lt;filter-class&gt;org.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
-    &lt;param-value&gt;net.sf.acegisecurity.securechannel.ChannelProcessingFilter&lt;/param-value&gt;
+    &lt;param-value&gt;org.acegisecurity.securechannel.ChannelProcessingFilter&lt;/param-value&gt;
   &lt;/init-param&gt;
 &lt;/filter&gt;
 
@@ -4156,7 +4156,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         will also need to configure the filter in your application
         context:</para>
 
-        <para><programlisting>&lt;bean id="channelProcessingFilter" class="net.sf.acegisecurity.securechannel.ChannelProcessingFilter"&gt;
+        <para><programlisting>&lt;bean id="channelProcessingFilter" class="org.acegisecurity.securechannel.ChannelProcessingFilter"&gt;
   &lt;property name="channelDecisionManager"&gt;&lt;ref bean="channelDecisionManager"/&gt;&lt;/property&gt;
   &lt;property name="filterInvocationDefinitionSource"&gt;
     &lt;value&gt;
@@ -4169,7 +4169,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
   &lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="channelDecisionManager" class="net.sf.acegisecurity.securechannel.ChannelDecisionManagerImpl"&gt;
+&lt;bean id="channelDecisionManager" class="org.acegisecurity.securechannel.ChannelDecisionManagerImpl"&gt;
   &lt;property name="channelProcessors"&gt;
     &lt;list&gt;
       &lt;ref bean="secureChannelProcessor"/&gt;
@@ -4178,8 +4178,8 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
   &lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="secureChannelProcessor" class="net.sf.acegisecurity.securechannel.SecureChannelProcessor"/&gt;
-&lt;bean id="insecureChannelProcessor" class="net.sf.acegisecurity.securechannel.InsecureChannelProcessor"/&gt;</programlisting></para>
+&lt;bean id="secureChannelProcessor" class="org.acegisecurity.securechannel.SecureChannelProcessor"/&gt;
+&lt;bean id="insecureChannelProcessor" class="org.acegisecurity.securechannel.InsecureChannelProcessor"/&gt;</programlisting></para>
 
         <para>Like <literal>FilterSecurityInterceptor</literal>, Apache Ant
         style paths are also supported by the
@@ -4349,9 +4349,9 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
       </sect2>
 
       <sect2 id="acls-acl-package">
-        <title>The net.sf.acegisecurity.acl Package</title>
+        <title>The org.acegisecurity.acl Package</title>
 
-        <para>The <literal>net.sf.acegisecurity.acl</literal> package is very
+        <para>The <literal>org.acegisecurity.acl</literal> package is very
         simple, comprising only a handful of interfaces and a single class, as
         shown in Figure 6. It provides the basic foundation for access control
         list (ACL) lookups.</para>
@@ -4396,7 +4396,7 @@ public AclEntry[] getAcls(java.lang.Object domainInstance, Authentication authen
         need to provide an implementation that reflects that ACL permissions
         for your application.</para>
 
-        <para>Rounding out the <literal>net.sf.acegisecurity.acl</literal>
+        <para>Rounding out the <literal>org.acegisecurity.acl</literal>
         package is an <literal>AclProviderManager</literal> class, with a
         corresponding <literal>AclProvider</literal> interface.
         <literal>AclProviderManager</literal> is a concrete implementation of
@@ -4435,7 +4435,7 @@ public AclEntry[] getAcls(java.lang.Object domainInstance, Authentication authen
         all about this type of permission masking (eg <literal>chmod
         777</literal>). You'll find the classes and interfaces for the integer
         masking ACL package under
-        <literal>net.sf.acegisecurity.acl.basic</literal>.</para>
+        <literal>org.acegisecurity.acl.basic</literal>.</para>
 
         <para>Extending the <literal>AclEntry</literal> interface is a
         <literal>BasicAclEntry</literal> interface, with the main methods
@@ -4526,12 +4526,12 @@ CREATE TABLE acl_permission (
      FOREIGN KEY (acl_object_identity) REFERENCES acl_object_identity(id)
 );
 
-INSERT INTO acl_object_identity VALUES (1, 'corp.DomainObject:1', null, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acl_object_identity VALUES (2, 'corp.DomainObject:2', 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acl_object_identity VALUES (3, 'corp.DomainObject:3', 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acl_object_identity VALUES (4, 'corp.DomainObject:4', 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acl_object_identity VALUES (5, 'corp.DomainObject:5', 3, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acl_object_identity VALUES (6, 'corp.DomainObject:6', 3, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (1, 'corp.DomainObject:1', null, 'org.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (2, 'corp.DomainObject:2', 1, 'org.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (3, 'corp.DomainObject:3', 1, 'org.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (4, 'corp.DomainObject:4', 1, 'org.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (5, 'corp.DomainObject:5', 3, 'org.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (6, 'corp.DomainObject:6', 3, 'org.acegisecurity.acl.basic.SimpleAclEntry');
 
 INSERT INTO acl_permission VALUES (null, 1, 'ROLE_SUPERVISOR', 1);
 INSERT INTO acl_permission VALUES (null, 2, 'ROLE_SUPERVISOR', 0);
@@ -4703,10 +4703,10 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
 
         <para><programlisting>&lt;filter&gt;
   &lt;filter-name&gt;Acegi HTTP Request Security Filter&lt;/filter-name&gt;
-  &lt;filter-class&gt;net.sf.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
+  &lt;filter-class&gt;org.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
-    &lt;param-value&gt;net.sf.acegisecurity.ClassThatImplementsFilter&lt;/param-value&gt;
+    &lt;param-value&gt;org.acegisecurity.ClassThatImplementsFilter&lt;/param-value&gt;
   &lt;/init-param&gt;
 &lt;/filter&gt;</programlisting></para>
 
@@ -4774,11 +4774,11 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
         <literal>FilterChainProxy</literal> class. It is wired using a
         <literal>FilterToBeanProxy</literal> (just like in the example above),
         but the target class is
-        <literal>net.sf.acegisecurity.util.FilterChainProxy</literal>. The
-        filter chain is then declared in the application context, using code
-        such as this:</para>
+        <literal>org.acegisecurity.util.FilterChainProxy</literal>. The filter
+        chain is then declared in the application context, using code such as
+        this:</para>
 
-        <para><programlisting>&lt;bean id="filterChainProxy" class="net.sf.acegisecurity.util.FilterChainProxy"&gt;
+        <para><programlisting>&lt;bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy"&gt;
   &lt;property name="filterInvocationDefinitionSource"&gt;
     &lt;value&gt;
       CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -4976,16 +4976,16 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
 
       <blockquote>
         <para>Context on SecurityContextHolder is of type:
-        net.sf.acegisecurity.context.secure.SecureContextImpl</para>
+        org.acegisecurity.context.secure.SecureContextImpl</para>
 
         <para>The Context implements SecureContext.</para>
 
         <para>Authentication object is of type:
-        net.sf.acegisecurity.adapters.PrincipalAcegiUserToken</para>
+        org.acegisecurity.adapters.PrincipalAcegiUserToken</para>
 
         <para>Authentication object as a String:
-        net.sf.acegisecurity.adapters.PrincipalAcegiUserToken@e9a7c2:
-        Username: marissa; Password: [PROTECTED]; Authenticated: true; Granted
+        org.acegisecurity.adapters.PrincipalAcegiUserToken@e9a7c2: Username:
+        marissa; Password: [PROTECTED]; Authenticated: true; Granted
         Authorities: ROLE_TELLER, ROLE_SUPERVISOR</para>
 
         <para>Authentication object holds the following granted

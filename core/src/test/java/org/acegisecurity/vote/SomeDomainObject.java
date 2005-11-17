@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.vote;
+package org.acegisecurity.vote;
 
 /**
  * Simple domain object, used by {@link BasicAclEntryVoterTests}.

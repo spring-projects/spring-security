@@ -1,8 +1,8 @@
-package net.sf.acegisecurity.ui.x509;
+package org.acegisecurity.ui.x509;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.BadCredentialsException;
+import org.acegisecurity.BadCredentialsException;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 

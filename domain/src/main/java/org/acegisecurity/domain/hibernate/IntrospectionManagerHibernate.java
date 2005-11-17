@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.hibernate;
+package org.acegisecurity.domain.hibernate;
 
-import net.sf.acegisecurity.domain.validation.IntrospectionManager;
-import net.sf.acegisecurity.domain.validation.ValidationRegistryManager;
+import org.acegisecurity.domain.validation.IntrospectionManager;
+import org.acegisecurity.domain.validation.ValidationRegistryManager;
 
 import org.hibernate.EntityMode;
 import org.hibernate.Hibernate;

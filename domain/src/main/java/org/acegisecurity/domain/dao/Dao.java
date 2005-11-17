@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.dao;
+package org.acegisecurity.domain.dao;
 
-import net.sf.acegisecurity.domain.PersistableEntity;
+import org.acegisecurity.domain.PersistableEntity;
 
 import java.io.Serializable;
 
@@ -45,7 +45,7 @@ import java.util.List;
  * persistence layer should only respond to requests from the services layer.
  * The services layer is where all transaction demarcation, security
  * authorization, casting to and from concrete {@link
- * net.sf.acegisecurity.domain.PersistableEntity}s, workflow and business
+ * org.acegisecurity.domain.PersistableEntity}s, workflow and business
  * logic should take place.
  * </p>
  * 

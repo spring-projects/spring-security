@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao.ldap;
+package org.acegisecurity.providers.dao.ldap;
 
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.dao.ldap.support.BaseLdapTestCase;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.dao.ldap.support.BaseLdapTestCase;
 
 import javax.naming.NamingException;
 

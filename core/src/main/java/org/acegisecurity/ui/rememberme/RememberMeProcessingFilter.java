@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.rememberme;
+package org.acegisecurity.ui.rememberme;
 
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
-import net.sf.acegisecurity.Authentication;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
+import org.acegisecurity.Authentication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,13 +45,13 @@ import javax.servlet.http.HttpServletResponse;
  * Detects if there is no <code>Authentication</code> object in the
  * <code>SecurityContext</code>, and populates it with a remember-me
  * authentication token if a {@link
- * net.sf.acegisecurity.ui.rememberme.RememberMeServices} implementation so
+ * org.acegisecurity.ui.rememberme.RememberMeServices} implementation so
  * requests.
  * 
  * <p>
  * Concrete <code>RememberMeServices</code> implementations will have their
  * {@link
- * net.sf.acegisecurity.ui.rememberme.RememberMeServices#autoLogin(HttpServletRequest,
+ * org.acegisecurity.ui.rememberme.RememberMeServices#autoLogin(HttpServletRequest,
  * HttpServletResponse)} method called by this filter. The
  * <code>Authentication</code> or <code>null</code> returned by that method
  * will be placed into the <code>SecurityContext</code>.
@@ -59,7 +59,7 @@ import javax.servlet.http.HttpServletResponse;
  * 
  * <p>
  * If authentication is successful, an {@link
- * net.sf.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent} will be
+ * org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent} will be
  * published to the application context. No events will be published if
  * authentication was unsuccessful, because this would generally be recorded
  * via an <code>AuthenticationManager</code>-specific application event.
@@ -68,7 +68,7 @@ import javax.servlet.http.HttpServletResponse;
  * <p>
  * <b>Do not use this class directly.</b> Instead configure
  * <code>web.xml</code> to use the {@link
- * net.sf.acegisecurity.util.FilterToBeanProxy}.
+ * org.acegisecurity.util.FilterToBeanProxy}.
  * </p>
  *
  * @author Ben Alex

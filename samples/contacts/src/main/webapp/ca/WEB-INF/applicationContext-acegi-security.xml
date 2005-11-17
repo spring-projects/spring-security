@@ -16,7 +16,7 @@
 
 	<!--  if you wish to use channel security, add "channelProcessingFilter," in front
 	      of "authenticationProcessingFilter" in the list below -->
-	<bean id="filterChainProxy" class="net.sf.acegisecurity.util.FilterChainProxy">
+	<bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
       <property name="filterInvocationDefinitionSource">
          <value>
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -32,7 +32,7 @@
 		 process BASIC authentication requests, but this has been
 		 left out given container adapters aren't recommended and
 		 it would increase the number of bean declarations required -->
-   <bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+   <bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
       <property name="providers">
          <list>
 		    <ref local="authByAdapterProvider"/>
@@ -40,13 +40,13 @@
       </property>
    </bean>
 
-   <bean id="authByAdapterProvider" class="net.sf.acegisecurity.adapters.AuthByAdapterProvider">
+   <bean id="authByAdapterProvider" class="org.acegisecurity.adapters.AuthByAdapterProvider">
   		<property name="key"><value>my_password</value></property>
    </bean>
 
-   <bean id="httpRequestIntegrationFilter" class="net.sf.acegisecurity.adapters.HttpRequestIntegrationFilter"/>
+   <bean id="httpRequestIntegrationFilter" class="org.acegisecurity.adapters.HttpRequestIntegrationFilter"/>
 
-   <bean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter">
+   <bean id="httpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter">
    </bean>
 
 	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->

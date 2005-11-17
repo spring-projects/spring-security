@@ -13,26 +13,26 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao;
+package org.acegisecurity.providers.dao;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.AccountExpiredException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationServiceException;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.CredentialsExpiredException;
-import net.sf.acegisecurity.DisabledException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.LockedException;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.TestingAuthenticationToken;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.providers.dao.cache.EhCacheBasedUserCache;
-import net.sf.acegisecurity.providers.dao.cache.NullUserCache;
-import net.sf.acegisecurity.providers.dao.salt.SystemWideSaltSource;
-import net.sf.acegisecurity.providers.encoding.ShaPasswordEncoder;
+import org.acegisecurity.AccountExpiredException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationServiceException;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.CredentialsExpiredException;
+import org.acegisecurity.DisabledException;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.LockedException;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.TestingAuthenticationToken;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache;
+import org.acegisecurity.providers.dao.cache.NullUserCache;
+import org.acegisecurity.providers.dao.salt.SystemWideSaltSource;
+import org.acegisecurity.providers.encoding.ShaPasswordEncoder;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;

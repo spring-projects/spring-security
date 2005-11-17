@@ -15,10 +15,10 @@
 
 package sample.contact;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.context.SecurityContextImpl;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.context.SecurityContextImpl;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.beans.factory.ListableBeanFactory;
 

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.validation;
+package org.acegisecurity.domain.validation;
 
-import net.sf.acegisecurity.domain.DomainException;
+import org.acegisecurity.domain.DomainException;
 
 
 /**

@@ -15,13 +15,13 @@
 
 package sample.contact;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.acl.basic.AclObjectIdentity;
-import net.sf.acegisecurity.acl.basic.BasicAclExtendedDao;
-import net.sf.acegisecurity.acl.basic.NamedEntityObjectIdentity;
-import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
-import net.sf.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.acl.basic.AclObjectIdentity;
+import org.acegisecurity.acl.basic.BasicAclExtendedDao;
+import org.acegisecurity.acl.basic.NamedEntityObjectIdentity;
+import org.acegisecurity.acl.basic.SimpleAclEntry;
+import org.acegisecurity.context.SecurityContextHolder;
 
 import org.springframework.beans.factory.InitializingBean;
 

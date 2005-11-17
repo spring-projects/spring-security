@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.jaas.event;
+package org.acegisecurity.providers.jaas.event;
 
-import net.sf.acegisecurity.Authentication;
+import org.acegisecurity.Authentication;
 
 import org.springframework.context.ApplicationEvent;
 
 
 /**
  * Parent class for events fired by the {@link
- * net.sf.acegisecurity.providers.jaas.JaasAuthenticationProvider
+ * org.acegisecurity.providers.jaas.JaasAuthenticationProvider
  * JaasAuthenticationProvider}.
  *
  * @author Ray Krueger

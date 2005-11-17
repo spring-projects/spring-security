@@ -13,33 +13,33 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers;
+package org.acegisecurity.providers;
 
-import net.sf.acegisecurity.AbstractAuthenticationManager;
-import net.sf.acegisecurity.AccountExpiredException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationServiceException;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.CredentialsExpiredException;
-import net.sf.acegisecurity.DisabledException;
-import net.sf.acegisecurity.LockedException;
-import net.sf.acegisecurity.concurrent.ConcurrentLoginException;
-import net.sf.acegisecurity.concurrent.ConcurrentSessionController;
-import net.sf.acegisecurity.concurrent.NullConcurrentSessionController;
-import net.sf.acegisecurity.event.authentication.AbstractAuthenticationEvent;
-import net.sf.acegisecurity.event.authentication.AuthenticationFailureBadCredentialsEvent;
-import net.sf.acegisecurity.event.authentication.AuthenticationFailureConcurrentLoginEvent;
-import net.sf.acegisecurity.event.authentication.AuthenticationFailureCredentialsExpiredEvent;
-import net.sf.acegisecurity.event.authentication.AuthenticationFailureDisabledEvent;
-import net.sf.acegisecurity.event.authentication.AuthenticationFailureExpiredEvent;
-import net.sf.acegisecurity.event.authentication.AuthenticationFailureLockedEvent;
-import net.sf.acegisecurity.event.authentication.AuthenticationFailureProviderNotFoundEvent;
-import net.sf.acegisecurity.event.authentication.AuthenticationFailureProxyUntrustedEvent;
-import net.sf.acegisecurity.event.authentication.AuthenticationFailureServiceExceptionEvent;
-import net.sf.acegisecurity.event.authentication.AuthenticationSuccessEvent;
-import net.sf.acegisecurity.providers.cas.ProxyUntrustedException;
-import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
+import org.acegisecurity.AbstractAuthenticationManager;
+import org.acegisecurity.AccountExpiredException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationServiceException;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.CredentialsExpiredException;
+import org.acegisecurity.DisabledException;
+import org.acegisecurity.LockedException;
+import org.acegisecurity.concurrent.ConcurrentLoginException;
+import org.acegisecurity.concurrent.ConcurrentSessionController;
+import org.acegisecurity.concurrent.NullConcurrentSessionController;
+import org.acegisecurity.event.authentication.AbstractAuthenticationEvent;
+import org.acegisecurity.event.authentication.AuthenticationFailureBadCredentialsEvent;
+import org.acegisecurity.event.authentication.AuthenticationFailureConcurrentLoginEvent;
+import org.acegisecurity.event.authentication.AuthenticationFailureCredentialsExpiredEvent;
+import org.acegisecurity.event.authentication.AuthenticationFailureDisabledEvent;
+import org.acegisecurity.event.authentication.AuthenticationFailureExpiredEvent;
+import org.acegisecurity.event.authentication.AuthenticationFailureLockedEvent;
+import org.acegisecurity.event.authentication.AuthenticationFailureProviderNotFoundEvent;
+import org.acegisecurity.event.authentication.AuthenticationFailureProxyUntrustedEvent;
+import org.acegisecurity.event.authentication.AuthenticationFailureServiceExceptionEvent;
+import org.acegisecurity.event.authentication.AuthenticationSuccessEvent;
+import org.acegisecurity.providers.cas.ProxyUntrustedException;
+import org.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -85,7 +85,7 @@ import java.util.Properties;
  * If a valid <code>Authentication</code> is returned by an
  * <code>AuthenticationProvider</code>, the <code>ProviderManager</code> will
  * publish an {@link
- * net.sf.acegisecurity.event.authentication.AuthenticationSuccessEvent}. If
+ * org.acegisecurity.event.authentication.AuthenticationSuccessEvent}. If
  * an <code>AuthenticationException</code> is detected, the final
  * <code>AuthenticationException</code> thrown will be used to publish an
  * appropriate failure event. By default <code>ProviderManager</code> maps
@@ -94,7 +94,7 @@ import java.util.Properties;
  * the properties object, each of the keys represent the fully qualified
  * classname of the exception, and each of the values represent the name of an
  * event class which subclasses {@link
- * net.sf.acegisecurity.event.authentication.AbstractAuthenticationFailureEvent}
+ * org.acegisecurity.event.authentication.AbstractAuthenticationFailureEvent}
  * and provides its constructor.
  * </p>
  *

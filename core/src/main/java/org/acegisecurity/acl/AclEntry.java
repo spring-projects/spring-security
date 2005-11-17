@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.acl;
+package org.acegisecurity.acl;
 
 import java.io.Serializable;
 

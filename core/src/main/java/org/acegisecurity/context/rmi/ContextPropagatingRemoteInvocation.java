@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.context.rmi;
+package org.acegisecurity.context.rmi;
 
-import net.sf.acegisecurity.context.SecurityContext;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.context.SecurityContextImpl;
+import org.acegisecurity.context.SecurityContext;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.context.SecurityContextImpl;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -36,7 +36,7 @@ import java.lang.reflect.InvocationTargetException;
  * 
  * <p>
  * When constructed on the client via {@link
- * net.sf.acegisecurity.context.rmi.ContextPropagatingRemoteInvocationFactory},
+ * org.acegisecurity.context.rmi.ContextPropagatingRemoteInvocationFactory},
  * the contents of the <code>SecurityContext</code> are stored inside the
  * object. The object is then passed to the server that is processing the
  * remote invocation. Upon the server invoking the remote invocation, it will
@@ -85,7 +85,7 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
      * 
      * <p>
      * Invocations will always have their {@link
-     * net.sf.acegisecurity.Authentication#setAuthenticated(boolean)} set to
+     * org.acegisecurity.Authentication#setAuthenticated(boolean)} set to
      * <code>false</code>, which is guaranteed to always be accepted by
      * <code>Authentication</code> implementations. This ensures that even
      * remotely authenticated <code>Authentication</code>s will be untrusted

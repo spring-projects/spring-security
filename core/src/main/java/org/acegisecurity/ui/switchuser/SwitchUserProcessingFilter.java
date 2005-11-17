@@ -13,22 +13,22 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.switchuser;
+package org.acegisecurity.ui.switchuser;
 
-import net.sf.acegisecurity.AccountExpiredException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationCredentialsNotFoundException;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.CredentialsExpiredException;
-import net.sf.acegisecurity.DisabledException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.event.authentication.AuthenticationSwitchUserEvent;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.providers.dao.AuthenticationDao;
-import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
-import net.sf.acegisecurity.ui.WebAuthenticationDetails;
+import org.acegisecurity.AccountExpiredException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationCredentialsNotFoundException;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.CredentialsExpiredException;
+import org.acegisecurity.DisabledException;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.event.authentication.AuthenticationSwitchUserEvent;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.providers.dao.AuthenticationDao;
+import org.acegisecurity.providers.dao.UsernameNotFoundException;
+import org.acegisecurity.ui.WebAuthenticationDetails;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -80,7 +80,7 @@ import javax.servlet.http.HttpServletResponse;
  * <p>
  * On successful switch, the user's  <code>SecurityContextHolder</code> will be
  * updated to reflect the specified user and will also contain an additinal
- * {@link net.sf.acegisecurity.ui.switchuser.SwitchUserGrantedAuthority }
+ * {@link org.acegisecurity.ui.switchuser.SwitchUserGrantedAuthority }
  * which contains the original user.
  * </p>
  * 
@@ -95,7 +95,7 @@ import javax.servlet.http.HttpServletResponse;
  * the Switch User processing filter and add to the filterChainProxy. <br>
  * Example:
  * <pre>
- * &lt;bean id="switchUserProcessingFilter" class="net.sf.acegisecurity.ui.switchuser.SwitchUserProcessingFilter">
+ * &lt;bean id="switchUserProcessingFilter" class="org.acegisecurity.ui.switchuser.SwitchUserProcessingFilter">
  *    &lt;property name="authenticationDao" ref="jdbcDaoImpl" />
  *    &lt;property name="switchUserUrl">&lt;value>/j_acegi_switch_user&lt;/value>&lt;/property>
  *    &lt;property name="exitUserUrl">&lt;value>/j_acegi_exit_user&lt;/value>&lt;/property>
@@ -107,7 +107,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Mark St.Godard
  * @version $Id$
  *
- * @see net.sf.acegisecurity.ui.switchuser.SwitchUserGrantedAuthority
+ * @see org.acegisecurity.ui.switchuser.SwitchUserGrantedAuthority
  */
 public class SwitchUserProcessingFilter implements Filter, InitializingBean,
         ApplicationEventPublisherAware {

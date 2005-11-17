@@ -20,7 +20,7 @@
 
 <beans>
 
-	<bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
+	<bean id="inMemoryDaoImpl" class="org.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
   		<property name="userMap">
 			<value>
 				marissa=koala,ROLE_TELLER,ROLE_SUPERVISOR
@@ -31,11 +31,11 @@
 		</property>
 	</bean>
 	
-	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
+	<bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
      	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
 	</bean>
 
-	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+	<bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
 		<property name="providers">
 		  <list>
 		    <ref bean="daoAuthenticationProvider"/>
@@ -43,7 +43,7 @@
 		</property>
 	</bean>
 
-	<bean id="casPasswordHandler" class="net.sf.acegisecurity.adapters.cas.CasPasswordHandler">
+	<bean id="casPasswordHandler" class="org.acegisecurity.adapters.cas.CasPasswordHandler">
 		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
 	</bean>
 </beans>

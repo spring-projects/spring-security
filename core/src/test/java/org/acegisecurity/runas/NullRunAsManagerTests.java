@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.runas;
+package org.acegisecurity.runas;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.SecurityConfig;
+import org.acegisecurity.SecurityConfig;
 
 
 /**

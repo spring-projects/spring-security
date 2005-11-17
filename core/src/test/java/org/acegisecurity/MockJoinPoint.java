@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.Signature;

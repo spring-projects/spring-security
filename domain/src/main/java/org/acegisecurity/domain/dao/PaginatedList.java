@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.dao;
+package org.acegisecurity.domain.dao;
 
-import net.sf.acegisecurity.domain.PersistableEntity;
+import org.acegisecurity.domain.PersistableEntity;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

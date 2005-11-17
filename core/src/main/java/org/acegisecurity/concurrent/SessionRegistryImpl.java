@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.concurrent;
+package org.acegisecurity.concurrent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +27,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
-import net.sf.acegisecurity.ui.session.HttpSessionDestroyedEvent;
+import org.acegisecurity.ui.session.HttpSessionDestroyedEvent;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -36,13 +36,13 @@ import org.springframework.util.Assert;
 
 /**
  * Base implementation of {@link
- * net.sf.acegisecurity.concurrent.SessionRegistry} which also listens for
- * {@link net.sf.acegisecurity.ui.session.HttpSessionDestroyedEvent}s
+ * org.acegisecurity.concurrent.SessionRegistry} which also listens for
+ * {@link org.acegisecurity.ui.session.HttpSessionDestroyedEvent}s
  * published in the Spring application context.
  * 
  * <p>
  * NB: It is important that you register the {@link
- * net.sf.acegisecurity.ui.session.HttpSessionEventPublisher} in
+ * org.acegisecurity.ui.session.HttpSessionEventPublisher} in
  * <code>web.xml</code> so that this class is notified of sessions that
  * expire.
  * </p>

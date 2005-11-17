@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.session;
+package org.acegisecurity.ui.session;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;

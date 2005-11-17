@@ -1,7 +1,7 @@
-package net.sf.acegisecurity.providers.x509.cache;
+package org.acegisecurity.providers.x509.cache;
 
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.x509.X509UserCache;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.x509.X509UserCache;
 
 import java.security.cert.X509Certificate;
 

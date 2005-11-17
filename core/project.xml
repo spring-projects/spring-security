@@ -22,7 +22,7 @@
         <filtering>false</filtering>
       </resource>
       <resource>
-        <directory>${basedir}/src/main/resources/net/sf/acegisecurity/taglibs</directory>
+        <directory>${basedir}/src/main/resources/org/acegisecurity/taglibs</directory>
         <targetPath>META-INF</targetPath>
         <includes>
           <include>*.tld</include>

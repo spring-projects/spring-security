@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.cas;
+package org.acegisecurity.ui.cas;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.ui.AbstractProcessingFilter;
-import net.sf.acegisecurity.ui.WebAuthenticationDetails;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.ui.AbstractProcessingFilter;
+import org.acegisecurity.ui.WebAuthenticationDetails;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -57,7 +57,7 @@ import javax.servlet.http.HttpServletRequest;
  * <p>
  * <b>Do not use this class directly.</b> Instead configure
  * <code>web.xml</code> to use the {@link
- * net.sf.acegisecurity.util.FilterToBeanProxy}.
+ * org.acegisecurity.util.FilterToBeanProxy}.
  * </p>
  *
  * @author Ben Alex

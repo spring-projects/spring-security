@@ -12,15 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.acegisecurity.adapters.jboss;
+package org.acegisecurity.adapters.jboss;
 
-import net.sf.acegisecurity.AccountExpiredException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.CredentialsExpiredException;
-import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.AccountExpiredException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationManager;
+import org.acegisecurity.CredentialsExpiredException;
+import org.acegisecurity.adapters.PrincipalAcegiUserToken;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.jboss.security.SimpleGroup;
 import org.jboss.security.SimplePrincipal;

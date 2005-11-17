@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.util;
+package org.acegisecurity.util;
 
 import junit.framework.TestCase;
 

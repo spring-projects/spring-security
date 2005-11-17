@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.vote;
+package org.acegisecurity.vote;
 
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.ConfigAttributeDefinition;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,7 +27,7 @@ import java.util.Iterator;
 
 /**
  * Simple concrete implementation of  {@link
- * net.sf.acegisecurity.AccessDecisionManager} that grants access if any
+ * org.acegisecurity.AccessDecisionManager} that grants access if any
  * <code>AccessDecisionVoter</code> returns an affirmative response.
  *
  * @author Ben Alex

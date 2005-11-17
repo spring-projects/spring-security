@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers;
+package org.acegisecurity.providers;
 
-import net.sf.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthority;
 
 
 /**
- * An {@link net.sf.acegisecurity.Authentication} implementation that is
+ * An {@link org.acegisecurity.Authentication} implementation that is
  * designed for simple presentation of a username and password.
  * 
  * <p>
@@ -111,7 +111,7 @@ public class UsernamePasswordAuthenticationToken
     }
 
     /**
-     * Usually a {@link net.sf.acegisecurity.ui.WebAuthenticationDetails}.
+     * Usually a {@link org.acegisecurity.ui.WebAuthenticationDetails}.
      *
      * @return the authentication request details, or <code>null</code>
      */

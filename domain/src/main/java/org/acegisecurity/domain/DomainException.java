@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain;
+package org.acegisecurity.domain;
 
-import net.sf.acegisecurity.AcegiSecurityException;
+import org.acegisecurity.AcegiSecurityException;
 
 
 /**

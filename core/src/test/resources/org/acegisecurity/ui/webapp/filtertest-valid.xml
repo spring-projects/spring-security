@@ -22,7 +22,7 @@
 <beans>
 
 	<!-- Data access object which stores authentication information -->
-	<bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
+	<bean id="inMemoryDaoImpl" class="org.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
   		<property name="userMap">
 			<value>
 				marissa=koala,ROLE_TELLER,ROLE_SUPERVISOR
@@ -34,12 +34,12 @@
 	</bean>
 	
 	<!-- Authentication provider that queries our data access object  -->
-	<bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
+	<bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
      	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
 	</bean>
 
 	<!-- The authentication manager that iterates through our only authentication provider -->
-	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+	<bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
 		<property name="providers">
 		  <list>
 		    <ref bean="daoAuthenticationProvider"/>
@@ -47,7 +47,7 @@
 		</property>
 	</bean>
 
-	<bean id="authenticationProcessingFilter" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
+	<bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
 		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
 		<property name="authenticationFailureUrl"><value>/failed.jsp</value></property>
 		<property name="defaultTargetUrl"><value>/</value></property>

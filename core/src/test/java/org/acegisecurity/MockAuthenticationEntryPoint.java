@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
-import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
+import org.acegisecurity.intercept.web.AuthenticationEntryPoint;
 
 import java.io.IOException;
 

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.validation;
+package org.acegisecurity.domain.validation;
 
 import org.springframework.aop.framework.AopConfigException;
 import org.springframework.aop.support.StaticMethodMatcherPointcutAdvisor;

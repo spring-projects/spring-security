@@ -24,17 +24,17 @@
 	<!-- =================== SECURITY SYSTEM DEFINITIONS ================== -->
 	
 	<!-- RunAsManager -->
-	<bean id="runAsManager" class="net.sf.acegisecurity.runas.RunAsManagerImpl">
+	<bean id="runAsManager" class="org.acegisecurity.runas.RunAsManagerImpl">
      	<property name="key"><value>my_run_as_password</value></property>
  	</bean>
 
 	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHENTICATION DEFINITIONS ~~~~~~~~~~~~~~~~~~ -->
 
 	<!-- This authentication provider accepts any presented TestingAuthenticationToken -->
-	<bean id="testingAuthenticationProvider" class="net.sf.acegisecurity.providers.TestingAuthenticationProvider"/>
+	<bean id="testingAuthenticationProvider" class="org.acegisecurity.providers.TestingAuthenticationProvider"/>
 
 	<!-- The authentication manager that iterates through our only authentication provider -->
-	<bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+	<bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
 		<property name="providers">
 		  <list>
 		    <ref local="testingAuthenticationProvider"/>
@@ -45,10 +45,10 @@
 	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~~~~ -->
 
 	<!-- An access decision voter that reads ROLE_* configuaration settings -->
-	<bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
+	<bean id="roleVoter" class="org.acegisecurity.vote.RoleVoter"/>
 
 	<!-- A unanimous access decision manager -->
-	<bean id="accessDecisionManager" class="net.sf.acegisecurity.vote.UnanimousBased">
+	<bean id="accessDecisionManager" class="org.acegisecurity.vote.UnanimousBased">
    		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
 		<property name="decisionVoters">
 		  <list>
@@ -60,12 +60,12 @@
 	<!-- ===================== SECURITY DEFINITIONS ======================= -->
 	
 	<bean id="attributes" class="org.springframework.metadata.commons.CommonsAttributes"/>
-	<bean id="objectDefinitionSource" class="net.sf.acegisecurity.intercept.method.MethodDefinitionAttributes">
+	<bean id="objectDefinitionSource" class="org.acegisecurity.intercept.method.MethodDefinitionAttributes">
 		<property name="attributes"><ref local="attributes"/></property>
 	</bean>
 
 	<!-- We don't validate config attributes, as it's unsupported by MethodDefinitionAttributes -->
-	<bean id="securityInterceptor" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
+	<bean id="securityInterceptor" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
     	<property name="validateConfigAttributes"><value>false</value></property>
     	<property name="authenticationManager"><ref local="authenticationManager"/></property>
     	<property name="accessDecisionManager"><ref local="accessDecisionManager"/></property>
@@ -90,7 +90,7 @@
 		above configuration is a Commons Attributes-based source.
 	-->
 	<bean id="methodSecurityAdvisor"
-		class="net.sf.acegisecurity.intercept.method.aopalliance.MethodDefinitionSourceAdvisor"
+		class="org.acegisecurity.intercept.method.aopalliance.MethodDefinitionSourceAdvisor"
 		autowire="constructor" >
 	</bean>
 

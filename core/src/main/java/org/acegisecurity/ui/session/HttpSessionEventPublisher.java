@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.session;
+package org.acegisecurity.ui.session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,7 +32,7 @@ import javax.servlet.http.HttpSessionListener;
 /**
  * Declared in web.xml as <br>
  * <code> &lt;listener&gt;<br>
- * &lt;listener-class&gt;net.sf.acegisecurity.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;<br>
+ * &lt;listener-class&gt;org.acegisecurity.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;<br>
  * &lt;/listener&gt;<br>
  * </code> Publishes <code>HttpSessionApplicationEvent</code>s to the Spring
  * Root WebApplicationContext. <br>

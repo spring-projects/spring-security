@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao.memory;
+package org.acegisecurity.providers.dao.memory;
 
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.dao.User;
-import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.dao.User;
+import org.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

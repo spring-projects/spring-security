@@ -13,21 +13,21 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.hibernate;
+package org.acegisecurity.domain.hibernate;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 
-import net.sf.acegisecurity.domain.PersistableEntity;
-import net.sf.acegisecurity.domain.dao.Dao;
-import net.sf.acegisecurity.domain.dao.DetachmentContextHolder;
-import net.sf.acegisecurity.domain.dao.EvictionCapable;
-import net.sf.acegisecurity.domain.dao.InitializationCapable;
-import net.sf.acegisecurity.domain.dao.PaginatedList;
-import net.sf.acegisecurity.domain.util.GenericsUtils;
-import net.sf.acegisecurity.domain.validation.ValidationManager;
+import org.acegisecurity.domain.PersistableEntity;
+import org.acegisecurity.domain.dao.Dao;
+import org.acegisecurity.domain.dao.DetachmentContextHolder;
+import org.acegisecurity.domain.dao.EvictionCapable;
+import org.acegisecurity.domain.dao.InitializationCapable;
+import org.acegisecurity.domain.dao.PaginatedList;
+import org.acegisecurity.domain.util.GenericsUtils;
+import org.acegisecurity.domain.validation.ValidationManager;
 
 import org.hibernate.Criteria;
 import org.hibernate.EntityMode;

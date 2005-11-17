@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.cas;
+package org.acegisecurity.providers.cas;
 
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.AbstractAuthenticationToken;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 import org.springframework.util.Assert;
 

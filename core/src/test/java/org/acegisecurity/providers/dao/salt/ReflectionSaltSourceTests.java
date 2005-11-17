@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao.salt;
+package org.acegisecurity.providers.dao.salt;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.AuthenticationServiceException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.dao.User;
+import org.acegisecurity.AuthenticationServiceException;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.dao.User;
 
 
 /**

@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao;
+package org.acegisecurity.providers.dao;
 
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.UserDetails;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.UserDetails;
 
 import org.springframework.util.Assert;
 

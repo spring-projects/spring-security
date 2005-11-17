@@ -13,26 +13,26 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.web;
+package org.acegisecurity.intercept.web;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.AccessDecisionManager;
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.MockAccessDecisionManager;
-import net.sf.acegisecurity.MockApplicationContext;
-import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.MockRunAsManager;
-import net.sf.acegisecurity.RunAsManager;
-import net.sf.acegisecurity.SecurityConfig;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.context.SecurityContextImpl;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.AccessDecisionManager;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.MockAccessDecisionManager;
+import org.acegisecurity.MockApplicationContext;
+import org.acegisecurity.MockAuthenticationManager;
+import org.acegisecurity.MockRunAsManager;
+import org.acegisecurity.RunAsManager;
+import org.acegisecurity.SecurityConfig;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.context.SecurityContextImpl;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -102,7 +102,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
             interceptor.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("AccessDecisionManager does not support secure object class: class net.sf.acegisecurity.intercept.web.FilterInvocation",
+            assertEquals("AccessDecisionManager does not support secure object class: class org.acegisecurity.intercept.web.FilterInvocation",
                 expected.getMessage());
         }
     }
@@ -135,7 +135,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
             interceptor.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("RunAsManager does not support secure object class: class net.sf.acegisecurity.intercept.web.FilterInvocation",
+            assertEquals("RunAsManager does not support secure object class: class org.acegisecurity.intercept.web.FilterInvocation",
                 expected.getMessage());
         }
     }

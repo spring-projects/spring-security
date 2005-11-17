@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.cas.proxy;
+package org.acegisecurity.providers.cas.proxy;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.providers.cas.ProxyUntrustedException;
+import org.acegisecurity.providers.cas.ProxyUntrustedException;
 
 import java.util.List;
 import java.util.Vector;

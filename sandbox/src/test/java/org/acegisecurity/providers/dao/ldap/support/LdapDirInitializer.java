@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.acegisecurity.providers.dao.ldap.support;
+package org.acegisecurity.providers.dao.ldap.support;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;

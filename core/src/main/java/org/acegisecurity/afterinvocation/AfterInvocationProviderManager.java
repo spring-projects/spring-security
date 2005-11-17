@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.afterinvocation;
+package org.acegisecurity.afterinvocation;
 
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.AfterInvocationManager;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.AfterInvocationManager;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

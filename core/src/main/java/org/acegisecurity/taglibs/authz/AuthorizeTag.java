@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.taglibs.authz;
+package org.acegisecurity.taglibs.authz;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.context.SecurityContextHolder;
 
 import org.springframework.util.StringUtils;
 
@@ -196,7 +196,7 @@ public class AuthorizeTag extends TagSupport {
      * <strong>CAVEAT</strong>:  This method <strong>will not</strong> work if
      * the granted authorities returns a <code>null</code> string as the
      * return value of {@link
-     * net.sf.acegisecurity.GrantedAuthority#getAuthority()}.
+     * org.acegisecurity.GrantedAuthority#getAuthority()}.
      * </p>
      * 
      * <p>
@@ -207,7 +207,7 @@ public class AuthorizeTag extends TagSupport {
      * @param granted The authorities granted by the authentication. May be any
      *        implementation of {@link GrantedAuthority} that does
      *        <strong>not</strong> return <code>null</code> from {@link
-     *        net.sf.acegisecurity.GrantedAuthority#getAuthority()}.
+     *        org.acegisecurity.GrantedAuthority#getAuthority()}.
      * @param required A {@link Set} of {@link GrantedAuthorityImpl}s that have
      *        been built using ifAny, ifAll or ifNotGranted.
      *

@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.acl.basic.jdbc;
+package org.acegisecurity.acl.basic.jdbc;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.PopulatedDatabase;
-import net.sf.acegisecurity.acl.basic.AclObjectIdentity;
-import net.sf.acegisecurity.acl.basic.BasicAclEntry;
-import net.sf.acegisecurity.acl.basic.NamedEntityObjectIdentity;
-import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
+import org.acegisecurity.PopulatedDatabase;
+import org.acegisecurity.acl.basic.AclObjectIdentity;
+import org.acegisecurity.acl.basic.BasicAclEntry;
+import org.acegisecurity.acl.basic.NamedEntityObjectIdentity;
+import org.acegisecurity.acl.basic.SimpleAclEntry;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -41,7 +41,7 @@ import java.sql.SQLException;
 public class JdbcExtendedDaoImplTests extends TestCase {
     //~ Static fields/initializers =============================================
 
-    public static final String OBJECT_IDENTITY = "net.sf.acegisecurity.acl.DomainObject";
+    public static final String OBJECT_IDENTITY = "org.acegisecurity.acl.DomainObject";
 
     //~ Constructors ===========================================================
 

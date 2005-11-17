@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao.salt;
+package org.acegisecurity.providers.dao.salt;
 
 import junit.framework.TestCase;
 

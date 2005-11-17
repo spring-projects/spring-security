@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.x509;
+package org.acegisecurity.ui.x509;
 
-import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
-import net.sf.acegisecurity.AuthenticationException;
+import org.acegisecurity.intercept.web.AuthenticationEntryPoint;
+import org.acegisecurity.AuthenticationException;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -42,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Luke Taylor
  * @version $Id$
- * @see net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter
+ * @see org.acegisecurity.intercept.web.SecurityEnforcementFilter
  */
 public class X509ProcessingFilterEntryPoint implements AuthenticationEntryPoint {
     //~ Static fields/initializers =============================================

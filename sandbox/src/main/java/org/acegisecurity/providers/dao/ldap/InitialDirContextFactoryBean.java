@@ -1,4 +1,4 @@
-package net.sf.acegisecurity.providers.dao.ldap;
+package org.acegisecurity.providers.dao.ldap;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -16,7 +16,7 @@ import org.springframework.dao.DataAccessResourceFailureException;
  * <p>
  * Eample: <br/>
  *  <bean id="initialDirContextFactoryBean"
- *      class="net.sf.acegisecurity.providers.dao.ldap.InitialDirContextFactoryBean">     <br/>
+ *      class="org.acegisecurity.providers.dao.ldap.InitialDirContextFactoryBean">     <br/>
  *      <property name="url"><value>ldap://myserver.com:389/</value></property>           <br/>
  *      <property name="managerUser"><value>cn=UserWithSearchPermissions,dc=mycompany,dc=com</value></property>  <br/>
  *      <property name="managerPassword"><value>PasswordForUser</value></property>        <br/>

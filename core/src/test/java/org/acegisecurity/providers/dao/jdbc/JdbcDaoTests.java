@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao.jdbc;
+package org.acegisecurity.providers.dao.jdbc;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.PopulatedDatabase;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
+import org.acegisecurity.PopulatedDatabase;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.springframework.jdbc.object.MappingSqlQuery;
 

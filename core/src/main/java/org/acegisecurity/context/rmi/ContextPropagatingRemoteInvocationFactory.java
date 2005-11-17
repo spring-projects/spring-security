@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.context.rmi;
+package org.acegisecurity.context.rmi;
 
 import org.aopalliance.intercept.MethodInvocation;
 

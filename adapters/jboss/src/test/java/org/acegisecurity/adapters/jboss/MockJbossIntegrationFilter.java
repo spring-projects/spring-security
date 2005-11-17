@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters.jboss;
+package org.acegisecurity.adapters.jboss;
 
 import javax.naming.Context;
 import javax.naming.NamingException;

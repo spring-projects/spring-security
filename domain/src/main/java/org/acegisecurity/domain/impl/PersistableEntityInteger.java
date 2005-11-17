@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.impl;
+package org.acegisecurity.domain.impl;
 
 import java.io.Serializable;
 
@@ -58,7 +58,7 @@ public abstract class PersistableEntityInteger extends AbstractPersistableEntity
      * <p>
      * Use {@link #getId()} instead, as it provides the correct return type.
      * This method is only provided for use by the persistence layer and to
-     * satisfy the {@link net.sf.acegisecurity.domain.PersistableEntity}
+     * satisfy the {@link org.acegisecurity.domain.PersistableEntity}
      * interface contract.
      * </p>
      * 

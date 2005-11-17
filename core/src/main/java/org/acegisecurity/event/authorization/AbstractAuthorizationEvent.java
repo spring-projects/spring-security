@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.event.authorization;
+package org.acegisecurity.event.authorization;
 
 import org.springframework.context.ApplicationEvent;
 

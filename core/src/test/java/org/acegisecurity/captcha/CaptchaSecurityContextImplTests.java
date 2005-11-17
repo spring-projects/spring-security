@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.captcha;
+package org.acegisecurity.captcha;
 
-import net.sf.acegisecurity.context.SecurityContextImplTests;
+import org.acegisecurity.context.SecurityContextImplTests;
 
 
 /**

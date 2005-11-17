@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.wrapper;
+package org.acegisecurity.wrapper;
 
 import java.io.IOException;
 

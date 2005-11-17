@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.runas;
+package org.acegisecurity.runas;
 
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.providers.AbstractAuthenticationToken;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 
 /**
- * An immutable {@link net.sf.acegisecurity.Authentication}  implementation
+ * An immutable {@link org.acegisecurity.Authentication}  implementation
  * that supports {@link RunAsManagerImpl}.
  *
  * @author Ben Alex

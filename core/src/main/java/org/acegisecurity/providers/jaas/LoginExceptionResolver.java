@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.jaas;
+package org.acegisecurity.providers.jaas;
 
-import net.sf.acegisecurity.AcegiSecurityException;
+import org.acegisecurity.AcegiSecurityException;
 
 import javax.security.auth.login.LoginException;
 
@@ -26,7 +26,7 @@ import javax.security.auth.login.LoginException;
  * instance, a configured login module could throw a
  * ScrewedUpPasswordException that extends LoginException, in this instance
  * the LoginExceptionResolver implementation would return a {@link
- * net.sf.acegisecurity.BadCredentialsException}.
+ * org.acegisecurity.BadCredentialsException}.
  *
  * @author Ray Krueger
  * @version $Revision$

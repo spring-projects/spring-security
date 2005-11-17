@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.wrapper;
+package org.acegisecurity.wrapper;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.MockFilterConfig;
+import org.acegisecurity.MockFilterConfig;
 
-import net.sf.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter;
-import net.sf.acegisecurity.wrapper.SecurityContextHolderAwareRequestWrapper;
+import org.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter;
+import org.acegisecurity.wrapper.SecurityContextHolderAwareRequestWrapper;
 
 import java.io.IOException;
 

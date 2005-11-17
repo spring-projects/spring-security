@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.rememberme;
+package org.acegisecurity.ui.rememberme;
 
-import net.sf.acegisecurity.Authentication;
+import org.acegisecurity.Authentication;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

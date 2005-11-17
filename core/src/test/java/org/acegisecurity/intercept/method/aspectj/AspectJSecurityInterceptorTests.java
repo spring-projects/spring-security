@@ -13,23 +13,23 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method.aspectj;
+package org.acegisecurity.intercept.method.aspectj;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.MockAccessDecisionManager;
-import net.sf.acegisecurity.MockApplicationContext;
-import net.sf.acegisecurity.MockAuthenticationManager;
-import net.sf.acegisecurity.MockJoinPoint;
-import net.sf.acegisecurity.MockRunAsManager;
-import net.sf.acegisecurity.TargetObject;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.intercept.method.MethodDefinitionMap;
-import net.sf.acegisecurity.intercept.method.MethodDefinitionSourceEditor;
-import net.sf.acegisecurity.providers.TestingAuthenticationToken;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.MockAccessDecisionManager;
+import org.acegisecurity.MockApplicationContext;
+import org.acegisecurity.MockAuthenticationManager;
+import org.acegisecurity.MockJoinPoint;
+import org.acegisecurity.MockRunAsManager;
+import org.acegisecurity.TargetObject;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.intercept.method.MethodDefinitionMap;
+import org.acegisecurity.intercept.method.MethodDefinitionSourceEditor;
+import org.acegisecurity.providers.TestingAuthenticationToken;
 
 import java.lang.reflect.Method;
 
@@ -71,7 +71,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
 
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "net.sf.acegisecurity.TargetObject.countLength=MOCK_ONE,MOCK_TWO");
+            "org.acegisecurity.TargetObject.countLength=MOCK_ONE,MOCK_TWO");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         si.setObjectDefinitionSource(map);
@@ -107,7 +107,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
 
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "net.sf.acegisecurity.TargetObject.countLength=MOCK_ONE,MOCK_TWO");
+            "org.acegisecurity.TargetObject.countLength=MOCK_ONE,MOCK_TWO");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         si.setObjectDefinitionSource(map);

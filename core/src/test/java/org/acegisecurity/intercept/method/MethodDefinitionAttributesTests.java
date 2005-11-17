@@ -13,22 +13,22 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method;
+package org.acegisecurity.intercept.method;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.ITargetObject;
-import net.sf.acegisecurity.MockMethodInvocation;
-import net.sf.acegisecurity.OtherTargetObject;
-import net.sf.acegisecurity.SecurityConfig;
-import net.sf.acegisecurity.TargetObject;
-import net.sf.acegisecurity.acl.basic.SomeDomain;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.ITargetObject;
+import org.acegisecurity.MockMethodInvocation;
+import org.acegisecurity.OtherTargetObject;
+import org.acegisecurity.SecurityConfig;
+import org.acegisecurity.TargetObject;
+import org.acegisecurity.acl.basic.SomeDomain;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -172,7 +172,7 @@ public class MethodDefinitionAttributesTests extends TestCase {
 
         ITargetObject target = makeInterceptedTarget();
         String result = target.makeUpperCase("hello");
-        assertEquals("HELLO net.sf.acegisecurity.MockRunAsAuthenticationToken true",
+        assertEquals("HELLO org.acegisecurity.MockRunAsAuthenticationToken true",
             result);
 
         SecurityContextHolder.getContext().setAuthentication(null);
@@ -188,7 +188,7 @@ public class MethodDefinitionAttributesTests extends TestCase {
         ITargetObject target = makeInterceptedTarget();
         String result = target.makeLowerCase("HELLO");
 
-        assertEquals("hello net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken true",
+        assertEquals("hello org.acegisecurity.providers.UsernamePasswordAuthenticationToken true",
             result);
 
         SecurityContextHolder.getContext().setAuthentication(null);
@@ -220,7 +220,7 @@ public class MethodDefinitionAttributesTests extends TestCase {
 
     private ITargetObject makeInterceptedTarget() {
         ApplicationContext context = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/intercept/method/applicationContext.xml");
+                "org/acegisecurity/intercept/method/applicationContext.xml");
 
         return (ITargetObject) context.getBean("target");
     }

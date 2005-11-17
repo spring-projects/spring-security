@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.cas;
+package org.acegisecurity.providers.cas;
 
 /**
  * Caches CAS service tickets and CAS proxy tickets for stateless connections.

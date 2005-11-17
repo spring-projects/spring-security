@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.util;
+package org.acegisecurity.util;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.MockApplicationContext;
-import net.sf.acegisecurity.MockFilterConfig;
-import net.sf.acegisecurity.intercept.web.FilterInvocationDefinitionSource;
-import net.sf.acegisecurity.intercept.web.MockFilterInvocationDefinitionSource;
-import net.sf.acegisecurity.intercept.web.PathBasedFilterInvocationDefinitionMap;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.MockApplicationContext;
+import org.acegisecurity.MockFilterConfig;
+import org.acegisecurity.intercept.web.FilterInvocationDefinitionSource;
+import org.acegisecurity.intercept.web.MockFilterInvocationDefinitionSource;
+import org.acegisecurity.intercept.web.PathBasedFilterInvocationDefinitionMap;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -123,7 +123,7 @@ public class FilterChainProxyTests extends TestCase {
 
     public void testNormalOperation() throws Exception {
         ApplicationContext appCtx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/util/filtertest-valid.xml");
+                "org/acegisecurity/util/filtertest-valid.xml");
         FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChain",
                 FilterChainProxy.class);
         MockFilter filter = (MockFilter) appCtx.getBean("mockFilter",

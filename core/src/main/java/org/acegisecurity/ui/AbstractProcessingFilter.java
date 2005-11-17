@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui;
+package org.acegisecurity.ui;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -27,13 +27,13 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
-import net.sf.acegisecurity.ui.rememberme.NullRememberMeServices;
-import net.sf.acegisecurity.ui.rememberme.RememberMeServices;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationManager;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
+import org.acegisecurity.ui.rememberme.NullRememberMeServices;
+import org.acegisecurity.ui.rememberme.RememberMeServices;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -98,12 +98,12 @@ import org.springframework.util.Assert;
  * For example:<br>
  * <code> &lt;property name="exceptionMappings"&gt;<br>
  * &nbsp;&nbsp;&lt;props&gt;<br>
- * &nbsp;&nbsp;&nbsp;&nbsp;&lt;prop&gt; key="net.sf.acegisecurity.BadCredentialsException"&gt;/bad_credentials.jsp&lt;/prop&gt;<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&lt;prop&gt; key="org.acegisecurity.BadCredentialsException"&gt;/bad_credentials.jsp&lt;/prop&gt;<br>
  * &nbsp;&nbsp;&lt;/props&gt;<br>
  * &lt;/property&gt;<br>
  * </code><br>
  * The example above would redirect all {@link
- * net.sf.acegisecurity.BadCredentialsException}s thrown, to a page in the
+ * org.acegisecurity.BadCredentialsException}s thrown, to a page in the
  * web-application called /bad_credentials.jsp.
  * </p>
  * 
@@ -115,7 +115,7 @@ import org.springframework.util.Assert;
  * 
  * <p>
  * If authentication is successful, an {@link
- * net.sf.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent} will be
+ * org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent} will be
  * published to the application context. No events will be published if
  * authentication was unsuccessful, because this would generally be recorded
  * via an <code>AuthenticationManager</code>-specific application event.

@@ -36,7 +36,7 @@
       to the WebApplicationContext
   -->
   <listener>
-    <listener-class>net.sf.acegisecurity.ui.session.HttpSessionEventPublisher</listener-class>
+    <listener-class>org.acegisecurity.ui.session.HttpSessionEventPublisher</listener-class>
   </listener>
   <!--
   - Provides web services endpoint. See remoting-servlet.xml.

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.vote;
+package org.acegisecurity.vote;
 
 /**
  * Used by {@link BasicAclEntryVoterTests} so it can create a

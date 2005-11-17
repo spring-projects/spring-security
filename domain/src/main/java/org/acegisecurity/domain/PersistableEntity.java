@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain;
+package org.acegisecurity.domain;
 
 import java.io.Serializable;
 
@@ -23,7 +23,7 @@ import java.io.Serializable;
  * 
  * <p>
  * A persistable entity is any object that is capable of being persisted,
- * typically via a {@link net.sf.acegisecurity.domain.dao.Dao} implementation.
+ * typically via a {@link org.acegisecurity.domain.dao.Dao} implementation.
  * </p>
  *
  * @author Ben Alex

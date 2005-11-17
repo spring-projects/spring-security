@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.cas;
+package org.acegisecurity.ui.cas;
 
 import org.springframework.beans.factory.InitializingBean;
 

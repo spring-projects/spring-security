@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.acl;
+package org.acegisecurity.acl;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.acl.basic.NamedEntityObjectIdentity;
-import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.acl.basic.NamedEntityObjectIdentity;
+import org.acegisecurity.acl.basic.SimpleAclEntry;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import java.util.List;
 import java.util.Vector;

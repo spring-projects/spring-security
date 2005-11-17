@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method;
+package org.acegisecurity.intercept.method;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.MockJoinPoint;
-import net.sf.acegisecurity.SecurityConfig;
-import net.sf.acegisecurity.TargetObject;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.MockJoinPoint;
+import org.acegisecurity.SecurityConfig;
+import org.acegisecurity.TargetObject;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -61,7 +61,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
     public void testAspectJJointPointLookup() throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "net.sf.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
+            "org.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
 
@@ -84,7 +84,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
 
         try {
-            editor.setAsText("net.sf.acegisecurity.DOES_NOT_EXIST_NAME=FOO,BAR");
+            editor.setAsText("org.acegisecurity.DOES_NOT_EXIST_NAME=FOO,BAR");
             fail("Should have given IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -107,7 +107,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
 
         try {
             editor.setAsText(
-                "net.sf.acegisecurity.TargetObject.INVALID_METHOD=FOO,BAR");
+                "org.acegisecurity.TargetObject.INVALID_METHOD=FOO,BAR");
             fail("Should have given IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -118,7 +118,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "net.sf.acegisecurity.ITargetObject.makeLower*=ROLE_FROM_INTERFACE\r\nnet.sf.acegisecurity.ITargetObject.makeUpper*=ROLE_FROM_INTERFACE\r\nnet.sf.acegisecurity.TargetObject.makeUpper*=ROLE_FROM_IMPLEMENTATION");
+            "org.acegisecurity.ITargetObject.makeLower*=ROLE_FROM_INTERFACE\r\norg.acegisecurity.ITargetObject.makeUpper*=ROLE_FROM_INTERFACE\r\norg.acegisecurity.TargetObject.makeUpper*=ROLE_FROM_IMPLEMENTATION");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
@@ -153,7 +153,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
     public void testIterator() {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "net.sf.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY\r\nnet.sf.acegisecurity.TargetObject.make*=ROLE_NINE,ROLE_SUPERVISOR");
+            "org.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY\r\norg.acegisecurity.TargetObject.make*=ROLE_NINE,ROLE_SUPERVISOR");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         Iterator iter = map.getConfigAttributeDefinitions();
@@ -170,7 +170,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
     public void testMultiMethodParsing() {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "net.sf.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY\r\nnet.sf.acegisecurity.TargetObject.make*=ROLE_NINE,ROLE_SUPERVISOR");
+            "org.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY\r\norg.acegisecurity.TargetObject.make*=ROLE_NINE,ROLE_SUPERVISOR");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
@@ -180,7 +180,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "net.sf.acegisecurity.TargetObject.*=ROLE_GENERAL\r\nnet.sf.acegisecurity.TargetObject.makeLower*=ROLE_LOWER\r\nnet.sf.acegisecurity.TargetObject.make*=ROLE_MAKE\r\nnet.sf.acegisecurity.TargetObject.makeUpper*=ROLE_UPPER");
+            "org.acegisecurity.TargetObject.*=ROLE_GENERAL\r\norg.acegisecurity.TargetObject.makeLower*=ROLE_LOWER\r\norg.acegisecurity.TargetObject.make*=ROLE_MAKE\r\norg.acegisecurity.TargetObject.makeUpper*=ROLE_UPPER");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         assertEquals(5, map.getMethodMapSize());
@@ -212,7 +212,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "net.sf.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
+            "org.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
 
@@ -233,7 +233,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
     public void testSingleMethodParsing() throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "net.sf.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
+            "org.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
 

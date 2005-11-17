@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters.catalina;
+package org.acegisecurity.adapters.catalina;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationManager;
+import org.acegisecurity.adapters.PrincipalAcegiUserToken;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.LifecycleException;

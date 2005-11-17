@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.vote;
+package org.acegisecurity.vote;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.SecurityConfig;
-import net.sf.acegisecurity.providers.TestingAuthenticationToken;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.SecurityConfig;
+import org.acegisecurity.providers.TestingAuthenticationToken;
 
 import java.util.List;
 import java.util.Vector;

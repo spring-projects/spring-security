@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.event.authentication;
+package org.acegisecurity.event.authentication;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.UserDetails;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.UserDetails;
 
 
 /**

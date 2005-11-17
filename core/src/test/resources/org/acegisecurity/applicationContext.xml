@@ -21,10 +21,10 @@
 <beans>
 
    <!-- Automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->
-   <bean id="authenticationLoggerListener" class="net.sf.acegisecurity.event.authentication.LoggerListener"/>
+   <bean id="authenticationLoggerListener" class="org.acegisecurity.event.authentication.LoggerListener"/>
 
    <!-- Automatically receives AuthenticationEvent messages from AbstractSecurityInterceptor -->
-   <bean id="secureObjectLoggerListener" class="net.sf.acegisecurity.event.authorization.LoggerListener"/>
+   <bean id="secureObjectLoggerListener" class="org.acegisecurity.event.authorization.LoggerListener"/>
 
    <!-- Setup a cache we can use in tests of the caching layer -->
    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">

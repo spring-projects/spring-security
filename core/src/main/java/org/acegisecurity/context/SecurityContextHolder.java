@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.context;
+package org.acegisecurity.context;
 
 import org.springframework.util.Assert;
 
@@ -36,7 +36,7 @@ import org.springframework.util.Assert;
  * @version $Id$
  *
  * @see java.lang.ThreadLocal
- * @see net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter
+ * @see org.acegisecurity.context.HttpSessionContextIntegrationFilter
  */
 public class SecurityContextHolder {
     //~ Static fields/initializers =============================================

@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.x509;
+package org.acegisecurity.providers.x509;
 
-import net.sf.acegisecurity.providers.AuthenticationProvider;
-import net.sf.acegisecurity.providers.x509.cache.NullX509UserCache;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.BadCredentialsException;
+import org.acegisecurity.providers.AuthenticationProvider;
+import org.acegisecurity.providers.x509.cache.NullX509UserCache;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.BadCredentialsException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.apache.commons.logging.Log;
@@ -32,7 +32,7 @@ import java.security.cert.X509Certificate;
  * Processes an X.509 authentication request.
  * <p>
  * The request will typically originate from
- * {@link net.sf.acegisecurity.ui.x509.X509ProcessingFilter}).
+ * {@link org.acegisecurity.ui.x509.X509ProcessingFilter}).
  * </p>
  *
  * @author Luke Taylor

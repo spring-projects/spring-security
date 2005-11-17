@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.acegisecurity.annotation;
+package org.acegisecurity.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sf.acegisecurity.SecurityConfig;
+import org.acegisecurity.SecurityConfig;
 
 import org.springframework.metadata.Attributes;
 
@@ -40,17 +40,17 @@ import org.springframework.metadata.Attributes;
  * <p>For example: 
  * <pre>
  * &lt;bean id="attributes" 
- *     class="net.sf.acegisecurity.annotation.SecurityAnnotationAttributes"/>
+ *     class="org.acegisecurity.annotation.SecurityAnnotationAttributes"/>
  * 
  * &lt;bean id="objectDefinitionSource" 
- *     class="net.sf.acegisecurity.intercept.method.MethodDefinitionAttributes">
+ *     class="org.acegisecurity.intercept.method.MethodDefinitionAttributes">
  *     &lt;property name="attributes">
  *         &lt;ref local="attributes"/>
  *     &lt;/property>
  * &lt;/bean>
  * 
  * &lt;bean id="securityInterceptor" 
- *     class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
+ *     class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
  *      . . .
  *      &lt;property name="objectDefinitionSource">
  *          &lt;ref local="objectDefinitionSource"/>
@@ -64,7 +64,7 @@ import org.springframework.metadata.Attributes;
  * @author Mark St.Godard
  * @version $Id$
  *
- * @see net.sf.acegisecurity.annotation.Secured
+ * @see org.acegisecurity.annotation.Secured
  */
 public class SecurityAnnotationAttributes implements Attributes {
 

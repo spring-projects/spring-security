@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.afterinvocation;
+package org.acegisecurity.afterinvocation;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.AuthorizationServiceException;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.MockAclManager;
-import net.sf.acegisecurity.MockMethodInvocation;
-import net.sf.acegisecurity.SecurityConfig;
-import net.sf.acegisecurity.acl.AclEntry;
-import net.sf.acegisecurity.acl.AclManager;
-import net.sf.acegisecurity.acl.basic.MockAclObjectIdentity;
-import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.AuthorizationServiceException;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.MockAclManager;
+import org.acegisecurity.MockMethodInvocation;
+import org.acegisecurity.SecurityConfig;
+import org.acegisecurity.acl.AclEntry;
+import org.acegisecurity.acl.AclManager;
+import org.acegisecurity.acl.basic.MockAclObjectIdentity;
+import org.acegisecurity.acl.basic.SimpleAclEntry;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import java.util.List;
 import java.util.Vector;

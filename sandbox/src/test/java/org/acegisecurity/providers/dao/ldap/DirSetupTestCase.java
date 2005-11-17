@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.acegisecurity.providers.dao.ldap;
+package org.acegisecurity.providers.dao.ldap;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
-import net.sf.acegisecurity.providers.dao.ldap.support.BaseLdapTestCase;
+import org.acegisecurity.providers.dao.ldap.support.BaseLdapTestCase;
 
 /** Tests to ensure the directory server we are running against is 
  *   configured as expected.

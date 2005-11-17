@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.dao;
+package org.acegisecurity.domain.dao;
 
-import net.sf.acegisecurity.domain.PersistableEntity;
+import org.acegisecurity.domain.PersistableEntity;
 
 
 /**
  * Indicates an implementation capable of evicting {@link
- * net.sf.acegisecurity.domain.PersistableEntity}s.
+ * org.acegisecurity.domain.PersistableEntity}s.
  * 
  * <p>
  * Structured as a separate interface (rather than a subclass of

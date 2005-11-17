@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.digestauth;
+package org.acegisecurity.ui.digestauth;
 
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationServiceException;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.providers.dao.AuthenticationDao;
-import net.sf.acegisecurity.providers.dao.UserCache;
-import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
-import net.sf.acegisecurity.providers.dao.cache.NullUserCache;
-import net.sf.acegisecurity.ui.WebAuthenticationDetails;
-import net.sf.acegisecurity.util.StringSplitUtils;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationServiceException;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.providers.dao.AuthenticationDao;
+import org.acegisecurity.providers.dao.UserCache;
+import org.acegisecurity.providers.dao.UsernameNotFoundException;
+import org.acegisecurity.providers.dao.cache.NullUserCache;
+import org.acegisecurity.ui.WebAuthenticationDetails;
+import org.acegisecurity.util.StringSplitUtils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -76,13 +76,13 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <P>
- * If authentication is successful, the resulting {@link net.sf.acegisecurity.Authentication Authentication}
+ * If authentication is successful, the resulting {@link org.acegisecurity.Authentication Authentication}
  * object will be placed into the <code>SecurityContextHolder</code>.
  * </p>
  * 
  * <p>
  * If authentication fails, an
- * {@link net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint AuthenticationEntryPoint}
+ * {@link org.acegisecurity.intercept.web.AuthenticationEntryPoint AuthenticationEntryPoint}
  * implementation is called. This must always be {@link DigestProcessingFilterEntryPoint},
  * which will prompt the user to authenticate again via Digest authentication.
  * </p>
@@ -98,7 +98,7 @@ import javax.servlet.http.HttpServletResponse;
  * <P>
  * <B>Do not use this class directly.</B> Instead configure
  * <code>web.xml</code> to use the {@link
- * net.sf.acegisecurity.util.FilterToBeanProxy}.
+ * org.acegisecurity.util.FilterToBeanProxy}.
  * </p>
  *
  * @author Ben Alex

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.wrapper.redirect;
+package org.acegisecurity.wrapper.redirect;
 
 import java.text.DateFormat;
 import java.text.ParseException;

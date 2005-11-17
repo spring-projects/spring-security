@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.event.authorization;
+package org.acegisecurity.event.authorization;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.MockMethodInvocation;
-import net.sf.acegisecurity.event.authorization.AuthorizationFailureEvent;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.MockMethodInvocation;
+import org.acegisecurity.event.authorization.AuthorizationFailureEvent;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 
 /**

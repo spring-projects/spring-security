@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.vote;
+package org.acegisecurity.vote;
 
-import net.sf.acegisecurity.AuthorizationServiceException;
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.acl.AclEntry;
-import net.sf.acegisecurity.acl.AclManager;
+import org.acegisecurity.AuthorizationServiceException;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.acl.AclEntry;
+import org.acegisecurity.acl.AclManager;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -38,9 +38,9 @@ import java.lang.reflect.Method;
  * (ACL) permissions associated with a domain object instance for the current
  * <code>Authentication</code> object. This class is designed to process
  * {@link AclEntry}s that are subclasses of {@link
- * net.sf.acegisecurity.acl.basic.BasicAclEntry} only. Generally these are
+ * org.acegisecurity.acl.basic.BasicAclEntry} only. Generally these are
  * obtained by using the {@link
- * net.sf.acegisecurity.acl.basic.BasicAclProvider}.
+ * org.acegisecurity.acl.basic.BasicAclProvider}.
  * </p>
  * 
  * <p>
@@ -49,14 +49,14 @@ import java.lang.reflect.Method;
  * first method argument of type {@link #processDomainObjectClass}. Assuming
  * that method argument is non-null, the provider will then lookup the ACLs
  * from the <code>AclManager</code> and ensure the principal is {@link
- * net.sf.acegisecurity.acl.basic.BasicAclEntry#isPermitted(int)} for at least
+ * org.acegisecurity.acl.basic.BasicAclEntry#isPermitted(int)} for at least
  * one of the {@link #requirePermission}s.
  * </p>
  * 
  * <p>
  * If the method argument is <code>null</code>, the voter will abstain from
  * voting. If the method argument could not be found, an {@link
- * net.sf.acegisecurity.AuthorizationServiceException} will be thrown.
+ * org.acegisecurity.AuthorizationServiceException} will be thrown.
  * </p>
  * 
  * <p>

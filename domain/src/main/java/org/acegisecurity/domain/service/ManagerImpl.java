@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.service;
+package org.acegisecurity.domain.service;
 
-import net.sf.acegisecurity.domain.PersistableEntity;
+import org.acegisecurity.domain.PersistableEntity;
 
 import org.springframework.util.Assert;
 

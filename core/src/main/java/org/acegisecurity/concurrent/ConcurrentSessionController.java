@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.concurrent;
+package org.acegisecurity.concurrent;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
 
 
 /**
  * Provides two methods that can be called by an {@link
- * net.sf.acegisecurity.AuthenticationManager} to integrate with the
+ * org.acegisecurity.AuthenticationManager} to integrate with the
  * concurrent session handling infrastructure.
  *
  * @author Ben Alex

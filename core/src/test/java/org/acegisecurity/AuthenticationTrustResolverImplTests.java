@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.providers.TestingAuthenticationToken;
-import net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
-import net.sf.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
+import org.acegisecurity.providers.TestingAuthenticationToken;
+import org.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
+import org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
 
 
 /**
- * Tests {@link net.sf.acegisecurity.AuthenticationTrustResolverImpl}.
+ * Tests {@link org.acegisecurity.AuthenticationTrustResolverImpl}.
  *
  * @author Ben Alex
  * @version $Id$

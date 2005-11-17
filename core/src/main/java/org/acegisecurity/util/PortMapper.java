@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.util;
+package org.acegisecurity.util;
 
 /**
  * <code>PortMapper</code> implementations provide callers with information

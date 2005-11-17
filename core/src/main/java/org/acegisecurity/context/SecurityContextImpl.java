@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.acegisecurity.context;
+package org.acegisecurity.context;
 
-import net.sf.acegisecurity.Authentication;
+import org.acegisecurity.Authentication;
 
 
 /**

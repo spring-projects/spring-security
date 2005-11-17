@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.validation;
+package org.acegisecurity.domain.validation;
 
-import net.sf.acegisecurity.domain.PersistableEntity;
-import net.sf.acegisecurity.domain.impl.BusinessObject;
+import org.acegisecurity.domain.PersistableEntity;
+import org.acegisecurity.domain.impl.BusinessObject;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
  * <p>
  * For each method invocation, any argument that is assignable from {@link
  * #argumentClasses} <b>and</b> is non-<code>null</code> will be passed to the
- * {@link net.sf.acegisecurity.domain.validation.ValidationManager} for
+ * {@link org.acegisecurity.domain.validation.ValidationManager} for
  * processing.
  * </p>
  *

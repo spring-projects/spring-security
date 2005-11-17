@@ -13,23 +13,23 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.switchuser;
+package org.acegisecurity.ui.switchuser;
 
 import junit.framework.TestCase;
-import net.sf.acegisecurity.AccountExpiredException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.CredentialsExpiredException;
-import net.sf.acegisecurity.DisabledException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.providers.dao.AuthenticationDao;
-import net.sf.acegisecurity.providers.dao.User;
-import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
-import net.sf.acegisecurity.util.MockFilterChain;
+import org.acegisecurity.AccountExpiredException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.CredentialsExpiredException;
+import org.acegisecurity.DisabledException;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.providers.dao.AuthenticationDao;
+import org.acegisecurity.providers.dao.User;
+import org.acegisecurity.providers.dao.UsernameNotFoundException;
+import org.acegisecurity.util.MockFilterChain;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -37,7 +37,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
- * Tests {@link net.sf.acegisecurity.ui.switchuser.SwitchUserProcessingFilter}.
+ * Tests {@link org.acegisecurity.ui.switchuser.SwitchUserProcessingFilter}.
  *
  * @author Mark St.Godard
  * @version $Id$

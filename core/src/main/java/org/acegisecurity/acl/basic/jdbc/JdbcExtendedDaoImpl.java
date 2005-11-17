@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.acl.basic.jdbc;
+package org.acegisecurity.acl.basic.jdbc;
 
-import net.sf.acegisecurity.acl.basic.AclObjectIdentity;
-import net.sf.acegisecurity.acl.basic.BasicAclEntry;
-import net.sf.acegisecurity.acl.basic.BasicAclExtendedDao;
+import org.acegisecurity.acl.basic.AclObjectIdentity;
+import org.acegisecurity.acl.basic.BasicAclEntry;
+import org.acegisecurity.acl.basic.BasicAclExtendedDao;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,7 +55,7 @@ import javax.sql.DataSource;
  * 
  * <p>
  * This implementation works with <code>String</code> based recipients and
- * {@link net.sf.acegisecurity.acl.basic.NamedEntityObjectIdentity} only. The
+ * {@link org.acegisecurity.acl.basic.NamedEntityObjectIdentity} only. The
  * latter can be changed by overriding {@link
  * #convertAclObjectIdentityToString(AclObjectIdentity)}.
  * </p>

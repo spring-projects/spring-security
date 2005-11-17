@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters.jetty;
+package org.acegisecurity.adapters.jetty;
 
 import junit.framework.TestCase;
 
@@ -219,7 +219,7 @@ public class JettyAcegiUserRealmTests extends TestCase {
 
     private JettyAcegiUserRealm makeAdapter(String fileName)
         throws Exception {
-        String useFile = "net/sf/acegisecurity/adapters/" + fileName;
+        String useFile = "org/acegisecurity/adapters/" + fileName;
 
         return new JettyAcegiUserRealm(REALM_NAME, ADAPTER_KEY, useFile);
     }

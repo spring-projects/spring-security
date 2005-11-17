@@ -20,16 +20,16 @@
 
 <beans>
 
-	<bean id="authentication" class="net.sf.acegisecurity.MockAuthenticationManager"/>
-	<bean id="accessDecision" class="net.sf.acegisecurity.MockAccessDecisionManager"/>
-	<bean id="runAs" class="net.sf.acegisecurity.MockRunAsManager"/>
-	<bean id="attributes" class="net.sf.acegisecurity.intercept.method.MockAttributes"/>
+	<bean id="authentication" class="org.acegisecurity.MockAuthenticationManager"/>
+	<bean id="accessDecision" class="org.acegisecurity.MockAccessDecisionManager"/>
+	<bean id="runAs" class="org.acegisecurity.MockRunAsManager"/>
+	<bean id="attributes" class="org.acegisecurity.intercept.method.MockAttributes"/>
 
-	<bean id="objectDefinitionSource" class="net.sf.acegisecurity.intercept.method.MethodDefinitionAttributes">
+	<bean id="objectDefinitionSource" class="org.acegisecurity.intercept.method.MethodDefinitionAttributes">
 		<property name="attributes"><ref local="attributes"/></property>
 	</bean>
 	
-	<bean id="securityInterceptor" class="net.sf.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
+	<bean id="securityInterceptor" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
 		<property name="authenticationManager"><ref local="authentication"/></property>
 		<property name="accessDecisionManager"><ref local="accessDecision"/></property>
 		<property name="runAsManager"><ref local="runAs"/></property>
@@ -38,10 +38,10 @@
 		</property>
 	</bean>
 	
-	<bean id="realTarget" class="net.sf.acegisecurity.TargetObject"/>
+	<bean id="realTarget" class="org.acegisecurity.TargetObject"/>
 
     <bean id="target" class="org.springframework.aop.framework.ProxyFactoryBean">
-      <property name="proxyInterfaces"><value>net.sf.acegisecurity.ITargetObject</value></property>
+      <property name="proxyInterfaces"><value>org.acegisecurity.ITargetObject</value></property>
       <property name="interceptorNames">
          <list>
             <idref local="securityInterceptor"/>
@@ -50,6 +50,6 @@
       </property>
     </bean>
 
-   <bean id="secureObjectLoggerListener" class="net.sf.acegisecurity.event.authorization.LoggerListener"/>
+   <bean id="secureObjectLoggerListener" class="org.acegisecurity.event.authorization.LoggerListener"/>
 
 </beans>

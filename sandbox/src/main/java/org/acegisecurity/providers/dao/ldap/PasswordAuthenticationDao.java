@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao.ldap;
+package org.acegisecurity.providers.dao.ldap;
 
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.UserDetails;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.UserDetails;
 
 import org.springframework.dao.DataAccessException;
 
@@ -34,7 +34,7 @@ import org.springframework.dao.DataAccessException;
  * of new data access strategies.
  * </p>
  * 
- * @deprecated instead subclass {@link net.sf.acegisecurity.providers.dao.AbstractUserDetailsAuthenticationProvider}
+ * @deprecated instead subclass {@link org.acegisecurity.providers.dao.AbstractUserDetailsAuthenticationProvider}
  * @author Karel Miarka
  */
 public interface PasswordAuthenticationDao {

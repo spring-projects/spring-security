@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
 import java.io.Serializable;
 
@@ -32,7 +32,7 @@ import java.io.Serializable;
  * <P>
  * Concrete implementations must take particular care to ensure the non-null
  * contract detailed for each method is enforced. See
- * {@link net.sf.acegisecurity.providers.dao.User} for a
+ * {@link org.acegisecurity.providers.dao.User} for a
  * reference implementation (which you might like to extend).
  * </p>
  *

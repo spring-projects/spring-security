@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.afterinvocation;
+package org.acegisecurity.afterinvocation;
 
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.acl.AclEntry;
-import net.sf.acegisecurity.acl.AclManager;
-import net.sf.acegisecurity.acl.basic.BasicAclEntry;
-import net.sf.acegisecurity.acl.basic.SimpleAclEntry;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.acl.AclEntry;
+import org.acegisecurity.acl.AclManager;
+import org.acegisecurity.acl.basic.BasicAclEntry;
+import org.acegisecurity.acl.basic.SimpleAclEntry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,9 +45,9 @@ import java.util.Iterator;
  * (ACL) permissions associated with a domain object instance for the current
  * <code>Authentication</code> object. This class is designed to process
  * {@link AclEntry}s that are subclasses of {@link
- * net.sf.acegisecurity.acl.basic.BasicAclEntry} only. Generally these
+ * org.acegisecurity.acl.basic.BasicAclEntry} only. Generally these
  * are obtained by using the {@link
- * net.sf.acegisecurity.acl.basic.BasicAclProvider}.
+ * org.acegisecurity.acl.basic.BasicAclProvider}.
  * </p>
  * 
  * <p>
@@ -55,7 +55,7 @@ import java.util.Iterator;
  * ConfigAttribute#getAttribute()} matches the {@link
  * #processConfigAttribute}. The provider will then lookup the ACLs from the
  * <code>AclManager</code> and ensure the principal is {@link
- * net.sf.acegisecurity.acl.basic.BasicAclEntry#isPermitted(int)} for
+ * org.acegisecurity.acl.basic.BasicAclEntry#isPermitted(int)} for
  * at least one of the {@link #requirePermission}s.
  * </p>
  * 

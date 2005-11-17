@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.annotation;
+package org.acegisecurity.annotation;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
 import junit.framework.TestCase;
-import net.sf.acegisecurity.SecurityConfig;
+import org.acegisecurity.SecurityConfig;
 
 import org.springframework.metadata.Attributes;
 
 
 /**
- * Tests for {@link net.sf.acegisecurity.annotation.SecurityAnnotationAttributes}
+ * Tests for {@link org.acegisecurity.annotation.SecurityAnnotationAttributes}
  *
  * @author Mark St.Godard
  * @version $Revision$

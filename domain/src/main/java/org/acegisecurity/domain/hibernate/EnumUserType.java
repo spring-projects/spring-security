@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-package net.sf.acegisecurity.domain.hibernate;
+package org.acegisecurity.domain.hibernate;
 
 import java.io.Serializable; 
 import java.sql.PreparedStatement; 

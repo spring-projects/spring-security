@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.x509.populator;
+package org.acegisecurity.providers.x509.populator;
 
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.providers.dao.AuthenticationDao;
-import net.sf.acegisecurity.providers.x509.X509AuthoritiesPopulator;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.providers.dao.AuthenticationDao;
+import org.acegisecurity.providers.x509.X509AuthoritiesPopulator;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -32,7 +32,7 @@ import java.security.cert.X509Certificate;
 
 
 /**
- * Populates the X509 authorities via an {@link net.sf.acegisecurity.providers.dao.AuthenticationDao}.
+ * Populates the X509 authorities via an {@link org.acegisecurity.providers.dao.AuthenticationDao}.
  *
  * @author Luke Taylor
  * @version $Id$

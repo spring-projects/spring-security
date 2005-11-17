@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.jaas.event;
+package org.acegisecurity.providers.jaas.event;
 
-import net.sf.acegisecurity.Authentication;
+import org.acegisecurity.Authentication;
 
 
 /**
  * Fired by the {@link
- * net.sf.acegisecurity.providers.jaas.JaasAuthenticationProvider
+ * org.acegisecurity.providers.jaas.JaasAuthenticationProvider
  * JaasAuthenticationProvider} after successfully logging the user into the
  * LoginContext, handling all callbacks, and calling all AuthorityGranters.
  *

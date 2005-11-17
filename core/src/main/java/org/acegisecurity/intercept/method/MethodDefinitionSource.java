@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method;
+package org.acegisecurity.intercept.method;
 
-import net.sf.acegisecurity.intercept.ObjectDefinitionSource;
+import org.acegisecurity.intercept.ObjectDefinitionSource;
 
 
 /**

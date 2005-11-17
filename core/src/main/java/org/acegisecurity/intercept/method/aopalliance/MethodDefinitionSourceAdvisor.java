@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method.aopalliance;
+package org.acegisecurity.intercept.method.aopalliance;
 
-import net.sf.acegisecurity.intercept.method.MethodDefinitionSource;
+import org.acegisecurity.intercept.method.MethodDefinitionSource;
 
 import org.aopalliance.intercept.MethodInvocation;
 

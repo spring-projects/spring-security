@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.web;
+package org.acegisecurity.intercept.web;
 
-import net.sf.acegisecurity.intercept.AbstractSecurityInterceptor;
-import net.sf.acegisecurity.intercept.InterceptorStatusToken;
-import net.sf.acegisecurity.intercept.ObjectDefinitionSource;
+import org.acegisecurity.intercept.AbstractSecurityInterceptor;
+import org.acegisecurity.intercept.InterceptorStatusToken;
+import org.acegisecurity.intercept.ObjectDefinitionSource;
 
 
 /**

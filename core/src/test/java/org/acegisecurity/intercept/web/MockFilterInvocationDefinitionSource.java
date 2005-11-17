@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.web;
+package org.acegisecurity.intercept.web;
 
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.SecurityConfig;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.SecurityConfig;
 
 import java.util.Iterator;
 import java.util.List;

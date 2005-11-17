@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.rememberme;
+package org.acegisecurity.ui.rememberme;
 
-import net.sf.acegisecurity.Authentication;
+import org.acegisecurity.Authentication;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletResponse;
  * 
  * <P>
  * Acegi Security filters (namely {@link
- * net.sf.acegisecurity.ui.AbstractProcessingFilter} and {@link
- * net.sf.acegisecurity.ui.rememberme.RememberMeProcessingFilter} will call
+ * org.acegisecurity.ui.AbstractProcessingFilter} and {@link
+ * org.acegisecurity.ui.rememberme.RememberMeProcessingFilter} will call
  * the methods provided by an implementation of this interface.
  * </p>
  * 
@@ -67,10 +67,10 @@ public interface RememberMeServices {
      * 
      * <p>
      * The returned <code>Authentication</code> must be acceptable to  {@link
-     * net.sf.acegisecurity.AuthenticationManager} or {@link
-     * net.sf.acegisecurity.providers.AuthenticationProvider} defined by the
+     * org.acegisecurity.AuthenticationManager} or {@link
+     * org.acegisecurity.providers.AuthenticationProvider} defined by the
      * web application. It is recommended {@link
-     * net.sf.acegisecurity.providers.rememberme.RememberMeAuthenticationToken}
+     * org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken}
      * be used in most cases, as it has a corresponding authentication
      * provider.
      * </p>

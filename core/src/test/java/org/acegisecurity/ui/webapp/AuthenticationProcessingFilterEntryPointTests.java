@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.acegisecurity.ui.webapp;
+package org.acegisecurity.ui.webapp;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.MockPortResolver;
-import net.sf.acegisecurity.util.PortMapperImpl;
+import org.acegisecurity.MockPortResolver;
+import org.acegisecurity.util.PortMapperImpl;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;

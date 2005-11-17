@@ -16,7 +16,7 @@
 /*
  * Copyright (c) 2005 Your Corporation. All Rights Reserved.
  */
-package net.sf.acegisecurity.captcha;
+package org.acegisecurity.captcha;
 
 /**
  * <p>

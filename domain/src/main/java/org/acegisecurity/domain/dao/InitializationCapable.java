@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.dao;
+package org.acegisecurity.domain.dao;
 
 /**
  * Indicates an implementation capable of initializing an object, such that

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
 /**
  * Reviews the <code>Object</code> returned from a secure object invocation,
@@ -25,7 +25,7 @@ package net.sf.acegisecurity;
  * object instance returned by a service layer bean. Can also be used to
  * mutate the domain object instance so the principal is only able to access
  * authorised bean properties or <code>Collection</code> elements. Often used
- * in conjunction with an {@link net.sf.acegisecurity.acl.AclManager} to
+ * in conjunction with an {@link org.acegisecurity.acl.AclManager} to
  * obtain the access control list applicable for the domain object instance.
  * </p>
  * 

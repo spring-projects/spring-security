@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.jaas;
+package org.acegisecurity.providers.jaas;
 
-import net.sf.acegisecurity.AcegiSecurityException;
-import net.sf.acegisecurity.AuthenticationServiceException;
+import org.acegisecurity.AcegiSecurityException;
+import org.acegisecurity.AuthenticationServiceException;
 
 import javax.security.auth.login.LoginException;
 

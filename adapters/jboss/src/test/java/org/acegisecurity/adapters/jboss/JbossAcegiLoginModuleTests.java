@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters.jboss;
+package org.acegisecurity.adapters.jboss;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.adapters.PrincipalAcegiUserToken;
+import org.acegisecurity.adapters.PrincipalAcegiUserToken;
 
 import org.jboss.security.SimplePrincipal;
 
@@ -75,7 +75,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation",
-            "net/sf/acegisecurity/adapters/adaptertest-invalid.xml");
+            "org/acegisecurity/adapters/adaptertest-invalid.xml");
 
         try {
             adapter.initialize(null, null, null, props);
@@ -118,7 +118,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
 
         Properties props = new Properties();
         props.put("appContextLocation",
-            "net/sf/acegisecurity/adapters/adaptertest-valid.xml");
+            "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         try {
             adapter.initialize(null, null, null, props);
@@ -130,7 +130,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         props = new Properties();
         props.put("key", "");
         props.put("appContextLocation",
-            "net/sf/acegisecurity/adapters/adaptertest-valid.xml");
+            "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         try {
             adapter.initialize(null, null, null, props);
@@ -163,7 +163,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation",
-            "net/sf/acegisecurity/adapters/adaptertest-valid.xml");
+            "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
 
@@ -182,7 +182,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation",
-            "net/sf/acegisecurity/adapters/adaptertest-valid.xml");
+            "org/acegisecurity/adapters/adaptertest-valid.xml");
         adapter.initialize(null, null, null, props);
         assertTrue(true);
     }
@@ -193,7 +193,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation",
-            "net/sf/acegisecurity/adapters/adaptertest-valid.xml");
+            "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
         CallbackHandler callback = new MockCallbackHandler("marissa", "kangaroo");
@@ -214,7 +214,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation",
-            "net/sf/acegisecurity/adapters/adaptertest-valid.xml");
+            "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
         CallbackHandler callback = new MockCallbackHandler("melissa", "koala");
@@ -234,7 +234,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation",
-            "net/sf/acegisecurity/adapters/adaptertest-valid.xml");
+            "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
         CallbackHandler callback = new MockCallbackHandler("marissa", "koala");
@@ -264,7 +264,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation",
-            "net/sf/acegisecurity/adapters/adaptertest-valid.xml");
+            "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
         CallbackHandler callback = new MockCallbackHandler("marissa", null);
@@ -285,7 +285,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation",
-            "net/sf/acegisecurity/adapters/adaptertest-valid.xml");
+            "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
         CallbackHandler callback = new MockCallbackHandler(null, null);
@@ -306,7 +306,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation",
-            "net/sf/acegisecurity/adapters/adaptertest-valid.xml");
+            "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
         CallbackHandler callback = new MockCallbackHandler(null, "kangaroo");
@@ -326,7 +326,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation",
-            "net/sf/acegisecurity/adapters/adaptertest-valid.xml");
+            "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
         CallbackHandler callback = new MockCallbackHandler("marissa", "koala");

@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.service;
+package org.acegisecurity.domain.service;
 
-import net.sf.acegisecurity.domain.PersistableEntity;
-import net.sf.acegisecurity.domain.dao.PaginatedList;
+import org.acegisecurity.domain.PersistableEntity;
+import org.acegisecurity.domain.dao.PaginatedList;
 
 import java.io.Serializable;
 
@@ -62,9 +62,9 @@ import java.util.List;
  * 
  * <P>
  * A single <code>ImmutableManager</code> implementation will typically exist for each
- * {@link net.sf.acegisecurity.domain.PersistableEntity}, particularly given
+ * {@link org.acegisecurity.domain.PersistableEntity}, particularly given
  * a <code>PersistableEntity</code> is allowed to manage multiple
- * {@link net.sf.acegisecurity.domain.impl.PersistableValue}s.
+ * {@link org.acegisecurity.domain.impl.PersistableValue}s.
  * The particular <code>PersistableEntity</code> an implementation supports
  * will be expressed by the {@link #supports(Class)} method.
  * </p>

@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.afterinvocation;
+package org.acegisecurity.afterinvocation;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.MockMethodInvocation;
-import net.sf.acegisecurity.SecurityConfig;
-import net.sf.acegisecurity.intercept.web.FilterInvocation;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.MockMethodInvocation;
+import org.acegisecurity.SecurityConfig;
+import org.acegisecurity.intercept.web.FilterInvocation;
 
 import org.aopalliance.intercept.MethodInvocation;
 

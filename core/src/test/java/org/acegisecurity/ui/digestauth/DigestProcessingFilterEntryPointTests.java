@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.digestauth;
+package org.acegisecurity.ui.digestauth;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.DisabledException;
+import org.acegisecurity.DisabledException;
 
 
 
-import net.sf.acegisecurity.util.StringSplitUtils;
+import org.acegisecurity.util.StringSplitUtils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;

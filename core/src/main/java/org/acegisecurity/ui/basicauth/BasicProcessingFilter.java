@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.basicauth;
+package org.acegisecurity.ui.basicauth;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.intercept.web.AuthenticationEntryPoint;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.ui.WebAuthenticationDetails;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationManager;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.intercept.web.AuthenticationEntryPoint;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.ui.WebAuthenticationDetails;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -89,13 +89,13 @@ import javax.servlet.http.HttpServletResponse;
  * as such is undesirable in many situations. Digest authentication is also
  * provided by Acegi Security and should be used instead of Basic
  * authentication wherever possible. See {@link
- * net.sf.acegisecurity.ui.digestauth.DigestProcessingFilter}.
+ * org.acegisecurity.ui.digestauth.DigestProcessingFilter}.
  * </p>
  * 
  * <p>
  * <b>Do not use this class directly.</b> Instead configure
  * <code>web.xml</code> to use the {@link
- * net.sf.acegisecurity.util.FilterToBeanProxy}.
+ * org.acegisecurity.util.FilterToBeanProxy}.
  * </p>
  *
  * @author Ben Alex

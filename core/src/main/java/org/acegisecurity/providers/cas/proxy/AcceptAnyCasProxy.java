@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.cas.proxy;
+package org.acegisecurity.providers.cas.proxy;
 
-import net.sf.acegisecurity.providers.cas.CasProxyDecider;
-import net.sf.acegisecurity.providers.cas.ProxyUntrustedException;
+import org.acegisecurity.providers.cas.CasProxyDecider;
+import org.acegisecurity.providers.cas.ProxyUntrustedException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

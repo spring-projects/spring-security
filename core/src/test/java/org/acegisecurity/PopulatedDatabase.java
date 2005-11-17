@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -83,21 +83,21 @@ public class PopulatedDatabase {
         template.execute(
             "INSERT INTO AUTHORITIES VALUES('peter','ROLE_TELLER')");
         template.execute(
-            "INSERT INTO acl_object_identity VALUES (1, 'net.sf.acegisecurity.acl.DomainObject:1', null, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');");
+            "INSERT INTO acl_object_identity VALUES (1, 'org.acegisecurity.acl.DomainObject:1', null, 'org.acegisecurity.acl.basic.SimpleAclEntry');");
         template.execute(
-            "INSERT INTO acl_object_identity VALUES (2, 'net.sf.acegisecurity.acl.DomainObject:2', 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');");
+            "INSERT INTO acl_object_identity VALUES (2, 'org.acegisecurity.acl.DomainObject:2', 1, 'org.acegisecurity.acl.basic.SimpleAclEntry');");
         template.execute(
-            "INSERT INTO acl_object_identity VALUES (3, 'net.sf.acegisecurity.acl.DomainObject:3', 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');");
+            "INSERT INTO acl_object_identity VALUES (3, 'org.acegisecurity.acl.DomainObject:3', 1, 'org.acegisecurity.acl.basic.SimpleAclEntry');");
         template.execute(
-            "INSERT INTO acl_object_identity VALUES (4, 'net.sf.acegisecurity.acl.DomainObject:4', 1, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');");
+            "INSERT INTO acl_object_identity VALUES (4, 'org.acegisecurity.acl.DomainObject:4', 1, 'org.acegisecurity.acl.basic.SimpleAclEntry');");
         template.execute(
-            "INSERT INTO acl_object_identity VALUES (5, 'net.sf.acegisecurity.acl.DomainObject:5', 3, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');");
+            "INSERT INTO acl_object_identity VALUES (5, 'org.acegisecurity.acl.DomainObject:5', 3, 'org.acegisecurity.acl.basic.SimpleAclEntry');");
         template.execute(
-            "INSERT INTO acl_object_identity VALUES (6, 'net.sf.acegisecurity.acl.DomainObject:6', 3, 'net.sf.acegisecurity.acl.basic.SimpleAclEntry');");
+            "INSERT INTO acl_object_identity VALUES (6, 'org.acegisecurity.acl.DomainObject:6', 3, 'org.acegisecurity.acl.basic.SimpleAclEntry');");
 
         // ----- BEGIN deviation from normal sample data load script -----
         template.execute(
-            "INSERT INTO acl_object_identity VALUES (7, 'net.sf.acegisecurity.acl.DomainObject:7', 3, 'some.invalid.acl.entry.class');");
+            "INSERT INTO acl_object_identity VALUES (7, 'org.acegisecurity.acl.DomainObject:7', 3, 'some.invalid.acl.entry.class');");
 
         // ----- FINISH deviation from normal sample data load script -----
         template.execute(

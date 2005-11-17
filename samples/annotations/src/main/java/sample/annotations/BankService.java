@@ -15,7 +15,7 @@
 
 package sample.annotations;
 
-import net.sf.acegisecurity.annotation.Secured;
+import org.acegisecurity.annotation.Secured;
 
 /**
  * <code>BankService</code> sample using Java 5 Annotations.
@@ -23,7 +23,7 @@ import net.sf.acegisecurity.annotation.Secured;
  * @author Mark St.Godard
  * @version $Id$
  * 
- * @see net.sf.acegisecurity.annotation.Secured
+ * @see org.acegisecurity.annotation.Secured
  */
 
 @Secured({"ROLE_TELLER" })

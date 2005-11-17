@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept.method;
+package org.acegisecurity.intercept.method;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.MockMethodInvocation;
+import org.acegisecurity.MockMethodInvocation;
 
 import org.aopalliance.intercept.MethodInvocation;
 

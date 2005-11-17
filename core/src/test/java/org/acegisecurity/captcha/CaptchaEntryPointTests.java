@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.captcha;
+package org.acegisecurity.captcha;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.MockPortResolver;
-import net.sf.acegisecurity.util.PortMapperImpl;
+import org.acegisecurity.MockPortResolver;
+import org.acegisecurity.util.PortMapperImpl;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;

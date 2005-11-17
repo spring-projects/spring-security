@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.acl.basic;
+package org.acegisecurity.acl.basic;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.acl.AclEntry;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.acl.AclEntry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

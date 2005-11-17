@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.context.rmi;
+package org.acegisecurity.context.rmi;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.MockMethodInvocation;
-import net.sf.acegisecurity.TargetObject;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.context.SecurityContextImpl;
-import net.sf.acegisecurity.context.rmi.ContextPropagatingRemoteInvocation;
-import net.sf.acegisecurity.context.rmi.ContextPropagatingRemoteInvocationFactory;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.MockMethodInvocation;
+import org.acegisecurity.TargetObject;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.context.SecurityContextImpl;
+import org.acegisecurity.context.rmi.ContextPropagatingRemoteInvocation;
+import org.acegisecurity.context.rmi.ContextPropagatingRemoteInvocationFactory;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -70,7 +70,7 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
 
         // The result from invoking the TargetObject should contain the
         // Authentication class delivered via the SecurityContextHolder
-        assertEquals("some_string net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken false",
+        assertEquals("some_string org.acegisecurity.providers.UsernamePasswordAuthenticationToken false",
             remoteInvocation.invoke(new TargetObject()));
     }
 

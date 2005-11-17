@@ -1,4 +1,4 @@
-package net.sf.acegisecurity.providers.dao.ldap;
+package org.acegisecurity.providers.dao.ldap;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -11,11 +11,11 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.dao.User;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.dao.User;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,7 +34,7 @@ import org.springframework.dao.DataAccessResourceFailureException;
  * <p>The following examples would be linked into the main Acegi 
  *    configuration by: <br/>
  *    <bean id="passwordAuthenticationProvider" 
- *       class="net.sf.acegisecurity.providers.dao.PasswordDaoAuthenticationProvider">   <br/>
+ *       class="org.acegisecurity.providers.dao.PasswordDaoAuthenticationProvider">   <br/>
  *       <property name="passwordAuthenticationDao">                                     <br/>
  *         <ref bean="passwordAuthenticationDao"/>                                       <br/>
  *       </property>                                                                     <br/>
@@ -44,7 +44,7 @@ import org.springframework.dao.DataAccessResourceFailureException;
  * <h5 title="as seen in the Unit tests">'Standard' LDAP Settings</h5>
  * <p>
  *   <bean id="passwordAuthenticationDao"
- *       class="net.sf.acegisecurity.providers.dao.ldap.LdapPasswordAuthenticationDao">      <br/>
+ *       class="org.acegisecurity.providers.dao.ldap.LdapPasswordAuthenticationDao">      <br/>
  *       <property name="url"><value>ldap://localhost:389/ou=system</value></property>      <br/>
  *       <property name="usernameFormat"><value>uid={0},ou=users,ou=system</value></property>      <br/>
  *       <property name="userLookupNameFormat"><value>uid={0},ou=users</value></property>      <br/>
@@ -56,7 +56,7 @@ import org.springframework.dao.DataAccessResourceFailureException;
  * 	I haven't been able to test this directly, 
  *  but something like the following should do the trick:     <br/>
  *   <bean id="passwordAuthenticationDao"
- *       class="net.sf.acegisecurity.providers.dao.ldap.LdapPasswordAuthenticationDao">      <br/>
+ *       class="org.acegisecurity.providers.dao.ldap.LdapPasswordAuthenticationDao">      <br/>
  *       <property name="url"><value>ldap://localhost:389/ou=system</value></property>      <br/>
  *       <property name="usernameFormat"><value>{0}@adDomainName</value></property>      <br/>
  *   </bean>      <br/>

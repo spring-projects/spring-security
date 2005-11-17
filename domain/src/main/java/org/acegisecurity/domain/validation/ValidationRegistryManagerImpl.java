@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.validation;
+package org.acegisecurity.domain.validation;
 
 import java.util.HashMap;
 import java.util.HashSet;

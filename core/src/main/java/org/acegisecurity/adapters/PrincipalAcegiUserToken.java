@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters;
+package org.acegisecurity.adapters;
 
-import net.sf.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthority;
 
 import java.security.Principal;
 
 
 /**
- * A {@link Principal} compatible  {@link net.sf.acegisecurity.Authentication}
+ * A {@link Principal} compatible  {@link org.acegisecurity.Authentication}
  * object.
  *
  * @author Ben Alex

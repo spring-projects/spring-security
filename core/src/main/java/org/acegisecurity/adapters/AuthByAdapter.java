@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters;
+package org.acegisecurity.adapters;
 
-import net.sf.acegisecurity.Authentication;
+import org.acegisecurity.Authentication;
 
 
 /**

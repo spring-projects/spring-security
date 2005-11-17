@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.acl.basic.cache;
+package org.acegisecurity.acl.basic.cache;
 
-import net.sf.acegisecurity.acl.basic.AclObjectIdentity;
-import net.sf.acegisecurity.acl.basic.BasicAclEntry;
-import net.sf.acegisecurity.acl.basic.BasicAclEntryCache;
+import org.acegisecurity.acl.basic.AclObjectIdentity;
+import org.acegisecurity.acl.basic.BasicAclEntry;
+import org.acegisecurity.acl.basic.BasicAclEntryCache;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;

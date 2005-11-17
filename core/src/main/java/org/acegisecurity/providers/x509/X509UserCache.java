@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.x509;
+package org.acegisecurity.providers.x509;
 
-import net.sf.acegisecurity.UserDetails;
+import org.acegisecurity.UserDetails;
 
 import java.security.cert.X509Certificate;
 
@@ -23,7 +23,7 @@ import java.security.cert.X509Certificate;
  * Provides a cache of {@link UserDetails} objects for the
  * {@link X509AuthenticationProvider}.
  * <p>
- * Similar in function to the {@link net.sf.acegisecurity.providers.dao.UserCache}
+ * Similar in function to the {@link org.acegisecurity.providers.dao.UserCache}
  * used by the Dao provider, but the cache is keyed with the user's certificate
  * rather than the user name.  
  * </p>

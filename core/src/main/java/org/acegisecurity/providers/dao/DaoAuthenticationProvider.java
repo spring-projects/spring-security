@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao;
+package org.acegisecurity.providers.dao;
 
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationServiceException;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.AuthenticationProvider;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.providers.encoding.PasswordEncoder;
-import net.sf.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationServiceException;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.AuthenticationProvider;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.providers.encoding.PasswordEncoder;
+import org.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
 
 import org.springframework.dao.DataAccessException;
 

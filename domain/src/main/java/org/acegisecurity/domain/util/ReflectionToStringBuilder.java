@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.domain.util;
+package org.acegisecurity.domain.util;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -21,7 +21,7 @@ import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 
-import net.sf.acegisecurity.domain.PersistableEntity;
+import org.acegisecurity.domain.PersistableEntity;
 
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.logging.Log;

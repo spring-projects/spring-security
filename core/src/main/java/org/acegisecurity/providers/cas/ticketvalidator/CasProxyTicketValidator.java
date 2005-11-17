@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.cas.ticketvalidator;
+package org.acegisecurity.providers.cas.ticketvalidator;
 
 import edu.yale.its.tp.cas.client.ProxyTicketValidator;
 
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationServiceException;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.providers.cas.TicketResponse;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationServiceException;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.providers.cas.TicketResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

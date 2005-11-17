@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.adapters;
+package org.acegisecurity.adapters;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.context.SecurityContextHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,7 +49,7 @@ import javax.servlet.http.HttpServletRequest;
  * </p>
  * 
  * <p>
- * See {@link net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter}
+ * See {@link org.acegisecurity.context.HttpSessionContextIntegrationFilter}
  * for further information.
  * </p>
  *

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
-import net.sf.acegisecurity.providers.AbstractAuthenticationToken;
+import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 
 /**

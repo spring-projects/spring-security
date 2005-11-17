@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.session;
+package org.acegisecurity.ui.session;
 
 import junit.framework.TestCase;
 
@@ -25,7 +25,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.http.HttpSessionEvent;
 
-import net.sf.acegisecurity.MockApplicationContext;
+import org.acegisecurity.MockApplicationContext;
 
 
 /**

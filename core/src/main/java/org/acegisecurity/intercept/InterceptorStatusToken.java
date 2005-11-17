@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept;
+package org.acegisecurity.intercept;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.ConfigAttributeDefinition;
 
 
 /**
@@ -25,7 +25,7 @@ import net.sf.acegisecurity.ConfigAttributeDefinition;
  * <P>
  * This class reflects the status of the security interception, so that the
  * final call to {@link
- * net.sf.acegisecurity.intercept.AbstractSecurityInterceptor#afterInvocation(InterceptorStatusToken,
+ * org.acegisecurity.intercept.AbstractSecurityInterceptor#afterInvocation(InterceptorStatusToken,
  * Object)} can tidy up correctly.
  * </p>
  *

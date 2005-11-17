@@ -22,7 +22,7 @@
   <pomVersion>3</pomVersion>
   <groupId>acegisecurity</groupId>
   <currentVersion>1.0.0-SNAPSHOT</currentVersion>
-  <package>net.sf.acegisecurity</package>
+  <package>org.acegisecurity</package>
   <description>Acegi Security System for Spring</description>
   <shortDescription>Acegi Security System for Spring</shortDescription>
   <organization>

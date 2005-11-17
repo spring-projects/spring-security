@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.runas;
+package org.acegisecurity.runas;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.RunAsManager;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.RunAsManager;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -51,13 +51,13 @@ import java.util.Vector;
  * elsewhere, for example when using an existing role database with another
  * prefix. An empty role prefix may also be specified. Note however that there
  * are potential issues with using an empty role prefix since different
- * categories of  {@link net.sf.acegisecurity.ConfigAttribute} can not be
+ * categories of  {@link org.acegisecurity.ConfigAttribute} can not be
  * properly discerned based on the prefix, with possible consequences when
  * performing voting and other actions. However, this option may be of some
  * use when using preexisting role names without a prefix, and no ability
  * exists to prefix them with a role prefix on reading them in, such as
  * provided for example in  {@link
- * net.sf.acegisecurity.providers.dao.jdbc.JdbcDaoImpl}.
+ * org.acegisecurity.providers.dao.jdbc.JdbcDaoImpl}.
  * </p>
  *
  * @author Ben Alex

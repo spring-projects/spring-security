@@ -12,17 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sf.acegisecurity.intercept.web;
+package org.acegisecurity.intercept.web;
 
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationTrustResolver;
-import net.sf.acegisecurity.AuthenticationTrustResolverImpl;
-import net.sf.acegisecurity.InsufficientAuthenticationException;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.ui.AbstractProcessingFilter;
-import net.sf.acegisecurity.util.PortResolver;
-import net.sf.acegisecurity.util.PortResolverImpl;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationTrustResolver;
+import org.acegisecurity.AuthenticationTrustResolverImpl;
+import org.acegisecurity.InsufficientAuthenticationException;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.ui.AbstractProcessingFilter;
+import org.acegisecurity.util.PortResolver;
+import org.acegisecurity.util.PortResolverImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,7 +55,7 @@ import javax.servlet.http.HttpServletResponse;
  * If an {@link AuthenticationException} is detected, the filter will launch
  * the <code>authenticationEntryPoint</code>. This allows common handling of
  * authentication failures originating from any subclass of {@link
- * net.sf.acegisecurity.intercept.AbstractSecurityInterceptor}.
+ * org.acegisecurity.intercept.AbstractSecurityInterceptor}.
  * </p>
  *
  * <p>
@@ -96,7 +96,7 @@ import javax.servlet.http.HttpServletResponse;
  * <P>
  * <B>Do not use this class directly.</B> Instead configure
  * <code>web.xml</code> to use the {@link
- * net.sf.acegisecurity.util.FilterToBeanProxy}.
+ * org.acegisecurity.util.FilterToBeanProxy}.
  * </p>
  *
  * @author Ben Alex
@@ -132,7 +132,7 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
      * default). In situations where you do not wish to unnecessarily create <code>HttpSession</code>s
      * - because the user agent will know the failed URL, such as with BASIC or Digest authentication
      * - you may wish to set this property to <code>false</code>. Remember to also set the
-     * {@link net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter#allowSessionCreation}
+     * {@link org.acegisecurity.context.HttpSessionContextIntegrationFilter#allowSessionCreation}
      * to <code>false</code> if you set this property to <code>false</code>.
      *
      * @return <code>true</code> if the <code>HttpSession</code> will be used to store information

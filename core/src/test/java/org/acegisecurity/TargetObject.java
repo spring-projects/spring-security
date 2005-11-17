@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
-import net.sf.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.context.SecurityContextHolder;
 
 
 /**

@@ -13,24 +13,24 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.intercept;
+package org.acegisecurity.intercept;
 
-import net.sf.acegisecurity.AccessDecisionManager;
-import net.sf.acegisecurity.AccessDeniedException;
-import net.sf.acegisecurity.AfterInvocationManager;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationCredentialsNotFoundException;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.ConfigAttribute;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.RunAsManager;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.event.authorization.AuthenticationCredentialsNotFoundEvent;
-import net.sf.acegisecurity.event.authorization.AuthorizationFailureEvent;
-import net.sf.acegisecurity.event.authorization.AuthorizedEvent;
-import net.sf.acegisecurity.event.authorization.PublicInvocationEvent;
-import net.sf.acegisecurity.runas.NullRunAsManager;
+import org.acegisecurity.AccessDecisionManager;
+import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.AfterInvocationManager;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationCredentialsNotFoundException;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationManager;
+import org.acegisecurity.ConfigAttribute;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.RunAsManager;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.event.authorization.AuthenticationCredentialsNotFoundEvent;
+import org.acegisecurity.event.authorization.AuthorizationFailureEvent;
+import org.acegisecurity.event.authorization.AuthorizedEvent;
+import org.acegisecurity.event.authorization.PublicInvocationEvent;
+import org.acegisecurity.runas.NullRunAsManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,7 +71,7 @@ import java.util.Set;
  * 
  * <ol type="a">
  * <li>
- * If either the {@link net.sf.acegisecurity.Authentication#isAuthenticated()}
+ * If either the {@link org.acegisecurity.Authentication#isAuthenticated()}
  * returns <code>false</code>, or the {@link #alwaysReauthenticate} is
  * <code>true</code>,  authenticate the request against the configured {@link
  * AuthenticationManager}. When authenticated, replace the

@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.taglibs.authz;
+package org.acegisecurity.taglibs.authz;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.acl.AclEntry;
-import net.sf.acegisecurity.acl.AclManager;
-import net.sf.acegisecurity.acl.basic.BasicAclEntry;
-import net.sf.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.acl.AclEntry;
+import org.acegisecurity.acl.AclManager;
+import org.acegisecurity.acl.basic.BasicAclEntry;
+import org.acegisecurity.context.SecurityContextHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,7 +47,7 @@ import javax.servlet.jsp.tagext.TagSupport;
  * 
  * <P>
  * Only works with permissions that are subclasses of {@link
- * net.sf.acegisecurity.acl.basic.BasicAclEntry}.
+ * org.acegisecurity.acl.basic.BasicAclEntry}.
  * </p>
  * 
  * <p>

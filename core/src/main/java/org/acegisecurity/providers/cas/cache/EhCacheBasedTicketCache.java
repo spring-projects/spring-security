@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.cas.cache;
+package org.acegisecurity.providers.cas.cache;
 
-import net.sf.acegisecurity.providers.cas.CasAuthenticationToken;
-import net.sf.acegisecurity.providers.cas.StatelessTicketCache;
+import org.acegisecurity.providers.cas.CasAuthenticationToken;
+import org.acegisecurity.providers.cas.StatelessTicketCache;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;

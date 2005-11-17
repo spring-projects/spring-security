@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.securechannel;
+package org.acegisecurity.securechannel;
 
 import junit.framework.TestCase;
 
 
 
-import net.sf.acegisecurity.MockPortResolver;
+import org.acegisecurity.MockPortResolver;
 
-import net.sf.acegisecurity.util.PortMapperImpl;
+import org.acegisecurity.util.PortMapperImpl;
 
 import java.util.HashMap;
 import java.util.Map;

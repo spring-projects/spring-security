@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.wrapper;
+package org.acegisecurity.wrapper;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationTrustResolver;
-import net.sf.acegisecurity.AuthenticationTrustResolverImpl;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationTrustResolver;
+import org.acegisecurity.AuthenticationTrustResolverImpl;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.context.SecurityContextHolder;
 
 import java.security.Principal;
 

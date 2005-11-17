@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.cas;
+package org.acegisecurity.providers.cas;
 
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.UserDetails;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.UserDetails;
 
 
 /**

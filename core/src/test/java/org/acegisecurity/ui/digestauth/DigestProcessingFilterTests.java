@@ -13,19 +13,19 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.digestauth;
+package org.acegisecurity.ui.digestauth;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.DisabledException;
-import net.sf.acegisecurity.MockFilterConfig;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.context.SecurityContextImpl;
-import net.sf.acegisecurity.providers.dao.AuthenticationDao;
-import net.sf.acegisecurity.providers.dao.UserCache;
-import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
-import net.sf.acegisecurity.util.StringSplitUtils;
+import org.acegisecurity.DisabledException;
+import org.acegisecurity.MockFilterConfig;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.context.SecurityContextImpl;
+import org.acegisecurity.providers.dao.AuthenticationDao;
+import org.acegisecurity.providers.dao.UserCache;
+import org.acegisecurity.providers.dao.UsernameNotFoundException;
+import org.acegisecurity.util.StringSplitUtils;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -126,7 +126,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
                 "digestProcessingFilter");
 
@@ -161,7 +161,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
                 "digestProcessingFilter");
 
@@ -205,7 +205,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
                 "digestProcessingFilter");
 
@@ -232,7 +232,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
                 "digestProcessingFilter");
 
@@ -275,7 +275,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
                 "digestProcessingFilter");
 
@@ -319,7 +319,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
                 "digestProcessingFilter");
 
@@ -363,7 +363,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
                 "digestProcessingFilter");
 
@@ -407,7 +407,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
                 "digestProcessingFilter");
 
@@ -449,7 +449,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
                 "digestProcessingFilter");
 
@@ -479,7 +479,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
                 "digestProcessingFilter");
 
@@ -547,7 +547,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
                 "digestProcessingFilter");
 
@@ -605,7 +605,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
                 "digestProcessingFilter");
 
@@ -647,7 +647,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
                 "digestProcessingFilter");
 
@@ -689,7 +689,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
                 "digestProcessingFilter");
 
@@ -731,7 +731,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Launch an application context and access our bean
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
                 "digestProcessingFilter");
 
@@ -780,7 +780,7 @@ public class DigestProcessingFilterTests extends TestCase {
     private Map generateValidHeaders(int nonceValidityPeriod)
         throws Exception {
         ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "net/sf/acegisecurity/ui/digestauth/filtertest-valid.xml");
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
         DigestProcessingFilterEntryPoint ep = (DigestProcessingFilterEntryPoint) ctx
             .getBean("digestProcessingFilterEntryPoint");
         ep.setNonceValiditySeconds(nonceValidityPeriod);

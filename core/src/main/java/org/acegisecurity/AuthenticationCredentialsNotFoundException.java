@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
 /**
  * Thrown if an authentication request is rejected because there is no {@link
- * Authentication} object in the  {@link net.sf.acegisecurity.context.SecurityContext SecurityContext}.
+ * Authentication} object in the  {@link org.acegisecurity.context.SecurityContext SecurityContext}.
  *
  * @author Ben Alex
  * @version $Id$

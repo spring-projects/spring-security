@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.smb;
+package org.acegisecurity.providers.smb;
 
 import jcifs.Config;
 import jcifs.UniAddress;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.BadCredentialsException;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import java.net.UnknownHostException;
 

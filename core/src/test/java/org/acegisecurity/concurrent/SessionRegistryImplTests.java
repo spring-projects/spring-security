@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.concurrent;
+package org.acegisecurity.concurrent;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.ui.session.HttpSessionDestroyedEvent;
+import org.acegisecurity.ui.session.HttpSessionDestroyedEvent;
 
 import org.springframework.mock.web.MockHttpSession;
 

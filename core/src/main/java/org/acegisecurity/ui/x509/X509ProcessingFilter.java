@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.x509;
+package org.acegisecurity.ui.x509;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.AuthenticationManager;
-import net.sf.acegisecurity.context.SecurityContextHolder;
-import net.sf.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
-import net.sf.acegisecurity.providers.x509.X509AuthenticationToken;
-import net.sf.acegisecurity.ui.AbstractProcessingFilter;
-import net.sf.acegisecurity.ui.WebAuthenticationDetails;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationManager;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
+import org.acegisecurity.providers.x509.X509AuthenticationToken;
+import org.acegisecurity.ui.AbstractProcessingFilter;
+import org.acegisecurity.ui.WebAuthenticationDetails;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,12 +55,12 @@ import javax.servlet.http.HttpServletResponse;
  * <p>
  * The configured authentication manager is expected to supply a provider which
  * can handle this token (usually an instance of {@link
- * net.sf.acegisecurity.providers.x509.X509AuthenticationProvider}).
+ * org.acegisecurity.providers.x509.X509AuthenticationProvider}).
  * </p>
  * 
  * <p>
  * If authentication is successful, an {@link
- * net.sf.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent} will be
+ * org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent} will be
  * published to the application context. No events will be published if
  * authentication was unsuccessful, because this would generally be recorded
  * via an <code>AuthenticationManager</code>-specific application event.
@@ -69,7 +69,7 @@ import javax.servlet.http.HttpServletResponse;
  * <p>
  * <b>Do not use this class directly.</b> Instead configure
  * <code>web.xml</code> to use the {@link
- * net.sf.acegisecurity.util.FilterToBeanProxy}.
+ * org.acegisecurity.util.FilterToBeanProxy}.
  * </p>
  *
  * @author Luke Taylor

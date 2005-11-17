@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.smb;
+package org.acegisecurity.providers.smb;
 
-import net.sf.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationException;
 
 
 /**

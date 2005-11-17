@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao.ldap.support;
+package org.acegisecurity.providers.dao.ldap.support;
 
 import junit.framework.TestCase;
 
@@ -71,8 +71,8 @@ public class BaseLdapTestCase extends TestCase {
      * reference it (with the possible exception of comparing return values 
      * between the Server Context and the Client Context).
      * 
-     * @see net.sf.acegisecurity.providers.dao.ldap.support.EmbeddedLdapServerController
-     * @see net.sf.acegisecurity.providers.dao.ldap.support.LdapDirInitializer
+     * @see org.acegisecurity.providers.dao.ldap.support.EmbeddedLdapServerController
+     * @see org.acegisecurity.providers.dao.ldap.support.LdapDirInitializer
      *
      * @return The server context for LDAP operations; used for things like
      *         addding/removing users to to test against.

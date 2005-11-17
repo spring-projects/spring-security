@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.context.httpinvoker;
+package org.acegisecurity.context.httpinvoker;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationCredentialsNotFoundException;
-import net.sf.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationCredentialsNotFoundException;
+import org.acegisecurity.context.SecurityContextHolder;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;

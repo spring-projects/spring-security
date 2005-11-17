@@ -13,19 +13,19 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.jaas;
+package org.acegisecurity.providers.jaas;
 
-import net.sf.acegisecurity.AcegiSecurityException;
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.AuthenticationException;
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter;
-import net.sf.acegisecurity.context.SecurityContext;
-import net.sf.acegisecurity.providers.AuthenticationProvider;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.providers.jaas.event.JaasAuthenticationFailedEvent;
-import net.sf.acegisecurity.providers.jaas.event.JaasAuthenticationSuccessEvent;
-import net.sf.acegisecurity.ui.session.HttpSessionDestroyedEvent;
+import org.acegisecurity.AcegiSecurityException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.context.HttpSessionContextIntegrationFilter;
+import org.acegisecurity.context.SecurityContext;
+import org.acegisecurity.providers.AuthenticationProvider;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.providers.jaas.event.JaasAuthenticationFailedEvent;
+import org.acegisecurity.providers.jaas.event.JaasAuthenticationSuccessEvent;
+import org.acegisecurity.ui.session.HttpSessionDestroyedEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
@@ -58,7 +58,7 @@ import java.util.Set;
  *
  * <p>
  * This <code>AuthenticationProvider</code> is capable of validating {@link
- * net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken}
+ * org.acegisecurity.providers.UsernamePasswordAuthenticationToken}
  * requests contain the correct username and password.
  * </p>
  *
@@ -89,7 +89,7 @@ import java.util.Set;
  * following...
  * <pre>
  *  JAASTest {
- *  net.sf.acegisecurity.providers.jaas.TestLoginModule required;
+ *  org.acegisecurity.providers.jaas.TestLoginModule required;
  *  };
  *  </pre>
  * Using the example login configuration above, the loginContextName property
@@ -116,14 +116,14 @@ import java.util.Set;
  * <p>
  * {{@link JaasAuthenticationCallbackHandler}s are passed to the
  * JaasAuthenticationProvider through the {@link
- * #setCallbackHandlers(net.sf.acegisecurity.providers.jaas.JaasAuthenticationCallbackHandler[])
+ * #setCallbackHandlers(org.acegisecurity.providers.jaas.JaasAuthenticationCallbackHandler[])
  * callbackHandlers} property. }
  * <pre>
  *  &lt;property name="callbackHandlers"&gt;
  *  &lt;list&gt;
- *  &lt;bean class="net.sf.acegisecurity.providers.jaas.TestCallbackHandler"/&gt;
- *  &lt;bean class="{@link JaasNameCallbackHandler net.sf.acegisecurity.providers.jaas.JaasNameCallbackHandler}"/&gt;
- *  &lt;bean class="{@link JaasPasswordCallbackHandler net.sf.acegisecurity.providers.jaas.JaasPasswordCallbackHandler}"/&gt;
+ *  &lt;bean class="org.acegisecurity.providers.jaas.TestCallbackHandler"/&gt;
+ *  &lt;bean class="{@link JaasNameCallbackHandler org.acegisecurity.providers.jaas.JaasNameCallbackHandler}"/&gt;
+ *  &lt;bean class="{@link JaasPasswordCallbackHandler org.acegisecurity.providers.jaas.JaasPasswordCallbackHandler}"/&gt;
  *  &lt;/list&gt;
  *  &lt;/property&gt;
  *  </pre>
@@ -146,7 +146,7 @@ import java.util.Set;
  * <pre>
  *  &lt;property name="authorityGranters"&gt;
  *  &lt;list&gt;
- *  &lt;bean class="net.sf.acegisecurity.providers.jaas.TestAuthorityGranter"/&gt;
+ *  &lt;bean class="org.acegisecurity.providers.jaas.TestAuthorityGranter"/&gt;
  *  &lt;/list&gt;
  *  &lt;/property&gt;
  *  <p/>

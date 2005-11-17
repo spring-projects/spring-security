@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.dao.salt;
+package org.acegisecurity.providers.dao.salt;
 
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.dao.SaltSource;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.dao.SaltSource;
 
 import org.springframework.beans.factory.InitializingBean;
 

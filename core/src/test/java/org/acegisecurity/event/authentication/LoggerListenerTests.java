@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.event.authentication;
+package org.acegisecurity.event.authentication;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.LockedException;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.LockedException;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 
 /**

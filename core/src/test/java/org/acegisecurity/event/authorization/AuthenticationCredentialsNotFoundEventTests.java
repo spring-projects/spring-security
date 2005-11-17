@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.event.authorization;
+package org.acegisecurity.event.authorization;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.AuthenticationCredentialsNotFoundException;
-import net.sf.acegisecurity.ConfigAttributeDefinition;
-import net.sf.acegisecurity.MockMethodInvocation;
+import org.acegisecurity.AuthenticationCredentialsNotFoundException;
+import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.MockMethodInvocation;
 
 
 /**

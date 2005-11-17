@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.wrapper.redirect;
+package org.acegisecurity.wrapper.redirect;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -26,8 +26,8 @@ import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter;
-import net.sf.acegisecurity.wrapper.SecurityContextHolderAwareRequestWrapper;
+import org.acegisecurity.intercept.web.SecurityEnforcementFilter;
+import org.acegisecurity.wrapper.SecurityContextHolderAwareRequestWrapper;
 
 /**
  * <p>

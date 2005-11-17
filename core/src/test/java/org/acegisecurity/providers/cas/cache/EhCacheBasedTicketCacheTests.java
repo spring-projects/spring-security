@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.cas.cache;
+package org.acegisecurity.providers.cas.cache;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.MockApplicationContext;
-import net.sf.acegisecurity.providers.cas.CasAuthenticationToken;
-import net.sf.acegisecurity.providers.dao.User;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.MockApplicationContext;
+import org.acegisecurity.providers.cas.CasAuthenticationToken;
+import org.acegisecurity.providers.dao.User;
 
 import net.sf.ehcache.Cache;
 

@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.taglibs.authz;
+package org.acegisecurity.taglibs.authz;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.context.SecurityContext;
-import net.sf.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.context.SecurityContext;
+import org.acegisecurity.context.SecurityContextHolder;
 
 import java.io.IOException;
 

@@ -5,25 +5,25 @@
 
 <beans>
 
-    <bean id="eventCheck" class="net.sf.acegisecurity.providers.jaas.JaasEventCheck"/>
+    <bean id="eventCheck" class="org.acegisecurity.providers.jaas.JaasEventCheck"/>
 
-    <bean id="jaasAuthenticationProvider" class="net.sf.acegisecurity.providers.jaas.JaasAuthenticationProvider">
+    <bean id="jaasAuthenticationProvider" class="org.acegisecurity.providers.jaas.JaasAuthenticationProvider">
         <property name="loginContextName">
             <value>JAASTest</value>
         </property>
         <property name="loginConfig">
-            <value>classpath:net/sf/acegisecurity/providers/jaas/login.conf</value>
+            <value>classpath:org/acegisecurity/providers/jaas/login.conf</value>
         </property>
         <property name="callbackHandlers">
             <list>
-                <bean class="net.sf.acegisecurity.providers.jaas.TestCallbackHandler"/>
-                <bean class="net.sf.acegisecurity.providers.jaas.JaasNameCallbackHandler"/>
-                <bean class="net.sf.acegisecurity.providers.jaas.JaasPasswordCallbackHandler"/>
+                <bean class="org.acegisecurity.providers.jaas.TestCallbackHandler"/>
+                <bean class="org.acegisecurity.providers.jaas.JaasNameCallbackHandler"/>
+                <bean class="org.acegisecurity.providers.jaas.JaasPasswordCallbackHandler"/>
             </list>
         </property>
         <property name="authorityGranters">
             <list>
-                <bean class="net.sf.acegisecurity.providers.jaas.TestAuthorityGranter"/>
+                <bean class="org.acegisecurity.providers.jaas.TestAuthorityGranter"/>
             </list>
         </property>
     </bean>

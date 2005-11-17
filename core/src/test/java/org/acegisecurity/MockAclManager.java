@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
-import net.sf.acegisecurity.acl.AclEntry;
-import net.sf.acegisecurity.acl.AclManager;
+import org.acegisecurity.acl.AclEntry;
+import org.acegisecurity.acl.AclManager;
 
 
 /**

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -31,6 +31,6 @@ public class MockApplicationContext {
 
     public static ConfigurableApplicationContext getContext() {
         return new ClassPathXmlApplicationContext(
-            "net/sf/acegisecurity/applicationContext.xml");
+            "org/acegisecurity/applicationContext.xml");
     }
 }

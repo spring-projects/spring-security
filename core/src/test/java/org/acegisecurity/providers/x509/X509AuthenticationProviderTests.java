@@ -13,19 +13,19 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.providers.x509;
+package org.acegisecurity.providers.x509;
 
 import junit.framework.TestCase;
 
-import net.sf.acegisecurity.*;
-import net.sf.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import net.sf.acegisecurity.providers.dao.User;
+import org.acegisecurity.*;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.providers.dao.User;
 
 import java.security.cert.X509Certificate;
 
 
 /**
- * Tests {@link net.sf.acegisecurity.providers.x509.X509AuthenticationProvider}
+ * Tests {@link org.acegisecurity.providers.x509.X509AuthenticationProvider}
  *
  * @author Luke Taylor
  * @version $Id$

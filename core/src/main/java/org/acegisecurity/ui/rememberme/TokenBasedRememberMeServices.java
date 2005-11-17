@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity.ui.rememberme;
+package org.acegisecurity.ui.rememberme;
 
-import net.sf.acegisecurity.Authentication;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.dao.AuthenticationDao;
-import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
-import net.sf.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.providers.dao.AuthenticationDao;
+import org.acegisecurity.providers.dao.UsernameNotFoundException;
+import org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -57,10 +57,10 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
- * An {@link net.sf.acegisecurity.providers.dao.AuthenticationDao} is required
+ * An {@link org.acegisecurity.providers.dao.AuthenticationDao} is required
  * by this implementation, so that it can construct a valid
  * <code>Authentication</code> from the returned {@link
- * net.sf.acegisecurity.UserDetails}. This is also necessary so that the
+ * org.acegisecurity.UserDetails}. This is also necessary so that the
  * user's password is available and can be checked as part of the encoded
  * cookie.
  * </p>

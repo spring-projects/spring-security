@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package net.sf.acegisecurity;
+package org.acegisecurity;
 
 import java.io.Serializable;
 
@@ -22,7 +22,7 @@ import java.io.Serializable;
  * Stores a security system related configuration attribute.
  * 
  * <p>
- * When an {@link net.sf.acegisecurity.intercept.AbstractSecurityInterceptor}
+ * When an {@link org.acegisecurity.intercept.AbstractSecurityInterceptor}
  * is setup, a list of configuration attributes is defined for secure object
  * patterns. These configuration attributes have special meaning to a {@link
  * RunAsManager}, {@link AccessDecisionManager} or
