@@ -107,8 +107,17 @@
       <id>markstg</id>
       <email>markstg at users.sourceforge.net</email>
     </developer>
+    <developer>
+      <name>Scott McCrory</name>
+      <id>smccrory</id>
+      <email>smccrory at users.sourceforge.net</email>
+      <timezone>-5</timezone>
+    </developer>
   </developers>
   <contributors>
+  	<contributor>
+  		<name>Alef Arendsen</name>
+  	</contributor>
     <contributor>
       <name>Cameron Braid</name>
     </contributor>
@@ -122,7 +131,13 @@
       <name>Scott Evans</name>
     </contributor>
     <contributor>
+      <name>Andrey Grebnev</name>
+    </contributor>
+    <contributor>
       <name>Travis Gregg</name>
+    </contributor>
+    <contributor>
+      <name>Seth Ladd</name>
     </contributor>
     <contributor>
       <name>Karel Miarka</name>
