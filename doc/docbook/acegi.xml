@@ -432,8 +432,8 @@
 
           <listitem>
             <para>Obtain the <literal>Authentication</literal> object from the
-            <literal>SecureContext</literal>, which is held in the
-            <literal>ContextHolder</literal>.</para>
+            <literal>SecurityContext</literal>, which is held in the
+            <literal>SecurityContextHolder</literal>.</para>
           </listitem>
 
           <listitem>
@@ -4976,9 +4976,9 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
 
       <blockquote>
         <para>Context on SecurityContextHolder is of type:
-        org.acegisecurity.context.secure.SecureContextImpl</para>
+        org.acegisecurity.context.SecurityContextImpl</para>
 
-        <para>The Context implements SecureContext.</para>
+        <para>The Context implements SecurityContext.</para>
 
         <para>Authentication object is of type:
         org.acegisecurity.adapters.PrincipalAcegiUserToken</para>
