@@ -85,6 +85,28 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
             remoteInvocation.invoke(new TargetObject()));
     }
 
+    public void testContextIsResetEvenIfExceptionOccurs() throws Exception {
+        // Setup client-side context
+        Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("marissa",
+                "koala");
+        SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
+
+        ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
+
+        try {
+            // Set up the wrong arguments.
+            remoteInvocation.setArguments(new Object[] {});
+            remoteInvocation.invoke(TargetObject.class.newInstance());
+            fail("Expected IllegalArgumentException");
+        } catch(IllegalArgumentException e) {
+            // expected
+        }
+
+        assertNull("Authentication must be null ", SecurityContextHolder.getContext().getAuthentication());
+
+    }
+
+
     private ContextPropagatingRemoteInvocation getRemoteInvocation()
         throws Exception {
         Class clazz = TargetObject.class;

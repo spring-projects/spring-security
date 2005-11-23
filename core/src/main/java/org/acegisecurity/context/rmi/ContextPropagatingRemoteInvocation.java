@@ -117,15 +117,18 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
                 + securityContext);
         }
 
-        Object result = super.invoke(targetObject);
+        try {
 
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+            return super.invoke(targetObject);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug(
-                "Set SecurityContext to new instance of SecurityContextImpl");
+        } finally {
+
+            SecurityContextHolder.setContext(new SecurityContextImpl());
+
+            if (logger.isDebugEnabled()) {
+                logger.debug(
+                    "Set SecurityContext to new instance of SecurityContextImpl");
+            }
         }
-
-        return result;
     }
 }
