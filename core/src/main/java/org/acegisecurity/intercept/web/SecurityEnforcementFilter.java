@@ -278,6 +278,10 @@ public class SecurityEnforcementFilter implements Filter, InitializingBean {
             ((HttpServletRequest) request).getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
                 targetUrl);
         }
+        
+        // SEC-112: Clear the SecurityContextHolder's Authentication, as the
+        // existing Authentication is no longer considered valid
+        SecurityContextHolder.getContext().setAuthentication(null);
 
         authenticationEntryPoint.commence(request,
             (HttpServletResponse) fi.getResponse(), reason);
