@@ -1257,7 +1257,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 &lt;/bean&gt;
 
 &lt;bean id="concurrentSessionController" class="org.acegisecurity.concurrent.ConcurrentSessionControllerImpl"&gt;
-  &lt;property name="maxSessions"&gt;&lt;value&gt;1&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="maximumSessions"&gt;&lt;value&gt;1&lt;/value&gt;&lt;/property&gt;
   &lt;property name="sessionRegistry"&gt;&lt;ref local="sessionRegistry"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
