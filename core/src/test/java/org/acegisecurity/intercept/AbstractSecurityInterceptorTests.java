@@ -20,9 +20,9 @@ import junit.framework.TestCase;
 import org.acegisecurity.MockAccessDecisionManager;
 import org.acegisecurity.MockAfterInvocationManager;
 import org.acegisecurity.MockAuthenticationManager;
-import org.acegisecurity.MockMethodInvocation;
 import org.acegisecurity.MockRunAsManager;
 import org.acegisecurity.intercept.method.MockMethodDefinitionSource;
+import org.acegisecurity.util.SimpleMethodInvocation;
 
 
 /**
@@ -60,7 +60,7 @@ public class AbstractSecurityInterceptorTests extends TestCase {
         si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
 
         try {
-            si.beforeInvocation(new MockMethodInvocation());
+            si.beforeInvocation(new SimpleMethodInvocation());
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(expected.getMessage().startsWith("Security invocation attempted for object"));

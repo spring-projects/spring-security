@@ -17,7 +17,7 @@ package org.acegisecurity.intercept.method;
 
 import junit.framework.TestCase;
 
-import org.acegisecurity.MockMethodInvocation;
+import org.acegisecurity.util.SimpleMethodInvocation;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -85,7 +85,7 @@ public class AbstractMethodDefinitionSourceTests extends TestCase {
                 true);
 
         try {
-            mds.getAttributes(new MockMethodInvocation());
+            mds.getAttributes(new SimpleMethodInvocation());
             fail("Should have thrown UnsupportedOperationException");
         } catch (UnsupportedOperationException expected) {
             assertTrue(true);

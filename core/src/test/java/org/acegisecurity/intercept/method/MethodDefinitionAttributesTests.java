@@ -22,13 +22,13 @@ import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.ITargetObject;
-import org.acegisecurity.MockMethodInvocation;
 import org.acegisecurity.OtherTargetObject;
 import org.acegisecurity.SecurityConfig;
 import org.acegisecurity.TargetObject;
 import org.acegisecurity.acl.basic.SomeDomain;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.util.SimpleMethodInvocation;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -209,7 +209,7 @@ public class MethodDefinitionAttributesTests extends TestCase {
         MethodDefinitionAttributes source = new MethodDefinitionAttributes();
         source.setAttributes(new MockAttributes());
 
-        ConfigAttributeDefinition config = source.getAttributes(new MockMethodInvocation() {
+        ConfigAttributeDefinition config = source.getAttributes(new SimpleMethodInvocation() {
                     public Method getMethod() {
                         return method;
                     }

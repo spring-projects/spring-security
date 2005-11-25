@@ -18,9 +18,9 @@ package org.acegisecurity.intercept;
 import junit.framework.TestCase;
 
 import org.acegisecurity.ConfigAttributeDefinition;
-import org.acegisecurity.MockMethodInvocation;
 import org.acegisecurity.SecurityConfig;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.util.SimpleMethodInvocation;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -61,7 +61,7 @@ public class InterceptorStatusTokenTests extends TestCase {
         ConfigAttributeDefinition attr = new ConfigAttributeDefinition();
         attr.addConfigAttribute(new SecurityConfig("FOO"));
 
-        MethodInvocation mi = new MockMethodInvocation();
+        MethodInvocation mi = new SimpleMethodInvocation();
 
         InterceptorStatusToken token = new InterceptorStatusToken(new UsernamePasswordAuthenticationToken(
                     "marissa", "koala"), true, attr, mi);

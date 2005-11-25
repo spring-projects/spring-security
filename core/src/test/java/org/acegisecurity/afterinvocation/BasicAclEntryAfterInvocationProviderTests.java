@@ -20,13 +20,13 @@ import junit.framework.TestCase;
 import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.MockAclManager;
-import org.acegisecurity.MockMethodInvocation;
 import org.acegisecurity.SecurityConfig;
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.acl.AclManager;
 import org.acegisecurity.acl.basic.MockAclObjectIdentity;
 import org.acegisecurity.acl.basic.SimpleAclEntry;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.util.SimpleMethodInvocation;
 
 
 /**
@@ -75,7 +75,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
         attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_READ"));
 
         try {
-            provider.decide(auth, new MockMethodInvocation(), attr, "belmont");
+            provider.decide(auth, new SimpleMethodInvocation(), attr, "belmont");
             fail("Should have thrown AccessDeniedException");
         } catch (AccessDeniedException expected) {
             assertTrue(true);
@@ -104,7 +104,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
         attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_READ"));
 
         try {
-            provider.decide(auth, new MockMethodInvocation(), attr, "belmont");
+            provider.decide(auth, new SimpleMethodInvocation(), attr, "belmont");
             fail("Should have thrown AccessDeniedException");
         } catch (AccessDeniedException expected) {
             assertTrue(true);
@@ -135,7 +135,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
 
         // Filter
         assertEquals("belmont",
-            provider.decide(auth, new MockMethodInvocation(), attr, "belmont"));
+            provider.decide(auth, new SimpleMethodInvocation(), attr, "belmont"));
     }
 
     public void testGrantsAccessIfReturnedObjectIsNull()
@@ -160,7 +160,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
         attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_READ"));
 
         // Filter
-        assertNull(provider.decide(auth, new MockMethodInvocation(), attr, null));
+        assertNull(provider.decide(auth, new SimpleMethodInvocation(), attr, null));
     }
 
     public void testRespectsModificationsToProcessConfigAttribute()
@@ -185,12 +185,12 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
 
         // As no matching config attrib, ensure provider returns original obj
         assertEquals("sydney",
-            provider.decide(auth, new MockMethodInvocation(), attr, "sydney"));
+            provider.decide(auth, new SimpleMethodInvocation(), attr, "sydney"));
 
         // Filter, this time with the conf attrib provider setup to answer
         attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_ADMIN"));
         assertEquals("sydney",
-            provider.decide(auth, new MockMethodInvocation(), attr, "sydney"));
+            provider.decide(auth, new SimpleMethodInvocation(), attr, "sydney"));
     }
 
     public void testRespectsModificationsToRequirePermissions()
@@ -217,7 +217,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
 
         // Filter
         assertEquals("sydney",
-            provider.decide(auth, new MockMethodInvocation(), attr, "sydney"));
+            provider.decide(auth, new SimpleMethodInvocation(), attr, "sydney"));
     }
 
     public void testStartupDetectsMissingAclManager() throws Exception {

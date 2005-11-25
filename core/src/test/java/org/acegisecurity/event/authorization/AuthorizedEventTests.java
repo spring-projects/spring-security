@@ -18,8 +18,8 @@ package org.acegisecurity.event.authorization;
 import junit.framework.TestCase;
 
 import org.acegisecurity.ConfigAttributeDefinition;
-import org.acegisecurity.MockMethodInvocation;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.util.SimpleMethodInvocation;
 
 
 /**
@@ -55,7 +55,7 @@ public class AuthorizedEventTests extends TestCase {
         }
 
         try {
-            new AuthorizedEvent(new MockMethodInvocation(), null,
+            new AuthorizedEvent(new SimpleMethodInvocation(), null,
                 new UsernamePasswordAuthenticationToken("foo", "bar"));
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
@@ -63,7 +63,7 @@ public class AuthorizedEventTests extends TestCase {
         }
 
         try {
-            new AuthorizedEvent(new MockMethodInvocation(),
+            new AuthorizedEvent(new SimpleMethodInvocation(),
                 new ConfigAttributeDefinition(), null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {

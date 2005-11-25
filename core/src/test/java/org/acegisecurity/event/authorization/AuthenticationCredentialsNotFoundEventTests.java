@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.AuthenticationCredentialsNotFoundException;
 import org.acegisecurity.ConfigAttributeDefinition;
-import org.acegisecurity.MockMethodInvocation;
+import org.acegisecurity.util.SimpleMethodInvocation;
 
 
 /**
@@ -56,7 +56,7 @@ public class AuthenticationCredentialsNotFoundEventTests extends TestCase {
         }
 
         try {
-            new AuthenticationCredentialsNotFoundEvent(new MockMethodInvocation(),
+            new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(),
                 null, new AuthenticationCredentialsNotFoundException("test"));
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
@@ -64,7 +64,7 @@ public class AuthenticationCredentialsNotFoundEventTests extends TestCase {
         }
 
         try {
-            new AuthenticationCredentialsNotFoundEvent(new MockMethodInvocation(),
+            new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(),
                 new ConfigAttributeDefinition(), null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {

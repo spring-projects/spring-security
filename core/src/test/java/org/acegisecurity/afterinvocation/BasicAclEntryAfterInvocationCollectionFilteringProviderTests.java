@@ -20,13 +20,13 @@ import junit.framework.TestCase;
 import org.acegisecurity.AuthorizationServiceException;
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.MockAclManager;
-import org.acegisecurity.MockMethodInvocation;
 import org.acegisecurity.SecurityConfig;
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.acl.AclManager;
 import org.acegisecurity.acl.basic.MockAclObjectIdentity;
 import org.acegisecurity.acl.basic.SimpleAclEntry;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.util.SimpleMethodInvocation;
 
 import java.util.List;
 import java.util.Vector;
@@ -88,7 +88,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests
 
         // Filter
         List filteredList = (List) provider.decide(auth,
-                new MockMethodInvocation(), attr, list);
+                new SimpleMethodInvocation(), attr, list);
 
         assertEquals(0, filteredList.size());
     }
@@ -124,7 +124,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests
 
         // Filter
         List filteredList = (List) provider.decide(auth,
-                new MockMethodInvocation(), attr, list);
+                new SimpleMethodInvocation(), attr, list);
 
         assertEquals(0, filteredList.size());
     }
@@ -161,7 +161,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests
 
         // Filter
         List filteredList = (List) provider.decide(auth,
-                new MockMethodInvocation(), attr, list);
+                new SimpleMethodInvocation(), attr, list);
 
         assertEquals(1, filteredList.size());
         assertEquals("belmont", filteredList.get(0));
@@ -199,7 +199,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests
 
         // Filter
         String[] filteredList = (String[]) provider.decide(auth,
-                new MockMethodInvocation(), attr, list);
+                new SimpleMethodInvocation(), attr, list);
 
         assertEquals(1, filteredList.length);
         assertEquals("belmont", filteredList[0]);
@@ -228,7 +228,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests
 
         // Filter
         try {
-            provider.decide(auth, new MockMethodInvocation(), attr,
+            provider.decide(auth, new SimpleMethodInvocation(), attr,
                 new String("RETURN_OBJECT_NOT_COLLECTION"));
             fail("Should have thrown AuthorizationServiceException");
         } catch (AuthorizationServiceException expected) {
@@ -259,7 +259,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests
 
         // Filter
         List filteredList = (List) provider.decide(auth,
-                new MockMethodInvocation(), attr, null);
+                new SimpleMethodInvocation(), attr, null);
 
         assertNull(filteredList);
     }
@@ -296,14 +296,14 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests
 
         // As no matching config attrib, ensure provider doesn't change list
         assertEquals(4,
-            ((List) provider.decide(auth, new MockMethodInvocation(), attr, list))
+            ((List) provider.decide(auth, new SimpleMethodInvocation(), attr, list))
             .size());
 
         // Filter, this time with the conf attrib provider setup to answer
         attr.addConfigAttribute(new SecurityConfig("AFTER_ACL_COLLECTION_ADMIN"));
 
         List filteredList = (List) provider.decide(auth,
-                new MockMethodInvocation(), attr, list);
+                new SimpleMethodInvocation(), attr, list);
 
         assertEquals(1, filteredList.size());
         assertEquals("sydney", filteredList.get(0));
@@ -341,7 +341,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProviderTests
 
         // Filter
         List filteredList = (List) provider.decide(auth,
-                new MockMethodInvocation(), attr, list);
+                new SimpleMethodInvocation(), attr, list);
 
         assertEquals(1, filteredList.size());
         assertEquals("sydney", filteredList.get(0));

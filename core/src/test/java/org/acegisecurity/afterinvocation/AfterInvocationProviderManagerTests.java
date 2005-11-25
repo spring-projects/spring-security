@@ -21,9 +21,9 @@ import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
-import org.acegisecurity.MockMethodInvocation;
 import org.acegisecurity.SecurityConfig;
 import org.acegisecurity.intercept.web.FilterInvocation;
+import org.acegisecurity.util.SimpleMethodInvocation;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -88,23 +88,23 @@ public class AfterInvocationProviderManagerTests extends TestCase {
         attr4.addConfigAttribute(new SecurityConfig("NEVER_CAUSES_SWAP"));
 
         assertEquals("swap1",
-            manager.decide(null, new MockMethodInvocation(), attr1,
+            manager.decide(null, new SimpleMethodInvocation(), attr1,
                 "content-before-swapping"));
 
         assertEquals("swap2",
-            manager.decide(null, new MockMethodInvocation(), attr2,
+            manager.decide(null, new SimpleMethodInvocation(), attr2,
                 "content-before-swapping"));
 
         assertEquals("swap3",
-            manager.decide(null, new MockMethodInvocation(), attr3,
+            manager.decide(null, new SimpleMethodInvocation(), attr3,
                 "content-before-swapping"));
 
         assertEquals("content-before-swapping",
-            manager.decide(null, new MockMethodInvocation(), attr4,
+            manager.decide(null, new SimpleMethodInvocation(), attr4,
                 "content-before-swapping"));
 
         assertEquals("swap3",
-            manager.decide(null, new MockMethodInvocation(), attr2and3,
+            manager.decide(null, new SimpleMethodInvocation(), attr2and3,
                 "content-before-swapping"));
     }
 

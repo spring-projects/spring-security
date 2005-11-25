@@ -20,13 +20,13 @@ import junit.framework.TestCase;
 import org.acegisecurity.AuthorizationServiceException;
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.MockAclManager;
-import org.acegisecurity.MockMethodInvocation;
 import org.acegisecurity.SecurityConfig;
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.acl.AclManager;
 import org.acegisecurity.acl.basic.MockAclObjectIdentity;
 import org.acegisecurity.acl.basic.SimpleAclEntry;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.util.SimpleMethodInvocation;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -444,7 +444,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         Class clazz = String.class;
         Method method = clazz.getMethod("toString", new Class[] {});
 
-        MethodInvocation mi = new MockMethodInvocation(method,
+        MethodInvocation mi = new SimpleMethodInvocation(method,
                 new Object[] {domainObject});
 
         try {
@@ -462,7 +462,7 @@ public class BasicAclEntryVoterTests extends TestCase {
         Method method = clazz.getMethod("someServiceMethod",
                 new Class[] {SomeDomainObject.class});
 
-        return new MockMethodInvocation(method, new Object[] {domainObject});
+        return new SimpleMethodInvocation(method, new Object[] {domainObject});
     }
 
     //~ Inner Classes ==========================================================

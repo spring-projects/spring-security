@@ -18,13 +18,13 @@ package org.acegisecurity.context.rmi;
 import junit.framework.TestCase;
 
 import org.acegisecurity.Authentication;
-import org.acegisecurity.MockMethodInvocation;
 import org.acegisecurity.TargetObject;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.context.SecurityContextImpl;
 import org.acegisecurity.context.rmi.ContextPropagatingRemoteInvocation;
 import org.acegisecurity.context.rmi.ContextPropagatingRemoteInvocationFactory;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.util.SimpleMethodInvocation;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -112,7 +112,7 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
         Class clazz = TargetObject.class;
         Method method = clazz.getMethod("makeLowerCase",
                 new Class[] {String.class});
-        MethodInvocation mi = new MockMethodInvocation(method,
+        MethodInvocation mi = new SimpleMethodInvocation(method,
                 new Object[] {"SOME_STRING"});
 
         ContextPropagatingRemoteInvocationFactory factory = new ContextPropagatingRemoteInvocationFactory();

@@ -19,9 +19,9 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.ConfigAttributeDefinition;
-import org.acegisecurity.MockMethodInvocation;
 import org.acegisecurity.event.authorization.AuthorizationFailureEvent;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.util.SimpleMethodInvocation;
 
 
 /**
@@ -59,7 +59,7 @@ public class AuthorizationFailureEventTests extends TestCase {
         }
 
         try {
-            new AuthorizationFailureEvent(new MockMethodInvocation(), null,
+            new AuthorizationFailureEvent(new SimpleMethodInvocation(), null,
                 new UsernamePasswordAuthenticationToken("foo", "bar"),
                 new AccessDeniedException("error"));
             fail("Should have thrown IllegalArgumentException");
@@ -68,7 +68,7 @@ public class AuthorizationFailureEventTests extends TestCase {
         }
 
         try {
-            new AuthorizationFailureEvent(new MockMethodInvocation(),
+            new AuthorizationFailureEvent(new SimpleMethodInvocation(),
                 new ConfigAttributeDefinition(), null,
                 new AccessDeniedException("error"));
             fail("Should have thrown IllegalArgumentException");
@@ -77,7 +77,7 @@ public class AuthorizationFailureEventTests extends TestCase {
         }
 
         try {
-            new AuthorizationFailureEvent(new MockMethodInvocation(),
+            new AuthorizationFailureEvent(new SimpleMethodInvocation(),
                 new ConfigAttributeDefinition(),
                 new UsernamePasswordAuthenticationToken("foo", "bar"), null);
             fail("Should have thrown IllegalArgumentException");

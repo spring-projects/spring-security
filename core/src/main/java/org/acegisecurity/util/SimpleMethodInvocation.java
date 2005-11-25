@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity;
+package org.acegisecurity.util;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -22,12 +22,12 @@ import java.lang.reflect.Method;
 
 
 /**
- * Represents the AOP Alliance <code>MethodInvocation</code> secure object.
+ * Represents the AOP Alliance <code>MethodInvocation</code>.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class MockMethodInvocation implements MethodInvocation {
+public class SimpleMethodInvocation implements MethodInvocation {
     //~ Instance fields ========================================================
 
     private Method method;
@@ -35,12 +35,12 @@ public class MockMethodInvocation implements MethodInvocation {
 
     //~ Constructors ===========================================================
 
-    public MockMethodInvocation(Method method, Object[] arguments) {
+    public SimpleMethodInvocation(Method method, Object[] arguments) {
         this.method = method;
         this.arguments = arguments;
     }
 
-    public MockMethodInvocation() {}
+    public SimpleMethodInvocation() {}
 
     //~ Methods ================================================================
 
