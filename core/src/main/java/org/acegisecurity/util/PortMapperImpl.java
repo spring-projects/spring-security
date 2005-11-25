@@ -59,7 +59,7 @@ public class PortMapperImpl implements PortMapper {
      * In a Spring XML ApplicationContext, a definition would look something
      * like this:
      * <pre>
-     *   &lt;property name="httpsPortMapping">
+     *   &lt;property name="portMappings">
      *     &lt;map>
      *       &lt;entry key="80">&lt;value>443&lt;/value>&lt;/entry>
      *       &lt;entry key="8080">&lt;value>8443&lt;/value>&lt;/entry>
