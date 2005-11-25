@@ -25,11 +25,14 @@ import org.acegisecurity.AuthenticationManager;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.RunAsManager;
+
 import org.acegisecurity.context.SecurityContextHolder;
+
 import org.acegisecurity.event.authorization.AuthenticationCredentialsNotFoundEvent;
 import org.acegisecurity.event.authorization.AuthorizationFailureEvent;
 import org.acegisecurity.event.authorization.AuthorizedEvent;
 import org.acegisecurity.event.authorization.PublicInvocationEvent;
+
 import org.acegisecurity.runas.NullRunAsManager;
 
 import org.apache.commons.logging.Log;
@@ -37,8 +40,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 
-import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 
 import org.springframework.util.Assert;
 
@@ -137,7 +140,7 @@ import java.util.Set;
  * @version $Id$
  */
 public abstract class AbstractSecurityInterceptor implements InitializingBean,
-        ApplicationEventPublisherAware {
+    ApplicationEventPublisherAware {
     //~ Static fields/initializers =============================================
 
     protected static final Log logger = LogFactory.getLog(AbstractSecurityInterceptor.class);
@@ -150,6 +153,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
     private AuthenticationManager authenticationManager;
     private RunAsManager runAsManager = new NullRunAsManager();
     private boolean alwaysReauthenticate = false;
+    private boolean rejectPublicInvocations = false;
     private boolean validateConfigAttributes = true;
 
     //~ Methods ================================================================
@@ -184,7 +188,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
         return alwaysReauthenticate;
     }
 
-    public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
+    public void setApplicationEventPublisher(
+        ApplicationEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
 
@@ -215,6 +220,31 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 
     public AuthenticationManager getAuthenticationManager() {
         return this.authenticationManager;
+    }
+
+    /**
+     * By rejecting public invocations (and setting this property to
+     * <code>true</code>), essentially you are ensuring that every secure
+     * object invocation advised by <code>AbstractSecurityInterceptor</code>
+     * has a configuration attribute defined. This is useful to ensure a "fail
+     * safe" mode where undeclared secure objects will be rejected and
+     * configuration omissions detected early. An
+     * <code>IllegalArgumentException</code> will be thrown by the
+     * <code>AbstractSecurityInterceptor</code> if you set this property to
+     * <code>true</code> and an attempt is made to invoke a secure object that
+     * has no configuration attributes.
+     *
+     * @param rejectPublicInvocations set to <code>true</code> to reject
+     *        invocations of secure objects that have no configuration
+     *        attributes (by default it is <code>true</code> which treats
+     *        undeclared secure objects as "public" or unauthorized)
+     */
+    public void setRejectPublicInvocations(boolean rejectPublicInvocations) {
+        this.rejectPublicInvocations = rejectPublicInvocations;
+    }
+
+    public boolean isRejectPublicInvocations() {
+        return rejectPublicInvocations;
     }
 
     public void setRunAsManager(RunAsManager runAsManager) {
@@ -364,6 +394,11 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 
         ConfigAttributeDefinition attr = this.obtainObjectDefinitionSource()
                                              .getAttributes(object);
+
+        if ((attr == null) && rejectPublicInvocations) {
+            throw new IllegalArgumentException(
+                "No public invocations are allowed via this AbstractSecurityInterceptor. This indicates a configuration error because the AbstractSecurityInterceptor.rejectPublicInvocations property is set to 'true'");
+        }
 
         if (attr != null) {
             if (logger.isDebugEnabled()) {

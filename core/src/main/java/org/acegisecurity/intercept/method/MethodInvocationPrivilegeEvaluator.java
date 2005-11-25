@@ -64,7 +64,10 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
                                                              .getAttributes(mi);
 
         if (attrs == null) {
-            // TODO: This should be reviewed when we complete SEC-47
+            if (securityInterceptor.isRejectPublicInvocations()) {
+                return false;
+            }
+
             return true;
         }
 
