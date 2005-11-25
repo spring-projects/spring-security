@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.acegisecurity.context;
 
 import junit.framework.TestCase;
@@ -20,6 +21,7 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.MockFilterConfig;
+
 import org.acegisecurity.adapters.PrincipalAcegiUserToken;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -42,6 +44,8 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 public class HttpSessionContextIntegrationFilterTests extends TestCase {
+    //~ Constructors ===========================================================
+
     public HttpSessionContextIntegrationFilterTests() {
         super();
     }
@@ -49,6 +53,8 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
     public HttpSessionContextIntegrationFilterTests(String arg0) {
         super(arg0);
     }
+
+    //~ Methods ================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(HttpSessionContextIntegrationFilterTests.class);
@@ -80,7 +86,8 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         // Build an Authentication object we simulate came from HttpSession
         PrincipalAcegiUserToken sessionPrincipal = new PrincipalAcegiUserToken("key",
                 "someone", "password",
-                new GrantedAuthority[] { new GrantedAuthorityImpl("SOME_ROLE") });
+                new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")},
+                null);
 
         // Build a Context to store in HttpSession (simulating prior request)
         SecurityContext sc = new SecurityContextImpl();
@@ -120,14 +127,14 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         // Build an Authentication object we simulate came from HttpSession
         PrincipalAcegiUserToken sessionPrincipal = new PrincipalAcegiUserToken("key",
                 "someone", "password",
-                new GrantedAuthority[] { new GrantedAuthorityImpl("SOME_ROLE") });
+                new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")},
+                null);
 
         // Build an Authentication object we simulate our Authentication changed it to
         PrincipalAcegiUserToken updatedPrincipal = new PrincipalAcegiUserToken("key",
                 "someone", "password",
-                new GrantedAuthority[] {
-                    new GrantedAuthorityImpl("SOME_DIFFERENT_ROLE")
-                });
+                new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_DIFFERENT_ROLE")},
+                null);
 
         // Build a Context to store in HttpSession (simulating prior request)
         SecurityContext sc = new SecurityContextImpl();
@@ -163,9 +170,8 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         // Build an Authentication object we simulate our Authentication changed it to
         PrincipalAcegiUserToken updatedPrincipal = new PrincipalAcegiUserToken("key",
                 "someone", "password",
-                new GrantedAuthority[] {
-                    new GrantedAuthorityImpl("SOME_DIFFERENT_ROLE")
-                });
+                new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_DIFFERENT_ROLE")},
+                null);
 
         // Build a mock request
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -213,9 +219,8 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         // Build an Authentication object we simulate our Authentication changed it to
         PrincipalAcegiUserToken updatedPrincipal = new PrincipalAcegiUserToken("key",
                 "someone", "password",
-                new GrantedAuthority[] {
-                    new GrantedAuthorityImpl("SOME_DIFFERENT_ROLE")
-                });
+                new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_DIFFERENT_ROLE")},
+                null);
 
         // Build a mock request
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -249,6 +254,8 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         filter.destroy();
     }
 
+    //~ Inner Classes ==========================================================
+
     private class MockFilterChain extends TestCase implements FilterChain {
         private Authentication changeContextHolder;
         private Authentication expectedOnContextHolder;
@@ -261,8 +268,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
             this.toThrowDuringChain = toThrowDuringChain;
         }
 
-        private MockFilterChain() {
-        }
+        private MockFilterChain() {}
 
         public void doFilter(ServletRequest arg0, ServletResponse arg1)
             throws IOException, ServletException {

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@ import com.caucho.http.security.AbstractAuthenticator;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
+
 import org.acegisecurity.adapters.PrincipalAcegiUserToken;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.apache.commons.logging.Log;
@@ -151,7 +153,8 @@ public class ResinAcegiAuthenticator extends AbstractAuthenticator {
 
         return new PrincipalAcegiUserToken(this.key,
             response.getPrincipal().toString(),
-            response.getCredentials().toString(), response.getAuthorities());
+            response.getCredentials().toString(), response.getAuthorities(),
+            response.getPrincipal());
     }
 
     protected Principal loginImpl(HttpServletRequest request,

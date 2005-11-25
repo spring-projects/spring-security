@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.acegisecurity.adapters.jboss;
 
 import org.acegisecurity.AccountExpiredException;
@@ -19,7 +20,9 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
 import org.acegisecurity.CredentialsExpiredException;
+
 import org.acegisecurity.adapters.PrincipalAcegiUserToken;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.jboss.security.SimpleGroup;
@@ -49,7 +52,7 @@ import javax.security.auth.login.LoginException;
 /**
  * Adapter to enable JBoss to authenticate via the Acegi Security System for
  * Spring.
- *
+ * 
  * <p>
  * Returns a {@link PrincipalAcegiUserToken} to JBoss' authentication system,
  * which is subsequently available from
@@ -61,10 +64,14 @@ import javax.security.auth.login.LoginException;
  * @version $Id$
  */
 public class JbossAcegiLoginModule extends AbstractServerLoginModule {
+    //~ Instance fields ========================================================
+
     private AuthenticationManager authenticationManager;
     private Principal identity;
     private String key;
     private char[] credential;
+
+    //~ Methods ================================================================
 
     public void initialize(Subject subject, CallbackHandler callbackHandler,
         Map sharedState, Map options) {
@@ -84,8 +91,8 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
 
         String appContextLocation = (String) options.get("appContextLocation");
 
-        if ((((singletonId == null) || "".equals(singletonId)) &&
-                (appContextLocation == null)) || "".equals(appContextLocation)) {
+        if ((((singletonId == null) || "".equals(singletonId))
+            && (appContextLocation == null)) || "".equals(appContextLocation)) {
             throw new IllegalArgumentException(
                 "appContextLocation must be defined");
         }
@@ -99,8 +106,8 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
                     super.log.info("cannot locate " + appContextLocation);
                 }
 
-                throw new IllegalArgumentException("Cannot locate " +
-                    appContextLocation);
+                throw new IllegalArgumentException("Cannot locate "
+                    + appContextLocation);
             }
         }
 
@@ -111,13 +118,13 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
                 ctx = new ClassPathXmlApplicationContext(appContextLocation);
             } catch (Exception e) {
                 if (super.log.isInfoEnabled()) {
-                    super.log.info("error loading spring context " +
-                        appContextLocation + " " + e);
+                    super.log.info("error loading spring context "
+                        + appContextLocation + " " + e);
                 }
 
                 throw new IllegalArgumentException(
-                    "error loading spring context " + appContextLocation + " " +
-                    e);
+                    "error loading spring context " + appContextLocation + " "
+                    + e);
             }
         } else {
             if (super.log.isInfoEnabled()) {
@@ -130,12 +137,11 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
 
             if (ctx == null) {
                 if (super.log.isInfoEnabled()) {
-                    super.log.info("singleton " + beanName +
-                        " does not exists");
+                    super.log.info("singleton " + beanName + " does not exists");
                 }
 
-                throw new IllegalArgumentException("singleton " + singletonId +
-                    " does not exists");
+                throw new IllegalArgumentException("singleton " + singletonId
+                    + " does not exists");
             }
         }
 
@@ -178,8 +184,8 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
 
         if ((username == null) && (password == null)) {
             identity = null;
-            super.log.trace("Authenticating as unauthenticatedIdentity=" +
-                identity);
+            super.log.trace("Authenticating as unauthenticatedIdentity="
+                + identity);
         }
 
         if (username == null) {
@@ -239,7 +245,7 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
 
             identity = new PrincipalAcegiUserToken(this.key,
                     response.getName(), response.getCredentials().toString(),
-                    response.getAuthorities());
+                    response.getAuthorities(), response.getPrincipal());
         }
 
         if (getUseFirstPass() == true) {
@@ -249,8 +255,8 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
         }
 
         super.loginOk = true;
-        super.log.trace("User '" + identity + "' authenticated, loginOk=" +
-            loginOk);
+        super.log.trace("User '" + identity + "' authenticated, loginOk="
+            + loginOk);
 
         return true;
     }
@@ -261,7 +267,7 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
 
     protected Group[] getRoleSets() throws LoginException {
         SimpleGroup roles = new SimpleGroup("Roles");
-        Group[] roleSets = { roles };
+        Group[] roleSets = {roles};
 
         if (this.identity instanceof Authentication) {
             Authentication user = (Authentication) this.identity;
@@ -276,17 +282,17 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
     }
 
     protected String[] getUsernameAndPassword() throws LoginException {
-        String[] info = { null, null };
+        String[] info = {null, null};
 
         // prompt for a username and password
         if (callbackHandler == null) {
-            throw new LoginException("Error: no CallbackHandler available " +
-                "to collect authentication information");
+            throw new LoginException("Error: no CallbackHandler available "
+                + "to collect authentication information");
         }
 
         NameCallback nc = new NameCallback("User name: ", "guest");
         PasswordCallback pc = new PasswordCallback("Password: ", false);
-        Callback[] callbacks = { nc, pc };
+        Callback[] callbacks = {nc, pc};
         String username = null;
         String password = null;
 
@@ -306,8 +312,8 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
         } catch (java.io.IOException ioe) {
             throw new LoginException(ioe.toString());
         } catch (UnsupportedCallbackException uce) {
-            throw new LoginException("CallbackHandler does not support: " +
-                uce.getCallback());
+            throw new LoginException("CallbackHandler does not support: "
+                + uce.getCallback());
         }
 
         info[0] = username;

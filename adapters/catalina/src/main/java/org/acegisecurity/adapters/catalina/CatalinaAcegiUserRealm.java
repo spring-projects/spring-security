@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ package org.acegisecurity.adapters.catalina;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
+
 import org.acegisecurity.adapters.PrincipalAcegiUserToken;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.apache.catalina.Container;
@@ -108,7 +110,8 @@ public class CatalinaAcegiUserRealm extends RealmBase {
 
         return new PrincipalAcegiUserToken(this.key,
             response.getPrincipal().toString(),
-            response.getCredentials().toString(), response.getAuthorities());
+            response.getCredentials().toString(), response.getAuthorities(),
+            response.getPrincipal());
     }
 
     public Principal authenticate(String username, byte[] credentials) {

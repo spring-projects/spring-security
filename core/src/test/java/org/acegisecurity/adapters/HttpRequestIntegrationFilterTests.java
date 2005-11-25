@@ -19,7 +19,9 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.context.SecurityContextHolder;
+
 import org.acegisecurity.util.MockFilterChain;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -53,7 +55,8 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
         HttpRequestIntegrationFilter filter = new HttpRequestIntegrationFilter();
         PrincipalAcegiUserToken principal = new PrincipalAcegiUserToken("key",
                 "someone", "password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")});
+                new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")},
+                null);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setUserPrincipal(principal);

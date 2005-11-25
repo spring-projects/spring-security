@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 
@@ -59,7 +60,7 @@ public class AuthByAdapterTests extends TestCase {
         PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("my_password",
                 "Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+                        "ROLE_TWO")}, null);
         assertTrue(provider.supports(token.getClass()));
 
         Authentication response = provider.authenticate(token);
@@ -122,7 +123,7 @@ public class AuthByAdapterTests extends TestCase {
 
         // Should fail as PrincipalAcegiUserToken has different key
         PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("wrong_password",
-                "Test", "Password", null);
+                "Test", "Password", null, null);
 
         try {
             provider.authenticate(token);

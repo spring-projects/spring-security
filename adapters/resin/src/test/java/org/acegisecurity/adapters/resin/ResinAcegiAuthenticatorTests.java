@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.adapters.PrincipalAcegiUserToken;
 
 import java.security.Principal;
@@ -269,7 +270,7 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
         PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("KEY",
                 "Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+                        "ROLE_TWO")}, null);
         ResinAcegiAuthenticator adapter = new ResinAcegiAuthenticator();
         adapter.setAppContextLocation(
             "org/acegisecurity/adapters/adaptertest-valid.xml");
