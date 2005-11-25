@@ -258,6 +258,7 @@ public class ProviderManager extends AbstractAuthenticationManager
                     sessionController.checkAuthenticationAllowed(result);
                 } catch (AuthenticationException ae) {
                     lastException = ae;
+                    result = null;
                 }
 
                 if (result != null) {
