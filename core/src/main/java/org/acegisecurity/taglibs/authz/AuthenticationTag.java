@@ -17,6 +17,7 @@ package org.acegisecurity.taglibs.authz;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.UserDetails;
+
 import org.acegisecurity.context.SecurityContext;
 import org.acegisecurity.context.SecurityContextHolder;
 
@@ -121,7 +122,7 @@ public class AuthenticationTag extends TagSupport {
         Method method = null;
 
         try {
-            method = clazz.getDeclaredMethod(methodName.toString(), (Class[]) null);
+            method = clazz.getMethod(methodName.toString(), (Class[]) null);
         } catch (SecurityException se) {
             throw new JspException(se);
         } catch (NoSuchMethodException nsme) {
