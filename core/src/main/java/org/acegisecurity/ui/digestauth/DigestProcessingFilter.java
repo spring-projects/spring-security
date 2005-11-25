@@ -114,10 +114,15 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
     private AuthenticationDao authenticationDao;
     private DigestProcessingFilterEntryPoint authenticationEntryPoint;
     private UserCache userCache = new NullUserCache();
+    private boolean passwordAlreadyEncoded = false;
 
     //~ Methods ================================================================
 
-    public void setAuthenticationDao(AuthenticationDao authenticationDao) {
+    public void setPasswordAlreadyEncoded(boolean passwordAlreadyEncoded) {
+		this.passwordAlreadyEncoded = passwordAlreadyEncoded;
+	}
+
+	public void setAuthenticationDao(AuthenticationDao authenticationDao) {
         this.authenticationDao = authenticationDao;
     }
 
@@ -307,7 +312,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
             String serverDigestMd5;
 
             // Don't catch IllegalArgumentException (already checked validity)
-            serverDigestMd5 = generateDigest(username, realm,
+            serverDigestMd5 = generateDigest(passwordAlreadyEncoded, username, realm,
                     user.getPassword(),
                     ((HttpServletRequest) request).getMethod(), uri, qop,
                     nonce, nc, cnonce);
@@ -331,7 +336,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
                 userCache.putUserInCache(user);
 
                 // Don't catch IllegalArgumentException (already checked validity)
-                serverDigestMd5 = generateDigest(username, realm,
+                serverDigestMd5 = generateDigest(passwordAlreadyEncoded, username, realm,
                         user.getPassword(),
                         ((HttpServletRequest) request).getMethod(), uri, qop,
                         nonce, nc, cnonce);
@@ -377,6 +382,12 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
         chain.doFilter(request, response);
     }
 
+    public static String encodePasswordInA1Format(String username, String realm, String password) {
+        String a1 = username + ":" + realm + ":" + password;
+        String a1Md5 = new String(DigestUtils.md5Hex(a1));
+    	return a1Md5;
+    }
+    
     /**
      * Computes the <code>response</code> portion of a Digest authentication
      * header. Both the server and user agent should compute the
@@ -397,14 +408,19 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
      *
      * @throws IllegalArgumentException DOCUMENT ME!
      */
-    public static String generateDigest(String username, String realm,
+    public static String generateDigest(boolean passwordAlreadyEncoded, String username, String realm,
         String password, String httpMethod, String uri, String qop,
         String nonce, String nc, String cnonce) throws IllegalArgumentException {
-        String a1 = username + ":" + realm + ":" + password;
+        String a1Md5 = null;
         String a2 = httpMethod + ":" + uri;
-        String a1Md5 = new String(DigestUtils.md5Hex(a1));
         String a2Md5 = new String(DigestUtils.md5Hex(a2));
-
+        
+        if (passwordAlreadyEncoded) {
+        	a1Md5 = password;
+        } else {
+        	a1Md5 = encodePasswordInA1Format(username, realm, password);
+        }
+        
         String digest;
 
         if (qop == null) {

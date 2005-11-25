@@ -20,11 +20,14 @@ import junit.framework.TestCase;
 import org.acegisecurity.DisabledException;
 import org.acegisecurity.MockFilterConfig;
 import org.acegisecurity.UserDetails;
+
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.context.SecurityContextImpl;
+
 import org.acegisecurity.providers.dao.AuthenticationDao;
 import org.acegisecurity.providers.dao.UserCache;
 import org.acegisecurity.providers.dao.UsernameNotFoundException;
+
 import org.acegisecurity.util.StringSplitUtils;
 
 import org.apache.commons.codec.binary.Base64;
@@ -114,8 +117,8 @@ public class DigestProcessingFilterTests extends TestCase {
         String nc = "00000002";
         String cnonce = "c822c727a648aba7";
         String password = "koala";
-        String responseDigest = DigestProcessingFilter.generateDigest(username,
-                realm, password, "GET", uri, qop, nonce, nc, cnonce);
+        String responseDigest = DigestProcessingFilter.generateDigest(false,
+                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
 
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
@@ -263,8 +266,8 @@ public class DigestProcessingFilterTests extends TestCase {
         String nc = "00000002";
         String cnonce = "c822c727a648aba7";
         String password = "koala";
-        String responseDigest = DigestProcessingFilter.generateDigest(username,
-                realm, password, "GET", uri, qop, nonce, nc, cnonce);
+        String responseDigest = DigestProcessingFilter.generateDigest(false,
+                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
 
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -307,8 +310,8 @@ public class DigestProcessingFilterTests extends TestCase {
         String nc = "00000002";
         String cnonce = "c822c727a648aba7";
         String password = "koala";
-        String responseDigest = DigestProcessingFilter.generateDigest(username,
-                realm, password, "GET", uri, qop, nonce, nc, cnonce);
+        String responseDigest = DigestProcessingFilter.generateDigest(false,
+                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
 
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -351,8 +354,8 @@ public class DigestProcessingFilterTests extends TestCase {
         String nc = "00000002";
         String cnonce = "c822c727a648aba7";
         String password = "koala";
-        String responseDigest = DigestProcessingFilter.generateDigest(username,
-                realm, password, "GET", uri, qop, nonce, nc, cnonce);
+        String responseDigest = DigestProcessingFilter.generateDigest(false,
+                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
 
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -395,8 +398,8 @@ public class DigestProcessingFilterTests extends TestCase {
         String nc = "00000002";
         String cnonce = "c822c727a648aba7";
         String password = "koala";
-        String responseDigest = DigestProcessingFilter.generateDigest(username,
-                realm, password, "GET", uri, qop, nonce, nc, cnonce);
+        String responseDigest = DigestProcessingFilter.generateDigest(false,
+                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
 
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -426,7 +429,8 @@ public class DigestProcessingFilterTests extends TestCase {
         assertEquals(401, response.getStatus());
     }
 
-    public void testNormalOperation() throws Exception {
+    public void testNormalOperationWhenPasswordIsAlreadyEncoded()
+        throws Exception {
         Map responseHeaderMap = generateValidHeaders(60);
 
         String username = "marissa";
@@ -436,9 +440,10 @@ public class DigestProcessingFilterTests extends TestCase {
         String qop = (String) responseHeaderMap.get("qop");
         String nc = "00000002";
         String cnonce = "c822c727a648aba7";
-        String password = "koala";
-        String responseDigest = DigestProcessingFilter.generateDigest(username,
-                realm, password, "GET", uri, qop, nonce, nc, cnonce);
+        String password = DigestProcessingFilter.encodePasswordInA1Format(username,
+                realm, "koala");
+        String responseDigest = DigestProcessingFilter.generateDigest(true,
+                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
 
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
@@ -466,8 +471,53 @@ public class DigestProcessingFilterTests extends TestCase {
 
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("marissa",
-            ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-            .getUsername());
+            ((UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                                                .getPrincipal()).getUsername());
+    }
+
+    public void testNormalOperationWhenPasswordNotAlreadyEncoded()
+        throws Exception {
+        Map responseHeaderMap = generateValidHeaders(60);
+
+        String username = "marissa";
+        String realm = (String) responseHeaderMap.get("realm");
+        String nonce = (String) responseHeaderMap.get("nonce");
+        String uri = "/some_file.html";
+        String qop = (String) responseHeaderMap.get("qop");
+        String nc = "00000002";
+        String cnonce = "c822c727a648aba7";
+        String password = "koala";
+        String responseDigest = DigestProcessingFilter.generateDigest(false,
+                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
+
+        // Setup our HTTP request
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
+        request.addHeader("Authorization",
+            createAuthorizationHeader(username, realm, nonce, uri,
+                responseDigest, qop, nc, cnonce));
+        request.setServletPath("/some_file.html");
+
+        // Launch an application context and access our bean
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(
+                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
+        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
+                "digestProcessingFilter");
+
+        // Setup our filter configuration
+        MockFilterConfig config = new MockFilterConfig();
+
+        // Setup our expectation that the filter chain will be invoked
+        MockFilterChain chain = new MockFilterChain(true);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        // Test
+        executeFilterInContainerSimulator(config, filter, request, response,
+            chain);
+
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+        assertEquals("marissa",
+            ((UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                                                .getPrincipal()).getUsername());
     }
 
     public void testOtherAuthorizationSchemeIsIgnored()
@@ -535,8 +585,8 @@ public class DigestProcessingFilterTests extends TestCase {
         String nc = "00000002";
         String cnonce = "c822c727a648aba7";
         String password = "koala";
-        String responseDigest = DigestProcessingFilter.generateDigest(username,
-                realm, password, "GET", uri, qop, nonce, nc, cnonce);
+        String responseDigest = DigestProcessingFilter.generateDigest(false,
+                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
 
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
@@ -566,8 +616,8 @@ public class DigestProcessingFilterTests extends TestCase {
 
         // Now retry, giving an invalid nonce
         password = "WRONG_PASSWORD";
-        responseDigest = DigestProcessingFilter.generateDigest(username, realm,
-                password, "GET", uri, qop, nonce, nc, cnonce);
+        responseDigest = DigestProcessingFilter.generateDigest(false, username,
+                realm, password, "GET", uri, qop, nonce, nc, cnonce);
 
         request = new MockHttpServletRequest();
         request.addHeader("Authorization",
@@ -593,8 +643,9 @@ public class DigestProcessingFilterTests extends TestCase {
         String nc = "00000002";
         String cnonce = "NOT_SAME_AS_USED_FOR_DIGEST_COMPUTATION";
         String password = "koala";
-        String responseDigest = DigestProcessingFilter.generateDigest(username,
-                realm, password, "GET", uri, qop, nonce, nc, "DIFFERENT_CNONCE");
+        String responseDigest = DigestProcessingFilter.generateDigest(false,
+                username, realm, password, "GET", uri, qop, nonce, nc,
+                "DIFFERENT_CNONCE");
 
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
@@ -635,8 +686,8 @@ public class DigestProcessingFilterTests extends TestCase {
         String nc = "00000002";
         String cnonce = "c822c727a648aba7";
         String password = "WRONG_PASSWORD";
-        String responseDigest = DigestProcessingFilter.generateDigest(username,
-                realm, password, "GET", uri, qop, nonce, nc, cnonce);
+        String responseDigest = DigestProcessingFilter.generateDigest(false,
+                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
 
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
@@ -677,8 +728,8 @@ public class DigestProcessingFilterTests extends TestCase {
         String nc = "00000002";
         String cnonce = "c822c727a648aba7";
         String password = "koala";
-        String responseDigest = DigestProcessingFilter.generateDigest(username,
-                realm, password, "GET", uri, qop, nonce, nc, cnonce);
+        String responseDigest = DigestProcessingFilter.generateDigest(false,
+                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
 
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
@@ -719,8 +770,8 @@ public class DigestProcessingFilterTests extends TestCase {
         String nc = "00000002";
         String cnonce = "c822c727a648aba7";
         String password = "koala";
-        String responseDigest = DigestProcessingFilter.generateDigest(username,
-                realm, password, "GET", uri, qop, nonce, nc, cnonce);
+        String responseDigest = DigestProcessingFilter.generateDigest(false,
+                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
 
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
