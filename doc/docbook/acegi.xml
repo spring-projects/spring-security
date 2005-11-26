@@ -405,6 +405,65 @@
         <literal>context</literal> property on the
         <literal>HttpSessionContextIntegrationFilter</literal> bean.</para>
       </sect2>
+
+      <sect2 id="security-localization">
+        <title>Localization</title>
+
+        <para>From 1.0.0, Acegi Security supports localization of exception
+        messages that end users are likely to see. Such exceptions include
+        authentication failures and access being denied (authorization
+        failures). Exceptions and logging that is focused on developers or
+        system deployers (including incorrect attributes, interface contract
+        violations, using incorrect constructors, startup time validation,
+        debug-level logging) etc are not localized and instead are hard-coded
+        in English within Acegi Security's code.</para>
+
+        <para>Shipping in the <literal>acegi-security-xx.jar</literal> inside
+        the <literal>org.acegisecurity</literal> package is a
+        <literal>messages.properties</literal> file. This should be referred
+        to by your <literal>ApplicationContext</literal>, as Acegi Security
+        classes implement Spring's <literal>MessageSourceAware</literal>
+        interface and expect the message resolver to be dependency injected at
+        application context startup time. Usually all you need to do is
+        register a bean inside your application context to refer to the
+        messages. An example is shown below:</para>
+
+        <para><programlisting>&lt;bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource"&gt;
+  &lt;property name="basename"&gt;&lt;value&gt;org/acegisecurity/messages&lt;/value&gt;&lt;/property&gt;
+&lt;/bean&gt;</programlisting></para>
+
+        <para>The <literal>messages.properties</literal> is named in
+        accordance with standard resource bundles and represents the default
+        language supported by Acegi Securtiy messages. This default file is in
+        English. If you do not register a message source, Acegi Security will
+        still work correctly and fallback to hard-coded English versions of
+        the messages.</para>
+
+        <para>If you wish to customize the
+        <literal>messages.properties</literal> file, or support other
+        languages, you should copy the file, rename it accordingly, and
+        register it inside the above bean definition. There are not a large
+        number of message keys inside this file, so localization should not be
+        considered a major initiative. If you do perform localization of this
+        file, please consider sharing your work with the community by logging
+        a JIRA task and attaching your appropriately-named localized version
+        of <literal>messages.properties</literal>.</para>
+
+        <para>Rounding out the discussion on localization is the Spring
+        <literal>ThreadLocal</literal> known as
+        <literal>org.springframework.context.i18n.LocaleContextHolder</literal>.
+        You should set the <literal>LocaleContextHolder</literal> to represent
+        the preferred <literal>Locale</literal> of each user. Acegi Security
+        will attempt to locate a message from the message source using the
+        <literal>Locale</literal> obtained from this
+        <literal>ThreadLocal</literal>. Please refer to Spring documentation
+        for further details on using <literal>LocaleContextHolder</literal>
+        and the helper classes that can automatically set it for you (eg
+        <literal>AcceptHeaderLocaleResolver</literal>,
+        <literal>CookieLocaleResolver</literal>,
+        <literal>FixedLocaleResolver</literal>,
+        <literal>SessionLocaleResolver</literal> etc)</para>
+      </sect2>
     </sect1>
 
     <sect1 id="security-interception">
