@@ -29,9 +29,6 @@ import org.springframework.util.Assert;
  * a <code>String</code>). Developers may use this class directly, subclass
  * it, or write their own {@link UserDetails} implementation from scratch.
  * </p>
- *
- * @author Ben Alex
- * @version $Id$
  */
 public class User implements UserDetails {
     //~ Instance fields ========================================================
@@ -45,6 +42,10 @@ public class User implements UserDetails {
     private boolean enabled;
 
     //~ Constructors ===========================================================
+
+    protected User() {
+        throw new IllegalArgumentException("Cannot use default constructor");
+    }
 
     /**
      * Construct the <code>User</code> with the details required by {@link
@@ -129,60 +130,21 @@ public class User implements UserDetails {
         boolean accountNonExpired, boolean credentialsNonExpired,
         boolean accountNonLocked, GrantedAuthority[] authorities)
         throws IllegalArgumentException {
-        if (((username == null) || "".equals(username)) || (password == null)
-            || (authorities == null)) {
+        if (((username == null) || "".equals(username)) || (password == null)) {
             throw new IllegalArgumentException(
                 "Cannot pass null or empty values to constructor");
-        }
-
-        for (int i = 0; i < authorities.length; i++) {
-            Assert.notNull(authorities[i],
-                "Granted authority element " + i
-                + " is null - GrantedAuthority[] cannot contain any null elements");
         }
 
         this.username = username;
         this.password = password;
         this.enabled = enabled;
-        this.authorities = authorities;
         this.accountNonExpired = accountNonExpired;
         this.credentialsNonExpired = credentialsNonExpired;
         this.accountNonLocked = accountNonLocked;
-    }
-
-    protected User() {
-        throw new IllegalArgumentException("Cannot use default constructor");
+        setAuthorities(authorities);
     }
 
     //~ Methods ================================================================
-
-    public boolean isAccountNonExpired() {
-        return accountNonExpired;
-    }
-
-    public boolean isAccountNonLocked() {
-        return this.accountNonLocked;
-    }
-
-    public GrantedAuthority[] getAuthorities() {
-        return authorities;
-    }
-
-    public boolean isCredentialsNonExpired() {
-        return credentialsNonExpired;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getUsername() {
-        return username;
-    }
 
     public boolean equals(Object rhs) {
         if (!(rhs instanceof User) || (rhs == null)) {
@@ -209,6 +171,46 @@ public class User implements UserDetails {
         && (this.isAccountNonLocked() == user.isAccountNonLocked())
         && (this.isCredentialsNonExpired() == user.isCredentialsNonExpired())
         && (this.isEnabled() == user.isEnabled()));
+    }
+
+    public GrantedAuthority[] getAuthorities() {
+        return authorities;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public boolean isAccountNonExpired() {
+        return accountNonExpired;
+    }
+
+    public boolean isAccountNonLocked() {
+        return this.accountNonLocked;
+    }
+
+    public boolean isCredentialsNonExpired() {
+        return credentialsNonExpired;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    protected void setAuthorities(GrantedAuthority[] authorities) {
+        Assert.notNull(authorities, "Cannot pass a null GrantedAuthority array");
+
+        for (int i = 0; i < authorities.length; i++) {
+            Assert.notNull(authorities[i],
+                "Granted authority element " + i
+                + " is null - GrantedAuthority[] cannot contain any null elements");
+        }
+
+        this.authorities = authorities;
     }
 
     public String toString() {
