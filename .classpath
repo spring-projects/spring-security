@@ -30,7 +30,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="MAVEN_REPO/resin/jars/resin-3.0.9.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/retroweaver/jars/retroweaver-1.0fcs.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.6.jar"/>
+	<classpathentry sourcepath="/MAVEN_REPO/springframework/src/spring-1.2.6.jar" kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/aopalliance/jars/aopalliance-1.0.jar"/>
@@ -54,7 +54,7 @@
 	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0.3.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.0.jar"/>
 	<classpathentry sourcepath="DIST_BASE/commons-beanutils-1.6.1-src/src/java" kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.6.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/directory/jars/apacheds-main-0.9-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/directory/jars/apacheds-main-0.9.jar"/>
 	<classpathentry kind="src" path="core-tiger/src/main/java"/>
 	<classpathentry kind="src" path="core-tiger/src/test/java"/>
 	<classpathentry kind="src" path="core-tiger/src/main/resources"/>
