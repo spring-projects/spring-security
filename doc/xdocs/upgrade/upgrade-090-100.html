@@ -1,0 +1,33 @@
+<html>
+<head>
+<title>Acegi Security - Upgrading from version 0.8.0 to 1.0.0</title>
+</head>
+<body>
+<h1>Upgrading from 0.9.0 to 1.0.0</h1>
+
+<p>
+The following should help most casual users of the project update their
+applications:
+
+    <ul>
+
+    <li>The top level package name has changed. Simply find "net.sf.acegisecurity" and replace with
+	"org.acegisecurity".</li>
+		
+	<li>net.sf.acegisecurity.providers.dao.AuthenticationDao is now org.acegisecurity.userdetails.UserDetailsService.
+	The interface signature has not changed. Similarly, User and UserDetails have moved into the latter's package as well.
+	If you've implemented your own AuthenticationDao, you'll need to change the class it's implementing and quite likely
+	the import packages for User and UserDetails.</li>
+		
+	<li>Acegi Security is now localised. In net.sf.acegisecurity you will find a messages.properties. It is
+	suggested to register this in your application context, perhaps using ReloadableResourceBundleMessageSource.
+	If you do not do this, the default messages included in the source code will be used so this change is
+	not critical. The Spring LocaleContextHolder class is used to determine the locale of messages included in
+	exceptions. At present only the default messages.properties is included (which is in English). If
+	you localise this file to another language, please consider attaching it to a
+	<a href="http://opensource2.atlassian.com/projects/spring/secure/BrowseProject.jspa?id=10040">new JIRA task</a>
+	so that we can include it in future Acegi Security releases.</li>
+    </ul>
+
+</body>
+</html>
