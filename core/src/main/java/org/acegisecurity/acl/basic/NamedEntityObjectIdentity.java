@@ -29,9 +29,6 @@ import java.lang.reflect.Method;
  * instance. Also offers a constructor that uses reflection to build the
  * identity information.
  * </p>
- *
- * @author Ben Alex
- * @version $Id$
  */
 public class NamedEntityObjectIdentity implements AclObjectIdentity {
     //~ Instance fields ========================================================
@@ -42,16 +39,14 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
     //~ Constructors ===========================================================
 
     public NamedEntityObjectIdentity(String classname, String id) {
-        if ((classname == null) || "".equals(classname)) {
-            throw new IllegalArgumentException("classname required");
-        }
-
-        if ((id == null) || "".equals(id)) {
-            throw new IllegalArgumentException("id required");
-        }
-
+        Assert.hasText(classname, "classname required");
+        Assert.hasText(id, "id required");
         this.classname = classname;
         this.id = id;
+    }
+
+    protected NamedEntityObjectIdentity() {
+        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     /**
@@ -83,29 +78,7 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
         }
     }
 
-    protected NamedEntityObjectIdentity() {
-        throw new IllegalArgumentException("Cannot use default constructor");
-    }
-
     //~ Methods ================================================================
-
-    /**
-     * Indicates the classname portion of the object identity.
-     *
-     * @return the classname (never <code>null</code>)
-     */
-    public String getClassname() {
-        return classname;
-    }
-
-    /**
-     * Indicates the instance identity portion of the object identity.
-     *
-     * @return the instance identity (never <code>null</code>)
-     */
-    public String getId() {
-        return id;
-    }
 
     /**
      * Important so caching operates properly.
@@ -136,6 +109,24 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
         }
 
         return false;
+    }
+
+    /**
+     * Indicates the classname portion of the object identity.
+     *
+     * @return the classname (never <code>null</code>)
+     */
+    public String getClassname() {
+        return classname;
+    }
+
+    /**
+     * Indicates the instance identity portion of the object identity.
+     *
+     * @return the instance identity (never <code>null</code>)
+     */
+    public String getId() {
+        return id;
     }
 
     /**
