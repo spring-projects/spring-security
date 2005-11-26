@@ -34,6 +34,7 @@ import org.acegisecurity.providers.dao.cache.NullUserCache;
 import org.acegisecurity.providers.dao.salt.SystemWideSaltSource;
 import org.acegisecurity.providers.encoding.ShaPasswordEncoder;
 
+import org.springframework.context.support.StaticMessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
@@ -63,6 +64,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "KOala");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
 
@@ -79,6 +81,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "opal");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(new MockAuthenticationDaoUserPeterAccountExpired());
         provider.setUserCache(new MockUserCache());
 
@@ -95,6 +98,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "opal");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(new MockAuthenticationDaoUserPeterAccountLocked());
         provider.setUserCache(new MockUserCache());
 
@@ -111,6 +115,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "opal");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(new MockAuthenticationDaoUserPeterCredentialsExpired());
         provider.setUserCache(new MockUserCache());
 
@@ -138,6 +143,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "opal");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(new MockAuthenticationDaoUserPeter());
         provider.setUserCache(new MockUserCache());
 
@@ -154,6 +160,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "koala");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(new MockAuthenticationDaoSimulateBackendError());
         provider.setUserCache(new MockUserCache());
 
@@ -170,6 +177,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "koala");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
 
@@ -186,6 +194,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "INVALID_PASSWORD");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
 
@@ -202,6 +211,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "koala");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setHideUserNotFoundExceptions(false); // we want UsernameNotFoundExceptions
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
@@ -219,6 +229,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "koala");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         assertTrue(provider.isHideUserNotFoundExceptions());
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
@@ -236,6 +247,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "koala");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
 
@@ -253,6 +265,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         token.setDetails("192.168.0.1");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
 
@@ -276,6 +289,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "koala");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
 
@@ -305,6 +319,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         salt.setSystemWideSalt("SYSTEM_SALT_VALUE");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissaWithSalt());
         provider.setSaltSource(salt);
         provider.setUserCache(new MockUserCache());
@@ -330,6 +345,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "koala");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
         provider.setForcePrincipalAsString(true);
@@ -351,6 +367,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
                 "koala");
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(new MockAuthenticationDaoReturnsNull());
 
         try {
@@ -364,6 +381,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
     public void testGettersSetters() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setPasswordEncoder(new ShaPasswordEncoder());
         assertEquals(ShaPasswordEncoder.class,
             provider.getPasswordEncoder().getClass());
@@ -388,6 +406,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         MockAuthenticationDaoUserMarissa authenticationDao = new MockAuthenticationDaoUserMarissa();
         MockUserCache cache = new MockUserCache();
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(authenticationDao);
         provider.setUserCache(cache);
 
@@ -414,6 +433,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
     public void testStartupFailsIfNoAuthenticationDao()
         throws Exception {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
 
         try {
             provider.afterPropertiesSet();
@@ -425,6 +445,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
     public void testStartupFailsIfNoUserCacheSet() throws Exception {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
         assertEquals(NullUserCache.class, provider.getUserCache().getClass());
         provider.setUserCache(null);
@@ -439,6 +460,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
     public void testStartupSuccess() throws Exception {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         AuthenticationDao dao = new MockAuthenticationDaoUserMarissa();
         provider.setAuthenticationDao(dao);
         provider.setUserCache(new MockUserCache());
@@ -449,6 +471,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
     public void testSupports() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         assertTrue(provider.supports(UsernamePasswordAuthenticationToken.class));
         assertTrue(!provider.supports(TestingAuthenticationToken.class));
     }

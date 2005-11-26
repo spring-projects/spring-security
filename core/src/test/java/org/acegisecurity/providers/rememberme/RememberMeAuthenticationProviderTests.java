@@ -22,6 +22,7 @@ import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.providers.TestingAuthenticationToken;
+import org.springframework.context.support.StaticMessageSource;
 
 
 /**
@@ -53,6 +54,7 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 
     public void testDetectsAnInvalidKey() throws Exception {
         RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider();
+        aap.setMessageSource(new StaticMessageSource());
         aap.setKey("qwerty");
 
         RememberMeAuthenticationToken token = new RememberMeAuthenticationToken("WRONG_KEY",
@@ -71,6 +73,7 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 
     public void testDetectsMissingKey() throws Exception {
         RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider();
+        aap.setMessageSource(new StaticMessageSource());
 
         try {
             aap.afterPropertiesSet();
@@ -82,6 +85,7 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 
     public void testGettersSetters() throws Exception {
         RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider();
+        aap.setMessageSource(new StaticMessageSource());
         aap.setKey("qwerty");
         aap.afterPropertiesSet();
         assertEquals("qwerty", aap.getKey());
@@ -102,6 +106,7 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 
     public void testNormalOperation() throws Exception {
         RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider();
+        aap.setMessageSource(new StaticMessageSource());
         aap.setKey("qwerty");
 
         RememberMeAuthenticationToken token = new RememberMeAuthenticationToken("qwerty",
@@ -116,6 +121,7 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 
     public void testSupports() {
         RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider();
+        aap.setMessageSource(new StaticMessageSource());
         assertTrue(aap.supports(RememberMeAuthenticationToken.class));
         assertFalse(aap.supports(TestingAuthenticationToken.class));
     }

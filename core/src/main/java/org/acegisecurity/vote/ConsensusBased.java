@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,6 @@ import java.util.Iterator;
  * Simple concrete implementation of  {@link
  * org.acegisecurity.AccessDecisionManager} that uses a  consensus-based
  * approach.
- *
- * @author Ben Alex
- * @version $Id$
  */
 public class ConsensusBased extends AbstractAccessDecisionManager {
     //~ Static fields/initializers =============================================
@@ -43,15 +40,6 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
     private boolean allowIfEqualGrantedDeniedDecisions = true;
 
     //~ Methods ================================================================
-
-    public void setAllowIfEqualGrantedDeniedDecisions(
-        boolean allowIfEqualGrantedDeniedDecisions) {
-        this.allowIfEqualGrantedDeniedDecisions = allowIfEqualGrantedDeniedDecisions;
-    }
-
-    public boolean isAllowIfEqualGrantedDeniedDecisions() {
-        return allowIfEqualGrantedDeniedDecisions;
-    }
 
     /**
      * This concrete implementation simply polls all configured  {@link
@@ -111,14 +99,18 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
         }
 
         if (deny > grant) {
-            throw new AccessDeniedException("Access is denied.");
+            throw new AccessDeniedException(messages.getMessage(
+                    "AbstractAccessDecisionManager.accessDenied",
+                    "Access is denied"));
         }
 
         if ((grant == deny) && (grant != 0)) {
             if (this.allowIfEqualGrantedDeniedDecisions) {
                 return;
             } else {
-                throw new AccessDeniedException("Access is denied.");
+                throw new AccessDeniedException(messages.getMessage(
+                        "AbstractAccessDecisionManager.accessDenied",
+                        "Access is denied"));
             }
         }
 
@@ -126,7 +118,18 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
         if (this.isAllowIfAllAbstainDecisions()) {
             return;
         } else {
-            throw new AccessDeniedException("Access is denied.");
+            throw new AccessDeniedException(messages.getMessage(
+                    "AbstractAccessDecisionManager.accessDenied",
+                    "Access is denied"));
         }
+    }
+
+    public boolean isAllowIfEqualGrantedDeniedDecisions() {
+        return allowIfEqualGrantedDeniedDecisions;
+    }
+
+    public void setAllowIfEqualGrantedDeniedDecisions(
+        boolean allowIfEqualGrantedDeniedDecisions) {
+        this.allowIfEqualGrantedDeniedDecisions = allowIfEqualGrantedDeniedDecisions;
     }
 }

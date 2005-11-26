@@ -42,6 +42,9 @@ import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
 
 import org.springframework.util.Assert;
 
@@ -135,12 +138,9 @@ import java.util.Set;
  * </li>
  * </ol>
  * </p>
- *
- * @author Ben Alex
- * @version $Id$
  */
 public abstract class AbstractSecurityInterceptor implements InitializingBean,
-    ApplicationEventPublisherAware {
+    ApplicationEventPublisherAware, MessageSourceAware {
     //~ Static fields/initializers =============================================
 
     protected static final Log logger = LogFactory.getLog(AbstractSecurityInterceptor.class);
@@ -151,200 +151,13 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
     private AfterInvocationManager afterInvocationManager;
     private ApplicationEventPublisher eventPublisher;
     private AuthenticationManager authenticationManager;
+    protected MessageSourceAccessor messages;
     private RunAsManager runAsManager = new NullRunAsManager();
     private boolean alwaysReauthenticate = false;
     private boolean rejectPublicInvocations = false;
     private boolean validateConfigAttributes = true;
 
     //~ Methods ================================================================
-
-    public void setAfterInvocationManager(
-        AfterInvocationManager afterInvocationManager) {
-        this.afterInvocationManager = afterInvocationManager;
-    }
-
-    public AfterInvocationManager getAfterInvocationManager() {
-        return afterInvocationManager;
-    }
-
-    /**
-     * Indicates whether the <code>AbstractSecurityInterceptor</code> should
-     * ignore the {@link Authentication#isAuthenticated()} property. Defaults
-     * to <code>false</code>, meaning by default the
-     * <code>Authentication.isAuthenticated()</code> property is trusted and
-     * re-authentication will not occur if the principal has already been
-     * authenticated.
-     *
-     * @param alwaysReauthenticate <code>true</code> to force
-     *        <code>AbstractSecurityInterceptor</code> to disregard the value
-     *        of <code>Authentication.isAuthenticated()</code> and always
-     *        re-authenticate the request (defaults to <code>false</code>).
-     */
-    public void setAlwaysReauthenticate(boolean alwaysReauthenticate) {
-        this.alwaysReauthenticate = alwaysReauthenticate;
-    }
-
-    public boolean isAlwaysReauthenticate() {
-        return alwaysReauthenticate;
-    }
-
-    public void setApplicationEventPublisher(
-        ApplicationEventPublisher eventPublisher) {
-        this.eventPublisher = eventPublisher;
-    }
-
-    /**
-     * Indicates the type of secure objects the subclass will be presenting to
-     * the abstract parent for processing. This is used to ensure
-     * collaborators wired to the <code>AbstractSecurityInterceptor</code> all
-     * support the indicated secure object class.
-     *
-     * @return the type of secure object the subclass provides services for
-     */
-    public abstract Class getSecureObjectClass();
-
-    public abstract ObjectDefinitionSource obtainObjectDefinitionSource();
-
-    public void setAccessDecisionManager(
-        AccessDecisionManager accessDecisionManager) {
-        this.accessDecisionManager = accessDecisionManager;
-    }
-
-    public AccessDecisionManager getAccessDecisionManager() {
-        return accessDecisionManager;
-    }
-
-    public void setAuthenticationManager(AuthenticationManager newManager) {
-        this.authenticationManager = newManager;
-    }
-
-    public AuthenticationManager getAuthenticationManager() {
-        return this.authenticationManager;
-    }
-
-    /**
-     * By rejecting public invocations (and setting this property to
-     * <code>true</code>), essentially you are ensuring that every secure
-     * object invocation advised by <code>AbstractSecurityInterceptor</code>
-     * has a configuration attribute defined. This is useful to ensure a "fail
-     * safe" mode where undeclared secure objects will be rejected and
-     * configuration omissions detected early. An
-     * <code>IllegalArgumentException</code> will be thrown by the
-     * <code>AbstractSecurityInterceptor</code> if you set this property to
-     * <code>true</code> and an attempt is made to invoke a secure object that
-     * has no configuration attributes.
-     *
-     * @param rejectPublicInvocations set to <code>true</code> to reject
-     *        invocations of secure objects that have no configuration
-     *        attributes (by default it is <code>true</code> which treats
-     *        undeclared secure objects as "public" or unauthorized)
-     */
-    public void setRejectPublicInvocations(boolean rejectPublicInvocations) {
-        this.rejectPublicInvocations = rejectPublicInvocations;
-    }
-
-    public boolean isRejectPublicInvocations() {
-        return rejectPublicInvocations;
-    }
-
-    public void setRunAsManager(RunAsManager runAsManager) {
-        this.runAsManager = runAsManager;
-    }
-
-    public RunAsManager getRunAsManager() {
-        return runAsManager;
-    }
-
-    public void setValidateConfigAttributes(boolean validateConfigAttributes) {
-        this.validateConfigAttributes = validateConfigAttributes;
-    }
-
-    public boolean isValidateConfigAttributes() {
-        return validateConfigAttributes;
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(getSecureObjectClass(),
-            "Subclass must provide a non-null response to getSecureObjectClass()");
-
-        Assert.notNull(this.authenticationManager,
-            "An AuthenticationManager is required");
-
-        Assert.notNull(this.accessDecisionManager,
-            "An AccessDecisionManager is required");
-
-        Assert.notNull(this.runAsManager, "A RunAsManager is required");
-
-        Assert.notNull(this.obtainObjectDefinitionSource(),
-            "An ObjectDefinitionSource is required");
-
-        if (!this.obtainObjectDefinitionSource().supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
-                "ObjectDefinitionSource does not support secure object class: "
-                + getSecureObjectClass());
-        }
-
-        if (!this.runAsManager.supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
-                "RunAsManager does not support secure object class: "
-                + getSecureObjectClass());
-        }
-
-        if (!this.accessDecisionManager.supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
-                "AccessDecisionManager does not support secure object class: "
-                + getSecureObjectClass());
-        }
-
-        if ((this.afterInvocationManager != null)
-            && !this.afterInvocationManager.supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
-                "AfterInvocationManager does not support secure object class: "
-                + getSecureObjectClass());
-        }
-
-        if (this.validateConfigAttributes) {
-            Iterator iter = this.obtainObjectDefinitionSource()
-                                .getConfigAttributeDefinitions();
-
-            if (iter == null) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn(
-                        "Could not validate configuration attributes as the MethodDefinitionSource did not return a ConfigAttributeDefinition Iterator");
-                }
-            } else {
-                Set set = new HashSet();
-
-                while (iter.hasNext()) {
-                    ConfigAttributeDefinition def = (ConfigAttributeDefinition) iter
-                        .next();
-                    Iterator attributes = def.getConfigAttributes();
-
-                    while (attributes.hasNext()) {
-                        ConfigAttribute attr = (ConfigAttribute) attributes
-                            .next();
-
-                        if (!this.runAsManager.supports(attr)
-                            && !this.accessDecisionManager.supports(attr)
-                            && ((this.afterInvocationManager == null)
-                            || !this.afterInvocationManager.supports(attr))) {
-                            set.add(attr);
-                        }
-                    }
-                }
-
-                if (set.size() == 0) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info("Validated configuration attributes");
-                    }
-                } else {
-                    throw new IllegalArgumentException(
-                        "Unsupported configuration attributes: "
-                        + set.toString());
-                }
-            }
-        }
-    }
 
     /**
      * Completes the work of the <code>AbstractSecurityInterceptor</code> after
@@ -371,151 +184,353 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
                     + token.getAuthentication().toString());
             }
 
-            SecurityContextHolder.getContext().setAuthentication(token
-                .getAuthentication());
+            SecurityContextHolder.getContext()
+                                 .setAuthentication(token.getAuthentication());
         }
 
         if (afterInvocationManager != null) {
             returnedObject = afterInvocationManager.decide(token
-                    .getAuthentication(), token.getSecureObject(),
-                    token.getAttr(), returnedObject);
-        }
-
-        return returnedObject;
-    }
-
-    protected InterceptorStatusToken beforeInvocation(Object object) {
-        Assert.notNull(object, "Object was null");
-        Assert.isTrue(getSecureObjectClass().isAssignableFrom(object.getClass()),
-            "Security invocation attempted for object "
-            + object.getClass().getName()
-            + " but AbstractSecurityInterceptor only configured to support secure objects of type: "
-            + getSecureObjectClass());
-
-        ConfigAttributeDefinition attr = this.obtainObjectDefinitionSource()
-                                             .getAttributes(object);
-
-        if ((attr == null) && rejectPublicInvocations) {
-            throw new IllegalArgumentException(
-                "No public invocations are allowed via this AbstractSecurityInterceptor. This indicates a configuration error because the AbstractSecurityInterceptor.rejectPublicInvocations property is set to 'true'");
-        }
-
-        if (attr != null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Secure object: " + object.toString()
-                    + "; ConfigAttributes: " + attr.toString());
+                        .getAuthentication(), token.getSecureObject(),
+                        token.getAttr(), returnedObject);
             }
 
-            // We check for just the property we're interested in (we do
-            // not call Context.validate() like the ContextInterceptor)
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                credentialsNotFound("Authentication credentials were not found in the SecurityContext",
-                    object, attr);
+            return returnedObject;
+        }
+
+        public void afterPropertiesSet() throws Exception {
+            Assert.notNull(getSecureObjectClass(),
+                "Subclass must provide a non-null response to getSecureObjectClass()");
+
+            Assert.notNull(this.messages, "A message source must be set");
+            Assert.notNull(this.authenticationManager,
+                "An AuthenticationManager is required");
+
+            Assert.notNull(this.accessDecisionManager,
+                "An AccessDecisionManager is required");
+
+            Assert.notNull(this.runAsManager, "A RunAsManager is required");
+
+            Assert.notNull(this.obtainObjectDefinitionSource(),
+                "An ObjectDefinitionSource is required");
+
+            if (!this.obtainObjectDefinitionSource()
+                     .supports(getSecureObjectClass())) {
+                throw new IllegalArgumentException(
+                    "ObjectDefinitionSource does not support secure object class: "
+                    + getSecureObjectClass());
             }
 
-            // Attempt authentication if not already authenticated, or user always wants reauthentication
-            Authentication authenticated;
+            if (!this.runAsManager.supports(getSecureObjectClass())) {
+                throw new IllegalArgumentException(
+                    "RunAsManager does not support secure object class: "
+                    + getSecureObjectClass());
+            }
 
-            if (!SecurityContextHolder.getContext().getAuthentication()
-                                      .isAuthenticated()
-                || alwaysReauthenticate) {
+            if (!this.accessDecisionManager.supports(getSecureObjectClass())) {
+                throw new IllegalArgumentException(
+                    "AccessDecisionManager does not support secure object class: "
+                    + getSecureObjectClass());
+            }
+
+            if ((this.afterInvocationManager != null)
+                && !this.afterInvocationManager.supports(getSecureObjectClass())) {
+                throw new IllegalArgumentException(
+                    "AfterInvocationManager does not support secure object class: "
+                    + getSecureObjectClass());
+            }
+
+            if (this.validateConfigAttributes) {
+                Iterator iter = this.obtainObjectDefinitionSource()
+                                    .getConfigAttributeDefinitions();
+
+                if (iter == null) {
+                    if (logger.isWarnEnabled()) {
+                        logger.warn(
+                            "Could not validate configuration attributes as the MethodDefinitionSource did not return a ConfigAttributeDefinition Iterator");
+                    }
+                } else {
+                    Set set = new HashSet();
+
+                    while (iter.hasNext()) {
+                        ConfigAttributeDefinition def = (ConfigAttributeDefinition) iter
+                            .next();
+                        Iterator attributes = def.getConfigAttributes();
+
+                        while (attributes.hasNext()) {
+                            ConfigAttribute attr = (ConfigAttribute) attributes
+                                .next();
+
+                            if (!this.runAsManager.supports(attr)
+                                && !this.accessDecisionManager.supports(attr)
+                                && ((this.afterInvocationManager == null)
+                                || !this.afterInvocationManager.supports(attr))) {
+                                set.add(attr);
+                            }
+                        }
+                    }
+
+                    if (set.size() == 0) {
+                        if (logger.isInfoEnabled()) {
+                            logger.info("Validated configuration attributes");
+                        }
+                    } else {
+                        throw new IllegalArgumentException(
+                            "Unsupported configuration attributes: "
+                            + set.toString());
+                    }
+                }
+            }
+        }
+
+        protected InterceptorStatusToken beforeInvocation(Object object) {
+            Assert.notNull(object, "Object was null");
+            Assert.isTrue(getSecureObjectClass()
+                              .isAssignableFrom(object.getClass()),
+                "Security invocation attempted for object "
+                + object.getClass().getName()
+                + " but AbstractSecurityInterceptor only configured to support secure objects of type: "
+                + getSecureObjectClass());
+
+            ConfigAttributeDefinition attr = this.obtainObjectDefinitionSource()
+                                                 .getAttributes(object);
+
+            if ((attr == null) && rejectPublicInvocations) {
+                throw new IllegalArgumentException(
+                    "No public invocations are allowed via this AbstractSecurityInterceptor. This indicates a configuration error because the AbstractSecurityInterceptor.rejectPublicInvocations property is set to 'true'");
+            }
+
+            if (attr != null) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Secure object: " + object.toString()
+                        + "; ConfigAttributes: " + attr.toString());
+                }
+
+                // We check for just the property we're interested in (we do
+                // not call Context.validate() like the ContextInterceptor)
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                    credentialsNotFound(messages.getMessage(
+                            "AbstractSecurityInterceptor.authenticationNotFound",
+                            "An Authentication object was not found in the SecurityContext"),
+                        object, attr);
+                }
+
+                // Attempt authentication if not already authenticated, or user always wants reauthentication
+                Authentication authenticated;
+
+                if (!SecurityContextHolder.getContext().getAuthentication()
+                                          .isAuthenticated()
+                    || alwaysReauthenticate) {
+                    try {
+                        authenticated = this.authenticationManager.authenticate(SecurityContextHolder.getContext()
+                                                                                                     .getAuthentication());
+                    } catch (AuthenticationException authenticationException) {
+                        throw authenticationException;
+                    }
+
+                    // We don't authenticated.setAuthentication(true), because each provider should do that
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Successfully Authenticated: "
+                            + authenticated.toString());
+                    }
+
+                    SecurityContextHolder.getContext()
+                                         .setAuthentication(authenticated);
+                } else {
+                    authenticated = SecurityContextHolder.getContext()
+                                                         .getAuthentication();
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Previously Authenticated: "
+                            + authenticated.toString());
+                    }
+                }
+
+                // Attempt authorization
                 try {
-                    authenticated = this.authenticationManager.authenticate(SecurityContextHolder.getContext()
-                                                                                                 .getAuthentication());
-                } catch (AuthenticationException authenticationException) {
-                    throw authenticationException;
-                }
+                    this.accessDecisionManager.decide(authenticated, object,
+                        attr);
+                } catch (AccessDeniedException accessDeniedException) {
+                    AuthorizationFailureEvent event = new AuthorizationFailureEvent(object,
+                            attr, authenticated, accessDeniedException);
+                    this.eventPublisher.publishEvent(event);
 
-                // We don't authenticated.setAuthentication(true), because each provider should do that
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Successfully Authenticated: "
-                        + authenticated.toString());
+                    throw accessDeniedException;
                 }
-
-                SecurityContextHolder.getContext().setAuthentication(authenticated);
-            } else {
-                authenticated = SecurityContextHolder.getContext()
-                                                     .getAuthentication();
 
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Previously Authenticated: "
-                        + authenticated.toString());
+                    logger.debug("Authorization successful");
                 }
-            }
 
-            // Attempt authorization
-            try {
-                this.accessDecisionManager.decide(authenticated, object, attr);
-            } catch (AccessDeniedException accessDeniedException) {
-                AuthorizationFailureEvent event = new AuthorizationFailureEvent(object,
-                        attr, authenticated, accessDeniedException);
+                AuthorizedEvent event = new AuthorizedEvent(object, attr,
+                        authenticated);
                 this.eventPublisher.publishEvent(event);
 
-                throw accessDeniedException;
-            }
+                // Attempt to run as a different user
+                Authentication runAs = this.runAsManager.buildRunAs(authenticated,
+                        object, attr);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Authorization successful");
-            }
+                if (runAs == null) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(
+                            "RunAsManager did not change Authentication object");
+                    }
 
-            AuthorizedEvent event = new AuthorizedEvent(object, attr,
-                    authenticated);
-            this.eventPublisher.publishEvent(event);
+                    return new InterceptorStatusToken(authenticated, false,
+                        attr, object); // no further work post-invocation
+                } else {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Switching to RunAs Authentication: "
+                            + runAs.toString());
+                    }
 
-            // Attempt to run as a different user
-            Authentication runAs = this.runAsManager.buildRunAs(authenticated,
-                    object, attr);
+                    SecurityContextHolder.getContext().setAuthentication(runAs);
 
-            if (runAs == null) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(
-                        "RunAsManager did not change Authentication object");
+                    return new InterceptorStatusToken(authenticated, true,
+                        attr, object); // revert to token.Authenticated post-invocation
                 }
-
-                return new InterceptorStatusToken(authenticated, false, attr,
-                    object); // no further work post-invocation
             } else {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Switching to RunAs Authentication: "
-                        + runAs.toString());
+                    logger.debug("Public object - authentication not attempted");
                 }
 
-                SecurityContextHolder.getContext().setAuthentication(runAs);
+                this.eventPublisher.publishEvent(new PublicInvocationEvent(
+                        object));
 
-                return new InterceptorStatusToken(authenticated, true, attr,
-                    object); // revert to token.Authenticated post-invocation
+                return null; // no further work post-invocation
             }
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Public object - authentication not attempted");
-            }
+        }
 
-            this.eventPublisher.publishEvent(new PublicInvocationEvent(object));
+        /**
+         * Helper method which generates an exception containing the passed
+         * reason, and publishes an event to the application context.
+         * 
+         * <p>
+         * Always throws an exception.
+         * </p>
+         *
+         * @param reason to be provided in the exception detail
+         * @param secureObject that was being called
+         * @param configAttribs that were defined for the secureObject
+         */
+        private void credentialsNotFound(String reason, Object secureObject,
+            ConfigAttributeDefinition configAttribs) {
+            AuthenticationCredentialsNotFoundException exception = new AuthenticationCredentialsNotFoundException(reason);
 
-            return null; // no further work post-invocation
+            AuthenticationCredentialsNotFoundEvent event = new AuthenticationCredentialsNotFoundEvent(secureObject,
+                    configAttribs, exception);
+            this.eventPublisher.publishEvent(event);
+
+            throw exception;
+        }
+
+        public AccessDecisionManager getAccessDecisionManager() {
+            return accessDecisionManager;
+        }
+
+        public AfterInvocationManager getAfterInvocationManager() {
+            return afterInvocationManager;
+        }
+
+        public AuthenticationManager getAuthenticationManager() {
+            return this.authenticationManager;
+        }
+
+        public RunAsManager getRunAsManager() {
+            return runAsManager;
+        }
+
+        /**
+         * Indicates the type of secure objects the subclass will be presenting
+         * to the abstract parent for processing. This is used to ensure
+         * collaborators wired to the <code>AbstractSecurityInterceptor</code>
+         * all support the indicated secure object class.
+         *
+         * @return the type of secure object the subclass provides services for
+         */
+        public abstract Class getSecureObjectClass();
+
+        public boolean isAlwaysReauthenticate() {
+            return alwaysReauthenticate;
+        }
+
+        public boolean isRejectPublicInvocations() {
+            return rejectPublicInvocations;
+        }
+
+        public boolean isValidateConfigAttributes() {
+            return validateConfigAttributes;
+        }
+
+        public abstract ObjectDefinitionSource obtainObjectDefinitionSource();
+
+        public void setAccessDecisionManager(
+            AccessDecisionManager accessDecisionManager) {
+            this.accessDecisionManager = accessDecisionManager;
+        }
+
+        public void setAfterInvocationManager(
+            AfterInvocationManager afterInvocationManager) {
+            this.afterInvocationManager = afterInvocationManager;
+        }
+
+        /**
+         * Indicates whether the <code>AbstractSecurityInterceptor</code>
+         * should ignore the {@link Authentication#isAuthenticated()}
+         * property. Defaults to <code>false</code>, meaning by default the
+         * <code>Authentication.isAuthenticated()</code> property is trusted
+         * and re-authentication will not occur if the principal has already
+         * been authenticated.
+         *
+         * @param alwaysReauthenticate <code>true</code> to force
+         *        <code>AbstractSecurityInterceptor</code> to disregard the
+         *        value of <code>Authentication.isAuthenticated()</code> and
+         *        always re-authenticate the request (defaults to
+         *        <code>false</code>).
+         */
+        public void setAlwaysReauthenticate(boolean alwaysReauthenticate) {
+            this.alwaysReauthenticate = alwaysReauthenticate;
+        }
+
+        public void setApplicationEventPublisher(
+            ApplicationEventPublisher eventPublisher) {
+            this.eventPublisher = eventPublisher;
+        }
+
+        public void setAuthenticationManager(AuthenticationManager newManager) {
+            this.authenticationManager = newManager;
+        }
+
+        public void setMessageSource(MessageSource messageSource) {
+            this.messages = new MessageSourceAccessor(messageSource);
+        }
+
+        /**
+         * By rejecting public invocations (and setting this property to
+         * <code>true</code>), essentially you are ensuring that every secure
+         * object invocation advised by
+         * <code>AbstractSecurityInterceptor</code> has a configuration
+         * attribute defined. This is useful to ensure a "fail safe" mode
+         * where undeclared secure objects will be rejected and configuration
+         * omissions detected early. An <code>IllegalArgumentException</code>
+         * will be thrown by the <code>AbstractSecurityInterceptor</code> if
+         * you set this property to <code>true</code> and an attempt is made
+         * to invoke a secure object that has no configuration attributes.
+         *
+         * @param rejectPublicInvocations set to <code>true</code> to reject
+         *        invocations of secure objects that have no configuration
+         *        attributes (by default it is <code>true</code> which treats
+         *        undeclared secure objects as "public" or unauthorized)
+         */
+        public void setRejectPublicInvocations(boolean rejectPublicInvocations) {
+            this.rejectPublicInvocations = rejectPublicInvocations;
+        }
+
+        public void setRunAsManager(RunAsManager runAsManager) {
+            this.runAsManager = runAsManager;
+        }
+
+        public void setValidateConfigAttributes(
+            boolean validateConfigAttributes) {
+            this.validateConfigAttributes = validateConfigAttributes;
         }
     }
-
-    /**
-     * Helper method which generates an exception containing the passed reason,
-     * and publishes an event to the application context.
-     * 
-     * <p>
-     * Always throws an exception.
-     * </p>
-     *
-     * @param reason to be provided in the exception detail
-     * @param secureObject that was being called
-     * @param configAttribs that were defined for the secureObject
-     */
-    private void credentialsNotFound(String reason, Object secureObject,
-        ConfigAttributeDefinition configAttribs) {
-        AuthenticationCredentialsNotFoundException exception = new AuthenticationCredentialsNotFoundException(reason);
-
-        AuthenticationCredentialsNotFoundEvent event = new AuthenticationCredentialsNotFoundEvent(secureObject,
-                configAttribs, exception);
-        this.eventPublisher.publishEvent(event);
-
-        throw exception;
-    }
-}

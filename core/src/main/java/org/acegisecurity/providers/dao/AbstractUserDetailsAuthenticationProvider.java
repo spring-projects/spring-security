@@ -22,11 +22,16 @@ import org.acegisecurity.CredentialsExpiredException;
 import org.acegisecurity.DisabledException;
 import org.acegisecurity.LockedException;
 import org.acegisecurity.UserDetails;
+
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.dao.cache.NullUserCache;
 
 import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
 
 import org.springframework.util.Assert;
 
@@ -62,109 +67,16 @@ import org.springframework.util.Assert;
  * incorrect password, the {@link AuthenticationDao} will be queried to
  * confirm the most up-to-date password was used for comparison.
  * </p>
- *
- * @author Ben Alex
- * @version $Id$
  */
 public abstract class AbstractUserDetailsAuthenticationProvider
-    implements AuthenticationProvider, InitializingBean {
+    implements AuthenticationProvider, InitializingBean, MessageSourceAware {
     //~ Instance fields ========================================================
 
+    protected MessageSourceAccessor messages;
     private UserCache userCache = new NullUserCache();
     private boolean forcePrincipalAsString = false;
 
     //~ Methods ================================================================
-
-    public void setForcePrincipalAsString(boolean forcePrincipalAsString) {
-        this.forcePrincipalAsString = forcePrincipalAsString;
-    }
-
-    public boolean isForcePrincipalAsString() {
-        return forcePrincipalAsString;
-    }
-
-    public void setUserCache(UserCache userCache) {
-        this.userCache = userCache;
-    }
-
-    public UserCache getUserCache() {
-        return userCache;
-    }
-
-    public final void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.userCache, "A user cache must be set");
-        doAfterPropertiesSet();
-    }
-
-    public Authentication authenticate(Authentication authentication)
-        throws AuthenticationException {
-        Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class,
-            authentication,
-            "Only UsernamePasswordAuthenticationToken is supported");
-
-        // Determine username
-        String username = (authentication.getPrincipal() == null)
-            ? "NONE_PROVIDED" : authentication.getName();
-
-        boolean cacheWasUsed = true;
-        UserDetails user = this.userCache.getUserFromCache(username);
-
-        if (user == null) {
-            cacheWasUsed = false;
-            user = retrieveUser(username,
-                    (UsernamePasswordAuthenticationToken) authentication);
-            Assert.notNull(user,
-                "retrieveUser returned null - a violation of the interface contract");
-        }
-
-        if (!user.isAccountNonLocked()) {
-            throw new LockedException("User account is locked");
-        }
-
-        if (!user.isEnabled()) {
-            throw new DisabledException("User is disabled");
-        }
-
-        if (!user.isAccountNonExpired()) {
-            throw new AccountExpiredException("User account has expired");
-        }
-
-        // This check must come here, as we don't want to tell users
-        // about account status unless they presented the correct credentials
-        try {
-            additionalAuthenticationChecks(user,
-                (UsernamePasswordAuthenticationToken) authentication);
-        } catch (AuthenticationException exception) {
-            // There was a problem, so try again after checking we're using latest data
-            cacheWasUsed = false;
-            user = retrieveUser(username,
-                    (UsernamePasswordAuthenticationToken) authentication);
-            additionalAuthenticationChecks(user,
-                (UsernamePasswordAuthenticationToken) authentication);
-        }
-
-        if (!user.isCredentialsNonExpired()) {
-            throw new CredentialsExpiredException(
-                "User credentials have expired");
-        }
-
-        if (!cacheWasUsed) {
-            this.userCache.putUserInCache(user);
-        }
-
-        Object principalToReturn = user;
-
-        if (forcePrincipalAsString) {
-            principalToReturn = user.getUsername();
-        }
-
-        return createSuccessAuthentication(principalToReturn, authentication,
-            user);
-    }
-
-    public boolean supports(Class authentication) {
-        return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
-    }
 
     /**
      * Allows subclasses to perform any additional checks of a returned (or
@@ -190,7 +102,131 @@ public abstract class AbstractUserDetailsAuthenticationProvider
         UsernamePasswordAuthenticationToken authentication)
         throws AuthenticationException;
 
+    public final void afterPropertiesSet() throws Exception {
+        Assert.notNull(this.userCache, "A user cache must be set");
+        Assert.notNull(this.messages, "A message source must be set");
+        doAfterPropertiesSet();
+    }
+
+    public Authentication authenticate(Authentication authentication)
+        throws AuthenticationException {
+        Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class,
+            authentication,
+            messages.getMessage(
+                "AbstractUserDetailsAuthenticationProvider.onlySupports",
+                "Only UsernamePasswordAuthenticationToken is supported"));
+
+        // Determine username
+        String username = (authentication.getPrincipal() == null)
+            ? "NONE_PROVIDED" : authentication.getName();
+
+        boolean cacheWasUsed = true;
+        UserDetails user = this.userCache.getUserFromCache(username);
+
+        if (user == null) {
+            cacheWasUsed = false;
+            user = retrieveUser(username,
+                    (UsernamePasswordAuthenticationToken) authentication);
+            Assert.notNull(user,
+                "retrieveUser returned null - a violation of the interface contract");
+        }
+
+        if (!user.isAccountNonLocked()) {
+            throw new LockedException(messages.getMessage(
+                    "AbstractUserDetailsAuthenticationProvider.locked",
+                    "User account is locked"));
+        }
+
+        if (!user.isEnabled()) {
+            throw new DisabledException(messages.getMessage(
+                    "AbstractUserDetailsAuthenticationProvider.disabled",
+                    "User is disabled"));
+        }
+
+        if (!user.isAccountNonExpired()) {
+            throw new AccountExpiredException(messages.getMessage(
+                    "AbstractUserDetailsAuthenticationProvider.expired",
+                    "User account has expired"));
+        }
+
+        // This check must come here, as we don't want to tell users
+        // about account status unless they presented the correct credentials
+        try {
+            additionalAuthenticationChecks(user,
+                (UsernamePasswordAuthenticationToken) authentication);
+        } catch (AuthenticationException exception) {
+            // There was a problem, so try again after checking we're using latest data
+            cacheWasUsed = false;
+            user = retrieveUser(username,
+                    (UsernamePasswordAuthenticationToken) authentication);
+            additionalAuthenticationChecks(user,
+                (UsernamePasswordAuthenticationToken) authentication);
+        }
+
+        if (!user.isCredentialsNonExpired()) {
+            throw new CredentialsExpiredException(messages.getMessage(
+                    "AbstractUserDetailsAuthenticationProvider.credentialsExpired",
+                    "User credentials have expired"));
+        }
+
+        if (!cacheWasUsed) {
+            this.userCache.putUserInCache(user);
+        }
+
+        Object principalToReturn = user;
+
+        if (forcePrincipalAsString) {
+            principalToReturn = user.getUsername();
+        }
+
+        return createSuccessAuthentication(principalToReturn, authentication,
+            user);
+    }
+
+    /**
+     * Creates a successful {@link Authentication} object.
+     * 
+     * <P>
+     * Protected so subclasses can override.
+     * </p>
+     * 
+     * <P>
+     * Subclasses will usually store the original credentials the user supplied
+     * (not salted or encoded passwords) in the returned
+     * <code>Authentication</code> object.
+     * </p>
+     *
+     * @param principal that should be the principal in the returned object
+     *        (defined by the {@link #isForcePrincipalAsString()} method)
+     * @param authentication that was presented to the
+     *        <code>DaoAuthenticationProvider</code> for validation
+     * @param user that was loaded by the <code>AuthenticationDao</code>
+     *
+     * @return the successful authentication token
+     */
+    protected Authentication createSuccessAuthentication(Object principal,
+        Authentication authentication, UserDetails user) {
+        // Ensure we return the original credentials the user supplied,
+        // so subsequent attempts are successful even with encoded passwords.
+        // Also ensure we return the original getDetails(), so that future
+        // authentication events after cache expiry contain the details
+        UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(principal,
+                authentication.getCredentials(), user.getAuthorities());
+        result.setDetails((authentication.getDetails() != null)
+            ? authentication.getDetails() : null);
+
+        return result;
+    }
+
     protected void doAfterPropertiesSet() throws Exception {}
+
+    public UserCache getUserCache() {
+        return userCache;
+    }
+
+    public boolean isForcePrincipalAsString() {
+        return forcePrincipalAsString;
+    }
 
     /**
      * Allows subclasses to actually retrieve the <code>UserDetails</code> from
@@ -243,38 +279,19 @@ public abstract class AbstractUserDetailsAuthenticationProvider
         UsernamePasswordAuthenticationToken authentication)
         throws AuthenticationException;
 
-    /**
-     * Creates a successful {@link Authentication} object.
-     * 
-     * <P>
-     * Protected so subclasses can override.
-     * </p>
-     * 
-     * <P>
-     * Subclasses will usually store the original credentials the user supplied
-     * (not salted or encoded passwords) in the returned
-     * <code>Authentication</code> object.
-     * </p>
-     *
-     * @param principal that should be the principal in the returned object
-     *        (defined by the {@link #isForcePrincipalAsString()} method)
-     * @param authentication that was presented to the
-     *        <code>DaoAuthenticationProvider</code> for validation
-     * @param user that was loaded by the <code>AuthenticationDao</code>
-     *
-     * @return the successful authentication token
-     */
-    protected Authentication createSuccessAuthentication(Object principal,
-        Authentication authentication, UserDetails user) {
-        // Ensure we return the original credentials the user supplied,
-        // so subsequent attempts are successful even with encoded passwords.
-        // Also ensure we return the original getDetails(), so that future
-        // authentication events after cache expiry contain the details
-        UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(principal,
-                authentication.getCredentials(), user.getAuthorities());
-        result.setDetails((authentication.getDetails() != null)
-            ? authentication.getDetails() : null);
+    public void setForcePrincipalAsString(boolean forcePrincipalAsString) {
+        this.forcePrincipalAsString = forcePrincipalAsString;
+    }
 
-        return result;
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
+    }
+
+    public void setUserCache(UserCache userCache) {
+        this.userCache = userCache;
+    }
+
+    public boolean supports(Class authentication) {
+        return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
     }
 }

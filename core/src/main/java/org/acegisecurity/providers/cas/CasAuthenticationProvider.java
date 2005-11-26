@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,21 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.UserDetails;
+
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.acegisecurity.ui.cas.CasProcessingFilter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+
 import org.springframework.util.Assert;
 
 
@@ -42,12 +49,9 @@ import org.springframework.util.Assert;
  * CasProcessingFilter#CAS_STATELESS_IDENTIFIER}. It can also validate a
  * previously created {@link CasAuthenticationToken}.
  * </p>
- *
- * @author Ben Alex
- * @version $Id$
  */
 public class CasAuthenticationProvider implements AuthenticationProvider,
-    InitializingBean {
+    InitializingBean, MessageSourceAware {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(CasAuthenticationProvider.class);
@@ -56,60 +60,23 @@ public class CasAuthenticationProvider implements AuthenticationProvider,
 
     private CasAuthoritiesPopulator casAuthoritiesPopulator;
     private CasProxyDecider casProxyDecider;
+    protected MessageSourceAccessor messages;
     private StatelessTicketCache statelessTicketCache;
     private String key;
     private TicketValidator ticketValidator;
 
     //~ Methods ================================================================
 
-    public void setCasAuthoritiesPopulator(
-        CasAuthoritiesPopulator casAuthoritiesPopulator) {
-        this.casAuthoritiesPopulator = casAuthoritiesPopulator;
-    }
-
-    public CasAuthoritiesPopulator getCasAuthoritiesPopulator() {
-        return casAuthoritiesPopulator;
-    }
-
-    public void setCasProxyDecider(CasProxyDecider casProxyDecider) {
-        this.casProxyDecider = casProxyDecider;
-    }
-
-    public CasProxyDecider getCasProxyDecider() {
-        return casProxyDecider;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setStatelessTicketCache(
-        StatelessTicketCache statelessTicketCache) {
-        this.statelessTicketCache = statelessTicketCache;
-    }
-
-    public StatelessTicketCache getStatelessTicketCache() {
-        return statelessTicketCache;
-    }
-
-    public void setTicketValidator(TicketValidator ticketValidator) {
-        this.ticketValidator = ticketValidator;
-    }
-
-    public TicketValidator getTicketValidator() {
-        return ticketValidator;
-    }
-
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.casAuthoritiesPopulator, "A casAuthoritiesPopulator must be set");
+        Assert.notNull(this.casAuthoritiesPopulator,
+            "A casAuthoritiesPopulator must be set");
         Assert.notNull(this.ticketValidator, "A ticketValidator must be set");
         Assert.notNull(this.casProxyDecider, "A casProxyDecider must be set");
-        Assert.notNull(this.statelessTicketCache, "A statelessTicketCache must be set");
-        Assert.notNull(key, "A Key is required so CasAuthenticationProvider can identify tokens it previously authenticated");
+        Assert.notNull(this.statelessTicketCache,
+            "A statelessTicketCache must be set");
+        Assert.notNull(key,
+            "A Key is required so CasAuthenticationProvider can identify tokens it previously authenticated");
+        Assert.notNull(this.messages, "A message source must be set");
     }
 
     public Authentication authenticate(Authentication authentication)
@@ -133,16 +100,18 @@ public class CasAuthenticationProvider implements AuthenticationProvider,
                 .getKeyHash()) {
                 return authentication;
             } else {
-                throw new BadCredentialsException(
-                    "The presented CasAuthenticationToken does not contain the expected key");
+                throw new BadCredentialsException(messages.getMessage(
+                        "CasAuthenticationProvider.incorrectKey",
+                        "The presented CasAuthenticationToken does not contain the expected key"));
             }
         }
 
         // Ensure credentials are presented
         if ((authentication.getCredentials() == null)
             || "".equals(authentication.getCredentials())) {
-            throw new BadCredentialsException(
-                "Failed to provide a CAS service ticket to validate");
+            throw new BadCredentialsException(messages.getMessage(
+                    "CasAuthenticationProvider.noServiceTicket",
+                    "Failed to provide a CAS service ticket to validate"));
         }
 
         boolean stateless = false;
@@ -173,17 +142,6 @@ public class CasAuthenticationProvider implements AuthenticationProvider,
         return result;
     }
 
-    public boolean supports(Class authentication) {
-        if (UsernamePasswordAuthenticationToken.class.isAssignableFrom(
-                authentication)) {
-            return true;
-        } else if (CasAuthenticationToken.class.isAssignableFrom(authentication)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     private CasAuthenticationToken authenticateNow(
         Authentication authentication) throws AuthenticationException {
         // Validate
@@ -202,5 +160,62 @@ public class CasAuthenticationProvider implements AuthenticationProvider,
             authentication.getCredentials(), userDetails.getAuthorities(),
             userDetails, response.getProxyList(),
             response.getProxyGrantingTicketIou());
+    }
+
+    public CasAuthoritiesPopulator getCasAuthoritiesPopulator() {
+        return casAuthoritiesPopulator;
+    }
+
+    public CasProxyDecider getCasProxyDecider() {
+        return casProxyDecider;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public StatelessTicketCache getStatelessTicketCache() {
+        return statelessTicketCache;
+    }
+
+    public TicketValidator getTicketValidator() {
+        return ticketValidator;
+    }
+
+    public void setCasAuthoritiesPopulator(
+        CasAuthoritiesPopulator casAuthoritiesPopulator) {
+        this.casAuthoritiesPopulator = casAuthoritiesPopulator;
+    }
+
+    public void setCasProxyDecider(CasProxyDecider casProxyDecider) {
+        this.casProxyDecider = casProxyDecider;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
+    }
+
+    public void setStatelessTicketCache(
+        StatelessTicketCache statelessTicketCache) {
+        this.statelessTicketCache = statelessTicketCache;
+    }
+
+    public void setTicketValidator(TicketValidator ticketValidator) {
+        this.ticketValidator = ticketValidator;
+    }
+
+    public boolean supports(Class authentication) {
+        if (UsernamePasswordAuthenticationToken.class.isAssignableFrom(
+                authentication)) {
+            return true;
+        } else if (CasAuthenticationToken.class.isAssignableFrom(authentication)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

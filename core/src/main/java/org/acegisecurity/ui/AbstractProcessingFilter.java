@@ -15,7 +15,32 @@
 
 package org.acegisecurity.ui;
 
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationManager;
+
+import org.acegisecurity.context.SecurityContextHolder;
+
+import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
+
+import org.acegisecurity.ui.rememberme.NullRememberMeServices;
+import org.acegisecurity.ui.rememberme.RememberMeServices;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+
+import org.springframework.util.Assert;
+
 import java.io.IOException;
+
 import java.util.Properties;
 
 import javax.servlet.Filter;
@@ -26,21 +51,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationManager;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
-import org.acegisecurity.ui.rememberme.NullRememberMeServices;
-import org.acegisecurity.ui.rememberme.RememberMeServices;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.util.Assert;
 
 
 /**
@@ -115,20 +125,16 @@ import org.springframework.util.Assert;
  * 
  * <p>
  * If authentication is successful, an {@link
- * org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent} will be
- * published to the application context. No events will be published if
- * authentication was unsuccessful, because this would generally be recorded
- * via an <code>AuthenticationManager</code>-specific application event.
+ * org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent}
+ * will be published to the application context. No events will be published
+ * if authentication was unsuccessful, because this would generally be
+ * recorded via an <code>AuthenticationManager</code>-specific application
+ * event.
  * </p>
- *
- * @author Ben Alex
- * @author colin sampaleanu
- * @author Ray Krueger
- * @version $Id$
  */
 public abstract class AbstractProcessingFilter implements Filter,
-    InitializingBean, ApplicationEventPublisherAware  {
-    //~ Static fields/initializersApplicationContextAware =============================================
+    InitializingBean, ApplicationEventPublisherAware, MessageSourceAware {
+    //~ Static fields/initializers =============================================
 
     public static final String ACEGI_SECURITY_TARGET_URL_KEY = "ACEGI_SECURITY_TARGET_URL";
     public static final String ACEGI_SECURITY_LAST_EXCEPTION_KEY = "ACEGI_SECURITY_LAST_EXCEPTION";
@@ -138,6 +144,7 @@ public abstract class AbstractProcessingFilter implements Filter,
 
     private ApplicationEventPublisher eventPublisher;
     private AuthenticationManager authenticationManager;
+    protected MessageSourceAccessor messages;
     private Properties exceptionMappings = new Properties();
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
 
@@ -173,65 +180,15 @@ public abstract class AbstractProcessingFilter implements Filter,
 
     //~ Methods ================================================================
 
-    public void setAlwaysUseDefaultTargetUrl(boolean alwaysUseDefaultTargetUrl) {
-        this.alwaysUseDefaultTargetUrl = alwaysUseDefaultTargetUrl;
-    }
-
-    public boolean isAlwaysUseDefaultTargetUrl() {
-        return alwaysUseDefaultTargetUrl;
-    }
-
-    public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
-        this.eventPublisher = eventPublisher;
-    }
-
-    public void setContinueChainBeforeSuccessfulAuthentication(
-        boolean continueChainBeforeSuccessfulAuthentication) {
-        this.continueChainBeforeSuccessfulAuthentication = continueChainBeforeSuccessfulAuthentication;
-    }
-
-    public boolean isContinueChainBeforeSuccessfulAuthentication() {
-        return continueChainBeforeSuccessfulAuthentication;
-    }
-
-    /**
-     * Specifies the default <code>filterProcessesUrl</code> for the
-     * implementation.
-     *
-     * @return the default <code>filterProcessesUrl</code>
-     */
-    public abstract String getDefaultFilterProcessesUrl();
-
-    public void setDefaultTargetUrl(String defaultTargetUrl) {
-        this.defaultTargetUrl = defaultTargetUrl;
-    }
-
-    public String getDefaultTargetUrl() {
-        return defaultTargetUrl;
-    }
-
-    public void setExceptionMappings(Properties exceptionMappings) {
-        this.exceptionMappings = exceptionMappings;
-    }
-
-    public Properties getExceptionMappings() {
-        return new Properties(exceptionMappings);
-    }
-
-    public void setFilterProcessesUrl(String filterProcessesUrl) {
-        this.filterProcessesUrl = filterProcessesUrl;
-    }
-
-    public String getFilterProcessesUrl() {
-        return filterProcessesUrl;
-    }
-
-    public void setRememberMeServices(RememberMeServices rememberMeServices) {
-        this.rememberMeServices = rememberMeServices;
-    }
-
-    public RememberMeServices getRememberMeServices() {
-        return rememberMeServices;
+    public void afterPropertiesSet() throws Exception {
+        Assert.hasLength(filterProcessesUrl,
+            "filterProcessesUrl must be specified");
+        Assert.hasLength(defaultTargetUrl, "defaultTargetUrl must be specified");
+        Assert.hasLength(authenticationFailureUrl,
+            "authenticationFailureUrl must be specified");
+        Assert.notNull(authenticationManager,
+            "authenticationManager must be specified");
+        Assert.notNull(this.rememberMeServices);
     }
 
     /**
@@ -246,34 +203,6 @@ public abstract class AbstractProcessingFilter implements Filter,
      */
     public abstract Authentication attemptAuthentication(
         HttpServletRequest request) throws AuthenticationException;
-
-    public void setAuthenticationFailureUrl(String authenticationFailureUrl) {
-        this.authenticationFailureUrl = authenticationFailureUrl;
-    }
-
-    public String getAuthenticationFailureUrl() {
-        return authenticationFailureUrl;
-    }
-
-    public void setAuthenticationManager(
-        AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-    }
-
-    public AuthenticationManager getAuthenticationManager() {
-        return authenticationManager;
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.hasLength(filterProcessesUrl,
-            "filterProcessesUrl must be specified");
-        Assert.hasLength(defaultTargetUrl, "defaultTargetUrl must be specified");
-        Assert.hasLength(authenticationFailureUrl,
-            "authenticationFailureUrl must be specified");
-        Assert.notNull(authenticationManager,
-            "authenticationManager must be specified");
-        Assert.notNull(this.rememberMeServices);
-    }
 
     /**
      * Does nothing. We use IoC container lifecycle services instead.
@@ -324,6 +253,38 @@ public abstract class AbstractProcessingFilter implements Filter,
         chain.doFilter(request, response);
     }
 
+    public String getAuthenticationFailureUrl() {
+        return authenticationFailureUrl;
+    }
+
+    public AuthenticationManager getAuthenticationManager() {
+        return authenticationManager;
+    }
+
+    /**
+     * Specifies the default <code>filterProcessesUrl</code> for the
+     * implementation.
+     *
+     * @return the default <code>filterProcessesUrl</code>
+     */
+    public abstract String getDefaultFilterProcessesUrl();
+
+    public String getDefaultTargetUrl() {
+        return defaultTargetUrl;
+    }
+
+    public Properties getExceptionMappings() {
+        return new Properties(exceptionMappings);
+    }
+
+    public String getFilterProcessesUrl() {
+        return filterProcessesUrl;
+    }
+
+    public RememberMeServices getRememberMeServices() {
+        return rememberMeServices;
+    }
+
     /**
      * Does nothing. We use IoC container lifecycle services instead.
      *
@@ -332,6 +293,14 @@ public abstract class AbstractProcessingFilter implements Filter,
      * @throws ServletException ignored
      */
     public void init(FilterConfig arg0) throws ServletException {}
+
+    public boolean isAlwaysUseDefaultTargetUrl() {
+        return alwaysUseDefaultTargetUrl;
+    }
+
+    public boolean isContinueChainBeforeSuccessfulAuthentication() {
+        return continueChainBeforeSuccessfulAuthentication;
+    }
 
     protected void onPreAuthentication(HttpServletRequest request,
         HttpServletResponse response) throws IOException {}
@@ -380,6 +349,49 @@ public abstract class AbstractProcessingFilter implements Filter,
         return uri.endsWith(request.getContextPath() + filterProcessesUrl);
     }
 
+    public void setAlwaysUseDefaultTargetUrl(boolean alwaysUseDefaultTargetUrl) {
+        this.alwaysUseDefaultTargetUrl = alwaysUseDefaultTargetUrl;
+    }
+
+    public void setApplicationEventPublisher(
+        ApplicationEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    public void setAuthenticationFailureUrl(String authenticationFailureUrl) {
+        this.authenticationFailureUrl = authenticationFailureUrl;
+    }
+
+    public void setAuthenticationManager(
+        AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
+
+    public void setContinueChainBeforeSuccessfulAuthentication(
+        boolean continueChainBeforeSuccessfulAuthentication) {
+        this.continueChainBeforeSuccessfulAuthentication = continueChainBeforeSuccessfulAuthentication;
+    }
+
+    public void setDefaultTargetUrl(String defaultTargetUrl) {
+        this.defaultTargetUrl = defaultTargetUrl;
+    }
+
+    public void setExceptionMappings(Properties exceptionMappings) {
+        this.exceptionMappings = exceptionMappings;
+    }
+
+    public void setFilterProcessesUrl(String filterProcessesUrl) {
+        this.filterProcessesUrl = filterProcessesUrl;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
+    }
+
+    public void setRememberMeServices(RememberMeServices rememberMeServices) {
+        this.rememberMeServices = rememberMeServices;
+    }
+
     protected void successfulAuthentication(HttpServletRequest request,
         HttpServletResponse response, Authentication authResult)
         throws IOException {
@@ -395,7 +407,8 @@ public abstract class AbstractProcessingFilter implements Filter,
                 + authResult + "'");
         }
 
-        String targetUrl = (String) request.getSession().getAttribute(ACEGI_SECURITY_TARGET_URL_KEY);
+        String targetUrl = (String) request.getSession()
+                                           .getAttribute(ACEGI_SECURITY_TARGET_URL_KEY);
         request.getSession().removeAttribute(ACEGI_SECURITY_TARGET_URL_KEY);
 
         if (alwaysUseDefaultTargetUrl == true) {
@@ -444,8 +457,8 @@ public abstract class AbstractProcessingFilter implements Filter,
         }
 
         try {
-            request.getSession().setAttribute(ACEGI_SECURITY_LAST_EXCEPTION_KEY,
-                failed);
+            request.getSession()
+                   .setAttribute(ACEGI_SECURITY_LAST_EXCEPTION_KEY, failed);
         } catch (Exception ignored) {}
 
         onUnsuccessfulAuthentication(request, response);

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+
 import org.springframework.util.Assert;
 
 import java.util.List;
@@ -35,11 +40,9 @@ import java.util.List;
  * Also accepts the request if there was no proxy (ie the user directly
  * authenticated against this service).
  * </p>
- *
- * @author Ben Alex
- * @version $Id$
  */
-public class NamedCasProxyDecider implements CasProxyDecider, InitializingBean {
+public class NamedCasProxyDecider implements CasProxyDecider, InitializingBean,
+    MessageSourceAware {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(NamedCasProxyDecider.class);
@@ -47,19 +50,13 @@ public class NamedCasProxyDecider implements CasProxyDecider, InitializingBean {
     //~ Instance fields ========================================================
 
     private List validProxies;
+    protected MessageSourceAccessor messages;
 
     //~ Methods ================================================================
 
-    public void setValidProxies(List validProxies) {
-        this.validProxies = validProxies;
-    }
-
-    public List getValidProxies() {
-        return validProxies;
-    }
-
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(this.validProxies, "A validProxies list must be set");
+        Assert.notNull(this.messages, "A message source must be set");
     }
 
     public void confirmProxyListTrusted(List proxyList)
@@ -76,8 +73,22 @@ public class NamedCasProxyDecider implements CasProxyDecider, InitializingBean {
         }
 
         if (!validProxies.contains(proxyList.get(0))) {
-            throw new ProxyUntrustedException("Nearest proxy '"
-                    + proxyList.get(0) + "' is untrusted");
+            throw new ProxyUntrustedException(messages.getMessage(
+                    "NamedCasProxyDecider.untrusted",
+                    new Object[] {proxyList.get(0)},
+                    "Nearest proxy {0} is untrusted"));
         }
+    }
+
+    public List getValidProxies() {
+        return validProxies;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
+    }
+
+    public void setValidProxies(List validProxies) {
+        this.validProxies = validProxies;
     }
 }

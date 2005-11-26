@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,15 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.providers.TestingAuthenticationToken;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
+import org.springframework.context.support.StaticMessageSource;
 
 
 /**
  * Tests {@link RunAsImplAuthenticationProvider}.
- *
- * @author Ben Alex
- * @version $Id$
  */
 public class RunAsImplAuthenticationProviderTests extends TestCase {
     //~ Constructors ===========================================================
@@ -44,12 +44,12 @@ public class RunAsImplAuthenticationProviderTests extends TestCase {
 
     //~ Methods ================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public static void main(String[] args) {
         junit.textui.TestRunner.run(RunAsImplAuthenticationProviderTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testAuthenticationFailDueToWrongKey() {
@@ -59,6 +59,7 @@ public class RunAsImplAuthenticationProviderTests extends TestCase {
                         "ROLE_TWO")}, UsernamePasswordAuthenticationToken.class);
         RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
         provider.setKey("hello_world");
+        provider.setMessageSource(new StaticMessageSource());
 
         try {
             provider.authenticate(token);

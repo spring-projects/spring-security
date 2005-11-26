@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,6 @@ import java.util.Iterator;
  * Simple concrete implementation of  {@link
  * org.acegisecurity.AccessDecisionManager} that grants access if any
  * <code>AccessDecisionVoter</code> returns an affirmative response.
- *
- * @author Ben Alex
- * @version $Id$
  */
 public class AffirmativeBased extends AbstractAccessDecisionManager {
     //~ Static fields/initializers =============================================
@@ -83,14 +80,18 @@ public class AffirmativeBased extends AbstractAccessDecisionManager {
         }
 
         if (deny > 0) {
-            throw new AccessDeniedException("Access is denied.");
+            throw new AccessDeniedException(messages.getMessage(
+                    "AbstractAccessDecisionManager.accessDenied",
+                    "Access is denied"));
         }
 
         // To get this far, every AccessDecisionVoter abstained
         if (this.isAllowIfAllAbstainDecisions()) {
             return;
         } else {
-            throw new AccessDeniedException("Access is denied.");
+            throw new AccessDeniedException(messages.getMessage(
+                    "AbstractAccessDecisionManager.accessDenied",
+                    "Access is denied"));
         }
     }
 }

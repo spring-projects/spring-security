@@ -18,6 +18,7 @@ package org.acegisecurity.providers.cas.proxy;
 import junit.framework.TestCase;
 
 import org.acegisecurity.providers.cas.ProxyUntrustedException;
+import org.springframework.context.support.StaticMessageSource;
 
 import java.util.List;
 import java.util.Vector;
@@ -71,6 +72,7 @@ public class RejectProxyTicketsTests extends TestCase {
 
     public void testRejectsIfAnyProxyInList() {
         RejectProxyTickets proxyDecider = new RejectProxyTickets();
+        proxyDecider.setMessageSource(new StaticMessageSource());
         List proxyList = new Vector();
         proxyList.add("https://localhost/webApp/j_acegi_cas_security_check");
 

@@ -23,6 +23,7 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.SecurityConfig;
 import org.acegisecurity.providers.TestingAuthenticationToken;
+import org.springframework.context.support.StaticMessageSource;
 
 import java.util.List;
 import java.util.Vector;
@@ -59,6 +60,7 @@ public class UnanimousBasedTests extends TestCase {
         throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
+        mgr.setMessageSource(new StaticMessageSource());
 
         ConfigAttributeDefinition config = new ConfigAttributeDefinition();
         config.addConfigAttribute(new SecurityConfig("ROLE_1")); // grant
@@ -76,6 +78,7 @@ public class UnanimousBasedTests extends TestCase {
         throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
+        mgr.setMessageSource(new StaticMessageSource());
 
         ConfigAttributeDefinition config = new ConfigAttributeDefinition();
         config.addConfigAttribute(new SecurityConfig("ROLE_2")); // grant
@@ -88,6 +91,7 @@ public class UnanimousBasedTests extends TestCase {
         throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
+        mgr.setMessageSource(new StaticMessageSource());
 
         ConfigAttributeDefinition config = new ConfigAttributeDefinition();
         config.addConfigAttribute(new SecurityConfig("ROLE_WE_DO_NOT_HAVE")); // deny
@@ -103,6 +107,7 @@ public class UnanimousBasedTests extends TestCase {
     public void testRoleVoterPrefixObserved() throws Exception {
         TestingAuthenticationToken auth = makeTestTokenWithFooBarPrefix();
         UnanimousBased mgr = makeDecisionManagerWithFooBarPrefix();
+        mgr.setMessageSource(new StaticMessageSource());
 
         ConfigAttributeDefinition config = new ConfigAttributeDefinition();
         config.addConfigAttribute(new SecurityConfig("FOOBAR_1")); // grant
@@ -116,6 +121,7 @@ public class UnanimousBasedTests extends TestCase {
         throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
+        mgr.setMessageSource(new StaticMessageSource());
 
         assertTrue(!mgr.isAllowIfAllAbstainDecisions()); // check default
 
@@ -135,6 +141,7 @@ public class UnanimousBasedTests extends TestCase {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
         mgr.setAllowIfAllAbstainDecisions(true);
+        mgr.setMessageSource(new StaticMessageSource());
         assertTrue(mgr.isAllowIfAllAbstainDecisions()); // check changed
 
         ConfigAttributeDefinition config = new ConfigAttributeDefinition();
@@ -148,6 +155,7 @@ public class UnanimousBasedTests extends TestCase {
         throws Exception {
         TestingAuthenticationToken auth = makeTestToken();
         UnanimousBased mgr = makeDecisionManager();
+        mgr.setMessageSource(new StaticMessageSource());
 
         ConfigAttributeDefinition config = new ConfigAttributeDefinition();
         config.addConfigAttribute(new SecurityConfig("ROLE_1")); // grant
@@ -159,6 +167,7 @@ public class UnanimousBasedTests extends TestCase {
 
     private UnanimousBased makeDecisionManager() {
         UnanimousBased decisionManager = new UnanimousBased();
+        decisionManager.setMessageSource(new StaticMessageSource());
         RoleVoter roleVoter = new RoleVoter();
         DenyVoter denyForSureVoter = new DenyVoter();
         DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
@@ -173,6 +182,7 @@ public class UnanimousBasedTests extends TestCase {
 
     private UnanimousBased makeDecisionManagerWithFooBarPrefix() {
         UnanimousBased decisionManager = new UnanimousBased();
+        decisionManager.setMessageSource(new StaticMessageSource());
         RoleVoter roleVoter = new RoleVoter();
         roleVoter.setRolePrefix("FOOBAR_");
 

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,12 @@ import org.acegisecurity.ConfigAttribute;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+
+import org.springframework.util.Assert;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -32,26 +38,40 @@ import java.util.List;
  * AccessDecisionVoter}s and the access control behaviour if all  voters
  * abstain from voting (defaults to deny access).
  * </p>
- *
- * @author Ben Alex
- * @version $Id$
  */
 public abstract class AbstractAccessDecisionManager
-    implements AccessDecisionManager, InitializingBean {
+    implements AccessDecisionManager, InitializingBean, MessageSourceAware {
     //~ Instance fields ========================================================
 
     private List decisionVoters;
+    protected MessageSourceAccessor messages;
     private boolean allowIfAllAbstainDecisions = false;
 
     //~ Methods ================================================================
 
-    public void setAllowIfAllAbstainDecisions(
-        boolean allowIfAllAbstainDecisions) {
-        this.allowIfAllAbstainDecisions = allowIfAllAbstainDecisions;
+    public void afterPropertiesSet() throws Exception {
+        checkIfValidList(this.decisionVoters);
+        Assert.notNull(this.messages, "A message source must be set");
+    }
+
+    private void checkIfValidList(List listToCheck) {
+        if ((listToCheck == null) || (listToCheck.size() == 0)) {
+            throw new IllegalArgumentException(
+                "A list of AccessDecisionVoters is required");
+        }
+    }
+
+    public List getDecisionVoters() {
+        return this.decisionVoters;
     }
 
     public boolean isAllowIfAllAbstainDecisions() {
         return allowIfAllAbstainDecisions;
+    }
+
+    public void setAllowIfAllAbstainDecisions(
+        boolean allowIfAllAbstainDecisions) {
+        this.allowIfAllAbstainDecisions = allowIfAllAbstainDecisions;
     }
 
     public void setDecisionVoters(List newList) {
@@ -76,12 +96,8 @@ public abstract class AbstractAccessDecisionManager
         this.decisionVoters = newList;
     }
 
-    public List getDecisionVoters() {
-        return this.decisionVoters;
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        checkIfValidList(this.decisionVoters);
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
     }
 
     public boolean supports(ConfigAttribute attribute) {
@@ -123,12 +139,5 @@ public abstract class AbstractAccessDecisionManager
         }
 
         return true;
-    }
-
-    private void checkIfValidList(List listToCheck) {
-        if ((listToCheck == null) || (listToCheck.size() == 0)) {
-            throw new IllegalArgumentException(
-                "A list of AccessDecisionVoters is required");
-        }
     }
 }

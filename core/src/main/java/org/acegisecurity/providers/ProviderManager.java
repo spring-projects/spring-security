@@ -24,9 +24,11 @@ import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.CredentialsExpiredException;
 import org.acegisecurity.DisabledException;
 import org.acegisecurity.LockedException;
+
 import org.acegisecurity.concurrent.ConcurrentLoginException;
 import org.acegisecurity.concurrent.ConcurrentSessionController;
 import org.acegisecurity.concurrent.NullConcurrentSessionController;
+
 import org.acegisecurity.event.authentication.AbstractAuthenticationEvent;
 import org.acegisecurity.event.authentication.AuthenticationFailureBadCredentialsEvent;
 import org.acegisecurity.event.authentication.AuthenticationFailureConcurrentLoginEvent;
@@ -38,6 +40,7 @@ import org.acegisecurity.event.authentication.AuthenticationFailureProviderNotFo
 import org.acegisecurity.event.authentication.AuthenticationFailureProxyUntrustedEvent;
 import org.acegisecurity.event.authentication.AuthenticationFailureServiceExceptionEvent;
 import org.acegisecurity.event.authentication.AuthenticationSuccessEvent;
+
 import org.acegisecurity.providers.cas.ProxyUntrustedException;
 import org.acegisecurity.providers.dao.UsernameNotFoundException;
 
@@ -48,6 +51,9 @@ import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
 
 import org.springframework.util.Assert;
 
@@ -85,8 +91,8 @@ import java.util.Properties;
  * If a valid <code>Authentication</code> is returned by an
  * <code>AuthenticationProvider</code>, the <code>ProviderManager</code> will
  * publish an {@link
- * org.acegisecurity.event.authentication.AuthenticationSuccessEvent}. If
- * an <code>AuthenticationException</code> is detected, the final
+ * org.acegisecurity.event.authentication.AuthenticationSuccessEvent}. If an
+ * <code>AuthenticationException</code> is detected, the final
  * <code>AuthenticationException</code> thrown will be used to publish an
  * appropriate failure event. By default <code>ProviderManager</code> maps
  * common exceptions to events, but this can be fine-tuned by providing a new
@@ -98,15 +104,11 @@ import java.util.Properties;
  * and provides its constructor.
  * </p>
  *
- * @author Ben Alex
- * @author Wesley Hall
- * @author Ray Krueger
- * @version $Id$
- *
  * @see ConcurrentSessionController
  */
 public class ProviderManager extends AbstractAuthenticationManager
-    implements InitializingBean, ApplicationEventPublisherAware {
+    implements InitializingBean, ApplicationEventPublisherAware,
+        MessageSourceAware {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(ProviderManager.class);
@@ -116,74 +118,14 @@ public class ProviderManager extends AbstractAuthenticationManager
     private ApplicationEventPublisher applicationEventPublisher;
     private ConcurrentSessionController sessionController = new NullConcurrentSessionController();
     private List providers;
+    protected MessageSourceAccessor messages;
     private Properties exceptionMappings;
 
     //~ Methods ================================================================
 
-    public void setApplicationEventPublisher(
-        ApplicationEventPublisher applicationEventPublisher) {
-        this.applicationEventPublisher = applicationEventPublisher;
-    }
-
-    /**
-     * Sets the {@link AuthenticationProvider} objects to be used for
-     * authentication.
-     *
-     * @param newList
-     *
-     * @throws IllegalArgumentException DOCUMENT ME!
-     */
-    public void setProviders(List newList) {
-        checkIfValidList(newList);
-
-        Iterator iter = newList.iterator();
-
-        while (iter.hasNext()) {
-            Object currentObject = null;
-
-            try {
-                currentObject = iter.next();
-
-                AuthenticationProvider attemptToCast = (AuthenticationProvider) currentObject;
-            } catch (ClassCastException cce) {
-                throw new IllegalArgumentException("AuthenticationProvider "
-                    + currentObject.getClass().getName()
-                    + " must implement AuthenticationProvider");
-            }
-        }
-
-        this.providers = newList;
-    }
-
-    public List getProviders() {
-        return this.providers;
-    }
-
-    /**
-     * Set the {@link ConcurrentSessionController} to be used for limiting
-     * user's sessions.  The {@link NullConcurrentSessionController} is used
-     * by default
-     *
-     * @param sessionController {@link ConcurrentSessionController}
-     */
-    public void setSessionController(
-        ConcurrentSessionController sessionController) {
-        this.sessionController = sessionController;
-    }
-
-    /**
-     * The configured {@link ConcurrentSessionController} is returned or the
-     * {@link NullConcurrentSessionController} if a specific one has not been
-     * set.
-     *
-     * @return {@link ConcurrentSessionController} instance
-     */
-    public ConcurrentSessionController getSessionController() {
-        return sessionController;
-    }
-
     public void afterPropertiesSet() throws Exception {
         checkIfValidList(this.providers);
+        Assert.notNull(this.messages, "A message source must be set");
 
         if (exceptionMappings == null) {
             exceptionMappings = new Properties();
@@ -210,6 +152,23 @@ public class ProviderManager extends AbstractAuthenticationManager
             doAddExtraDefaultExceptionMappings(exceptionMappings);
         }
     }
+
+    private void checkIfValidList(List listToCheck) {
+        if ((listToCheck == null) || (listToCheck.size() == 0)) {
+            throw new IllegalArgumentException(
+                "A list of AuthenticationManagers is required");
+        }
+    }
+
+    /**
+     * Provided so subclasses can add extra exception mappings during startup
+     * if no exception mappings are injected by the IoC container.
+     *
+     * @param exceptionMappings the properties object, which already has
+     *        entries in it
+     */
+    protected void doAddExtraDefaultExceptionMappings(
+        Properties exceptionMappings) {}
 
     /**
      * Attempts to authenticate the passed {@link Authentication} object.
@@ -244,8 +203,7 @@ public class ProviderManager extends AbstractAuthenticationManager
         AuthenticationException lastException = null;
 
         while (iter.hasNext()) {
-            AuthenticationProvider provider = (AuthenticationProvider) iter
-                .next();
+            AuthenticationProvider provider = (AuthenticationProvider) iter.next();
 
             if (provider.supports(toTest)) {
                 logger.debug("Authentication attempt using "
@@ -272,8 +230,10 @@ public class ProviderManager extends AbstractAuthenticationManager
         }
 
         if (lastException == null) {
-            lastException = new ProviderNotFoundException(
-                    "No authentication provider for " + toTest.getName());
+            lastException = new ProviderNotFoundException(messages.getMessage(
+                        "ProviderManager.providerNotFound",
+                        new Object[] {toTest.getName()},
+                        "No AuthenticationProvider found for {0}"));
         }
 
         // Publish the event
@@ -309,20 +269,69 @@ public class ProviderManager extends AbstractAuthenticationManager
         throw lastException;
     }
 
-    /**
-     * Provided so subclasses can add extra exception mappings during startup
-     * if no exception mappings are injected by the IoC container.
-     *
-     * @param exceptionMappings the properties object, which already has
-     *        entries in it
-     */
-    protected void doAddExtraDefaultExceptionMappings(
-        Properties exceptionMappings) {}
+    public List getProviders() {
+        return this.providers;
+    }
 
-    private void checkIfValidList(List listToCheck) {
-        if ((listToCheck == null) || (listToCheck.size() == 0)) {
-            throw new IllegalArgumentException(
-                "A list of AuthenticationManagers is required");
+    /**
+     * The configured {@link ConcurrentSessionController} is returned or the
+     * {@link NullConcurrentSessionController} if a specific one has not been
+     * set.
+     *
+     * @return {@link ConcurrentSessionController} instance
+     */
+    public ConcurrentSessionController getSessionController() {
+        return sessionController;
+    }
+
+    public void setApplicationEventPublisher(
+        ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
+    }
+
+    /**
+     * Sets the {@link AuthenticationProvider} objects to be used for
+     * authentication.
+     *
+     * @param newList
+     *
+     * @throws IllegalArgumentException DOCUMENT ME!
+     */
+    public void setProviders(List newList) {
+        checkIfValidList(newList);
+
+        Iterator iter = newList.iterator();
+
+        while (iter.hasNext()) {
+            Object currentObject = null;
+
+            try {
+                currentObject = iter.next();
+
+                AuthenticationProvider attemptToCast = (AuthenticationProvider) currentObject;
+            } catch (ClassCastException cce) {
+                throw new IllegalArgumentException("AuthenticationProvider "
+                    + currentObject.getClass().getName()
+                    + " must implement AuthenticationProvider");
+            }
         }
+
+        this.providers = newList;
+    }
+
+    /**
+     * Set the {@link ConcurrentSessionController} to be used for limiting
+     * user's sessions.  The {@link NullConcurrentSessionController} is used
+     * by default
+     *
+     * @param sessionController {@link ConcurrentSessionController}
+     */
+    public void setSessionController(
+        ConcurrentSessionController sessionController) {
+        this.sessionController = sessionController;
     }
 }

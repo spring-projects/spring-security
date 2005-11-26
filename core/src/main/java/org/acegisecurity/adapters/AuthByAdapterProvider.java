@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,15 @@ package org.acegisecurity.adapters;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
+
 import org.acegisecurity.providers.AuthenticationProvider;
 
 import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+
 import org.springframework.util.Assert;
 
 
@@ -38,28 +44,20 @@ import org.springframework.util.Assert;
  * <P>
  * If the key does not match, a <code>BadCredentialsException</code> is thrown.
  * </p>
- *
- * @author Ben Alex
- * @version $Id$
  */
 public class AuthByAdapterProvider implements InitializingBean,
-    AuthenticationProvider {
+    AuthenticationProvider, MessageSourceAware {
     //~ Instance fields ========================================================
 
+    protected MessageSourceAccessor messages;
     private String key;
 
     //~ Methods ================================================================
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(key, "A Key is required and should match that configured for the adapters");
+        Assert.notNull(key,
+            "A Key is required and should match that configured for the adapters");
+        Assert.notNull(messages, "A message source must be set");
     }
 
     public Authentication authenticate(Authentication authentication)
@@ -69,9 +67,22 @@ public class AuthByAdapterProvider implements InitializingBean,
         if (token.getKeyHash() == key.hashCode()) {
             return authentication;
         } else {
-            throw new BadCredentialsException(
-                "The presented AuthByAdapter implementation does not contain the expected key");
+            throw new BadCredentialsException(messages.getMessage(
+                    "AuthByAdapterProvider.incorrectKey",
+                    "The presented AuthByAdapter implementation does not contain the expected key"));
         }
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
     }
 
     public boolean supports(Class authentication) {

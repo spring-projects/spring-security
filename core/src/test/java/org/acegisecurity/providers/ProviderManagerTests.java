@@ -29,6 +29,7 @@ import org.acegisecurity.concurrent.NullConcurrentSessionController;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.support.StaticMessageSource;
 
 
 /**
@@ -182,8 +183,8 @@ public class ProviderManagerTests extends TestCase {
 
         ProviderManager mgr = new ProviderManager();
         mgr.setProviders(providers);
+        mgr.setMessageSource(new StaticMessageSource());
         
-
         mgr.afterPropertiesSet();
         return mgr;
     }

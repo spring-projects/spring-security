@@ -19,13 +19,17 @@ import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationServiceException;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.UserDetails;
+
 import org.acegisecurity.context.SecurityContextHolder;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.dao.AuthenticationDao;
 import org.acegisecurity.providers.dao.UserCache;
 import org.acegisecurity.providers.dao.UsernameNotFoundException;
 import org.acegisecurity.providers.dao.cache.NullUserCache;
+
 import org.acegisecurity.ui.WebAuthenticationDetails;
+
 import org.acegisecurity.util.StringSplitUtils;
 
 import org.apache.commons.codec.binary.Base64;
@@ -34,6 +38,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
 
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -72,19 +80,22 @@ import javax.servlet.http.HttpServletResponse;
  * <p>
  * This Digest implementation has been designed to avoid needing to store
  * session state between invocations. All session management information is
- * stored in the "nonce" that is sent to the client by the {@link DigestProcessingFilterEntryPoint}.
+ * stored in the "nonce" that is sent to the client by the {@link
+ * DigestProcessingFilterEntryPoint}.
  * </p>
  * 
  * <P>
- * If authentication is successful, the resulting {@link org.acegisecurity.Authentication Authentication}
- * object will be placed into the <code>SecurityContextHolder</code>.
+ * If authentication is successful, the resulting {@link
+ * org.acegisecurity.Authentication Authentication} object will be placed into
+ * the <code>SecurityContextHolder</code>.
  * </p>
  * 
  * <p>
- * If authentication fails, an
- * {@link org.acegisecurity.intercept.web.AuthenticationEntryPoint AuthenticationEntryPoint}
- * implementation is called. This must always be {@link DigestProcessingFilterEntryPoint},
- * which will prompt the user to authenticate again via Digest authentication.
+ * If authentication fails, an {@link
+ * org.acegisecurity.intercept.web.AuthenticationEntryPoint
+ * AuthenticationEntryPoint} implementation is called. This must always be
+ * {@link DigestProcessingFilterEntryPoint}, which will prompt the user to
+ * authenticate again via Digest authentication.
  * </p>
  * 
  * <P>
@@ -100,11 +111,9 @@ import javax.servlet.http.HttpServletResponse;
  * <code>web.xml</code> to use the {@link
  * org.acegisecurity.util.FilterToBeanProxy}.
  * </p>
- *
- * @author Ben Alex
- * @version $Id$
  */
-public class DigestProcessingFilter implements Filter, InitializingBean {
+public class DigestProcessingFilter implements Filter, InitializingBean,
+    MessageSourceAware {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(DigestProcessingFilter.class);
@@ -113,31 +122,11 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
 
     private AuthenticationDao authenticationDao;
     private DigestProcessingFilterEntryPoint authenticationEntryPoint;
+    protected MessageSourceAccessor messages;
     private UserCache userCache = new NullUserCache();
     private boolean passwordAlreadyEncoded = false;
 
     //~ Methods ================================================================
-
-    public void setPasswordAlreadyEncoded(boolean passwordAlreadyEncoded) {
-		this.passwordAlreadyEncoded = passwordAlreadyEncoded;
-	}
-
-	public void setAuthenticationDao(AuthenticationDao authenticationDao) {
-        this.authenticationDao = authenticationDao;
-    }
-
-    public AuthenticationDao getAuthenticationDao() {
-        return authenticationDao;
-    }
-
-    public void setAuthenticationEntryPoint(
-        DigestProcessingFilterEntryPoint authenticationEntryPoint) {
-        this.authenticationEntryPoint = authenticationEntryPoint;
-    }
-
-    public DigestProcessingFilterEntryPoint getAuthenticationEntryPoint() {
-        return authenticationEntryPoint;
-    }
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(authenticationDao, "An AuthenticationDao is required");
@@ -169,8 +158,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
         if ((header != null) && header.startsWith("Digest ")) {
             String section212response = header.substring(7);
 
-            String[] headerEntries = StringUtils
-                .commaDelimitedListToStringArray(section212response);
+            String[] headerEntries = StringUtils.commaDelimitedListToStringArray(section212response);
             Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries,
                     "=", "\"");
 
@@ -194,9 +182,10 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
                 }
 
                 fail(request, response,
-                    new BadCredentialsException(
-                        "Missing mandatory digest value; received header '"
-                        + section212response + "'"));
+                    new BadCredentialsException(messages.getMessage(
+                            "DigestProcessingFilter.missingMandatory",
+                            new Object[] {section212response},
+                            "Missing mandatory digest value; received header {0}")));
 
                 return;
             }
@@ -210,9 +199,10 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
                     }
 
                     fail(request, response,
-                        new BadCredentialsException(
-                            "Missing mandatory digest value for 'auth' QOP; received header '"
-                            + section212response + "'"));
+                        new BadCredentialsException(messages.getMessage(
+                                "DigestProcessingFilter.missingAuth",
+                                new Object[] {section212response},
+                                "Missing mandatory digest value; received header {0}")));
 
                     return;
                 }
@@ -221,10 +211,11 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
             // Check realm name equals what we expected
             if (!this.getAuthenticationEntryPoint().getRealmName().equals(realm)) {
                 fail(request, response,
-                    new BadCredentialsException("Response realm name '" + realm
-                        + "' does not match system realm name of '"
-                        + this.getAuthenticationEntryPoint().getRealmName()
-                        + "'"));
+                    new BadCredentialsException(messages.getMessage(
+                            "DigestProcessingFilter.incorrectRealm",
+                            new Object[] {realm, this.getAuthenticationEntryPoint()
+                                                     .getRealmName()},
+                            "Response realm name '{0}' does not match system realm name of '{1}'")));
 
                 return;
             }
@@ -232,9 +223,10 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
             // Check nonce was a Base64 encoded (as sent by DigestProcessingFilterEntryPoint)
             if (!Base64.isArrayByteBase64(nonce.getBytes())) {
                 fail(request, response,
-                    new BadCredentialsException(
-                        "Nonce is not encoded in Base64; received nonce: '"
-                        + nonce + "'"));
+                    new BadCredentialsException(messages.getMessage(
+                            "DigestProcessingFilter.nonceEncoding",
+                            new Object[] {nonce},
+                            "Nonce is not encoded in Base64; received nonce {0}")));
 
                 return;
             }
@@ -249,9 +241,10 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
 
             if (nonceTokens.length != 2) {
                 fail(request, response,
-                    new BadCredentialsException(
-                        "Nonce should have yielded two tokens but was: '"
-                        + nonceAsPlainText + "'"));
+                    new BadCredentialsException(messages.getMessage(
+                            "DigestProcessingFilter.nonceNotTwoTokens",
+                            new Object[] {nonceAsPlainText},
+                            "Nonce should have yielded two tokens but was {0}")));
 
                 return;
             }
@@ -263,9 +256,10 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
                 nonceExpiryTime = new Long(nonceTokens[0]).longValue();
             } catch (NumberFormatException nfe) {
                 fail(request, response,
-                    new BadCredentialsException(
-                        "Nonce token should have yielded a numeric first token, but was: '"
-                        + nonceAsPlainText + "'"));
+                    new BadCredentialsException(messages.getMessage(
+                            "DigestProcessingFilter.nonceNotNumeric",
+                            new Object[] {nonceAsPlainText},
+                            "Nonce token should have yielded a numeric first token, but was {0}")));
 
                 return;
             }
@@ -276,14 +270,17 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
 
             if (!expectedNonceSignature.equals(nonceTokens[1])) {
                 fail(request, response,
-                    new BadCredentialsException("Nonce token compromised: '"
-                        + nonceAsPlainText + "'"));
+                    new BadCredentialsException(messages.getMessage(
+                            "DigestProcessingFilter.nonceCompromised",
+                            new Object[] {nonceAsPlainText},
+                            "Nonce token compromised {0}")));
 
                 return;
             }
 
             // Lookup password for presented username
             // NB: DAO-provided password MUST be clear text - not encoded/salted
+            // (unless this instance's passwordAlreadyEncoded property is 'false')
             boolean loadedFromDao = false;
             UserDetails user = userCache.getUserFromCache(username);
 
@@ -294,8 +291,10 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
                     user = authenticationDao.loadUserByUsername(username);
                 } catch (UsernameNotFoundException notFound) {
                     fail(request, response,
-                        new BadCredentialsException("Username '" + username
-                            + "' not known"));
+                        new BadCredentialsException(messages.getMessage(
+                                "DigestProcessingFilter.usernameNotFound",
+                                new Object[] {username},
+                                "Username {0} not found")));
 
                     return;
                 }
@@ -312,8 +311,8 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
             String serverDigestMd5;
 
             // Don't catch IllegalArgumentException (already checked validity)
-            serverDigestMd5 = generateDigest(passwordAlreadyEncoded, username, realm,
-                    user.getPassword(),
+            serverDigestMd5 = generateDigest(passwordAlreadyEncoded, username,
+                    realm, user.getPassword(),
                     ((HttpServletRequest) request).getMethod(), uri, qop,
                     nonce, nc, cnonce);
 
@@ -329,15 +328,17 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
                 } catch (UsernameNotFoundException notFound) {
                     // Would very rarely happen, as user existed earlier
                     fail(request, response,
-                        new BadCredentialsException("Username '" + username
-                            + "' not known"));
+                        new BadCredentialsException(messages.getMessage(
+                                "DigestProcessingFilter.usernameNotFound",
+                                new Object[] {username},
+                                "Username {0} not found")));
                 }
 
                 userCache.putUserInCache(user);
 
                 // Don't catch IllegalArgumentException (already checked validity)
-                serverDigestMd5 = generateDigest(passwordAlreadyEncoded, username, realm,
-                        user.getPassword(),
+                serverDigestMd5 = generateDigest(passwordAlreadyEncoded,
+                        username, realm, user.getPassword(),
                         ((HttpServletRequest) request).getMethod(), uri, qop,
                         nonce, nc, cnonce);
             }
@@ -351,7 +352,9 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
                 }
 
                 fail(request, response,
-                    new BadCredentialsException("Incorrect response"));
+                    new BadCredentialsException(messages.getMessage(
+                            "DigestProcessingFilter.incorrectResponse",
+                            "Incorrect response")));
 
                 return;
             }
@@ -362,7 +365,9 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
             // but the request was otherwise appearing to be valid
             if (nonceExpiryTime < System.currentTimeMillis()) {
                 fail(request, response,
-                    new NonceExpiredException("Nonce has expired/timed out"));
+                    new NonceExpiredException(messages.getMessage(
+                            "DigestProcessingFilter.nonceExpired",
+                            "Nonce has expired/timed out")));
 
                 return;
             }
@@ -382,18 +387,32 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
         chain.doFilter(request, response);
     }
 
-    public static String encodePasswordInA1Format(String username, String realm, String password) {
+    public static String encodePasswordInA1Format(String username,
+        String realm, String password) {
         String a1 = username + ":" + realm + ":" + password;
         String a1Md5 = new String(DigestUtils.md5Hex(a1));
-    	return a1Md5;
+
+        return a1Md5;
     }
-    
+
+    private void fail(ServletRequest request, ServletResponse response,
+        AuthenticationException failed) throws IOException, ServletException {
+        SecurityContextHolder.getContext().setAuthentication(null);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(failed);
+        }
+
+        authenticationEntryPoint.commence(request, response, failed);
+    }
+
     /**
      * Computes the <code>response</code> portion of a Digest authentication
      * header. Both the server and user agent should compute the
      * <code>response</code> independently. Provided as a static method to
      * simplify the coding of user agents.
      *
+     * @param passwordAlreadyEncoded DOCUMENT ME!
      * @param username DOCUMENT ME!
      * @param realm DOCUMENT ME!
      * @param password DOCUMENT ME!
@@ -408,19 +427,20 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
      *
      * @throws IllegalArgumentException DOCUMENT ME!
      */
-    public static String generateDigest(boolean passwordAlreadyEncoded, String username, String realm,
-        String password, String httpMethod, String uri, String qop,
-        String nonce, String nc, String cnonce) throws IllegalArgumentException {
+    public static String generateDigest(boolean passwordAlreadyEncoded,
+        String username, String realm, String password, String httpMethod,
+        String uri, String qop, String nonce, String nc, String cnonce)
+        throws IllegalArgumentException {
         String a1Md5 = null;
         String a2 = httpMethod + ":" + uri;
         String a2Md5 = new String(DigestUtils.md5Hex(a2));
-        
+
         if (passwordAlreadyEncoded) {
-        	a1Md5 = password;
+            a1Md5 = password;
         } else {
-        	a1Md5 = encodePasswordInA1Format(username, realm, password);
+            a1Md5 = encodePasswordInA1Format(username, realm, password);
         }
-        
+
         String digest;
 
         if (qop == null) {
@@ -440,8 +460,12 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
         return digestMd5;
     }
 
-    public void setUserCache(UserCache userCache) {
-        this.userCache = userCache;
+    public AuthenticationDao getAuthenticationDao() {
+        return authenticationDao;
+    }
+
+    public DigestProcessingFilterEntryPoint getAuthenticationEntryPoint() {
+        return authenticationEntryPoint;
     }
 
     public UserCache getUserCache() {
@@ -450,14 +474,24 @@ public class DigestProcessingFilter implements Filter, InitializingBean {
 
     public void init(FilterConfig ignored) throws ServletException {}
 
-    private void fail(ServletRequest request, ServletResponse response,
-        AuthenticationException failed) throws IOException, ServletException {
-        SecurityContextHolder.getContext().setAuthentication(null);
+    public void setAuthenticationDao(AuthenticationDao authenticationDao) {
+        this.authenticationDao = authenticationDao;
+    }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug(failed);
-        }
+    public void setAuthenticationEntryPoint(
+        DigestProcessingFilterEntryPoint authenticationEntryPoint) {
+        this.authenticationEntryPoint = authenticationEntryPoint;
+    }
 
-        authenticationEntryPoint.commence(request, response, failed);
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
+    }
+
+    public void setPasswordAlreadyEncoded(boolean passwordAlreadyEncoded) {
+        this.passwordAlreadyEncoded = passwordAlreadyEncoded;
+    }
+
+    public void setUserCache(UserCache userCache) {
+        this.userCache = userCache;
     }
 }

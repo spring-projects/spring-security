@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
+
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.acl.AclManager;
 import org.acegisecurity.acl.basic.BasicAclEntry;
@@ -28,6 +29,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+
 import org.springframework.util.Assert;
 
 import java.util.Iterator;
@@ -45,9 +51,8 @@ import java.util.Iterator;
  * (ACL) permissions associated with a domain object instance for the current
  * <code>Authentication</code> object. This class is designed to process
  * {@link AclEntry}s that are subclasses of {@link
- * org.acegisecurity.acl.basic.BasicAclEntry} only. Generally these
- * are obtained by using the {@link
- * org.acegisecurity.acl.basic.BasicAclProvider}.
+ * org.acegisecurity.acl.basic.BasicAclEntry} only. Generally these are
+ * obtained by using the {@link org.acegisecurity.acl.basic.BasicAclProvider}.
  * </p>
  * 
  * <p>
@@ -55,8 +60,8 @@ import java.util.Iterator;
  * ConfigAttribute#getAttribute()} matches the {@link
  * #processConfigAttribute}. The provider will then lookup the ACLs from the
  * <code>AclManager</code> and ensure the principal is {@link
- * org.acegisecurity.acl.basic.BasicAclEntry#isPermitted(int)} for
- * at least one of the {@link #requirePermission}s.
+ * org.acegisecurity.acl.basic.BasicAclEntry#isPermitted(int)} for at least
+ * one of the {@link #requirePermission}s.
  * </p>
  * 
  * <p>
@@ -74,9 +79,8 @@ import java.util.Iterator;
  * <p>
  * The <code>AclManager</code> is allowed to return any implementations of
  * <code>AclEntry</code> it wishes. However, this provider will only be able
- * to validate against <code>BasicAclEntry</code>s, and thus access
- * will be denied if no <code>AclEntry</code> is of type
- * <code>BasicAclEntry</code>.
+ * to validate against <code>BasicAclEntry</code>s, and thus access will be
+ * denied if no <code>AclEntry</code> is of type <code>BasicAclEntry</code>.
  * </p>
  * 
  * <p>
@@ -87,12 +91,9 @@ import java.util.Iterator;
  * <p>
  * All comparisons and prefixes are case sensitive.
  * </p>
- *
- * @author Ben Alex
- * @version $Id$
  */
 public class BasicAclEntryAfterInvocationProvider
-    implements AfterInvocationProvider, InitializingBean {
+    implements AfterInvocationProvider, InitializingBean, MessageSourceAware {
     //~ Static fields/initializers =============================================
 
     protected static final Log logger = LogFactory.getLog(BasicAclEntryAfterInvocationProvider.class);
@@ -100,41 +101,21 @@ public class BasicAclEntryAfterInvocationProvider
     //~ Instance fields ========================================================
 
     private AclManager aclManager;
+    protected MessageSourceAccessor messages;
     private String processConfigAttribute = "AFTER_ACL_READ";
     private int[] requirePermission = {SimpleAclEntry.READ};
 
     //~ Methods ================================================================
 
-    public void setAclManager(AclManager aclManager) {
-        this.aclManager = aclManager;
-    }
-
-    public AclManager getAclManager() {
-        return aclManager;
-    }
-
-    public void setProcessConfigAttribute(String processConfigAttribute) {
-        this.processConfigAttribute = processConfigAttribute;
-    }
-
-    public String getProcessConfigAttribute() {
-        return processConfigAttribute;
-    }
-
-    public void setRequirePermission(int[] requirePermission) {
-        this.requirePermission = requirePermission;
-    }
-
-    public int[] getRequirePermission() {
-        return requirePermission;
-    }
-
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(processConfigAttribute, "A processConfigAttribute is mandatory");
+        Assert.notNull(processConfigAttribute,
+            "A processConfigAttribute is mandatory");
         Assert.notNull(aclManager, "An aclManager is mandatory");
+        Assert.notNull(messages, "A message source must be set");
 
         if ((requirePermission == null) || (requirePermission.length == 0)) {
-            throw new IllegalArgumentException("One or more requirePermission entries is mandatory");
+            throw new IllegalArgumentException(
+                "One or more requirePermission entries is mandatory");
         }
     }
 
@@ -162,16 +143,16 @@ public class BasicAclEntryAfterInvocationProvider
                         authentication);
 
                 if ((acls == null) || (acls.length == 0)) {
-                    throw new AccessDeniedException("Authentication: "
-                        + authentication.toString()
-                        + " has NO permissions at all to the domain object: "
-                        + returnedObject);
+                    throw new AccessDeniedException(messages.getMessage(
+                            "BasicAclEntryAfterInvocationProvider.noPermission",
+                            new Object[] {authentication.getName(), returnedObject},
+                            "Authentication {0} has NO permissions at all to the domain object {1}"));
                 }
 
                 for (int i = 0; i < acls.length; i++) {
                     // Locate processable AclEntrys
                     if (acls[i] instanceof BasicAclEntry) {
-                    	BasicAclEntry processableAcl = (BasicAclEntry) acls[i];
+                        BasicAclEntry processableAcl = (BasicAclEntry) acls[i];
 
                         // See if principal has any of the required permissions
                         for (int y = 0; y < requirePermission.length; y++) {
@@ -190,14 +171,42 @@ public class BasicAclEntryAfterInvocationProvider
                 }
 
                 // No permissions match
-                throw new AccessDeniedException("Authentication: "
-                    + authentication.toString()
-                    + " has ACL permissions to the domain object, but not the required ACL permission to the domain object: "
-                    + returnedObject);
+                throw new AccessDeniedException(messages.getMessage(
+                        "BasicAclEntryAfterInvocationProvider.insufficientPermission",
+                        new Object[] {authentication.getName(), returnedObject},
+                        "Authentication {0} has ACL permissions to the domain object, but not the required ACL permission to the domain object {1}"));
             }
         }
 
         return returnedObject;
+    }
+
+    public AclManager getAclManager() {
+        return aclManager;
+    }
+
+    public String getProcessConfigAttribute() {
+        return processConfigAttribute;
+    }
+
+    public int[] getRequirePermission() {
+        return requirePermission;
+    }
+
+    public void setAclManager(AclManager aclManager) {
+        this.aclManager = aclManager;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
+    }
+
+    public void setProcessConfigAttribute(String processConfigAttribute) {
+        this.processConfigAttribute = processConfigAttribute;
+    }
+
+    public void setRequirePermission(int[] requirePermission) {
+        this.requirePermission = requirePermission;
     }
 
     public boolean supports(ConfigAttribute attribute) {

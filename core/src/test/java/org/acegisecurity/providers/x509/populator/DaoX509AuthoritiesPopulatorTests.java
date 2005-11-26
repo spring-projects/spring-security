@@ -26,6 +26,7 @@ import org.acegisecurity.providers.dao.User;
 import org.acegisecurity.providers.dao.UsernameNotFoundException;
 import org.acegisecurity.providers.x509.X509TestUtils;
 
+import org.springframework.context.support.StaticMessageSource;
 import org.springframework.dao.DataAccessException;
 
 import java.security.cert.X509Certificate;
@@ -56,6 +57,7 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
     public void testDefaultCNPatternMatch() throws Exception {
         X509Certificate cert = X509TestUtils.buildTestCertificate();
         DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
+        populator.setMessageSource(new StaticMessageSource());
 
         populator.setAuthenticationDao(new MockAuthenticationDaoMatchesNameOrEmail());
         populator.afterPropertiesSet();
@@ -65,6 +67,7 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
     public void testEmailPatternMatch() throws Exception {
         X509Certificate cert = X509TestUtils.buildTestCertificate();
         DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
+        populator.setMessageSource(new StaticMessageSource());
 
         populator.setAuthenticationDao(new MockAuthenticationDaoMatchesNameOrEmail());
         populator.setSubjectDNRegex("emailAddress=(.*?),");
@@ -74,6 +77,7 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
 
     public void testInvalidRegexFails() throws Exception {
         DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
+        populator.setMessageSource(new StaticMessageSource());
         populator.setAuthenticationDao(new MockAuthenticationDaoMatchesNameOrEmail());
         populator.setSubjectDNRegex("CN=(.*?,"); // missing closing bracket on group
 
@@ -88,6 +92,7 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
     public void testMatchOnShoeSizeFieldInDNFails() throws Exception {
         X509Certificate cert = X509TestUtils.buildTestCertificate();
         DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
+        populator.setMessageSource(new StaticMessageSource());
 
         populator.setAuthenticationDao(new MockAuthenticationDaoMatchesNameOrEmail());
         populator.setSubjectDNRegex("shoeSize=(.*?),");
@@ -104,6 +109,7 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
     public void testPatternWithNoGroupFails() throws Exception {
         X509Certificate cert = X509TestUtils.buildTestCertificate();
         DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
+        populator.setMessageSource(new StaticMessageSource());
 
         populator.setAuthenticationDao(new MockAuthenticationDaoMatchesNameOrEmail());
         populator.setSubjectDNRegex("CN=.*?,");
@@ -120,6 +126,7 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
 
     public void testRequiresDao() throws Exception {
         DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
+        populator.setMessageSource(new StaticMessageSource());
 
         try {
             populator.afterPropertiesSet();

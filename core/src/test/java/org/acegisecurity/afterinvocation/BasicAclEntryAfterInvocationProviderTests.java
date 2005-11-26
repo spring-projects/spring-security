@@ -27,6 +27,7 @@ import org.acegisecurity.acl.basic.MockAclObjectIdentity;
 import org.acegisecurity.acl.basic.SimpleAclEntry;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.util.SimpleMethodInvocation;
+import org.springframework.context.support.StaticMessageSource;
 
 
 /**
@@ -65,6 +66,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
                         SimpleAclEntry.ADMINISTRATION)});
 
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAclManager(aclManager);
         provider.afterPropertiesSet();
 
@@ -94,6 +96,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
                         new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)});
 
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAclManager(aclManager);
         provider.afterPropertiesSet();
 
@@ -123,6 +126,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
                         new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE)});
 
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAclManager(aclManager);
         assertEquals(aclManager, provider.getAclManager());
         provider.afterPropertiesSet();
@@ -150,6 +154,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
                         new MockAclObjectIdentity(), null, SimpleAclEntry.DELETE), new MockAclEntry()});
 
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAclManager(aclManager);
         provider.afterPropertiesSet();
 
@@ -171,6 +176,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
                         new MockAclObjectIdentity(), null, SimpleAclEntry.READ), new MockAclEntry()});
 
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAclManager(aclManager);
         assertEquals("AFTER_ACL_READ", provider.getProcessConfigAttribute());
         provider.setProcessConfigAttribute("AFTER_ACL_ADMIN");
@@ -202,6 +208,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
                         SimpleAclEntry.ADMINISTRATION), new MockAclEntry()});
 
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         provider.setAclManager(aclManager);
         assertEquals(SimpleAclEntry.READ, provider.getRequirePermission()[0]);
         provider.setRequirePermission(new int[] {SimpleAclEntry.ADMINISTRATION});
@@ -222,6 +229,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
 
     public void testStartupDetectsMissingAclManager() throws Exception {
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
+        provider.setMessageSource(new StaticMessageSource());
 
         try {
             provider.afterPropertiesSet();
@@ -234,6 +242,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
     public void testStartupDetectsMissingProcessConfigAttribute()
         throws Exception {
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         AclManager aclManager = new MockAclManager("sydney", "marissa",
                 new AclEntry[] {new SimpleAclEntry("marissa",
                         new MockAclObjectIdentity(), null,
@@ -254,6 +263,7 @@ public class BasicAclEntryAfterInvocationProviderTests extends TestCase {
     public void testStartupDetectsMissingRequirePermission()
         throws Exception {
         BasicAclEntryAfterInvocationProvider provider = new BasicAclEntryAfterInvocationProvider();
+        provider.setMessageSource(new StaticMessageSource());
         AclManager aclManager = new MockAclManager("sydney", "marissa",
                 new AclEntry[] {new SimpleAclEntry("marissa",
                         new MockAclObjectIdentity(), null,

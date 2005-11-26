@@ -28,6 +28,7 @@ import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.cas.ticketvalidator.AbstractTicketValidator;
 import org.acegisecurity.providers.dao.User;
 import org.acegisecurity.ui.cas.CasProcessingFilter;
+import org.springframework.context.support.StaticMessageSource;
 
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +65,7 @@ public class CasAuthenticationProviderTests extends TestCase {
 
     public void testAuthenticateStateful() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        cap.setMessageSource(new StaticMessageSource());
         cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider(true));
         cap.setKey("qwerty");
@@ -108,6 +110,7 @@ public class CasAuthenticationProviderTests extends TestCase {
 
     public void testAuthenticateStateless() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        cap.setMessageSource(new StaticMessageSource());
         cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider(true));
         cap.setKey("qwerty");
@@ -144,6 +147,7 @@ public class CasAuthenticationProviderTests extends TestCase {
 
     public void testDetectsAMissingTicketId() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        cap.setMessageSource(new StaticMessageSource());
         cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider(true));
         cap.setKey("qwerty");
@@ -167,6 +171,7 @@ public class CasAuthenticationProviderTests extends TestCase {
 
     public void testDetectsAnInvalidKey() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        cap.setMessageSource(new StaticMessageSource());
         cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider(true));
         cap.setKey("qwerty");
@@ -193,6 +198,7 @@ public class CasAuthenticationProviderTests extends TestCase {
     public void testDetectsMissingAuthoritiesPopulator()
         throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        cap.setMessageSource(new StaticMessageSource());
         cap.setCasProxyDecider(new MockProxyDecider());
         cap.setKey("qwerty");
         cap.setStatelessTicketCache(new MockStatelessTicketCache());
@@ -209,6 +215,7 @@ public class CasAuthenticationProviderTests extends TestCase {
 
     public void testDetectsMissingKey() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        cap.setMessageSource(new StaticMessageSource());
         cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider());
         cap.setStatelessTicketCache(new MockStatelessTicketCache());
@@ -225,6 +232,7 @@ public class CasAuthenticationProviderTests extends TestCase {
 
     public void testDetectsMissingProxyDecider() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        cap.setMessageSource(new StaticMessageSource());
         cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
         cap.setKey("qwerty");
         cap.setStatelessTicketCache(new MockStatelessTicketCache());
@@ -241,6 +249,7 @@ public class CasAuthenticationProviderTests extends TestCase {
     public void testDetectsMissingStatelessTicketCache()
         throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        cap.setMessageSource(new StaticMessageSource());
         cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider());
         cap.setKey("qwerty");
@@ -257,6 +266,7 @@ public class CasAuthenticationProviderTests extends TestCase {
 
     public void testDetectsMissingTicketValidator() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        cap.setMessageSource(new StaticMessageSource());
         cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider(true));
         cap.setKey("qwerty");
@@ -272,6 +282,7 @@ public class CasAuthenticationProviderTests extends TestCase {
 
     public void testGettersSetters() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        cap.setMessageSource(new StaticMessageSource());
         cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider());
         cap.setKey("qwerty");
@@ -288,6 +299,7 @@ public class CasAuthenticationProviderTests extends TestCase {
 
     public void testIgnoresClassesItDoesNotSupport() throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        cap.setMessageSource(new StaticMessageSource());
         cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider());
         cap.setKey("qwerty");
@@ -307,6 +319,7 @@ public class CasAuthenticationProviderTests extends TestCase {
     public void testIgnoresUsernamePasswordAuthenticationTokensWithoutCasIdentifiersAsPrincipal()
         throws Exception {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        cap.setMessageSource(new StaticMessageSource());
         cap.setCasAuthoritiesPopulator(new MockAuthoritiesPopulator());
         cap.setCasProxyDecider(new MockProxyDecider());
         cap.setKey("qwerty");
@@ -322,6 +335,7 @@ public class CasAuthenticationProviderTests extends TestCase {
 
     public void testSupports() {
         CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        cap.setMessageSource(new StaticMessageSource());
         assertTrue(cap.supports(UsernamePasswordAuthenticationToken.class));
         assertTrue(cap.supports(CasAuthenticationToken.class));
     }

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,6 @@ import java.util.Iterator;
  * Simple concrete implementation of  {@link
  * org.acegisecurity.AccessDecisionManager} that  requires all voters to
  * abstain or grant access.
- *
- * @author Ben Alex
- * @version $Id$
  */
 public class UnanimousBased extends AbstractAccessDecisionManager {
     //~ Static fields/initializers =============================================
@@ -105,7 +102,9 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
         }
 
         if (deny > 0) {
-            throw new AccessDeniedException("Access is denied.");
+            throw new AccessDeniedException(messages.getMessage(
+                    "AbstractAccessDecisionManager.accessDenied",
+                    "Access is denied"));
         }
 
         // To get this far, there were no deny votes
@@ -117,7 +116,9 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
         if (this.isAllowIfAllAbstainDecisions()) {
             return;
         } else {
-            throw new AccessDeniedException("Access is denied.");
+            throw new AccessDeniedException(messages.getMessage(
+                    "AbstractAccessDecisionManager.accessDenied",
+                    "Access is denied"));
         }
     }
 }

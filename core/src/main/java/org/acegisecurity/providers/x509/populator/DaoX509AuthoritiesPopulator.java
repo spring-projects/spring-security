@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,34 @@
 package org.acegisecurity.providers.x509.populator;
 
 import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.UserDetails;
 import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.UserDetails;
+
 import org.acegisecurity.providers.dao.AuthenticationDao;
 import org.acegisecurity.providers.x509.X509AuthoritiesPopulator;
 
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.oro.text.regex.*;
+
+import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+
+import org.springframework.util.Assert;
 
 import java.security.cert.X509Certificate;
 
 
-
 /**
- * Populates the X509 authorities via an {@link org.acegisecurity.providers.dao.AuthenticationDao}.
- *
- * @author Luke Taylor
- * @version $Id$
+ * Populates the X509 authorities via an {@link
+ * org.acegisecurity.providers.dao.AuthenticationDao}.
  */
 public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
-    InitializingBean {
+    InitializingBean, MessageSourceAware {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(DaoX509AuthoritiesPopulator.class);
@@ -46,18 +51,64 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
     //~ Instance fields ========================================================
 
     private AuthenticationDao authenticationDao;
-    private String subjectDNRegex = "CN=(.*?),";
+    protected MessageSourceAccessor messages;
     private Pattern subjectDNPattern;
+    private String subjectDNRegex = "CN=(.*?),";
 
     //~ Methods ================================================================
+
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(authenticationDao, "An authenticationDao must be set");
+        Assert.notNull(this.messages, "A message source must be set");
+
+        Perl5Compiler compiler = new Perl5Compiler();
+
+        try {
+            subjectDNPattern = compiler.compile(subjectDNRegex,
+                    Perl5Compiler.READ_ONLY_MASK
+                    | Perl5Compiler.CASE_INSENSITIVE_MASK);
+        } catch (MalformedPatternException mpe) {
+            throw new IllegalArgumentException("Malformed regular expression: "
+                + subjectDNRegex);
+        }
+    }
+
+    public UserDetails getUserDetails(X509Certificate clientCert)
+        throws AuthenticationException {
+        String subjectDN = clientCert.getSubjectDN().getName();
+        PatternMatcher matcher = new Perl5Matcher();
+
+        if (!matcher.contains(subjectDN, subjectDNPattern)) {
+            throw new BadCredentialsException(messages.getMessage(
+                    "DaoX509AuthoritiesPopulator.noMatching",
+                    new Object[] {subjectDN},
+                    "No matching pattern was found in subjectDN: {0}"));
+        }
+
+        MatchResult match = matcher.getMatch();
+
+        if (match.groups() != 2) { // 2 = 1 + the entire match
+            throw new IllegalArgumentException(
+                "Regular expression must contain a single group ");
+        }
+
+        String userName = match.group(1);
+
+        return this.authenticationDao.loadUserByUsername(userName);
+    }
 
     public void setAuthenticationDao(AuthenticationDao authenticationDao) {
         this.authenticationDao = authenticationDao;
     }
 
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
+    }
+
     /**
      * Sets the regular expression which will by used to extract the user name
      * from the certificate's Subject DN.
+     *
      * <p>
      * It should contain a single group; for example the default expression
      * "CN=(.*?)," matches the common name field. So "CN=Jimi Hendrix, OU=..."
@@ -72,37 +123,5 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
      */
     public void setSubjectDNRegex(String subjectDNRegex) {
         this.subjectDNRegex = subjectDNRegex;
-    }
-
-    public UserDetails getUserDetails(X509Certificate clientCert)
-        throws AuthenticationException {
-
-        String subjectDN = clientCert.getSubjectDN().getName();
-        PatternMatcher matcher = new Perl5Matcher();
-
-        if(!matcher.contains(subjectDN , subjectDNPattern)) {
-            throw new BadCredentialsException("No matching pattern was found in subjectDN: " + subjectDN);
-        }
-
-        MatchResult match = matcher.getMatch();
-        if(match.groups() != 2) { // 2 = 1 + the entire match
-            throw new IllegalArgumentException("Regular expression must contain a single group ");
-        }
-        String userName = match.group(1);
-
-        return this.authenticationDao.loadUserByUsername(userName);
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(authenticationDao, "An authenticationDao must be set");
-
-        Perl5Compiler compiler = new Perl5Compiler();
-
-        try {
-            subjectDNPattern = compiler.compile(subjectDNRegex,
-                    Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.CASE_INSENSITIVE_MASK);
-        } catch (MalformedPatternException mpe) {
-            throw new IllegalArgumentException("Malformed regular expression: " + subjectDNRegex);
-        }
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,14 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.providers.cas.ProxyUntrustedException;
 
+import org.springframework.context.support.StaticMessageSource;
+
 import java.util.List;
 import java.util.Vector;
 
 
 /**
  * Tests {@link NamedCasProxyDecider}.
- *
- * @author Ben Alex
- * @version $Id$
  */
 public class NamedCasProxyDeciderTests extends TestCase {
     //~ Constructors ===========================================================
@@ -42,17 +41,18 @@ public class NamedCasProxyDeciderTests extends TestCase {
 
     //~ Methods ================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public static void main(String[] args) {
         junit.textui.TestRunner.run(NamedCasProxyDeciderTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testAcceptsIfNearestProxyIsAuthorized()
         throws Exception {
         NamedCasProxyDecider proxyDecider = new NamedCasProxyDecider();
+        proxyDecider.setMessageSource(new StaticMessageSource());
 
         // Build the ticket returned from CAS
         List proxyList = new Vector();
@@ -72,6 +72,8 @@ public class NamedCasProxyDeciderTests extends TestCase {
 
     public void testAcceptsIfNoProxiesInTicket() {
         NamedCasProxyDecider proxyDecider = new NamedCasProxyDecider();
+        proxyDecider.setMessageSource(new StaticMessageSource());
+
         List proxyList = new Vector(); // no proxies in list
 
         proxyDecider.confirmProxyListTrusted(proxyList);
@@ -80,6 +82,7 @@ public class NamedCasProxyDeciderTests extends TestCase {
 
     public void testDetectsMissingValidProxiesList() throws Exception {
         NamedCasProxyDecider proxyDecider = new NamedCasProxyDecider();
+        proxyDecider.setMessageSource(new StaticMessageSource());
 
         try {
             proxyDecider.afterPropertiesSet();
@@ -92,6 +95,7 @@ public class NamedCasProxyDeciderTests extends TestCase {
 
     public void testDoesNotAcceptNull() {
         NamedCasProxyDecider proxyDecider = new NamedCasProxyDecider();
+        proxyDecider.setMessageSource(new StaticMessageSource());
 
         try {
             proxyDecider.confirmProxyListTrusted(null);
@@ -103,6 +107,7 @@ public class NamedCasProxyDeciderTests extends TestCase {
 
     public void testGettersSetters() {
         NamedCasProxyDecider proxyDecider = new NamedCasProxyDecider();
+        proxyDecider.setMessageSource(new StaticMessageSource());
 
         // Build the list of valid nearest proxies
         List validProxies = new Vector();
@@ -117,6 +122,7 @@ public class NamedCasProxyDeciderTests extends TestCase {
     public void testRejectsIfNearestProxyIsNotAuthorized()
         throws Exception {
         NamedCasProxyDecider proxyDecider = new NamedCasProxyDecider();
+        proxyDecider.setMessageSource(new StaticMessageSource());
 
         // Build the ticket returned from CAS
         List proxyList = new Vector();

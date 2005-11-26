@@ -18,12 +18,17 @@ package org.acegisecurity.providers.rememberme;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
+
 import org.acegisecurity.providers.AuthenticationProvider;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
 
 import org.springframework.util.Assert;
 
@@ -37,32 +42,23 @@ import org.springframework.util.Assert;
  * org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken#getKeyHash()}
  * must match this class' {@link #getKey()}.
  * </p>
- *
- * @author Ben Alex
- * @version $Id$
  */
 public class RememberMeAuthenticationProvider implements AuthenticationProvider,
-    InitializingBean {
+    InitializingBean, MessageSourceAware {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(RememberMeAuthenticationProvider.class);
 
     //~ Instance fields ========================================================
 
+    protected MessageSourceAccessor messages;
     private String key;
 
     //~ Methods ================================================================
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(key);
+        Assert.notNull(this.messages, "A message source must be set");
     }
 
     public Authentication authenticate(Authentication authentication)
@@ -73,11 +69,24 @@ public class RememberMeAuthenticationProvider implements AuthenticationProvider,
 
         if (this.key.hashCode() != ((RememberMeAuthenticationToken) authentication)
             .getKeyHash()) {
-            throw new BadCredentialsException(
-                "The presented RememberMeAuthenticationToken does not contain the expected key");
+            throw new BadCredentialsException(messages.getMessage(
+                    "RememberMeAuthenticationProvider.incorrectKey",
+                    "The presented RememberMeAuthenticationToken does not contain the expected key"));
         }
 
         return authentication;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
     }
 
     public boolean supports(Class authentication) {

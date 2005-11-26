@@ -30,6 +30,7 @@ import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.intercept.method.MethodDefinitionMap;
 import org.acegisecurity.intercept.method.MethodDefinitionSourceEditor;
 import org.acegisecurity.providers.TestingAuthenticationToken;
+import org.springframework.context.support.StaticMessageSource;
 
 import java.lang.reflect.Method;
 
@@ -64,6 +65,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
     public void testCallbackIsInvokedWhenPermissionGranted()
         throws Exception {
         AspectJSecurityInterceptor si = new AspectJSecurityInterceptor();
+        si.setMessageSource(new StaticMessageSource());
         si.setApplicationEventPublisher(MockApplicationContext.getContext());
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
@@ -100,6 +102,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
     public void testCallbackIsNotInvokedWhenPermissionDenied()
         throws Exception {
         AspectJSecurityInterceptor si = new AspectJSecurityInterceptor();
+        si.setMessageSource(new StaticMessageSource());
         si.setApplicationEventPublisher(MockApplicationContext.getContext());
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
