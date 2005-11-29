@@ -13,33 +13,28 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.dao.jdbc;
-
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.UserDetails;
-import org.acegisecurity.providers.dao.AuthenticationDao;
-import org.acegisecurity.providers.dao.User;
-import org.acegisecurity.providers.dao.UsernameNotFoundException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.context.ApplicationContextException;
-
-import org.springframework.dao.DataAccessException;
-
-import org.springframework.jdbc.core.SqlParameter;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
-import org.springframework.jdbc.object.MappingSqlQuery;
+package org.acegisecurity.userdetails.jdbc;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-
 import java.util.List;
 
 import javax.sql.DataSource;
+
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationContextException;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.SqlParameter;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.jdbc.object.MappingSqlQuery;
 
 
 /**
@@ -70,7 +65,7 @@ import javax.sql.DataSource;
  * @author colin sampaleanu
  * @version $Id$
  */
-public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
+public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     //~ Static fields/initializers =============================================
 
     public static final String DEF_USERS_BY_USERNAME_QUERY = "SELECT username,password,enabled FROM users WHERE username = ?";

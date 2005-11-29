@@ -13,13 +13,14 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.dao;
+package org.acegisecurity.userdetails;
 
 import junit.framework.TestCase;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.UserDetails;
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
 
 
 /**

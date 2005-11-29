@@ -17,10 +17,10 @@ package org.acegisecurity.providers.x509.populator;
 
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.UserDetails;
 
-import org.acegisecurity.providers.dao.AuthenticationDao;
 import org.acegisecurity.providers.x509.X509AuthoritiesPopulator;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UserDetails;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,7 +40,7 @@ import java.security.cert.X509Certificate;
 
 /**
  * Populates the X509 authorities via an {@link
- * org.acegisecurity.providers.dao.AuthenticationDao}.
+ * org.acegisecurity.userdetails.UserDetailsService}.
  */
 public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
     InitializingBean, MessageSourceAware {
@@ -50,7 +50,7 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
 
     //~ Instance fields ========================================================
 
-    private AuthenticationDao authenticationDao;
+    private UserDetailsService authenticationDao;
     protected MessageSourceAccessor messages;
     private Pattern subjectDNPattern;
     private String subjectDNRegex = "CN=(.*?),";
@@ -97,7 +97,7 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
         return this.authenticationDao.loadUserByUsername(userName);
     }
 
-    public void setAuthenticationDao(AuthenticationDao authenticationDao) {
+    public void setAuthenticationDao(UserDetailsService authenticationDao) {
         this.authenticationDao = authenticationDao;
     }
 

@@ -26,7 +26,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>1.0.0</releaseinfo>
+    <releaseinfo>1.0.0 RC 1</releaseinfo>
 
     <authorgroup>
       <author>
@@ -1405,7 +1405,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <para>For a class to be able to provide the
         <literal>DaoAuthenticationProvider</literal> with access to an
         authentication repository, it must implement the
-        <literal>AuthenticationDao</literal> interface:</para>
+        <literal>UserDetailsService</literal> interface:</para>
 
         <para><programlisting>public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException;</programlisting></para>
 
@@ -1414,8 +1414,9 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         information such as the username, password, granted authorities and
         whether the user is enabled or disabled. A concrete implementation,
         <literal>User</literal>, is also provided. Acegi Security users will
-        need to decide when writing their <literal>AuthenticationDao</literal>
-        what type of <literal>UserDetails</literal> to return. In most cases
+        need to decide when writing their
+        <literal>UserDetailsService</literal> what type of
+        <literal>UserDetails</literal> to return. In most cases
         <literal>User</literal> will be used directly or subclassed, although
         special circumstances (such as object relational mappers) may require
         users to write their own <literal>UserDetails</literal> implementation
@@ -1424,13 +1425,13 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         number and email address), so they can be easily used by web
         views.</para>
 
-        <para>Given <literal>AuthenticationDao</literal> is so simple to
+        <para>Given <literal>UserDetailsService</literal> is so simple to
         implement, it should be easy for users to retrieve authentication
         information using a persistence strategy of their choice.</para>
 
         <para>A design decision was made not to support account locking in the
         <literal>DaoAuthenticationProvider</literal>, as doing so would have
-        increased the complexity of the <literal>AuthenticationDao</literal>
+        increased the complexity of the <literal>UserDetailsService</literal>
         interface. For instance, a method would be required to increase the
         count of unsuccessful authentication attempts. Such functionality
         could be easily provided by leveraging the application event
@@ -1441,7 +1442,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <literal>principal</literal> property set. The principal will be
         either a <literal>String</literal> (which is essentially the username)
         or a <literal>UserDetails</literal> object (which was looked up from
-        the <literal>AuthenticationDao</literal>). By default the
+        the <literal>UserDetailsService</literal>). By default the
         <literal>UserDetails</literal> is returned, as this enables
         applications to add extra properties potentially of use in
         applications, such as the user's full name, email address etc. If
@@ -1458,7 +1459,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 
         <para>Whilst it is easy to use the
         <literal>DaoAuthenticationProvider</literal> and create a custom
-        <literal>AuthenticationDao</literal> implementation that extracts
+        <literal>UserDetailsService</literal> implementation that extracts
         information from a persistence engine of choice, many applications do
         not require such complexity. One alternative is to configure an
         authentication repository in the application context itself using the
@@ -1769,7 +1770,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         system (<literal>Authentication</literal>,
         <literal>AuthenticationManager</literal>,
         <literal>AuthenticationProvider</literal> and
-        <literal>AuthenticationDao</literal>) it might be confusing to a new
+        <literal>UserDetailsService</literal>) it might be confusing to a new
         user to know which part of the authentication system to customize. In
         general, the following is recommended:</para>
 
@@ -1785,8 +1786,8 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
             repository (eg to obtain user details from your application’s
             existing database), use the
             <literal>DaoAuthenticationProvider</literal> along with the
-            <literal>AuthenticationDao</literal>. It is the fastest and safest
-            way to integrate an external database.</para>
+            <literal>UserDetailsService</literal>. It is the fastest and
+            safest way to integrate an external database.</para>
           </listitem>
 
           <listitem>
@@ -2732,7 +2733,7 @@ key:              A private key to prevent modification of the nonce token
   &lt;property name="nonceValiditySeconds"&gt;&lt;value&gt;10&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
 
-        <para>The configured <literal>AuthenticationDao</literal> is needed
+        <para>The configured <literal>UserDetailsService</literal> is needed
         because <literal>DigestProcessingFilter</literal> must have direct
         access to the clear text password of a user. Digest Authentication
         will NOT work if you are using encoded passwords in your DAO. The DAO
@@ -2928,10 +2929,10 @@ key:              A private key to prevent modification of the remember-me token
         by <literal>RememberMeAuthenticationProvider</literal>. A
         <literal>key</literal> is shared between this authentication provider
         and the <literal>TokenBasedRememberMeServices</literal>. In addition,
-        <literal>TokenBasedRememberMeServices</literal> requires an
-        <literal>AuthenticationDao</literal> from which it can retrieve the
-        username and password for signature comparison purposes, and generate
-        the <literal>RememberMeAuthenticationToken</literal> to contain the
+        <literal>TokenBasedRememberMeServices</literal> requires A
+        UserDetailsService from which it can retrieve the username and
+        password for signature comparison purposes, and generate the
+        <literal>RememberMeAuthenticationToken</literal> to contain the
         correct <literal>GrantedAuthority</literal>[]s. Some sort of logout
         command should be provided by the application (typically via a JSP)
         that invalidates the cookie upon user request. See the Contacts Sample
@@ -3634,12 +3635,12 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             <literal>GrantedAuthority</literal> objects that apply to the user
             contained in the <literal>TicketResponse</literal>. Acegi Security
             includes a <literal>DaoCasAuthoritiesPopulator</literal> which
-            simply uses the <literal>AuthenticationDao</literal>
+            simply uses the <literal>UserDetailsService</literal>
             infrastructure to find the <literal>UserDetails</literal> and
             their associated <literal>GrantedAuthority</literal>s. Note that
             the password and enabled/disabled status of
             <literal>UserDetails</literal> returned by the
-            <literal>AuthenticationDao</literal> are ignored, as the CAS
+            <literal>UserDetailsService</literal> are ignored, as the CAS
             server is responsible for authentication decisions.
             <literal>DaoCasAuthoritiesPopulator</literal> is only concerned
             with retrieving the <literal>GrantedAuthority</literal>s.</para>
@@ -4086,9 +4087,8 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
               which extracts the user's name from the subject <quote>common
               name</quote> (CN) in the certificate. It also allows you to set
               your own regular expression to match a different part of the
-              subject's distinguished name. An
-              <classname>AuthenticationDao</classname> is used to load the
-              user information.<!-- TODO: Give email matching as an example --></para>
+              subject's distinguished name. A UserDetailsService is used to
+              load the user information.<!-- TODO: Give email matching as an example --></para>
             </listitem>
 
              

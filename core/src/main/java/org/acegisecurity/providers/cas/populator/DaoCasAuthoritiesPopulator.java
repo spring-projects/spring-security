@@ -16,16 +16,16 @@
 package org.acegisecurity.providers.cas.populator;
 
 import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.UserDetails;
 import org.acegisecurity.providers.cas.CasAuthoritiesPopulator;
-import org.acegisecurity.providers.dao.AuthenticationDao;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 
 /**
- * Populates the CAS authorities via an {@link AuthenticationDao}.
+ * Populates the CAS authorities via an {@link UserDetailsService}.
  * 
  * <P>
  * The additional information (username, password, enabled status etc)  an
@@ -41,15 +41,15 @@ public class DaoCasAuthoritiesPopulator implements CasAuthoritiesPopulator,
     InitializingBean {
     //~ Instance fields ========================================================
 
-    private AuthenticationDao authenticationDao;
+    private UserDetailsService authenticationDao;
 
     //~ Methods ================================================================
 
-    public void setAuthenticationDao(AuthenticationDao authenticationDao) {
+    public void setAuthenticationDao(UserDetailsService authenticationDao) {
         this.authenticationDao = authenticationDao;
     }
 
-    public AuthenticationDao getAuthenticationDao() {
+    public UserDetailsService getAuthenticationDao() {
         return authenticationDao;
     }
 

@@ -20,9 +20,9 @@ import junit.framework.TestCase;
 import org.acegisecurity.MockAuthenticationEntryPoint;
 import org.acegisecurity.MockAuthenticationManager;
 import org.acegisecurity.MockFilterConfig;
-import org.acegisecurity.UserDetails;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.context.SecurityContextImpl;
+import org.acegisecurity.userdetails.UserDetails;
 
 import org.apache.commons.codec.binary.Base64;
 

@@ -19,9 +19,9 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.UserDetails;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.providers.dao.User;
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
 
 import java.util.List;
 import java.util.Vector;

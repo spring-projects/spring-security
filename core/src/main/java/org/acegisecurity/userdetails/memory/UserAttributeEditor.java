@@ -13,13 +13,12 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.dao.memory;
-
-import org.acegisecurity.GrantedAuthorityImpl;
-
-import org.springframework.util.StringUtils;
+package org.acegisecurity.userdetails.memory;
 
 import java.beans.PropertyEditorSupport;
+
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.springframework.util.StringUtils;
 
 
 /**

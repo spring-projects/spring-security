@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.dao;
+package org.acegisecurity.userdetails;
 
-import org.acegisecurity.UserDetails;
-
+import org.acegisecurity.providers.dao.DaoAuthenticationProvider;
 import org.springframework.dao.DataAccessException;
 
 
@@ -32,7 +31,7 @@ import org.springframework.dao.DataAccessException;
  * @author Ben Alex
  * @version $Id$
  */
-public interface AuthenticationDao {
+public interface UserDetailsService {
     //~ Methods ================================================================
 
     /**

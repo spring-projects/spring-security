@@ -20,11 +20,11 @@ import junit.framework.TestCase;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.UserDetails;
-import org.acegisecurity.providers.dao.AuthenticationDao;
-import org.acegisecurity.providers.dao.User;
-import org.acegisecurity.providers.dao.UsernameNotFoundException;
 import org.acegisecurity.providers.x509.X509TestUtils;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
 
 import org.springframework.context.support.StaticMessageSource;
 import org.springframework.dao.DataAccessException;
@@ -139,7 +139,7 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
     //~ Inner Classes ==========================================================
 
     private class MockAuthenticationDaoMatchesNameOrEmail
-        implements AuthenticationDao {
+        implements UserDetailsService {
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             if ("Luke Taylor".equals(username)

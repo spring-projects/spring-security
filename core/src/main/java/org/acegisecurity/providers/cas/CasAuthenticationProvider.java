@@ -18,12 +18,12 @@ package org.acegisecurity.providers.cas;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.UserDetails;
 
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.acegisecurity.ui.cas.CasProcessingFilter;
+import org.acegisecurity.userdetails.UserDetails;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

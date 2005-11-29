@@ -16,7 +16,7 @@
 package org.acegisecurity.event.authentication;
 
 import org.acegisecurity.Authentication;
-import org.acegisecurity.UserDetails;
+import org.acegisecurity.userdetails.UserDetails;
 
 
 /**

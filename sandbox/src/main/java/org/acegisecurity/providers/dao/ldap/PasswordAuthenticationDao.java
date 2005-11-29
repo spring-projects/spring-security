@@ -16,7 +16,7 @@
 package org.acegisecurity.providers.dao.ldap;
 
 import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.UserDetails;
+import org.acegisecurity.userdetails.UserDetails;
 
 import org.springframework.dao.DataAccessException;
 

@@ -15,8 +15,8 @@
 
 package org.acegisecurity.providers.dao.cache;
 
-import org.acegisecurity.UserDetails;
 import org.acegisecurity.providers.dao.UserCache;
+import org.acegisecurity.userdetails.UserDetails;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;

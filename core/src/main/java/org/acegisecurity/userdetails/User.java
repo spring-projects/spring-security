@@ -13,230 +13,261 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.dao;
+package org.acegisecurity.userdetails;
 
 import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.UserDetails;
-
+import org.acegisecurity.providers.dao.DaoAuthenticationProvider;
 import org.springframework.util.Assert;
 
-
 /**
- * Models core user information retieved by an {@link AuthenticationDao}.
+ * Models core user information retieved by an {@link UserDetailsService}.
  * 
  * <P>
- * Implemented with value object semantics (immutable after construction, like
- * a <code>String</code>). Developers may use this class directly, subclass
- * it, or write their own {@link UserDetails} implementation from scratch.
+ * Implemented with value object semantics (immutable after construction, like a
+ * <code>String</code>). Developers may use this class directly, subclass it,
+ * or write their own {@link UserDetails} implementation from scratch.
  * </p>
  */
 public class User implements UserDetails {
-    //~ Instance fields ========================================================
+	// ~ Instance fields
+	// ========================================================
 
-    private String password;
-    private String username;
-    private GrantedAuthority[] authorities;
-    private boolean accountNonExpired;
-    private boolean accountNonLocked;
-    private boolean credentialsNonExpired;
-    private boolean enabled;
+	private String password;
 
-    //~ Constructors ===========================================================
+	private String username;
 
-    protected User() {
-        throw new IllegalArgumentException("Cannot use default constructor");
-    }
+	private GrantedAuthority[] authorities;
 
-    /**
-     * Construct the <code>User</code> with the details required by {@link
-     * DaoAuthenticationProvider}.
-     *
-     * @param username the username presented to the
-     *        <code>DaoAuthenticationProvider</code>
-     * @param password the password that should be presented to the
-     *        <code>DaoAuthenticationProvider</code>
-     * @param enabled set to <code>true</code> if the user is enabled
-     * @param authorities the authorities that should be granted to the caller
-     *        if they presented the correct username and password and the user
-     *        is enabled
-     *
-     * @throws IllegalArgumentException if a <code>null</code> value was passed
-     *         either as a parameter or as an element in the
-     *         <code>GrantedAuthority[]</code> array
-     *
-     * @deprecated use new constructor with extended properties (this
-     *             constructor will be removed from release 1.0.0)
-     */
-    public User(String username, String password, boolean enabled,
-        GrantedAuthority[] authorities) throws IllegalArgumentException {
-        this(username, password, enabled, true, true, authorities);
-    }
+	private boolean accountNonExpired;
 
-    /**
-     * Construct the <code>User</code> with the details required by {@link
-     * DaoAuthenticationProvider}.
-     *
-     * @param username the username presented to the
-     *        <code>DaoAuthenticationProvider</code>
-     * @param password the password that should be presented to the
-     *        <code>DaoAuthenticationProvider</code>
-     * @param enabled set to <code>true</code> if the user is enabled
-     * @param accountNonExpired set to <code>true</code> if the account has not
-     *        expired
-     * @param credentialsNonExpired set to <code>true</code> if the credentials
-     *        have not expired
-     * @param authorities the authorities that should be granted to the caller
-     *        if they presented the correct username and password and the user
-     *        is enabled
-     *
-     * @throws IllegalArgumentException if a <code>null</code> value was passed
-     *         either as a parameter or as an element in the
-     *         <code>GrantedAuthority[]</code> array
-     *
-     * @deprecated use new constructor with extended properties (this
-     *             constructor will be removed from release 1.0.0)
-     */
-    public User(String username, String password, boolean enabled,
-        boolean accountNonExpired, boolean credentialsNonExpired,
-        GrantedAuthority[] authorities) throws IllegalArgumentException {
-        this(username, password, enabled, accountNonExpired,
-            credentialsNonExpired, true, authorities);
-    }
+	private boolean accountNonLocked;
 
-    /**
-     * Construct the <code>User</code> with the details required by {@link
-     * DaoAuthenticationProvider}.
-     *
-     * @param username the username presented to the
-     *        <code>DaoAuthenticationProvider</code>
-     * @param password the password that should be presented to the
-     *        <code>DaoAuthenticationProvider</code>
-     * @param enabled set to <code>true</code> if the user is enabled
-     * @param accountNonExpired set to <code>true</code> if the account has not
-     *        expired
-     * @param credentialsNonExpired set to <code>true</code> if the credentials
-     *        have not expired
-     * @param accountNonLocked set to <code>true</code> if the account is not
-     *        locked
-     * @param authorities the authorities that should be granted to the caller
-     *        if they presented the correct username and password and the user
-     *        is enabled
-     *
-     * @throws IllegalArgumentException if a <code>null</code> value was passed
-     *         either as a parameter or as an element in the
-     *         <code>GrantedAuthority[]</code> array
-     */
-    public User(String username, String password, boolean enabled,
-        boolean accountNonExpired, boolean credentialsNonExpired,
-        boolean accountNonLocked, GrantedAuthority[] authorities)
-        throws IllegalArgumentException {
-        if (((username == null) || "".equals(username)) || (password == null)) {
-            throw new IllegalArgumentException(
-                "Cannot pass null or empty values to constructor");
-        }
+	private boolean credentialsNonExpired;
 
-        this.username = username;
-        this.password = password;
-        this.enabled = enabled;
-        this.accountNonExpired = accountNonExpired;
-        this.credentialsNonExpired = credentialsNonExpired;
-        this.accountNonLocked = accountNonLocked;
-        setAuthorities(authorities);
-    }
+	private boolean enabled;
 
-    //~ Methods ================================================================
+	// ~ Constructors
+	// ===========================================================
 
-    public boolean equals(Object rhs) {
-        if (!(rhs instanceof User) || (rhs == null)) {
-            return false;
-        }
+	protected User() {
+		throw new IllegalArgumentException("Cannot use default constructor");
+	}
 
-        User user = (User) rhs;
+	/**
+	 * Construct the <code>User</code> with the details required by {@link
+	 * DaoAuthenticationProvider}.
+	 * 
+	 * @param username
+	 *            the username presented to the
+	 *            <code>DaoAuthenticationProvider</code>
+	 * @param password
+	 *            the password that should be presented to the
+	 *            <code>DaoAuthenticationProvider</code>
+	 * @param enabled
+	 *            set to <code>true</code> if the user is enabled
+	 * @param authorities
+	 *            the authorities that should be granted to the caller if they
+	 *            presented the correct username and password and the user is
+	 *            enabled
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if a <code>null</code> value was passed either as a
+	 *             parameter or as an element in the
+	 *             <code>GrantedAuthority[]</code> array
+	 * 
+	 * @deprecated use new constructor with extended properties (this
+	 *             constructor will be removed from release 1.0.0)
+	 */
+	public User(String username, String password, boolean enabled,
+			GrantedAuthority[] authorities) throws IllegalArgumentException {
+		this(username, password, enabled, true, true, authorities);
+	}
 
-        // We rely on constructor to guarantee any User has non-null and >0 authorities
-        if (user.getAuthorities().length != this.getAuthorities().length) {
-            return false;
-        }
+	/**
+	 * Construct the <code>User</code> with the details required by {@link
+	 * DaoAuthenticationProvider}.
+	 * 
+	 * @param username
+	 *            the username presented to the
+	 *            <code>DaoAuthenticationProvider</code>
+	 * @param password
+	 *            the password that should be presented to the
+	 *            <code>DaoAuthenticationProvider</code>
+	 * @param enabled
+	 *            set to <code>true</code> if the user is enabled
+	 * @param accountNonExpired
+	 *            set to <code>true</code> if the account has not expired
+	 * @param credentialsNonExpired
+	 *            set to <code>true</code> if the credentials have not expired
+	 * @param authorities
+	 *            the authorities that should be granted to the caller if they
+	 *            presented the correct username and password and the user is
+	 *            enabled
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if a <code>null</code> value was passed either as a
+	 *             parameter or as an element in the
+	 *             <code>GrantedAuthority[]</code> array
+	 * 
+	 * @deprecated use new constructor with extended properties (this
+	 *             constructor will be removed from release 1.0.0)
+	 */
+	public User(String username, String password, boolean enabled,
+			boolean accountNonExpired, boolean credentialsNonExpired,
+			GrantedAuthority[] authorities) throws IllegalArgumentException {
+		this(username, password, enabled, accountNonExpired,
+				credentialsNonExpired, true, authorities);
+	}
 
-        for (int i = 0; i < this.getAuthorities().length; i++) {
-            if (!this.getAuthorities()[i].equals(user.getAuthorities()[i])) {
-                return false;
-            }
-        }
+	/**
+	 * Construct the <code>User</code> with the details required by {@link
+	 * DaoAuthenticationProvider}.
+	 * 
+	 * @param username
+	 *            the username presented to the
+	 *            <code>DaoAuthenticationProvider</code>
+	 * @param password
+	 *            the password that should be presented to the
+	 *            <code>DaoAuthenticationProvider</code>
+	 * @param enabled
+	 *            set to <code>true</code> if the user is enabled
+	 * @param accountNonExpired
+	 *            set to <code>true</code> if the account has not expired
+	 * @param credentialsNonExpired
+	 *            set to <code>true</code> if the credentials have not expired
+	 * @param accountNonLocked
+	 *            set to <code>true</code> if the account is not locked
+	 * @param authorities
+	 *            the authorities that should be granted to the caller if they
+	 *            presented the correct username and password and the user is
+	 *            enabled
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if a <code>null</code> value was passed either as a
+	 *             parameter or as an element in the
+	 *             <code>GrantedAuthority[]</code> array
+	 */
+	public User(String username, String password, boolean enabled,
+			boolean accountNonExpired, boolean credentialsNonExpired,
+			boolean accountNonLocked, GrantedAuthority[] authorities)
+			throws IllegalArgumentException {
+		if (((username == null) || "".equals(username)) || (password == null)) {
+			throw new IllegalArgumentException(
+					"Cannot pass null or empty values to constructor");
+		}
 
-        // We rely on constructor to guarantee non-null username and password
-        return (this.getPassword().equals(user.getPassword())
-        && this.getUsername().equals(user.getUsername())
-        && (this.isAccountNonExpired() == user.isAccountNonExpired())
-        && (this.isAccountNonLocked() == user.isAccountNonLocked())
-        && (this.isCredentialsNonExpired() == user.isCredentialsNonExpired())
-        && (this.isEnabled() == user.isEnabled()));
-    }
+		this.username = username;
+		this.password = password;
+		this.enabled = enabled;
+		this.accountNonExpired = accountNonExpired;
+		this.credentialsNonExpired = credentialsNonExpired;
+		this.accountNonLocked = accountNonLocked;
+		setAuthorities(authorities);
+	}
 
-    public GrantedAuthority[] getAuthorities() {
-        return authorities;
-    }
+	// ~ Methods
+	// ================================================================
 
-    public String getPassword() {
-        return password;
-    }
+	public boolean equals(Object rhs) {
+		if (!(rhs instanceof User) || (rhs == null)) {
+			return false;
+		}
 
-    public String getUsername() {
-        return username;
-    }
+		User user = (User) rhs;
 
-    public boolean isAccountNonExpired() {
-        return accountNonExpired;
-    }
+		// We rely on constructor to guarantee any User has non-null and >0
+		// authorities
+		if (user.getAuthorities().length != this.getAuthorities().length) {
+			return false;
+		}
 
-    public boolean isAccountNonLocked() {
-        return this.accountNonLocked;
-    }
+		for (int i = 0; i < this.getAuthorities().length; i++) {
+			if (!this.getAuthorities()[i].equals(user.getAuthorities()[i])) {
+				return false;
+			}
+		}
 
-    public boolean isCredentialsNonExpired() {
-        return credentialsNonExpired;
-    }
+		// We rely on constructor to guarantee non-null username and password
+		return (this.getPassword().equals(user.getPassword())
+				&& this.getUsername().equals(user.getUsername())
+				&& (this.isAccountNonExpired() == user.isAccountNonExpired())
+				&& (this.isAccountNonLocked() == user.isAccountNonLocked())
+				&& (this.isCredentialsNonExpired() == user
+						.isCredentialsNonExpired()) && (this.isEnabled() == user
+				.isEnabled()));
+	}
 
-    public boolean isEnabled() {
-        return enabled;
-    }
+	public GrantedAuthority[] getAuthorities() {
+		return authorities;
+	}
 
-    protected void setAuthorities(GrantedAuthority[] authorities) {
-        Assert.notNull(authorities, "Cannot pass a null GrantedAuthority array");
+	public String getPassword() {
+		return password;
+	}
 
-        for (int i = 0; i < authorities.length; i++) {
-            Assert.notNull(authorities[i],
-                "Granted authority element " + i
-                + " is null - GrantedAuthority[] cannot contain any null elements");
-        }
+	public String getUsername() {
+		return username;
+	}
 
-        this.authorities = authorities;
-    }
+	public boolean isAccountNonExpired() {
+		return accountNonExpired;
+	}
 
-    public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append(super.toString() + ": ");
-        sb.append("Username: " + this.username + "; ");
-        sb.append("Password: [PROTECTED]; ");
-        sb.append("Enabled: " + this.enabled + "; ");
-        sb.append("AccountNonExpired: " + this.accountNonExpired + "; ");
-        sb.append("credentialsNonExpired: " + this.credentialsNonExpired + "; ");
-        sb.append("AccountNonLocked: " + this.accountNonLocked + "; ");
+	public boolean isAccountNonLocked() {
+		return this.accountNonLocked;
+	}
 
-        if (this.getAuthorities() != null) {
-            sb.append("Granted Authorities: ");
+	public boolean isCredentialsNonExpired() {
+		return credentialsNonExpired;
+	}
 
-            for (int i = 0; i < this.getAuthorities().length; i++) {
-                if (i > 0) {
-                    sb.append(", ");
-                }
+	public boolean isEnabled() {
+		return enabled;
+	}
 
-                sb.append(this.getAuthorities()[i].toString());
-            }
-        } else {
-            sb.append("Not granted any authorities");
-        }
+	protected void setAuthorities(GrantedAuthority[] authorities) {
+		Assert
+				.notNull(authorities,
+						"Cannot pass a null GrantedAuthority array");
 
-        return sb.toString();
-    }
+		for (int i = 0; i < authorities.length; i++) {
+			Assert
+					.notNull(
+							authorities[i],
+							"Granted authority element "
+									+ i
+									+ " is null - GrantedAuthority[] cannot contain any null elements");
+		}
+
+		this.authorities = authorities;
+	}
+
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(super.toString() + ": ");
+		sb.append("Username: " + this.username + "; ");
+		sb.append("Password: [PROTECTED]; ");
+		sb.append("Enabled: " + this.enabled + "; ");
+		sb.append("AccountNonExpired: " + this.accountNonExpired + "; ");
+		sb
+				.append("credentialsNonExpired: " + this.credentialsNonExpired
+						+ "; ");
+		sb.append("AccountNonLocked: " + this.accountNonLocked + "; ");
+
+		if (this.getAuthorities() != null) {
+			sb.append("Granted Authorities: ");
+
+			for (int i = 0; i < this.getAuthorities().length; i++) {
+				if (i > 0) {
+					sb.append(", ");
+				}
+
+				sb.append(this.getAuthorities()[i].toString());
+			}
+		} else {
+			sb.append("Not granted any authorities");
+		}
+
+		return sb.toString();
+	}
 }

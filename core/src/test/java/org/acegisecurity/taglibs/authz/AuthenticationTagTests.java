@@ -21,7 +21,7 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.providers.TestingAuthenticationToken;
-import org.acegisecurity.providers.dao.User;
+import org.acegisecurity.userdetails.User;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;

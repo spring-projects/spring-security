@@ -49,7 +49,7 @@ import java.util.Iterator;
  * some use when using preexisting role names without a prefix, and no ability
  * exists to prefix them with a role prefix on reading them in, such as
  * provided for example in  {@link
- * org.acegisecurity.providers.dao.jdbc.JdbcDaoImpl}.
+ * org.acegisecurity.userdetails.jdbc.JdbcDaoImpl}.
  * </p>
  * 
  * <p>

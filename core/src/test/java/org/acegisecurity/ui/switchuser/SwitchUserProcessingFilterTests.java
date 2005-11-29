@@ -23,12 +23,12 @@ import org.acegisecurity.CredentialsExpiredException;
 import org.acegisecurity.DisabledException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.UserDetails;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.providers.dao.AuthenticationDao;
-import org.acegisecurity.providers.dao.User;
-import org.acegisecurity.providers.dao.UsernameNotFoundException;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.acegisecurity.util.MockFilterChain;
 
 import org.springframework.context.support.StaticMessageSource;
@@ -383,7 +383,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
     //~ Inner Classes ==========================================================
 
-    private class MockAuthenticationDaoUserJackLord implements AuthenticationDao {
+    private class MockAuthenticationDaoUserJackLord implements UserDetailsService {
         private String password = "hawaii50";
 
         public void setPassword(String password) {

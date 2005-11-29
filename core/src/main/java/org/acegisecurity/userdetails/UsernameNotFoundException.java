@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.dao;
+package org.acegisecurity.userdetails;
 
 import org.acegisecurity.BadCredentialsException;
 
 
 /**
- * Thrown if an {@link AuthenticationDao} implementation cannot locate a {@link
+ * Thrown if an {@link UserDetailsService} implementation cannot locate a {@link
  * User} by its username.
  *
  * @author Ben Alex

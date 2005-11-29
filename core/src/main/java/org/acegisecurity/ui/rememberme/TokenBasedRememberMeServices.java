@@ -16,10 +16,10 @@
 package org.acegisecurity.ui.rememberme;
 
 import org.acegisecurity.Authentication;
-import org.acegisecurity.UserDetails;
-import org.acegisecurity.providers.dao.AuthenticationDao;
-import org.acegisecurity.providers.dao.UsernameNotFoundException;
 import org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -57,10 +57,10 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
- * An {@link org.acegisecurity.providers.dao.AuthenticationDao} is required
+ * An {@link org.acegisecurity.userdetails.UserDetailsService} is required
  * by this implementation, so that it can construct a valid
  * <code>Authentication</code> from the returned {@link
- * org.acegisecurity.UserDetails}. This is also necessary so that the
+ * org.acegisecurity.userdetails.UserDetails}. This is also necessary so that the
  * user's password is available and can be checked as part of the encoded
  * cookie.
  * </p>
@@ -112,18 +112,18 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
 
     //~ Instance fields ========================================================
 
-    private AuthenticationDao authenticationDao;
+    private UserDetailsService authenticationDao;
     private String key;
     private String parameter = DEFAULT_PARAMETER;
     private long tokenValiditySeconds = 1209600; // 14 days
 
     //~ Methods ================================================================
 
-    public void setAuthenticationDao(AuthenticationDao authenticationDao) {
+    public void setAuthenticationDao(UserDetailsService authenticationDao) {
         this.authenticationDao = authenticationDao;
     }
 
-    public AuthenticationDao getAuthenticationDao() {
+    public UserDetailsService getAuthenticationDao() {
         return authenticationDao;
     }
 

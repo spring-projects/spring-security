@@ -15,7 +15,8 @@
 
 package org.acegisecurity.providers.dao;
 
-import org.acegisecurity.UserDetails;
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
 
 
 /**

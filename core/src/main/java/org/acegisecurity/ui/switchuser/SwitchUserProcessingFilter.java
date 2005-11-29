@@ -23,17 +23,17 @@ import org.acegisecurity.CredentialsExpiredException;
 import org.acegisecurity.DisabledException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.LockedException;
-import org.acegisecurity.UserDetails;
 
 import org.acegisecurity.context.SecurityContextHolder;
 
 import org.acegisecurity.event.authentication.AuthenticationSwitchUserEvent;
 
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.providers.dao.AuthenticationDao;
-import org.acegisecurity.providers.dao.UsernameNotFoundException;
 
 import org.acegisecurity.ui.WebAuthenticationDetails;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -131,7 +131,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
 
     // ~ Instance fields
     // ========================================================
-    private AuthenticationDao authenticationDao;
+    private UserDetailsService authenticationDao;
     protected MessageSourceAccessor messages;
     private String exitUserUrl = "/j_acegi_exit_user";
     private String switchUserUrl = "/j_acegi_switch_user";
@@ -492,7 +492,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
                                              *        authentication dao
                                              */
                                             public void setAuthenticationDao(
-                                                AuthenticationDao authenticationDao) {
+                                                UserDetailsService authenticationDao) {
                                                 this.authenticationDao = authenticationDao;
                                             }
 

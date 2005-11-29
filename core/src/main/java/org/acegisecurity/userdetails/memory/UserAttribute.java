@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.dao.memory;
-
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
+package org.acegisecurity.userdetails.memory;
 
 import java.util.List;
 import java.util.Vector;
+
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
 
 
 /**

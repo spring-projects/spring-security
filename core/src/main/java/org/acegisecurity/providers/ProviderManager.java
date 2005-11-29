@@ -42,7 +42,7 @@ import org.acegisecurity.event.authentication.AuthenticationFailureServiceExcept
 import org.acegisecurity.event.authentication.AuthenticationSuccessEvent;
 
 import org.acegisecurity.providers.cas.ProxyUntrustedException;
-import org.acegisecurity.providers.dao.UsernameNotFoundException;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

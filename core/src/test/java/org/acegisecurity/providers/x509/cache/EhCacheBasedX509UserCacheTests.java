@@ -20,9 +20,9 @@ import junit.framework.TestCase;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.MockApplicationContext;
-import org.acegisecurity.UserDetails;
-import org.acegisecurity.providers.dao.User;
 import org.acegisecurity.providers.x509.X509TestUtils;
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
 
 import net.sf.ehcache.Cache;
 

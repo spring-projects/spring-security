@@ -18,12 +18,14 @@ package org.acegisecurity.providers.dao;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationServiceException;
 import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.UserDetails;
 
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
 
 import org.springframework.dao.DataAccessException;
 
@@ -32,13 +34,13 @@ import org.springframework.util.Assert;
 
 /**
  * An {@link AuthenticationProvider} implementation that retrieves user details
- * from an {@link AuthenticationDao}.
+ * from an {@link UserDetailsService}.
  */
 public class DaoAuthenticationProvider
     extends AbstractUserDetailsAuthenticationProvider {
     //~ Instance fields ========================================================
 
-    private AuthenticationDao authenticationDao;
+    private UserDetailsService authenticationDao;
     private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
     private SaltSource saltSource;
     private boolean hideUserNotFoundExceptions = true;
@@ -67,7 +69,7 @@ public class DaoAuthenticationProvider
             "An Authentication DAO must be set");
     }
 
-    public AuthenticationDao getAuthenticationDao() {
+    public UserDetailsService getAuthenticationDao() {
         return authenticationDao;
     }
 
@@ -111,7 +113,7 @@ public class DaoAuthenticationProvider
             return loadedUser;
         }
 
-        public void setAuthenticationDao(AuthenticationDao authenticationDao) {
+        public void setAuthenticationDao(UserDetailsService authenticationDao) {
             this.authenticationDao = authenticationDao;
         }
 

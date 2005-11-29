@@ -21,7 +21,7 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.MockApplicationContext;
 import org.acegisecurity.providers.cas.CasAuthenticationToken;
-import org.acegisecurity.providers.dao.User;
+import org.acegisecurity.userdetails.User;
 
 import net.sf.ehcache.Cache;
 

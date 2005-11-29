@@ -17,8 +17,8 @@ package org.acegisecurity.acl.basic;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.UserDetails;
 import org.acegisecurity.acl.AclEntry;
+import org.acegisecurity.userdetails.UserDetails;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

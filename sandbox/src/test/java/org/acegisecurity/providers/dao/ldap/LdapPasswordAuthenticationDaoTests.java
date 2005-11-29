@@ -16,8 +16,8 @@
 package org.acegisecurity.providers.dao.ldap;
 
 import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.UserDetails;
 import org.acegisecurity.providers.dao.ldap.support.BaseLdapTestCase;
+import org.acegisecurity.userdetails.UserDetails;
 
 import javax.naming.NamingException;
 

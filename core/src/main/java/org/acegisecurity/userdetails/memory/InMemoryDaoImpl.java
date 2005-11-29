@@ -13,19 +13,16 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.dao.memory;
-
-import org.acegisecurity.UserDetails;
-import org.acegisecurity.providers.dao.AuthenticationDao;
-import org.acegisecurity.providers.dao.UsernameNotFoundException;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.dao.DataAccessException;
-
-import org.springframework.util.Assert;
+package org.acegisecurity.userdetails.memory;
 
 import java.util.Properties;
+
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.dao.DataAccessException;
+import org.springframework.util.Assert;
 
 
 /**
@@ -34,7 +31,7 @@ import java.util.Properties;
  * @author Ben Alex
  * @version $Id$
  */
-public class InMemoryDaoImpl implements AuthenticationDao, InitializingBean {
+public class InMemoryDaoImpl implements UserDetailsService, InitializingBean {
     //~ Instance fields ========================================================
 
     private UserMap userMap;

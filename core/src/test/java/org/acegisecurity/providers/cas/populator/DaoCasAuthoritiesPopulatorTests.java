@@ -19,10 +19,10 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.UserDetails;
-import org.acegisecurity.providers.dao.AuthenticationDao;
-import org.acegisecurity.providers.dao.User;
-import org.acegisecurity.providers.dao.UsernameNotFoundException;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -111,7 +111,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
 
     public void testGettersSetters() {
         DaoCasAuthoritiesPopulator populator = new DaoCasAuthoritiesPopulator();
-        AuthenticationDao dao = new MockAuthenticationDaoUserMarissa();
+        UserDetailsService dao = new MockAuthenticationDaoUserMarissa();
         populator.setAuthenticationDao(dao);
         assertEquals(dao, populator.getAuthenticationDao());
     }
@@ -119,7 +119,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
     //~ Inner Classes ==========================================================
 
     private class MockAuthenticationDaoSimulateBackendError
-        implements AuthenticationDao {
+        implements UserDetailsService {
         public long getRefreshDuration() {
             return 0;
         }
@@ -131,7 +131,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
         }
     }
 
-    private class MockAuthenticationDaoUserMarissa implements AuthenticationDao {
+    private class MockAuthenticationDaoUserMarissa implements UserDetailsService {
         public long getRefreshDuration() {
             return 0;
         }

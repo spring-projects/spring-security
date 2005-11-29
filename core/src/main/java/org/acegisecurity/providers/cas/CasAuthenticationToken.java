@@ -16,8 +16,8 @@
 package org.acegisecurity.providers.cas;
 
 import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.UserDetails;
 import org.acegisecurity.providers.AbstractAuthenticationToken;
+import org.acegisecurity.userdetails.UserDetails;
 
 import org.springframework.util.Assert;
 

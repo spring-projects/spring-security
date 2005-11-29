@@ -21,7 +21,7 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.providers.dao.User;
+import org.acegisecurity.userdetails.User;
 
 
 /**

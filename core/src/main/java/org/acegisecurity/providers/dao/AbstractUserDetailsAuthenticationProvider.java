@@ -21,11 +21,12 @@ import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.CredentialsExpiredException;
 import org.acegisecurity.DisabledException;
 import org.acegisecurity.LockedException;
-import org.acegisecurity.UserDetails;
 
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.dao.cache.NullUserCache;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -38,7 +39,7 @@ import org.springframework.util.Assert;
 
 /**
  * A base {@link AuthenticationProvider} that allows subclasses to override and
- * work with {@link org.acegisecurity.UserDetails} objects. The class is
+ * work with {@link org.acegisecurity.userdetails.UserDetails} objects. The class is
  * designed to respond to {@link UsernamePasswordAuthenticationToken}
  * authentication requests.
  * 
@@ -63,8 +64,8 @@ import org.springframework.util.Assert;
  * Caching is handled via the <code>UserDetails</code> object being placed in
  * the {@link UserCache}. This ensures that subsequent requests with the same
  * username can be validated without needing to query the {@link
- * AuthenticationDao}. It should be noted that if a user appears to present an
- * incorrect password, the {@link AuthenticationDao} will be queried to
+ * UserDetailsService}. It should be noted that if a user appears to present an
+ * incorrect password, the {@link UserDetailsService} will be queried to
  * confirm the most up-to-date password was used for comparison.
  * </p>
  */

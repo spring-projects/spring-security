@@ -13,9 +13,12 @@
  * limitations under the License.
  */
 
-package org.acegisecurity;
+package org.acegisecurity.userdetails;
 
 import java.io.Serializable;
+
+import org.acegisecurity.Authentication;
+import org.acegisecurity.GrantedAuthority;
 
 
 /**

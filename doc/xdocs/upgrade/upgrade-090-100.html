@@ -17,7 +17,8 @@ applications:
 	<li>net.sf.acegisecurity.providers.dao.AuthenticationDao is now org.acegisecurity.userdetails.UserDetailsService.
 	The interface signature has not changed. Similarly, User and UserDetails have moved into the latter's package as well.
 	If you've implemented your own AuthenticationDao, you'll need to change the class it's implementing and quite likely
-	the import packages for User and UserDetails.</li>
+	the import packages for User and UserDetails. In addition, if using JdbcDaoImpl or InMemoryDaoImpl please
+	note they have moved to this new package.</li>
 		
 	<li>Acegi Security is now localised. In net.sf.acegisecurity you will find a messages.properties. It is
 	suggested to register this in your application context, perhaps using ReloadableResourceBundleMessageSource.

@@ -13,18 +13,17 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.dao.memory;
-
-import org.acegisecurity.UserDetails;
-import org.acegisecurity.providers.dao.User;
-import org.acegisecurity.providers.dao.UsernameNotFoundException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
+package org.acegisecurity.userdetails.memory;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 
 /**

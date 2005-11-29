@@ -18,18 +18,18 @@ package org.acegisecurity.ui.digestauth;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationServiceException;
 import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.UserDetails;
 
 import org.acegisecurity.context.SecurityContextHolder;
 
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.providers.dao.AuthenticationDao;
 import org.acegisecurity.providers.dao.UserCache;
-import org.acegisecurity.providers.dao.UsernameNotFoundException;
 import org.acegisecurity.providers.dao.cache.NullUserCache;
 
 import org.acegisecurity.ui.WebAuthenticationDetails;
 
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.acegisecurity.util.StringSplitUtils;
 
 import org.apache.commons.codec.binary.Base64;
@@ -120,7 +120,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
 
     //~ Instance fields ========================================================
 
-    private AuthenticationDao authenticationDao;
+    private UserDetailsService authenticationDao;
     private DigestProcessingFilterEntryPoint authenticationEntryPoint;
     protected MessageSourceAccessor messages;
     private UserCache userCache = new NullUserCache();
@@ -460,7 +460,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
         return digestMd5;
     }
 
-    public AuthenticationDao getAuthenticationDao() {
+    public UserDetailsService getAuthenticationDao() {
         return authenticationDao;
     }
 
@@ -474,7 +474,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
 
     public void init(FilterConfig ignored) throws ServletException {}
 
-    public void setAuthenticationDao(AuthenticationDao authenticationDao) {
+    public void setAuthenticationDao(UserDetailsService authenticationDao) {
         this.authenticationDao = authenticationDao;
     }
 

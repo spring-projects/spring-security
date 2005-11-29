@@ -13,15 +13,16 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.dao.memory;
+package org.acegisecurity.userdetails.memory;
 
 import junit.framework.TestCase;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.UserDetails;
-import org.acegisecurity.providers.dao.User;
-import org.acegisecurity.providers.dao.UsernameNotFoundException;
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.acegisecurity.userdetails.memory.UserMap;
 
 
 /**

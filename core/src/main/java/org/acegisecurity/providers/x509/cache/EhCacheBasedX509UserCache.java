@@ -15,8 +15,8 @@
 
 package org.acegisecurity.providers.x509.cache;
 
-import org.acegisecurity.UserDetails;
 import org.acegisecurity.providers.x509.X509UserCache;
+import org.acegisecurity.userdetails.UserDetails;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;

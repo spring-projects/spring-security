@@ -17,7 +17,7 @@ package org.acegisecurity.providers.anonymous;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.providers.dao.memory.UserAttribute;
+import org.acegisecurity.userdetails.memory.UserAttribute;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

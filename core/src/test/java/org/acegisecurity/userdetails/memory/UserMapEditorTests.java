@@ -13,7 +13,10 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.dao.memory;
+package org.acegisecurity.userdetails.memory;
+
+import org.acegisecurity.userdetails.memory.UserMap;
+import org.acegisecurity.userdetails.memory.UserMapEditor;
 
 import junit.framework.TestCase;
 

@@ -5,12 +5,12 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.acegisecurity.UserDetails;
 import org.acegisecurity.intercept.web.FilterSecurityInterceptor;
 import org.acegisecurity.intercept.web.SecurityEnforcementFilter;
 import org.acegisecurity.providers.ProviderManager;
 import org.acegisecurity.providers.dao.DaoAuthenticationProvider;
-import org.acegisecurity.providers.dao.memory.InMemoryDaoImpl;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.memory.InMemoryDaoImpl;
 import org.acegisecurity.util.InMemoryResource;
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;

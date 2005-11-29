@@ -19,7 +19,8 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.*;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.providers.dao.User;
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
 import org.springframework.context.support.StaticMessageSource;
 
 import java.security.cert.X509Certificate;

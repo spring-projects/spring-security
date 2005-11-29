@@ -16,8 +16,8 @@
 package org.acegisecurity.providers.dao.salt;
 
 import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.UserDetails;
 import org.acegisecurity.providers.dao.SaltSource;
+import org.acegisecurity.userdetails.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
 

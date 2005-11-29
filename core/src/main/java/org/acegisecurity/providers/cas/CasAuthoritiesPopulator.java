@@ -16,7 +16,7 @@
 package org.acegisecurity.providers.cas;
 
 import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.UserDetails;
+import org.acegisecurity.userdetails.UserDetails;
 
 
 /**

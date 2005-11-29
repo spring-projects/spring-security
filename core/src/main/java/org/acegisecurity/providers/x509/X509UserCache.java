@@ -15,7 +15,7 @@
 
 package org.acegisecurity.providers.x509;
 
-import org.acegisecurity.UserDetails;
+import org.acegisecurity.userdetails.UserDetails;
 
 import java.security.cert.X509Certificate;
 

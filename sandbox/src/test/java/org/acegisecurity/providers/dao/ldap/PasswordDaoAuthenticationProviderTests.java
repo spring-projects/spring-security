@@ -28,14 +28,14 @@ import org.acegisecurity.DisabledException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.LockedException;
-import org.acegisecurity.UserDetails;
 import org.acegisecurity.providers.TestingAuthenticationToken;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.providers.dao.User;
 import org.acegisecurity.providers.dao.UserCache;
-import org.acegisecurity.providers.dao.UsernameNotFoundException;
 import org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache;
 import org.acegisecurity.providers.dao.cache.NullUserCache;
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;

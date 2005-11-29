@@ -19,15 +19,15 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.DisabledException;
 import org.acegisecurity.MockFilterConfig;
-import org.acegisecurity.UserDetails;
 
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.context.SecurityContextImpl;
 
-import org.acegisecurity.providers.dao.AuthenticationDao;
 import org.acegisecurity.providers.dao.UserCache;
-import org.acegisecurity.providers.dao.UsernameNotFoundException;
 
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.acegisecurity.util.StringSplitUtils;
 
 import org.apache.commons.codec.binary.Base64;
@@ -855,7 +855,7 @@ public class DigestProcessingFilterTests extends TestCase {
 
     //~ Inner Classes ==========================================================
 
-    private class MockAuthenticationDao implements AuthenticationDao {
+    private class MockAuthenticationDao implements UserDetailsService {
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
             return null;

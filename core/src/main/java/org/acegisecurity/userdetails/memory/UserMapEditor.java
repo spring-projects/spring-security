@@ -13,17 +13,15 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.dao.memory;
-
-import org.acegisecurity.UserDetails;
-import org.acegisecurity.providers.dao.User;
-
-import org.springframework.beans.propertyeditors.PropertiesEditor;
+package org.acegisecurity.userdetails.memory;
 
 import java.beans.PropertyEditorSupport;
-
 import java.util.Iterator;
 import java.util.Properties;
+
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
+import org.springframework.beans.propertyeditors.PropertiesEditor;
 
 
 /**

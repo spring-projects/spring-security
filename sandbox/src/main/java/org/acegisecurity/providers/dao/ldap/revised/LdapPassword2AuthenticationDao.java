@@ -18,9 +18,9 @@ import javax.naming.directory.SearchResult;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.UserDetails;
-import org.acegisecurity.providers.dao.User;
 import org.acegisecurity.providers.dao.ldap.PasswordAuthenticationDao;
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

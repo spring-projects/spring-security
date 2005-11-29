@@ -22,12 +22,12 @@ import org.acegisecurity.AuthenticationServiceException;
 import org.acegisecurity.CredentialsExpiredException;
 import org.acegisecurity.DisabledException;
 import org.acegisecurity.LockedException;
-import org.acegisecurity.UserDetails;
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.dao.DaoAuthenticationProvider;
 import org.acegisecurity.providers.dao.UserCache;
 import org.acegisecurity.providers.dao.cache.NullUserCache;
+import org.acegisecurity.userdetails.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
 

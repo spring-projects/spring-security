@@ -16,10 +16,10 @@
 package org.acegisecurity.taglibs.authz;
 
 import org.acegisecurity.Authentication;
-import org.acegisecurity.UserDetails;
 
 import org.acegisecurity.context.SecurityContext;
 import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.userdetails.UserDetails;
 
 import java.io.IOException;
 

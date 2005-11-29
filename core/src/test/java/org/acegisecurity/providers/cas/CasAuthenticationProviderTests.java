@@ -22,12 +22,12 @@ import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.UserDetails;
 import org.acegisecurity.providers.TestingAuthenticationToken;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.cas.ticketvalidator.AbstractTicketValidator;
-import org.acegisecurity.providers.dao.User;
 import org.acegisecurity.ui.cas.CasProcessingFilter;
+import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.UserDetails;
 import org.springframework.context.support.StaticMessageSource;
 
 import java.util.HashMap;

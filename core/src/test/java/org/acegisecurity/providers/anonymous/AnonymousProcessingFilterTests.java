@@ -23,7 +23,7 @@ import org.acegisecurity.MockFilterConfig;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.context.SecurityContextImpl;
 import org.acegisecurity.providers.TestingAuthenticationToken;
-import org.acegisecurity.providers.dao.memory.UserAttribute;
+import org.acegisecurity.userdetails.memory.UserAttribute;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
