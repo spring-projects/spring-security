@@ -79,8 +79,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements AuthenticationDao {
 
     //~ Instance fields ========================================================
 
-    private MappingSqlQuery authoritiesByUsernameMapping;
-    private MappingSqlQuery usersByUsernameMapping;
+    protected MappingSqlQuery authoritiesByUsernameMapping;
+    protected MappingSqlQuery usersByUsernameMapping;
     private String authoritiesByUsernameQuery;
     private String rolePrefix = "";
     private String usersByUsernameQuery;
