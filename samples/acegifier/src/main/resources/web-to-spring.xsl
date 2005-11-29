@@ -57,6 +57,10 @@
 <xsl:template match = "web-app">
 
 <beans>
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+      <property name="basename"><value>messages</value></property>
+    </bean>
+    <xsl:text>&#xA;&#xA;</xsl:text>
     <xsl:call-template name="filter-to-bean-proxy"/>
     <xsl:call-template name="authentication-beans"/>
     <xsl:apply-templates select="./login-config"/>
@@ -72,6 +76,7 @@
     <xsl:comment>======================== AUTHENTICATION =======================</xsl:comment>
     
     <bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
+      <property name="messageSource"><ref local="messageSource"/></property>
       <property name="providers">
          <list>
             <ref local="daoAuthenticationProvider"/>
@@ -82,6 +87,7 @@
     </bean>
     <xsl:text>&#xA;&#xA;</xsl:text>
     <bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
+      <property name="messageSource"><ref local="messageSource"/></property>
       <property name="authenticationDao"><ref local="inMemoryDaoImpl"/></property>
       <!-- property name="userCache"><ref local="userCache"/></property-->
     </bean>
@@ -104,6 +110,7 @@
     <xsl:text>&#xA;&#xA;</xsl:text>
 
     <bean id="anonymousAuthenticationProvider" class="org.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider">
+      <property name="messageSource"><ref local="messageSource"/></property>
       <property name="key"><value>foobar</value></property>
     </bean>
     <xsl:text>&#xA;&#xA;</xsl:text>
@@ -123,6 +130,7 @@
     <xsl:text>&#xA;&#xA;</xsl:text>
 
     <bean id="rememberMeAuthenticationProvider" class="org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider">
+      <property name="messageSource"><ref local="messageSource"/></property>
       <property name="key"><value>springRocks</value></property>
     </bean>
     <xsl:text>&#xA;&#xA;</xsl:text>
@@ -220,6 +228,7 @@
     
 <xsl:template name="filter-invocation-interceptor">
   <bean id="httpRequestAccessDecisionManager" class="org.acegisecurity.vote.AffirmativeBased">
+    <property name="messageSource"><ref local="messageSource"/></property>
     <property name="allowIfAllAbstainDecisions"><value>false</value></property>
     <property name="decisionVoters">
       <list>
@@ -241,6 +250,7 @@
        removing anonymous access where necessary.
     </xsl:comment>
   <bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
+    <property name="messageSource"><ref local="messageSource"/></property>
     <property name="authenticationManager"><ref bean="authenticationManager"/></property>
     <property name="accessDecisionManager"><ref local="httpRequestAccessDecisionManager"/></property>
     <property name="objectDefinitionSource">

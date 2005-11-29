@@ -8,9 +8,9 @@
  -->
 
 <beans>
-	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
-		<property name="basename"><value>messages</value></property>
-	</bean>
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+      <property name="basename"><value>messages</value></property>
+    </bean>
 
     <bean id="conversionController" class="acegifier.web.AcegifierController">
         <property name="formView" value="acegificationForm" />
