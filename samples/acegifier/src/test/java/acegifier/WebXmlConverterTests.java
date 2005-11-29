@@ -1,23 +1,26 @@
 package acegifier;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import junit.framework.TestCase;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor;
-import net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter;
-import net.sf.acegisecurity.providers.ProviderManager;
-import net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider;
-import net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl;
-import net.sf.acegisecurity.util.InMemoryResource;
+
+import org.acegisecurity.UserDetails;
+import org.acegisecurity.intercept.web.FilterSecurityInterceptor;
+import org.acegisecurity.intercept.web.SecurityEnforcementFilter;
+import org.acegisecurity.providers.ProviderManager;
+import org.acegisecurity.providers.dao.DaoAuthenticationProvider;
+import org.acegisecurity.providers.dao.memory.InMemoryDaoImpl;
+import org.acegisecurity.util.InMemoryResource;
+import org.dom4j.Document;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.dom4j.Document;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
 
-import java.io.IOException;
-import java.io.ByteArrayOutputStream;
+import acegifier.WebXmlConverter;
 
 /**
  * Tests the WebXmlConverter by applying it to a sample web.xml file.
@@ -29,6 +32,7 @@ public class WebXmlConverterTests extends TestCase {
 
     public void testFileConversion() throws Exception {
         WebXmlConverter converter = new WebXmlConverter();
+    	Thread.dumpStack();
 
         Resource r = new ClassPathResource("test-web.xml");
         converter.setInput(r.getInputStream());

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="samples/attributes/src/main/java"/>
+	<classpathentry kind="src" path="samples/acegifier/src/main/resources"/>
+	<classpathentry kind="src" path="samples/acegifier/src/main/java"/>
+	<classpathentry kind="src" path="samples/acegifier/src/test/java"/>
 	<classpathentry kind="src" path="domain/src/main/java"/>
 	<classpathentry kind="src" path="domain/src/main/resource"/>
 	<classpathentry kind="src" path="domain/src/test/java"/>
@@ -64,5 +67,8 @@
 	<classpathentry kind="src" path="samples/annotations/src/test/java"/>
 	<classpathentry kind="src" path="samples/contacts-tiger/src/main/java"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jcifs/jars/jcifs-1.2.6.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/dom4j/jars/dom4j-1.6.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xercesImpl-2.6.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xmlParserAPIs-2.6.2.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>

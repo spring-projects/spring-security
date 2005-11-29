@@ -1,20 +1,25 @@
 package acegifier;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.Assert;
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.DocumentException;
-import org.dom4j.Node;
-import org.dom4j.io.SAXReader;
-import org.dom4j.io.DocumentSource;
-import org.dom4j.io.DocumentResult;
-
-import javax.xml.transform.*;
-import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamSource;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Node;
+import org.dom4j.io.DocumentResult;
+import org.dom4j.io.DocumentSource;
+import org.dom4j.io.SAXReader;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.Assert;
 
 /**
  * A utility to translate a web.xml file into a set of acegi security spring beans.
@@ -47,15 +52,19 @@ public class WebXmlConverter {
     private Document newWebXml, acegiBeansXml;
 
     public WebXmlConverter() throws IOException, TransformerConfigurationException {
-        TransformerFactory tf = TransformerFactory.newInstance();
-
-        acegiSecurityTransformer = tf.newTransformer(createTransformerSource(WEB_TO_SPRING_XSL_FILE));
+    	TransformerFactory tf = TransformerFactory.newInstance();
+    	Source source = createTransformerSource(WEB_TO_SPRING_XSL_FILE);
+    	System.out.println("1");
+        acegiSecurityTransformer = tf.newTransformer(source);
+        System.out.println("2");
         newWebXmlTransformer = tf.newTransformer(createTransformerSource(NEW_WEB_XSLT_FILE));
+        System.out.println("3");
     }
 
     private Source createTransformerSource(String fileName) throws IOException {
         ClassPathResource resource = new ClassPathResource(fileName);
-        return new StreamSource(resource.getInputStream());
+        Source source = new StreamSource(resource.getInputStream());
+        return source;
     }
 
     /**

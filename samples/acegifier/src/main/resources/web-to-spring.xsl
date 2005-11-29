@@ -71,7 +71,7 @@
 <xsl:template name="authentication-beans">
     <xsl:comment>======================== AUTHENTICATION =======================</xsl:comment>
     
-    <bean id="authenticationManager" class="net.sf.acegisecurity.providers.ProviderManager">
+    <bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
       <property name="providers">
          <list>
             <ref local="daoAuthenticationProvider"/>
@@ -81,13 +81,13 @@
       </property>
     </bean>
     <xsl:text>&#xA;&#xA;</xsl:text>
-    <bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
+    <bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
       <property name="authenticationDao"><ref local="inMemoryDaoImpl"/></property>
       <!-- property name="userCache"><ref local="userCache"/></property-->
     </bean>
     <xsl:text>&#xA;&#xA;</xsl:text>
 
-    <bean id="inMemoryDaoImpl" class="net.sf.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
+    <bean id="inMemoryDaoImpl" class="org.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
         <property name="userMap">
             <value>    
         superuser=password,<xsl:value-of select="$all-roles"/>
@@ -97,32 +97,32 @@
     </bean>
     <xsl:text>&#xA;&#xA;</xsl:text>
 
-    <bean id="anonymousProcessingFilter" class="net.sf.acegisecurity.providers.anonymous.AnonymousProcessingFilter">
+    <bean id="anonymousProcessingFilter" class="org.acegisecurity.providers.anonymous.AnonymousProcessingFilter">
       <property name="key"><value>foobar</value></property>
       <property name="userAttribute"><value>anonymousUser,ROLE_ANONYMOUS</value></property>
     </bean>
     <xsl:text>&#xA;&#xA;</xsl:text>
 
-    <bean id="anonymousAuthenticationProvider" class="net.sf.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider">
+    <bean id="anonymousAuthenticationProvider" class="org.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider">
       <property name="key"><value>foobar</value></property>
     </bean>
     <xsl:text>&#xA;&#xA;</xsl:text>
 
-    <bean id="httpSessionContextIntegrationFilter" class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter"/>
+    <bean id="httpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter"/>
     <xsl:text>&#xA;&#xA;</xsl:text>
 
-    <bean id="rememberMeProcessingFilter" class="net.sf.acegisecurity.ui.rememberme.RememberMeProcessingFilter">
+    <bean id="rememberMeProcessingFilter" class="org.acegisecurity.ui.rememberme.RememberMeProcessingFilter">
       <property name="rememberMeServices"><ref local="rememberMeServices"/></property>
     </bean>
     <xsl:text>&#xA;&#xA;</xsl:text>
 
-    <bean id="rememberMeServices" class="net.sf.acegisecurity.ui.rememberme.TokenBasedRememberMeServices">
+    <bean id="rememberMeServices" class="org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices">
       <property name="authenticationDao"><ref local="inMemoryDaoImpl"/></property>
       <property name="key"><value>springRocks</value></property>
     </bean>
     <xsl:text>&#xA;&#xA;</xsl:text>
 
-    <bean id="rememberMeAuthenticationProvider" class="net.sf.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider">
+    <bean id="rememberMeAuthenticationProvider" class="org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider">
       <property name="key"><value>springRocks</value></property>
     </bean>
     <xsl:text>&#xA;&#xA;</xsl:text>
@@ -134,7 +134,7 @@
  -->
 <xsl:template match="login-config">
 
-   <bean id="securityEnforcementFilter" class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter">
+   <bean id="securityEnforcementFilter" class="org.acegisecurity.intercept.web.SecurityEnforcementFilter">
       <property name="filterSecurityInterceptor"><ref local="filterInvocationInterceptor"/></property>
       <property name="authenticationEntryPoint">
     <xsl:choose>
@@ -154,13 +154,13 @@
             <xsl:call-template name="form-login"/>
         </xsl:when>
         <xsl:when test="$auth-method = 'BASIC'">
-   <bean id="basicProcessingFilter" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
+   <bean id="basicProcessingFilter" class="org.acegisecurity.ui.basicauth.BasicProcessingFilter">
       <property name="authenticationManager"><ref local="authenticationManager"/></property>
       <property name="authenticationEntryPoint"><ref local="basicProcessingFilterEntryPoint"/></property>
    </bean>
    <xsl:text>&#xA;&#xA;</xsl:text>
 
-   <bean id="basicProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
+   <bean id="basicProcessingFilterEntryPoint" class="org.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
       <property name="realmName"><value>Your Realm</value></property>
    </bean>
    <xsl:text>&#xA;&#xA;</xsl:text>
@@ -180,7 +180,7 @@
   <xsl:comment>Make sure that these properties match your setup. In particular, remember to switch your login
   form action from "j_security_check" to "j_acegi_security_check"
   </xsl:comment>
-  <bean id="authenticationProcessingFilter" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
+  <bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
     <property name="authenticationManager"><ref bean="authenticationManager"/></property>
     <property name="authenticationFailureUrl"><value><xsl:value-of select="form-login-config/form-error-page"/></value></property>
     <property name="defaultTargetUrl"><value>/</value></property>
@@ -189,7 +189,7 @@
   </bean>
   <xsl:text>&#xA;&#xA;</xsl:text>
 
-  <bean id="authenticationProcessingFilterEntryPoint" class="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+  <bean id="authenticationProcessingFilterEntryPoint" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
     <property name="loginFormUrl"><value><xsl:value-of select="form-login-config/form-login-page"/></value></property>
     <property name="forceHttps"><value>false</value></property>
   </bean>
@@ -204,7 +204,7 @@
 
 	<xsl:comment>if you wish to use channel security, add "channelProcessingFilter," in front
 	      of "httpSessionContextIntegrationFilter" in the list below</xsl:comment>
-	<bean id="filterChainProxy" class="net.sf.acegisecurity.util.FilterChainProxy">
+	<bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
     <property name="filterInvocationDefinitionSource">
        <value>
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -219,7 +219,7 @@
 </xsl:template>
     
 <xsl:template name="filter-invocation-interceptor">
-  <bean id="httpRequestAccessDecisionManager" class="net.sf.acegisecurity.vote.AffirmativeBased">
+  <bean id="httpRequestAccessDecisionManager" class="org.acegisecurity.vote.AffirmativeBased">
     <property name="allowIfAllAbstainDecisions"><value>false</value></property>
     <property name="decisionVoters">
       <list>
@@ -229,7 +229,7 @@
   </bean>
   <xsl:text>&#xA;&#xA;</xsl:text>
   <xsl:comment>An access decision voter that reads ROLE_* configuration settings</xsl:comment>
-  <bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>            
+  <bean id="roleVoter" class="org.acegisecurity.vote.RoleVoter"/>            
   <xsl:text>&#xA;&#xA;</xsl:text>
     
     <xsl:comment> 
@@ -240,7 +240,7 @@
        original intention but there isn't a direct mapping to the acegi way of doing things. You should modify the permissions as required,
        removing anonymous access where necessary.
     </xsl:comment>
-  <bean id="filterInvocationInterceptor" class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
+  <bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
     <property name="authenticationManager"><ref bean="authenticationManager"/></property>
     <property name="accessDecisionManager"><ref local="httpRequestAccessDecisionManager"/></property>
     <property name="objectDefinitionSource">
