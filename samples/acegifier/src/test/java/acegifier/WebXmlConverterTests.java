@@ -3,6 +3,8 @@ package acegifier;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import javax.xml.transform.TransformerFactoryConfigurationError;
+
 import junit.framework.TestCase;
 
 import org.acegisecurity.intercept.web.FilterSecurityInterceptor;
@@ -20,8 +22,6 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import acegifier.WebXmlConverter;
-
 /**
  * Tests the WebXmlConverter by applying it to a sample web.xml file.
  *
@@ -30,10 +30,20 @@ import acegifier.WebXmlConverter;
  */
 public class WebXmlConverterTests extends TestCase {
 
+	private static final String XML_TRANSFORMER = "javax.xml.transform.TransformerFactory";
+	
     public void testFileConversion() throws Exception {
-        WebXmlConverter converter = new WebXmlConverter();
-    	Thread.dumpStack();
-
+		WebXmlConverter converter;
+		try {
+    		converter = new WebXmlConverter();
+    	} catch (TransformerFactoryConfigurationError e) {
+    		// TODO: Something went wrong, set transforer manually and retry... 
+    		System.out.println("**** WARNING: NEEDING TO FALLBACK TO A MANUAL SYSTEM PROPERTY ****");
+        	System.setProperty(XML_TRANSFORMER, "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
+        	System.out.println(XML_TRANSFORMER + ": " + System.getProperty(XML_TRANSFORMER));
+    		converter = new WebXmlConverter();
+    	}
+        
         Resource r = new ClassPathResource("test-web.xml");
         converter.setInput(r.getInputStream());
         converter.doConversion();
