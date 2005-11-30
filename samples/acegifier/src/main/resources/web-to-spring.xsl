@@ -88,12 +88,12 @@
     <xsl:text>&#xA;&#xA;</xsl:text>
     <bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
       <property name="messageSource"><ref local="messageSource"/></property>
-      <property name="authenticationDao"><ref local="inMemoryDaoImpl"/></property>
+      <property name="userDetailsService"><ref local="inMemoryDaoImpl"/></property>
       <!-- property name="userCache"><ref local="userCache"/></property-->
     </bean>
     <xsl:text>&#xA;&#xA;</xsl:text>
 
-    <bean id="inMemoryDaoImpl" class="org.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
+    <bean id="inMemoryDaoImpl" class="org.acegisecurity.userdetails.memory.InMemoryDaoImpl">
         <property name="userMap">
             <value>    
         superuser=password,<xsl:value-of select="$all-roles"/>
@@ -124,7 +124,7 @@
     <xsl:text>&#xA;&#xA;</xsl:text>
 
     <bean id="rememberMeServices" class="org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices">
-      <property name="authenticationDao"><ref local="inMemoryDaoImpl"/></property>
+      <property name="userDetailsService"><ref local="inMemoryDaoImpl"/></property>
       <property name="key"><value>springRocks</value></property>
     </bean>
     <xsl:text>&#xA;&#xA;</xsl:text>
