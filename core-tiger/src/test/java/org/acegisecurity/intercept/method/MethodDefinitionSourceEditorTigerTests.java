@@ -15,6 +15,9 @@
 
 package org.acegisecurity.intercept.method;
 
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Method;
+
 import junit.framework.TestCase;
 
 import org.acegisecurity.ConfigAttributeDefinition;
@@ -25,11 +28,7 @@ import org.acegisecurity.PersonServiceImpl;
 import org.acegisecurity.SecurityConfig;
 import org.acegisecurity.Service;
 import org.acegisecurity.ServiceImpl;
-
 import org.aopalliance.intercept.MethodInvocation;
-
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Method;
 
 
 /**
@@ -57,7 +56,7 @@ public class MethodDefinitionSourceEditorTigerTests extends TestCase {
     }
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(MethodDefinitionSourceEditorTests.class);
+        junit.textui.TestRunner.run(MethodDefinitionSourceEditorTigerTests.class);
     }
 
     public void testConcreteClassInvocationsAlsoReturnDefinitionsAgainstInterface()
