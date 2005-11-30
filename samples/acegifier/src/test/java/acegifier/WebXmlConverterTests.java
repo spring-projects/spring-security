@@ -53,7 +53,7 @@ public class WebXmlConverterTests extends TestCase {
                 (DaoAuthenticationProvider) bf.getBean("daoAuthenticationProvider");
         assertNotNull(dap);
 
-        InMemoryDaoImpl dao = (InMemoryDaoImpl) dap.getAuthenticationDao();
+        InMemoryDaoImpl dao = (InMemoryDaoImpl) dap.getUserDetailsService();
         UserDetails user = dao.loadUserByUsername("superuser");
         assertEquals("password",user.getPassword());
         assertEquals(2, user.getAuthorities().length);

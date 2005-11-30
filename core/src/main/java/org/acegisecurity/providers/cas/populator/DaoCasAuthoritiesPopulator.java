@@ -41,24 +41,24 @@ public class DaoCasAuthoritiesPopulator implements CasAuthoritiesPopulator,
     InitializingBean {
     //~ Instance fields ========================================================
 
-    private UserDetailsService authenticationDao;
+    private UserDetailsService userDetailsService;
 
     //~ Methods ================================================================
 
-    public void setAuthenticationDao(UserDetailsService authenticationDao) {
-        this.authenticationDao = authenticationDao;
+    public void setUserDetailsService(UserDetailsService authenticationDao) {
+        this.userDetailsService = authenticationDao;
     }
 
-    public UserDetailsService getAuthenticationDao() {
-        return authenticationDao;
+    public UserDetailsService getUserDetailsService() {
+        return userDetailsService;
     }
 
     public UserDetails getUserDetails(String casUserId)
         throws AuthenticationException {
-        return this.authenticationDao.loadUserByUsername(casUserId);
+        return this.userDetailsService.loadUserByUsername(casUserId);
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.authenticationDao, "An authenticationDao must be set");
+        Assert.notNull(this.userDetailsService, "An authenticationDao must be set");
     }
 }

@@ -35,7 +35,7 @@
 	
 	<!-- Authentication provider that queries our data access object  -->
 	<bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
-     	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
+     	<property name="userDetailsService"><ref bean="inMemoryDaoImpl"/></property>
 	</bean>
 
 	<!-- The authentication manager that iterates through our only authentication provider -->
@@ -48,7 +48,7 @@
 	</bean>
 
    <bean id="digestProcessingFilter" class="org.acegisecurity.ui.digestauth.DigestProcessingFilter">
-      <property name="authenticationDao"><ref local="inMemoryDaoImpl"/></property>
+      <property name="userDetailsService"><ref local="inMemoryDaoImpl"/></property>
       <property name="authenticationEntryPoint"><ref local="digestProcessingFilterEntryPoint"/></property>
    </bean>
 

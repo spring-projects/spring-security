@@ -34,7 +34,7 @@
       </property>
    </bean>
 
-   <bean id="jdbcDaoImpl" class="org.acegisecurity.providers.dao.jdbc.JdbcDaoImpl">
+   <bean id="jdbcDaoImpl" class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
       <property name="dataSource"><ref bean="dataSource"/></property>
    </bean>
 
@@ -81,7 +81,7 @@
 	</bean>
 
 	<bean id="casAuthoritiesPopulator" class="org.acegisecurity.providers.cas.populator.DaoCasAuthoritiesPopulator">
-		<property name="authenticationDao"><ref local="jdbcDaoImpl"/></property>
+		<property name="userDetailsService"><ref local="jdbcDaoImpl"/></property>
 	</bean>
 
 	<bean id="casProxyDecider" class="org.acegisecurity.providers.cas.proxy.RejectProxyTickets">

@@ -34,7 +34,7 @@
       </property>
    </bean>
 
-   <bean id="jdbcDaoImpl" class="org.acegisecurity.providers.dao.jdbc.JdbcDaoImpl">
+   <bean id="jdbcDaoImpl" class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
       <property name="dataSource"><ref bean="dataSource"/></property>
    </bean>
 
@@ -71,7 +71,7 @@
 	</bean>
 
 	<bean id="x509AuthoritiesPopulator" class="org.acegisecurity.providers.x509.populator.DaoX509AuthoritiesPopulator">
-		<property name="authenticationDao"><ref local="jdbcDaoImpl"/></property>
+		<property name="userDetailsService"><ref local="jdbcDaoImpl"/></property>
       <!--  <property name="subjectDNRegex"><value>emailAddress=(.*?),</value></property> -->
 	</bean>
 

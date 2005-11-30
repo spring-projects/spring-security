@@ -76,7 +76,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setMessageSource(new StaticMessageSource());
-        filter.setAuthenticationDao(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
 
         try {
             Authentication result = filter.attemptSwitchUser(request);
@@ -100,7 +100,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setMessageSource(new StaticMessageSource());
-        filter.setAuthenticationDao(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
 
         try {
             Authentication result = filter.attemptSwitchUser(request);
@@ -126,7 +126,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setMessageSource(new StaticMessageSource());
-        filter.setAuthenticationDao(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
 
         try {
             Authentication result = filter.attemptSwitchUser(request);
@@ -152,7 +152,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setMessageSource(new StaticMessageSource());
-        filter.setAuthenticationDao(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
 
         try {
             Authentication result = filter.attemptSwitchUser(request);
@@ -175,7 +175,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setMessageSource(new StaticMessageSource());
-        filter.setAuthenticationDao(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
 
         Authentication result = filter.attemptSwitchUser(request);
         assertTrue(result != null);
@@ -199,7 +199,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
     public void testBadConfigMissingTargetUrl() {
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setMessageSource(new StaticMessageSource());
-        filter.setAuthenticationDao(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
         filter.setSwitchUserUrl("/j_acegi_switch_user");
         filter.setExitUserUrl("/j_acegi_exit_user");
 
@@ -248,7 +248,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         // setup filter
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setMessageSource(new StaticMessageSource());
-        filter.setAuthenticationDao(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
         filter.setExitUserUrl("/j_acegi_exit_user");
 
         MockFilterChain chain = new MockFilterChain(true);
@@ -277,7 +277,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         // setup filter
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setMessageSource(new StaticMessageSource());
-        filter.setAuthenticationDao(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
         filter.setExitUserUrl("/j_acegi_exit_user");
 
         MockFilterChain chain = new MockFilterChain(true);
@@ -308,7 +308,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         filter.setMessageSource(new StaticMessageSource());
         filter.setSwitchUserUrl("/j_acegi_switch_user");
         filter.setTargetUrl("/webapp/someOtherUrl");
-        filter.setAuthenticationDao(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
 
         filter.doFilter(request, response, chain);
 
@@ -356,7 +356,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         // setup filter
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setMessageSource(new StaticMessageSource());
-        filter.setAuthenticationDao(new MockAuthenticationDaoUserJackLord());
+        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
         filter.setSwitchUserUrl("/j_acegi_switch_user");
 
         MockFilterChain chain = new MockFilterChain(true);

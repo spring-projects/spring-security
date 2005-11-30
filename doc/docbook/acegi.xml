@@ -1335,7 +1335,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         creation time:</para>
 
         <para><programlisting>&lt;bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
-  &lt;property name="authenticationDao"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
+  &lt;property name="userDetailsService"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
   &lt;property name="saltSource"&gt;&lt;ref bean="saltSource"/&gt;&lt;/property&gt;
   &lt;property name="passwordEncoder"&gt;&lt;ref bean="passwordEncoder"/&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -1370,7 +1370,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         follows:</para>
 
         <para><programlisting>&lt;bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
-  &lt;property name="authenticationDao"&gt;&lt;ref bean="authenticationDao"/&gt;&lt;/property&gt;
+  &lt;property name="userDetailsService"&gt;&lt;ref bean="userDetailsService"/&gt;&lt;/property&gt;
   &lt;property name="userCache"&gt;&lt;ref bean="userCache"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
@@ -1465,7 +1465,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         authentication repository in the application context itself using the
         <literal>InMemoryDaoImpl</literal>:</para>
 
-        <para><programlisting>&lt;bean id="inMemoryDaoImpl" class="org.acegisecurity.providers.dao.memory.InMemoryDaoImpl"&gt;
+        <para><programlisting>&lt;bean id="inMemoryDaoImpl" class="org.acegisecurity.userdetails.memory.InMemoryDaoImpl"&gt;
   &lt;property name="userMap"&gt;
     &lt;value&gt;
       marissa=koala,ROLE_TELLER,ROLE_SUPERVISOR
@@ -1514,7 +1514,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
   &lt;property name="password"&gt;&lt;value&gt;&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="jdbcDaoImpl" class="org.acegisecurity.providers.dao.jdbc.JdbcDaoImpl"&gt;
+&lt;bean id="jdbcDaoImpl" class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl"&gt;
   &lt;property name="dataSource"&gt;&lt;ref bean="dataSource"/&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
 
@@ -2722,7 +2722,7 @@ key:              A private key to prevent modification of the nonce token
         collaborators:</para>
 
         <para><programlisting>&lt;bean id="digestProcessingFilter" class="org.acegisecurity.ui.digestauth.DigestProcessingFilter"&gt;
-  &lt;property name="authenticationDao"&gt;&lt;ref local="jdbcDaoImpl"/&gt;&lt;/property&gt;
+  &lt;property name="userDetailsService"&gt;&lt;ref local="jdbcDaoImpl"/&gt;&lt;/property&gt;
   &lt;property name="authenticationEntryPoint"&gt;&lt;ref local="digestProcessingFilterEntryPoint"/&gt;&lt;/property&gt;
   &lt;property name="userCache"&gt;&lt;ref local="userCache"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
@@ -2907,8 +2907,8 @@ public void loginSuccess(HttpServletRequest request, HttpServletResponse respons
 
         <para><programlisting>base64(username + ":" + expirationTime + ":" + md5Hex(username + ":" + expirationTime + ":" password + ":" + key))
 
-username:         As identifiable to TokenBasedRememberMeServices.getAuthenticationDao()
-password:         That matches the relevant UserDetails retrieved from TokenBasedRememberMeServices.getAuthenticationDao()
+username:         As identifiable to TokenBasedRememberMeServices.getUserDetailsService()
+password:         That matches the relevant UserDetails retrieved from TokenBasedRememberMeServices.getUserDetailsService()
 expirationTime:   The date and time when the remember-me token expires, expressed in milliseconds
 key:              A private key to prevent modification of the remember-me token
 </programlisting></para>
@@ -2946,7 +2946,7 @@ key:              A private key to prevent modification of the remember-me token
 &lt;/bean&gt;
 
 &lt;bean id="rememberMeServices" class="org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices"&gt;
-  &lt;property name="authenticationDao"&gt;&lt;ref local="jdbcDaoImpl"/&gt;&lt;/property&gt;
+  &lt;property name="userDetailsService"&gt;&lt;ref local="jdbcDaoImpl"/&gt;&lt;/property&gt;
   &lt;property name="key"&gt;&lt;value&gt;springRocks&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
    
@@ -3706,7 +3706,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <literal>/web/WEB-INF</literal> directory. A sample
         <literal>applicationContext.xml</literal> is included below:</para>
 
-        <programlisting>&lt;bean id="inMemoryDaoImpl" class="org.acegisecurity.providers.dao.memory.InMemoryDaoImpl"&gt;
+        <programlisting>&lt;bean id="inMemoryDaoImpl" class="org.acegisecurity.userdetails.memory.InMemoryDaoImpl"&gt;
   &lt;property name="userMap"&gt;
     &lt;value&gt;
       marissa=koala,ROLES_IGNORED_BY_CAS
@@ -3718,7 +3718,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 &lt;/bean&gt;
 
 &lt;bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
-  &lt;property name="authenticationDao"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
+  &lt;property name="userDetailsService"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
 &lt;bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager"&gt;
@@ -3895,7 +3895,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
 &lt;/bean&gt;
 
 &lt;bean id="casAuthoritiesPopulator" class="org.acegisecurity.providers.cas.populator.DaoCasAuthoritiesPopulator"&gt;
-  &lt;property name="authenticationDao"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
+  &lt;property name="userDetailsService"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
 &lt;bean id="casProxyDecider" class="org.acegisecurity.providers.cas.proxy.RejectProxyTickets"/&gt;</programlisting></para>

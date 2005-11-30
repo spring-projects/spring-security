@@ -22,7 +22,7 @@
 <beans>
 
 	<!-- Data access object which stores authentication information -->
-	<bean id="inMemoryDaoImpl" class="org.acegisecurity.providers.dao.memory.InMemoryDaoImpl">
+	<bean id="inMemoryDaoImpl" class="org.acegisecurity.userdetails.memory.InMemoryDaoImpl">
   		<property name="userMap">
 			<value>
 				marissa=koala,ROLE_TELLER,ROLE_SUPERVISOR
@@ -35,7 +35,7 @@
 	
 	<!-- Authentication provider that queries our data access object  -->
 	<bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
-     	<property name="authenticationDao"><ref bean="inMemoryDaoImpl"/></property>
+     	<property name="userDetailsService"><ref bean="inMemoryDaoImpl"/></property>
      	<property name="forcePrincipalAsString"><value>true</value></property>
 	</bean>
 

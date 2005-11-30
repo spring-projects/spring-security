@@ -59,7 +59,7 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
         DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
         populator.setMessageSource(new StaticMessageSource());
 
-        populator.setAuthenticationDao(new MockAuthenticationDaoMatchesNameOrEmail());
+        populator.setUserDetailsService(new MockAuthenticationDaoMatchesNameOrEmail());
         populator.afterPropertiesSet();
         populator.getUserDetails(cert);
     }
@@ -69,7 +69,7 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
         DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
         populator.setMessageSource(new StaticMessageSource());
 
-        populator.setAuthenticationDao(new MockAuthenticationDaoMatchesNameOrEmail());
+        populator.setUserDetailsService(new MockAuthenticationDaoMatchesNameOrEmail());
         populator.setSubjectDNRegex("emailAddress=(.*?),");
         populator.afterPropertiesSet();
         populator.getUserDetails(cert);
@@ -78,7 +78,7 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
     public void testInvalidRegexFails() throws Exception {
         DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
         populator.setMessageSource(new StaticMessageSource());
-        populator.setAuthenticationDao(new MockAuthenticationDaoMatchesNameOrEmail());
+        populator.setUserDetailsService(new MockAuthenticationDaoMatchesNameOrEmail());
         populator.setSubjectDNRegex("CN=(.*?,"); // missing closing bracket on group
 
         try {
@@ -94,7 +94,7 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
         DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
         populator.setMessageSource(new StaticMessageSource());
 
-        populator.setAuthenticationDao(new MockAuthenticationDaoMatchesNameOrEmail());
+        populator.setUserDetailsService(new MockAuthenticationDaoMatchesNameOrEmail());
         populator.setSubjectDNRegex("shoeSize=(.*?),");
         populator.afterPropertiesSet();
 
@@ -111,7 +111,7 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
         DaoX509AuthoritiesPopulator populator = new DaoX509AuthoritiesPopulator();
         populator.setMessageSource(new StaticMessageSource());
 
-        populator.setAuthenticationDao(new MockAuthenticationDaoMatchesNameOrEmail());
+        populator.setUserDetailsService(new MockAuthenticationDaoMatchesNameOrEmail());
         populator.setSubjectDNRegex("CN=.*?,");
         populator.afterPropertiesSet();
 

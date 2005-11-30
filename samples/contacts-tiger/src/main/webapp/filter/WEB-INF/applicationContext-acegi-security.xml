@@ -45,7 +45,7 @@
    <bean id="passwordEncoder" class="net.sf.acegisecurity.providers.encoding.Md5PasswordEncoder"/>
 
    <bean id="daoAuthenticationProvider" class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
-      <property name="authenticationDao"><ref local="jdbcDaoImpl"/></property>
+      <property name="userDetailsService"><ref local="jdbcDaoImpl"/></property>
       <property name="userCache"><ref local="userCache"/></property>
       <property name="passwordEncoder"><ref local="passwordEncoder"/></property>
    </bean>
@@ -94,7 +94,7 @@
    </bean>
 
    <bean id="rememberMeServices" class="net.sf.acegisecurity.ui.rememberme.TokenBasedRememberMeServices">
-      <property name="authenticationDao"><ref local="jdbcDaoImpl"/></property>
+      <property name="userDetailsService"><ref local="jdbcDaoImpl"/></property>
       <property name="key"><value>springRocks</value></property>
    </bean>
    

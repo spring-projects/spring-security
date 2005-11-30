@@ -70,7 +70,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
     public void testGetGrantedAuthoritiesForInvalidUsername()
         throws Exception {
         DaoCasAuthoritiesPopulator populator = new DaoCasAuthoritiesPopulator();
-        populator.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        populator.setUserDetailsService(new MockAuthenticationDaoUserMarissa());
         populator.afterPropertiesSet();
 
         try {
@@ -84,7 +84,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
     public void testGetGrantedAuthoritiesForValidUsername()
         throws Exception {
         DaoCasAuthoritiesPopulator populator = new DaoCasAuthoritiesPopulator();
-        populator.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        populator.setUserDetailsService(new MockAuthenticationDaoUserMarissa());
         populator.afterPropertiesSet();
 
         UserDetails results = populator.getUserDetails("marissa");
@@ -98,7 +98,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
     public void testGetGrantedAuthoritiesWhenDaoThrowsException()
         throws Exception {
         DaoCasAuthoritiesPopulator populator = new DaoCasAuthoritiesPopulator();
-        populator.setAuthenticationDao(new MockAuthenticationDaoSimulateBackendError());
+        populator.setUserDetailsService(new MockAuthenticationDaoSimulateBackendError());
         populator.afterPropertiesSet();
 
         try {
@@ -112,8 +112,8 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
     public void testGettersSetters() {
         DaoCasAuthoritiesPopulator populator = new DaoCasAuthoritiesPopulator();
         UserDetailsService dao = new MockAuthenticationDaoUserMarissa();
-        populator.setAuthenticationDao(dao);
-        assertEquals(dao, populator.getAuthenticationDao());
+        populator.setUserDetailsService(dao);
+        assertEquals(dao, populator.getUserDetailsService());
     }
 
     //~ Inner Classes ==========================================================

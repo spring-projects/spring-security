@@ -112,19 +112,19 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
 
     //~ Instance fields ========================================================
 
-    private UserDetailsService authenticationDao;
+    private UserDetailsService userDetailsService;
     private String key;
     private String parameter = DEFAULT_PARAMETER;
     private long tokenValiditySeconds = 1209600; // 14 days
 
     //~ Methods ================================================================
 
-    public void setAuthenticationDao(UserDetailsService authenticationDao) {
-        this.authenticationDao = authenticationDao;
+    public void setUserDetailsService(UserDetailsService authenticationDao) {
+        this.userDetailsService = authenticationDao;
     }
 
-    public UserDetailsService getAuthenticationDao() {
-        return authenticationDao;
+    public UserDetailsService getUserDetailsService() {
+        return userDetailsService;
     }
 
     public void setKey(String key) {
@@ -154,7 +154,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(key);
         Assert.hasLength(parameter);
-        Assert.notNull(authenticationDao);
+        Assert.notNull(userDetailsService);
     }
 
     public Authentication autoLogin(HttpServletRequest request,
@@ -212,7 +212,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
                         UserDetails userDetails;
 
                         try {
-                            userDetails = this.authenticationDao
+                            userDetails = this.userDetailsService
                                 .loadUserByUsername(cookieTokens[0]);
                         } catch (UsernameNotFoundException notFound) {
                             cancelCookie(request, response,

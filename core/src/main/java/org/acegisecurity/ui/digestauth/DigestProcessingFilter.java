@@ -120,7 +120,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
 
     //~ Instance fields ========================================================
 
-    private UserDetailsService authenticationDao;
+    private UserDetailsService userDetailsService;
     private DigestProcessingFilterEntryPoint authenticationEntryPoint;
     protected MessageSourceAccessor messages;
     private UserCache userCache = new NullUserCache();
@@ -129,7 +129,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
     //~ Methods ================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(authenticationDao, "An AuthenticationDao is required");
+        Assert.notNull(userDetailsService, "An AuthenticationDao is required");
         Assert.notNull(authenticationEntryPoint,
             "A DigestProcessingFilterEntryPoint is required");
     }
@@ -288,7 +288,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
                 loadedFromDao = true;
 
                 try {
-                    user = authenticationDao.loadUserByUsername(username);
+                    user = userDetailsService.loadUserByUsername(username);
                 } catch (UsernameNotFoundException notFound) {
                     fail(request, response,
                         new BadCredentialsException(messages.getMessage(
@@ -324,7 +324,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
                 }
 
                 try {
-                    user = authenticationDao.loadUserByUsername(username);
+                    user = userDetailsService.loadUserByUsername(username);
                 } catch (UsernameNotFoundException notFound) {
                     // Would very rarely happen, as user existed earlier
                     fail(request, response,
@@ -460,8 +460,8 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
         return digestMd5;
     }
 
-    public UserDetailsService getAuthenticationDao() {
-        return authenticationDao;
+    public UserDetailsService getUserDetailsService() {
+        return userDetailsService;
     }
 
     public DigestProcessingFilterEntryPoint getAuthenticationEntryPoint() {
@@ -474,8 +474,8 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
 
     public void init(FilterConfig ignored) throws ServletException {}
 
-    public void setAuthenticationDao(UserDetailsService authenticationDao) {
-        this.authenticationDao = authenticationDao;
+    public void setUserDetailsService(UserDetailsService authenticationDao) {
+        this.userDetailsService = authenticationDao;
     }
 
     public void setAuthenticationEntryPoint(

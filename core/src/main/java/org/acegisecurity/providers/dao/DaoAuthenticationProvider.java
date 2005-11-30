@@ -40,7 +40,7 @@ public class DaoAuthenticationProvider
     extends AbstractUserDetailsAuthenticationProvider {
     //~ Instance fields ========================================================
 
-    private UserDetailsService authenticationDao;
+    private UserDetailsService userDetailsService;
     private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
     private SaltSource saltSource;
     private boolean hideUserNotFoundExceptions = true;
@@ -65,12 +65,12 @@ public class DaoAuthenticationProvider
     }
 
     protected void doAfterPropertiesSet() throws Exception {
-        Assert.notNull(this.authenticationDao,
+        Assert.notNull(this.userDetailsService,
             "An Authentication DAO must be set");
     }
 
-    public UserDetailsService getAuthenticationDao() {
-        return authenticationDao;
+    public UserDetailsService getUserDetailsService() {
+        return userDetailsService;
     }
 
     public PasswordEncoder getPasswordEncoder() {
@@ -91,7 +91,7 @@ public class DaoAuthenticationProvider
         UserDetails loadedUser;
 
         try {
-            loadedUser = this.authenticationDao.loadUserByUsername(username);
+            loadedUser = this.userDetailsService.loadUserByUsername(username);
         } catch (UsernameNotFoundException notFound) {
             if (hideUserNotFoundExceptions) {
                 throw new BadCredentialsException(messages.getMessage(
@@ -113,8 +113,8 @@ public class DaoAuthenticationProvider
             return loadedUser;
         }
 
-        public void setAuthenticationDao(UserDetailsService authenticationDao) {
-            this.authenticationDao = authenticationDao;
+        public void setUserDetailsService(UserDetailsService authenticationDao) {
+            this.userDetailsService = authenticationDao;
         }
 
         /**

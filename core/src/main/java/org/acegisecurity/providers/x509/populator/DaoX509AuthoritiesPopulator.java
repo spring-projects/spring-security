@@ -50,7 +50,7 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
 
     //~ Instance fields ========================================================
 
-    private UserDetailsService authenticationDao;
+    private UserDetailsService userDetailsService;
     protected MessageSourceAccessor messages;
     private Pattern subjectDNPattern;
     private String subjectDNRegex = "CN=(.*?),";
@@ -58,7 +58,7 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
     //~ Methods ================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(authenticationDao, "An authenticationDao must be set");
+        Assert.notNull(userDetailsService, "An authenticationDao must be set");
         Assert.notNull(this.messages, "A message source must be set");
 
         Perl5Compiler compiler = new Perl5Compiler();
@@ -94,11 +94,11 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
 
         String userName = match.group(1);
 
-        return this.authenticationDao.loadUserByUsername(userName);
+        return this.userDetailsService.loadUserByUsername(userName);
     }
 
-    public void setAuthenticationDao(UserDetailsService authenticationDao) {
-        this.authenticationDao = authenticationDao;
+    public void setUserDetailsService(UserDetailsService authenticationDao) {
+        this.userDetailsService = authenticationDao;
     }
 
     public void setMessageSource(MessageSource messageSource) {

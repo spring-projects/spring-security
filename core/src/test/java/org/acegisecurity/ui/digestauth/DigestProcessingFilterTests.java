@@ -184,8 +184,8 @@ public class DigestProcessingFilterTests extends TestCase {
 
     public void testGettersSetters() {
         DigestProcessingFilter filter = new DigestProcessingFilter();
-        filter.setAuthenticationDao(new MockAuthenticationDao());
-        assertTrue(filter.getAuthenticationDao() != null);
+        filter.setUserDetailsService(new MockAuthenticationDao());
+        assertTrue(filter.getUserDetailsService() != null);
 
         filter.setAuthenticationEntryPoint(new DigestProcessingFilterEntryPoint());
         assertTrue(filter.getAuthenticationEntryPoint() != null);
@@ -564,7 +564,7 @@ public class DigestProcessingFilterTests extends TestCase {
         throws Exception {
         try {
             DigestProcessingFilter filter = new DigestProcessingFilter();
-            filter.setAuthenticationDao(new MockAuthenticationDao());
+            filter.setUserDetailsService(new MockAuthenticationDao());
             filter.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {

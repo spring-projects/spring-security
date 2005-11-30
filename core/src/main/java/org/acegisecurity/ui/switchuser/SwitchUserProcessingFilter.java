@@ -131,7 +131,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
 
     // ~ Instance fields
     // ========================================================
-    private UserDetailsService authenticationDao;
+    private UserDetailsService userDetailsService;
     protected MessageSourceAccessor messages;
     private String exitUserUrl = "/j_acegi_exit_user";
     private String switchUserUrl = "/j_acegi_switch_user";
@@ -143,7 +143,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
         Assert.hasLength(switchUserUrl, "switchUserUrl must be specified");
         Assert.hasLength(exitUserUrl, "exitUserUrl must be specified");
         Assert.hasLength(targetUrl, "targetUrl must be specified");
-        Assert.notNull(authenticationDao, "authenticationDao must be specified");
+        Assert.notNull(userDetailsService, "authenticationDao must be specified");
         Assert.notNull(messages, "A message source must be set");
     }
 
@@ -235,7 +235,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
                 }
 
                 // load the user by name
-                UserDetails targetUser = this.authenticationDao
+                UserDetails targetUser = this.userDetailsService
                         .loadUserByUsername(username);
 
                     // user not found
@@ -491,9 +491,9 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
                                              * @param authenticationDao The
                                              *        authentication dao
                                              */
-                                            public void setAuthenticationDao(
+                                            public void setUserDetailsService(
                                                 UserDetailsService authenticationDao) {
-                                                this.authenticationDao = authenticationDao;
+                                                this.userDetailsService = authenticationDao;
                                             }
 
                                             /**

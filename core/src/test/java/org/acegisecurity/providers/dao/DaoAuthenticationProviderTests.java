@@ -68,7 +68,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        provider.setUserDetailsService(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
 
         try {
@@ -85,7 +85,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserPeterAccountExpired());
+        provider.setUserDetailsService(new MockAuthenticationDaoUserPeterAccountExpired());
         provider.setUserCache(new MockUserCache());
 
         try {
@@ -102,7 +102,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserPeterAccountLocked());
+        provider.setUserDetailsService(new MockAuthenticationDaoUserPeterAccountLocked());
         provider.setUserCache(new MockUserCache());
 
         try {
@@ -119,7 +119,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserPeterCredentialsExpired());
+        provider.setUserDetailsService(new MockAuthenticationDaoUserPeterCredentialsExpired());
         provider.setUserCache(new MockUserCache());
 
         try {
@@ -147,7 +147,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserPeter());
+        provider.setUserDetailsService(new MockAuthenticationDaoUserPeter());
         provider.setUserCache(new MockUserCache());
 
         try {
@@ -164,7 +164,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(new MockAuthenticationDaoSimulateBackendError());
+        provider.setUserDetailsService(new MockAuthenticationDaoSimulateBackendError());
         provider.setUserCache(new MockUserCache());
 
         try {
@@ -181,7 +181,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        provider.setUserDetailsService(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
 
         try {
@@ -198,7 +198,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        provider.setUserDetailsService(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
 
         try {
@@ -216,7 +216,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
         provider.setHideUserNotFoundExceptions(false); // we want UsernameNotFoundExceptions
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        provider.setUserDetailsService(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
 
         try {
@@ -234,7 +234,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
         assertTrue(provider.isHideUserNotFoundExceptions());
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        provider.setUserDetailsService(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
 
         try {
@@ -251,7 +251,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        provider.setUserDetailsService(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
 
         try {
@@ -269,7 +269,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        provider.setUserDetailsService(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
 
         Authentication result = provider.authenticate(token);
@@ -293,7 +293,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        provider.setUserDetailsService(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
 
         Authentication result = provider.authenticate(token);
@@ -323,7 +323,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissaWithSalt());
+        provider.setUserDetailsService(new MockAuthenticationDaoUserMarissaWithSalt());
         provider.setSaltSource(salt);
         provider.setUserCache(new MockUserCache());
 
@@ -349,7 +349,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        provider.setUserDetailsService(new MockAuthenticationDaoUserMarissa());
         provider.setUserCache(new MockUserCache());
         provider.setForcePrincipalAsString(true);
 
@@ -371,7 +371,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(new MockAuthenticationDaoReturnsNull());
+        provider.setUserDetailsService(new MockAuthenticationDaoReturnsNull());
 
         try {
             provider.authenticate(token);
@@ -410,7 +410,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
         MockUserCache cache = new MockUserCache();
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(authenticationDao);
+        provider.setUserDetailsService(authenticationDao);
         provider.setUserCache(cache);
 
         // This will work, as password still "koala"
@@ -449,7 +449,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
     public void testStartupFailsIfNoUserCacheSet() throws Exception {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
-        provider.setAuthenticationDao(new MockAuthenticationDaoUserMarissa());
+        provider.setUserDetailsService(new MockAuthenticationDaoUserMarissa());
         assertEquals(NullUserCache.class, provider.getUserCache().getClass());
         provider.setUserCache(null);
 
@@ -465,9 +465,9 @@ public class DaoAuthenticationProviderTests extends TestCase {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setMessageSource(new StaticMessageSource());
         UserDetailsService dao = new MockAuthenticationDaoUserMarissa();
-        provider.setAuthenticationDao(dao);
+        provider.setUserDetailsService(dao);
         provider.setUserCache(new MockUserCache());
-        assertEquals(dao, provider.getAuthenticationDao());
+        assertEquals(dao, provider.getUserDetailsService());
         provider.afterPropertiesSet();
         assertTrue(true);
     }
