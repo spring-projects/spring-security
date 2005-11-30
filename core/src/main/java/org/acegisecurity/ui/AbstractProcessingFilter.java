@@ -15,32 +15,7 @@
 
 package org.acegisecurity.ui;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationManager;
-
-import org.acegisecurity.context.SecurityContextHolder;
-
-import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
-
-import org.acegisecurity.ui.rememberme.NullRememberMeServices;
-import org.acegisecurity.ui.rememberme.RememberMeServices;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
-import org.springframework.context.support.MessageSourceAccessor;
-
-import org.springframework.util.Assert;
-
 import java.io.IOException;
-
 import java.util.Properties;
 
 import javax.servlet.Filter;
@@ -51,6 +26,24 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.acegisecurity.AcegiMessageSource;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationManager;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
+import org.acegisecurity.ui.rememberme.NullRememberMeServices;
+import org.acegisecurity.ui.rememberme.RememberMeServices;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.util.Assert;
 
 
 /**
@@ -144,7 +137,7 @@ public abstract class AbstractProcessingFilter implements Filter,
 
     private ApplicationEventPublisher eventPublisher;
     private AuthenticationManager authenticationManager;
-    protected MessageSourceAccessor messages;
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private Properties exceptionMappings = new Properties();
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
 

@@ -15,18 +15,15 @@
 
 package org.acegisecurity.runas;
 
+import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
-
 import org.acegisecurity.providers.AuthenticationProvider;
-
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
 import org.springframework.util.Assert;
 
 
@@ -49,7 +46,7 @@ public class RunAsImplAuthenticationProvider implements InitializingBean,
     AuthenticationProvider, MessageSourceAware {
     //~ Instance fields ========================================================
 
-    protected MessageSourceAccessor messages;
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private String key;
 
     //~ Methods ================================================================

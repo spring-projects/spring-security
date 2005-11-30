@@ -15,15 +15,18 @@
 
 package org.acegisecurity.providers.x509;
 
+import java.security.cert.X509Certificate;
+
 import junit.framework.TestCase;
 
-import org.acegisecurity.*;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
-import org.springframework.context.support.StaticMessageSource;
-
-import java.security.cert.X509Certificate;
 
 
 /**
@@ -51,7 +54,6 @@ public class X509AuthenticationProviderTests extends TestCase {
 
     public void testAuthenticationIsNullWithUnsupportedToken() {
         X509AuthenticationProvider provider = new X509AuthenticationProvider();
-        provider.setMessageSource(new StaticMessageSource());
         Authentication request = new UsernamePasswordAuthenticationToken("dummy",
                 "dummy");
         Authentication result = provider.authenticate(request);
@@ -60,7 +62,6 @@ public class X509AuthenticationProviderTests extends TestCase {
 
     public void testFailsWithNullCertificate() {
         X509AuthenticationProvider provider = new X509AuthenticationProvider();
-        provider.setMessageSource(new StaticMessageSource());
 
         provider.setX509AuthoritiesPopulator(new MockAuthoritiesPopulator(false));
 
@@ -74,7 +75,6 @@ public class X509AuthenticationProviderTests extends TestCase {
 
     public void testNormalOperation() throws Exception {
         X509AuthenticationProvider provider = new X509AuthenticationProvider();
-        provider.setMessageSource(new StaticMessageSource());
 
         provider.setX509AuthoritiesPopulator(new MockAuthoritiesPopulator(false));
         provider.afterPropertiesSet();
@@ -87,7 +87,6 @@ public class X509AuthenticationProviderTests extends TestCase {
 
     public void testPopulatorRejectionCausesFailure() throws Exception {
         X509AuthenticationProvider provider = new X509AuthenticationProvider();
-        provider.setMessageSource(new StaticMessageSource());
         provider.setX509AuthoritiesPopulator(new MockAuthoritiesPopulator(true));
 
         try {
@@ -100,7 +99,6 @@ public class X509AuthenticationProviderTests extends TestCase {
 
     public void testRequiresPopulator() throws Exception {
         X509AuthenticationProvider provider = new X509AuthenticationProvider();
-        provider.setMessageSource(new StaticMessageSource());
 
         try {
             provider.afterPropertiesSet();

@@ -15,6 +15,14 @@
 
 package org.acegisecurity.intercept.web;
 
+import java.io.IOException;
+import java.util.Iterator;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
 import junit.framework.TestCase;
 
 import org.acegisecurity.AccessDecisionManager;
@@ -33,19 +41,8 @@ import org.acegisecurity.SecurityConfig;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.context.SecurityContextImpl;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-
-import org.springframework.context.support.StaticMessageSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import java.io.IOException;
-
-import java.util.Iterator;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 
 
 /**
@@ -78,7 +75,6 @@ public class FilterSecurityInterceptorTests extends TestCase {
     public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass()
         throws Exception {
         FilterSecurityInterceptor interceptor = new FilterSecurityInterceptor();
-        interceptor.setMessageSource(new StaticMessageSource());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
         interceptor.setObjectDefinitionSource(new RegExpBasedFilterInvocationDefinitionMap());
         interceptor.setRunAsManager(new MockRunAsManager());
@@ -112,7 +108,6 @@ public class FilterSecurityInterceptorTests extends TestCase {
     public void testEnsuresRunAsManagerSupportsFilterInvocationClass()
         throws Exception {
         FilterSecurityInterceptor interceptor = new FilterSecurityInterceptor();
-        interceptor.setMessageSource(new StaticMessageSource());
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
         interceptor.setObjectDefinitionSource(new RegExpBasedFilterInvocationDefinitionMap());
@@ -147,7 +142,6 @@ public class FilterSecurityInterceptorTests extends TestCase {
         throws Throwable {
         // Setup the FilterSecurityInterceptor
         FilterSecurityInterceptor interceptor = new FilterSecurityInterceptor();
-        interceptor.setMessageSource(new StaticMessageSource());
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
         interceptor.setRunAsManager(new MockRunAsManager());
@@ -187,7 +181,6 @@ public class FilterSecurityInterceptorTests extends TestCase {
 
     public void testNormalStartupAndGetter() throws Exception {
         FilterSecurityInterceptor interceptor = new FilterSecurityInterceptor();
-        interceptor.setMessageSource(new StaticMessageSource());
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
 
@@ -208,7 +201,6 @@ public class FilterSecurityInterceptorTests extends TestCase {
     public void testSuccessfulInvocation() throws Throwable {
         // Setup the FilterSecurityInterceptor
         FilterSecurityInterceptor interceptor = new FilterSecurityInterceptor();
-        interceptor.setMessageSource(new StaticMessageSource());
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
         interceptor.setRunAsManager(new MockRunAsManager());

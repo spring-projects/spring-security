@@ -15,6 +15,7 @@
 
 package org.acegisecurity.adapters;
 
+import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
@@ -49,7 +50,7 @@ public class AuthByAdapterProvider implements InitializingBean,
     AuthenticationProvider, MessageSourceAware {
     //~ Instance fields ========================================================
 
-    protected MessageSourceAccessor messages;
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private String key;
 
     //~ Methods ================================================================

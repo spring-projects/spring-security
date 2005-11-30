@@ -15,27 +15,27 @@
 
 package org.acegisecurity.providers.x509.populator;
 
+import java.security.cert.X509Certificate;
+
+import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
-
 import org.acegisecurity.providers.x509.X509AuthoritiesPopulator;
-import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UserDetails;
-
+import org.acegisecurity.userdetails.UserDetailsService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.oro.text.regex.*;
-
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.MatchResult;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.PatternMatcher;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
 import org.springframework.util.Assert;
-
-import java.security.cert.X509Certificate;
 
 
 /**
@@ -51,7 +51,7 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
     //~ Instance fields ========================================================
 
     private UserDetailsService userDetailsService;
-    protected MessageSourceAccessor messages;
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private Pattern subjectDNPattern;
     private String subjectDNRegex = "CN=(.*?),";
 

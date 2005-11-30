@@ -15,42 +15,7 @@
 
 package org.acegisecurity.ui.switchuser;
 
-import org.acegisecurity.AccountExpiredException;
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationCredentialsNotFoundException;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.CredentialsExpiredException;
-import org.acegisecurity.DisabledException;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.LockedException;
-
-import org.acegisecurity.context.SecurityContextHolder;
-
-import org.acegisecurity.event.authentication.AuthenticationSwitchUserEvent;
-
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-
-import org.acegisecurity.ui.WebAuthenticationDetails;
-import org.acegisecurity.userdetails.UserDetailsService;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
-import org.springframework.context.support.MessageSourceAccessor;
-
-import org.springframework.util.Assert;
-
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,6 +28,33 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.acegisecurity.AccountExpiredException;
+import org.acegisecurity.AcegiMessageSource;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationCredentialsNotFoundException;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.CredentialsExpiredException;
+import org.acegisecurity.DisabledException;
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.LockedException;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.event.authentication.AuthenticationSwitchUserEvent;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.ui.WebAuthenticationDetails;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.util.Assert;
 
 
 /**
@@ -132,7 +124,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
     // ~ Instance fields
     // ========================================================
     private UserDetailsService userDetailsService;
-    protected MessageSourceAccessor messages;
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private String exitUserUrl = "/j_acegi_exit_user";
     private String switchUserUrl = "/j_acegi_switch_user";
     private String targetUrl;

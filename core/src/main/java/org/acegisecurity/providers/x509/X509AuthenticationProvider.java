@@ -15,26 +15,22 @@
 
 package org.acegisecurity.providers.x509;
 
+import java.security.cert.X509Certificate;
+
+import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
-
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.x509.cache.NullX509UserCache;
 import org.acegisecurity.userdetails.UserDetails;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
 import org.springframework.util.Assert;
-
-import java.security.cert.X509Certificate;
 
 
 /**
@@ -53,7 +49,7 @@ public class X509AuthenticationProvider implements AuthenticationProvider,
 
     //~ Instance fields ========================================================
 
-    protected MessageSourceAccessor messages;
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private X509AuthoritiesPopulator x509AuthoritiesPopulator;
     private X509UserCache userCache = new NullX509UserCache();
 

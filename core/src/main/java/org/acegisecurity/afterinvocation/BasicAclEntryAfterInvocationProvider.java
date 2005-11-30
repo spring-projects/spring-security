@@ -15,28 +15,24 @@
 
 package org.acegisecurity.afterinvocation;
 
+import java.util.Iterator;
+
 import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
-
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.acl.AclManager;
 import org.acegisecurity.acl.basic.BasicAclEntry;
 import org.acegisecurity.acl.basic.SimpleAclEntry;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
 import org.springframework.util.Assert;
-
-import java.util.Iterator;
 
 
 /**
@@ -101,7 +97,7 @@ public class BasicAclEntryAfterInvocationProvider
     //~ Instance fields ========================================================
 
     private AclManager aclManager;
-    protected MessageSourceAccessor messages;
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private String processConfigAttribute = "AFTER_ACL_READ";
     private int[] requirePermission = {SimpleAclEntry.READ};
 

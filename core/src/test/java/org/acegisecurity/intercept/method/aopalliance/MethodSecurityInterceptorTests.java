@@ -15,6 +15,9 @@
 
 package org.acegisecurity.intercept.method.aopalliance;
 
+import java.lang.reflect.Method;
+import java.util.Iterator;
+
 import junit.framework.TestCase;
 
 import org.acegisecurity.AccessDecisionManager;
@@ -38,14 +41,8 @@ import org.acegisecurity.intercept.method.AbstractMethodDefinitionSource;
 import org.acegisecurity.intercept.method.MockMethodDefinitionSource;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.runas.RunAsManagerImpl;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.StaticMessageSource;
-
-import java.lang.reflect.Method;
-
-import java.util.Iterator;
 
 
 /**
@@ -178,7 +175,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
     public void testRejectsAccessDecisionManagersThatDoNotSupportMethodInvocation()
         throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setMessageSource(new StaticMessageSource());
         si.setAccessDecisionManager(new MockAccessDecisionManagerWhichOnlySupportsStrings());
         si.setAuthenticationManager(new MockAuthenticationManager());
         si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
@@ -214,7 +210,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
     public void testRejectsCallsWhenObjectDefinitionSourceDoesNotSupportObject()
         throws Throwable {
         MethodSecurityInterceptor interceptor = new MethodSecurityInterceptor();
-        interceptor.setMessageSource(new StaticMessageSource());
         interceptor.setObjectDefinitionSource(new MockObjectDefinitionSourceWhichOnlySupportsStrings());
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
@@ -231,7 +226,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
 
     public void testRejectsCallsWhenObjectIsNull() throws Throwable {
         MethodSecurityInterceptor interceptor = new MethodSecurityInterceptor();
-        interceptor.setMessageSource(new StaticMessageSource());
 
         try {
             interceptor.invoke(null);
@@ -244,7 +238,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
     public void testRejectsRunAsManagersThatDoNotSupportMethodInvocation()
         throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setMessageSource(new StaticMessageSource());
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
         si.setObjectDefinitionSource(new MockMethodDefinitionSource(false, true));
@@ -263,7 +256,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
     public void testStartupCheckForAccessDecisionManager()
         throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setMessageSource(new StaticMessageSource());
         si.setRunAsManager(new MockRunAsManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
         si.setAfterInvocationManager(new MockAfterInvocationManager());
@@ -282,7 +274,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
     public void testStartupCheckForAuthenticationManager()
         throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setMessageSource(new StaticMessageSource());
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setRunAsManager(new MockRunAsManager());
         si.setAfterInvocationManager(new MockAfterInvocationManager());
@@ -301,7 +292,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
     public void testStartupCheckForMethodDefinitionSource()
         throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setMessageSource(new StaticMessageSource());
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
 
@@ -316,7 +306,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
 
     public void testStartupCheckForRunAsManager() throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setMessageSource(new StaticMessageSource());
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
         si.setRunAsManager(null); // Overriding the default
@@ -334,7 +323,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
     public void testStartupCheckForValidAfterInvocationManager()
         throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setMessageSource(new StaticMessageSource());
         si.setRunAsManager(new MockRunAsManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
         si.setAfterInvocationManager(new MockAfterInvocationManagerWhichOnlySupportsStrings());
@@ -352,7 +340,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
     public void testValidationFailsIfInvalidAttributePresented()
         throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setMessageSource(new StaticMessageSource());
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
         si.setRunAsManager(new RunAsManagerImpl());
@@ -372,7 +359,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
     public void testValidationNotAttemptedIfIsValidateConfigAttributesSetToFalse()
         throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setMessageSource(new StaticMessageSource());
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setAuthenticationManager(new MockAuthenticationManager());
 
@@ -388,7 +374,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
     public void testValidationNotAttemptedIfMethodDefinitionSourceCannotReturnIterator()
         throws Exception {
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
-        si.setMessageSource(new StaticMessageSource());
         si.setAccessDecisionManager(new MockAccessDecisionManager());
         si.setRunAsManager(new MockRunAsManager());
         si.setAuthenticationManager(new MockAuthenticationManager());

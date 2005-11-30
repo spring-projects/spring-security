@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Vector;
 
 import junit.framework.TestCase;
+
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationServiceException;
@@ -26,10 +27,8 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.concurrent.ConcurrentSessionControllerImpl;
 import org.acegisecurity.concurrent.NullConcurrentSessionController;
-
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.support.StaticMessageSource;
 
 
 /**
@@ -183,7 +182,6 @@ public class ProviderManagerTests extends TestCase {
 
         ProviderManager mgr = new ProviderManager();
         mgr.setProviders(providers);
-        mgr.setMessageSource(new StaticMessageSource());
         
         mgr.afterPropertiesSet();
         return mgr;

@@ -34,6 +34,7 @@
         <targetPath>/</targetPath>
         <includes>
           <include>*.xsl</include>
+          <include>**/*.properties</include>
         </includes>
         <filtering>false</filtering>
       </resource>

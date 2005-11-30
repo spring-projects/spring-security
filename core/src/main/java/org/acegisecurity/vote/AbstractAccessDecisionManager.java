@@ -15,19 +15,17 @@
 
 package org.acegisecurity.vote;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.acegisecurity.AccessDecisionManager;
+import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.ConfigAttribute;
-
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
 import org.springframework.util.Assert;
-
-import java.util.Iterator;
-import java.util.List;
 
 
 /**
@@ -44,7 +42,7 @@ public abstract class AbstractAccessDecisionManager
     //~ Instance fields ========================================================
 
     private List decisionVoters;
-    protected MessageSourceAccessor messages;
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private boolean allowIfAllAbstainDecisions = false;
 
     //~ Methods ================================================================

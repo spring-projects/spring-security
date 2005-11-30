@@ -15,8 +15,13 @@
 
 package org.acegisecurity.intercept;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 import org.acegisecurity.AccessDecisionManager;
 import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.AfterInvocationManager;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationCredentialsNotFoundException;
@@ -25,32 +30,21 @@ import org.acegisecurity.AuthenticationManager;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.RunAsManager;
-
 import org.acegisecurity.context.SecurityContextHolder;
-
 import org.acegisecurity.event.authorization.AuthenticationCredentialsNotFoundEvent;
 import org.acegisecurity.event.authorization.AuthorizationFailureEvent;
 import org.acegisecurity.event.authorization.AuthorizedEvent;
 import org.acegisecurity.event.authorization.PublicInvocationEvent;
-
 import org.acegisecurity.runas.NullRunAsManager;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
 import org.springframework.util.Assert;
-
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 
 /**
@@ -151,7 +145,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
     private AfterInvocationManager afterInvocationManager;
     private ApplicationEventPublisher eventPublisher;
     private AuthenticationManager authenticationManager;
-    protected MessageSourceAccessor messages;
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private RunAsManager runAsManager = new NullRunAsManager();
     private boolean alwaysReauthenticate = false;
     private boolean rejectPublicInvocations = false;

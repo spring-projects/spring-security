@@ -15,39 +15,7 @@
 
 package org.acegisecurity.ui.digestauth;
 
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.BadCredentialsException;
-
-import org.acegisecurity.context.SecurityContextHolder;
-
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.providers.dao.UserCache;
-import org.acegisecurity.providers.dao.cache.NullUserCache;
-
-import org.acegisecurity.ui.WebAuthenticationDetails;
-
-import org.acegisecurity.userdetails.UserDetailsService;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.acegisecurity.util.StringSplitUtils;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
-import org.springframework.context.support.MessageSourceAccessor;
-
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
 import java.io.IOException;
-
 import java.util.Map;
 
 import javax.servlet.Filter;
@@ -58,6 +26,30 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.acegisecurity.AcegiMessageSource;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationServiceException;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.providers.dao.UserCache;
+import org.acegisecurity.providers.dao.cache.NullUserCache;
+import org.acegisecurity.ui.WebAuthenticationDetails;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.acegisecurity.util.StringSplitUtils;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 
 /**
@@ -122,7 +114,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
 
     private UserDetailsService userDetailsService;
     private DigestProcessingFilterEntryPoint authenticationEntryPoint;
-    protected MessageSourceAccessor messages;
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private UserCache userCache = new NullUserCache();
     private boolean passwordAlreadyEncoded = false;
 

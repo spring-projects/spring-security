@@ -23,8 +23,6 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.context.support.StaticMessageSource;
-
 
 /**
  * Tests {@link AuthByAdapterProvider}
@@ -82,7 +80,6 @@ public class AuthByAdapterTests extends TestCase {
     public void testAuthByAdapterProviderNonAuthenticationMethods()
         throws Exception {
         AuthByAdapterProvider provider = new AuthByAdapterProvider();
-        provider.setMessageSource(new StaticMessageSource());
 
         try {
             provider.afterPropertiesSet();
@@ -101,7 +98,6 @@ public class AuthByAdapterTests extends TestCase {
     public void testAuthByAdapterProviderOnlyAcceptsAuthByAdapterImplementations()
         throws Exception {
         AuthByAdapterProvider provider = new AuthByAdapterProvider();
-        provider.setMessageSource(new StaticMessageSource());
         provider.setKey("my_password");
 
         // Should fail as UsernamePassword is not interface of AuthByAdapter
@@ -122,7 +118,6 @@ public class AuthByAdapterTests extends TestCase {
     public void testAuthByAdapterProviderRequiresCorrectKey()
         throws Exception {
         AuthByAdapterProvider provider = new AuthByAdapterProvider();
-        provider.setMessageSource(new StaticMessageSource());
         provider.setKey("my_password");
 
         // Should fail as PrincipalAcegiUserToken has different key

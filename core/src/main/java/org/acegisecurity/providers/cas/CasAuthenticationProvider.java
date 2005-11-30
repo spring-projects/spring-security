@@ -15,25 +15,20 @@
 
 package org.acegisecurity.providers.cas;
 
+import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
-
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-
 import org.acegisecurity.ui.cas.CasProcessingFilter;
 import org.acegisecurity.userdetails.UserDetails;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
 import org.springframework.util.Assert;
 
 
@@ -60,7 +55,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider,
 
     private CasAuthoritiesPopulator casAuthoritiesPopulator;
     private CasProxyDecider casProxyDecider;
-    protected MessageSourceAccessor messages;
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private StatelessTicketCache statelessTicketCache;
     private String key;
     private TicketValidator ticketValidator;

@@ -15,8 +15,15 @@
 
 package org.acegisecurity.providers;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+
 import org.acegisecurity.AbstractAuthenticationManager;
 import org.acegisecurity.AccountExpiredException;
+import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationServiceException;
@@ -24,11 +31,9 @@ import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.CredentialsExpiredException;
 import org.acegisecurity.DisabledException;
 import org.acegisecurity.LockedException;
-
 import org.acegisecurity.concurrent.ConcurrentLoginException;
 import org.acegisecurity.concurrent.ConcurrentSessionController;
 import org.acegisecurity.concurrent.NullConcurrentSessionController;
-
 import org.acegisecurity.event.authentication.AbstractAuthenticationEvent;
 import org.acegisecurity.event.authentication.AuthenticationFailureBadCredentialsEvent;
 import org.acegisecurity.event.authentication.AuthenticationFailureConcurrentLoginEvent;
@@ -40,29 +45,17 @@ import org.acegisecurity.event.authentication.AuthenticationFailureProviderNotFo
 import org.acegisecurity.event.authentication.AuthenticationFailureProxyUntrustedEvent;
 import org.acegisecurity.event.authentication.AuthenticationFailureServiceExceptionEvent;
 import org.acegisecurity.event.authentication.AuthenticationSuccessEvent;
-
 import org.acegisecurity.providers.cas.ProxyUntrustedException;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
 import org.springframework.util.Assert;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
 
 
 /**
@@ -118,7 +111,7 @@ public class ProviderManager extends AbstractAuthenticationManager
     private ApplicationEventPublisher applicationEventPublisher;
     private ConcurrentSessionController sessionController = new NullConcurrentSessionController();
     private List providers;
-    protected MessageSourceAccessor messages;
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private Properties exceptionMappings;
 
     //~ Methods ================================================================

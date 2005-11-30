@@ -16,24 +16,21 @@
 package org.acegisecurity.providers.dao;
 
 import org.acegisecurity.AccountExpiredException;
+import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.CredentialsExpiredException;
 import org.acegisecurity.DisabledException;
 import org.acegisecurity.LockedException;
-
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.dao.cache.NullUserCache;
-import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UserDetails;
-
+import org.acegisecurity.userdetails.UserDetailsService;
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
 import org.springframework.util.Assert;
 
 
@@ -73,7 +70,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
     implements AuthenticationProvider, InitializingBean, MessageSourceAware {
     //~ Instance fields ========================================================
 
-    protected MessageSourceAccessor messages;
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private UserCache userCache = new NullUserCache();
     private boolean forcePrincipalAsString = false;
 

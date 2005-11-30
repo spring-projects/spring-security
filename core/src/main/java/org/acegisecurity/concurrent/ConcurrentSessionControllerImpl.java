@@ -15,15 +15,13 @@
 
 package org.acegisecurity.concurrent;
 
+import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
-
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
 import org.springframework.util.Assert;
 
 
@@ -41,7 +39,7 @@ public class ConcurrentSessionControllerImpl
         MessageSourceAware {
     //~ Instance fields ========================================================
 
-    protected MessageSourceAccessor messages;
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private SessionRegistry sessionRegistry = new SessionRegistryImpl();
     private boolean exceptionIfMaximumExceeded = false;
     private int maximumSessions = 1;

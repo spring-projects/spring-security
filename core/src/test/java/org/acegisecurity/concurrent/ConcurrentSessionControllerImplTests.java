@@ -20,8 +20,6 @@ import junit.framework.TestCase;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.ui.WebAuthenticationDetails;
-
-import org.springframework.context.support.StaticMessageSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 
@@ -40,7 +38,6 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         ConcurrentSessionControllerImpl sc = new ConcurrentSessionControllerImpl();
         SessionRegistry registry = new SessionRegistryImpl();
         sc.setSessionRegistry(registry);
-        sc.setMessageSource(new StaticMessageSource());
 
         // Attempt to authenticate - it should be successful
         Authentication auth = createAuthentication("bob", "1212");
