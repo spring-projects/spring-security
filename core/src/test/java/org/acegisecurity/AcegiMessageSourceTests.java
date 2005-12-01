@@ -17,6 +17,9 @@ package org.acegisecurity;
 
 import junit.framework.TestCase;
 
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.context.support.MessageSourceAccessor;
+
 import java.util.Locale;
 
 
@@ -44,5 +47,20 @@ public class AcegiMessageSourceTests extends TestCase {
         AcegiMessageSource msgs = new AcegiMessageSource();
         assertEquals("Proxy tickets are rejected",
             msgs.getMessage("RejectProxyTickets.reject", null, Locale.ENGLISH));
+    }
+
+    public void testReplacableLookup() {
+        // Change Locale to English
+        Locale before = LocaleContextHolder.getLocale();
+        LocaleContextHolder.setLocale(Locale.ENGLISH);
+
+        // Cause a message to be generated
+        MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+        assertEquals("Missing mandatory digest value; received header FOOBAR",
+            messages.getMessage("DigestProcessingFilter.missingMandatory",
+                new Object[] {"FOOBAR"}, "ERROR - FAILED TO LOOKUP"));
+
+        // Revert to original Locale
+        LocaleContextHolder.setLocale(before);
     }
 }
