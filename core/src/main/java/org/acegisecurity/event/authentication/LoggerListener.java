@@ -28,8 +28,7 @@ import org.springframework.util.ClassUtils;
  * Outputs authentication-related application events to Commons Logging.
  * 
  * <P>
- * All authentication failures are logged at the warning level, whilst
- * authentication successes are logged at the information level.
+ * All authentication events are logged at the warning level.
  * </p>
  *
  * @author Ben Alex
