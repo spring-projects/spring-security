@@ -14,7 +14,7 @@
       <dependency>
       <groupId>acegisecurity</groupId>
       <artifactId>acegi-security-tiger</artifactId>
-      <version>1.0.0-RC1-SNAPSHOT</version>
+      <version>1.0.0-RC1</version>
       <type>jar</type>
     </dependency>
   </dependencies>
