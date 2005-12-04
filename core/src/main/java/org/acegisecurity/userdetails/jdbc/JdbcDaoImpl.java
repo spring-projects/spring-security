@@ -70,7 +70,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 
     public static final String DEF_USERS_BY_USERNAME_QUERY = "SELECT username,password,enabled FROM users WHERE username = ?";
     public static final String DEF_AUTHORITIES_BY_USERNAME_QUERY = "SELECT username,authority FROM authorities WHERE username = ?";
-    private static final Log logger = LogFactory.getLog(JdbcDaoSupport.class);
+    private static final Log logger = LogFactory.getLog(JdbcDaoImpl.class);
 
     //~ Instance fields ========================================================
 
