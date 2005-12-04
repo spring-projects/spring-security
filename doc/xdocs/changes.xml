@@ -30,7 +30,10 @@
     <title>Acegi Security changes</title>
   </properties>
   <body>
-    <release version="1.0.0" date="In CVS">
+    <release version="1.0.0 RC2" date="In CVS">
+      <action dev="benalex" type="update">All changes are in JIRA at http://opensource2.atlassian.com/projects/spring/secure/ReleaseNote.jspa?projectId=10040</action>
+    </release>
+    <release version="1.0.0 RC1" date="In CVS">
       <action dev="benalex" type="update">All changes are in JIRA at http://opensource2.atlassian.com/projects/spring/secure/ReleaseNote.jspa?projectId=10040</action>
     </release>
     <release version="0.9.0" date="2005-11-11">
