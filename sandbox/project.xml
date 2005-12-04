@@ -14,9 +14,9 @@
     <dependency>
       <groupId>acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
-      <version>0.9.0-SNAPSHOT</version>
+      <version>1.0.0-RC1</version>
       <type>jar</type>
-      <url>http://acegisecurity.sourceforge.net</url>
+      <url>http://acegisecurity.org</url>
     </dependency>
   </dependencies>
   <build>

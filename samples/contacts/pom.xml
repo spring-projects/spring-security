@@ -1,9 +1,9 @@
 <model>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>net.sf.acegisecurity</groupId>
+    <groupId>org.acegisecurity</groupId>
     <artifactId>acegi-security-samples</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>1.0.0-RC1</version>
   </parent>
   <artifactId>acegi-security-sample-contacts</artifactId>
   <name>Acegi Security System for Spring - Contacts sample</name>
