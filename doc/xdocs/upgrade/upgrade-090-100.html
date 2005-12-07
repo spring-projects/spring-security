@@ -19,6 +19,11 @@ applications:
 		userDetailsService.
 	</li>
 		
+	<li>
+		In JSPs, each "authz" taglib prefix must be changed from uri="http://acegisecurity.sf.net/authz"
+		to uri="http://acegisecurity.org/authz".
+	</li>
+		
 	<li>net.sf.acegisecurity.providers.dao.AuthenticationDao is now org.acegisecurity.userdetails.UserDetailsService.
 	The interface signature has not changed. Similarly, User and UserDetails have moved into the latter's package as well.
 	If you've implemented your own AuthenticationDao, you'll need to change the class it's implementing and quite likely
