@@ -13,6 +13,11 @@ applications:
 
     <li>The top level package name has changed. Simply find "net.sf.acegisecurity" and replace with
 	"org.acegisecurity".</li>
+	
+	<li>
+		DaoAuthenticationProvider has a property, authenticationDao. This property should now be renamed to
+		userDetailsService.
+	</li>
 		
 	<li>net.sf.acegisecurity.providers.dao.AuthenticationDao is now org.acegisecurity.userdetails.UserDetailsService.
 	The interface signature has not changed. Similarly, User and UserDetails have moved into the latter's package as well.
