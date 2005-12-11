@@ -1,8 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <project>
   <modelVersion>4.0.0</modelVersion>
-    <groupId>org.acegisecurity</groupId>
+  <groupId>org.acegisecurity</groupId>
   <artifactId>acegi-security-parent</artifactId>
-    <version>1.0.0-RC1</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -11,6 +12,201 @@
     <module>adapters</module>
     <module>domain</module>
   </modules>
+
+  <description>Acegi Security System for Spring</description>
+  <organization>
+    <name>Acegi Technology Pty Limited</name>
+    <url>http://sourceforge.net/projects/acegisecurity</url>
+    <!--<logo>http://sourceforge.net/sflogo.php?group_id=104215&amp;type=5</logo>-->
+  </organization>
+  <inceptionYear>2004</inceptionYear>
+  <!--<logo>http://acegisecurity.org/logo.gif</logo>-->
+  <url>http://acegisecurity.org/</url>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
+    <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity</url>
+  </scm>
+
+<!--
+  <issueManagement>
+    <system>bugzilla</system>
+    <url>http://jira.codehaus.org/browse/MNG</url>
+  </issueManagement>
+-->
+
+  <distributionManagement>
+    <repository>
+      <id>acegi-sourceforge-releases</id>
+      <name>Acegi Releases Repository at Sourceforge</name>
+      <url>scp://shell.sourceforge.net/home/groups/a/ac/acegisecurity/htdocs/repository/releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>acegi-sourceforge-snapshots</id>
+      <name>Acegi Snapshots Repository at Sourceforge</name>
+      <url>scp://shell.sourceforge.net/home/groups/a/ac/acegisecurity/htdocs/repository/snapshots</url>
+    </snapshotRepository>
+    <site>
+      <id>website</id>
+      <url>scp://shell.sourceforge.net/home/groups/a/ac/acegisecurity/htdocs</url>
+    </site>
+  </distributionManagement>
+
+  <repositories>
+    <repository>
+      <id>acegi-snapshot</id>
+      <name>Acegi snapshot repository</name>
+      <url>http://acegisecurity.sourceforge.net/repository/snapshots</url>
+      <layout>default</layout>
+    </repository>
+  </repositories>
+
+  <!--
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
+    <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/</url>
+  </repository>
+  -->
+
+  <mailingLists>
+    <mailingList>
+      <name>Acegi Developer List</name>
+      <subscribe>https://lists.sourceforge.net/lists/listinfo/acegisecurity-developer</subscribe>
+<!--
+      <unsubscribe>https://lists.sourceforge.net/lists/listinfo/acegisecurity-developer</unsubscribe>
+      <post>acegisecurity-developer@lists.sourceforge.net</post>
+-->
+      <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=40659</archive>
+      <otherArchives>
+        <otherArchive>http://news.gmane.org/gmane.comp.java.springframework.acegisecurity.devel/</otherArchive>
+        <otherArchive>http://www.mail-archive.com/acegisecurity-developer@lists.sourceforge.net/</otherArchive>
+      </otherArchives>
+    </mailingList>
+    <mailingList>
+      <name>Spring User List</name>
+<!--
+      <subscribe>https://lists.sourceforge.net/lists/listinfo/acegisecurity-developer</subscribe>
+      <unsubscribe>users-unsubscribe@maven.apache.org</unsubscribe>
+      <post>users@maven.apache.org</post>
+-->
+      <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=30287</archive>
+    </mailingList>
+  </mailingLists>
+
+  <developers>
+    <developer>
+      <name>Ben Alex</name>
+      <id>benalex</id>
+      <email>benalex at users.sourceforge.net</email>
+      <organization>Acegi Technology Pty Limited (http://www.acegi.com.au)</organization>
+      <timezone>+10</timezone>
+    </developer>
+    <developer>
+      <name>Francois Beausoleil</name>
+      <id>fbos</id>
+      <email>fbos at users.sourceforge.net</email>
+    </developer>
+    <developer>
+      <name>Colin Sampaleanu</name>
+      <id>colins</id>
+      <email>colinml1 at exis.com</email>
+    </developer>
+    <developer>
+      <name>Carlos Sanchez</name>
+      <id>carlossg</id>
+      <email>carlossg at users.sourceforge.net</email>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <name>Luke Taylor</name>
+      <id>luke_t</id>
+      <email>luke at monkeymachine.ltd.uk</email>
+      <organization>Monkey Machine Ltd. (http://monkeymachine.ltd.uk)</organization>
+      <timezone>0</timezone>
+    </developer>
+    <developer>
+      <name>Ray Krueger</name>
+      <id>raykrueger</id>
+      <email>raykrueger at users.sourceforge.net</email>
+    </developer>
+    <developer>
+      <name>Robert Sanders</name>
+      <id>robertsanders</id>
+      <email>robertsanders at users.sourceforge.net</email>
+    </developer>
+    <developer>
+      <name>Mark St.Godard</name>
+      <id>markstg</id>
+      <email>markstg at users.sourceforge.net</email>
+    </developer>
+  </developers>
+
+  <contributors>
+    <contributor>
+      <name>Cameron Braid</name>
+    </contributor>
+    <contributor>
+      <name>Patrick Burleson</name>
+    </contributor>
+    <contributor>
+      <name>Wesley Hall</name>
+    </contributor>
+    <contributor>
+      <name>Scott Evans</name>
+    </contributor>
+    <contributor>
+      <name>Travis Gregg</name>
+    </contributor>
+    <contributor>
+      <name>Karel Miarka</name>
+    </contributor>
+    <contributor>
+      <name>James Monaghan</name>
+    </contributor>
+    <contributor>
+      <name>Andrew Petro</name>
+    </contributor>
+    <contributor>
+      <name>Sergio Berná</name>
+    </contributor>
+    <contributor>
+      <name>Aaron Tang</name>
+    </contributor>
+    <contributor>
+      <name>Orlando Garcia Carmona</name>
+    </contributor>
+    <contributor>
+      <name>Joni Suominen</name>
+    </contributor>
+    <contributor>
+      <name>Sergio Berna</name>
+    </contributor>
+    <contributor>
+      <name>Paulo Neves</name>
+    </contributor>
+    <contributor>
+      <name>Mike Perham</name>
+    </contributor>
+  </contributors>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>
@@ -49,18 +245,5 @@
       </plugin>
     </plugins>
   </reporting>
-
-<!--
-  <repositories>
-    <repository>
-      <id>snapshots</id>
-      <name>Maven Central Development Repository</name>
-      <url>http://snapshots.maven.codehaus.org/maven2</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-    </repository>
-  </repositories>
--->
 
 </project>
