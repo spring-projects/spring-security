@@ -351,13 +351,33 @@
         <war.bundle>false</war.bundle>
       </properties>
     </dependency>
+    <!-- Apache DS related dependencies for LDAP test server -->
     <dependency>
       <groupId>directory</groupId>
-      <artifactId>apacheds-main</artifactId>
-      <version>0.9</version>
+      <artifactId>apacheds-core</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>directory</groupId>
+      <artifactId>apacheds-server</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>directory</groupId>
+      <artifactId>apacheds-shared</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
       <type>jar</type>
     </dependency>
 
+    <dependency>
+      <groupId>jmock</groupId>
+      <artifactId>jmock</artifactId>
+      <version>1.0.1</version>
+      <type>jar</type>
+    </dependency>    
+    
     <!-- plugins not bundled with maven 1.0.2 -->
     <dependency>
       <groupId>statcvs</groupId>
