@@ -1,0 +1,54 @@
+version: 1
+dn: dc=acegisecurity,dc=org
+objectClass: dcObject
+objectClass: organization
+dc: acegisecurity
+description: Acegi Security (Test LDAP DIT)
+o: Monkey Machine Ltd.
+
+dn: ou=people,dc=acegisecurity,dc=org
+objectClass: organizationalUnit
+description: All people in organisation
+ou: people
+
+dn: cn=Ben Alex,ou=people,dc=acegisecurity,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: Ben Alex
+sn: Alex
+uid: Ben
+userPassword:: e3NoYX1uRkNlYldqeGZhTGJISEcxUWs1VVU0dHJidlE9
+
+dn: uid=bob,ou=people,dc=acegisecurity,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: Bob Hamilton
+sn: Hamilton
+uid: bob
+userPassword:: Ym9ic3Bhc3N3b3Jk
+
+dn: ou=groups,dc=acegisecurity,dc=org
+objectClass: top
+objectClass: organizationalUnit
+ou: groups
+
+dn: cn=developers,ou=groups,dc=acegisecurity,dc=org
+objectClass: groupOfNames
+objectClass: top
+cn: developers
+description: Acegi Security Developers
+member: uid=bob,ou=people,dc=acegisecurity,dc=org
+member: cn=Ben Alex,ou=people,dc=acegisecurity,dc=org
+o: Acegi Security System for Spring
+ou: developer
+
+dn: cn=managers,ou=groups,dc=acegisecurity,dc=org
+objectClass: groupOfNames
+objectClass: top
+cn: managers
+member: cn=Ben Alex,ou=people,dc=acegisecurity,dc=org
+ou: manager

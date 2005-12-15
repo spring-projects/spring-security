@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+  <!-- JNDI environment variable -->
+  <bean id="environment" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <property name="properties">
+      <props>
+    	  <!--prop key="asn.1.berlib.provider">org.apache.ldap.common.berlib.asn1.SnickersProvider</prop -->
+    	  <!--prop key="asn.1.berlib.provider">org.apache.asn1new.ldap.TwixProvider</prop-->
+    	  <prop key="java.naming.security.authentication">simple</prop>
+    	  <prop key="java.naming.security.principal">uid=admin,ou=system</prop>
+        <prop key="java.naming.security.credentials">secret</prop>
+        <prop key="java.naming.ldap.attributes.binary">
+          photo personalSignature audio jpegPhoto javaSerializedData userPassword
+          userCertificate cACertificate authorityRevocationList certificateRevocationList
+          crossCertificatePair x500UniqueIdentifier krb5Key
+        </prop>
+      </props>
+    </property>
+  </bean>
+
+  <!-- StartupConfiguration to start ApacheDS -->
+  <bean id="configuration" class="org.apache.ldap.server.configuration.MutableServerStartupConfiguration">
+    <property name="workingDirectory"><value>${java.io.tmpdir}/apache_ds</value></property>
+    <property name="allowAnonymousAccess"><value>true</value></property>
+    <property name="accessControlEnabled"><value>false</value></property>
+    <property name="ldapPort"><value>10389</value></property>
+    <property name="contextPartitionConfigurations">
+      <set>
+        <ref bean="acegiPartitionConfiguration"/>
+      </set>
+    </property>
+
+    <!-- Bootstrap schemas -->
+<!--    <property name="bootstrapSchemas">
+      <set>
+        <bean class="org.apache.ldap.server.schema.bootstrap.AutofsSchema"/>
+        <bean class="org.apache.ldap.server.schema.bootstrap.CorbaSchema"/>
+        <bean class="org.apache.ldap.server.schema.bootstrap.CoreSchema"/>
+
+
+      </set>
+    </property>
+    -->
+    <!-- Interceptor configurations -->
+    <!--property name="interceptorConfigurations">
+      <list>
+        <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
+          <property name="name"><value>normalizationService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.ldap.server.normalization.NormalizationService" />
+          </property>
+        </bean>
+        <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
+          <property name="name"><value>authenticationService</value></property>
+          <property name="interceptor">
+            <bean class="org.apache.ldap.server.authn.AuthenticationService" />
+          </property>
+        </bean>
+
+
+      </list>
+    </property>
+    -->
+  </bean>
+
+  <!-- Additional ContextPartitionConfiguration -->
+  <bean id="acegiPartitionConfiguration" class="org.apache.ldap.server.configuration.MutableDirectoryPartitionConfiguration">
+    <property name="name"><value>acegisecurity</value></property>
+    <property name="suffix"><value>dc=acegisecurity,dc=org</value></property>
+    <property name="indexedAttributes">
+      <set>
+        <value>objectClass</value>
+        <value>ou</value>
+        <value>uid</value>
+      </set>
+    </property>
+    <property name="contextEntry">
+      <value>
+        objectClass: top
+        objectClass: domain
+        objectClass: extensibleObject
+        dc: apache
+      </value>
+    </property>
+  </bean>
+
+  <!-- Custom editors required to launch ApacheDS -->
+  <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+    <property name="customEditors">
+      <map>
+        <entry key="javax.naming.directory.Attributes">
+          <bean class="org.apache.ldap.server.configuration.AttributesPropertyEditor"/>
+        </entry>
+      </map>
+   </property>
+  </bean>
+</beans>
