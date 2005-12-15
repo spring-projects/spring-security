@@ -204,7 +204,7 @@
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
-      <version>3.1</version>
+      <version>3.0</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/commons</url>
       <properties>
@@ -351,25 +351,14 @@
         <war.bundle>false</war.bundle>
       </properties>
     </dependency>
-    <!-- Apache DS related dependencies for LDAP test server -->
+
+    <!-- Apache DS dependencies for embedded LDAP test server -->    
     <dependency>
       <groupId>directory</groupId>
-      <artifactId>apacheds-core</artifactId>
+      <artifactId>apacheds-server-main</artifactId>
       <version>0.9.4-SNAPSHOT</version>
       <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>directory</groupId>
-      <artifactId>apacheds-server</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>directory</groupId>
-      <artifactId>apacheds-shared</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
-      <type>jar</type>
-    </dependency>
+    </dependency>    
 
     <dependency>
       <groupId>jmock</groupId>
@@ -400,6 +389,9 @@
       <includes>
         <include>**/*Tests.java</include>
       </includes>
+      <excludes>
+        <exclude>**/ldap/**</exclude>
+      </excludes>
       <resources>
         <resource>
           <directory>${basedir}/src/test/resources</directory>
