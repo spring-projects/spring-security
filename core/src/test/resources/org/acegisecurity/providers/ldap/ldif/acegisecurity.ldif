@@ -17,9 +17,10 @@ objectClass: organizationalPerson
 objectClass: person
 objectClass: top
 cn: Ben Alex
+ou:: 5a6J5YWo
 sn: Alex
 uid: Ben
-userPassword:: e3NoYX1uRkNlYldqeGZhTGJISEcxUWs1VVU0dHJidlE9
+userPassword:: e1NIQX1uRkNlYldqeGZhTGJISEcxUWs1VVU0dHJidlE9
 
 dn: uid=bob,ou=people,dc=acegisecurity,dc=org
 objectClass: inetOrgPerson
@@ -42,7 +43,7 @@ objectClass: top
 cn: developers
 description: Acegi Security Developers
 member: uid=bob,ou=people,dc=acegisecurity,dc=org
-member: cn=Ben Alex,ou=people,dc=acegisecurity,dc=org
+member: cn=ben alex,ou=people,dc=acegisecurity,dc=org
 o: Acegi Security System for Spring
 ou: developer
 
@@ -50,5 +51,6 @@ dn: cn=managers,ou=groups,dc=acegisecurity,dc=org
 objectClass: groupOfNames
 objectClass: top
 cn: managers
-member: cn=Ben Alex,ou=people,dc=acegisecurity,dc=org
+member: cn=ben alex,ou=people,dc=acegisecurity,dc=org
 ou: manager
+
