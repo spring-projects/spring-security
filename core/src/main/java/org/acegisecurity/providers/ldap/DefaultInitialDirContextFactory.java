@@ -70,6 +70,8 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
     private static final String CONNECTION_POOL_KEY = "com.sun.jndi.ldap.connect.pool";
 
+    private static final String AUTH_TYPE_NONE = "none";
+
     //~ Instance fields ========================================================
 
     /**
@@ -130,7 +132,9 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
             return newInitialDirContext(managerDn, managerPassword);
         }
 
-        return connect(getEnvironment());
+        Hashtable env = getEnvironment();
+        env.put(Context.SECURITY_AUTHENTICATION, AUTH_TYPE_NONE);
+        return connect(env);
     }
 
     public DirContext newInitialDirContext(String username, String password) {
@@ -153,9 +157,9 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
     protected Hashtable getEnvironment() {
         Hashtable env = new Hashtable();
 
+        env.put(Context.SECURITY_AUTHENTICATION, authenticationType);
         env.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
         env.put(Context.PROVIDER_URL, url);
-        env.put(Context.SECURITY_AUTHENTICATION, authenticationType);
 
         if (useConnectionPool) {
             env.put(CONNECTION_POOL_KEY, "true");
@@ -188,15 +192,21 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(url, "An LDAP connection URL must be supplied.");
 
-        URI uri = new URI(url);
+        if(url.startsWith("ldap:")) {
 
-        rootDn = uri.getPath();
+            URI uri = new URI(url);
 
-        if(rootDn.startsWith("/")) { // I think this is always true.
+            rootDn = uri.getPath();
+        } else {
+            // Assume it's an embedded server
+            rootDn = url;
+        }
+
+        if(rootDn.startsWith("/")) {
             rootDn = rootDn.substring(1);
         }
 
-        Assert.isTrue(uri.getScheme().equals("ldap"), "Ldap URL must start with 'ldap://'");
+        //Assert.isTrue(uri.getScheme().equals("ldap"), "Ldap URL must start with 'ldap://'");
 
     }
 

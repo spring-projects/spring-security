@@ -65,7 +65,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
         populator.setGroupSearchFilter("member={0}");
         populator.afterPropertiesSet();
 
-        GrantedAuthority[] authorities = populator.getGrantedAuthorities("Ben", "cn=Ben Alex,ou=people,"+ROOT_DN, new BasicAttributes());
+        GrantedAuthority[] authorities = populator.getGrantedAuthorities("ben", "uid=ben,ou=people,"+ROOT_DN, new BasicAttributes());
         assertEquals("Should have 2 roles", 2, authorities.length);
         Set roles = new HashSet();
         roles.add(authorities[0].toString());

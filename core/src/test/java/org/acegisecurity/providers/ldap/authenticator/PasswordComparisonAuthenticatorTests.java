@@ -20,6 +20,8 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
     public void setUp() throws Exception {
         // Connection information
         dirCtxFactory = new DefaultInitialDirContextFactory();
+        dirCtxFactory.setInitialContextFactory(CONTEXT_FACTORY);
+        dirCtxFactory.setExtraEnvVars(EXTRA_ENV);
         dirCtxFactory.setUrl(PROVIDER_URL);
         dirCtxFactory.setManagerDn(MANAGER_USER);
         dirCtxFactory.setManagerPassword(MANAGER_PASSWORD);
@@ -35,19 +37,19 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
 
     public void testLdapCompareSucceedsWithCorrectPassword() {
         // Don't retrieve the password
-        authenticator.setUserAttributes(new String[] {"cn", "sn"});
+        authenticator.setUserAttributes(new String[] {"cn"});
         // Bob has a plaintext password.
         authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
-        authenticator.authenticate("Bob", "bobspassword");
+        authenticator.authenticate("bob", "bobspassword");
     }
 
     public void testLdapCompareSucceedsWithShaEncodedPassword() {
         authenticator = new PasswordComparisonAuthenticator();
         authenticator.setInitialDirContextFactory(dirCtxFactory);
-        authenticator.setUserDnPattern("cn={0},ou=people");
+        authenticator.setUserDnPattern("uid={0},ou=people");
         // Don't retrieve the password
-        authenticator.setUserAttributes(new String[] {"cn", "sn"});
-        authenticator.authenticate("Ben Alex", "benspassword");
+        authenticator.setUserAttributes(new String[] {"cn"});
+        authenticator.authenticate("ben", "benspassword");
     }
 
     public void testPasswordEncoderCantBeNull() {
@@ -76,8 +78,8 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
     public void testLocalCompareSucceedsWithShaEncodedPassword() {
         authenticator = new PasswordComparisonAuthenticator();
         authenticator.setInitialDirContextFactory(dirCtxFactory);
-        authenticator.setUserDnPattern("cn={0},ou=people");
-        authenticator.authenticate("Ben Alex", "benspassword");
+        authenticator.setUserDnPattern("uid={0},ou=people");
+        authenticator.authenticate("ben", "benspassword");
     }
 
     public void testLocalPasswordComparisonFailsWithWrongPassword() {
@@ -96,18 +98,26 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
     }
 
     public void testOnlySpecifiedAttributesAreRetrieved() throws Exception {
-        authenticator.setUserAttributes(new String[] {"cn", "sn"});
+        authenticator.setUserAttributes(new String[] {"cn", "uid"});
         authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
         LdapUserDetails user = authenticator.authenticate("Bob", "bobspassword");
-        assertEquals("Should have retrieved 2 attributes (cn, sn)",2, user.getAttributes().size());
+        assertEquals("Should have retrieved 2 attributes (cn, uid)",2, user.getAttributes().size());
         assertEquals("Bob Hamilton", user.getAttributes().get("cn").get());
-        assertEquals("Hamilton", user.getAttributes().get("sn").get());
+        assertEquals("bob", user.getAttributes().get("uid").get());
     }
 
     public void testUseOfDifferentPasswordAttribute() {
-        authenticator.setPasswordAttributeName("sn");
-        authenticator.authenticate("Bob", "Hamilton");
+        authenticator.setPasswordAttributeName("uid");
+        authenticator.authenticate("bob", "bob");
     }
+
+    public void testLdapCompareWithDifferentPasswordAttribute() {
+        authenticator.setUserAttributes(new String[] {"cn"});
+        authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
+        authenticator.setPasswordAttributeName("uid");
+        authenticator.authenticate("bob", "bob");
+    }
+
 
     public void testWithUserSearch() {
         LdapUserDetails user = new LdapUserDetails("uid=Bob,ou=people" + ROOT_DN,

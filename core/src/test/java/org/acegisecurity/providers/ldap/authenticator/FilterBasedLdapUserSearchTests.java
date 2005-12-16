@@ -18,6 +18,8 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
 
     public void setUp() throws Exception {
         dirCtxFactory = new DefaultInitialDirContextFactory();
+        dirCtxFactory.setInitialContextFactory(CONTEXT_FACTORY);
+        dirCtxFactory.setExtraEnvVars(EXTRA_ENV);
         dirCtxFactory.setUrl(PROVIDER_URL);
         dirCtxFactory.setManagerDn(MANAGER_USER);
         dirCtxFactory.setManagerPassword(MANAGER_PASSWORD);
@@ -40,17 +42,17 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
         locator.setSearchBase("ou=people");
         locator.setSearchFilter("(uid={0})");
         locator.afterPropertiesSet();
-        LdapUserDetails bob = locator.searchForUser("Bob");
+        LdapUserDetails bob = locator.searchForUser("bob");
         assertEquals("uid=bob,ou=people,"+ROOT_DN, bob.getDn());
     }
 
     public void testSubTreeSearchSucceeds() throws Exception {
         // Don't set the searchBase, so search from the root.
-        locator.setSearchFilter("(uid={0})");
+        locator.setSearchFilter("(cn={0})");
         locator.setSearchSubtree(true);
         locator.afterPropertiesSet();
-        LdapUserDetails bob = locator.searchForUser("Bob");
-        assertEquals("uid=bob,ou=people,"+ROOT_DN, bob.getDn());
+        LdapUserDetails bob = locator.searchForUser("Ben Alex");
+        assertEquals("uid=ben,ou=people,"+ROOT_DN, bob.getDn());
     }
 
     public void testSearchForInvalidUserFails() {
@@ -82,6 +84,6 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
 
         // Search for bob, get back ben...
         LdapUserDetails ben = locator.searchForUser("bob");
-        assertEquals("cn=Ben Alex,ou=people,"+ROOT_DN, ben.getDn());
+        assertEquals("uid=ben,ou=people,"+ROOT_DN, ben.getDn());
     }
 }

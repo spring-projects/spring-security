@@ -17,8 +17,9 @@ public class BindAuthenticatorTests extends AbstractLdapServerTestCase {
     private BindAuthenticator authenticator;
 
     public void setUp() throws Exception {
-        // Connection information
         dirCtxFactory = new DefaultInitialDirContextFactory();
+        dirCtxFactory.setInitialContextFactory(CONTEXT_FACTORY);
+        dirCtxFactory.setExtraEnvVars(EXTRA_ENV);
         dirCtxFactory.setUrl(PROVIDER_URL);
         dirCtxFactory.afterPropertiesSet();
         authenticator = new BindAuthenticator();

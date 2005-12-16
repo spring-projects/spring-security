@@ -46,7 +46,7 @@
     </property>
     -->
     <!-- Interceptor configurations -->
-    <!--property name="interceptorConfigurations">
+<!--    <property name="interceptorConfigurations">
       <list>
         <bean class="org.apache.ldap.server.configuration.MutableInterceptorConfiguration">
           <property name="name"><value>normalizationService</value></property>

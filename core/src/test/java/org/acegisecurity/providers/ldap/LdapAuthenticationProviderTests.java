@@ -51,6 +51,8 @@ public class LdapAuthenticationProviderTests extends AbstractLdapServerTestCase 
         DefaultInitialDirContextFactory dirCtxFactory = new DefaultInitialDirContextFactory();
         dirCtxFactory.setUrl(PROVIDER_URL);
         dirCtxFactory.setManagerDn(MANAGER_USER);
+        dirCtxFactory.setInitialContextFactory(CONTEXT_FACTORY);
+        dirCtxFactory.setExtraEnvVars(EXTRA_ENV);
         dirCtxFactory.setManagerPassword(MANAGER_PASSWORD);
         dirCtxFactory.afterPropertiesSet();
         BindAuthenticator authenticator = new BindAuthenticator();
