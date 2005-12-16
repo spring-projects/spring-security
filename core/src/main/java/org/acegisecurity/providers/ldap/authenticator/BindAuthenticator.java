@@ -86,7 +86,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
         } catch(BadCredentialsException e) {
             // This will be thrown if an invalid user name is used and the method may
             // be called multiple times to try different names, so we trap the exception.            
-            logger.debug("Failed to bind as " + userDn, e);
+            logger.debug("Failed to bind as " + userDn + ", " + e.getMessage());
         } finally {
             LdapUtils.closeContext(ctx);
         }

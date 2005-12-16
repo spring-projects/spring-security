@@ -83,6 +83,7 @@ public class LdapTestServer {
 
         try {
             serverContext = new InitialDirContext( env );
+            System.out.println("Created server context with name " + serverContext.getNameInNamespace());
         } catch (NamingException e) {
             System.err.println("Failed to start Apache DS");
             e.printStackTrace();
