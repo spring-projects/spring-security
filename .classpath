@@ -35,7 +35,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/retroweaver/jars/retroweaver-1.0fcs.jar"/>
 	<classpathentry sourcepath="/MAVEN_REPO/springframework/src/spring-1.2.6.jar" kind="var" path="MAVEN_REPO/springframework/jars/spring-1.2.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.6.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/aopalliance/jars/aopalliance-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/aspectj/jars/aspectjrt-1.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/cas/jars/casclient-2.0.11.jar"/>
@@ -71,5 +70,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xercesImpl-2.6.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xmlParserAPIs-2.6.2.jar"/>
 	<classpathentry sourcepath="MAVEN_REPO/jmock/distributions/jmock-1.0.1-src.jar" kind="var" path="MAVEN_REPO/jmock/jars/jmock-1.0.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>
