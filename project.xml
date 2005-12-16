@@ -257,15 +257,6 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.9</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
@@ -358,7 +349,18 @@
       <artifactId>apacheds-server-main</artifactId>
       <version>0.9.4-SNAPSHOT</version>
       <type>jar</type>
-    </dependency>    
+    </dependency> 
+
+    <!-- Keep log4j after the apacheds stuff to avoid nasty classpath errors -->
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.9</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
 
     <dependency>
       <groupId>jmock</groupId>
@@ -389,9 +391,6 @@
       <includes>
         <include>**/*Tests.java</include>
       </includes>
-      <excludes>
-        <exclude>**/ldap/**</exclude>
-      </excludes>
       <resources>
         <resource>
           <directory>${basedir}/src/test/resources</directory>
