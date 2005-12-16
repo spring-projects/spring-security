@@ -4,3 +4,4 @@ build.properties
 *.log
 .clover
 *.keystore
+server-work
