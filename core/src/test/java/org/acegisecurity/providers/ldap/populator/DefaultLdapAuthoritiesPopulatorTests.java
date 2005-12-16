@@ -22,6 +22,8 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
     public void setUp() {
         dirCtxFactory = new DefaultInitialDirContextFactory();
         dirCtxFactory.setUrl(PROVIDER_URL);
+        dirCtxFactory.setInitialContextFactory(CONTEXT_FACTORY);
+        dirCtxFactory.setExtraEnvVars(EXTRA_ENV);
         dirCtxFactory.setManagerDn(MANAGER_USER);
         dirCtxFactory.setManagerPassword(MANAGER_PASSWORD);
 
@@ -62,7 +64,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
         populator.setSearchSubtree(true);
         populator.setSearchSubtree(false);
         populator.setConvertToUpperCase(true);
-        populator.setGroupSearchFilter("member={0}");
+        populator.setGroupSearchFilter("(member={0})");
         populator.afterPropertiesSet();
 
         GrantedAuthority[] authorities = populator.getGrantedAuthorities("ben", "uid=ben,ou=people,"+ROOT_DN, new BasicAttributes());
