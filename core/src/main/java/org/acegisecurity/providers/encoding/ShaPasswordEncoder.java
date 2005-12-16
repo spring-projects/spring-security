@@ -43,21 +43,19 @@ public class ShaPasswordEncoder extends BaseDigestPasswordEncoder
 
     public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
         String pass1 = "" + encPass;
-        String pass2 = encodeInternal(mergePasswordAndSalt(rawPass, salt, false));
+        String pass2 = encodePassword(rawPass, salt);
 
         return pass1.equals(pass2);
     }
 
     public String encodePassword(String rawPass, Object salt) {
-        return encodeInternal(mergePasswordAndSalt(rawPass, salt, false));
-    }
+        String saltedPass = mergePasswordAndSalt(rawPass, salt, false);
 
-    private String encodeInternal(String input) {
         if (!getEncodeHashAsBase64()) {
-            return DigestUtils.shaHex(input);
+            return DigestUtils.shaHex(saltedPass);
         }
 
-        byte[] encoded = Base64.encodeBase64(DigestUtils.sha(input));
+        byte[] encoded = Base64.encodeBase64(DigestUtils.sha(saltedPass));
 
         return new String(encoded);
     }
