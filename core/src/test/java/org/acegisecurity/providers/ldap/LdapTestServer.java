@@ -82,8 +82,8 @@ public class LdapTestServer {
         env.putAll( cfg.toJndiEnvironment() );
 
         try {
+            // TODO: Remove all children on startup
             serverContext = new InitialDirContext( env );
-            System.out.println("Created server context with name " + serverContext.getNameInNamespace());
         } catch (NamingException e) {
             System.err.println("Failed to start Apache DS");
             e.printStackTrace();
@@ -142,7 +142,7 @@ public class LdapTestServer {
         try {
             serverContext.createSubcontext("cn=manager", user );
         } catch(NameAlreadyBoundException ignore) {
-            System.out.println("Manager user already exists.");
+ //           System.out.println("Manager user already exists.");
         } catch (NamingException ne) {
             System.err.println("Failed to create manager user.");
             ne.printStackTrace();
@@ -164,7 +164,7 @@ public class LdapTestServer {
         try {
             serverContext.createSubcontext( "uid="+uid+",ou=people", user );
         } catch(NameAlreadyBoundException ignore) {
-            System.out.println(" user " + uid + " already exists.");
+//            System.out.println(" user " + uid + " already exists.");
         } catch (NamingException ne) {
             System.err.println("Failed to create  user.");
             ne.printStackTrace();
@@ -181,7 +181,7 @@ public class LdapTestServer {
         try {
             serverContext.createSubcontext( "ou="+name, ou);
         } catch(NameAlreadyBoundException ignore) {
-            System.out.println(" ou " + name + " already exists.");
+ //           System.out.println(" ou " + name + " already exists.");
         } catch (NamingException ne) {
             System.err.println("Failed to create ou.");
             ne.printStackTrace();
