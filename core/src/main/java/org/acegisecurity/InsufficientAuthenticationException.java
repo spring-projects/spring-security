@@ -20,13 +20,13 @@ package org.acegisecurity;
  * not sufficiently trusted.
  * 
  * <p>
- * {{@link org.acegisecurity.vote.AccessDecisionVoter}s will typically throw
+ * {@link org.acegisecurity.vote.AccessDecisionVoter}s will typically throw
  * this exception if they are dissatisfied with the level of the
- * authentication, such as if performed using a remember-me mechnanism or
+ * authentication, such as if performed using a remember-me mechanism or
  * anonymously. The commonly used {@link
  * org.acegisecurity.intercept.web.SecurityEnforcementFilter} will thus
  * cause the <code>AuthenticationEntryPoint</code> to be called, allowing the
- * principal to authenticate with a stronger level of authentication. }
+ * principal to authenticate with a stronger level of authentication.
  * </p>
  *
  * @author Ben Alex
