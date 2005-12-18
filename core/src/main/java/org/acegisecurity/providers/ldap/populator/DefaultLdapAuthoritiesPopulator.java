@@ -24,7 +24,6 @@ import org.acegisecurity.GrantedAuthorityImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
-import org.springframework.beans.factory.InitializingBean;
 
 import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
@@ -85,17 +84,18 @@ import java.util.HashSet;
  * setting the <tt>groupRoleAttribute</tt> property (the default is "cn").
  * </p>
  * <p>
+ * <pre>
  * &lt;bean id="ldapAuthoritiesPopulator" class="org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
  * TODO
  * &lt;/bean>
+ * </pre>
  * </p>
  *
  *
  * @author Luke Taylor
  * @version $Id$
  */
-public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator,
-    InitializingBean {
+public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(DefaultLdapAuthoritiesPopulator.class);
@@ -105,7 +105,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     /** Attributes of the User's LDAP Object that contain role name information. */
     private String[] userRoleAttributes = null;
 
-    private String rolePrefix = "";
+    private String rolePrefix = "ROLE_";
 
     /** The base DN from which the search for group membership should be performed */
     private String groupSearchBase = null;
@@ -126,6 +126,30 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
     /** An initial context factory is only required if searching for groups is required. */
     private InitialDirContextFactory initialDirContextFactory = null;
+
+    //~ Constructors ===========================================================
+
+    /**
+     * Constructor for non-group search scenarios. Typically in this case
+     * the <tt>userRoleAttributes</tt> property will be set to obtain roles directly
+     * from the user's directory entry attributes.
+     */
+    public DefaultLdapAuthoritiesPopulator() {
+    }
+
+    /**
+     * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be
+     * set as a property.
+     *
+     * @param initialDirContextFactory
+     * @param groupSearchBase
+     */
+    public DefaultLdapAuthoritiesPopulator(InitialDirContextFactory initialDirContextFactory, String groupSearchBase) {
+        Assert.notNull(initialDirContextFactory, "InitialDirContextFactory must not be null");
+        Assert.hasLength(groupSearchBase, "The groupSearchBase (name to search under), must be specified.");
+        this.initialDirContextFactory = initialDirContextFactory;
+        this.groupSearchBase = groupSearchBase;
+    }
 
     //~ Methods ================================================================
 
@@ -176,6 +200,12 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
             return null;
         }
 
+        if(logger.isDebugEnabled()) {
+            logger.debug("Searching for roles for user '"
+                    + userDn + "', with filter "+ groupSearchFilter
+                    + " in search base '" + groupSearchBase + "'");
+        }
+
         DirContext ctx = initialDirContextFactory.newInitialDirContext();
         SearchControls ctls = new SearchControls();
 
@@ -200,9 +230,13 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
                 }
             }
         } catch (NamingException e) {
-
+            throw new LdapDataAccessException("Group search failed for user " + userDn, e);
         } finally {
             LdapUtils.closeContext(ctx);
+        }
+
+        if(logger.isDebugEnabled()) {
+            logger.debug("Roles from search: " + userRoles);
         }
 
         return userRoles;
@@ -249,10 +283,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         this.rolePrefix = rolePrefix;
     }
 
-    public void setGroupSearchBase(String groupSearchBase) {
-        this.groupSearchBase = groupSearchBase;
-    }
-
     public void setGroupSearchFilter(String groupSearchFilter) {
         Assert.notNull(groupSearchFilter, "groupSearchFilter must not be null");
         this.groupSearchFilter = groupSearchFilter;
@@ -271,15 +301,5 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
     public void setConvertToUpperCase(boolean convertToUpperCase) {
         this.convertToUpperCase = convertToUpperCase;
-    }
-
-    public void setInitialDirContextFactory(InitialDirContextFactory initialDirContextFactory) {
-        this.initialDirContextFactory = initialDirContextFactory;
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        if(initialDirContextFactory == null && groupSearchBase != null) {
-            throw new IllegalArgumentException("initialDirContextFactory is required for group role searches.");
-        }
     }
 }

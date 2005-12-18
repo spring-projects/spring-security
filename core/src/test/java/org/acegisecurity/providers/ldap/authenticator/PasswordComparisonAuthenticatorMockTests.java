@@ -17,11 +17,14 @@ public class PasswordComparisonAuthenticatorMockTests extends MockObjectTestCase
     public void testLdapCompareIsUsedWhenPasswordIsNotRetrieved() throws Exception {
         Mock mockCtx = new Mock(DirContext.class);
 
-        PasswordComparisonAuthenticator authenticator = new PasswordComparisonAuthenticator();
-        authenticator.setUserDnPattern("cn={0},ou=people");
-        authenticator.setInitialDirContextFactory(
-                new MockInitialDirContextFactory((DirContext)mockCtx.proxy(),
-                        "dc=acegisecurity,dc=org"));
+        PasswordComparisonAuthenticator authenticator =
+                new PasswordComparisonAuthenticator(new MockInitialDirContextFactory(
+                        (DirContext)mockCtx.proxy(),
+                        "dc=acegisecurity,dc=org")
+                );
+
+        authenticator.setUserDnPatterns(new String[] {"cn={0},ou=people"});
+
         // Get the mock to return an empty attribute set
         mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=acegisecurity,dc=org"));
         mockCtx.expects(once()).method("getAttributes").with(eq("cn=Bob,ou=people"), NULL).will(returnValue(new BasicAttributes()));

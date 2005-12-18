@@ -15,8 +15,9 @@
 
 package org.acegisecurity.providers.ldap.authenticator;
 
-import org.acegisecurity.providers.ldap.LdapUserDetails;
+import org.acegisecurity.providers.ldap.LdapUserInfo;
 import org.acegisecurity.providers.ldap.LdapUtils;
+import org.acegisecurity.providers.ldap.InitialDirContextFactory;
 import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
@@ -29,6 +30,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.Attribute;
+import java.util.Iterator;
 
 /**
  * An {@link org.acegisecurity.providers.ldap.LdapAuthenticator LdapAuthenticator}
@@ -49,7 +51,7 @@ import javax.naming.directory.Attribute;
  * @author Luke Taylor
  * @version $Id$
  */
-public class PasswordComparisonAuthenticator extends AbstractLdapAuthenticator {
+public final class PasswordComparisonAuthenticator extends AbstractLdapAuthenticator {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(PasswordComparisonAuthenticator.class);
@@ -64,21 +66,28 @@ public class PasswordComparisonAuthenticator extends AbstractLdapAuthenticator {
 
     private PasswordEncoder passwordEncoder = new LdapShaPasswordEncoder();
 
+    //~ Constructors ===========================================================
+
+    public PasswordComparisonAuthenticator(InitialDirContextFactory initialDirContextFactory) {
+        super(initialDirContextFactory);
+    }
+
     //~ Methods ================================================================
 
-    public LdapUserDetails authenticate(String username, String password) {
+    public LdapUserInfo authenticate(String username, String password) {
 
         // locate the user and check the password
-        String userDn = getUserDn(username);
-        LdapUserDetails user = null;
+        LdapUserInfo user = null;
 
         DirContext ctx = getInitialDirContextFactory().newInitialDirContext();
+        Iterator dns = getUserDns(username).iterator();
 
         try {
-            if(userDn != null) {
+            while(dns.hasNext() && user == null) {
+                String userDn = (String)dns.next();
                 String relativeName = LdapUtils.getRelativeName(userDn, ctx);
 
-                user = new LdapUserDetails(userDn,
+                user = new LdapUserInfo(userDn,
                         ctx.getAttributes(relativeName, getUserAttributes()));
             }
 
@@ -105,6 +114,10 @@ public class PasswordComparisonAuthenticator extends AbstractLdapAuthenticator {
                 }
 
             } else {
+                if(logger.isDebugEnabled()) {
+                    logger.debug("Password attribute " + passwordAttributeName
+                            + " wasn't retrieved for user " + username);
+                }
 
                 doPasswordCompare(ctx, user.getRelativeName(ctx), password);
             }
@@ -153,7 +166,7 @@ public class PasswordComparisonAuthenticator extends AbstractLdapAuthenticator {
     }
 
     public void setPasswordAttributeName(String passwordAttribute) {
-        Assert.hasLength(passwordAttribute, "passwordAttribute must not be empty or null");
+        Assert.hasLength(passwordAttribute, "passwordAttributeName must not be empty or null");
         this.passwordAttributeName = passwordAttribute;
         this.passwordCompareFilter = "(" + passwordAttributeName + "={0})";
     }

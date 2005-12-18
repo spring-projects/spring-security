@@ -2,7 +2,7 @@ package org.acegisecurity.providers.ldap.authenticator;
 
 import org.acegisecurity.providers.ldap.AbstractLdapServerTestCase;
 import org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory;
-import org.acegisecurity.providers.ldap.LdapUserDetails;
+import org.acegisecurity.providers.ldap.LdapUserInfo;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.acegisecurity.BadCredentialsException;
 
@@ -17,13 +17,11 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
     private FilterBasedLdapUserSearch locator;
 
     public void setUp() throws Exception {
-        dirCtxFactory = new DefaultInitialDirContextFactory();
+        dirCtxFactory = new DefaultInitialDirContextFactory(PROVIDER_URL);
         dirCtxFactory.setInitialContextFactory(CONTEXT_FACTORY);
         dirCtxFactory.setExtraEnvVars(EXTRA_ENV);
-        dirCtxFactory.setUrl(PROVIDER_URL);
         dirCtxFactory.setManagerDn(MANAGER_USER);
         dirCtxFactory.setManagerPassword(MANAGER_PASSWORD);
-        dirCtxFactory.afterPropertiesSet();
         locator = new FilterBasedLdapUserSearch();
         locator.setSearchSubtree(false);
         locator.setSearchTimeLimit(0);
@@ -42,7 +40,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
         locator.setSearchBase("ou=people");
         locator.setSearchFilter("(uid={0})");
         locator.afterPropertiesSet();
-        LdapUserDetails bob = locator.searchForUser("bob");
+        LdapUserInfo bob = locator.searchForUser("bob");
         // name is wrong with embedded apacheDS
 //        assertEquals("uid=bob,ou=people,"+ROOT_DN, bob.getDn());
     }
@@ -52,7 +50,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
         locator.setSearchFilter("(cn={0})");
         locator.setSearchSubtree(true);
         locator.afterPropertiesSet();
-        LdapUserDetails ben = locator.searchForUser("Ben Alex");
+        LdapUserInfo ben = locator.searchForUser("Ben Alex");
 //        assertEquals("uid=ben,ou=people,"+ROOT_DN, bob.getDn());
     }
 
@@ -82,10 +80,10 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
 
     public void testExtraFilterPartToExcludeBob() throws Exception {
         locator.setSearchBase("ou=people");
-        locator.setSearchFilter("(&(cn=*)(!(uid={0})))");
+        locator.setSearchFilter("(&(cn=*)(!(|(uid={0})(uid=marissa))))");
 
         // Search for bob, get back ben...
-        LdapUserDetails ben = locator.searchForUser("bob");
+        LdapUserInfo ben = locator.searchForUser("bob");
         String cn = (String)ben.getAttributes().get("cn").get();
         assertEquals("Ben Alex", cn);
 //        assertEquals("uid=ben,ou=people,"+ROOT_DN, ben.getDn());

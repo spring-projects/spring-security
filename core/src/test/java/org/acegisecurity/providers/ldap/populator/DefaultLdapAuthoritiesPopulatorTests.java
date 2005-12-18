@@ -17,31 +17,17 @@ import java.util.HashSet;
  */
 public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTestCase {
     private DefaultInitialDirContextFactory dirCtxFactory;
-    private DefaultLdapAuthoritiesPopulator populator;
 
     public void setUp() {
-        dirCtxFactory = new DefaultInitialDirContextFactory();
-        dirCtxFactory.setUrl(PROVIDER_URL);
+        dirCtxFactory = new DefaultInitialDirContextFactory(PROVIDER_URL);
         dirCtxFactory.setInitialContextFactory(CONTEXT_FACTORY);
         dirCtxFactory.setExtraEnvVars(EXTRA_ENV);
         dirCtxFactory.setManagerDn(MANAGER_USER);
         dirCtxFactory.setManagerPassword(MANAGER_PASSWORD);
-
-        populator = new DefaultLdapAuthoritiesPopulator();
-        populator.setRolePrefix("ROLE_");
-    }
-
-    public void testCtxFactoryMustBeSetIfSearchBaseIsSet() throws Exception {
-        populator.setGroupSearchBase("");
-
-        try {
-            populator.afterPropertiesSet();
-            fail("expected exception.");
-        } catch (IllegalArgumentException expected) {
-        }
     }
 
     public void testUserAttributeMappingToRoles() {
+        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator();
         populator.setUserRoleAttributes(new String[] {"userRole", "otherUserRole"});
         populator.getUserRoleAttributes();
 
@@ -58,14 +44,13 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
     }
 
     public void testGroupSearch() throws Exception {
-        populator.setInitialDirContextFactory(dirCtxFactory);
-        populator.setGroupSearchBase("ou=groups");
+        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(dirCtxFactory, "ou=groups");
+        populator.setRolePrefix("ROLE_");
         populator.setGroupRoleAttribute("ou");
         populator.setSearchSubtree(true);
         populator.setSearchSubtree(false);
         populator.setConvertToUpperCase(true);
         populator.setGroupSearchFilter("(member={0})");
-        populator.afterPropertiesSet();
 
         GrantedAuthority[] authorities = populator.getGrantedAuthorities("ben", "uid=ben,ou=people,"+ROOT_DN, new BasicAttributes());
         assertEquals("Should have 2 roles", 2, authorities.length);

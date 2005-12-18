@@ -6,11 +6,7 @@ import javax.naming.directory.BasicAttributes;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.Authentication;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.providers.ldap.authenticator.FilterBasedLdapUserSearch;
-import org.acegisecurity.providers.ldap.authenticator.BindAuthenticator;
-import org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator;
 import org.acegisecurity.userdetails.UserDetails;
 
 /**
@@ -30,11 +26,8 @@ public class LdapAuthenticationProviderTests extends AbstractLdapServerTestCase 
     }
 
     public void testNormalUsage() throws Exception {
-        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider();
-
-        ldapProvider.setAuthenticator(new MockAuthenticator());
-        ldapProvider.setLdapAuthoritiesPopulator(new MockAuthoritiesPopulator());
-        ldapProvider.afterPropertiesSet();
+        LdapAuthenticationProvider ldapProvider
+                = new LdapAuthenticationProvider(new MockAuthenticator(), new MockAuthoritiesPopulator());
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("bob","bobspassword");
         UserDetails user = ldapProvider.retrieveUser("bob", token);
@@ -59,7 +52,7 @@ public class LdapAuthenticationProviderTests extends AbstractLdapServerTestCase 
         BindAuthenticator authenticator = new BindAuthenticator();
         //PasswordComparisonAuthenticator authenticator = new PasswordComparisonAuthenticator();
         authenticator.setInitialDirContextFactory(dirCtxFactory);
-        //authenticator.setUserDnPattern("cn={0},ou=people");
+        //authenticator.setUserDnPatterns("cn={0},ou=people");
 
         FilterBasedLdapUserSearch userSearch = new FilterBasedLdapUserSearch();
         userSearch.setSearchBase("ou=people");
@@ -78,7 +71,7 @@ public class LdapAuthenticationProviderTests extends AbstractLdapServerTestCase 
         populator.setGroupSearchBase("ou=groups");
         populator.afterPropertiesSet();
 
-        ldapProvider.setLdapAuthoritiesPopulator(populator);
+        ldapProvider.setAuthoritiesPopulator(populator);
         ldapProvider.setAuthenticator(authenticator);
         Authentication auth = ldapProvider.authenticate(new UsernamePasswordAuthenticationToken("Ben Alex","benspassword"));
         assertEquals(2, auth.getAuthorities().length);
@@ -94,10 +87,10 @@ public class LdapAuthenticationProviderTests extends AbstractLdapServerTestCase 
     class MockAuthenticator implements LdapAuthenticator {
         Attributes userAttributes = new BasicAttributes("cn","bob");
 
-        public LdapUserDetails authenticate(String username, String password) {
+        public LdapUserInfo authenticate(String username, String password) {
             if(username.equals("bob") && password.equals("bobspassword")) {
 
-                return new LdapUserDetails("cn=bob,ou=people,dc=acegisecurity,dc=org", userAttributes);
+                return new LdapUserInfo("cn=bob,ou=people,dc=acegisecurity,dc=org", userAttributes);
             }
             throw new BadCredentialsException("Authentication of Bob failed.");
         }

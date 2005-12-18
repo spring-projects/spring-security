@@ -76,7 +76,24 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
 
     private LdapAuthenticator authenticator;
 
-    private LdapAuthoritiesPopulator ldapAuthoritiesPopulator;
+    private LdapAuthoritiesPopulator authoritiesPopulator;
+
+
+    //~ Constructors ===========================================================
+
+    public LdapAuthenticationProvider(LdapAuthenticator authenticator,
+                                      LdapAuthoritiesPopulator authoritiesPopulator) {
+        Assert.notNull(authenticator, "An LdapAuthenticator must be supplied");
+        Assert.notNull(authoritiesPopulator, "An LdapAuthoritiesPopulator must be supplied");
+
+        this.authenticator = authenticator;
+        this.authoritiesPopulator = authoritiesPopulator;
+
+        // TODO: Check that the role attributes specified for the populator will be retrieved
+        // by the authenticator. If not, add them to the authenticator's list and log a
+        // warning.
+
+    }
 
     //~ Methods ================================================================
 
@@ -89,19 +106,9 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         String password = (String)authentication.getCredentials();
         Assert.notNull(password, "Null password was supplied in authentication token");
 
-        LdapUserDetails ldapUser = authenticator.authenticate(username, password);
+        LdapUserInfo ldapUser = authenticator.authenticate(username, password);
 
         return createUserDetails(username, password, ldapUser.getDn(), ldapUser.getAttributes());
-    }
-
-    protected void doAfterPropertiesSet() throws Exception {
-        super.doAfterPropertiesSet();
-        Assert.notNull(authenticator, "An LdapAuthenticator must be supplied");
-        Assert.notNull(ldapAuthoritiesPopulator, "An LdapAuthoritiesPopulator must be supplied");
-
-        // TODO: Check that the role attributes specified for the populator will be retrieved
-        // by the authenticator. If not, add them to the authenticator's list and log a
-        // warning.
     }
 
     /**
@@ -124,15 +131,8 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     protected UserDetails createUserDetails(String username, String password, String userDn, Attributes attributes) {
 
         return new User(username, password, true, true, true, true,
-                ldapAuthoritiesPopulator.getGrantedAuthorities(username, userDn, attributes));
+                authoritiesPopulator.getGrantedAuthorities(username, userDn, attributes));
 
-    }
-
-    public void setAuthenticator(LdapAuthenticator authenticator) {
-        this.authenticator = authenticator;
-    }
-
-    public void setLdapAuthoritiesPopulator(LdapAuthoritiesPopulator ldapAuthoritiesPopulator) {
-        this.ldapAuthoritiesPopulator = ldapAuthoritiesPopulator;
     }
 }
+

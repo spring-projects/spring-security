@@ -84,12 +84,12 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
     //~ Methods ================================================================
 
     /**
-     * Return the LdapUserDetails containing the user's information, or null if
+     * Return the LdapUserInfo containing the user's information, or null if
      * no SearchResult is found.
      *
      * @param username the username to search for.
      */
-    public LdapUserDetails searchForUser(String username) {
+    public LdapUserInfo searchForUser(String username) {
         DirContext ctx = initialDirContextFactory.newInitialDirContext();
         SearchControls ctls = new SearchControls();
         ctls.setTimeLimit( searchTimeLimit );
@@ -120,7 +120,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
             userDn.append(",");
             userDn.append(ctx.getNameInNamespace());
 
-            return new LdapUserDetails(userDn.toString(), searchResult.getAttributes());
+            return new LdapUserInfo(userDn.toString(), searchResult.getAttributes());
 
         } catch(NamingException ne) {
             throw new LdapDataAccessException("User Couldn't be found due to exception", ne);

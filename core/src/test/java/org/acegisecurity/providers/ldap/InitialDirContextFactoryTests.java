@@ -30,20 +30,19 @@ public class InitialDirContextFactoryTests extends AbstractLdapServerTestCase {
 //    }
 
     public void setUp() {
-        idf = new DefaultInitialDirContextFactory();
+        idf = new DefaultInitialDirContextFactory(PROVIDER_URL);
         idf.setInitialContextFactory(CONTEXT_FACTORY);
         idf.setExtraEnvVars(EXTRA_ENV);
     }
 
     public void testConnectionFailure() throws Exception {
-
-        idf.setInitialContextFactory("com.sun.jndi.ldap.LdapCtxFactory");
         // Use the wrong port
-        idf.setUrl("ldap://localhost:60389");
+        idf = new DefaultInitialDirContextFactory("ldap://localhost:60389");
+        idf.setInitialContextFactory("com.sun.jndi.ldap.LdapCtxFactory");
         Hashtable env = new Hashtable();
         env.put("com.sun.jndi.ldap.connect.timeout", "200");
         idf.setExtraEnvVars(env);
-        idf.afterPropertiesSet();
+
         try {
             idf.newInitialDirContext();
             fail("Connection succeeded unexpectedly");
@@ -52,8 +51,6 @@ public class InitialDirContextFactoryTests extends AbstractLdapServerTestCase {
     }
 
     public void testAnonymousBindSucceeds() throws Exception {
-        idf.setUrl(PROVIDER_URL);
-        idf.afterPropertiesSet();
         DirContext ctx = idf.newInitialDirContext();
         // Connection pooling should be set by default for anon users.
         // Can't rely on this property being there with embedded server
@@ -62,10 +59,9 @@ public class InitialDirContextFactoryTests extends AbstractLdapServerTestCase {
     }
 
     public void testBindAsManagerSucceeds() throws Exception {
-        idf.setUrl(PROVIDER_URL);
         idf.setManagerPassword(MANAGER_PASSWORD);
         idf.setManagerDn(MANAGER_USER);
-        idf.afterPropertiesSet();
+
         DirContext ctx = idf.newInitialDirContext();
 // Can't rely on this property being there with embedded server
 //        assertEquals("true",ctx.getEnvironment().get("com.sun.jndi.ldap.connect.pool"));
@@ -73,10 +69,8 @@ public class InitialDirContextFactoryTests extends AbstractLdapServerTestCase {
     }
 
     public void testInvalidPasswordCausesBadCredentialsException() throws Exception {
-        idf.setUrl(PROVIDER_URL);
         idf.setManagerDn(MANAGER_USER);
         idf.setManagerPassword("wrongpassword");
-        idf.afterPropertiesSet();
         try {
             DirContext ctx = idf.newInitialDirContext();
             fail("Authentication with wrong credentials should fail.");
@@ -85,8 +79,6 @@ public class InitialDirContextFactoryTests extends AbstractLdapServerTestCase {
     }
 
     public void testConnectionAsSpecificUserSucceeds() throws Exception {
-        idf.setUrl(PROVIDER_URL);
-        idf.afterPropertiesSet();
         DirContext ctx = idf.newInitialDirContext("uid=Bob,ou=people,dc=acegisecurity,dc=org",
                 "bobspassword");
         // We don't want pooling for specific users.
@@ -95,7 +87,7 @@ public class InitialDirContextFactoryTests extends AbstractLdapServerTestCase {
     }
 
     public void testEnvironment() {
-        idf.setUrl("ldap://acegisecurity.org/");
+        idf = new DefaultInitialDirContextFactory("ldap://acegisecurity.org/");
 
         // check basic env
         Hashtable env = idf.getEnvironment();
@@ -124,20 +116,15 @@ public class InitialDirContextFactoryTests extends AbstractLdapServerTestCase {
     }
 
     public void testBaseDnIsParsedFromCorrectlyFromUrl() throws Exception {
-        idf.setUrl("ldap://acegisecurity.org/dc=acegisecurity,dc=org");
-        idf.afterPropertiesSet();
+        idf = new DefaultInitialDirContextFactory("ldap://acegisecurity.org/dc=acegisecurity,dc=org");
         assertEquals("dc=acegisecurity,dc=org", idf.getRootDn());
 
         // Check with an empty root
-        idf = new DefaultInitialDirContextFactory();
-        idf.setUrl("ldap://acegisecurity.org/");
-        idf.afterPropertiesSet();
+        idf = new DefaultInitialDirContextFactory("ldap://acegisecurity.org/");
         assertEquals("", idf.getRootDn());
 
         // Empty root without trailing slash
-        idf = new DefaultInitialDirContextFactory();
-        idf.setUrl("ldap://acegisecurity.org");
-        idf.afterPropertiesSet();
+        idf = new DefaultInitialDirContextFactory("ldap://acegisecurity.org");
         assertEquals("", idf.getRootDn());
     }
 

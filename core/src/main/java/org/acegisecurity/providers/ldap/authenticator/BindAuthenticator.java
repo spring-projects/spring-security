@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.Attributes;
 import javax.naming.NamingException;
+import java.util.Iterator;
 
 /**
  * An authenticator which binds as a user.
@@ -32,28 +33,35 @@ import javax.naming.NamingException;
  * @author Luke Taylor
  * @version $Id$
  */
-public class BindAuthenticator extends AbstractLdapAuthenticator {
+public final class BindAuthenticator extends AbstractLdapAuthenticator {
 
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(BindAuthenticator.class);
 
+    //~ Constructors ===========================================================
+
+    public BindAuthenticator(InitialDirContextFactory initialDirContextFactory) {
+        super(initialDirContextFactory);
+    }
+
     //~ Methods ================================================================
 
-    public LdapUserDetails authenticate(String username, String password) {
+    public LdapUserInfo authenticate(String username, String password) {
 
-        String dn = getUserDn(username);
-        LdapUserDetails user = null;
+        LdapUserInfo user = null;
 
-        // If DN is pattern is configured, try authenticating with that directly
-        if(dn != null) {
-            user = authenticateWithDn(dn, password);
+        // If DN patterns are configured, try authenticating with them directly
+        Iterator dns = getUserDns(username).iterator();
+
+        while(dns.hasNext() && user == null) {
+            user = authenticateWithDn((String)dns.next(), password);
         }
 
         // Otherwise use the configured locator to find the user
         // and authenticate with the returned DN.
         if(user == null && getUserSearch() != null) {
-            LdapUserDetails userFromSearch = getUserSearch().searchForUser(username);
+            LdapUserInfo userFromSearch = getUserSearch().searchForUser(username);
             user = authenticateWithDn(userFromSearch.getDn(), password);
         }
 
@@ -65,13 +73,13 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
     }
 
-    private LdapUserDetails authenticateWithDn(String userDn, String password) {
+    private LdapUserInfo authenticateWithDn(String userDn, String password) {
         DirContext ctx = null;
-        LdapUserDetails user = null;
+        LdapUserInfo user = null;
         Attributes attributes = null;
 
         if(logger.isDebugEnabled()) {
-            logger.debug("Binding with DN = " + userDn);
+            logger.debug("Attempting to bind with DN = " + userDn);
         }
 
         try {
@@ -79,8 +87,8 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
             attributes = ctx.getAttributes(
                     LdapUtils.getRelativeName(userDn, ctx),
                     getUserAttributes());
-            user = new LdapUserDetails(userDn, attributes);
-            
+            user = new LdapUserInfo(userDn, attributes);
+
         } catch(NamingException ne) {
             throw new LdapDataAccessException("Failed to load attributes for user " + userDn, ne);
         } catch(BadCredentialsException e) {

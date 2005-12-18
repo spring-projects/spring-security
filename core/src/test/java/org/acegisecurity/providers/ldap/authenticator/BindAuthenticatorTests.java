@@ -1,12 +1,12 @@
 package org.acegisecurity.providers.ldap.authenticator;
 
 import org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory;
-import org.acegisecurity.providers.ldap.LdapUserDetails;
+import org.acegisecurity.providers.ldap.LdapUserInfo;
 import org.acegisecurity.providers.ldap.AbstractLdapServerTestCase;
 import org.acegisecurity.BadCredentialsException;
 
 /**
- * Tests {@link BindAuthenticator}.
+ * Tests for {@link BindAuthenticator}.
  *
  * @author Luke Taylor
  * @version $Id$
@@ -17,30 +17,26 @@ public class BindAuthenticatorTests extends AbstractLdapServerTestCase {
     private BindAuthenticator authenticator;
 
     public void setUp() throws Exception {
-        dirCtxFactory = new DefaultInitialDirContextFactory();
+        dirCtxFactory = new DefaultInitialDirContextFactory(PROVIDER_URL);
         dirCtxFactory.setInitialContextFactory(CONTEXT_FACTORY);
         dirCtxFactory.setExtraEnvVars(EXTRA_ENV);
-        dirCtxFactory.setUrl(PROVIDER_URL);
-        dirCtxFactory.afterPropertiesSet();
-        authenticator = new BindAuthenticator();
-        authenticator.setInitialDirContextFactory(dirCtxFactory);
+        authenticator = new BindAuthenticator(dirCtxFactory);
     }
 
     public void testUserDnPatternReturnsCorrectDn() throws Exception {
-        authenticator.setUserDnPattern("cn={0},ou=people");
-        assertEquals("cn=Joe,ou=people,"+ ROOT_DN, authenticator.getUserDn("Joe"));
+        authenticator.setUserDnPatterns(new String[] {"cn={0},ou=people"});
+        assertEquals("cn=Joe,ou=people,"+ ROOT_DN, authenticator.getUserDns("Joe").get(0));
     }
 
     public void testAuthenticationWithCorrectPasswordSucceeds() throws Exception {
-        authenticator.setUserDnPattern("uid={0},ou=people");
-        LdapUserDetails user = authenticator.authenticate("bob","bobspassword");
+        authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
+        LdapUserInfo user = authenticator.authenticate("bob","bobspassword");
     }
 
     public void testAuthenticationWithWrongPasswordFails() {
-        BindAuthenticator authenticator = new BindAuthenticator();
+        BindAuthenticator authenticator = new BindAuthenticator(dirCtxFactory);
 
-        authenticator.setInitialDirContextFactory(dirCtxFactory);
-        authenticator.setUserDnPattern("uid={0},ou=people");
+        authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
 
         try {
             authenticator.authenticate("bob","wrongpassword");
@@ -50,7 +46,7 @@ public class BindAuthenticatorTests extends AbstractLdapServerTestCase {
     }
 
     public void testAuthenticationWithUserSearch() throws Exception {
-        LdapUserDetails user = new LdapUserDetails("uid=bob,ou=people," + ROOT_DN, null);
+        LdapUserInfo user = new LdapUserInfo("uid=bob,ou=people," + ROOT_DN, null);
         authenticator.setUserSearch(new MockUserSearch(user));
         authenticator.afterPropertiesSet();
         authenticator.authenticate("bob","bobspassword");
@@ -63,7 +59,7 @@ public class BindAuthenticatorTests extends AbstractLdapServerTestCase {
 //        BindAuthenticator authenticator = new BindAuthenticator();
 //
 //        authenticator.setInitialDirContextFactory(dirCtxFactory);
-//        authenticator.setUserDnPattern("cn={0},ou=people");
+//        authenticator.setUserDnPatterns("cn={0},ou=people");
 //        try {
 //            authenticator.authenticate("Baz","bobspassword");
 //            fail("Shouldn't be able to bind with invalid username");

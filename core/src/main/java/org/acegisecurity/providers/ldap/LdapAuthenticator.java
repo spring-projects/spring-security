@@ -35,5 +35,5 @@ public interface LdapAuthenticator {
      * @param password the user's password supplied at login.
      * @return the details of the successfully authenticated user.
      */
-    LdapUserDetails authenticate(String username, String password);
+    LdapUserInfo authenticate(String username, String password);
 }

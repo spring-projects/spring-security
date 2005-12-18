@@ -90,33 +90,6 @@ public class LdapTestServer {
         }
     }
 
-
-//    private void startLdapServer() {
-//        ApplicationContext factory = new ClassPathXmlApplicationContext( "org/acegisecurity/providers/ldap/apacheds-context.xml");
-//        MutableServerStartupConfiguration cfg = ( MutableServerStartupConfiguration ) factory.getBean( "configuration" );
-//        ClassPathResource ldifDir = new ClassPathResource("org/acegisecurity/providers/ldap/ldif");
-//
-//        try {
-//            cfg.setLdifDirectory(ldifDir.getFile());
-//        } catch (IOException e) {
-//            System.err.println("Failed to set LDIF directory for server");
-//            e.printStackTrace();
-//        }
-//
-//        Properties env = ( Properties ) factory.getBean( "environment" );
-//
-//        env.setProperty( Context.PROVIDER_URL, "dc=acegisecurity,dc=org" );
-//        env.setProperty( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
-//        env.putAll( cfg.toJndiEnvironment() );
-//
-//        try {
-//            serverContext = new InitialDirContext( env );
-//        } catch (NamingException e) {
-//            System.err.println("Failed to start Apache DS");
-//            e.printStackTrace();
-//        }
-//    }
-
     private void initTestData() {
         createOu("people");
         createOu("groups");
@@ -125,7 +98,7 @@ public class LdapTestServer {
         String[] developers = new String[]
                 {"uid=ben,ou=people,dc=acegisecurity,dc=org", "uid=bob,ou=people,dc=acegisecurity,dc=org"};
         createGroup("developers","developer",developers);
-        createGroup("managers","manager",new String[] { developers[0]});
+        createGroup("managers","manager", new String[] { developers[0]});
     }
 
     private void createManagerUser() {
@@ -256,6 +229,5 @@ public class LdapTestServer {
     public static void main(String[] args) {
         LdapTestServer server = new LdapTestServer(false);
     }
-
 
 }

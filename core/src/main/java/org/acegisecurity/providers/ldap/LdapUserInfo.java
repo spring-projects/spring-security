@@ -15,10 +15,6 @@
 
 package org.acegisecurity.providers.ldap;
 
-import org.acegisecurity.userdetails.User;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
-
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.NamingException;
@@ -40,7 +36,7 @@ import javax.naming.NamingException;
  * @author Luke Taylor
  * @version $Id$
  */
-public class LdapUserDetails {
+public class LdapUserInfo {
 
     //~ Instance fields ========================================================
 
@@ -54,7 +50,7 @@ public class LdapUserDetails {
      * @param dn the full DN of the user
      * @param attributes any attributes loaded from the user's directory entry.
      */
-    public LdapUserDetails(String dn, Attributes attributes) {
+    public LdapUserInfo(String dn, Attributes attributes) {
         this.dn = dn;
         this.attributes = attributes;
     }

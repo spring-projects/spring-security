@@ -25,7 +25,6 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.DirContext;
 
 import org.springframework.dao.DataAccessResourceFailureException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.acegisecurity.BadCredentialsException;
 import org.apache.commons.logging.Log;
@@ -39,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
  * This should be in the form <tt>ldap://monkeymachine.co.uk:389/dc=acegisecurity,dc=org</tt>.
  * </p>
  * <p>
- * To obtain an initial context, th client calls the <tt>newInitialDirContext</tt>
+ * To obtain an initial context, the client calls the <tt>newInitialDirContext</tt>
  * method. There are two signatures - one with no arguments and one which allows
  * binding with a specific username and password.
  * </p>
@@ -53,16 +52,15 @@ import org.apache.commons.logging.LogFactory;
  * as a specific user.
  * </p>
  *
- * @see <a href="http://java.sun.com/products/jndi/tutorial/ldap/connect/pool.html">The Java tutorial's guide to
- * Connection Pooling</a>
+ * @see <a href="http://java.sun.com/products/jndi/tutorial/ldap/connect/pool.html">The Java
+ * tutorial's guide to LDAP connection pooling</a>
  *
  * @author Robert Sanders
  * @author Luke Taylor
  * @version $Id$
  *
  */
-public class DefaultInitialDirContextFactory implements InitialDirContextFactory,
-    InitializingBean {
+public class DefaultInitialDirContextFactory implements InitialDirContextFactory {
     
     //~ Static fields/initializers =============================================
 
@@ -118,13 +116,39 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
      */
     private boolean useConnectionPool = true;    
 
+    //~ Constructors ===========================================================
+
+    public DefaultInitialDirContextFactory(String url) {
+        this.url = url;
+
+        Assert.hasLength(url, "An LDAP connection URL must be supplied.");
+
+        if(url.startsWith("ldap:")) {
+
+            URI uri = LdapUtils.parseLdapUrl(url);
+
+            rootDn = uri.getPath();
+
+        } else {
+            // Assume it's an embedded server
+            rootDn = url;
+        }
+
+        if(rootDn.startsWith("/")) {
+            rootDn = rootDn.substring(1);
+        }
+
+        // This doesn't necessarily hold for embedded servers.
+        //Assert.isTrue(uri.getScheme().equals("ldap"), "Ldap URL must start with 'ldap://'");
+    }
+
     //~ Methods ================================================================
 
     /**
      * Connects anonymously unless a manager user has been specified, in which case
      * it will bind as the manager.
      *
-     * @return the resulting
+     * @return the resulting context object.
      */
     public DirContext newInitialDirContext() {
 
@@ -152,7 +176,8 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
     }
 
     /**
-     * @return The Hashtable describing the base DirContext that will be created, minus the username/password if any.
+     * @return the Hashtable describing the base DirContext that will be created,
+     * minus the username/password if any.
      */
     protected Hashtable getEnvironment() {
         Hashtable env = new Hashtable();
@@ -174,8 +199,15 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
     private InitialDirContext connect(Hashtable env) {
         
-// Prints the password, so don't use except for debugging.
-//        logger.debug("Creating initial context with env " + env);
+        if(logger.isDebugEnabled()) {
+            Hashtable envClone = (Hashtable)env.clone();
+
+            if(envClone.containsKey(Context.SECURITY_CREDENTIALS)) {
+                envClone.put(Context.SECURITY_CREDENTIALS, "******");
+            }
+
+            logger.debug("Creating InitialDirContext with environment " + envClone);
+        }
 
         try {
             return new InitialDirContext(env);
@@ -187,27 +219,6 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
         } catch (NamingException nx) {
             throw new LdapDataAccessException("Failed to obtain InitialDirContext", nx);
         }
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.hasLength(url, "An LDAP connection URL must be supplied.");
-
-        if(url.startsWith("ldap:")) {
-
-            URI uri = new URI(url);
-
-            rootDn = uri.getPath();
-        } else {
-            // Assume it's an embedded server
-            rootDn = url;
-        }
-
-        if(rootDn.startsWith("/")) {
-            rootDn = rootDn.substring(1);
-        }
-
-        //Assert.isTrue(uri.getScheme().equals("ldap"), "Ldap URL must start with 'ldap://'");
-
     }
 
     /**
@@ -222,12 +233,12 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
     }
 
     public void setAuthenticationType(String authenticationType) {
-        Assert.hasLength(authenticationType);
+        Assert.hasLength(authenticationType, "LDAP Authentication type must not be empty or null");
         this.authenticationType = authenticationType;
     }
 
     public void setInitialContextFactory(String initialContextFactory) {
-        Assert.hasLength(initialContextFactory);
+        Assert.hasLength(initialContextFactory, "Initial context factory name cannot be empty or null");
         this.initialContextFactory = initialContextFactory;
     }
 
@@ -235,6 +246,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
      * @param managerDn The name of the "manager" user for default authentication.
      */
     public void setManagerDn(String managerDn) {
+        Assert.hasLength(managerDn, "Manager user name  cannot be empty or null.");
         this.managerDn = managerDn;
     }
 
@@ -242,18 +254,15 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
      * @param managerPassword The "manager" user's password.
      */
     public void setManagerPassword(String managerPassword) {
+        Assert.hasLength(managerPassword, "Manager password must not be empty or null.");
         this.managerPassword = managerPassword;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
     }
 
     /**
      * @param extraEnvVars extra environment variables to be added at config time.
      */
     public void setExtraEnvVars(Map extraEnvVars) {
+        Assert.notNull(extraEnvVars, "Extra environment map cannot be null.");
         this.extraEnvVars = extraEnvVars;
     }
-
 }

@@ -21,6 +21,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 import java.text.MessageFormat;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author Luke Taylor
@@ -31,36 +33,52 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 
     //~ Instance fields ========================================================
 
-    private String userDnPattern = null;
-    private MessageFormat userDnFormat = null;
+    //private String[] userDnPattern = null;
+    private MessageFormat[] userDnFormat = null;
     private InitialDirContextFactory initialDirContextFactory;
     private LdapUserSearch userSearch;
     private String[] userAttributes = null;
+    private String dnSuffix = "";
+
+    //~ Constructors ===========================================================
+
+    protected AbstractLdapAuthenticator(InitialDirContextFactory initialDirContextFactory) {
+        Assert.notNull(initialDirContextFactory, "initialDirContextFactory must not be null.");
+        this.initialDirContextFactory = initialDirContextFactory;
+
+        String rootDn = initialDirContextFactory.getRootDn();
+
+        if(rootDn.length() > 0) {
+            dnSuffix = "," + rootDn;
+        }
+    }
 
     //~ Methods ================================================================
 
     /**
-     * Returns the DN of the user, worked out from the userDNPattern property.
-     * The returned value includes the root DN of the provider
-     * URL used to configure the <tt>InitialDirContextfactory</tt>.
+     * Builds list of possible DNs for the user, worked out from the
+     * <tt>userDnPatterns</tt> property. The returned value includes the root DN of
+     * the provider URL used to configure the <tt>InitialDirContextfactory</tt>.
+     *
+     * @param username the user's login name
+     * @return the list of possible DN matches, empty if <tt>userDnPatterns</tt> wasn't
+     * set.
      */
-    protected String getUserDn(String username) {
+    protected List getUserDns(String username) {
         if(userDnFormat == null) {
-            return null;
+            return new ArrayList(0);
         }
 
-        String rootDn = initialDirContextFactory.getRootDn();
-        String userDn;
+        List userDns = new ArrayList(userDnFormat.length);
+        String[] args = new String[] {username};
 
         synchronized( userDnFormat ) {
-            userDn = userDnFormat.format(new String[] {username});
+            for(int i=0; i < userDnFormat.length; i++) {
+                userDns.add( userDnFormat[i].format(args) + dnSuffix );
+            }
         }
 
-        if(rootDn.length() > 0) {
-            userDn = userDn + "," + rootDn;
-        }
-
-        return userDn;
+        return userDns;
     }
 
     /**
@@ -69,24 +87,32 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
      * The pattern argument {0} will contain the username.
      * An example would be "cn={0},ou=people".
      */
-    public void setUserDnPattern(String dnPattern) {
-        this.userDnPattern = dnPattern;
-        userDnFormat = null;
+    public void setUserDnPatterns(String[] dnPattern) {
+        Assert.notNull(dnPattern, "The array of DN patterns cannot be set to null");
+//        this.userDnPattern = dnPattern;
+        userDnFormat = new MessageFormat[dnPattern.length];
 
-        if(dnPattern != null) {
-            userDnFormat = new MessageFormat(dnPattern);
+        for(int i=0; i < dnPattern.length; i++) {
+            userDnFormat[i] = new MessageFormat(dnPattern[i]);
         }
+    }
+
+    /**
+     * Sets the user attributes which will be retrieved from the directory.
+     *
+     * @param userAttributes
+     */
+    public void setUserAttributes(String[] userAttributes) {
+        Assert.notNull(userAttributes, "The userAttributes property cannot be set to null");
+        this.userAttributes = userAttributes;
     }
 
     public String[] getUserAttributes() {
         return userAttributes;
     }
 
-    public String getUserDnPattern() {
-        return userDnPattern;
-    }
-
     public void setUserSearch(LdapUserSearch userSearch) {
+        Assert.notNull(userSearch, "The userSearch cannot be set to null");
         this.userSearch = userSearch;
     }
 
@@ -94,25 +120,12 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
         return userSearch;
     }
 
-    public void setInitialDirContextFactory(InitialDirContextFactory initialDirContextFactory) {
-        this.initialDirContextFactory = initialDirContextFactory;
-    }
-
-    /**
-     * Sets the user attributes which will be retrieved from the directory.
-     * 
-     * @param userAttributes
-     */
-    public void setUserAttributes(String[] userAttributes) {
-        this.userAttributes = userAttributes;
-    }
-
     protected InitialDirContextFactory getInitialDirContextFactory() {
         return initialDirContextFactory;
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(initialDirContextFactory, "initialDirContextFactory must be supplied.");
-        Assert.isTrue(userDnPattern != null || userSearch != null, "Either an LdapUserSearch or DN pattern (or both) must be supplied.");
+        Assert.isTrue(userDnFormat != null || userSearch != null,
+                "Either an LdapUserSearch or DN pattern (or both) must be supplied.");
     }
 }
