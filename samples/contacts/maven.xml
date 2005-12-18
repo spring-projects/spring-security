@@ -27,7 +27,11 @@
         <!-- x509 war -->
         <j:set var="webapp" value="x509"/>
         <attainGoal name="acegisecurity:war"/>
-		
+
+        <!-- ldap war -->
+        <j:set var="webapp" value="ldap"/>
+        <attainGoal name="acegisecurity:war"/>
+				
 		<!-- delete generic artifact (we only want our three custom WARs) -->
 	    <ant:delete file="${maven.war.build.dir}/${pom.artifactId}.war"/>
     </goal>
