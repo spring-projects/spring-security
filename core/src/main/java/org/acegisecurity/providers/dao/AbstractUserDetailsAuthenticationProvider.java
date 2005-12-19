@@ -22,11 +22,13 @@ import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.CredentialsExpiredException;
 import org.acegisecurity.DisabledException;
 import org.acegisecurity.LockedException;
+import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.dao.cache.NullUserCache;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
@@ -73,6 +75,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private UserCache userCache = new NullUserCache();
     private boolean forcePrincipalAsString = false;
+    protected boolean hideUserNotFoundExceptions = true;
 
     //~ Methods ================================================================
 
@@ -123,8 +126,21 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 
         if (user == null) {
             cacheWasUsed = false;
-            user = retrieveUser(username,
+
+            try {
+                user = retrieveUser(username,
                     (UsernamePasswordAuthenticationToken) authentication);
+
+            } catch (UsernameNotFoundException notFound) {
+                if (hideUserNotFoundExceptions) {
+                    throw new BadCredentialsException(messages.getMessage(
+                            "AbstractUserDetailsAuthenticationProvider.badCredentials",
+                            "Bad credentials"));
+                } else {
+                    throw notFound;
+                }
+            }
+
             Assert.notNull(user,
                 "retrieveUser returned null - a violation of the interface contract");
         }
@@ -291,5 +307,29 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 
     public boolean supports(Class authentication) {
         return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
+    }
+
+    public boolean isHideUserNotFoundExceptions() {
+        return hideUserNotFoundExceptions;
+    }
+
+    /**
+     * By default the <code>AbstractUserDetailsAuthenticationProvider</code>
+     * throws a <code>BadCredentialsException</code> if a username is
+     * not found or the password is incorrect. Setting this property to
+     * <code>false</code> will cause
+     * <code>UsernameNotFoundException</code>s to be thrown instead for
+     * the former. Note this is considered less secure than throwing
+     * <code>BadCredentialsException</code> for both exceptions.
+     *
+     * @param hideUserNotFoundExceptions set to <code>false</code> if you
+     *        wish <code>UsernameNotFoundException</code>s to be thrown
+     *        instead of the non-specific
+     *        <code>BadCredentialsException</code> (defaults to
+     *        <code>true</code>)
+     */
+    public void setHideUserNotFoundExceptions(
+        boolean hideUserNotFoundExceptions) {
+        this.hideUserNotFoundExceptions = hideUserNotFoundExceptions;
     }
 }

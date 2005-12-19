@@ -35,6 +35,9 @@ import org.springframework.util.Assert;
 /**
  * An {@link AuthenticationProvider} implementation that retrieves user details
  * from an {@link UserDetailsService}.
+ *
+ * @author Ben Alex
+ * @version $Id$
  */
 public class DaoAuthenticationProvider
     extends AbstractUserDetailsAuthenticationProvider {
@@ -43,7 +46,6 @@ public class DaoAuthenticationProvider
     private UserDetailsService userDetailsService;
     private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
     private SaltSource saltSource;
-    private boolean hideUserNotFoundExceptions = true;
 
     //~ Methods ================================================================
 
@@ -81,83 +83,51 @@ public class DaoAuthenticationProvider
         return saltSource;
     }
 
-    public boolean isHideUserNotFoundExceptions() {
-        return hideUserNotFoundExceptions;
-    }
-
     protected final UserDetails retrieveUser(String username,
-        UsernamePasswordAuthenticationToken authentication)
+                                             UsernamePasswordAuthenticationToken authentication)
         throws AuthenticationException {
         UserDetails loadedUser;
 
         try {
             loadedUser = this.userDetailsService.loadUserByUsername(username);
-        } catch (UsernameNotFoundException notFound) {
-            if (hideUserNotFoundExceptions) {
-                throw new BadCredentialsException(messages.getMessage(
-                        "AbstractUserDetailsAuthenticationProvider.badCredentials",
-                        "Bad credentials"));
-            } else {
-                throw notFound;
-            }
         } catch (DataAccessException repositoryProblem) {
-            throw new AuthenticationServiceException(repositoryProblem
-                    .getMessage(), repositoryProblem);
-            }
+            throw new AuthenticationServiceException(
+                    repositoryProblem.getMessage(), repositoryProblem );
+        }
 
-            if (loadedUser == null) {
-                throw new AuthenticationServiceException(
+        if (loadedUser == null) {
+            throw new AuthenticationServiceException(
                     "AuthenticationDao returned null, which is an interface contract violation");
-            }
-
-            return loadedUser;
         }
 
-        public void setUserDetailsService(UserDetailsService authenticationDao) {
-            this.userDetailsService = authenticationDao;
-        }
-
-        /**
-         * By default the <code>DaoAuthenticationProvider</code> throws a
-         * <code>BadCredentialsException</code> if a username is not found or
-         * the password is incorrect. Setting this property to
-         * <code>false</code> will cause
-         * <code>UsernameNotFoundException</code>s to be thrown instead for
-         * the former. Note this is considered less secure than throwing
-         * <code>BadCredentialsException</code> for both exceptions.
-         *
-         * @param hideUserNotFoundExceptions set to <code>false</code> if you
-         *        wish <code>UsernameNotFoundException</code>s to be thrown
-         *        instead of the non-specific
-         *        <code>BadCredentialsException</code> (defaults to
-         *        <code>true</code>)
-         */
-        public void setHideUserNotFoundExceptions(
-            boolean hideUserNotFoundExceptions) {
-            this.hideUserNotFoundExceptions = hideUserNotFoundExceptions;
-        }
-
-        /**
-         * Sets the PasswordEncoder instance to be used to encode and validate
-         * passwords. If not set, {@link PlaintextPasswordEncoder} will be
-         * used by default.
-         *
-         * @param passwordEncoder The passwordEncoder to use
-         */
-        public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-            this.passwordEncoder = passwordEncoder;
-        }
-
-        /**
-         * The source of salts to use when decoding passwords.
-         * <code>null</code> is a valid value, meaning the
-         * <code>DaoAuthenticationProvider</code> will present
-         * <code>null</code> to the relevant <code>PasswordEncoder</code>.
-         *
-         * @param saltSource to use when attempting to decode passwords via the
-         *        <code>PasswordEncoder</code>
-         */
-        public void setSaltSource(SaltSource saltSource) {
-            this.saltSource = saltSource;
-        }
+        return loadedUser;
     }
+
+    public void setUserDetailsService(UserDetailsService authenticationDao) {
+        this.userDetailsService = authenticationDao;
+    }
+
+    /**
+     * Sets the PasswordEncoder instance to be used to encode and validate
+     * passwords. If not set, {@link PlaintextPasswordEncoder} will be
+     * used by default.
+     *
+     * @param passwordEncoder The passwordEncoder to use
+     */
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    /**
+     * The source of salts to use when decoding passwords.
+     * <code>null</code> is a valid value, meaning the
+     * <code>DaoAuthenticationProvider</code> will present
+     * <code>null</code> to the relevant <code>PasswordEncoder</code>.
+     *
+     * @param saltSource to use when attempting to decode passwords via the
+     *        <code>PasswordEncoder</code>
+     */
+    public void setSaltSource(SaltSource saltSource) {
+        this.saltSource = saltSource;
+    }
+}
