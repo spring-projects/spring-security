@@ -35,8 +35,13 @@ import javax.naming.directory.DirContext;
 import java.util.Properties;
 import java.util.Set;
 import java.util.HashSet;
+import java.io.File;
+import java.io.IOException;
 
 /**
+ * An embedded LDAP test server, complete with test data for running the
+ * unit tests against.
+ *
  * @author Luke Taylor
  * @version $Id$
  */
@@ -47,6 +52,11 @@ public class LdapTestServer {
     private DirContext serverContext;
 
     private StartupConfiguration cfg;
+
+    // Move the working dir to the temp directory
+    private File workingDir = new File( System.getProperty("java.io.tmpdir")
+            + File.separator + "apacheds-work" );
+
 
     //~ Constructors ================================================================
 
@@ -66,11 +76,16 @@ public class LdapTestServer {
 
 
     private void startLdapServer(boolean embedded) {
+
         if(embedded) {
             cfg = new MutableStartupConfiguration();
+            ((MutableStartupConfiguration)cfg).setWorkingDirectory(workingDir);
         } else {
             cfg = new MutableServerStartupConfiguration();
+            ((MutableServerStartupConfiguration)cfg).setWorkingDirectory(workingDir);
         }
+
+        System.out.println("Working directory is " + workingDir.getAbsolutePath());
 
         initConfiguration();
 
@@ -82,7 +97,6 @@ public class LdapTestServer {
         env.putAll( cfg.toJndiEnvironment() );
 
         try {
-            // TODO: Remove all children on startup
             serverContext = new InitialDirContext( env );
         } catch (NamingException e) {
             System.err.println("Failed to start Apache DS");
@@ -182,7 +196,7 @@ public class LdapTestServer {
         try {
             serverContext.createSubcontext( "cn="+cn+",ou=groups", group );
         } catch(NameAlreadyBoundException ignore) {
-            System.out.println(" group " + cn + " already exists.");
+//            System.out.println(" group " + cn + " already exists.");
         } catch (NamingException ne) {
             System.err.println("Failed to create group.");
             ne.printStackTrace();
@@ -190,6 +204,8 @@ public class LdapTestServer {
     }
 
     private void initConfiguration() {
+
+        // Create the partition for the acegi tests
         MutableDirectoryPartitionConfiguration acegiDit = new MutableDirectoryPartitionConfiguration();
         acegiDit.setName("acegisecurity");
         acegiDit.setSuffix("dc=acegisecurity,dc=org");
