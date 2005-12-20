@@ -16,15 +16,15 @@
 
 	<!--  if you wish to use channel security, add "channelProcessingFilter," in front
 	      of "httpSessionContextIntegrationFilter" in the list below -->
-	<bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
+   <bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
       <property name="filterInvocationDefinitionSource">
          <value>
-		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-		    PATTERN_TYPE_APACHE_ANT
+        CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+        PATTERN_TYPE_APACHE_ANT
             /**=httpSessionContextIntegrationFilter,authenticationProcessingFilter,securityEnforcementFilter
          </value>
       </property>
-  </bean>
+   </bean>
 
    <!-- ======================== AUTHENTICATION ======================= -->
 
@@ -37,25 +37,25 @@
    </bean>
 
    <bean id="initialDirContextFactory" class="org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory">
+     <constructor-arg value="ldap://monkeymachine:389/dc=acegisecurity,dc=org"/>
      <property name="managerDn"><value>cn=manager,dc=acegisecurity,dc=org</value></property>
      <property name="managerPassword"><value>acegisecurity</value></property>
-     <property name="url"><value>ldap://monkeymachine:389/dc=acegisecurity,dc=org</value></property>
    </bean>
 
    <bean id="ldapAuthenticationProvider" class="org.acegisecurity.providers.ldap.LdapAuthenticationProvider">
-     <property name="authenticator"><ref local="ldapAuthenticator"/></property>
-     <property name="authoritiesPopulator"><ref local="authoritiesPopulator"/></property>
-   </bean>
-
-   <bean id="authoritiesPopulator" class="org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
-      <property name="initialDirContextFactory"><ref local="initialDirContextFactory"/></property>
-      <property name="groupSearchBase"><value>ou=groups</value></property>
-      <property name="groupRoleAttribute"><value>ou</value></property>
-   </bean>
-
-   <bean id="ldapAuthenticator" class="org.acegisecurity.providers.ldap.authenticator.BindAuthenticator">
-      <property name="initialDirContextFactory"><ref local="initialDirContextFactory"/></property>
-      <property name="userDnPattern"><value>uid={0},ou=people</value></property>
+     <constructor-arg>
+       <bean class="org.acegisecurity.providers.ldap.authenticator.BindAuthenticator">
+          <constructor-arg><ref local="initialDirContextFactory"/></constructor-arg>
+          <property name="userDnPatterns"><list><value>uid={0},ou=people</value></list></property>
+       </bean>
+     </constructor-arg>
+     <constructor-arg>
+       <bean class="org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
+          <constructor-arg><ref local="initialDirContextFactory"/></constructor-arg>
+          <constructor-arg><value>ou=groups</value></constructor-arg>
+          <property name="groupRoleAttribute"><value>ou</value></property>
+       </bean>
+     </constructor-arg>
    </bean>
 
    <!-- Automatically receives AuthenticationEvent messages -->
@@ -95,17 +95,17 @@
 	<!-- Note the order that entries are placed against the objectDefinitionSource is critical.
 	     The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
 	     Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
-	<bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
+	 <bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
     	<property name="authenticationManager"><ref local="authenticationManager"/></property>
     	<property name="accessDecisionManager"><ref local="httpRequestAccessDecisionManager"/></property>
- 		<property name="objectDefinitionSource">
-			<value>
+      <property name="objectDefinitionSource">
+			  <value>
 			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 				\A/secure/super.*\Z=ROLE_WE_DONT_HAVE
 				\A/secure/.*\Z=ROLE_SUPERVISOR,ROLE_TELLER
-			</value>
-		</property>
-	</bean>
+			  </value>
+		  </property>
+	 </bean>
 	
 	<!-- BASIC Regular Expression Syntax (for beginners):
 	     
