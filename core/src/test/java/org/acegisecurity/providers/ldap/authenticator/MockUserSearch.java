@@ -1,6 +1,7 @@
 package org.acegisecurity.providers.ldap.authenticator;
 
 import org.acegisecurity.providers.ldap.LdapUserInfo;
+import org.acegisecurity.providers.ldap.LdapUserSearch;
 
 /**
  * @author Luke Taylor

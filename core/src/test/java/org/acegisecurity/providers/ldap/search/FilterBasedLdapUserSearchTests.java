@@ -1,8 +1,9 @@
-package org.acegisecurity.providers.ldap.authenticator;
+package org.acegisecurity.providers.ldap.search;
 
 import org.acegisecurity.providers.ldap.AbstractLdapServerTestCase;
 import org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory;
 import org.acegisecurity.providers.ldap.LdapUserInfo;
+import org.acegisecurity.providers.ldap.search.FilterBasedLdapUserSearch;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.acegisecurity.BadCredentialsException;
 

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.ldap.authenticator;
+package org.acegisecurity.providers.ldap.search;
 
 import org.acegisecurity.providers.ldap.*;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
