@@ -27,7 +27,8 @@ import org.springframework.util.Assert;
 import javax.naming.directory.Attributes;
 
 /**
- * The class responsible for LDAP authentication.
+ * An {@link org.acegisecurity.providers.AuthenticationProvider} implementation that
+ * provides integration with an LDAP server. 
  *
  * <p>
  * There are many ways in which an LDAP directory can be configured so this class
@@ -63,6 +64,42 @@ import javax.naming.directory.Attributes;
  * for example from a database.
  * </p>
  *
+ * <h3>Configuration</h3>
+ * A simple configuration might be as follows:
+ * <pre>
+ *    &lt;bean id="initialDirContextFactory" class="org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory">
+ *      &lt;constructor-arg value="ldap://monkeymachine:389/dc=acegisecurity,dc=org"/>
+ *      &lt;property name="managerDn">&lt;value>cn=manager,dc=acegisecurity,dc=org&lt;/value>&lt;/property>
+ *      &lt;property name="managerPassword">&lt;value>password&lt;/value>&lt;/property>
+ *    &lt;/bean>
+ *
+ *    &lt;bean id="ldapAuthProvider" class="org.acegisecurity.providers.ldap.LdapAuthenticationProvider">
+ *    &lt;constructor-arg>
+ *      &lt;bean class="org.acegisecurity.providers.ldap.authenticator.BindAuthenticator">
+ *         &lt;constructor-arg>&lt;ref local="initialDirContextFactory"/>&lt;/constructor-arg>
+ *         &lt;property name="userDnPatterns">&lt;list>&lt;value>uid={0},ou=people&lt;/value>&lt;/list>&lt;/property>
+ *      &lt;/bean>
+ *    &lt;/constructor-arg>
+ *    &lt;constructor-arg>
+ *      &lt;bean class="org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
+ *         &lt;constructor-arg>&lt;ref local="initialDirContextFactory"/>&lt;/constructor-arg>
+ *         &lt;constructor-arg>&lt;value>ou=groups&lt;/value>&lt;/constructor-arg>
+ *         &lt;property name="groupRoleAttribute">&lt;value>ou&lt;/value>&lt;/property>
+ *      &lt;/bean>
+ *    &lt;/constructor-arg>
+ *  &lt;/bean>
+ * </pre>
+ * <p>
+ * This would set up the provider to access an LDAP server with URL
+ * <tt>ldap://monkeymachine:389/dc=acegisecurity,dc=org</tt>. Authentication will be performed by
+ * attempting to bind with the DN <tt>uid=&lt;user-login-name&gt;,ou=people,dc=acegisecurity,dc=org</tt>.
+ * After successful authentication, roles will be assigned to the user by searching under the DN
+ * <tt>ou=groups,dc=acegisecurity,dc=org</tt> with the default filter <tt>(member=&lt;user's-DN&gt;)</tt>.
+ * The role name will be taken from the "ou" attribute of each match.
+ * </p>
+ *
+ * @see org.acegisecurity.providers.ldap.authenticator.BindAuthenticator
+ * @see org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator
  *
  * @author Luke Taylor
  * @version $Id$

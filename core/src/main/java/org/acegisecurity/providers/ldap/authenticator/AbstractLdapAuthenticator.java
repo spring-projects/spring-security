@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
+ * Base class for the authenticator implementations.
+ *
  * @author Luke Taylor
  * @version $Id$
  */
@@ -33,11 +35,23 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 
     //~ Instance fields ========================================================
 
-    //private String[] userDnPattern = null;
-    private MessageFormat[] userDnFormat = null;
     private InitialDirContextFactory initialDirContextFactory;
+
+    //private String[] userDnPattern = null;
+
+    /** Stores the patterns which are used as potential DN matches */
+    private MessageFormat[] userDnFormat = null;
+
+    /** Optional search object which can be used to locate a user when a simple DN match isn't sufficient */
     private LdapUserSearch userSearch;
+
+    /** The attributes which will be retrieved from the directory. Null means all attributes */
     private String[] userAttributes = null;
+
+    /**
+     * The suffix to be added to the DN patterns, worked out internally from the root DN of the
+     * configured InitialDirContextFactory.
+     */
     private String dnSuffix = "";
 
     //~ Constructors ===========================================================
