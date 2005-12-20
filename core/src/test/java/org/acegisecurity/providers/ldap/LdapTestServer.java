@@ -15,13 +15,10 @@
 
 package org.acegisecurity.providers.ldap;
 
-import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.ldap.server.configuration.MutableDirectoryPartitionConfiguration;
 import org.apache.ldap.server.configuration.MutableStartupConfiguration;
 import org.apache.ldap.server.configuration.Configuration;
-import org.apache.ldap.server.configuration.MutableServerStartupConfiguration;
 import org.apache.ldap.server.jndi.CoreContextFactory;
-import org.apache.ldap.server.jndi.ServerContextFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -36,7 +33,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.HashSet;
 import java.io.File;
-import java.io.IOException;
 
 /**
  * An embedded LDAP test server, complete with test data for running the
@@ -51,7 +47,7 @@ public class LdapTestServer {
 
     private DirContext serverContext;
 
-    private StartupConfiguration cfg;
+    private MutableStartupConfiguration cfg;
 
     // Move the working dir to the temp directory
     private File workingDir = new File( System.getProperty("java.io.tmpdir")
@@ -62,28 +58,19 @@ public class LdapTestServer {
 
     /**
      * Starts up and configures ApacheDS.
-     *
-     * @param embedded if false the server will listen for connections on port 10389
-     *
      */
-    public LdapTestServer(boolean embedded) {
-        startLdapServer(embedded);
+    public LdapTestServer() {
+        startLdapServer();
         createManagerUser();
         initTestData();
     }
 
     //~ Methods ================================================================
 
+    private void startLdapServer() {
 
-    private void startLdapServer(boolean embedded) {
-
-        if(embedded) {
-            cfg = new MutableStartupConfiguration();
-            ((MutableStartupConfiguration)cfg).setWorkingDirectory(workingDir);
-        } else {
-            cfg = new MutableServerStartupConfiguration();
-            ((MutableServerStartupConfiguration)cfg).setWorkingDirectory(workingDir);
-        }
+        cfg = new MutableStartupConfiguration();
+        ((MutableStartupConfiguration)cfg).setWorkingDirectory(workingDir);
 
         System.out.println("Working directory is " + workingDir.getAbsolutePath());
 
@@ -92,8 +79,7 @@ public class LdapTestServer {
         Properties env = new Properties();
 
         env.setProperty( Context.PROVIDER_URL, "dc=acegisecurity,dc=org" );
-        env.setProperty( Context.INITIAL_CONTEXT_FACTORY,
-                embedded ? CoreContextFactory.class.getName() : ServerContextFactory.class.getName() );
+        env.setProperty( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName());
         env.putAll( cfg.toJndiEnvironment() );
 
         try {
@@ -229,13 +215,7 @@ public class LdapTestServer {
         Set partitions = new HashSet();
         partitions.add(acegiDit);
 
-        if(cfg instanceof MutableServerStartupConfiguration) {
-            MutableServerStartupConfiguration serverCfg = (MutableServerStartupConfiguration)cfg;
-            serverCfg.setLdapPort(10389);
-            serverCfg.setContextPartitionConfigurations(partitions);
-        } else {
-            ((MutableStartupConfiguration)cfg).setContextPartitionConfigurations(partitions);
-        }
+        cfg.setContextPartitionConfigurations(partitions);
     }
 
     public Configuration getConfiguration() {
@@ -243,7 +223,7 @@ public class LdapTestServer {
     }
 
     public static void main(String[] args) {
-        LdapTestServer server = new LdapTestServer(false);
+        LdapTestServer server = new LdapTestServer();
     }
 
 }
