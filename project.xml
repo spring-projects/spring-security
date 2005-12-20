@@ -344,13 +344,67 @@
     </dependency>
 
     <!-- Apache DS dependencies for embedded LDAP test server -->    
+<!--
+    The entire server jar
     <dependency>
       <groupId>directory</groupId>
       <artifactId>apacheds-server-main</artifactId>
       <version>0.9.4-SNAPSHOT</version>
       <type>jar</type>
     </dependency> 
+-->
 
+    <dependency>
+      <groupId>directory</groupId>
+      <artifactId>apacheds-core</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+      <type>jar</type>
+    </dependency> 
+    <dependency>
+      <groupId>directory</groupId>
+      <artifactId>apacheds-shared</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+      <type>jar</type>
+    </dependency> 
+    <dependency>
+      <groupId>directory</groupId>
+      <artifactId>apacheds-server</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+      <type>jar</type>
+    </dependency> 
+    <dependency>
+      <groupId>directory-asn1</groupId>
+      <artifactId>asn1-codec</artifactId>
+      <version>0.3.4-SNAPSHOT</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>directory-shared</groupId>
+      <artifactId>ldap-common</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>jdbm</groupId>
+      <artifactId>jdbm</artifactId>
+      <version>1.0</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>regexp</groupId>
+      <artifactId>regexp</artifactId>
+      <version>1.2</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <version>1.2.17</version>
+      <type>jar</type>
+    </dependency>
+	
+    <!-- End of ApacheDS dependencies -->
+							
     <!-- Keep log4j after the apacheds stuff to avoid nasty classpath errors -->
     <dependency>
       <groupId>log4j</groupId>
@@ -389,7 +443,7 @@
     <unitTestSourceDirectory>${basedir}/src/test/java</unitTestSourceDirectory>
     <unitTest>
       <includes>
-        <include>**/*Tests.java</include>
+        <include>**/ldap/**/*Tests.java</include>
       </includes>
       <resources>
         <resource>
