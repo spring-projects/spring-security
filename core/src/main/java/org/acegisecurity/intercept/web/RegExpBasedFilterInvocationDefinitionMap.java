@@ -34,10 +34,10 @@ import java.util.Vector;
 
 
 /**
- * Maintains a <Code>List</code> of <code>ConfigAttributeDefinition</code>s
+ * Maintains a <code>List</code> of <code>ConfigAttributeDefinition</code>s
  * associated with different HTTP request URL regular expression patterns.
  * 
- * <P>
+ * <p>
  * Regular expressions are used to match a HTTP request URL against a
  * <code>ConfigAttributeDefinition</code>.
  * </p>
@@ -45,14 +45,14 @@ import java.util.Vector;
  * <p>
  * The order of registering the regular expressions using the {@link
  * #addSecureUrl(String, ConfigAttributeDefinition)} is very important. The
- * system will identify the <B>first</B>  matching regular expression for a
+ * system will identify the <b>first</b>  matching regular expression for a
  * given HTTP URL. It will not proceed to evaluate later regular expressions
  * if a match has already been found. Accordingly, the most specific regular
  * expressions should be registered first, with the most general regular
  * expressions registered last.
  * </p>
  * 
- * <P>
+ * <p>
  * If no registered regular expressions match the HTTP URL, <code>null</code>
  * is returned.
  * </p>
