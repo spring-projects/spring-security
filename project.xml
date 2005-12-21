@@ -449,7 +449,7 @@
     <unitTestSourceDirectory>${basedir}/src/test/java</unitTestSourceDirectory>
     <unitTest>
       <includes>
-        <include>**/ldap/**/*Tests.java</include>
+        <include>**/*Tests.java</include>
       </includes>
       <resources>
         <resource>
