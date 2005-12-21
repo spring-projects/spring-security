@@ -15,7 +15,7 @@
 
 package org.acegisecurity.providers.ldap;
 
-import org.springframework.dao.UncategorizedDataAccessException;
+import org.acegisecurity.AuthenticationServiceException;
 
 /**
  * Used to wrap unexpected NamingExceptions while accessing the LDAP server.
@@ -23,7 +23,7 @@ import org.springframework.dao.UncategorizedDataAccessException;
  * @author Luke Taylor
  * @version $Id$
  */
-public class LdapDataAccessException extends UncategorizedDataAccessException {
+public class LdapDataAccessException extends AuthenticationServiceException {
 
     public LdapDataAccessException(String msg, Throwable ex) {
         super(msg, ex);
