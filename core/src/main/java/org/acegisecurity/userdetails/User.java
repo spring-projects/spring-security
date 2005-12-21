@@ -16,17 +16,19 @@
 package org.acegisecurity.userdetails;
 
 import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.providers.dao.DaoAuthenticationProvider;
 import org.springframework.util.Assert;
 
 /**
  * Models core user information retieved by an {@link UserDetailsService}.
  * 
- * <P>
+ * <p>
  * Implemented with value object semantics (immutable after construction, like a
  * <code>String</code>). Developers may use this class directly, subclass it,
  * or write their own {@link UserDetails} implementation from scratch.
  * </p>
+ *
+ * @author Ben Alex
+ * @version $Id$
  */
 public class User implements UserDetails {
 	// ~ Instance fields
@@ -226,17 +228,14 @@ public class User implements UserDetails {
 	}
 
 	protected void setAuthorities(GrantedAuthority[] authorities) {
-		Assert
-				.notNull(authorities,
-						"Cannot pass a null GrantedAuthority array");
+		Assert.notNull(authorities,
+                "Cannot pass a null GrantedAuthority array");
 
 		for (int i = 0; i < authorities.length; i++) {
-			Assert
-					.notNull(
-							authorities[i],
-							"Granted authority element "
-									+ i
-									+ " is null - GrantedAuthority[] cannot contain any null elements");
+			Assert.notNull( authorities[i],
+                    "Granted authority element "
+                    + i
+					+ " is null - GrantedAuthority[] cannot contain any null elements");
 		}
 
 		this.authorities = authorities;
@@ -249,8 +248,7 @@ public class User implements UserDetails {
 		sb.append("Password: [PROTECTED]; ");
 		sb.append("Enabled: " + this.enabled + "; ");
 		sb.append("AccountNonExpired: " + this.accountNonExpired + "; ");
-		sb
-				.append("credentialsNonExpired: " + this.credentialsNonExpired
+		sb.append("credentialsNonExpired: " + this.credentialsNonExpired
 						+ "; ");
 		sb.append("AccountNonLocked: " + this.accountNonLocked + "; ");
 
