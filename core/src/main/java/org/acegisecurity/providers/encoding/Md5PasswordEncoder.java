@@ -43,21 +43,19 @@ public class Md5PasswordEncoder extends BaseDigestPasswordEncoder
 
     public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
         String pass1 = "" + encPass;
-        String pass2 = encodeInternal(mergePasswordAndSalt(rawPass, salt, false));
+        String pass2 = encodePassword(rawPass, salt);
 
         return pass1.equals(pass2);
     }
 
     public String encodePassword(String rawPass, Object salt) {
-        return encodeInternal(mergePasswordAndSalt(rawPass, salt, false));
-    }
+        String saltedPass = mergePasswordAndSalt(rawPass, salt, false);
 
-    private String encodeInternal(String input) {
         if (!getEncodeHashAsBase64()) {
-            return DigestUtils.md5Hex(input);
+            return DigestUtils.md5Hex(saltedPass);
         }
 
-        byte[] encoded = Base64.encodeBase64(DigestUtils.md5(input));
+        byte[] encoded = Base64.encodeBase64(DigestUtils.md5(saltedPass));
 
         return new String(encoded);
     }
