@@ -31,9 +31,10 @@ import org.springframework.dao.DataAccessException;
 
 
 /**
- * DOCUMENT ME!
+ * Tests for {@link DaoX509AuthoritiesPopulator}
  *
  * @author Luke Taylor
+ * @version $Id$
  */
 public class DaoX509AuthoritiesPopulatorTests extends TestCase {
     //~ Constructors ===========================================================

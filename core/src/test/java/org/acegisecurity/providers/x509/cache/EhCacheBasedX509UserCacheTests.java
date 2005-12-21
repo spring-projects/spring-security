@@ -30,7 +30,7 @@ import org.springframework.context.ApplicationContext;
 
 
 /**
- * DOCUMENT ME!
+ * Tests for {@link EhCacheBasedX509UserCache}.
  *
  * @author Luke Taylor
  * @version $Id$

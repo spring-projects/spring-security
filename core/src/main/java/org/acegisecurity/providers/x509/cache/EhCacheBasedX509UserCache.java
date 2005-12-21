@@ -36,7 +36,7 @@ import java.security.cert.X509Certificate;
 
 /**
  * Caches <code>User</code> objects using a Spring IoC defined <a
- * HREF="http://ehcache.sourceforge.net">EHCACHE</a>.
+ * href="http://ehcache.sourceforge.net">EHCACHE</a>.
  *
  * @author Luke Taylor
  * @author Ben Alex

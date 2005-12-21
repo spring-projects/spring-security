@@ -40,6 +40,9 @@ import org.springframework.util.Assert;
  * The request will typically originate from {@link
  * org.acegisecurity.ui.x509.X509ProcessingFilter}).
  * </p>
+ *
+ * @author Luke Taylor
+ * @version $Id$
  */
 public class X509AuthenticationProvider implements AuthenticationProvider,
     InitializingBean, MessageSourceAware {

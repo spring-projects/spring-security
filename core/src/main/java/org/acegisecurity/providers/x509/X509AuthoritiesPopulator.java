@@ -30,7 +30,8 @@ import java.security.cert.X509Certificate;
  * it should throw a {@link org.acegisecurity.BadCredentialsException}.
  * </p>
  *
- * @author Luke
+ * @author Luke Taylor
+ * @version $Id$
  */
 public interface X509AuthoritiesPopulator {
     /**

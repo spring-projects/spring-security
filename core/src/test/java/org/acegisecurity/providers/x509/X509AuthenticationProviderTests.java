@@ -30,7 +30,7 @@ import org.acegisecurity.userdetails.UserDetails;
 
 
 /**
- * Tests {@link org.acegisecurity.providers.x509.X509AuthenticationProvider}
+ * Tests {@link X509AuthenticationProvider}
  *
  * @author Luke Taylor
  * @version $Id$

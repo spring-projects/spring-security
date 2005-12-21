@@ -44,6 +44,9 @@ import org.springframework.util.Assert;
  * CasProcessingFilter#CAS_STATELESS_IDENTIFIER}. It can also validate a
  * previously created {@link CasAuthenticationToken}.
  * </p>
+ *
+ * @author Ben Alex
+ * @version $Id$
  */
 public class CasAuthenticationProvider implements AuthenticationProvider,
     InitializingBean, MessageSourceAware {

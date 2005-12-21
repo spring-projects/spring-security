@@ -19,9 +19,10 @@ import junit.framework.TestCase;
 
 
 /**
- * DOCUMENT ME!
+ * Tests for {@link X509AuthenticationToken}.
  *
  * @author Luke Taylor
+ * @version $Id$
  */
 public class X509AuthenticationTokenTests extends TestCase {
     //~ Constructors ===========================================================

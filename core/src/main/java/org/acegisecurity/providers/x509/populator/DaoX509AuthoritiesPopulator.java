@@ -41,6 +41,9 @@ import org.springframework.util.Assert;
 /**
  * Populates the X509 authorities via an {@link
  * org.acegisecurity.userdetails.UserDetailsService}.
+ *
+ * @author Luke Taylor
+ * @version $Id$
  */
 public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator,
     InitializingBean, MessageSourceAware {

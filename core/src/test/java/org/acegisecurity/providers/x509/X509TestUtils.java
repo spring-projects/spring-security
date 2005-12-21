@@ -20,7 +20,10 @@ import java.security.cert.CertificateFactory;
 import java.io.ByteArrayInputStream;
 
 /**
+ * Certificate creation utility for use in X.509 tests.
+ *
  * @author Luke Taylor
+ * @version $Id$
  */
 public class X509TestUtils {
 
