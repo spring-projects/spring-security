@@ -32,6 +32,7 @@ import org.acegisecurity.MockApplicationContext;
  * The HttpSessionEventPublisher tests
  *
  * @author Ray Krueger
+ * @version $Id$
  */
 public class HttpSessionEventPublisherTests extends TestCase {
     //~ Methods ================================================================
@@ -90,7 +91,7 @@ public class HttpSessionEventPublisherTests extends TestCase {
             pub.getContext();
             fail("IllegalArgumentException expected, the context is null");
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+            assertTrue(true);
         }
     }
 }
