@@ -97,42 +97,42 @@ public class X509AuthenticationProvider implements AuthenticationProvider,
             logger.debug("X509 authentication request: " + authentication);
         }
 
-        X509Certificate clientCertificate = (X509Certificate) authentication
-                .getCredentials();
+        X509Certificate clientCertificate =
+                (X509Certificate) authentication.getCredentials();
 
-            if (clientCertificate == null) {
-                throw new BadCredentialsException(messages.getMessage(
-                        "X509AuthenticationProvider.certificateNull",
-                        "Certificate is null"));
-            }
-
-            UserDetails user = userCache.getUserFromCache(clientCertificate);
-
-            if (user == null) {
-                logger.debug("Authenticating with certificate "
-                    + clientCertificate);
-                user = x509AuthoritiesPopulator.getUserDetails(clientCertificate);
-                userCache.putUserInCache(clientCertificate, user);
-            }
-
-            return new X509AuthenticationToken(user, clientCertificate,
-                user.getAuthorities());
+        if (clientCertificate == null) {
+            throw new BadCredentialsException(messages.getMessage(
+                    "X509AuthenticationProvider.certificateNull",
+                    "Certificate is null"));
         }
 
-        public void setMessageSource(MessageSource messageSource) {
-            this.messages = new MessageSourceAccessor(messageSource);
+        UserDetails user = userCache.getUserFromCache(clientCertificate);
+
+        if (user == null) {
+            logger.debug("Authenticating with certificate "
+                + clientCertificate);
+            user = x509AuthoritiesPopulator.getUserDetails(clientCertificate);
+            userCache.putUserInCache(clientCertificate, user);
         }
 
-        public void setX509AuthoritiesPopulator(
-            X509AuthoritiesPopulator x509AuthoritiesPopulator) {
-            this.x509AuthoritiesPopulator = x509AuthoritiesPopulator;
-        }
-
-        public void setX509UserCache(X509UserCache cache) {
-            this.userCache = cache;
-        }
-
-        public boolean supports(Class authentication) {
-            return X509AuthenticationToken.class.isAssignableFrom(authentication);
-        }
+        return new X509AuthenticationToken(user, clientCertificate,
+            user.getAuthorities());
     }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
+    }
+
+    public void setX509AuthoritiesPopulator(
+        X509AuthoritiesPopulator x509AuthoritiesPopulator) {
+        this.x509AuthoritiesPopulator = x509AuthoritiesPopulator;
+    }
+
+    public void setX509UserCache(X509UserCache cache) {
+        this.userCache = cache;
+    }
+
+    public boolean supports(Class authentication) {
+        return X509AuthenticationToken.class.isAssignableFrom(authentication);
+    }
+}
