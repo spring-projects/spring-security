@@ -26,6 +26,8 @@ import org.springframework.jdbc.object.MappingSqlQuery;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashSet;
 
 
 /**
@@ -61,9 +63,11 @@ public class JdbcDaoTests extends TestCase {
         assertEquals("marissa", user.getUsername());
         assertEquals("koala", user.getPassword());
         assertTrue(user.isEnabled());
-        assertEquals("ROLE_TELLER", user.getAuthorities()[1].getAuthority());
-        assertEquals("ROLE_SUPERVISOR", user.getAuthorities()[0].getAuthority());
-        assertEquals(2, user.getAuthorities().length);
+        HashSet authorities = new HashSet(2);
+        authorities.add(user.getAuthorities()[0].getAuthority());
+        authorities.add(user.getAuthorities()[1].getAuthority());
+        assertTrue(authorities.contains("ROLE_TELLER"));
+        assertTrue(authorities.contains("ROLE_SUPERVISOR"));
     }
 
     public void testCheckDaoOnlyReturnsGrantedAuthoritiesGrantedToUser()
@@ -125,11 +129,12 @@ public class JdbcDaoTests extends TestCase {
 
         UserDetails user = dao.loadUserByUsername("marissa");
         assertEquals("marissa", user.getUsername());
-        assertEquals("ARBITRARY_PREFIX_ROLE_TELLER",
-            user.getAuthorities()[1].getAuthority());
-        assertEquals("ARBITRARY_PREFIX_ROLE_SUPERVISOR",
-            user.getAuthorities()[0].getAuthority());
         assertEquals(2, user.getAuthorities().length);
+        HashSet authorities = new HashSet(2);
+        authorities.add(user.getAuthorities()[0].getAuthority());
+        authorities.add(user.getAuthorities()[1].getAuthority());
+        assertTrue(authorities.contains("ARBITRARY_PREFIX_ROLE_TELLER"));
+        assertTrue(authorities.contains("ARBITRARY_PREFIX_ROLE_SUPERVISOR"));
     }
 
     public void testStartupFailsIfDataSourceNotSet() throws Exception {
