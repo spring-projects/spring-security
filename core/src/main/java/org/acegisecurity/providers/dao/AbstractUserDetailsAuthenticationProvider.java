@@ -59,7 +59,7 @@ import org.springframework.util.Assert;
  * <code>true</code>.
  * </p>
  * 
- * <P>
+ * <p>
  * Caching is handled via the <code>UserDetails</code> object being placed in
  * the {@link UserCache}. This ensures that subsequent requests with the same
  * username can be validated without needing to query the {@link
@@ -67,6 +67,9 @@ import org.springframework.util.Assert;
  * incorrect password, the {@link UserDetailsService} will be queried to
  * confirm the most up-to-date password was used for comparison.
  * </p>
+ *
+ * @author Ben Alex
+ * @version $Id$
  */
 public abstract class AbstractUserDetailsAuthenticationProvider
     implements AuthenticationProvider, InitializingBean, MessageSourceAware {
@@ -200,11 +203,11 @@ public abstract class AbstractUserDetailsAuthenticationProvider
     /**
      * Creates a successful {@link Authentication} object.
      * 
-     * <P>
+     * <p>
      * Protected so subclasses can override.
      * </p>
      * 
-     * <P>
+     * <p>
      * Subclasses will usually store the original credentials the user supplied
      * (not salted or encoded passwords) in the returned
      * <code>Authentication</code> object.
@@ -213,8 +216,8 @@ public abstract class AbstractUserDetailsAuthenticationProvider
      * @param principal that should be the principal in the returned object
      *        (defined by the {@link #isForcePrincipalAsString()} method)
      * @param authentication that was presented to the
-     *        <code>DaoAuthenticationProvider</code> for validation
-     * @param user that was loaded by the <code>AuthenticationDao</code>
+     *        provider for validation
+     * @param user that was loaded by the implementation
      *
      * @return the successful authentication token
      */
@@ -226,8 +229,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
         // authentication events after cache expiry contain the details
         UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(principal,
                 authentication.getCredentials(), user.getAuthorities());
-        result.setDetails((authentication.getDetails() != null)
-            ? authentication.getDetails() : null);
+        result.setDetails(authentication.getDetails());
 
         return result;
     }
@@ -287,7 +289,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
      * @throws AuthenticationException if the credentials could not be
      *         validated (generally a <code>BadCredentialsException</code>, an
      *         <code>AuthenticationServiceException</code> or
-     *         <code>UserNotFoundException</code>)
+     *         <code>UsernameNotFoundException</code>)
      */
     protected abstract UserDetails retrieveUser(String username,
         UsernamePasswordAuthenticationToken authentication)
