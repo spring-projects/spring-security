@@ -35,7 +35,7 @@ import org.acegisecurity.GrantedAuthority;
  * <P>
  * Concrete implementations must take particular care to ensure the non-null
  * contract detailed for each method is enforced. See
- * {@link org.acegisecurity.providers.dao.User} for a
+ * {@link org.acegisecurity.userdetails.User} for a
  * reference implementation (which you might like to extend).
  * </p>
  *
