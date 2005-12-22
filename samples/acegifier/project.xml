@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <project>
   <extend>${basedir}/../project.xml</extend>
   <pomVersion>3</pomVersion>
   <artifactId>acegi-security-sample-acegifier</artifactId>
   <name>Acegi Security System for Spring - Acegifier sample</name>
-  <groupId>acegisecurity</groupId>
   <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs/multiproject/acegi-security-sample-acegifier</siteDirectory>
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
