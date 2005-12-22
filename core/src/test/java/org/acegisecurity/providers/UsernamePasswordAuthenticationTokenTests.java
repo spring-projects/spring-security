@@ -88,11 +88,13 @@ public class UsernamePasswordAuthenticationTokenTests extends TestCase {
         assertEquals("ROLE_TWO", token.getAuthorities()[1].getAuthority());
     }
 
-    public void testNoArgConstructor() {
+    public void testNoArgConstructorDoesntExist() {
+        Class clazz = UsernamePasswordAuthenticationToken.class;
+
         try {
-            new UsernamePasswordAuthenticationToken();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
+            clazz.getDeclaredConstructor(null);
+            fail("Should have thrown NoSuchMethodException");
+        } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
     }

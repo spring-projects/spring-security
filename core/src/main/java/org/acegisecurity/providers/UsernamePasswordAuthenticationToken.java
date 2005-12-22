@@ -78,10 +78,6 @@ public class UsernamePasswordAuthenticationToken
         this.authenticated = true;
     }
 
-    protected UsernamePasswordAuthenticationToken() {
-        throw new IllegalArgumentException("Cannot use default constructor");
-    }
-
     //~ Methods ================================================================
 
     public void setAuthenticated(boolean isAuthenticated)
