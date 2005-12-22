@@ -1,1 +1,5 @@
 target
+.settings
+.classpath
+.project
+.wtpmodules
