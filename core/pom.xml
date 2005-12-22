@@ -1,44 +1,66 @@
-<model>
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.acegisecurity</groupId>
     <artifactId>acegi-security-parent</artifactId>
-    <version>1.0.0-RC1</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>acegi-security</artifactId>
   <name>Acegi Security System for Spring</name>
   <dependencies>
     <dependency>
-      <groupId>springframework</groupId>
-      <artifactId>spring-jdbc</artifactId>
-      <version>1.2.3</version>
-    </dependency>
-    <dependency>
-      <groupId>springframework</groupId>
+      <groupId>org.springframework</groupId>
       <artifactId>spring-remoting</artifactId>
-      <version>1.2.3</version>
+      <version>1.2.6</version>
+    </dependency>
+    <!-- required due to problem in maven transitive deps -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>1.2.6</version>
     </dependency>
     <dependency>
-      <groupId>springframework</groupId>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>1.2.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <version>1.2.6</version>
+    </dependency>
+    <!-- end required -->
+    <dependency>
+      <groupId>org.springframework</groupId>
       <artifactId>spring-support</artifactId>
-      <version>1.2.3</version>
+      <version>1.2.6</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>springframework</groupId>
+      <groupId>org.springframework</groupId>
       <artifactId>spring-mock</artifactId>
-      <version>1.2.3</version>
+      <version>1.2.6</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>ehcache</groupId>
       <artifactId>ehcache</artifactId>
       <version>1.1</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>cas</groupId>
       <artifactId>casclient</artifactId>
       <version>2.0.11</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
     </dependency>
     <dependency>
       <groupId>commons-codec</groupId>
@@ -49,12 +71,19 @@
       <groupId>aspectj</groupId>
       <artifactId>aspectjrt</artifactId>
       <version>1.2</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jsp-api</artifactId>
+      <version>2.0</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>1.7.3.0</version>
-      <scope>runtime</scope>
+      <scope>test</scope>
     </dependency>
   </dependencies>
-</model>
+</project>
