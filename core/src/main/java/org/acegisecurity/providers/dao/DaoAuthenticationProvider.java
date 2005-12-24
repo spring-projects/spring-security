@@ -18,17 +18,13 @@ package org.acegisecurity.providers.dao;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationServiceException;
 import org.acegisecurity.BadCredentialsException;
-
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
-import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
-
+import org.acegisecurity.userdetails.UserDetailsService;
 import org.springframework.dao.DataAccessException;
-
 import org.springframework.util.Assert;
 
 

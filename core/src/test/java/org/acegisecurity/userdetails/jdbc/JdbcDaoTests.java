@@ -15,19 +15,16 @@
 
 package org.acegisecurity.userdetails.jdbc;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashSet;
+
 import junit.framework.TestCase;
 
 import org.acegisecurity.PopulatedDatabase;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.acegisecurity.userdetails.jdbc.JdbcDaoImpl;
-
 import org.springframework.jdbc.object.MappingSqlQuery;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashSet;
 
 
 /**

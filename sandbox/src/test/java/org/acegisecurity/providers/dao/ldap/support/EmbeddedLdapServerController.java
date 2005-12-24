@@ -15,34 +15,29 @@
 package org.acegisecurity.providers.dao.ldap.support;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Properties;
 
 import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.InitialContext;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
+import org.acegisecurity.providers.ldap.LdapUtils;
 import org.apache.ldap.common.ldif.LdifIterator;
 import org.apache.ldap.common.ldif.LdifParser;
 import org.apache.ldap.common.ldif.LdifParserImpl;
 import org.apache.ldap.common.message.LockableAttributesImpl;
 import org.apache.ldap.common.name.LdapName;
-import org.apache.ldap.server.jndi.CoreContextFactory;
-import org.apache.ldap.server.jndi.ServerContextFactory;
-import org.apache.ldap.server.configuration.MutableStartupConfiguration;
+import org.apache.ldap.server.DirectoryService;
 import org.apache.ldap.server.configuration.MutableServerStartupConfiguration;
 import org.apache.ldap.server.configuration.ShutdownConfiguration;
-import org.apache.ldap.server.DirectoryService;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ClassPathResource;
-import org.acegisecurity.providers.ldap.LdapUtils;
+import org.apache.ldap.server.jndi.ServerContextFactory;
 
 /**
  * Used as static field in BaseLdapTestCase;

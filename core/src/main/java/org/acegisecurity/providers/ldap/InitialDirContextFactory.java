@@ -15,7 +15,6 @@
 
 package org.acegisecurity.providers.ldap;
 
-import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.DirContext;
 
 /**

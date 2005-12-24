@@ -92,7 +92,7 @@ public class UsernamePasswordAuthenticationTokenTests extends TestCase {
         Class clazz = UsernamePasswordAuthenticationToken.class;
 
         try {
-            clazz.getDeclaredConstructor(null);
+            clazz.getDeclaredConstructor((Class[])null);
             fail("Should have thrown NoSuchMethodException");
         } catch (NoSuchMethodException expected) {
             assertTrue(true);
