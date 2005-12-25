@@ -249,4 +249,13 @@
     </plugins>
   </reporting>
 
+  <dependencyManagement>
+    <dependencies>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-mock</artifactId>
+      <version>1.2.6</version>
+    </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>

@@ -16,23 +16,11 @@
       <artifactId>spring-remoting</artifactId>
       <version>1.2.6</version>
     </dependency>
-    <!-- required due to problem in maven transitive deps -->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-      <version>1.2.6</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
-      <version>1.2.6</version>
-    </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
       <version>1.2.6</version>
     </dependency>
-    <!-- end required -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-support</artifactId>
@@ -42,7 +30,6 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-mock</artifactId>
-      <version>1.2.6</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -68,6 +55,16 @@
       <version>1.3</version>
     </dependency>
     <dependency>
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+      <version>2.0.8</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.1</version>
+    </dependency>
+    <dependency>
       <groupId>aspectj</groupId>
       <artifactId>aspectjrt</artifactId>
       <version>1.2</version>
@@ -83,6 +80,18 @@
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>1.7.3.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>directory</groupId>
+      <artifactId>apacheds-core</artifactId>
+      <version>0.9.3</version>
+      <scope>test</scope>
+    </dependency> 
+    <dependency>
+      <groupId>jmock</groupId>
+      <artifactId>jmock</artifactId>
+      <version>1.0.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
