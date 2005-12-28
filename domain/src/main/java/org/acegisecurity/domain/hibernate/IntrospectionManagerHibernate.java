@@ -127,7 +127,11 @@ public class IntrospectionManagerHibernate implements IntrospectionManager,
                             propertyType.getReturnedClass()) != null) {
                         Object childObject = classMetadata.getPropertyValue(parentObject, propertyNames[i], EntityMode.POJO);
                         if (childObject != null && Hibernate.isInitialized(childObject)) {
-                            allObjects.add(childObject);
+                            if (childObject instanceof Collection) {
+                                allObjects.addAll((Collection)childObject);
+                            } else {
+                                allObjects.add(childObject);
+                            }
                         }
                     }
                 }
