@@ -4,17 +4,22 @@ import javax.naming.Context;
 import javax.naming.directory.DirContext;
 import java.util.Hashtable;
 
-import org.springframework.dao.DataAccessResourceFailureException;
 import org.acegisecurity.BadCredentialsException;
 
 /**
- * Tests {@link InitialDirContextFactory}.
+ * Tests {@link DefaultInitialDirContextFactory}.
  *
  * @author Luke Taylor
  * @version $Id$
  */
-public class InitialDirContextFactoryTests extends AbstractLdapServerTestCase {
+public class DefaultInitialDirContextFactoryTests extends AbstractLdapServerTestCase {
     DefaultInitialDirContextFactory idf;
+
+    public void setUp() {
+        idf = new DefaultInitialDirContextFactory(PROVIDER_URL);
+        idf.setInitialContextFactory(CONTEXT_FACTORY);
+        idf.setExtraEnvVars(EXTRA_ENV);
+    }
 
 //    public void testNonLdapUrlIsRejected() throws Exception {
 //        DefaultInitialDirContextFactory idf = new DefaultInitialDirContextFactory();
@@ -29,10 +34,10 @@ public class InitialDirContextFactoryTests extends AbstractLdapServerTestCase {
 //        }
 //    }
 
-    public void setUp() {
-        idf = new DefaultInitialDirContextFactory(PROVIDER_URL);
-        idf.setInitialContextFactory(CONTEXT_FACTORY);
-        idf.setExtraEnvVars(EXTRA_ENV);
+    public void testServiceLocationUrlIsSupported() {
+        idf = new DefaultInitialDirContextFactory("ldap:///dc=acegisecurity,dc=org");
+        assertEquals("dc=acegisecurity,dc=org", idf.getRootDn());
+
     }
 
     public void testConnectionFailure() throws Exception {
@@ -46,7 +51,7 @@ public class InitialDirContextFactoryTests extends AbstractLdapServerTestCase {
         try {
             idf.newInitialDirContext();
             fail("Connection succeeded unexpectedly");
-        } catch(DataAccessResourceFailureException expected) {
+        } catch(LdapDataAccessException expected) {
         }
     }
 
@@ -83,6 +88,7 @@ public class InitialDirContextFactoryTests extends AbstractLdapServerTestCase {
                 "bobspassword");
         // We don't want pooling for specific users.
         // assertNull(ctx.getEnvironment().get("com.sun.jndi.ldap.connect.pool"));
+//        com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
         ctx.close();
     }
 
