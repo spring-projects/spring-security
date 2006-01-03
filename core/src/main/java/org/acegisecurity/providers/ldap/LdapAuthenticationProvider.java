@@ -138,10 +138,12 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     }
 
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
-        logger.debug("Retrieving user " + username);
+        if(logger.isDebugEnabled()) {
+            logger.debug("Retrieving user " + username);
+        }
 
         String password = (String)authentication.getCredentials();
-        Assert.notNull(password, "Null password was supplied in authentication token");
+        Assert.hasLength(password, "Null or empty password was supplied in authentication token");
 
         LdapUserInfo ldapUser = authenticator.authenticate(username, password);
 

@@ -18,8 +18,12 @@ package org.acegisecurity.providers.ldap.authenticator;
 import org.acegisecurity.providers.ldap.LdapAuthenticator;
 import org.acegisecurity.providers.ldap.InitialDirContextFactory;
 import org.acegisecurity.providers.ldap.LdapUserSearch;
+import org.acegisecurity.AcegiMessageSource;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.MessageSource;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -32,10 +36,11 @@ import java.util.ArrayList;
  * @version $Id$
  */
 public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
-    InitializingBean {
+    InitializingBean, MessageSourceAware {
 
     //~ Instance fields ========================================================
 
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private InitialDirContextFactory initialDirContextFactory;
 
     //private String[] userDnPattern = null;
@@ -137,6 +142,11 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 
     protected InitialDirContextFactory getInitialDirContextFactory() {
         return initialDirContextFactory;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        Assert.notNull("Message source must not be null");
+        this.messages = new MessageSourceAccessor(messageSource);
     }
 
     public void afterPropertiesSet() throws Exception {

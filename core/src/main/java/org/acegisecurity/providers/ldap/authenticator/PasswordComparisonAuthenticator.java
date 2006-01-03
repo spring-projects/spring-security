@@ -110,7 +110,9 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
                 }
 
                 if(!verifyPassword(password, (String)retrievedPassword)) {
-                    throw new BadCredentialsException("Invalid password.");
+                    throw new BadCredentialsException(messages.getMessage(
+                            "PasswordComparisonAuthenticator.badCredentials",
+                            "Bad credentials"));
                 }
 
             } else {
@@ -161,7 +163,9 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
                 new Object[]{passwordBytes}, ctls);
 
         if(!results.hasMore()) {
-            throw new BadCredentialsException("Password comparison failed");
+            throw new BadCredentialsException(messages.getMessage(
+                            "PasswordComparisonAuthenticator.badCredentials",
+                            "Bad credentials"));
         }
     }
 
@@ -172,7 +176,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
     }
 
     public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-        Assert.notNull(passwordEncoder, "Password Encoder must not be null.");
+        Assert.notNull(passwordEncoder, "passwordEncoder must not be null.");
         this.passwordEncoder = passwordEncoder;
     }
 }

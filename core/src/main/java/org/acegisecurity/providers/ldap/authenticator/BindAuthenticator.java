@@ -66,7 +66,9 @@ public final class BindAuthenticator extends AbstractLdapAuthenticator {
         }
 
         if(user == null) {
-            throw new BadCredentialsException("Failed to authenticate as " + username);
+            throw new BadCredentialsException(messages.getMessage(
+                            "BindAuthenticator.badCredentials",
+                            "Bad credentials"));
         }
 
         return user;
@@ -90,11 +92,15 @@ public final class BindAuthenticator extends AbstractLdapAuthenticator {
             user = new LdapUserInfo(userDn, attributes);
 
         } catch(NamingException ne) {
-            throw new LdapDataAccessException("Failed to load attributes for user " + userDn, ne);
+            throw new LdapDataAccessException(messages.getMessage(
+                            "BindAuthenticator.failedToLoadAttributes", new String[] {userDn},
+                            "Failed to load attributes for user {0}"), ne);
         } catch(BadCredentialsException e) {
             // This will be thrown if an invalid user name is used and the method may
-            // be called multiple times to try different names, so we trap the exception.            
-            logger.debug("Failed to bind as " + userDn + ", " + e.getMessage());
+            // be called multiple times to try different names, so we trap the exception.
+            if(logger.isDebugEnabled()) {
+                logger.debug("Failed to bind as " + userDn + ": " + e.getCause());
+            }
         } finally {
             LdapUtils.closeContext(ctx);
         }

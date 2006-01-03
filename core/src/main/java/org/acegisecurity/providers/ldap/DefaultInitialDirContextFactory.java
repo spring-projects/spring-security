@@ -24,9 +24,12 @@ import javax.naming.CommunicationException;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.DirContext;
 
-import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.util.Assert;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.MessageSource;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.AcegiMessageSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -60,7 +63,8 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id$
  *
  */
-public class DefaultInitialDirContextFactory implements InitialDirContextFactory {
+public class DefaultInitialDirContextFactory implements InitialDirContextFactory,
+    MessageSourceAware {
     
     //~ Static fields/initializers =============================================
 
@@ -71,6 +75,8 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
     private static final String AUTH_TYPE_NONE = "none";
 
     //~ Instance fields ========================================================
+
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
 
     /**
      * The LDAP url of the server (and root context) to connect to.
@@ -213,11 +219,17 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
             return new InitialDirContext(env);
 
         } catch(CommunicationException ce) {
-            throw new DataAccessResourceFailureException("Unable to connect to LDAP Server.", ce);
+            throw new LdapDataAccessException(messages.getMessage(
+                            "DefaultIntitalDirContextFactory.communicationFailure",
+                            "Unable to connect to LDAP server"), ce);
         } catch(javax.naming.AuthenticationException ae) {
-            throw new BadCredentialsException("Authentication to LDAP server failed.", ae);
+            throw new BadCredentialsException(messages.getMessage(
+                            "DefaultIntitalDirContextFactory.badCredentials",
+                            "Bad credentials"), ae);
         } catch (NamingException nx) {
-            throw new LdapDataAccessException("Failed to obtain InitialDirContext", nx);
+            throw new LdapDataAccessException(messages.getMessage(
+                            "DefaultIntitalDirContextFactory.unexpectedException",
+                            "Failed to obtain InitialDirContext due to unexpected exception"), nx);
         }
     }
 
@@ -264,5 +276,9 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
     public void setExtraEnvVars(Map extraEnvVars) {
         Assert.notNull(extraEnvVars, "Extra environment map cannot be null.");
         this.extraEnvVars = extraEnvVars;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
     }
 }
