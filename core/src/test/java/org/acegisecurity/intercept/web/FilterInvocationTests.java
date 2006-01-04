@@ -15,28 +15,14 @@
 
 package org.acegisecurity.intercept.web;
 
-import junit.framework.TestCase;
-
 import org.acegisecurity.MockFilterChain;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
+import org.jmock.MockObjectTestCase;
 
 /**
  * Tests {@link FilterInvocation}.
@@ -45,7 +31,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @author colin sampaleanu
  * @version $Id$
  */
-public class FilterInvocationTests extends TestCase {
+public class FilterInvocationTests extends MockObjectTestCase {
     //~ Constructors ===========================================================
 
     public FilterInvocationTests() {
@@ -137,7 +123,7 @@ public class FilterInvocationTests extends TestCase {
     }
 
     public void testRejectsServletRequestWhichIsNotHttpServletRequest() {
-        MockServletRequest request = new MockServletRequest();
+        ServletRequest request = (ServletRequest)newDummy(ServletRequest.class);
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
@@ -152,7 +138,7 @@ public class FilterInvocationTests extends TestCase {
 
     public void testRejectsServletResponseWhichIsNotHttpServletResponse() {
         MockHttpServletRequest request = new MockHttpServletRequest(null, null);
-        MockServletResponse response = new MockServletResponse();
+        ServletResponse response = (ServletResponse) newDummy(ServletResponse.class);
         MockFilterChain chain = new MockFilterChain();
 
         try {
@@ -199,232 +185,5 @@ public class FilterInvocationTests extends TestCase {
         assertEquals("FilterInvocation: URL: /HelloWorld", fi.toString());
         assertEquals("http://www.example.com:80/mycontext/HelloWorld",
             fi.getFullRequestUrl());
-    }
-
-    //~ Inner Classes ==========================================================
-
-    private class MockServletRequest implements ServletRequest {
-        public void setAttribute(String arg0, Object arg1) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public Object getAttribute(String arg0) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public Enumeration getAttributeNames() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public void setCharacterEncoding(String arg0)
-            throws UnsupportedEncodingException {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public String getCharacterEncoding() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public int getContentLength() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public String getContentType() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public ServletInputStream getInputStream() throws IOException {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public String getLocalAddr() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public String getLocalName() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public int getLocalPort() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public Locale getLocale() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public Enumeration getLocales() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public String getParameter(String arg0) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public Map getParameterMap() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public Enumeration getParameterNames() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public String[] getParameterValues(String arg0) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public String getProtocol() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public BufferedReader getReader() throws IOException {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public String getRealPath(String arg0) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public String getRemoteAddr() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public String getRemoteHost() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public int getRemotePort() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public RequestDispatcher getRequestDispatcher(String arg0) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public String getScheme() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public boolean isSecure() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public String getServerName() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public int getServerPort() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public void removeAttribute(String arg0) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-    }
-
-    private class MockServletResponse implements ServletResponse {
-        public void setBufferSize(int arg0) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public int getBufferSize() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public void setCharacterEncoding(String arg0) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public String getCharacterEncoding() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public boolean isCommitted() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public void setContentLength(int arg0) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public void setContentType(String arg0) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public String getContentType() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public void setLocale(Locale arg0) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public Locale getLocale() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public ServletOutputStream getOutputStream() throws IOException {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public PrintWriter getWriter() throws IOException {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public void flushBuffer() throws IOException {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public void reset() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public void resetBuffer() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
     }
 }
