@@ -31,10 +31,10 @@ import java.util.Vector;
 
 
 /**
- * Maintains a <Code>List</code> of <code>ConfigAttributeDefinition</code>s
+ * Maintains a <code>List</code> of <code>ConfigAttributeDefinition</code>s
  * associated with different HTTP request URL Apache Ant path-based patterns.
  * 
- * <P>
+ * <p>
  * Apache Ant path expressions are used to match a HTTP request URL against a
  * <code>ConfigAttributeDefinition</code>.
  * </p>
@@ -48,9 +48,12 @@ import java.util.Vector;
  * with the most general paths registered last.
  * </p>
  * 
- * <P>
+ * <p>
  * If no registered paths match the HTTP URL, <code>null</code> is returned.
  * </p>
+ *
+ * @author Ben Alex
+ * @version $Id$
  */
 public class PathBasedFilterInvocationDefinitionMap
     extends AbstractFilterInvocationDefinitionSource

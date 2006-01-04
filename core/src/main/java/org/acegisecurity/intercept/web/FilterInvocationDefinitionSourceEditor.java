@@ -41,7 +41,7 @@ import java.io.StringReader;
  * presented).
  * </p>
  * 
- * <P>
+ * <p>
  * By default the class treats presented patterns as regular expressions. If
  * the keyword <code>PATTERN_TYPE_APACHE_ANT</code> is present (case
  * sensitive), patterns will be treated as Apache Ant paths rather than
@@ -117,10 +117,13 @@ public class FilterInvocationDefinitionSourceEditor
                 }
 
                 // Tokenize the line into its name/value tokens
-                String[] nameValue = StringUtils.delimitedListToStringArray(line,
-                        "=");
+                String[] nameValue = StringUtils.delimitedListToStringArray(line, "=");
                 String name = nameValue[0];
                 String value = nameValue[1];
+
+                if(!StringUtils.hasLength(name) || !StringUtils.hasLength(value)) {
+                    throw new IllegalArgumentException("Failed to parse a valid name/value pair from " + line);
+                }
 
                 // Convert value to series of security configuration attributes
                 ConfigAttributeEditor configAttribEd = new ConfigAttributeEditor();

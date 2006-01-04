@@ -223,4 +223,14 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests
             .getValue();
         assertEquals(2, map.getMapSize());
     }
+
+    public void testInvalidNameValueFailsToParse() {
+        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
+        try {
+        // Use a "==" instead of an "="
+            editor.setAsText("         PATTERN_TYPE_APACHE_ANT\r\n    /secure/*==ROLE_SUPERVISOR,ROLE_TELLER      \r\n");
+            fail("Shouldn't be able to use '==' for config attribute.");
+        } catch(IllegalArgumentException expected) {
+        }
+    }
 }
