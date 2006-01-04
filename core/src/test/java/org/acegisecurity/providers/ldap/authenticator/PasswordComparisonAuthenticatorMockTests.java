@@ -15,7 +15,7 @@ import javax.naming.directory.Attributes;
 public class PasswordComparisonAuthenticatorMockTests extends MockObjectTestCase {
 
     public void testLdapCompareIsUsedWhenPasswordIsNotRetrieved() throws Exception {
-        Mock mockCtx = new Mock(DirContext.class);
+        Mock mockCtx = mock(DirContext.class);
 
         PasswordComparisonAuthenticator authenticator =
                 new PasswordComparisonAuthenticator(new MockInitialDirContextFactory(
@@ -57,5 +57,4 @@ public class PasswordComparisonAuthenticatorMockTests extends MockObjectTestCase
             return baseDn;
         }
     }
-
 }
