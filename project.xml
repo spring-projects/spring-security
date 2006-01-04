@@ -33,9 +33,9 @@
   <inceptionYear>2004</inceptionYear>
   <logo>http://acegisecurity.org/logo.gif</logo>
   <url>http://acegisecurity.org/</url>
-  <siteAddress>shell.sourceforge.net</siteAddress>
-  <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs</siteDirectory>
-  <distributionSite>shell.sourceforge.net</distributionSite>
+  <siteAddress>63.246.29.165</siteAddress>
+  <siteDirectory>/home/acegi/acegisecurity.org/www/apache/htdocs</siteDirectory>
+  <distributionSite>shell.sf.net</distributionSite>
   <distributionDirectory>/home/groups/a/ac/acegisecurity/htdocs/maven</distributionDirectory>
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
