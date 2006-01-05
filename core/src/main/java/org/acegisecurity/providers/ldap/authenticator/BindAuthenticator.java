@@ -60,7 +60,7 @@ public final class BindAuthenticator extends AbstractLdapAuthenticator {
 
         // Otherwise use the configured locator to find the user
         // and authenticate with the returned DN.
-        if(user == null && getUserSearch() != null) {
+        if (user == null && getUserSearch() != null) {
             LdapUserInfo userFromSearch = getUserSearch().searchForUser(username);
             user = authenticateWithDn(userFromSearch.getDn(), password);
         }
@@ -80,7 +80,7 @@ public final class BindAuthenticator extends AbstractLdapAuthenticator {
         LdapUserInfo user = null;
         Attributes attributes = null;
 
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Attempting to bind with DN = " + userDn);
         }
 
@@ -98,7 +98,7 @@ public final class BindAuthenticator extends AbstractLdapAuthenticator {
         } catch(BadCredentialsException e) {
             // This will be thrown if an invalid user name is used and the method may
             // be called multiple times to try different names, so we trap the exception.
-            if(logger.isDebugEnabled()) {
+            if (logger.isDebugEnabled()) {
                 logger.debug("Failed to bind as " + userDn + ": " + e.getCause());
             }
         } finally {

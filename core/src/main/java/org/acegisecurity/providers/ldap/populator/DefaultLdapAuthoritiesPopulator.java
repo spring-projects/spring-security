@@ -211,7 +211,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
             return null;
         }
 
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Searching for roles for user '"
                     + userDn + "', with filter "+ groupSearchFilter
                     + " in search base '" + groupSearchBase + "'");
@@ -246,7 +246,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
             LdapUtils.closeContext(ctx);
         }
 
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Roles from search: " + userRoles);
         }
 
@@ -254,7 +254,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     }
 
     private void addAttributeValuesToRoleSet(Attribute roleAttribute, Set roles) {
-        if(roleAttribute == null) {
+        if (roleAttribute == null) {
             return;
         }
 

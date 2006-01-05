@@ -96,11 +96,11 @@ public class LdapUtils {
     public static String getRelativeName(String fullDn, Context baseCtx) throws NamingException {
         String baseDn = baseCtx.getNameInNamespace();
 
-        if(baseDn.length() == 0) {
+        if (baseDn.length() == 0) {
             return fullDn;
         }
 
-        if(baseDn.equals(fullDn)) {
+        if (baseDn.equals(fullDn)) {
             return "";
         }
 

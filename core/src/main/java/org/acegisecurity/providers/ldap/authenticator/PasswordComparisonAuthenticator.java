@@ -91,11 +91,11 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
                         ctx.getAttributes(relativeName, getUserAttributes()));
             }
 
-            if(user == null && getUserSearch() != null) {
+            if (user == null && getUserSearch() != null) {
                 user = getUserSearch().searchForUser(username);
             }
 
-            if(user == null) {
+            if (user == null) {
                 throw new UsernameNotFoundException(username);
             }
 
@@ -104,19 +104,19 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
             if(passwordAttribute != null) {
                 Object retrievedPassword = passwordAttribute.get();
 
-                if(!(retrievedPassword instanceof String)) {
+                if (!(retrievedPassword instanceof String)) {
                     // Assume it's binary
                     retrievedPassword = new String((byte[])retrievedPassword);
                 }
 
-                if(!verifyPassword(password, (String)retrievedPassword)) {
+                if (!verifyPassword(password, (String)retrievedPassword)) {
                     throw new BadCredentialsException(messages.getMessage(
                             "PasswordComparisonAuthenticator.badCredentials",
                             "Bad credentials"));
                 }
 
             } else {
-                if(logger.isDebugEnabled()) {
+                if (logger.isDebugEnabled()) {
                     logger.debug("Password attribute " + passwordAttributeName
                             + " wasn't retrieved for user " + username);
                 }
@@ -136,7 +136,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
      * Allows the use of both simple and hashed passwords in the directory.
      */
     private boolean verifyPassword(String password, String ldapPassword) {
-        if(ldapPassword.equals(password)) {
+        if (ldapPassword.equals(password)) {
             return true;
         }
 
@@ -148,7 +148,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
     }
 
     private void doPasswordCompare(DirContext ctx, String name, String password) throws NamingException {
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Performing LDAP compare of password for " + name);
         }
 

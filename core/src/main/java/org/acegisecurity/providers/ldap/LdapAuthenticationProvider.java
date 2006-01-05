@@ -138,7 +138,7 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     }
 
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Retrieving user " + username);
         }
 

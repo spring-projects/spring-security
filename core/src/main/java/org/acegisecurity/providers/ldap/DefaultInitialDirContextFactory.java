@@ -129,7 +129,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
         Assert.hasLength(url, "An LDAP connection URL must be supplied.");
 
-        if(url.startsWith("ldap:")) {
+        if (url.startsWith("ldap:")) {
 
             URI uri = LdapUtils.parseLdapUrl(url);
 
@@ -140,7 +140,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
             rootDn = url;
         }
 
-        if(rootDn.startsWith("/")) {
+        if (rootDn.startsWith("/")) {
             rootDn = rootDn.substring(1);
         }
 
@@ -171,7 +171,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
         Hashtable env = getEnvironment();
 
         // Don't pool connections for individual users
-        if(!username.equals(managerDn)) {
+        if (!username.equals(managerDn)) {
             env.remove(CONNECTION_POOL_KEY);
         }
 
@@ -205,10 +205,10 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
     private InitialDirContext connect(Hashtable env) {
         
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             Hashtable envClone = (Hashtable)env.clone();
 
-            if(envClone.containsKey(Context.SECURITY_CREDENTIALS)) {
+            if (envClone.containsKey(Context.SECURITY_CREDENTIALS)) {
                 envClone.put(Context.SECURITY_CREDENTIALS, "******");
             }
 
