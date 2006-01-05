@@ -90,7 +90,7 @@ import org.springframework.util.StringUtils;
  * authenticate again via Digest authentication.
  * </p>
  * 
- * <P>
+ * <p>
  * Note there are limitations to Digest authentication, although it is a more
  * comprehensive and secure solution than Basic authentication. Please see RFC
  * 2617 section 4 for a full discussion on the advantages of Digest
@@ -98,8 +98,8 @@ import org.springframework.util.StringUtils;
  * limitations that it still imposes.
  * </p>
  * 
- * <P>
- * <B>Do not use this class directly.</B> Instead configure
+ * <p>
+ * <b>Do not use this class directly.</b> Instead configure
  * <code>web.xml</code> to use the {@link
  * org.acegisecurity.util.FilterToBeanProxy}.
  * </p>
@@ -121,7 +121,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
     //~ Methods ================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(userDetailsService, "An AuthenticationDao is required");
+        Assert.notNull(userDetailsService, "A UserDetailsService is required");
         Assert.notNull(authenticationEntryPoint,
             "A DigestProcessingFilterEntryPoint is required");
     }
