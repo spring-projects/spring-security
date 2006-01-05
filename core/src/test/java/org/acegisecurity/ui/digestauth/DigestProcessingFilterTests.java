@@ -333,7 +333,7 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
-    public void testStartupDetectsMissingAuthenticationDao()
+    public void testStartupDetectsMissingUserDetailsService()
         throws Exception {
         try {
             DigestProcessingFilter filter = new DigestProcessingFilter();
@@ -341,7 +341,7 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
             filter.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("An AuthenticationDao is required",
+            assertEquals("A UserDetailsService is required",
                 expected.getMessage());
         }
     }
