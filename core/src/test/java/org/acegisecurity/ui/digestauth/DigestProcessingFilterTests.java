@@ -15,56 +15,63 @@
 
 package org.acegisecurity.ui.digestauth;
 
-import junit.framework.TestCase;
-
-import org.acegisecurity.DisabledException;
 import org.acegisecurity.MockFilterConfig;
-
+import org.acegisecurity.MockFilterChain;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.context.SecurityContextImpl;
-
-import org.acegisecurity.providers.dao.UserCache;
-
-import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.providers.dao.cache.NullUserCache;
 import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.acegisecurity.userdetails.memory.InMemoryDaoImpl;
+import org.acegisecurity.userdetails.memory.UserMapEditor;
+import org.acegisecurity.userdetails.memory.UserMap;
 import org.acegisecurity.util.StringSplitUtils;
 
 import org.apache.commons.codec.binary.Base64;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import org.springframework.dao.DataAccessException;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
+import org.jmock.MockObjectTestCase;
+import org.jmock.Mock;
 
+import java.io.IOException;
 import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
 
 /**
  * Tests {@link DigestProcessingFilter}.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  * @version $Id$
  */
-public class DigestProcessingFilterTests extends TestCase {
+public class DigestProcessingFilterTests extends MockObjectTestCase {
+    private static final String NC = "00000002";
+    private static final String CNONCE = "c822c727a648aba7";
+    private static final String REALM = "The Correct Realm Name";
+    private static final String KEY = "acegi";
+    private static final String QOP = "auth";
+    private static final String USERNAME = "marissa";
+    private static final String PASSWORD = "koala";
+    private static final String REQUEST_URI = "/some_file.html";
+    /** A standard valid nonce with a validity period of 60 seconds */
+    private static final String NONCE = generateNonce(60);
+
+
+    //~ Instance Fields ========================================================
+//    private ApplicationContext ctx;
+    private DigestProcessingFilter filter;
+    private MockHttpServletRequest request;
+
     //~ Constructors ===========================================================
 
     public DigestProcessingFilterTests() {
-        super();
     }
 
     public DigestProcessingFilterTests(String arg0) {
@@ -75,6 +82,32 @@ public class DigestProcessingFilterTests extends TestCase {
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(DigestProcessingFilterTests.class);
+    }
+
+    protected void setUp() throws Exception {
+        super.setUp();
+        SecurityContextHolder.setContext(new SecurityContextImpl());
+        // Create User Details Service
+        InMemoryDaoImpl dao = new InMemoryDaoImpl();
+        UserMapEditor editor = new UserMapEditor();
+        editor.setAsText("marissa=koala,ROLE_ONE,ROLE_TWO,enabled\r\n");
+        dao.setUserMap((UserMap)editor.getValue());
+
+        DigestProcessingFilterEntryPoint ep = new DigestProcessingFilterEntryPoint();
+        ep.setRealmName(REALM);
+        ep.setKey(KEY);
+
+        filter = new DigestProcessingFilter();
+        filter.setUserDetailsService(dao);
+        filter.setAuthenticationEntryPoint(ep);
+
+        request = new MockHttpServletRequest("GET", REQUEST_URI);
+        request.setServletPath(REQUEST_URI);
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     public void testDoFilterWithNonHttpServletRequestDetected()
@@ -107,43 +140,18 @@ public class DigestProcessingFilterTests extends TestCase {
 
     public void testExpiredNonceReturnsForbiddenWithStaleHeader()
         throws Exception {
-        Map responseHeaderMap = generateValidHeaders(0);
 
-        String username = "marissa";
-        String realm = (String) responseHeaderMap.get("realm");
-        String nonce = (String) responseHeaderMap.get("nonce");
-        String uri = "/some_file.html";
-        String qop = (String) responseHeaderMap.get("qop");
-        String nc = "00000002";
-        String cnonce = "c822c727a648aba7";
-        String password = "koala";
+        String nonce = generateNonce(0);
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
+                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, nonce, NC, CNONCE);
 
-        // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization",
-            createAuthorizationHeader(username, realm, nonce, uri,
-                responseDigest, qop, nc, cnonce));
-        request.setServletPath("/some_file.html");
+            createAuthorizationHeader(USERNAME, REALM, nonce, REQUEST_URI,
+                responseDigest, QOP, NC, CNONCE));
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
         Thread.sleep(1000); // ensures token expired
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        MockHttpServletResponse response =
+            executeFilterInContainerSimulator(filter, request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -158,33 +166,15 @@ public class DigestProcessingFilterTests extends TestCase {
 
     public void testFilterIgnoresRequestsContainingNoAuthorizationHeader()
         throws Exception {
-        // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setServletPath("/some_file.html");
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(filter, request, true);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testGettersSetters() {
         DigestProcessingFilter filter = new DigestProcessingFilter();
-        filter.setUserDetailsService(new MockAuthenticationDao());
+        filter.setUserDetailsService(new InMemoryDaoImpl());
         assertTrue(filter.getUserDetailsService() != null);
 
         filter.setAuthenticationEntryPoint(new DigestProcessingFilterEntryPoint());
@@ -192,63 +182,29 @@ public class DigestProcessingFilterTests extends TestCase {
 
         filter.setUserCache(null);
         assertNull(filter.getUserCache());
-        filter.setUserCache(new MockUserCache());
+        filter.setUserCache(new NullUserCache());
         assertNotNull(filter.getUserCache());
     }
 
     public void testInvalidDigestAuthorizationTokenGeneratesError()
         throws Exception {
-        // Setup our HTTP request
         String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization",
             "Digest " + new String(Base64.encodeBase64(token.getBytes())));
-        request.setServletPath("/some_file.html");
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
+        MockHttpServletResponse response =
+            executeFilterInContainerSimulator(filter, request, false);
 
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(false);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
         assertEquals(401, response.getStatus());
-
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testMalformedHeaderReturnsForbidden() throws Exception {
-        // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Digest scsdcsdc");
-        request.setServletPath("/some_file.html");
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        MockHttpServletResponse response =
+            executeFilterInContainerSimulator(filter, request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -256,42 +212,17 @@ public class DigestProcessingFilterTests extends TestCase {
 
     public void testNonBase64EncodedNonceReturnsForbidden()
         throws Exception {
-        Map responseHeaderMap = generateValidHeaders(60);
-
-        String username = "marissa";
-        String realm = (String) responseHeaderMap.get("realm");
         String nonce = "NOT_BASE_64_ENCODED";
-        String uri = "/some_file.html";
-        String qop = (String) responseHeaderMap.get("qop");
-        String nc = "00000002";
-        String cnonce = "c822c727a648aba7";
-        String password = "koala";
+
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
+                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, nonce, NC, CNONCE);
 
-        // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization",
-            createAuthorizationHeader(username, realm, nonce, uri,
-                responseDigest, qop, nc, cnonce));
-        request.setServletPath("/some_file.html");
+            createAuthorizationHeader(USERNAME, REALM, nonce, REQUEST_URI,
+                responseDigest, QOP, NC, CNONCE));
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        MockHttpServletResponse response =
+            executeFilterInContainerSimulator(filter, request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -299,43 +230,18 @@ public class DigestProcessingFilterTests extends TestCase {
 
     public void testNonceWithIncorrectSignatureForNumericFieldReturnsForbidden()
         throws Exception {
-        Map responseHeaderMap = generateValidHeaders(60);
 
-        String username = "marissa";
-        String realm = (String) responseHeaderMap.get("realm");
         String nonce = new String(Base64.encodeBase64(
                     "123456:incorrectStringPassword".getBytes()));
-        String uri = "/some_file.html";
-        String qop = (String) responseHeaderMap.get("qop");
-        String nc = "00000002";
-        String cnonce = "c822c727a648aba7";
-        String password = "koala";
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
+                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, nonce, NC, CNONCE);
 
-        // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization",
-            createAuthorizationHeader(username, realm, nonce, uri,
-                responseDigest, qop, nc, cnonce));
-        request.setServletPath("/some_file.html");
+            createAuthorizationHeader(USERNAME, REALM, nonce, REQUEST_URI,
+                responseDigest, QOP, NC, CNONCE));
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(false);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        MockHttpServletResponse response =
+            executeFilterInContainerSimulator(filter, request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -343,43 +249,18 @@ public class DigestProcessingFilterTests extends TestCase {
 
     public void testNonceWithNonNumericFirstElementReturnsForbidden()
         throws Exception {
-        Map responseHeaderMap = generateValidHeaders(60);
 
-        String username = "marissa";
-        String realm = (String) responseHeaderMap.get("realm");
         String nonce = new String(Base64.encodeBase64(
                     "hello:ignoredSecondElement".getBytes()));
-        String uri = "/some_file.html";
-        String qop = (String) responseHeaderMap.get("qop");
-        String nc = "00000002";
-        String cnonce = "c822c727a648aba7";
-        String password = "koala";
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
+                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, nonce, NC, CNONCE);
 
-        // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization",
-            createAuthorizationHeader(username, realm, nonce, uri,
-                responseDigest, qop, nc, cnonce));
-        request.setServletPath("/some_file.html");
+            createAuthorizationHeader(USERNAME, REALM, nonce, REQUEST_URI,
+                responseDigest, QOP, NC, CNONCE));
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        MockHttpServletResponse response =
+            executeFilterInContainerSimulator(filter, request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -387,43 +268,18 @@ public class DigestProcessingFilterTests extends TestCase {
 
     public void testNonceWithoutTwoColonSeparatedElementsReturnsForbidden()
         throws Exception {
-        Map responseHeaderMap = generateValidHeaders(60);
 
-        String username = "marissa";
-        String realm = (String) responseHeaderMap.get("realm");
         String nonce = new String(Base64.encodeBase64(
                     "a base 64 string without a colon".getBytes()));
-        String uri = "/some_file.html";
-        String qop = (String) responseHeaderMap.get("qop");
-        String nc = "00000002";
-        String cnonce = "c822c727a648aba7";
-        String password = "koala";
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
+                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, nonce, NC, CNONCE);
 
-        // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization",
-            createAuthorizationHeader(username, realm, nonce, uri,
-                responseDigest, qop, nc, cnonce));
-        request.setServletPath("/some_file.html");
+            createAuthorizationHeader(USERNAME, REALM, nonce, REQUEST_URI,
+                responseDigest, QOP, NC, CNONCE));
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        MockHttpServletResponse response =
+            executeFilterInContainerSimulator(filter, request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -431,118 +287,48 @@ public class DigestProcessingFilterTests extends TestCase {
 
     public void testNormalOperationWhenPasswordIsAlreadyEncoded()
         throws Exception {
-        Map responseHeaderMap = generateValidHeaders(60);
 
-        String username = "marissa";
-        String realm = (String) responseHeaderMap.get("realm");
-        String nonce = (String) responseHeaderMap.get("nonce");
-        String uri = "/some_file.html";
-        String qop = (String) responseHeaderMap.get("qop");
-        String nc = "00000002";
-        String cnonce = "c822c727a648aba7";
-        String password = DigestProcessingFilter.encodePasswordInA1Format(username,
-                realm, "koala");
+        String encodedPassword = DigestProcessingFilter.encodePasswordInA1Format(USERNAME,
+                REALM, PASSWORD);
         String responseDigest = DigestProcessingFilter.generateDigest(true,
-                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
+                USERNAME, REALM, encodedPassword, "GET", REQUEST_URI, QOP, NONCE, NC, CNONCE);
 
-        // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization",
-            createAuthorizationHeader(username, realm, nonce, uri,
-                responseDigest, qop, nc, cnonce));
-        request.setServletPath("/some_file.html");
+            createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI,
+                responseDigest, QOP, NC, CNONCE));
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(filter, request, true);
 
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-        assertEquals("marissa",
+        assertEquals(USERNAME,
             ((UserDetails) SecurityContextHolder.getContext().getAuthentication()
                                                 .getPrincipal()).getUsername());
     }
 
     public void testNormalOperationWhenPasswordNotAlreadyEncoded()
         throws Exception {
-        Map responseHeaderMap = generateValidHeaders(60);
 
-        String username = "marissa";
-        String realm = (String) responseHeaderMap.get("realm");
-        String nonce = (String) responseHeaderMap.get("nonce");
-        String uri = "/some_file.html";
-        String qop = (String) responseHeaderMap.get("qop");
-        String nc = "00000002";
-        String cnonce = "c822c727a648aba7";
-        String password = "koala";
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
+                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, NONCE, NC, CNONCE);
 
-        // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization",
-            createAuthorizationHeader(username, realm, nonce, uri,
-                responseDigest, qop, nc, cnonce));
-        request.setServletPath("/some_file.html");
+            createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI,
+                responseDigest, QOP, NC, CNONCE));
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(filter, request, true);
 
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-        assertEquals("marissa",
+        assertEquals(USERNAME,
             ((UserDetails) SecurityContextHolder.getContext().getAuthentication()
                                                 .getPrincipal()).getUsername());
     }
 
     public void testOtherAuthorizationSchemeIsIgnored()
         throws Exception {
-        // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest();
+
         request.addHeader("Authorization", "SOME_OTHER_AUTHENTICATION_SCHEME");
-        request.setServletPath("/some_file.html");
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(filter, request, true);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
@@ -564,7 +350,7 @@ public class DigestProcessingFilterTests extends TestCase {
         throws Exception {
         try {
             DigestProcessingFilter filter = new DigestProcessingFilter();
-            filter.setUserDetailsService(new MockAuthenticationDao());
+            filter.setUserDetailsService(new InMemoryDaoImpl());
             filter.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
@@ -573,58 +359,30 @@ public class DigestProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testSuccessLoginThenFailureLoginResultsInSessionLoosingToken()
+    public void testSuccessLoginThenFailureLoginResultsInSessionLosingToken()
         throws Exception {
-        Map responseHeaderMap = generateValidHeaders(60);
 
-        String username = "marissa";
-        String realm = (String) responseHeaderMap.get("realm");
-        String nonce = (String) responseHeaderMap.get("nonce");
-        String uri = "/some_file.html";
-        String qop = (String) responseHeaderMap.get("qop");
-        String nc = "00000002";
-        String cnonce = "c822c727a648aba7";
-        String password = "koala";
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
+                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, NONCE, NC, CNONCE);
 
-        // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization",
-            createAuthorizationHeader(username, realm, nonce, uri,
-                responseDigest, qop, nc, cnonce));
-        request.setServletPath("/some_file.html");
+            createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI,
+                responseDigest, QOP, NC, CNONCE));
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(filter, request, true);
 
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
 
         // Now retry, giving an invalid nonce
-        password = "WRONG_PASSWORD";
-        responseDigest = DigestProcessingFilter.generateDigest(false, username,
-                realm, password, "GET", uri, qop, nonce, nc, cnonce);
+        responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME,
+                REALM, "WRONG_PASSWORD", "GET", REQUEST_URI, QOP, NONCE, NC, CNONCE);
 
         request = new MockHttpServletRequest();
         request.addHeader("Authorization",
-            createAuthorizationHeader(username, realm, nonce, uri,
-                responseDigest, qop, nc, cnonce));
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+            createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI,
+                responseDigest, QOP, NC, CNONCE));
+        MockHttpServletResponse response =
+                executeFilterInContainerSimulator(filter, request, false);
 
         // Check we lost our previous authentication
         assertNull(SecurityContextHolder.getContext().getAuthentication());
@@ -633,263 +391,104 @@ public class DigestProcessingFilterTests extends TestCase {
 
     public void testWrongCnonceBasedOnDigestReturnsForbidden()
         throws Exception {
-        Map responseHeaderMap = generateValidHeaders(60);
 
-        String username = "marissa";
-        String realm = (String) responseHeaderMap.get("realm");
-        String nonce = (String) responseHeaderMap.get("nonce");
-        String uri = "/some_file.html";
-        String qop = (String) responseHeaderMap.get("qop");
-        String nc = "00000002";
         String cnonce = "NOT_SAME_AS_USED_FOR_DIGEST_COMPUTATION";
-        String password = "koala";
+
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                username, realm, password, "GET", uri, qop, nonce, nc,
+                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, NONCE, NC,
                 "DIFFERENT_CNONCE");
 
-        // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization",
-            createAuthorizationHeader(username, realm, nonce, uri,
-                responseDigest, qop, nc, cnonce));
-        request.setServletPath("/some_file.html");
+            createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI,
+                responseDigest, QOP, NC, cnonce));
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        MockHttpServletResponse response =
+                executeFilterInContainerSimulator(filter, request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
     public void testWrongDigestReturnsForbidden() throws Exception {
-        Map responseHeaderMap = generateValidHeaders(60);
 
-        String username = "marissa";
-        String realm = (String) responseHeaderMap.get("realm");
-        String nonce = (String) responseHeaderMap.get("nonce");
-        String uri = "/some_file.html";
-        String qop = (String) responseHeaderMap.get("qop");
-        String nc = "00000002";
-        String cnonce = "c822c727a648aba7";
         String password = "WRONG_PASSWORD";
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
+                USERNAME, REALM, password, "GET", REQUEST_URI, QOP, NONCE, NC,
+                CNONCE);
 
-        // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization",
-            createAuthorizationHeader(username, realm, nonce, uri,
-                responseDigest, qop, nc, cnonce));
-        request.setServletPath("/some_file.html");
+            createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI,
+                responseDigest, QOP, NC, CNONCE));
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        MockHttpServletResponse response =
+                executeFilterInContainerSimulator(filter, request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
     public void testWrongRealmReturnsForbidden() throws Exception {
-        Map responseHeaderMap = generateValidHeaders(60);
-
-        String username = "marissa";
         String realm = "WRONG_REALM";
-        String nonce = (String) responseHeaderMap.get("nonce");
-        String uri = "/some_file.html";
-        String qop = (String) responseHeaderMap.get("qop");
-        String nc = "00000002";
-        String cnonce = "c822c727a648aba7";
-        String password = "koala";
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
+                USERNAME, realm, PASSWORD, "GET", REQUEST_URI, QOP, NONCE, NC,
+                CNONCE);
 
-        // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization",
-            createAuthorizationHeader(username, realm, nonce, uri,
-                responseDigest, qop, nc, cnonce));
-        request.setServletPath("/some_file.html");
+            createAuthorizationHeader(USERNAME, realm, NONCE, REQUEST_URI,
+                responseDigest, QOP, NC, CNONCE));
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        MockHttpServletResponse response =
+             executeFilterInContainerSimulator(filter, request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
     public void testWrongUsernameReturnsForbidden() throws Exception {
-        Map responseHeaderMap = generateValidHeaders(60);
-
-        String username = "NOT_A_KNOWN_USER";
-        String realm = (String) responseHeaderMap.get("realm");
-        String nonce = (String) responseHeaderMap.get("nonce");
-        String uri = "/some_file.html";
-        String qop = (String) responseHeaderMap.get("qop");
-        String nc = "00000002";
-        String cnonce = "c822c727a648aba7";
-        String password = "koala";
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                username, realm, password, "GET", uri, qop, nonce, nc, cnonce);
+                "NOT_A_KNOWN_USER", REALM, PASSWORD, "GET", REQUEST_URI, QOP, NONCE, NC,
+                CNONCE);
 
-        // Setup our HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
         request.addHeader("Authorization",
-            createAuthorizationHeader(username, realm, nonce, uri,
-                responseDigest, qop, nc, cnonce));
-        request.setServletPath("/some_file.html");
+            createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI,
+                responseDigest, QOP, NC, CNONCE));
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilter filter = (DigestProcessingFilter) ctx.getBean(
-                "digestProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        MockHttpServletResponse response =
+                executeFilterInContainerSimulator(filter, request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        SecurityContextHolder.setContext(new SecurityContextImpl());
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        SecurityContextHolder.setContext(new SecurityContextImpl());
-    }
-
     private String createAuthorizationHeader(String username, String realm,
-        String nonce, String uri, String responseDigest, String qop, String nc,
-        String cnonce) {
+                                             String nonce, String uri, String responseDigest, String qop, String nc,
+                                             String cnonce) {
         return "Digest username=\"" + username + "\", realm=\"" + realm
         + "\", nonce=\"" + nonce + "\", uri=\"" + uri + "\", response=\""
         + responseDigest + "\", qop=" + qop + ", nc=" + nc + ", cnonce=\""
         + cnonce + "\"";
     }
 
-    private void executeFilterInContainerSimulator(FilterConfig filterConfig,
-        Filter filter, ServletRequest request, ServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
-        filter.init(filterConfig);
-        filter.doFilter(request, response, filterChain);
-        filter.destroy();
-    }
-
-    private Map generateValidHeaders(int nonceValidityPeriod)
-        throws Exception {
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/digestauth/filtertest-valid.xml");
-        DigestProcessingFilterEntryPoint ep = (DigestProcessingFilterEntryPoint) ctx
-            .getBean("digestProcessingFilterEntryPoint");
-        ep.setNonceValiditySeconds(nonceValidityPeriod);
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("/some_path");
-
+    private MockHttpServletResponse executeFilterInContainerSimulator(Filter filter,
+            ServletRequest request, boolean expectChainToProceed)
+            throws ServletException, IOException {
+        filter.init(new MockFilterConfig());
         MockHttpServletResponse response = new MockHttpServletResponse();
+        Mock mockChain = mock(FilterChain.class);
+        FilterChain chain = (FilterChain)mockChain.proxy();
 
-        ep.commence(request, response, new DisabledException("foobar"));
+        mockChain.expects( expectChainToProceed ? once() : never() ).method("doFilter");
 
-        // Break up response header
-        String header = response.getHeader("WWW-Authenticate").toString()
-                                .substring(7);
-        String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
-        Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries,
-                "=", "\"");
+        filter.doFilter(request, response, chain);
+        filter.destroy();
 
-        return headerMap;
+        return response;
     }
 
-    //~ Inner Classes ==========================================================
-
-    private class MockAuthenticationDao implements UserDetailsService {
-        public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
-            return null;
-        }
-    }
-
-    private class MockFilterChain implements FilterChain {
-        private boolean expectToProceed;
-
-        public MockFilterChain(boolean expectToProceed) {
-            this.expectToProceed = expectToProceed;
-        }
-
-        private MockFilterChain() {
-            super();
-        }
-
-        public void doFilter(ServletRequest request, ServletResponse response)
-            throws IOException, ServletException {
-            if (expectToProceed) {
-                assertTrue(true);
-            } else {
-                fail("Did not expect filter chain to proceed");
-            }
-        }
-    }
-
-    private class MockUserCache implements UserCache {
-        public UserDetails getUserFromCache(String username) {
-            return null;
-        }
-
-        public void putUserInCache(UserDetails user) {}
-
-        public void removeUserFromCache(String username) {}
+    private static String generateNonce(int validitySeconds) {
+        long expiryTime = System.currentTimeMillis() + (validitySeconds * 1000);
+        String signatureValue = new String(DigestUtils.md5Hex(expiryTime + ":" + KEY));
+        String nonceValue = expiryTime + ":" + signatureValue;
+        return new String(Base64.encodeBase64( nonceValue.getBytes() ));
     }
 }

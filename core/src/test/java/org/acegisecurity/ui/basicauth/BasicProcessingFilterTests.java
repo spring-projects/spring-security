@@ -15,32 +15,37 @@
 
 package org.acegisecurity.ui.basicauth;
 
-import junit.framework.TestCase;
-
 import org.acegisecurity.MockAuthenticationEntryPoint;
 import org.acegisecurity.MockAuthenticationManager;
 import org.acegisecurity.MockFilterConfig;
+import org.acegisecurity.MockFilterChain;
+import org.acegisecurity.providers.dao.DaoAuthenticationProvider;
+import org.acegisecurity.providers.ProviderManager;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.context.SecurityContextImpl;
 import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.memory.InMemoryDaoImpl;
+import org.acegisecurity.userdetails.memory.UserMapEditor;
+import org.acegisecurity.userdetails.memory.UserMap;
 
 import org.apache.commons.codec.binary.Base64;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 
+import org.jmock.MockObjectTestCase;
+import org.jmock.Mock;
+
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 
 
 /**
@@ -49,7 +54,8 @@ import javax.servlet.ServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class BasicProcessingFilterTests extends TestCase {
+public class BasicProcessingFilterTests extends MockObjectTestCase {
+    private BasicProcessingFilter filter;
     //~ Constructors ===========================================================
 
     public BasicProcessingFilterTests() {
@@ -64,6 +70,34 @@ public class BasicProcessingFilterTests extends TestCase {
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(BasicProcessingFilterTests.class);
+    }
+
+    protected void setUp() throws Exception {
+        super.setUp();
+        SecurityContextHolder.setContext(new SecurityContextImpl());
+
+        // Create User Details Service, provider and authentication manager
+        InMemoryDaoImpl dao = new InMemoryDaoImpl();
+        UserMapEditor editor = new UserMapEditor();
+        editor.setAsText("marissa=koala,ROLE_ONE,ROLE_TWO,enabled\r\n");
+        dao.setUserMap((UserMap)editor.getValue());
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(dao);
+
+        ProviderManager manager = new ProviderManager();
+        manager.setProviders(Arrays.asList(new Object[] {provider}));
+        manager.setApplicationEventPublisher(new MockApplicationEventPublisher());
+        manager.afterPropertiesSet();
+
+        filter = new BasicProcessingFilter();
+        filter.setAuthenticationManager(manager);
+        filter.setAuthenticationEntryPoint(new BasicProcessingFilterEntryPoint());
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     public void testDoFilterWithNonHttpServletRequestDetected()
@@ -100,22 +134,8 @@ public class BasicProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/some_file.html");
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/basicauth/filtertest-valid.xml");
-        BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
-                "basicProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(filter, request, true);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
@@ -140,22 +160,8 @@ public class BasicProcessingFilterTests extends TestCase {
         request.setServletPath("/some_file.html");
         request.setSession(new MockHttpSession());
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/basicauth/filtertest-valid.xml");
-        BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
-                "basicProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        // The filter chain shouldn't proceed
+        executeFilterInContainerSimulator(filter, request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
@@ -169,23 +175,9 @@ public class BasicProcessingFilterTests extends TestCase {
         request.setServletPath("/some_file.html");
         request.setSession(new MockHttpSession());
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/basicauth/filtertest-valid.xml");
-        BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
-                "basicProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
         // Test
         assertNull(SecurityContextHolder.getContext().getAuthentication());
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(filter, request, true);
 
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("marissa",
@@ -200,22 +192,8 @@ public class BasicProcessingFilterTests extends TestCase {
         request.addHeader("Authorization", "SOME_OTHER_AUTHENTICATION_SCHEME");
         request.setServletPath("/some_file.html");
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/basicauth/filtertest-valid.xml");
-        BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
-                "basicProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(filter, request, true);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
@@ -237,8 +215,8 @@ public class BasicProcessingFilterTests extends TestCase {
         throws Exception {
         try {
             BasicProcessingFilter filter = new BasicProcessingFilter();
-            filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
-                    "x"));
+            filter.setAuthenticationEntryPoint(
+                    new MockAuthenticationEntryPoint("x"));
             filter.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
@@ -257,22 +235,8 @@ public class BasicProcessingFilterTests extends TestCase {
         request.setServletPath("/some_file.html");
         request.setSession(new MockHttpSession());
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/basicauth/filtertest-valid.xml");
-        BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
-                "basicProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will be invoked
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(filter, request, true);
 
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("marissa",
@@ -288,13 +252,9 @@ public class BasicProcessingFilterTests extends TestCase {
         request.setServletPath("/some_file.html");
         request.setSession(new MockHttpSession());
 
-        // Setup our expectation that the filter chain will not be invoked, as we get a 403 forbidden response
-        chain = new MockFilterChain(false);
-        response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        // Test - the filter chain will not be invoked, as we get a 403 forbidden response
+        MockHttpServletResponse response =
+            executeFilterInContainerSimulator(filter, request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -309,65 +269,36 @@ public class BasicProcessingFilterTests extends TestCase {
         request.setServletPath("/some_file.html");
         request.setSession(new MockHttpSession());
 
-        // Launch an application context and access our bean
-        ApplicationContext ctx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/ui/basicauth/filtertest-valid.xml");
-        BasicProcessingFilter filter = (BasicProcessingFilter) ctx.getBean(
-                "basicProcessingFilter");
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig();
-
-        // Setup our expectation that the filter chain will not be invoked, as we get a 403 forbidden response
-        MockFilterChain chain = new MockFilterChain(false);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        // Test - the filter chain will not be invoked, as we get a 403 forbidden response
+        MockHttpServletResponse response =
+            executeFilterInContainerSimulator(filter, request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        SecurityContextHolder.setContext(new SecurityContextImpl());
-    }
+    private MockHttpServletResponse executeFilterInContainerSimulator(Filter filter,
+            ServletRequest request, boolean expectChainToProceed)
+            throws ServletException, IOException {
+        filter.init(new MockFilterConfig());
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        Mock mockChain = mock(FilterChain.class);
+        FilterChain chain = (FilterChain)mockChain.proxy();
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        SecurityContextHolder.setContext(new SecurityContextImpl());
-    }
+        mockChain.expects( expectChainToProceed ? once() : never() ).method("doFilter");
 
-    private void executeFilterInContainerSimulator(FilterConfig filterConfig,
-        Filter filter, ServletRequest request, ServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
-        filter.init(filterConfig);
-        filter.doFilter(request, response, filterChain);
+        filter.doFilter(request, response, chain);
         filter.destroy();
+
+        return response;
     }
 
-    //~ Inner Classes ==========================================================
+    private class MockApplicationEventPublisher implements ApplicationEventPublisher {
 
-    private class MockFilterChain implements FilterChain {
-        private boolean expectToProceed;
+		public MockApplicationEventPublisher() {
+		}
 
-        public MockFilterChain(boolean expectToProceed) {
-            this.expectToProceed = expectToProceed;
-        }
-
-        private MockFilterChain() {
-            super();
-        }
-
-        public void doFilter(ServletRequest request, ServletResponse response)
-            throws IOException, ServletException {
-            if (expectToProceed) {
-                assertTrue(true);
-            } else {
-                fail("Did not expect filter chain to proceed");
-            }
-        }
+    	public void publishEvent(ApplicationEvent event) {
+		}
     }
 }

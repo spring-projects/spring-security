@@ -404,20 +404,21 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
      * <code>response</code> independently. Provided as a static method to
      * simplify the coding of user agents.
      *
-     * @param passwordAlreadyEncoded DOCUMENT ME!
-     * @param username DOCUMENT ME!
-     * @param realm DOCUMENT ME!
-     * @param password DOCUMENT ME!
-     * @param httpMethod DOCUMENT ME!
-     * @param uri DOCUMENT ME!
-     * @param qop DOCUMENT ME!
-     * @param nonce DOCUMENT ME!
-     * @param nc DOCUMENT ME!
-     * @param cnonce DOCUMENT ME!
+     * @param passwordAlreadyEncoded true if the password argument is already encoded in
+     *                               the correct format. False if it is plain text.
+     * @param username the user's login name.
+     * @param realm the name of the realm.
+     * @param password the user's password in plaintext or ready-encoded.
+     * @param httpMethod the HTTP request method (GET, POST etc.)
+     * @param uri the request URI.
+     * @param qop the qop directive, or null if not set.
+     * @param nonce the nonce supplied by the server
+     * @param nc the "nonce-count" as defined in RFC 2617.
+     * @param cnonce opaque string supplied by the client when qop is set.
      *
      * @return the MD5 of the digest authentication response, encoded in hex
      *
-     * @throws IllegalArgumentException DOCUMENT ME!
+     * @throws IllegalArgumentException if the supplied qop value is unsupported.
      */
     public static String generateDigest(boolean passwordAlreadyEncoded,
         String username, String realm, String password, String httpMethod,
