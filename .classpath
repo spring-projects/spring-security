@@ -65,7 +65,7 @@
 	<classpathentry kind="src" path="samples/annotations/src/main/resources"/>
 	<classpathentry kind="src" path="samples/annotations/src/test/java"/>
 	<classpathentry kind="src" path="samples/contacts-tiger/src/main/java"/>
-	<classpathentry kind="var" path="MAVEN_REPO/jcifs/jars/jcifs-1.2.6.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.samba.jcifs/jars/jcifs-1.2.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/dom4j/jars/dom4j-1.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xercesImpl-2.6.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xmlParserAPIs-2.6.2.jar"/>
