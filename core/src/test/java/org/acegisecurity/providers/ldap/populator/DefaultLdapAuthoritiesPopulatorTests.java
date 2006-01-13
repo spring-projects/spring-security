@@ -43,6 +43,15 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
         assertEquals("User should have three roles", 3, authorities.length);
     }
 
+    public void testDefaultRoleIsAssignedWhenSet() {
+        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator();
+        populator.setDefaultRole("ROLE_USER");
+
+        GrantedAuthority[] authorities = populator.getGrantedAuthorities("Ignored", "Ignored", new BasicAttributes());
+        assertEquals(1, authorities.length);
+        assertEquals("ROLE_USER", authorities[0].getAuthority());
+    }
+
     public void testGroupSearch() throws Exception {
         DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(dirCtxFactory, "ou=groups");
         populator.setRolePrefix("ROLE_");

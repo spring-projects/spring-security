@@ -135,6 +135,9 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
     private boolean convertToUpperCase = true;
 
+    /** A default role which will be assigned to all authenticated users if set */
+    private GrantedAuthority defaultRole = null;
+
     /** An initial context factory is only required if searching for groups is required. */
     private InitialDirContextFactory initialDirContextFactory = null;
 
@@ -143,7 +146,8 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     /**
      * Constructor for non-group search scenarios. Typically in this case
      * the <tt>userRoleAttributes</tt> property will be set to obtain roles directly
-     * from the user's directory entry attributes.
+     * from the user's directory entry attributes. The <tt>defaultRole</tt> property
+     * may also be set and will be assigned to all users.
      */
     public DefaultLdapAuthoritiesPopulator() {
     }
@@ -182,6 +186,10 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
             roles.addAll(groupRoles);
         }
 
+        if(defaultRole != null) {
+            roles.add(defaultRole);
+        }
+
         return (GrantedAuthority[])roles.toArray(new GrantedAuthority[roles.size()]);
     }
 
@@ -202,7 +210,8 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      *
      * @param userDn the user's distinguished name.
      * @param userAttributes
-     * @return the set of roles obtained from a group membership search.
+     * @return the set of roles obtained from a group membership search, or null if
+     *         <tt>groupSearchBase</tt> has been set.
      */
     protected Set getGroupMembershipRoles(String userDn, Attributes userAttributes) {
         Set userRoles = new HashSet();
@@ -312,5 +321,15 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
     public void setConvertToUpperCase(boolean convertToUpperCase) {
         this.convertToUpperCase = convertToUpperCase;
+    }
+
+    /**
+     * The default role which will be assigned to all users.
+     *
+     * @param defaultRole the role name, including any desired prefix.
+     */
+    public void setDefaultRole(String defaultRole) {
+        Assert.notNull(defaultRole, "The defaultRole property cannot be set to null");
+        this.defaultRole = new GrantedAuthorityImpl(defaultRole);
     }
 }
