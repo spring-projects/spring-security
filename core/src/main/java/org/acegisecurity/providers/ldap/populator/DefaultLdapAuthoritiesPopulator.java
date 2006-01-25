@@ -84,14 +84,14 @@ import java.util.HashSet;
  * setting the <tt>groupRoleAttribute</tt> property (the default is "cn").
  * </p>
  * <p>
- * The configuration below shows how the group searc might be performed with the above schema.
+ * The configuration below shows how the group search might be performed with the above schema.
  * <pre>
  * &lt;bean id="ldapAuthoritiesPopulator" class="org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
  *   &lt;constructor-arg>&lt;ref local="initialDirContextFactory"/>&lt;/constructor-arg>
  *   &lt;constructor-arg>&lt;value>ou=groups&lt;/value>&lt;/constructor-arg>
  *   &lt;property name="groupRoleAttribute">&lt;value>ou&lt;/value>&lt;/property>
  *
- * &lt;!-- the follwing properties are shown with their default values -->
+ * &lt;!-- the following properties are shown with their default values -->
  *
  *   &lt;property name="searchSubTree">&lt;value>false&lt;/value>&lt;/property>
  *   &lt;property name="rolePrefix">&lt;value>ROLE_&lt;/value>&lt;/property>
