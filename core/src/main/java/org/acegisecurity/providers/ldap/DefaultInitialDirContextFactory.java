@@ -51,8 +51,8 @@ import org.apache.commons.logging.LogFactory;
  * that user.
  * </p>
  * <p>
- * Connection pooling is enabled for anonymous or manager connections, but not when binding
- * as a specific user.
+ * Connection pooling is enabled by default for anonymous or manager connections, but
+ * not when binding as a specific user.
  * </p>
  *
  * @see <a href="http://java.sun.com/products/jndi/tutorial/ldap/connect/pool.html">The Java
@@ -280,5 +280,16 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
     public void setMessageSource(MessageSource messageSource) {
         this.messages = new MessageSourceAccessor(messageSource);
+    }
+
+    /**
+     * Connection pooling is enabled by default for anonymous or "manager"
+     * connections when using the default Sun provider. To disable all
+     * connection pooling, set this property to false.
+     *
+     * @param useConnectionPool whether to pool connections for non-specific users.
+     */
+    public void setUseConnectionPool(boolean useConnectionPool) {
+        this.useConnectionPool = useConnectionPool;
     }
 }
