@@ -26,7 +26,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>1.0.0 RC 1</releaseinfo>
+    <releaseinfo>1.0.0 RC 2</releaseinfo>
 
     <authorgroup>
       <author>
@@ -1201,7 +1201,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 
         <para>The <literal>ProviderManager</literal> also has several other
         important functions. It integrates with concurrent session handling
-        supoprt, and it also converts any exceptions thrown by an
+        support, and it also converts any exceptions thrown by an
         <literal>AuthenticationProvider</literal> and publishes a suitable
         event. The events that are published are located in the
         <literal>org.acegisecurity.event.authentication</literal> package and
@@ -2199,7 +2199,7 @@ public boolean supports(Class clazz);</programlisting></para>
           principal holds either permission 16 or permission 1 for the
           "contact" domain object. The numbers are actually integers that are
           used with <literal>AbstractBasicAclEntry</literal> bit masking.
-          Please refer tro the ACL section of this reference guide to
+          Please refer to the ACL section of this reference guide to
           understand more about the ACL capabilities of Acegi Security.</para>
         </sect3>
       </sect2>
