@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthorizationServiceException;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
+
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.acl.AclManager;
 import org.acegisecurity.acl.basic.BasicAclEntry;
@@ -48,8 +49,7 @@ import java.util.Iterator;
  * <code>Authentication</code> object. This class is designed to process
  * {@link AclEntry}s that are subclasses of {@link
  * org.acegisecurity.acl.basic.BasicAclEntry} only. Generally these are
- * obtained by using the {@link
- * org.acegisecurity.acl.basic.BasicAclProvider}.
+ * obtained by using the {@link org.acegisecurity.acl.basic.BasicAclProvider}.
  * </p>
  * 
  * <p>
@@ -139,16 +139,19 @@ public class BasicAclEntryVoter extends AbstractAclVoter
 
     //~ Methods ================================================================
 
-    public void setAclManager(AclManager aclManager) {
-        this.aclManager = aclManager;
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(processConfigAttribute,
+            "A processConfigAttribute is mandatory");
+        Assert.notNull(aclManager, "An aclManager is mandatory");
+
+        if ((requirePermission == null) || (requirePermission.length == 0)) {
+            throw new IllegalArgumentException(
+                "One or more requirePermission entries is mandatory");
+        }
     }
 
     public AclManager getAclManager() {
         return aclManager;
-    }
-
-    public void setInternalMethod(String internalMethod) {
-        this.internalMethod = internalMethod;
     }
 
     /**
@@ -168,31 +171,28 @@ public class BasicAclEntryVoter extends AbstractAclVoter
         return internalMethod;
     }
 
-    public void setProcessConfigAttribute(String processConfigAttribute) {
-        this.processConfigAttribute = processConfigAttribute;
-    }
-
     public String getProcessConfigAttribute() {
         return processConfigAttribute;
-    }
-
-    public void setRequirePermission(int[] requirePermission) {
-        this.requirePermission = requirePermission;
     }
 
     public int[] getRequirePermission() {
         return requirePermission;
     }
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(processConfigAttribute,
-            "A processConfigAttribute is mandatory");
-        Assert.notNull(aclManager, "An aclManager is mandatory");
+    public void setAclManager(AclManager aclManager) {
+        this.aclManager = aclManager;
+    }
 
-        if ((requirePermission == null) || (requirePermission.length == 0)) {
-            throw new IllegalArgumentException(
-                "One or more requirePermission entries is mandatory");
-        }
+    public void setInternalMethod(String internalMethod) {
+        this.internalMethod = internalMethod;
+    }
+
+    public void setProcessConfigAttribute(String processConfigAttribute) {
+        this.processConfigAttribute = processConfigAttribute;
+    }
+
+    public void setRequirePermission(int[] requirePermission) {
+        this.requirePermission = requirePermission;
     }
 
     public boolean supports(ConfigAttribute attribute) {
@@ -218,6 +218,10 @@ public class BasicAclEntryVoter extends AbstractAclVoter
 
                 // If domain object is null, vote to abstain
                 if (domainObject == null) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Voting to abstain - domainObject is null");
+                    }
+
                     return AccessDecisionVoter.ACCESS_ABSTAIN;
                 }
 
@@ -271,6 +275,11 @@ public class BasicAclEntryVoter extends AbstractAclVoter
 
                 // If principal has no permissions for domain object, deny
                 if ((acls == null) || (acls.length == 0)) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(
+                            "Voting to deny access - no ACLs returned for this principal");
+                    }
+
                     return AccessDecisionVoter.ACCESS_DENIED;
                 }
 
@@ -283,6 +292,10 @@ public class BasicAclEntryVoter extends AbstractAclVoter
                         // See if principal has any of the required permissions
                         for (int y = 0; y < requirePermission.length; y++) {
                             if (processableAcl.isPermitted(requirePermission[y])) {
+                                if (logger.isDebugEnabled()) {
+                                    logger.debug("Voting to grant access");
+                                }
+
                                 return AccessDecisionVoter.ACCESS_GRANTED;
                             }
                         }
@@ -290,6 +303,11 @@ public class BasicAclEntryVoter extends AbstractAclVoter
                 }
 
                 // No permissions match
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "Voting to deny access - ACLs returned, but insufficient permissions for this principal");
+                }
+
                 return AccessDecisionVoter.ACCESS_DENIED;
             }
         }
