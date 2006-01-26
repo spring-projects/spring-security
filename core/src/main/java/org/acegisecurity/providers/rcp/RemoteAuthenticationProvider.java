@@ -32,24 +32,24 @@ import org.springframework.util.Assert;
  * Client-side object which queries a  {@link RemoteAuthenticationManager} to
  * validate an authentication request.
  * 
- * <P>
+ * <p>
  * A new <code>Authentication</code> object is created by this class comprising
  * the request <code>Authentication</code> object's <code>principal</code>,
  * <code>credentials</code> and the <code>GrantedAuthority</code>[]s returned
  * by the <code>RemoteAuthenticationManager</code>.
  * </p>
  * 
- * <P>
+ * <p>
  * The <code>RemoteAuthenticationManager</code> should not require any special
  * username or password setting on the remoting client proxy factory to
  * execute the call. Instead the entire authentication request must be
  * encapsulated solely within the <code>Authentication</code> request object.
  * In practical terms this means the <code>RemoteAuthenticationManager</code>
- * will <B>not</B> be protected by BASIC or any other HTTP-level
+ * will <b>not</b> be protected by BASIC or any other HTTP-level
  * authentication.
  * </p>
  * 
- * <P>
+ * <p>
  * If authentication fails, a <code>RemoteAuthenticationException</code> will
  * be thrown. This exception should be caught and displayed to the user,
  * enabling them to retry with alternative credentials etc.
@@ -60,9 +60,6 @@ import org.springframework.util.Assert;
  */
 public class RemoteAuthenticationProvider implements AuthenticationProvider,
     InitializingBean {
-    //~ Static fields/initializers =============================================
-
-    private static final Log logger = LogFactory.getLog(RemoteAuthenticationProvider.class);
 
     //~ Instance fields ========================================================
 
