@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,110 +103,6 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
 
     //~ Methods ================================================================
 
-    public void setAclObjectIdentityDelete(
-        AclObjectIdentityDelete aclObjectIdentityDelete) {
-        this.aclObjectIdentityDelete = aclObjectIdentityDelete;
-    }
-
-    public AclObjectIdentityDelete getAclObjectIdentityDelete() {
-        return aclObjectIdentityDelete;
-    }
-
-    public void setAclObjectIdentityDeleteStatement(
-        String aclObjectIdentityDeleteStatement) {
-        this.aclObjectIdentityDeleteStatement = aclObjectIdentityDeleteStatement;
-    }
-
-    public String getAclObjectIdentityDeleteStatement() {
-        return aclObjectIdentityDeleteStatement;
-    }
-
-    public void setAclObjectIdentityInsert(
-        AclObjectIdentityInsert aclObjectIdentityInsert) {
-        this.aclObjectIdentityInsert = aclObjectIdentityInsert;
-    }
-
-    public AclObjectIdentityInsert getAclObjectIdentityInsert() {
-        return aclObjectIdentityInsert;
-    }
-
-    public void setAclObjectIdentityInsertStatement(
-        String aclObjectIdentityInsertStatement) {
-        this.aclObjectIdentityInsertStatement = aclObjectIdentityInsertStatement;
-    }
-
-    public String getAclObjectIdentityInsertStatement() {
-        return aclObjectIdentityInsertStatement;
-    }
-
-    public void setAclPermissionDelete(AclPermissionDelete aclPermissionDelete) {
-        this.aclPermissionDelete = aclPermissionDelete;
-    }
-
-    public AclPermissionDelete getAclPermissionDelete() {
-        return aclPermissionDelete;
-    }
-
-    public void setAclPermissionDeleteStatement(
-        String aclPermissionDeleteStatement) {
-        this.aclPermissionDeleteStatement = aclPermissionDeleteStatement;
-    }
-
-    public String getAclPermissionDeleteStatement() {
-        return aclPermissionDeleteStatement;
-    }
-
-    public void setAclPermissionInsert(AclPermissionInsert aclPermissionInsert) {
-        this.aclPermissionInsert = aclPermissionInsert;
-    }
-
-    public AclPermissionInsert getAclPermissionInsert() {
-        return aclPermissionInsert;
-    }
-
-    public void setAclPermissionInsertStatement(
-        String aclPermissionInsertStatement) {
-        this.aclPermissionInsertStatement = aclPermissionInsertStatement;
-    }
-
-    public String getAclPermissionInsertStatement() {
-        return aclPermissionInsertStatement;
-    }
-
-    public void setAclPermissionUpdate(AclPermissionUpdate aclPermissionUpdate) {
-        this.aclPermissionUpdate = aclPermissionUpdate;
-    }
-
-    public AclPermissionUpdate getAclPermissionUpdate() {
-        return aclPermissionUpdate;
-    }
-
-    public void setAclPermissionUpdateStatement(
-        String aclPermissionUpdateStatement) {
-        this.aclPermissionUpdateStatement = aclPermissionUpdateStatement;
-    }
-
-    public String getAclPermissionUpdateStatement() {
-        return aclPermissionUpdateStatement;
-    }
-
-    public void setLookupPermissionIdMapping(
-        MappingSqlQuery lookupPermissionIdMapping) {
-        this.lookupPermissionIdMapping = lookupPermissionIdMapping;
-    }
-
-    public MappingSqlQuery getLookupPermissionIdMapping() {
-        return lookupPermissionIdMapping;
-    }
-
-    public void setLookupPermissionIdQuery(String lookupPermissionIdQuery) {
-        this.lookupPermissionIdQuery = lookupPermissionIdQuery;
-    }
-
-    public String getLookupPermissionIdQuery() {
-        return lookupPermissionIdQuery;
-    }
-
     public void changeMask(AclObjectIdentity aclObjectIdentity,
         Object recipient, Integer newMask) throws DataAccessException {
         // Retrieve acl_object_identity record details
@@ -241,56 +137,20 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
                 .getAclObjectIdentity());
 
         // Ensure there isn't an existing record for this recipient
-        if (lookupPermissionId(aclDetailsHolder.getForeignKeyId(),
-                basicAclEntry.getRecipient()) != -1) {
-            throw new DataIntegrityViolationException(
-                "This recipient already exists for this aclObjectIdentity");
+        long permissionId = lookupPermissionId(aclDetailsHolder.getForeignKeyId(),
+                basicAclEntry.getRecipient());
+
+        if (permissionId != -1) {
+            throw new DataIntegrityViolationException("Recipient '"
+                + basicAclEntry.getRecipient()
+                + "' already exists for aclObjectIdentity ID "
+                + aclDetailsHolder.getForeignKeyId() + " (permission ID " + ")");
         }
 
         // Create acl_permission
         aclPermissionInsert.insert(new Long(aclDetailsHolder.getForeignKeyId()),
             basicAclEntry.getRecipient().toString(),
             new Integer(basicAclEntry.getMask()));
-    }
-
-    public void delete(AclObjectIdentity aclObjectIdentity)
-        throws DataAccessException {
-        // Retrieve acl_object_identity record details
-        AclDetailsHolder aclDetailsHolder = lookupAclDetailsHolder(aclObjectIdentity);
-
-        // Retrieve all acl_permissions applying to this acl_object_identity
-        Iterator acls = aclsByObjectIdentity.execute(aclDetailsHolder
-                .getForeignKeyId()).iterator();
-
-        // Delete all existing acl_permissions applying to this acl_object_identity
-        while (acls.hasNext()) {
-            AclDetailsHolder permission = (AclDetailsHolder) acls.next();
-            delete(aclObjectIdentity, permission.getRecipient());
-        }
-
-        // Delete acl_object_identity
-        aclObjectIdentityDelete.delete(new Long(
-                aclDetailsHolder.getForeignKeyId()));
-    }
-
-    public void delete(AclObjectIdentity aclObjectIdentity, Object recipient)
-        throws DataAccessException {
-        // Retrieve acl_object_identity record details
-        AclDetailsHolder aclDetailsHolder = lookupAclDetailsHolder(aclObjectIdentity);
-
-        // Delete acl_permission
-        aclPermissionDelete.delete(new Long(aclDetailsHolder.getForeignKeyId()),
-            recipient.toString());
-    }
-
-    protected void initDao() throws ApplicationContextException {
-        super.initDao();
-        lookupPermissionIdMapping = new LookupPermissionIdMapping(getDataSource());
-        aclPermissionInsert = new AclPermissionInsert(getDataSource());
-        aclObjectIdentityInsert = new AclObjectIdentityInsert(getDataSource());
-        aclPermissionDelete = new AclPermissionDelete(getDataSource());
-        aclObjectIdentityDelete = new AclObjectIdentityDelete(getDataSource());
-        aclPermissionUpdate = new AclPermissionUpdate(getDataSource());
     }
 
     /**
@@ -325,6 +185,94 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
                     basicAclEntry.getClass().getName());
             }
         }
+    }
+
+    public void delete(AclObjectIdentity aclObjectIdentity)
+        throws DataAccessException {
+        // Retrieve acl_object_identity record details
+        AclDetailsHolder aclDetailsHolder = lookupAclDetailsHolder(aclObjectIdentity);
+
+        // Retrieve all acl_permissions applying to this acl_object_identity
+        Iterator acls = aclsByObjectIdentity.execute(aclDetailsHolder
+                .getForeignKeyId()).iterator();
+
+        // Delete all existing acl_permissions applying to this acl_object_identity
+        while (acls.hasNext()) {
+            AclDetailsHolder permission = (AclDetailsHolder) acls.next();
+            delete(aclObjectIdentity, permission.getRecipient());
+        }
+
+        // Delete acl_object_identity
+        aclObjectIdentityDelete.delete(new Long(
+                aclDetailsHolder.getForeignKeyId()));
+    }
+
+    public void delete(AclObjectIdentity aclObjectIdentity, Object recipient)
+        throws DataAccessException {
+        // Retrieve acl_object_identity record details
+        AclDetailsHolder aclDetailsHolder = lookupAclDetailsHolder(aclObjectIdentity);
+
+        // Delete acl_permission
+        aclPermissionDelete.delete(new Long(aclDetailsHolder.getForeignKeyId()),
+            recipient.toString());
+    }
+
+    public AclObjectIdentityDelete getAclObjectIdentityDelete() {
+        return aclObjectIdentityDelete;
+    }
+
+    public String getAclObjectIdentityDeleteStatement() {
+        return aclObjectIdentityDeleteStatement;
+    }
+
+    public AclObjectIdentityInsert getAclObjectIdentityInsert() {
+        return aclObjectIdentityInsert;
+    }
+
+    public String getAclObjectIdentityInsertStatement() {
+        return aclObjectIdentityInsertStatement;
+    }
+
+    public AclPermissionDelete getAclPermissionDelete() {
+        return aclPermissionDelete;
+    }
+
+    public String getAclPermissionDeleteStatement() {
+        return aclPermissionDeleteStatement;
+    }
+
+    public AclPermissionInsert getAclPermissionInsert() {
+        return aclPermissionInsert;
+    }
+
+    public String getAclPermissionInsertStatement() {
+        return aclPermissionInsertStatement;
+    }
+
+    public AclPermissionUpdate getAclPermissionUpdate() {
+        return aclPermissionUpdate;
+    }
+
+    public String getAclPermissionUpdateStatement() {
+        return aclPermissionUpdateStatement;
+    }
+
+    public MappingSqlQuery getLookupPermissionIdMapping() {
+        return lookupPermissionIdMapping;
+    }
+
+    public String getLookupPermissionIdQuery() {
+        return lookupPermissionIdQuery;
+    }
+
+    protected void initDao() throws ApplicationContextException {
+        super.initDao();
+        lookupPermissionIdMapping = new LookupPermissionIdMapping(getDataSource());
+        aclPermissionInsert = new AclPermissionInsert(getDataSource());
+        aclObjectIdentityInsert = new AclObjectIdentityInsert(getDataSource());
+        aclPermissionDelete = new AclPermissionDelete(getDataSource());
+        aclObjectIdentityDelete = new AclObjectIdentityDelete(getDataSource());
+        aclPermissionUpdate = new AclPermissionUpdate(getDataSource());
     }
 
     /**
@@ -374,6 +322,62 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         }
 
         return ((Long) list.get(0)).longValue();
+    }
+
+    public void setAclObjectIdentityDelete(
+        AclObjectIdentityDelete aclObjectIdentityDelete) {
+        this.aclObjectIdentityDelete = aclObjectIdentityDelete;
+    }
+
+    public void setAclObjectIdentityDeleteStatement(
+        String aclObjectIdentityDeleteStatement) {
+        this.aclObjectIdentityDeleteStatement = aclObjectIdentityDeleteStatement;
+    }
+
+    public void setAclObjectIdentityInsert(
+        AclObjectIdentityInsert aclObjectIdentityInsert) {
+        this.aclObjectIdentityInsert = aclObjectIdentityInsert;
+    }
+
+    public void setAclObjectIdentityInsertStatement(
+        String aclObjectIdentityInsertStatement) {
+        this.aclObjectIdentityInsertStatement = aclObjectIdentityInsertStatement;
+    }
+
+    public void setAclPermissionDelete(AclPermissionDelete aclPermissionDelete) {
+        this.aclPermissionDelete = aclPermissionDelete;
+    }
+
+    public void setAclPermissionDeleteStatement(
+        String aclPermissionDeleteStatement) {
+        this.aclPermissionDeleteStatement = aclPermissionDeleteStatement;
+    }
+
+    public void setAclPermissionInsert(AclPermissionInsert aclPermissionInsert) {
+        this.aclPermissionInsert = aclPermissionInsert;
+    }
+
+    public void setAclPermissionInsertStatement(
+        String aclPermissionInsertStatement) {
+        this.aclPermissionInsertStatement = aclPermissionInsertStatement;
+    }
+
+    public void setAclPermissionUpdate(AclPermissionUpdate aclPermissionUpdate) {
+        this.aclPermissionUpdate = aclPermissionUpdate;
+    }
+
+    public void setAclPermissionUpdateStatement(
+        String aclPermissionUpdateStatement) {
+        this.aclPermissionUpdateStatement = aclPermissionUpdateStatement;
+    }
+
+    public void setLookupPermissionIdMapping(
+        MappingSqlQuery lookupPermissionIdMapping) {
+        this.lookupPermissionIdMapping = lookupPermissionIdMapping;
+    }
+
+    public void setLookupPermissionIdQuery(String lookupPermissionIdQuery) {
+        this.lookupPermissionIdQuery = lookupPermissionIdQuery;
     }
 
     //~ Inner Classes ==========================================================
