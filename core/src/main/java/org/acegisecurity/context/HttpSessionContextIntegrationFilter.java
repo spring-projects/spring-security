@@ -85,7 +85,7 @@ import javax.servlet.http.HttpSession;
  * </p>
  * 
  * <p>
- * This filter MUST be executed BEFORE any authentication procesing mechanisms.
+ * This filter MUST be executed BEFORE any authentication processing mechanisms.
  * Authentication processing mechanisms (eg BASIC, CAS processing filters etc)
  * expect the <code>SecurityContextHolder</code> to contain a valid
  * <code>SecurityContext</code> by the time they execute.

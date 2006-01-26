@@ -77,7 +77,7 @@ public class SessionRegistryImpl implements SessionRegistry,
     }
 
     public SessionInformation getSessionInformation(String sessionId) {
-        Assert.hasText(sessionId, "SessionId required as per inerface contract");
+        Assert.hasText(sessionId, "SessionId required as per interface contract");
 
         return (SessionInformation) sessionIds.get(sessionId);
     }
@@ -90,7 +90,7 @@ public class SessionRegistryImpl implements SessionRegistry,
     }
 
     public void refreshLastRequest(String sessionId) {
-        Assert.hasText(sessionId, "SessionId required as per inerface contract");
+        Assert.hasText(sessionId, "SessionId required as per interface contract");
 
         SessionInformation info = getSessionInformation(sessionId);
 
@@ -101,8 +101,8 @@ public class SessionRegistryImpl implements SessionRegistry,
 
     public void registerNewSession(String sessionId, Object principal)
         throws SessionAlreadyUsedException {
-        Assert.hasText(sessionId, "SessionId required as per inerface contract");
-        Assert.notNull(principal, "Principal required as per inerface contract");
+        Assert.hasText(sessionId, "SessionId required as per interface contract");
+        Assert.notNull(principal, "Principal required as per interface contract");
 
         if (getSessionInformation(sessionId) != null) {
             throw new SessionAlreadyUsedException("Session " + sessionId
@@ -124,7 +124,7 @@ public class SessionRegistryImpl implements SessionRegistry,
     }
 
     public void removeSessionInformation(String sessionId) {
-        Assert.hasText(sessionId, "SessionId required as per inerface contract");
+        Assert.hasText(sessionId, "SessionId required as per interface contract");
 
         SessionInformation info = getSessionInformation(sessionId);
 

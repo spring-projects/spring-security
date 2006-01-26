@@ -68,7 +68,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 
         String rootDn = initialDirContextFactory.getRootDn();
 
-        if(rootDn.length() > 0) {
+        if (rootDn.length() > 0) {
             dnSuffix = "," + rootDn;
         }
     }
@@ -85,7 +85,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
      * set.
      */
     protected List getUserDns(String username) {
-        if(userDnFormat == null) {
+        if (userDnFormat == null) {
             return new ArrayList(0);
         }
 
@@ -112,7 +112,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 //        this.userDnPattern = dnPattern;
         userDnFormat = new MessageFormat[dnPattern.length];
 
-        for(int i=0; i < dnPattern.length; i++) {
+        for (int i=0; i < dnPattern.length; i++) {
             userDnFormat[i] = new MessageFormat(dnPattern[i]);
         }
     }
