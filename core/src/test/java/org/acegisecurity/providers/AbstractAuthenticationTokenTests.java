@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,12 +40,12 @@ public class AbstractAuthenticationTokenTests extends TestCase {
 
     //~ Methods ================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AbstractAuthenticationTokenTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testGetters() throws Exception {
@@ -56,6 +56,25 @@ public class AbstractAuthenticationTokenTests extends TestCase {
         assertEquals("Test", token.getPrincipal());
         assertEquals("Password", token.getCredentials());
         assertEquals("Test", token.getName());
+    }
+
+    public void testHashCode() throws Exception {
+        MockAuthenticationImpl token1 = new MockAuthenticationImpl("Test",
+                "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                        "ROLE_TWO")});
+        MockAuthenticationImpl token2 = new MockAuthenticationImpl("Test",
+                "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                        "ROLE_TWO")});
+        MockAuthenticationImpl token3 = new MockAuthenticationImpl(null, null,
+                new GrantedAuthority[] {});
+        assertEquals(token1.hashCode(), token2.hashCode());
+        assertTrue(token1.hashCode() != token3.hashCode());
+
+        token2.setAuthenticated(true);
+
+        assertTrue(token1.hashCode() != token2.hashCode());
     }
 
     public void testObjectsEquals() throws Exception {
@@ -143,14 +162,6 @@ public class AbstractAuthenticationTokenTests extends TestCase {
             super();
         }
 
-        public void setAuthenticated(boolean isAuthenticated) {
-            this.authenticated = isAuthenticated;
-        }
-
-        public boolean isAuthenticated() {
-            return this.authenticated;
-        }
-
         public GrantedAuthority[] getAuthorities() {
             return this.authorities;
         }
@@ -161,6 +172,14 @@ public class AbstractAuthenticationTokenTests extends TestCase {
 
         public Object getPrincipal() {
             return this.principal;
+        }
+
+        public boolean isAuthenticated() {
+            return this.authenticated;
+        }
+
+        public void setAuthenticated(boolean isAuthenticated) {
+            this.authenticated = isAuthenticated;
         }
     }
 }

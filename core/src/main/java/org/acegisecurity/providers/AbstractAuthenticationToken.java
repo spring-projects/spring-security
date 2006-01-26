@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.acegisecurity.providers;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.userdetails.UserDetails;
 
 
@@ -27,24 +28,6 @@ import org.acegisecurity.userdetails.UserDetails;
  */
 public abstract class AbstractAuthenticationToken implements Authentication {
     //~ Methods ================================================================
-
-    /**
-     * Subclasses should override if they wish to provide additional details
-     * about the authentication event.
-     *
-     * @return always <code>null</code>
-     */
-    public Object getDetails() {
-        return null;
-    }
-
-    public String getName() {
-        if (this.getPrincipal() instanceof UserDetails) {
-            return ((UserDetails) this.getPrincipal()).getUsername();
-        }
-
-        return this.getPrincipal().toString();
-    }
 
     public boolean equals(Object obj) {
         if (obj instanceof AbstractAuthenticationToken) {
@@ -75,6 +58,48 @@ public abstract class AbstractAuthenticationToken implements Authentication {
         }
 
         return false;
+    }
+
+    /**
+     * Subclasses should override if they wish to provide additional details
+     * about the authentication event.
+     *
+     * @return always <code>null</code>
+     */
+    public Object getDetails() {
+        return null;
+    }
+
+    public String getName() {
+        if (this.getPrincipal() instanceof UserDetails) {
+            return ((UserDetails) this.getPrincipal()).getUsername();
+        }
+
+        return this.getPrincipal().toString();
+    }
+
+    public int hashCode() {
+        int code = 2305;
+
+        if (this.getAuthorities() != null) {
+            for (int i = 0; i < this.getAuthorities().length; i++) {
+                code = code * (this.getAuthorities()[i].hashCode() % 7);
+            }
+        }
+
+        if (this.getPrincipal() != null) {
+            code = code * (this.getPrincipal().hashCode() % 7);
+        }
+
+        if (this.getCredentials() != null) {
+            code = code * (this.getCredentials().hashCode() % 7);
+        }
+
+        if (this.isAuthenticated()) {
+            code = code * -1;
+        }
+
+        return code;
     }
 
     public String toString() {
