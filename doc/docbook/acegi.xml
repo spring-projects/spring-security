@@ -743,6 +743,26 @@ public interface BankManager {
         Jakarta Commons Attributes method of configuration, you should set
         <literal>validateConfigAttributes</literal> to
         <literal>false</literal>.</para>
+
+        <para>Please note that when using
+        <literal>BeanNameAutoProxyCreator</literal> to create the required
+        proxy for security, the configuration must contain the property
+        <literal>proxyTargetClass</literal> set to <literal>true</literal>.
+        Otherwise, the method passed to
+        <literal>MethodSecurityInterceptor.invoke</literal> is the proxy's
+        caller, not the proxy's target. Note that this introduces a
+        requirement on CGLIB. See an example of using
+        <literal>BeanNameAutoProxyCreator</literal> below:</para>
+
+        <para><programlisting>&lt;bean id="autoProxyCreator" class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator"&gt;
+  &lt;property name="interceptorNames"&gt;
+    &lt;list&gt;&lt;value&gt;methodSecurityInterceptor&lt;/value&gt;&lt;/list&gt;
+  &lt;/property&gt;
+  &lt;property name="beanNames"&gt;
+    &lt;list&gt;&lt;value&gt;targetObjectName&lt;/value&gt;&lt;/list&gt;
+  &lt;/property&gt;
+  &lt;property name="proxyTargetClass" value="true"/&gt;
+&lt;/bean&gt; </programlisting></para>
       </sect2>
 
       <sect2 id="security-interception-aspectj">
