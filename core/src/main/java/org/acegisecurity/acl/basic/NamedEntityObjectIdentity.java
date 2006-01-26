@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  */
 
 package org.acegisecurity.acl.basic;
+
+import org.apache.commons.lang.ClassUtils;
 
 import org.springframework.util.Assert;
 
@@ -64,7 +66,10 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
         throws IllegalAccessException, InvocationTargetException {
         Assert.notNull(object, "object cannot be null");
 
-        this.classname = object.getClass().getName();
+        this.classname = (object.getClass().getPackage() == null)
+            ? ClassUtils.getShortClassName(object.getClass())
+            : (object.getClass().getPackage().getName() + "."
+            + ClassUtils.getShortClassName(object.getClass()));
 
         Class clazz = object.getClass();
 
