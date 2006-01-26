@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,9 @@ import org.acegisecurity.intercept.AbstractSecurityInterceptor;
 
 import org.aopalliance.intercept.MethodInvocation;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.util.Assert;
@@ -46,11 +49,19 @@ import org.springframework.util.Assert;
  * @version $Id$
  */
 public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
+    //~ Static fields/initializers =============================================
+
+    protected static final Log logger = LogFactory.getLog(MethodInvocationPrivilegeEvaluator.class);
+
     //~ Instance fields ========================================================
 
     private AbstractSecurityInterceptor securityInterceptor;
 
     //~ Methods ================================================================
+
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(securityInterceptor, "SecurityInterceptor required");
+    }
 
     public boolean isAllowed(MethodInvocation mi, Authentication authentication) {
         Assert.notNull(authentication, "Authentication required");
@@ -76,10 +87,13 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
         }
 
         try {
-            securityInterceptor.getAccessDecisionManager().decide(authentication,
-                mi, attrs);
+            securityInterceptor.getAccessDecisionManager()
+                               .decide(authentication, mi, attrs);
         } catch (AccessDeniedException unauthorized) {
-            unauthorized.printStackTrace();
+            if (logger.isDebugEnabled()) {
+                logger.debug(mi.toString() + " denied for "
+                    + authentication.toString(), unauthorized);
+            }
 
             return false;
         }
@@ -97,9 +111,5 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
         Assert.notNull(securityInterceptor.getAccessDecisionManager(),
             "AbstractSecurityInterceptor must provide a non-null AccessDecisionManager");
         this.securityInterceptor = securityInterceptor;
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(securityInterceptor, "SecurityInterceptor required");
     }
 }
