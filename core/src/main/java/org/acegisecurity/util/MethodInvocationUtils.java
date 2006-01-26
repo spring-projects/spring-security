@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ public class MethodInvocationUtils {
      */
     public static MethodInvocation createFromClass(Class clazz,
         String methodName) {
-        return createFromClass(clazz, methodName);
+        return createFromClass(clazz, methodName, null);
     }
 
     /**
