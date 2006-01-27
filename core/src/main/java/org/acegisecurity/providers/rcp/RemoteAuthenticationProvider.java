@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,12 @@ package org.acegisecurity.providers.rcp;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.GrantedAuthority;
+
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.util.Assert;
 
 
@@ -60,24 +59,15 @@ import org.springframework.util.Assert;
  */
 public class RemoteAuthenticationProvider implements AuthenticationProvider,
     InitializingBean {
-
     //~ Instance fields ========================================================
 
     private RemoteAuthenticationManager remoteAuthenticationManager;
 
     //~ Methods ================================================================
 
-    public void setRemoteAuthenticationManager(
-        RemoteAuthenticationManager remoteAuthenticationManager) {
-        this.remoteAuthenticationManager = remoteAuthenticationManager;
-    }
-
-    public RemoteAuthenticationManager getRemoteAuthenticationManager() {
-        return remoteAuthenticationManager;
-    }
-
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.remoteAuthenticationManager, "remoteAuthenticationManager is mandatory");
+        Assert.notNull(this.remoteAuthenticationManager,
+            "remoteAuthenticationManager is mandatory");
     }
 
     public Authentication authenticate(Authentication authentication)
@@ -89,6 +79,15 @@ public class RemoteAuthenticationProvider implements AuthenticationProvider,
 
         return new UsernamePasswordAuthenticationToken(username, password,
             authorities);
+    }
+
+    public RemoteAuthenticationManager getRemoteAuthenticationManager() {
+        return remoteAuthenticationManager;
+    }
+
+    public void setRemoteAuthenticationManager(
+        RemoteAuthenticationManager remoteAuthenticationManager) {
+        this.remoteAuthenticationManager = remoteAuthenticationManager;
     }
 
     public boolean supports(Class authentication) {
