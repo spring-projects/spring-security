@@ -60,8 +60,9 @@ public class LdapUtils {
         try {
             return new URI(url);
         } catch (URISyntaxException e) {
-            logger.error("Failed to parse url " + url, e);
-            throw new IllegalArgumentException("Unable to parse url: " + url);
+            IllegalArgumentException iae = new IllegalArgumentException("Unable to parse url: " + url);
+            iae.initCause(e);
+            throw iae;
         }
     }
 
