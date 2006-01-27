@@ -129,7 +129,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
         Assert.hasLength(url, "An LDAP connection URL must be supplied.");
 
-        if (url.startsWith("ldap:")) {
+        if (url.startsWith("ldap:") || url.startsWith("ldaps:")) {
 
             URI uri = LdapUtils.parseLdapUrl(url);
 
