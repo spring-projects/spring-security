@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 package org.acegisecurity.providers.dao.salt;
 
 import org.acegisecurity.AuthenticationServiceException;
+
 import org.acegisecurity.providers.dao.SaltSource;
+
 import org.acegisecurity.userdetails.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -44,6 +46,14 @@ public class ReflectionSaltSource implements SaltSource, InitializingBean {
 
     //~ Methods ================================================================
 
+    public void afterPropertiesSet() throws Exception {
+        if ((this.getUserPropertyToUse() == null)
+            || "".equals(this.getUserPropertyToUse())) {
+            throw new IllegalArgumentException(
+                "A userPropertyToUse must be set");
+        }
+    }
+
     /**
      * Performs reflection on the passed <code>User</code> to obtain the salt.
      * 
@@ -62,13 +72,19 @@ public class ReflectionSaltSource implements SaltSource, InitializingBean {
      */
     public Object getSalt(UserDetails user) {
         try {
-            Method reflectionMethod = user.getClass().getMethod(this.userPropertyToUse,
+            Method reflectionMethod = user.getClass()
+                                          .getMethod(this.userPropertyToUse,
                     new Class[] {});
 
             return reflectionMethod.invoke(user, new Object[] {});
         } catch (Exception exception) {
-            throw new AuthenticationServiceException(exception.getMessage());
+            throw new AuthenticationServiceException(exception.getMessage(),
+                exception);
         }
+    }
+
+    public String getUserPropertyToUse() {
+        return userPropertyToUse;
     }
 
     /**
@@ -81,17 +97,5 @@ public class ReflectionSaltSource implements SaltSource, InitializingBean {
      */
     public void setUserPropertyToUse(String userPropertyToUse) {
         this.userPropertyToUse = userPropertyToUse;
-    }
-
-    public String getUserPropertyToUse() {
-        return userPropertyToUse;
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        if ((this.getUserPropertyToUse() == null)
-            || "".equals(this.getUserPropertyToUse())) {
-            throw new IllegalArgumentException(
-                "A userPropertyToUse must be set");
-        }
     }
 }
