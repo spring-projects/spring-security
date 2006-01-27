@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,336 +138,320 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
 
         entry.setAclObjectIdentity(propertiesInformation.getAclObjectIdentity());
         entry.setAclObjectParentIdentity(propertiesInformation
-                .getAclObjectParentIdentity());
+            .getAclObjectParentIdentity());
 
-            if (aclInformation == null) {
-                // this is an inheritence marker instance only
-                entry.setMask(0);
-                entry.setRecipient(RECIPIENT_USED_FOR_INHERITENCE_MARKER);
-            } else {
-                // this is an individual ACL entry
-                entry.setMask(aclInformation.getMask());
-                entry.setRecipient(aclInformation.getRecipient());
+        if (aclInformation == null) {
+            // this is an inheritence marker instance only
+            entry.setMask(0);
+            entry.setRecipient(RECIPIENT_USED_FOR_INHERITENCE_MARKER);
+        } else {
+            // this is an individual ACL entry
+            entry.setMask(aclInformation.getMask());
+            entry.setRecipient(aclInformation.getRecipient());
+        }
+
+        return entry;
+    }
+
+    /**
+     * Returns the ACLs associated with the requested
+     * <code>AclObjectIdentity</code>.
+     * 
+     * <P>
+     * The {@link BasicAclEntry}s returned by this method will have
+     * <code>String</code>-based recipients. This will not be a problem if you
+     * are using the <code>GrantedAuthorityEffectiveAclsResolver</code>, which
+     * is the default configured against <code>BasicAclProvider</code>.
+     * </p>
+     * 
+     * <P>
+     * This method will only return ACLs for requests where the
+     * <code>AclObjectIdentity</code> is of type {@link
+     * NamedEntityObjectIdentity}. Of course, you can subclass or replace this
+     * class and support your own custom <code>AclObjectIdentity</code> types.
+     * </p>
+     *
+     * @param aclObjectIdentity for which ACL information is required (cannot
+     *        be <code>null</code> and must be an instance of
+     *        <code>NamedEntityObjectIdentity</code>)
+     *
+     * @return the ACLs that apply (without any <code>null</code>s inside the
+     *         array), or <code>null</code> if not found or if an incompatible
+     *         <code>AclObjectIdentity</code> was requested
+     */
+    public BasicAclEntry[] getAcls(AclObjectIdentity aclObjectIdentity) {
+        String aclObjectIdentityString;
+
+        try {
+            aclObjectIdentityString = convertAclObjectIdentityToString(aclObjectIdentity);
+        } catch (IllegalArgumentException unsupported) {
+            return null; // pursuant to contract described in JavaDocs above
+        }
+
+        // Lookup the object's main properties from the RDBMS (guaranteed no nulls)
+        List objects = objectProperties.execute(aclObjectIdentityString);
+
+        if (objects.size() == 0) {
+            // this is an unknown object identity string
+            return null;
+        }
+
+        // Cast to an object properties holder (there should only be one record)
+        AclDetailsHolder propertiesInformation = (AclDetailsHolder) objects.get(0);
+
+        // Lookup the object's ACLs from RDBMS (guaranteed no nulls)
+        List acls = aclsByObjectIdentity.execute(propertiesInformation
+                .getForeignKeyId());
+
+        if (acls.size() == 0) {
+            // return merely an inheritence marker (as we know about the object but it has no related ACLs)
+            return new BasicAclEntry[] {createBasicAclEntry(propertiesInformation,
+                    null)};
+        } else {
+            // return the individual ACL instances
+            AclDetailsHolder[] aclHolders = (AclDetailsHolder[]) acls.toArray(new AclDetailsHolder[] {});
+            List toReturnAcls = new Vector();
+
+            for (int i = 0; i < aclHolders.length; i++) {
+                toReturnAcls.add(createBasicAclEntry(propertiesInformation,
+                        aclHolders[i]));
             }
 
-            return entry;
+            return (BasicAclEntry[]) toReturnAcls.toArray(new BasicAclEntry[] {});
+        }
+    }
+
+    public MappingSqlQuery getAclsByObjectIdentity() {
+        return aclsByObjectIdentity;
+    }
+
+    public String getAclsByObjectIdentityQuery() {
+        return aclsByObjectIdentityQuery;
+    }
+
+    public String getObjectPropertiesQuery() {
+        return objectPropertiesQuery;
+    }
+
+    protected void initDao() throws ApplicationContextException {
+        initMappingSqlQueries();
+    }
+
+    /**
+     * Extension point to allow other MappingSqlQuery objects to be substituted
+     * in a subclass
+     */
+    protected void initMappingSqlQueries() {
+        setAclsByObjectIdentity(new AclsByObjectIdentityMapping(getDataSource()));
+        setObjectProperties(new ObjectPropertiesMapping(getDataSource()));
+    }
+
+    public void setAclsByObjectIdentity(
+        MappingSqlQuery aclsByObjectIdentityQuery) {
+        this.aclsByObjectIdentity = aclsByObjectIdentityQuery;
+    }
+
+    /**
+     * Allows the default query string used to retrieve ACLs based on object
+     * identity to be overriden, if default table or column names need to be
+     * changed. The default query is {@link
+     * #DEF_ACLS_BY_OBJECT_IDENTITY_QUERY}; when modifying this query, ensure
+     * that all returned columns are mapped back to the same column names as
+     * in the default query.
+     *
+     * @param queryString The query string to set
+     */
+    public void setAclsByObjectIdentityQuery(String queryString) {
+        aclsByObjectIdentityQuery = queryString;
+    }
+
+    public void setObjectProperties(MappingSqlQuery objectPropertiesQuery) {
+        this.objectProperties = objectPropertiesQuery;
+    }
+
+    public void setObjectPropertiesQuery(String queryString) {
+        objectPropertiesQuery = queryString;
+    }
+
+    //~ Inner Classes ==========================================================
+
+    /**
+     * Used to hold details of a domain object instance's properties, or an
+     * individual ACL entry.
+     * 
+     * <P>
+     * Not all properties will be set. The actual properties set will depend on
+     * which <code>MappingSqlQuery</code> creates the object.
+     * </p>
+     * 
+     * <P>
+     * Does not enforce <code>null</code>s or empty <code>String</code>s as
+     * this is performed by the <code>MappingSqlQuery</code> objects (or
+     * preferably the backend RDBMS via schema constraints).
+     * </p>
+     */
+    protected final class AclDetailsHolder {
+        private AclObjectIdentity aclObjectIdentity;
+        private AclObjectIdentity aclObjectParentIdentity;
+        private Class aclClass;
+        private Object recipient;
+        private int mask;
+        private long foreignKeyId;
+
+        /**
+         * Record details of an individual ACL entry (usually from the
+         * ACL_PERMISSION table)
+         *
+         * @param recipient the recipient
+         * @param mask the integer to be masked
+         */
+        public AclDetailsHolder(Object recipient, int mask) {
+            this.recipient = recipient;
+            this.mask = mask;
         }
 
         /**
-         * Returns the ACLs associated with the requested
-         * <code>AclObjectIdentity</code>.
-         * 
-         * <P>
-         * The {@link BasicAclEntry}s returned by this method will have
-         * <code>String</code>-based recipients. This will not be a problem if
-         * you are using the
-         * <code>GrantedAuthorityEffectiveAclsResolver</code>, which is the
-         * default configured against <code>BasicAclProvider</code>.
-         * </p>
-         * 
-         * <P>
-         * This method will only return ACLs for requests where the
-         * <code>AclObjectIdentity</code> is of type {@link
-         * NamedEntityObjectIdentity}. Of course, you can subclass or replace
-         * this class and support your own custom
-         * <code>AclObjectIdentity</code> types.
-         * </p>
+         * Record details of a domain object instance's properties (usually
+         * from the ACL_OBJECT_IDENTITY table)
          *
-         * @param aclObjectIdentity for which ACL information is required
-         *        (cannot be <code>null</code> and must be an instance of
-         *        <code>NamedEntityObjectIdentity</code>)
-         *
-         * @return the ACLs that apply (without any <code>null</code>s inside
-         *         the array), or <code>null</code> if not found or if an
-         *         incompatible <code>AclObjectIdentity</code> was requested
+         * @param foreignKeyId used by the
+         *        <code>AclsByObjectIdentityMapping</code> to locate the
+         *        individual ACL entries
+         * @param aclObjectIdentity the object identity of the domain object
+         *        instance
+         * @param aclObjectParentIdentity the object identity of the domain
+         *        object instance's parent
+         * @param aclClass the class of which a new instance which should be
+         *        created for each individual ACL entry (or an inheritence
+         *        "holder" class if there are no ACL entries)
          */
-        public BasicAclEntry[] getAcls(AclObjectIdentity aclObjectIdentity) {
-            String aclObjectIdentityString;
+        public AclDetailsHolder(long foreignKeyId,
+            AclObjectIdentity aclObjectIdentity,
+            AclObjectIdentity aclObjectParentIdentity, Class aclClass) {
+            this.foreignKeyId = foreignKeyId;
+            this.aclObjectIdentity = aclObjectIdentity;
+            this.aclObjectParentIdentity = aclObjectParentIdentity;
+            this.aclClass = aclClass;
+        }
 
-            try {
-                aclObjectIdentityString = convertAclObjectIdentityToString(aclObjectIdentity);
-            } catch (IllegalArgumentException unsupported) {
-                return null; // pursuant to contract described in JavaDocs above
-            }
+        public Class getAclClass() {
+            return aclClass;
+        }
 
-            // Lookup the object's main properties from the RDBMS (guaranteed no nulls)
-            List objects = objectProperties.execute(aclObjectIdentityString);
+        public AclObjectIdentity getAclObjectIdentity() {
+            return aclObjectIdentity;
+        }
 
-            if (objects.size() == 0) {
-                // this is an unknown object identity string
+        public AclObjectIdentity getAclObjectParentIdentity() {
+            return aclObjectParentIdentity;
+        }
+
+        public long getForeignKeyId() {
+            return foreignKeyId;
+        }
+
+        public int getMask() {
+            return mask;
+        }
+
+        public Object getRecipient() {
+            return recipient;
+        }
+    }
+
+    /**
+     * Query object to look up individual ACL entries.
+     * 
+     * <P>
+     * Returns the generic <code>AclDetailsHolder</code> object.
+     * </p>
+     * 
+     * <P>
+     * Guarantees to never return <code>null</code> (exceptions are thrown in
+     * the event of any issues).
+     * </p>
+     * 
+     * <P>
+     * The executed SQL requires the following information be made available
+     * from the indicated placeholders: 1. RECIPIENT, 2. MASK.
+     * </p>
+     */
+    protected class AclsByObjectIdentityMapping extends MappingSqlQuery {
+        protected AclsByObjectIdentityMapping(DataSource ds) {
+            super(ds, aclsByObjectIdentityQuery);
+            declareParameter(new SqlParameter(Types.BIGINT));
+            compile();
+        }
+
+        protected Object mapRow(ResultSet rs, int rownum)
+            throws SQLException {
+            String recipient = rs.getString(1);
+            int mask = rs.getInt(2);
+            Assert.hasText(recipient, "recipient required");
+
+            return new AclDetailsHolder(recipient, mask);
+        }
+    }
+
+    /**
+     * Query object to look up properties for an object identity.
+     * 
+     * <P>
+     * Returns the generic <code>AclDetailsHolder</code> object.
+     * </p>
+     * 
+     * <P>
+     * Guarantees to never return <code>null</code> (exceptions are thrown in
+     * the event of any issues).
+     * </p>
+     * 
+     * <P>
+     * The executed SQL requires the following information be made available
+     * from the indicated placeholders: 1. ID, 2. OBJECT_IDENTITY, 3.
+     * ACL_CLASS and 4. PARENT_OBJECT_IDENTITY.
+     * </p>
+     */
+    protected class ObjectPropertiesMapping extends MappingSqlQuery {
+        protected ObjectPropertiesMapping(DataSource ds) {
+            super(ds, objectPropertiesQuery);
+            declareParameter(new SqlParameter(Types.VARCHAR));
+            compile();
+        }
+
+        private AclObjectIdentity buildIdentity(String identity) {
+            if (identity == null) {
+                // Must be an empty parent, so return null
                 return null;
             }
 
-            // Cast to an object properties holder (there should only be one record)
-            AclDetailsHolder propertiesInformation = (AclDetailsHolder) objects
-                .get(0);
+            int delim = identity.lastIndexOf(":");
+            String classname = identity.substring(0, delim);
+            String id = identity.substring(delim + 1);
 
-            // Lookup the object's ACLs from RDBMS (guaranteed no nulls)
-            List acls = aclsByObjectIdentity.execute(propertiesInformation
-                        .getForeignKeyId());
+            return new NamedEntityObjectIdentity(classname, id);
+        }
 
-                if (acls.size() == 0) {
-                    // return merely an inheritence marker (as we know about the object but it has no related ACLs)
-                    return new BasicAclEntry[] {createBasicAclEntry(propertiesInformation,
-                            null)};
-                } else {
-                    // return the individual ACL instances
-                    AclDetailsHolder[] aclHolders = (AclDetailsHolder[]) acls
-                            .toArray(new AclDetailsHolder[] {});
-                        List toReturnAcls = new Vector();
+        protected Object mapRow(ResultSet rs, int rownum)
+            throws SQLException {
+            long id = rs.getLong(1); // required
+            String objectIdentity = rs.getString(2); // required
+            String aclClass = rs.getString(3); // required
+            String parentObjectIdentity = rs.getString(4); // optional
+            Assert.hasText(objectIdentity,
+                "required DEF_OBJECT_PROPERTIES_QUERY value (objectIdentity) returned null or empty");
+            Assert.hasText(aclClass,
+                "required DEF_OBJECT_PROPERTIES_QUERY value (aclClass) returned null or empty");
 
-                        for (int i = 0; i < aclHolders.length; i++) {
-                            toReturnAcls.add(createBasicAclEntry(
-                                    propertiesInformation, aclHolders[i]));
-                        }
+            Class aclClazz;
 
-                        return (BasicAclEntry[]) toReturnAcls.toArray(new BasicAclEntry[] {});
-                    }
-                }
-
-                public MappingSqlQuery getAclsByObjectIdentity() {
-                    return aclsByObjectIdentity;
-                }
-
-                public String getAclsByObjectIdentityQuery() {
-                    return aclsByObjectIdentityQuery;
-                }
-
-                public String getObjectPropertiesQuery() {
-                    return objectPropertiesQuery;
-                }
-
-                protected void initDao() throws ApplicationContextException {
-                    initMappingSqlQueries();
-                }
-
-                /**
-                 * Extension point to allow other MappingSqlQuery objects to be
-                 * substituted in a subclass
-                 */
-                protected void initMappingSqlQueries() {
-                    setAclsByObjectIdentity(new AclsByObjectIdentityMapping(
-                            getDataSource()));
-                    setObjectProperties(new ObjectPropertiesMapping(
-                            getDataSource()));
-                }
-
-                public void setAclsByObjectIdentity(
-                    MappingSqlQuery aclsByObjectIdentityQuery) {
-                    this.aclsByObjectIdentity = aclsByObjectIdentityQuery;
-                }
-
-                /**
-                 * Allows the default query string used to retrieve ACLs based
-                 * on object identity to be overriden, if default table or
-                 * column names need to be changed. The default query is
-                 * {@link #DEF_ACLS_BY_OBJECT_IDENTITY_QUERY}; when modifying
-                 * this query, ensure that all returned columns are mapped
-                 * back to the same column names as in the default query.
-                 *
-                 * @param queryString The query string to set
-                 */
-                public void setAclsByObjectIdentityQuery(String queryString) {
-                    aclsByObjectIdentityQuery = queryString;
-                }
-
-                public void setObjectProperties(
-                    MappingSqlQuery objectPropertiesQuery) {
-                    this.objectProperties = objectPropertiesQuery;
-                }
-
-                public void setObjectPropertiesQuery(String queryString) {
-                    objectPropertiesQuery = queryString;
-                }
-
-                //~ Inner Classes ==========================================================
-
-                /**
-                 * Used to hold details of a domain object instance's
-                 * properties, or an individual ACL entry.
-                 * 
-                 * <P>
-                 * Not all properties will be set. The actual properties set
-                 * will depend on which <code>MappingSqlQuery</code> creates
-                 * the object.
-                 * </p>
-                 * 
-                 * <P>
-                 * Does not enforce <code>null</code>s or empty
-                 * <code>String</code>s as this is performed by the
-                 * <code>MappingSqlQuery</code> objects (or preferably the
-                 * backend RDBMS via schema constraints).
-                 * </p>
-                 */
-                protected final class AclDetailsHolder {
-                    private AclObjectIdentity aclObjectIdentity;
-                    private AclObjectIdentity aclObjectParentIdentity;
-                    private Class aclClass;
-                    private Object recipient;
-                    private int mask;
-                    private long foreignKeyId;
-
-                    /**
-                     * Record details of an individual ACL entry (usually from
-                     * the ACL_PERMISSION table)
-                     *
-                     * @param recipient the recipient
-                     * @param mask the integer to be masked
-                     */
-                    public AclDetailsHolder(Object recipient, int mask) {
-                        this.recipient = recipient;
-                        this.mask = mask;
-                    }
-
-                    /**
-                     * Record details of a domain object instance's properties
-                     * (usually from the ACL_OBJECT_IDENTITY table)
-                     *
-                     * @param foreignKeyId used by the
-                     *        <code>AclsByObjectIdentityMapping</code> to
-                     *        locate the individual ACL entries
-                     * @param aclObjectIdentity the object identity of the
-                     *        domain object instance
-                     * @param aclObjectParentIdentity the object identity of
-                     *        the domain object instance's parent
-                     * @param aclClass the class of which a new instance which
-                     *        should be created for each individual ACL entry
-                     *        (or an inheritence "holder" class if there are
-                     *        no ACL entries)
-                     */
-                    public AclDetailsHolder(long foreignKeyId,
-                        AclObjectIdentity aclObjectIdentity,
-                        AclObjectIdentity aclObjectParentIdentity,
-                        Class aclClass) {
-                        this.foreignKeyId = foreignKeyId;
-                        this.aclObjectIdentity = aclObjectIdentity;
-                        this.aclObjectParentIdentity = aclObjectParentIdentity;
-                        this.aclClass = aclClass;
-                    }
-
-                    public Class getAclClass() {
-                        return aclClass;
-                    }
-
-                    public AclObjectIdentity getAclObjectIdentity() {
-                        return aclObjectIdentity;
-                    }
-
-                    public AclObjectIdentity getAclObjectParentIdentity() {
-                        return aclObjectParentIdentity;
-                    }
-
-                    public long getForeignKeyId() {
-                        return foreignKeyId;
-                    }
-
-                    public int getMask() {
-                        return mask;
-                    }
-
-                    public Object getRecipient() {
-                        return recipient;
-                    }
-                }
-
-                /**
-                 * Query object to look up individual ACL entries.
-                 * 
-                 * <P>
-                 * Returns the generic <code>AclDetailsHolder</code> object.
-                 * </p>
-                 * 
-                 * <P>
-                 * Guarantees to never return <code>null</code> (exceptions are
-                 * thrown in the event of any issues).
-                 * </p>
-                 * 
-                 * <P>
-                 * The executed SQL requires the following information be made
-                 * available from the indicated placeholders: 1. RECIPIENT, 2.
-                 * MASK.
-                 * </p>
-                 */
-                protected class AclsByObjectIdentityMapping
-                    extends MappingSqlQuery {
-                    protected AclsByObjectIdentityMapping(DataSource ds) {
-                        super(ds, aclsByObjectIdentityQuery);
-                        declareParameter(new SqlParameter(Types.BIGINT));
-                        compile();
-                    }
-
-                    protected Object mapRow(ResultSet rs, int rownum)
-                        throws SQLException {
-                        String recipient = rs.getString(1);
-                        int mask = rs.getInt(2);
-                        Assert.hasText(recipient, "recipient required");
-
-                        return new AclDetailsHolder(recipient, mask);
-                    }
-                }
-
-                /**
-                 * Query object to look up properties for an object identity.
-                 * 
-                 * <P>
-                 * Returns the generic <code>AclDetailsHolder</code> object.
-                 * </p>
-                 * 
-                 * <P>
-                 * Guarantees to never return <code>null</code> (exceptions are
-                 * thrown in the event of any issues).
-                 * </p>
-                 * 
-                 * <P>
-                 * The executed SQL requires the following information be made
-                 * available from the indicated placeholders: 1. ID, 2.
-                 * OBJECT_IDENTITY, 3. ACL_CLASS and 4.
-                 * PARENT_OBJECT_IDENTITY.
-                 * </p>
-                 */
-                protected class ObjectPropertiesMapping extends MappingSqlQuery {
-                    protected ObjectPropertiesMapping(DataSource ds) {
-                        super(ds, objectPropertiesQuery);
-                        declareParameter(new SqlParameter(Types.VARCHAR));
-                        compile();
-                    }
-
-                    private AclObjectIdentity buildIdentity(String identity) {
-                        if (identity == null) {
-                            // Must be an empty parent, so return null
-                            return null;
-                        }
-
-                        int delim = identity.lastIndexOf(":");
-                        String classname = identity.substring(0, delim);
-                        String id = identity.substring(delim + 1);
-
-                        return new NamedEntityObjectIdentity(classname, id);
-                    }
-
-                    protected Object mapRow(ResultSet rs, int rownum)
-                        throws SQLException {
-                        long id = rs.getLong(1); // required
-                        String objectIdentity = rs.getString(2); // required
-                        String aclClass = rs.getString(3); // required
-                        String parentObjectIdentity = rs.getString(4); // optional
-                        Assert.hasText(objectIdentity,
-                            "required DEF_OBJECT_PROPERTIES_QUERY value (objectIdentity) returned null or empty");
-                        Assert.hasText(aclClass,
-                            "required DEF_OBJECT_PROPERTIES_QUERY value (aclClass) returned null or empty");
-
-                        Class aclClazz;
-
-                        try {
-                            aclClazz = this.getClass().getClassLoader()
-                                           .loadClass(aclClass);
-                        } catch (ClassNotFoundException cnf) {
-                            throw new IllegalArgumentException(cnf.getMessage());
-                        }
-
-                        return new AclDetailsHolder(id,
-                            buildIdentity(objectIdentity),
-                            buildIdentity(parentObjectIdentity), aclClazz);
-                    }
-                }
+            try {
+                aclClazz = this.getClass().getClassLoader().loadClass(aclClass);
+            } catch (ClassNotFoundException cnf) {
+                throw new IllegalArgumentException(cnf.getMessage());
             }
+
+            return new AclDetailsHolder(id, buildIdentity(objectIdentity),
+                buildIdentity(parentObjectIdentity), aclClazz);
+        }
+    }
+}
