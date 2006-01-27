@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.acegisecurity.context.httpinvoker;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationCredentialsNotFoundException;
+
 import org.acegisecurity.context.SecurityContextHolder;
 
 import org.apache.commons.codec.binary.Base64;
@@ -68,8 +69,8 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor
      * </p>
      * 
      * <p>
-     * The <code>SecurityContextHolder</code> is used to obtain the relevant principal
-     * and credentials.
+     * The <code>SecurityContextHolder</code> is used to obtain the relevant
+     * principal and credentials.
      * </p>
      *
      * @param con the HTTP connection to prepare
@@ -89,9 +90,9 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor
         Authentication auth = SecurityContextHolder.getContext()
                                                    .getAuthentication();
 
-        if ((auth != null) && (auth.getPrincipal() != null)
+        if ((auth != null) && (auth.getName() != null)
             && (auth.getCredentials() != null)) {
-            String base64 = auth.getPrincipal().toString() + ":"
+            String base64 = auth.getName() + ":"
                 + auth.getCredentials().toString();
             con.setRequestProperty("Authorization",
                 "Basic " + new String(Base64.encodeBase64(base64.getBytes())));
