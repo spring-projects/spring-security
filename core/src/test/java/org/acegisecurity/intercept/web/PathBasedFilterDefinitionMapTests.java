@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.MockFilterChain;
-
-
 import org.acegisecurity.SecurityConfig;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -47,12 +45,12 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
 
     //~ Methods ================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public static void main(String[] args) {
         junit.textui.TestRunner.run(PathBasedFilterDefinitionMapTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testConvertUrlToLowercaseIsFalseByDefault() {
@@ -78,6 +76,7 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         // Build a HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI(null);
+
         MockHttpServletRequest req = request;
         req.setServletPath("/SeCuRE/super/somefile.html");
 
@@ -100,6 +99,7 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         // Build a HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI(null);
+
         MockHttpServletRequest req = request;
         req.setServletPath("/SeCuRE/super/somefile.html");
 
@@ -122,6 +122,7 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         // Build a HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI(null);
+
         MockHttpServletRequest req = request;
         req.setServletPath("/secure/super/somefile.html");
 
@@ -131,5 +132,28 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         ConfigAttributeDefinition response = map.lookupAttributes(fi
                 .getRequestUrl());
         assertEquals(def, response);
+    }
+
+    public void testLookupRequiringExactMatchWithAdditionalSlashesIsSuccessful() {
+        PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
+        assertFalse(map.isConvertUrlToLowercaseBeforeComparison());
+
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
+        def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        map.addSecureUrl("/someAdminPage.html**", def);
+
+        // Build a HTTP request
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI(null);
+
+        MockHttpServletRequest req = request;
+        req.setServletPath("/someAdminPage.html?a=/test");
+
+        FilterInvocation fi = new FilterInvocation(req,
+                new MockHttpServletResponse(), new MockFilterChain());
+
+        ConfigAttributeDefinition response = map.lookupAttributes(fi
+                .getRequestUrl());
+        assertEquals(def, response); // see SEC-161 (it should truncate after ? sign)
     }
 }

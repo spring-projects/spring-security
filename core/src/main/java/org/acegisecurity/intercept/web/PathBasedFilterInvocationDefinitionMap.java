@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import org.acegisecurity.ConfigAttributeDefinition;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.util.PathMatcher;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -65,10 +65,18 @@ public class PathBasedFilterInvocationDefinitionMap
     //~ Instance fields ========================================================
 
     private List requestMap = new Vector();
-    private boolean convertUrlToLowercaseBeforeComparison = false;
     private PathMatcher pathMatcher = new AntPathMatcher();
+    private boolean convertUrlToLowercaseBeforeComparison = false;
 
     //~ Methods ================================================================
+
+    public void addSecureUrl(String antPath, ConfigAttributeDefinition attr) {
+        requestMap.add(new EntryHolder(antPath, attr));
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Added Ant path: " + antPath + "; attributes: " + attr);
+        }
+    }
 
     public Iterator getConfigAttributeDefinitions() {
         Set set = new HashSet();
@@ -82,29 +90,21 @@ public class PathBasedFilterInvocationDefinitionMap
         return set.iterator();
     }
 
-    public void setConvertUrlToLowercaseBeforeComparison(
-        boolean convertUrlToLowercaseBeforeComparison) {
-        this.convertUrlToLowercaseBeforeComparison = convertUrlToLowercaseBeforeComparison;
+    public int getMapSize() {
+        return this.requestMap.size();
     }
 
     public boolean isConvertUrlToLowercaseBeforeComparison() {
         return convertUrlToLowercaseBeforeComparison;
     }
 
-    public int getMapSize() {
-        return this.requestMap.size();
-    }
-
-    public void addSecureUrl(String antPath, ConfigAttributeDefinition attr) {
-        requestMap.add(new EntryHolder(antPath, attr));
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Added Ant path: " + antPath + "; attributes: " + attr);
-        }
-    }
-
     public ConfigAttributeDefinition lookupAttributes(String url) {
-        Iterator iter = requestMap.iterator();
+        // Strip anything after a question mark symbol, as per SEC-161.
+        int firstQuestionMarkIndex = url.lastIndexOf("?");
+
+        if (firstQuestionMarkIndex != -1) {
+            url = url.substring(0, firstQuestionMarkIndex);
+        }
 
         if (convertUrlToLowercaseBeforeComparison) {
             url = url.toLowerCase();
@@ -114,6 +114,8 @@ public class PathBasedFilterInvocationDefinitionMap
                     + "'; to: '" + url + "'");
             }
         }
+
+        Iterator iter = requestMap.iterator();
 
         while (iter.hasNext()) {
             EntryHolder entryHolder = (EntryHolder) iter.next();
@@ -131,6 +133,11 @@ public class PathBasedFilterInvocationDefinitionMap
         }
 
         return null;
+    }
+
+    public void setConvertUrlToLowercaseBeforeComparison(
+        boolean convertUrlToLowercaseBeforeComparison) {
+        this.convertUrlToLowercaseBeforeComparison = convertUrlToLowercaseBeforeComparison;
     }
 
     //~ Inner Classes ==========================================================
