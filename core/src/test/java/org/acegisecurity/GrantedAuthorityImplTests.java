@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,21 +37,12 @@ public class GrantedAuthorityImplTests extends TestCase {
 
     //~ Methods ================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public static void main(String[] args) {
         junit.textui.TestRunner.run(GrantedAuthorityImplTests.class);
     }
 
-    public void testNoArgsConstructor() {
-        try {
-            new GrantedAuthorityImpl();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testObjectEquals() throws Exception {

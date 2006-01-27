@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,15 +41,7 @@ public class GrantedAuthorityImpl implements GrantedAuthority, Serializable {
         this.role = role;
     }
 
-    protected GrantedAuthorityImpl() {
-        throw new IllegalArgumentException("Cannot use default constructor");
-    }
-
     //~ Methods ================================================================
-
-    public String getAuthority() {
-        return this.role;
-    }
 
     public boolean equals(Object obj) {
         if (obj instanceof String) {
@@ -63,6 +55,10 @@ public class GrantedAuthorityImpl implements GrantedAuthority, Serializable {
         }
 
         return false;
+    }
+
+    public String getAuthority() {
+        return this.role;
     }
 
     public int hashCode() {
