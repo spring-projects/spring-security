@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 package org.acegisecurity.concurrent;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.ui.WebAuthenticationDetails;
+
 import org.acegisecurity.userdetails.UserDetails;
 
 import org.springframework.util.Assert;
@@ -46,11 +48,13 @@ public class SessionRegistryUtils {
     public static String obtainSessionIdFromAuthentication(Authentication auth) {
         Assert.notNull(auth, "Authentication required");
         Assert.notNull(auth.getDetails(), "Authentication.getDetails() required");
-        Assert.isInstanceOf(WebAuthenticationDetails.class, auth.getDetails());
+        Assert.isInstanceOf(SessionIdentifierAware.class, auth.getDetails());
 
-        String sessionId = ((WebAuthenticationDetails) auth.getDetails())
+        String sessionId = ((SessionIdentifierAware) auth.getDetails())
             .getSessionId();
-        Assert.hasText(sessionId, "WebAuthenticationDetails missing SessionId");
+        Assert.hasText(sessionId,
+            "SessionIdentifierAware did not return a Session ID ("
+            + auth.getDetails() + ")");
 
         return sessionId;
     }

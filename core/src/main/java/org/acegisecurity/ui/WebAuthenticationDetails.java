@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.acegisecurity.ui;
+
+import org.acegisecurity.concurrent.SessionIdentifierAware;
 
 import java.io.Serializable;
 
@@ -26,13 +29,18 @@ import javax.servlet.http.HttpSession;
  * @author Ben Alex
  * @version $Id$
  */
-public class WebAuthenticationDetails implements Serializable {
+public class WebAuthenticationDetails implements SessionIdentifierAware,
+    Serializable {
+    //~ Instance fields ========================================================
+
     private String remoteAddress;
     private String sessionId;
 
+    //~ Constructors ===========================================================
+
     /**
      * Constructor.
-     *
+     * 
      * <p>
      * NB: This constructor will cause a <code>HttpSession</code> to be created
      * (this is considered reasonable as all Acegi Security authentication
@@ -51,8 +59,9 @@ public class WebAuthenticationDetails implements Serializable {
     public WebAuthenticationDetails(HttpServletRequest request,
         boolean forceSessionCreation) {
         this.remoteAddress = request.getRemoteAddr();
+
         HttpSession session = request.getSession(forceSessionCreation);
-        this.sessionId = session != null ? session.getId() : null;
+        this.sessionId = (session != null) ? session.getId() : null;
 
         doPopulateAdditionalInformation(request);
     }
@@ -60,6 +69,15 @@ public class WebAuthenticationDetails implements Serializable {
     protected WebAuthenticationDetails() {
         throw new IllegalArgumentException("Cannot use default constructor");
     }
+
+    //~ Methods ================================================================
+
+    /**
+     * Provided so that subclasses can populate additional information.
+     *
+     * @param request that the authentication request was received from
+     */
+    protected void doPopulateAdditionalInformation(HttpServletRequest request) {}
 
     /**
      * Indicates the TCP/IP address the authentication request was received
@@ -88,13 +106,5 @@ public class WebAuthenticationDetails implements Serializable {
         sb.append("SessionId: " + this.getSessionId());
 
         return sb.toString();
-    }
-
-    /**
-     * Provided so that subclasses can populate additional information.
-     *
-     * @param request that the authentication request was received from
-     */
-    protected void doPopulateAdditionalInformation(HttpServletRequest request) {
     }
 }
