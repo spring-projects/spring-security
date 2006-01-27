@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,14 @@ package org.acegisecurity.acl.basic.cache;
 
 import junit.framework.TestCase;
 
+import net.sf.ehcache.Cache;
+
 import org.acegisecurity.MockApplicationContext;
+
 import org.acegisecurity.acl.basic.AclObjectIdentity;
 import org.acegisecurity.acl.basic.BasicAclEntry;
 import org.acegisecurity.acl.basic.NamedEntityObjectIdentity;
 import org.acegisecurity.acl.basic.SimpleAclEntry;
-
-import net.sf.ehcache.Cache;
 
 import org.springframework.context.ApplicationContext;
 
@@ -60,12 +61,18 @@ public class EhCacheBasedAclEntryCacheTests extends TestCase {
 
     //~ Methods ================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
+    private Cache getCache() {
+        ApplicationContext ctx = MockApplicationContext.getContext();
+
+        return (Cache) ctx.getBean("eHCacheBackend");
     }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(EhCacheBasedAclEntryCacheTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testCacheOperation() throws Exception {
@@ -88,6 +95,12 @@ public class EhCacheBasedAclEntryCacheTests extends TestCase {
                 new NamedEntityObjectIdentity("OBJECT", "200"))[0]);
         assertNull(cache.getEntriesFromCache(
                 new NamedEntityObjectIdentity("OBJECT", "NOT_IN_CACHE")));
+
+        // Check after eviction we cannot get them from cache
+        cache.removeEntriesFromCache(new NamedEntityObjectIdentity("OBJECT",
+                "100"));
+        assertNull(cache.getEntriesFromCache(
+                new NamedEntityObjectIdentity("OBJECT", "100")));
     }
 
     public void testStartupDetectsMissingCache() throws Exception {
@@ -103,11 +116,5 @@ public class EhCacheBasedAclEntryCacheTests extends TestCase {
         Cache myCache = getCache();
         cache.setCache(myCache);
         assertEquals(myCache, cache.getCache());
-    }
-
-    private Cache getCache() {
-        ApplicationContext ctx = MockApplicationContext.getContext();
-
-        return (Cache) ctx.getBean("eHCacheBackend");
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,4 +53,11 @@ public class NullAclEntryCache implements BasicAclEntryCache {
      * @param basicAclEntry ignored
      */
     public void putEntriesInCache(BasicAclEntry[] basicAclEntry) {}
+
+    /**
+     * Meets method signature but doesn't remove from cache.
+     *
+     * @param aclObjectIdentity ignored
+     */
+    public void removeEntriesFromCache(AclObjectIdentity aclObjectIdentity) {}
 }

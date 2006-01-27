@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,4 +58,12 @@ public interface BasicAclEntryCache {
      *        from the {@link BasicAclEntry#getAclObjectIdentity()} method
      */
     public void putEntriesInCache(BasicAclEntry[] basicAclEntry);
+
+    /**
+     * Removes all ACL entries related to an {@link AclObjectIdentity} from the
+     * cache.
+     *
+     * @param aclObjectIdentity which should be removed from the cache
+     */
+    public void removeEntriesFromCache(AclObjectIdentity aclObjectIdentity);
 }

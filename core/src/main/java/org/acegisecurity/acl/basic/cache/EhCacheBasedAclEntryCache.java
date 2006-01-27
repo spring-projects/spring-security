@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
 
 package org.acegisecurity.acl.basic.cache;
 
-import org.acegisecurity.acl.basic.AclObjectIdentity;
-import org.acegisecurity.acl.basic.BasicAclEntry;
-import org.acegisecurity.acl.basic.BasicAclEntryCache;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+
+import org.acegisecurity.acl.basic.AclObjectIdentity;
+import org.acegisecurity.acl.basic.BasicAclEntry;
+import org.acegisecurity.acl.basic.BasicAclEntryCache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.dao.DataRetrievalFailureException;
+
 import org.springframework.util.Assert;
 
 
@@ -51,8 +52,8 @@ public class EhCacheBasedAclEntryCache implements BasicAclEntryCache,
 
     //~ Methods ================================================================
 
-    public void setCache(Cache cache) {
-        this.cache = cache;
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(cache, "cache mandatory");
     }
 
     public Cache getCache() {
@@ -89,10 +90,6 @@ public class EhCacheBasedAclEntryCache implements BasicAclEntryCache,
         return holder.getBasicAclEntries();
     }
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(cache, "cache mandatory");
-    }
-
     public void putEntriesInCache(BasicAclEntry[] basicAclEntry) {
         BasicAclEntryHolder holder = new BasicAclEntryHolder(basicAclEntry);
         Element element = new Element(basicAclEntry[0].getAclObjectIdentity(),
@@ -103,5 +100,13 @@ public class EhCacheBasedAclEntryCache implements BasicAclEntryCache,
         }
 
         cache.put(element);
+    }
+
+    public void removeEntriesFromCache(AclObjectIdentity aclObjectIdentity) {
+        cache.remove(aclObjectIdentity);
+    }
+
+    public void setCache(Cache cache) {
+        this.cache = cache;
     }
 }

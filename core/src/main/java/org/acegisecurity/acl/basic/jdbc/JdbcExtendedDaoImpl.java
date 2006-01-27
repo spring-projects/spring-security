@@ -17,7 +17,9 @@ package org.acegisecurity.acl.basic.jdbc;
 
 import org.acegisecurity.acl.basic.AclObjectIdentity;
 import org.acegisecurity.acl.basic.BasicAclEntry;
+import org.acegisecurity.acl.basic.BasicAclEntryCache;
 import org.acegisecurity.acl.basic.BasicAclExtendedDao;
+import org.acegisecurity.acl.basic.cache.NullAclEntryCache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,6 +33,8 @@ import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.object.MappingSqlQuery;
 import org.springframework.jdbc.object.SqlUpdate;
+
+import org.springframework.util.Assert;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -51,6 +55,13 @@ import javax.sql.DataSource;
  * <p>
  * A default database structure is assumed. This may be overridden by setting
  * the default query strings to use.
+ * </p>
+ * 
+ * <p>
+ * If you are using a cache with <code>BasicAclProvider</code>, you should
+ * specify that cache via {@link #setBasicAclEntryCache(BasicAclEntryCache)}.
+ * This will cause cache evictions (removals) to take place whenever a DAO
+ * mutator method is called.
  * </p>
  * 
  * <p>
@@ -82,6 +93,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
     private AclPermissionDelete aclPermissionDelete;
     private AclPermissionInsert aclPermissionInsert;
     private AclPermissionUpdate aclPermissionUpdate;
+    private BasicAclEntryCache basicAclEntryCache = new NullAclEntryCache();
     private MappingSqlQuery lookupPermissionIdMapping;
     private String aclObjectIdentityDeleteStatement;
     private String aclObjectIdentityInsertStatement;
@@ -105,6 +117,8 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
 
     public void changeMask(AclObjectIdentity aclObjectIdentity,
         Object recipient, Integer newMask) throws DataAccessException {
+        basicAclEntryCache.removeEntriesFromCache(aclObjectIdentity);
+
         // Retrieve acl_object_identity record details
         AclDetailsHolder aclDetailsHolder = lookupAclDetailsHolder(aclObjectIdentity);
 
@@ -164,6 +178,9 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
      */
     private void createAclObjectIdentityIfRequired(BasicAclEntry basicAclEntry)
         throws DataAccessException {
+        basicAclEntryCache.removeEntriesFromCache(basicAclEntry
+            .getAclObjectIdentity());
+
         String aclObjectIdentityString = convertAclObjectIdentityToString(basicAclEntry
                 .getAclObjectIdentity());
 
@@ -189,6 +206,8 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
 
     public void delete(AclObjectIdentity aclObjectIdentity)
         throws DataAccessException {
+        basicAclEntryCache.removeEntriesFromCache(aclObjectIdentity);
+
         // Retrieve acl_object_identity record details
         AclDetailsHolder aclDetailsHolder = lookupAclDetailsHolder(aclObjectIdentity);
 
@@ -209,6 +228,8 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
 
     public void delete(AclObjectIdentity aclObjectIdentity, Object recipient)
         throws DataAccessException {
+        basicAclEntryCache.removeEntriesFromCache(aclObjectIdentity);
+
         // Retrieve acl_object_identity record details
         AclDetailsHolder aclDetailsHolder = lookupAclDetailsHolder(aclObjectIdentity);
 
@@ -255,6 +276,10 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
 
     public String getAclPermissionUpdateStatement() {
         return aclPermissionUpdateStatement;
+    }
+
+    public BasicAclEntryCache getBasicAclEntryCache() {
+        return basicAclEntryCache;
     }
 
     public MappingSqlQuery getLookupPermissionIdMapping() {
@@ -369,6 +394,11 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
     public void setAclPermissionUpdateStatement(
         String aclPermissionUpdateStatement) {
         this.aclPermissionUpdateStatement = aclPermissionUpdateStatement;
+    }
+
+    public void setBasicAclEntryCache(BasicAclEntryCache basicAclEntryCache) {
+        Assert.notNull(basicAclEntryCache, "Cache cannot be set to null");
+        this.basicAclEntryCache = basicAclEntryCache;
     }
 
     public void setLookupPermissionIdMapping(

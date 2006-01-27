@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.PopulatedDatabase;
+
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.acl.basic.cache.BasicAclEntryHolder;
 import org.acegisecurity.acl.basic.cache.NullAclEntryCache;
 import org.acegisecurity.acl.basic.jdbc.JdbcDaoImpl;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import java.util.HashMap;
@@ -52,12 +54,20 @@ public class BasicAclProviderTests extends TestCase {
 
     //~ Methods ================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public static void main(String[] args) {
         junit.textui.TestRunner.run(BasicAclProviderTests.class);
+    }
+
+    private JdbcDaoImpl makePopulatedJdbcDao() throws Exception {
+        JdbcDaoImpl dao = new JdbcDaoImpl();
+        dao.setDataSource(PopulatedDatabase.getDataSource());
+        dao.afterPropertiesSet();
+
+        return dao;
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testCachingUsedProperly() throws Exception {
@@ -316,14 +326,6 @@ public class BasicAclProviderTests extends TestCase {
         assertFalse(provider.supports(new Integer(34)));
     }
 
-    private JdbcDaoImpl makePopulatedJdbcDao() throws Exception {
-        JdbcDaoImpl dao = new JdbcDaoImpl();
-        dao.setDataSource(PopulatedDatabase.getDataSource());
-        dao.afterPropertiesSet();
-
-        return dao;
-    }
-
     //~ Inner Classes ==========================================================
 
     private class MockCache implements BasicAclEntryCache {
@@ -371,6 +373,8 @@ public class BasicAclProviderTests extends TestCase {
             BasicAclEntryHolder holder = new BasicAclEntryHolder(basicAclEntry);
             map.put(basicAclEntry[0].getAclObjectIdentity(), holder);
         }
+
+        public void removeEntriesFromCache(AclObjectIdentity aclObjectIdentity) {}
     }
 
     private class MockDao implements BasicAclDao {
