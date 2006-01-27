@@ -15,9 +15,8 @@
 
 package org.acegisecurity.acl.basic;
 
-import org.apache.commons.lang.ClassUtils;
-
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -66,10 +65,10 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
         throws IllegalAccessException, InvocationTargetException {
         Assert.notNull(object, "object cannot be null");
 
-        this.classname = (object.getClass().getPackage() == null)
-            ? ClassUtils.getShortClassName(object.getClass())
-            : (object.getClass().getPackage().getName() + "."
-            + ClassUtils.getShortClassName(object.getClass()));
+        this.classname = (getPackageName(object.getClass().getName()) == null)
+            ? ClassUtils.getShortName(object.getClass())
+            : getPackageName(object.getClass().getName() + "."
+                + ClassUtils.getShortName(object.getClass()));
 
         Class clazz = object.getClass();
 
@@ -132,6 +131,18 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
      */
     public String getId() {
         return id;
+    }
+
+    private String getPackageName(String className) {
+        Assert.hasLength(className, "class name must not be empty");
+
+        int lastDotIndex = className.lastIndexOf(".");
+
+        if (lastDotIndex == -1) {
+            return null;
+        }
+
+        return className.substring(0, lastDotIndex);
     }
 
     /**
