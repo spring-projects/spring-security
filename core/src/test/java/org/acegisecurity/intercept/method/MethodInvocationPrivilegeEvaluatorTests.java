@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,11 +53,43 @@ public class MethodInvocationPrivilegeEvaluatorTests extends TestCase {
 
     //~ Methods ================================================================
 
+    private Object lookupTargetObject() {
+        ApplicationContext context = new ClassPathXmlApplicationContext(
+                "org/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
+
+        return context.getBean("target");
+    }
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(MethodInvocationPrivilegeEvaluatorTests.class);
     }
 
-    public void testAllowsAccess() throws Exception {
+    private MethodSecurityInterceptor makeSecurityInterceptor() {
+        ApplicationContext context = new ClassPathXmlApplicationContext(
+                "org/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
+
+        return (MethodSecurityInterceptor) context.getBean(
+            "securityInterceptor");
+    }
+
+    public void testAllowsAccessUsingCreate() throws Exception {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
+                "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_LOWER")});
+        Object object = lookupTargetObject();
+        MethodInvocation mi = MethodInvocationUtils.create(object,
+                "makeLowerCase", new Object[] {"foobar"});
+        MethodSecurityInterceptor interceptor = makeSecurityInterceptor();
+
+        MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
+        mipe.setSecurityInterceptor(interceptor);
+        mipe.afterPropertiesSet();
+
+        assertTrue(mipe.isAllowed(mi, token));
+    }
+
+    public void testAllowsAccessUsingCreateFromClass()
+        throws Exception {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_LOWER")});
@@ -72,7 +104,24 @@ public class MethodInvocationPrivilegeEvaluatorTests extends TestCase {
         assertTrue(mipe.isAllowed(mi, token));
     }
 
-    public void testDeclinesAccess() throws Exception {
+    public void testDeclinesAccessUsingCreate() throws Exception {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
+                "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_NOT_HELD")});
+        Object object = lookupTargetObject();
+        MethodInvocation mi = MethodInvocationUtils.create(object,
+                "makeLowerCase", new Object[] {"foobar"});
+        MethodSecurityInterceptor interceptor = makeSecurityInterceptor();
+
+        MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
+        mipe.setSecurityInterceptor(interceptor);
+        mipe.afterPropertiesSet();
+
+        assertFalse(mipe.isAllowed(mi, token));
+    }
+
+    public void testDeclinesAccessUsingCreateFromClass()
+        throws Exception {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
                 "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_NOT_HELD")});
@@ -85,13 +134,5 @@ public class MethodInvocationPrivilegeEvaluatorTests extends TestCase {
         mipe.afterPropertiesSet();
 
         assertFalse(mipe.isAllowed(mi, token));
-    }
-
-    private MethodSecurityInterceptor makeSecurityInterceptor() {
-        ApplicationContext context = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
-
-        return (MethodSecurityInterceptor) context.getBean(
-            "securityInterceptor");
     }
 }

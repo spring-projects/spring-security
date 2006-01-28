@@ -81,7 +81,7 @@ public class MethodInvocationUtils {
                 list.add(args[i].getClass());
             }
 
-            classArgs = (Class[]) list.toArray();
+            classArgs = (Class[]) list.toArray(new Class[] {});
         }
 
         return createFromClass(object.getClass(), methodName, classArgs);
