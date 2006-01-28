@@ -10,6 +10,8 @@ The following should help most casual users of the project update their
 applications:
 
     <ul>
+    
+    <h1>Changes 0.9.0 to RC1</h1>
 
     <li>The top level package name has changed. Simply find "net.sf.acegisecurity" and replace with
 	"org.acegisecurity".</li>
@@ -38,6 +40,14 @@ applications:
 	you localise this file to another language, please consider attaching it to a
 	<a href="http://opensource2.atlassian.com/projects/spring/secure/BrowseProject.jspa?id=10040">new JIRA task</a>
 	so that we can include it in future Acegi Security releases.</li>
+	
+    <h1>Changes RC1 to RC2</h1>
+	
+	<li>
+	org.acegisecurity.ui.rememberme.RememberMeProcessingFilter now requires an authenticationManager property. This will generally
+	point to an implementation of org.acegisecurity.providers.ProviderManager.
+	</li>
+	
     </ul>
 
 </body>
