@@ -15,7 +15,7 @@
 
 package org.acegisecurity;
 
-import org.acegisecurity.intercept.web.AuthenticationEntryPoint;
+import org.acegisecurity.ui.AuthenticationEntryPoint;
 
 import java.io.IOException;
 

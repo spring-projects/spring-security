@@ -16,7 +16,7 @@
 package org.acegisecurity.ui.digestauth;
 
 import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.intercept.web.AuthenticationEntryPoint;
+import org.acegisecurity.ui.AuthenticationEntryPoint;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;

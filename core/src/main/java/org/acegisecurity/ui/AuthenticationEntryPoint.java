@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.intercept.web;
+package org.acegisecurity.ui;
 
 import org.acegisecurity.AuthenticationException;
 
@@ -25,7 +25,7 @@ import javax.servlet.ServletResponse;
 
 
 /**
- * Used by {@link SecurityEnforcementFilter} to commence an authentication
+ * Used by {@link ExceptionTranslationFilter} to commence an authentication
  * scheme.
  *
  * @author Ben Alex

@@ -15,7 +15,7 @@
 
 package org.acegisecurity.ui.x509;
 
-import org.acegisecurity.intercept.web.AuthenticationEntryPoint;
+import org.acegisecurity.ui.AuthenticationEntryPoint;
 import org.acegisecurity.AuthenticationException;
 
 import javax.servlet.ServletRequest;
@@ -42,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Luke Taylor
  * @version $Id$
- * @see org.acegisecurity.intercept.web.SecurityEnforcementFilter
+ * @see org.acegisecurity.ui.ExceptionTranslationFilter
  */
 public class X509ProcessingFilterEntryPoint implements AuthenticationEntryPoint {
     //~ Static fields/initializers =============================================

@@ -16,7 +16,7 @@
 package org.acegisecurity.ui.basicauth;
 
 import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.intercept.web.AuthenticationEntryPoint;
+import org.acegisecurity.ui.AuthenticationEntryPoint;
 
 import org.springframework.beans.factory.InitializingBean;
 

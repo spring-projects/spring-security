@@ -84,7 +84,7 @@ import org.springframework.util.StringUtils;
  * 
  * <p>
  * If authentication fails, an {@link
- * org.acegisecurity.intercept.web.AuthenticationEntryPoint
+ * org.acegisecurity.ui.AuthenticationEntryPoint
  * AuthenticationEntryPoint} implementation is called. This must always be
  * {@link DigestProcessingFilterEntryPoint}, which will prompt the user to
  * authenticate again via Digest authentication.

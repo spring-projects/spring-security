@@ -17,8 +17,8 @@ import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.intercept.web.AuthenticationEntryPoint;
 import org.acegisecurity.providers.smb.NtlmAuthenticationToken;
+import org.acegisecurity.ui.AuthenticationEntryPoint;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -32,6 +32,8 @@ import org.acegisecurity.AuthenticationTrustResolverImpl;
 import org.acegisecurity.InsufficientAuthenticationException;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.ui.AbstractProcessingFilter;
+import org.acegisecurity.ui.AuthenticationEntryPoint;
+import org.acegisecurity.ui.ExceptionTranslationFilter;
 import org.acegisecurity.util.PortResolver;
 import org.acegisecurity.util.PortResolverImpl;
 import org.acegisecurity.wrapper.redirect.SavedHttpServletRequest;
@@ -104,7 +106,7 @@ import org.springframework.util.Assert;
  */
 public class SandboxSecurityEnforcementFilter implements Filter, InitializingBean {
 	
-    private static final Log logger = LogFactory.getLog(SecurityEnforcementFilter.class);
+    private static final Log logger = LogFactory.getLog(ExceptionTranslationFilter.class);
     
     public static final String ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY = "ACEGI_SECURITY_403_EXCEPTION";
     public static final String SAVED_REQUEST_SESSION_ATTRIBUTE = "org.acegisecurity.intercept.web.SAVED_REQUEST_SESSION_ATTRIBUTE";

@@ -48,7 +48,7 @@
         <xsl:message terminate="yes">Unsupported auth-method in web.xml, must be FORM or BASIC</xsl:message>
     </xsl:otherwise>
 </xsl:choose>
-<xsl:text>,rememberMeProcessingFilter,anonymousProcessingFilter,securityEnforcementFilter</xsl:text>
+<xsl:text>,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor</xsl:text>
 </xsl:variable>
     
 <!-- 
@@ -137,13 +137,12 @@
 </xsl:template>
 
 <!-- 
- | Processes the login-config definition and inserts the SecurityEnforcementFilter with 
+ | Processes the login-config definition and inserts the ExceptionTranslationFilter with 
  | the appropriate beans for either form or basic authentication.
  -->
 <xsl:template match="login-config">
 
-   <bean id="securityEnforcementFilter" class="org.acegisecurity.intercept.web.SecurityEnforcementFilter">
-      <property name="filterSecurityInterceptor"><ref local="filterInvocationInterceptor"/></property>
+   <bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
       <property name="authenticationEntryPoint">
     <xsl:choose>
         <xsl:when test="$auth-method = 'FORM'">

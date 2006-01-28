@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,14 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.intercept.web;
+package org.acegisecurity.ui;
+
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 import junit.framework.TestCase;
 
@@ -27,43 +34,40 @@ import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.context.SecurityContextImpl;
 import org.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
 import org.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import java.io.IOException;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
 
 /**
- * Tests {@link SecurityEnforcementFilter}.
+ * Tests {@link ExceptionTranslationFilter}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class SecurityEnforcementFilterTests extends TestCase {
+public class ExceptionTranslationFilterTests extends TestCase {
     //~ Constructors ===========================================================
 
-    public SecurityEnforcementFilterTests() {
+    public ExceptionTranslationFilterTests() {
         super();
     }
 
-    public SecurityEnforcementFilterTests(String arg0) {
+    public ExceptionTranslationFilterTests(String arg0) {
         super(arg0);
     }
 
     //~ Methods ================================================================
 
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(ExceptionTranslationFilterTests.class);
+    }
+
     public final void setUp() throws Exception {
         super.setUp();
     }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(SecurityEnforcementFilterTests.class);
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        SecurityContextHolder.setContext(new SecurityContextImpl());
     }
 
     public void testAccessDeniedWhenAnonymous() throws Exception {
@@ -76,21 +80,17 @@ public class SecurityEnforcementFilterTests extends TestCase {
         request.setContextPath("/mycontext");
         request.setRequestURI("/mycontext/secure/page.html");
 
-        // Setup our expectation that the filter chain will not be invoked, as access is denied
-        MockFilterChain chain = new MockFilterChain(false);
-
-        // Setup the FilterSecurityInterceptor thrown an access denied exception
-        MockFilterSecurityInterceptor interceptor = new MockFilterSecurityInterceptor(true,
-                false, false, false);
+        // Setup the FilterChain to thrown an access denied exception
+        MockFilterChain chain = new MockFilterChain(true, false, false, false);
 
         // Setup SecurityContextHolder, as filter needs to check if user is anonymous
-        SecurityContextHolder.getContext().setAuthentication(new AnonymousAuthenticationToken(
+        SecurityContextHolder.getContext()
+                             .setAuthentication(new AnonymousAuthenticationToken(
                 "ignored", "ignored",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("IGNORED")}));
 
         // Test
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
-        filter.setFilterSecurityInterceptor(interceptor);
+        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
                 "/login.jsp"));
 
@@ -98,7 +98,8 @@ public class SecurityEnforcementFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
         assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
         assertEquals("http://www.example.com/mycontext/secure/page.html",
-            request.getSession().getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
+            request.getSession()
+                   .getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
     }
 
     public void testAccessDeniedWhenNonAnonymous() throws Exception {
@@ -106,19 +107,14 @@ public class SecurityEnforcementFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/secure/page.html");
 
-        // Setup our expectation that the filter chain will not be invoked, as access is denied
-        MockFilterChain chain = new MockFilterChain(false);
-
-        // Setup the FilterSecurityInterceptor thrown an access denied exception
-        MockFilterSecurityInterceptor interceptor = new MockFilterSecurityInterceptor(true,
-                false, false, false);
+        // Setup the FilterChain to thrown an access denied exception
+        MockFilterChain chain = new MockFilterChain(true, false, false, false);
 
         // Setup SecurityContextHolder, as filter needs to check if user is anonymous
         SecurityContextHolder.getContext().setAuthentication(null);
 
         // Test
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
-        filter.setFilterSecurityInterceptor(interceptor);
+        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
                 "/login.jsp"));
 
@@ -127,17 +123,17 @@ public class SecurityEnforcementFilterTests extends TestCase {
         assertEquals(403, response.getStatus());
         assertEquals(AccessDeniedException.class,
             request.getSession()
-                   .getAttribute(SecurityEnforcementFilter.ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY)
+                   .getAttribute(ExceptionTranslationFilter.ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY)
                    .getClass());
     }
 
     public void testDoFilterWithNonHttpServletRequestDetected()
         throws Exception {
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
+        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
         try {
             filter.doFilter(null, new MockHttpServletResponse(),
-                new MockFilterChain());
+                new MockFilterChain(false, false, false, false));
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
             assertEquals("HttpServletRequest required", expected.getMessage());
@@ -146,11 +142,11 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
     public void testDoFilterWithNonHttpServletResponseDetected()
         throws Exception {
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
+        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
         try {
             filter.doFilter(new MockHttpServletRequest(null, null), null,
-                new MockFilterChain());
+                new MockFilterChain(false, false, false, false));
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
             assertEquals("HttpServletResponse required", expected.getMessage());
@@ -158,10 +154,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
     }
 
     public void testGettersSetters() {
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
-        filter.setFilterSecurityInterceptor(new MockFilterSecurityInterceptor(
-                false, false, false, false));
-        assertTrue(filter.getFilterSecurityInterceptor() != null);
+        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
                 "/login.jsp"));
@@ -182,16 +175,11 @@ public class SecurityEnforcementFilterTests extends TestCase {
         request.setContextPath("/mycontext");
         request.setRequestURI("/mycontext/secure/page.html");
 
-        // Setup our expectation that the filter chain will not be invoked, as access is denied
-        MockFilterChain chain = new MockFilterChain(false);
-
-        // Setup the FilterSecurityInterceptor thrown an authentication failure exceptions
-        MockFilterSecurityInterceptor interceptor = new MockFilterSecurityInterceptor(false,
-                true, false, false);
+        // Setup the FilterChain to thrown an authentication failure exception
+        MockFilterChain chain = new MockFilterChain(false, true, false, false);
 
         // Test
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
-        filter.setFilterSecurityInterceptor(interceptor);
+        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
                 "/login.jsp"));
         filter.setPortResolver(new MockPortResolver(80, 443));
@@ -201,7 +189,8 @@ public class SecurityEnforcementFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
         assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
         assertEquals("http://www.example.com/mycontext/secure/page.html",
-            request.getSession().getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
+            request.getSession()
+                   .getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
     }
 
     public void testRedirectedToLoginFormAndSessionShowsOriginalTargetWithExoticPortWhenAuthenticationException()
@@ -215,16 +204,11 @@ public class SecurityEnforcementFilterTests extends TestCase {
         request.setContextPath("/mycontext");
         request.setRequestURI("/mycontext/secure/page.html");
 
-        // Setup our expectation that the filter chain will not be invoked, as access is denied
-        MockFilterChain chain = new MockFilterChain(false);
-
-        // Setup the FilterSecurityInterceptor thrown an authentication failure exceptions
-        MockFilterSecurityInterceptor interceptor = new MockFilterSecurityInterceptor(false,
-                true, false, false);
+        // Setup the FilterChain to thrown an authentication failure exception
+        MockFilterChain chain = new MockFilterChain(false, true, false, false);
 
         // Test
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
-        filter.setFilterSecurityInterceptor(interceptor);
+        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
                 "/login.jsp"));
         filter.setPortResolver(new MockPortResolver(8080, 8443));
@@ -234,14 +218,13 @@ public class SecurityEnforcementFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
         assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
         assertEquals("http://www.example.com:8080/mycontext/secure/page.html",
-            request.getSession().getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
+            request.getSession()
+                   .getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
     }
 
     public void testStartupDetectsMissingAuthenticationEntryPoint()
         throws Exception {
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
-        filter.setFilterSecurityInterceptor(new MockFilterSecurityInterceptor(
-                false, false, false, false));
+        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
         try {
             filter.afterPropertiesSet();
@@ -252,26 +235,9 @@ public class SecurityEnforcementFilterTests extends TestCase {
         }
     }
 
-    public void testStartupDetectsMissingFilterSecurityInterceptor()
-        throws Exception {
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
-                "/login.jsp"));
-
-        try {
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("filterSecurityInterceptor must be specified",
-                expected.getMessage());
-        }
-    }
-
     public void testStartupDetectsMissingPortResolver()
         throws Exception {
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
-        filter.setFilterSecurityInterceptor(new MockFilterSecurityInterceptor(
-                false, false, false, false));
+        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
                 "/login.jsp"));
         filter.setPortResolver(null);
@@ -289,16 +255,11 @@ public class SecurityEnforcementFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/secure/page.html");
 
-        // Setup our expectation that the filter chain will be invoked, as access is granted
-        MockFilterChain chain = new MockFilterChain(true);
-
-        // Setup the FilterSecurityInterceptor to not thrown any exceptions
-        MockFilterSecurityInterceptor interceptor = new MockFilterSecurityInterceptor(false,
-                false, false, false);
+        // Setup the FilterChain to thrown no exceptions
+        MockFilterChain chain = new MockFilterChain(false, false, false, false);
 
         // Test
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
-        filter.setFilterSecurityInterceptor(interceptor);
+        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
                 "/login.jsp"));
 
@@ -308,7 +269,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
     public void testSuccessfulStartupAndShutdownDown()
         throws Exception {
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
+        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
         filter.init(null);
         filter.destroy();
@@ -316,10 +277,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
     }
 
     public void testThrowIOException() throws Exception {
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
-
-        filter.setFilterSecurityInterceptor(new MockFilterSecurityInterceptor(
-                false, false, false, true));
+        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(""));
 
@@ -327,7 +285,8 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
         try {
             filter.doFilter(new MockHttpServletRequest(),
-                new MockHttpServletResponse(), new MockFilterChain(false));
+                new MockHttpServletResponse(),
+                new MockFilterChain(false, false, false, true));
             fail("Should have thrown IOException");
         } catch (IOException e) {
             assertNull("The IOException thrown should not have been wrapped",
@@ -336,10 +295,7 @@ public class SecurityEnforcementFilterTests extends TestCase {
     }
 
     public void testThrowServletException() throws Exception {
-        SecurityEnforcementFilter filter = new SecurityEnforcementFilter();
-
-        filter.setFilterSecurityInterceptor(new MockFilterSecurityInterceptor(
-                false, false, true, false));
+        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(""));
 
@@ -347,7 +303,8 @@ public class SecurityEnforcementFilterTests extends TestCase {
 
         try {
             filter.doFilter(new MockHttpServletRequest(),
-                new MockHttpServletResponse(), new MockFilterChain(false));
+                new MockHttpServletResponse(),
+                new MockFilterChain(false, false, true, false));
             fail("Should have thrown ServletException");
         } catch (ServletException e) {
             assertNull("The ServletException thrown should not have been wrapped",
@@ -355,42 +312,15 @@ public class SecurityEnforcementFilterTests extends TestCase {
         }
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        SecurityContextHolder.setContext(new SecurityContextImpl());
-    }
-
     //~ Inner Classes ==========================================================
 
     private class MockFilterChain implements FilterChain {
-        private boolean expectToProceed;
-
-        public MockFilterChain(boolean expectToProceed) {
-            this.expectToProceed = expectToProceed;
-        }
-
-        private MockFilterChain() {
-            super();
-        }
-
-        public void doFilter(ServletRequest request, ServletResponse response)
-            throws IOException, ServletException {
-            if (expectToProceed) {
-                assertTrue(true);
-            } else {
-                fail("Did not expect filter chain to proceed");
-            }
-        }
-    }
-
-    private class MockFilterSecurityInterceptor
-        extends FilterSecurityInterceptor {
         private boolean throwAccessDenied;
         private boolean throwAuthenticationFailure;
         private boolean throwIOException;
         private boolean throwServletException;
 
-        public MockFilterSecurityInterceptor(boolean throwAccessDenied,
+        public MockFilterChain(boolean throwAccessDenied,
             boolean throwAuthenticationFailure, boolean throwServletException,
             boolean throwIOException) {
             this.throwAccessDenied = throwAccessDenied;
@@ -399,7 +329,8 @@ public class SecurityEnforcementFilterTests extends TestCase {
             this.throwIOException = throwIOException;
         }
 
-        public void invoke(FilterInvocation fi) throws Throwable {
+        public void doFilter(ServletRequest request, ServletResponse response)
+            throws IOException, ServletException {
             if (throwAccessDenied) {
                 throw new AccessDeniedException("As requested");
             }
@@ -415,8 +346,6 @@ public class SecurityEnforcementFilterTests extends TestCase {
             if (throwIOException) {
                 throw new IOException("As requested");
             }
-
-            fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
         }
     }
 }

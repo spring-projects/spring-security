@@ -19,7 +19,7 @@
          <value>
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 		    PATTERN_TYPE_APACHE_ANT
-            /**=channelProcessingFilter,httpSessionContextIntegrationFilter,casProcessingFilter,basicProcessingFilter,securityEnforcementFilter
+            /**=channelProcessingFilter,httpSessionContextIntegrationFilter,casProcessingFilter,basicProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
          </value>
       </property>
     </bean>
@@ -121,8 +121,7 @@
 
 	<!-- ===================== HTTP REQUEST SECURITY ==================== -->
 
-	<bean id="securityEnforcementFilter" class="org.acegisecurity.intercept.web.SecurityEnforcementFilter">
-		<property name="filterSecurityInterceptor"><ref local="filterInvocationInterceptor"/></property>
+	<bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
 		<property name="authenticationEntryPoint"><ref local="casProcessingFilterEntryPoint"/></property>
 	</bean>
 

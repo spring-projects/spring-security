@@ -26,7 +26,7 @@ import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import org.acegisecurity.intercept.web.SecurityEnforcementFilter;
+import org.acegisecurity.ui.ExceptionTranslationFilter;
 import org.acegisecurity.wrapper.SecurityContextHolderAwareRequestWrapper;
 
 /**
@@ -47,7 +47,7 @@ import org.acegisecurity.wrapper.SecurityContextHolderAwareRequestWrapper;
  * </p>
  * <p>The original source code from Apache Tomcat<p>
  *
- * @see SecurityEnforcementFilter
+ * @see ExceptionTranslationFilter
  * @see SecurityContextHolderAwareRequestWrapper
  * @author Craig R. McClanahan
  * @author Andrey Grebnev <a href="mailto:andrey.grebnev@blandware.com">&lt;andrey.grebnev@blandware.com&gt;</a>

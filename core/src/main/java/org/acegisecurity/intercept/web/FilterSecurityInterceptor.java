@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,18 @@ import org.acegisecurity.intercept.AbstractSecurityInterceptor;
 import org.acegisecurity.intercept.InterceptorStatusToken;
 import org.acegisecurity.intercept.ObjectDefinitionSource;
 
+import java.io.IOException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
 
 /**
  * Performs security handling of HTTP resources via a filter implementation.
- * 
- * <P>
- * End users should <B>only</B> use this class to configure their HTTP security
- * configuration in an application context. They should <B>not</B> attempt to
- * invoke the <code>FilterSecurityInterceptor</code> except as a standard bean
- * registration in an application context. At runtime, this class will provide
- * services to web applications via the {@link SecurityEnforcementFilter}.
- * </p>
  * 
  * <p>
  * The <code>ObjectDefinitionSource</code> required by this security
@@ -43,7 +44,8 @@ import org.acegisecurity.intercept.ObjectDefinitionSource;
  * @author Ben Alex
  * @version $Id$
  */
-public class FilterSecurityInterceptor extends AbstractSecurityInterceptor {
+public class FilterSecurityInterceptor extends AbstractSecurityInterceptor
+    implements Filter {
     //~ Static fields/initializers =============================================
 
     private static final String FILTER_APPLIED = "__acegi_filterSecurityInterceptor_filterApplied";
@@ -55,41 +57,47 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor {
 
     //~ Methods ================================================================
 
-    public void setObjectDefinitionSource(
-        FilterInvocationDefinitionSource newSource) {
-        this.objectDefinitionSource = newSource;
+    /**
+     * Not used (we rely on IoC container lifecycle services instead)
+     */
+    public void destroy() {}
+
+    /**
+     * Method that is actually called by the filter chain. Simply delegates to
+     * the {@link #invoke(FilterInvocation)} method.
+     *
+     * @param request the servlet request
+     * @param response the servlet response
+     * @param chain the filter chain
+     *
+     * @throws IOException if the filter chain fails
+     * @throws ServletException if the filter chain fails
+     */
+    public void doFilter(ServletRequest request, ServletResponse response,
+        FilterChain chain) throws IOException, ServletException {
+        FilterInvocation fi = new FilterInvocation(request, response, chain);
+        invoke(fi);
     }
 
     public FilterInvocationDefinitionSource getObjectDefinitionSource() {
         return this.objectDefinitionSource;
     }
 
-    public void setObserveOncePerRequest(boolean observeOncePerRequest) {
-        this.observeOncePerRequest = observeOncePerRequest;
-    }
-
-    /**
-     * Indicates whether once-per-request handling will be observed. By default
-     * this is <code>true</code>, meaning the
-     * <code>FilterSecurityInterceptor</code> will only execute
-     * once-per-request. Sometimes users may wish it to execute more than once
-     * per request, such as when JSP forwards are being used and filter
-     * security is desired on each included fragment of the HTTP request.
-     *
-     * @return <code>true</code> (the default) if once-per-request is honoured,
-     *         otherwise <code>false</code> if
-     *         <code>FilterSecurityInterceptor</code> will enforce
-     *         authorizations for each and every fragment of the HTTP request.
-     */
-    public boolean isObserveOncePerRequest() {
-        return observeOncePerRequest;
-    }
-
     public Class getSecureObjectClass() {
         return FilterInvocation.class;
     }
 
-    public void invoke(FilterInvocation fi) throws Throwable {
+    /**
+     * Not used (we rely on IoC container lifecycle services instead)
+     *
+     * @param arg0 ignored
+     *
+     * @throws ServletException never thrown
+     */
+    public void init(FilterConfig arg0) throws ServletException {}
+
+    public void invoke(FilterInvocation fi)
+        throws IOException, ServletException {
         if ((fi.getRequest() != null)
             && (fi.getRequest().getAttribute(FILTER_APPLIED) != null)
             && observeOncePerRequest) {
@@ -112,7 +120,33 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor {
         }
     }
 
+    /**
+     * Indicates whether once-per-request handling will be observed. By default
+     * this is <code>true</code>, meaning the
+     * <code>FilterSecurityInterceptor</code> will only execute
+     * once-per-request. Sometimes users may wish it to execute more than once
+     * per request, such as when JSP forwards are being used and filter
+     * security is desired on each included fragment of the HTTP request.
+     *
+     * @return <code>true</code> (the default) if once-per-request is honoured,
+     *         otherwise <code>false</code> if
+     *         <code>FilterSecurityInterceptor</code> will enforce
+     *         authorizations for each and every fragment of the HTTP request.
+     */
+    public boolean isObserveOncePerRequest() {
+        return observeOncePerRequest;
+    }
+
     public ObjectDefinitionSource obtainObjectDefinitionSource() {
         return this.objectDefinitionSource;
+    }
+
+    public void setObjectDefinitionSource(
+        FilterInvocationDefinitionSource newSource) {
+        this.objectDefinitionSource = newSource;
+    }
+
+    public void setObserveOncePerRequest(boolean observeOncePerRequest) {
+        this.observeOncePerRequest = observeOncePerRequest;
     }
 }

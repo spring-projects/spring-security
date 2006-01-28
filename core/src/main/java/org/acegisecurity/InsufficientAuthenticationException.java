@@ -24,7 +24,7 @@ package org.acegisecurity;
  * this exception if they are dissatisfied with the level of the
  * authentication, such as if performed using a remember-me mechanism or
  * anonymously. The commonly used {@link
- * org.acegisecurity.intercept.web.SecurityEnforcementFilter} will thus
+ * org.acegisecurity.ui.ExceptionTranslationFilter} will thus
  * cause the <code>AuthenticationEntryPoint</code> to be called, allowing the
  * principal to authenticate with a stronger level of authentication.
  * </p>

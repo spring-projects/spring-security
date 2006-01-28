@@ -7,10 +7,9 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import junit.framework.TestCase;
 
-import org.acegisecurity.intercept.web.FilterSecurityInterceptor;
-import org.acegisecurity.intercept.web.SecurityEnforcementFilter;
 import org.acegisecurity.providers.ProviderManager;
 import org.acegisecurity.providers.dao.DaoAuthenticationProvider;
+import org.acegisecurity.ui.ExceptionTranslationFilter;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.memory.InMemoryDaoImpl;
 import org.acegisecurity.util.InMemoryResource;
@@ -73,11 +72,10 @@ public class WebXmlConverterTests extends TestCase {
         assertNotNull(bf.getBean("rememberMeProcessingFilter"));
         assertNotNull(bf.getBean("rememberMeAuthenticationProvider"));
 
-        SecurityEnforcementFilter sef =
-                (SecurityEnforcementFilter) bf.getBean("securityEnforcementFilter");
-        assertNotNull(sef);
-        assertNotNull(sef.getAuthenticationEntryPoint());
-        FilterSecurityInterceptor fsi = sef.getFilterSecurityInterceptor();
+        ExceptionTranslationFilter etf =
+                (ExceptionTranslationFilter) bf.getBean("exceptionTranslationFilter");
+        assertNotNull(etf);
+        assertNotNull(etf.getAuthenticationEntryPoint());
         System.out.println(prettyPrint(converter.getNewWebXml()));
         System.out.println(prettyPrint(converter.getAcegiBeans()));
 

@@ -48,6 +48,24 @@ applications:
 	point to an implementation of org.acegisecurity.providers.ProviderManager.
 	</li>
 	
+	<li>
+	org.acegisecurity.intercept.web.AuthenticationEntryPoint has moved to a new location,
+	org.acegisecurity.ui.AuthenticationEntryPoint.
+	</li>
+	
+	<li>
+	org.acegisecurity.intercept.web.SecurityEnforcementFilter has moved to a new location and name,
+	org.acegisecurity.ui.ExceptionTranslationFilter. In addition, the "filterSecurityInterceptor"
+	property on the old SecurityEnforcementFilter class has been removed. This is because
+	SecurityEnforcementFilter will no longer delegate to FilterSecurityInterceptor as it has in the
+	past. Because this delegation feature has been removed (see SEC-144 for a background as to why),
+	please add a new filter definition for FilterSecurityInterceptor to the end of your
+	FilterChainProxy. Generally you'll also rename the old SecurityEnforcementFilter entry in your
+	FilterChainProxy to ExceptionTranslationFilter, more accurately reflecting its purpose.
+	If you are not using FilterChainProxy (although we recommend that you do), you will need to add
+	an additional filter entry to web.xml and use FilterToBeanProxy to access the FilterSecurityInterceptor.
+	</li>
+	
     </ul>
 
 </body>

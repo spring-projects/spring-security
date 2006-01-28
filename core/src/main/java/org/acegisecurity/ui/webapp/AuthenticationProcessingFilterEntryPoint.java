@@ -15,7 +15,7 @@
 package org.acegisecurity.ui.webapp;
 
 import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.intercept.web.AuthenticationEntryPoint;
+import org.acegisecurity.ui.AuthenticationEntryPoint;
 import org.acegisecurity.util.PortMapper;
 import org.acegisecurity.util.PortMapperImpl;
 import org.acegisecurity.util.PortResolver;

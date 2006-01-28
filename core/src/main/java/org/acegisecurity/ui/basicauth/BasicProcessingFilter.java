@@ -19,8 +19,8 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.intercept.web.AuthenticationEntryPoint;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.ui.AuthenticationEntryPoint;
 import org.acegisecurity.ui.WebAuthenticationDetails;
 
 import org.apache.commons.codec.binary.Base64;

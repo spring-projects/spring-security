@@ -16,7 +16,7 @@
 package org.acegisecurity.ui.cas;
 
 import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.intercept.web.AuthenticationEntryPoint;
+import org.acegisecurity.ui.AuthenticationEntryPoint;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
