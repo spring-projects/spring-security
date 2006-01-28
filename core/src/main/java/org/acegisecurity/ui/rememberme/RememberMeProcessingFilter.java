@@ -160,9 +160,9 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean,
                                                  .getAuthentication(),
                             this.getClass()));
                 }
-
-                chain.doFilter(request, response);
             }
+
+            chain.doFilter(request, response);
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug(
