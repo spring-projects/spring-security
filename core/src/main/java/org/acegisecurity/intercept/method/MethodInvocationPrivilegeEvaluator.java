@@ -64,9 +64,6 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
     }
 
     public boolean isAllowed(MethodInvocation mi, Authentication authentication) {
-        Assert.notNull(authentication, "Authentication required");
-        Assert.notNull(authentication.getAuthorities(),
-            "Authentication must provided non-null GrantedAuthority[]s");
         Assert.notNull(mi, "MethodInvocation required");
         Assert.notNull(mi.getMethod(),
             "MethodInvocation must provide a non-null getMethod()");
@@ -82,7 +79,7 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
             return true;
         }
 
-        if (authentication == null) {
+        if (authentication == null || authentication.getAuthorities() == null || authentication.getAuthorities().length == 0) {
             return false;
         }
 
