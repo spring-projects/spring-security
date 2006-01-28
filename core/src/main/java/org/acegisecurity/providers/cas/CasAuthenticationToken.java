@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 package org.acegisecurity.providers.cas;
 
 import org.acegisecurity.GrantedAuthority;
+
 import org.acegisecurity.providers.AbstractAuthenticationToken;
+
 import org.acegisecurity.userdetails.UserDetails;
 
 import org.springframework.util.Assert;
@@ -101,12 +103,33 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
 
     //~ Methods ================================================================
 
-    public void setAuthenticated(boolean isAuthenticated) {
-        this.authenticated = isAuthenticated;
-    }
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) {
+            return false;
+        }
 
-    public boolean isAuthenticated() {
-        return this.authenticated;
+        if (obj instanceof CasAuthenticationToken) {
+            CasAuthenticationToken test = (CasAuthenticationToken) obj;
+
+            // proxyGrantingTicketIou is never null due to constructor
+            if (!this.getProxyGrantingTicketIou()
+                     .equals(test.getProxyGrantingTicketIou())) {
+                return false;
+            }
+
+            // proxyList is never null due to constructor
+            if (!this.getProxyList().equals(test.getProxyList())) {
+                return false;
+            }
+
+            if (this.getKeyHash() != test.getKeyHash()) {
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public GrantedAuthority[] getAuthorities() {
@@ -143,42 +166,24 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
         return userDetails;
     }
 
-    public boolean equals(Object obj) {
-        if (!super.equals(obj)) {
-            return false;
-        }
+    public boolean isAuthenticated() {
+        return this.authenticated;
+    }
 
-        if (obj instanceof CasAuthenticationToken) {
-            CasAuthenticationToken test = (CasAuthenticationToken) obj;
-
-            // proxyGrantingTicketIou is never null due to constructor
-            if (!this.getProxyGrantingTicketIou().equals(test
-                    .getProxyGrantingTicketIou())) {
-                return false;
-            }
-
-            // proxyList is never null due to constructor
-            if (!this.getProxyList().equals(test.getProxyList())) {
-                return false;
-            }
-
-            if (this.getKeyHash() != test.getKeyHash()) {
-                return false;
-            }
-
-            return true;
-        }
-
-        return false;
+    public void setAuthenticated(boolean isAuthenticated) {
+        this.authenticated = isAuthenticated;
     }
 
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append(super.toString());
-        sb.append("; Credentials (Service/Proxy Ticket): " + this.credentials);
-        sb.append("; Proxy-Granting Ticket IOU: " + this.proxyGrantingTicketIou);
-        sb.append("; Proxy List: " + this.proxyList.toString());
+        sb.append("; Credentials (Service/Proxy Ticket): ");
+        sb.append(this.credentials);
+        sb.append("; Proxy-Granting Ticket IOU: ");
+        sb.append(this.proxyGrantingTicketIou);
+        sb.append("; Proxy List: ");
+        sb.append(this.proxyList.toString());
 
-        return sb.toString();
+        return (sb.toString());
     }
 }
