@@ -90,6 +90,7 @@
    </bean>
 
    <bean id="rememberMeProcessingFilter" class="org.acegisecurity.ui.rememberme.RememberMeProcessingFilter">
+      <property name="authenticationManager"><ref local="authenticationManager"/></property>
       <property name="rememberMeServices"><ref local="rememberMeServices"/></property>
    </bean>
 

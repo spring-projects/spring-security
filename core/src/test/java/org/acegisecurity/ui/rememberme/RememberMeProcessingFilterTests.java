@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,12 @@ import junit.framework.TestCase;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.MockAuthenticationManager;
 import org.acegisecurity.MockFilterConfig;
+
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.context.SecurityContextImpl;
+
 import org.acegisecurity.providers.TestingAuthenticationToken;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -59,13 +62,50 @@ public class RememberMeProcessingFilterTests extends TestCase {
 
     //~ Methods ================================================================
 
+    private void executeFilterInContainerSimulator(FilterConfig filterConfig,
+        Filter filter, ServletRequest request, ServletResponse response,
+        FilterChain filterChain) throws ServletException, IOException {
+        filter.init(filterConfig);
+        filter.doFilter(request, response, filterChain);
+        filter.destroy();
+    }
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(RememberMeProcessingFilterTests.class);
+    }
+
+    protected void setUp() throws Exception {
+        super.setUp();
+        SecurityContextHolder.setContext(new SecurityContextImpl());
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        SecurityContextHolder.setContext(new SecurityContextImpl());
+    }
+
+    public void testDetectsAuthenticationManagerProperty()
+        throws Exception {
+        RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
+        filter.setAuthenticationManager(new MockAuthenticationManager());
+
+        filter.afterPropertiesSet();
+        assertTrue(true);
+
+        filter.setAuthenticationManager(null);
+
+        try {
+            filter.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
     }
 
     public void testDetectsRememberMeServicesProperty()
         throws Exception {
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
+        filter.setAuthenticationManager(new MockAuthenticationManager());
 
         // check default is NullRememberMeServices
         assertEquals(NullRememberMeServices.class,
@@ -90,6 +130,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
     public void testDoFilterWithNonHttpServletRequestDetected()
         throws Exception {
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
+        filter.setAuthenticationManager(new MockAuthenticationManager());
 
         try {
             filter.doFilter(null, new MockHttpServletResponse(),
@@ -104,6 +145,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
     public void testDoFilterWithNonHttpServletResponseDetected()
         throws Exception {
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
+        filter.setAuthenticationManager(new MockAuthenticationManager());
 
         try {
             MockHttpServletRequest request = new MockHttpServletRequest();
@@ -129,6 +171,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
                 "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_REMEMBERED")});
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
+        filter.setAuthenticationManager(new MockAuthenticationManager());
         filter.setRememberMeServices(new MockRememberMeServices(remembered));
         filter.afterPropertiesSet();
 
@@ -149,6 +192,7 @@ public class RememberMeProcessingFilterTests extends TestCase {
                 "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_REMEMBERED")});
         RememberMeProcessingFilter filter = new RememberMeProcessingFilter();
+        filter.setAuthenticationManager(new MockAuthenticationManager());
         filter.setRememberMeServices(new MockRememberMeServices(remembered));
         filter.afterPropertiesSet();
 
@@ -160,24 +204,6 @@ public class RememberMeProcessingFilterTests extends TestCase {
         // Ensure filter setup with our remembered authentication object
         assertEquals(remembered,
             SecurityContextHolder.getContext().getAuthentication());
-    }
-
-    protected void setUp() throws Exception {
-        super.setUp();
-        SecurityContextHolder.setContext(new SecurityContextImpl());
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        SecurityContextHolder.setContext(new SecurityContextImpl());
-    }
-
-    private void executeFilterInContainerSimulator(FilterConfig filterConfig,
-        Filter filter, ServletRequest request, ServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
-        filter.init(filterConfig);
-        filter.doFilter(request, response, filterChain);
-        filter.destroy();
     }
 
     //~ Inner Classes ==========================================================
