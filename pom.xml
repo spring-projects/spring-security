@@ -73,14 +73,6 @@
     </repository>
   </repositories>
 
-  <!--
-  <repository>
-    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
-    <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
-    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/</url>
-  </repository>
-  -->
-
   <mailingLists>
     <mailingList>
       <name>Acegi Developer List</name>
