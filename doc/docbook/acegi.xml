@@ -4090,8 +4090,6 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
               <interfacename>X509AuthoritiesPopulator</interfacename>.</para>
             </listitem>
 
-             . 
-
             <listitem>
               <para>The populator's single method,
               <methodname>getUserDetails(X509Certificate
@@ -4122,7 +4120,6 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
               <classname>X509ProcessingFilterEntryPoint</classname> which
               returns a 403 error (forbidden) to the user.</para>
             </listitem>
-
              
           </orderedlist></para>
       </sect2>
@@ -4174,6 +4171,220 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
       </sect2>
     </sect1>
 
+    <sect1 id="security-ldap">
+      <title>LDAP Authentication Provider</title>
+
+      <sect2 id="security-ldap-overview">
+        <title>Overview</title>
+        <para>LDAP is often used by organizations as a central repository for user information and
+          as an authentication service. It can also be used to store the role information for
+          application users. </para>
+        <para>There are many different scenarios for how an LDAP server may be configured so the
+          Acegi LDAP provider is fully configurable. It uses separate strategy interfaces for
+          authentication and role retrieval and provides default implementations which can be
+          configured to handle a wide range of situations. </para>
+        <para>You should be familiar with LDAP before trying to use it with Acegi. The following
+          link provides a good introduction to the concepts involved and a guide to setting up a
+          directory using the free LDAP server OpenLDAP: <ulink
+            url="http://www.zytrax.com/books/ldap/"/>. Some familiarity with the JNDI APIs used to
+          access LDAP from Java may also be useful. We don't use any third-party LDAP libraries
+          (Mozilla/Netscape, JLDAP etc.) in the LDAP provider. </para>
+
+        <sect3 id="security-ldap-details">
+          <title>LDAP with Acegi Security</title>
+  
+          <para>The main LDAP provider class is
+            <classname>org.acegisecurity.providers.ldap.LdapAuthenticationProvider</classname>. This
+            bean doesn't actually do much itself other than implement the
+            <methodname>retrieveUser</methodname> method required by its base class,
+            <classname>AbstractUserDetailsAuthenticationProvider</classname>. It delegates the work
+            to two other beans, an <interfacename>LdapAuthenticator</interfacename> and an
+            <interfacename>LdapAuthoritiesPopulator</interfacename> which are responsible for
+            authenticating the user and retrieving the user's set of
+            <interfacename>GrantedAuthority</interfacename>s respectively. 
+          </para>
+        </sect3>
+      
+      </sect2>
+        
+      <sect2 id="security-ldap-authenticators">
+          <title>LdapAuthenticator Implementations</title>
+          <para> The authenticator is also responsible for retrieving any required user attributes.
+            This is because the permissions on the attributes may depend on the type of
+            authentication being used. For example, if binding as the user, it may be necessary to
+            read them with the user's own permissions. </para>
+          <para> There are currently two authentication strategies supplied with Acegi Security: 
+            <itemizedlist>
+              <listitem>
+                <para>Authentication directly to the LDAP server ("bind" authentication).</para>
+              </listitem>
+              <listitem>
+                <para>Password comparison, where the password supplied by the user is compared with
+                  the one stored in the repository. This can either be done by retrieving the value
+                  of the password attribute and checking it locally or by performing an LDAP
+                  "compare" operation, where the supplied password is passed to the server for
+                  comparison and the real password value is never retrieved.</para>
+              </listitem>
+            </itemizedlist>
+          </para>
+          <sect3>
+            <title>Common Functionality</title>
+            <para>Before it is possible to authenticate a user (by either strategy), the
+              distinguished name (DN) has to be obtained from the login name supplied to the
+              application. This can be done either by simple pattern-matching (by setting the
+              <property>setUserDnPatterns</property> array property) or by setting the
+              <property>userSearch</property> property. For the DN pattern-matching approach, a
+              standard Java pattern format is used, and the login name will be substituted for the
+              parameter <parameter>{0}</parameter>. The pattern should be relative to the DN that
+              the configured <interfacename>InitialDirContextFactory</interfacename> will bind to
+              (see the section on <link linkend="security-ldap-dircontextfactory">connecting to the
+              LDAP server</link> for more information on this). For example, if you are using an
+              LDAP server specified by the URL
+              <literal>ldap://monkeymachine.co.uk/dc=acegisecurity,dc=org</literal>, and have a
+              pattern <literal>uid={0},ou=greatapes</literal>, then a login name of "gorilla" will
+              map to a DN <literal>uid=gorilla,ou=greatapes,dc=acegisecurity,dc=org</literal>. Each
+              configured DN pattern will be tried in turn until a match is found. For information on
+              using a search, see the section on <link linkend="security-ldap-searchobjects">search
+              objects</link> below. A combination of the two approaches can also be used - the
+              patterns will be checked first and if no matching DN is found, the search will be
+              used. </para>
+          </sect3>
+          <sect3>
+            <title>BindAuthenticator</title>
+            <para>The class
+                <classname>org.acegisecurity.providers.ldap.authenticator.BindAuthenticator</classname>
+              implements the bind authentication strategy. It simply attempts to bind as the user.
+            </para>
+          </sect3>
+          <sect3>
+            <title>PasswordComparisonAuthenticator</title>
+            <para>The class
+                <classname>org.acegisecurity.providers.ldap.authenticator.PasswordComparisonAuthenticator</classname>
+              implements the password comparison authentication strategy.</para>
+          </sect3>
+          <sect3 id="security-ldap-authenticators-adauth">
+            <title>Active Directory Authentication</title>
+            <para>In addition to standard LDAP authentication (binding with a DN), Active Directory
+              has its own non-standard syntax for user authentication.
+            </para>
+          </sect3>
+        
+      </sect2>
+        
+      <sect2 id="security-ldap-dircontextfactory">
+        <title>Connecting to the LDAP Server</title>
+        <para>The beans discussed above have to be able to connect to the server. They both have
+          to be supplied with an <interfacename>InitialDirContextFactory</interfacename> instance.
+          Unless you have special requirements, this will usually be a
+            <classname>DefaultInitialDirContextFactory</classname> bean, which can be configured
+          with the URL of your LDAP server and optionally with the username and password of a
+          "manager" user which will be used by default when binding to the server (instead of
+          binding anonymously). It currently supports "simple" LDAP authentication.</para>
+          <para><classname>DefaultInitialDirContextFactory</classname> uses Sun's JNDI LDAP
+          implementation by default (the one that comes with the JDK). It also supports the
+          built in connection pooling offered by Sun's provider. Connections which are obtained
+          either anonymously or with the "manager" user's identity will be pooled automatically.
+          Connections obtained with a specific user's identity will not be pooled. Connection
+          pooling can be disabled completely by setting the <property>useConnectionPool</property>
+          property to false.
+        </para>
+        <para> See the <ulink
+            url="http://acegisecurity.org/multiproject/acegi-security/xref/org/acegisecurity/providers/ldap/DefaultInitialDirContextFactory.html"
+            >class Javadoc and source</ulink> for more information on this bean and its properties.
+        </para>
+      </sect2> 
+      
+      <sect2 id="security-ldap-searchobjects">
+        <title>LDAP Search Objects</title>
+        <para>Often more a more complicated strategy than simple DN-matching is required to locate
+        a user entry in the directory. This can be encapsulated in an
+        <interfacename>LdapUserSearch</interfacename> instance which can be supplied to the
+          authenticator implementations, for example, to allow them to locate a user. The supplied
+          implementation is <classname>FilterBasedLdapUserSearch</classname>.
+        </para>
+        
+        <sect3>
+          <title><classname>FilterBasedLdapUserSearch</classname></title>
+          <para>This bean uses an LDAP filter to match the user object in the directory. The
+            process is explained in the Javadoc for the corresponding search method on the 
+            <ulink
+              url="http://java.sun.com/j2se/1.4.2/docs/api/javax/naming/directory/DirContext.html#search(javax.naming.Name,%20java.lang.String,%20java.lang.Object[],%20javax.naming.directory.SearchControls)">JDK
+              DirContext class</ulink>.              
+            As explained there, the search filter can be supplied with parameters. For this class,
+            the only valid parameter is <parameter>{0}</parameter> which will be replaced with
+            the user's login name.
+          </para>
+        </sect3>
+     </sect2>
+
+      <sect2 id="security-ldap-config">
+        <title>Configuring the LDAP Provider</title>
+
+        <para>There is a version of the 
+          <link linkend="security-sample">Contacts Sample Application</link> which
+          uses LDAP. You can copy the beans and filter setup from this as a starting
+          point for configuring your own application.
+        </para>
+        <para>
+          A typical configuration, using some of the beans we've discussed above, might look like this:
+          <programlisting>
+    &lt;bean id=&quot;initialDirContextFactory&quot; class=&quot;org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory&quot;&gt;
+      &lt;constructor-arg value=&quot;ldap://monkeymachine:389/dc=acegisecurity,dc=org&quot;/&gt;
+      &lt;property name=&quot;managerDn&quot;&gt;&lt;value&gt;cn=manager,dc=acegisecurity,dc=org&lt;/value&gt;&lt;/property&gt;
+      &lt;property name=&quot;managerPassword&quot;&gt;&lt;value&gt;password&lt;/value&gt;&lt;/property&gt;
+    &lt;/bean&gt;
+
+    &lt;bean 
+      id=&quot;userSearch&quot;
+      class=&quot;org.acegisecurity.providers.ldap.search.FilterBasedLdapUserSearch&quot;&gt;
+      &lt;property name=&quot;searchSubtree&quot;&gt;
+        &lt;value&gt;true&lt;/value&gt;
+      &lt;/property&gt;
+      &lt;property name=&quot;initialDirContextFactory&quot;&gt;
+        &lt;ref local=&quot;initialDirContextFactory&quot; /&gt;
+      &lt;/property&gt;
+      &lt;property name=&quot;searchFilter&quot;&gt;
+        &lt;value&gt;(uid={0})&lt;/value&gt;
+      &lt;/property&gt;
+    &lt;/bean&gt;            
+            
+    &lt;bean 
+      id=&quot;ldapAuthProvider&quot; class=&quot;org.acegisecurity.providers.ldap.LdapAuthenticationProvider&quot;&gt;
+      &lt;constructor-arg&gt;
+        &lt;bean class=&quot;org.acegisecurity.providers.ldap.authenticator.BindAuthenticator&quot;&gt;
+           &lt;constructor-arg&gt;&lt;ref local=&quot;initialDirContextFactory&quot;/&gt;&lt;/constructor-arg&gt;
+           &lt;property name=&quot;userDnPatterns&quot;&gt;&lt;list&gt;&lt;value&gt;uid={0},ou=people&lt;/value&gt;&lt;/list&gt;&lt;/property&gt;
+        &lt;/bean&gt;
+      &lt;/constructor-arg&gt;
+      &lt;constructor-arg&gt;
+        &lt;bean class=&quot;org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator&quot;&gt;
+           &lt;constructor-arg&gt;&lt;ref local=&quot;initialDirContextFactory&quot;/&gt;&lt;/constructor-arg&gt;
+           &lt;constructor-arg&gt;&lt;value&gt;ou=groups&lt;/value&gt;&lt;/constructor-arg&gt;
+           &lt;property name=&quot;groupRoleAttribute&quot;&gt;&lt;value&gt;ou&lt;/value&gt;&lt;/property&gt;
+        &lt;/bean&gt;
+      &lt;/constructor-arg&gt;
+    &lt;/bean&gt;
+  
+          </programlisting>
+
+          This would set up the provider to access an LDAP server with URL
+          <literal>ldap://monkeymachine:389/dc=acegisecurity,dc=org</literal>. Authentication will be performed by
+          attempting to bind with the DN <literal>uid=&lt;user-login-name&gt;,ou=people,dc=acegisecurity,dc=org</literal>.
+          After successful authentication, roles will be assigned to the user by searching under the DN
+          <literal>ou=groups,dc=acegisecurity,dc=org</literal> with the default filter <literal>(member=&lt;user's-DN&gt;)</literal>.
+          The role name will be taken from the <quote>ou</quote> attribute of each match.
+        </para>
+        <para>
+          We've also included the configuration for a user search object, which uses the filter
+          <literal>(uid=&lt;user-login-name&gt;)</literal>. This could be used
+          instead of the DN-pattern (or in addition to it), by setting the authenticator's 
+          <property>userSearch</property> property. The autheticator would then call the search
+          object to obtain the correct user's DN before attempting to bind as this user.
+        </para>
+      </sect2>
+
+    </sect1>    
+    
     <sect1 id="security-channels">
       <title>Channel Security</title>
 
@@ -5181,11 +5392,11 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
 
       <para>Questions and comments on the Acegi Security System for Spring are
       welcome. Please use the Spring Community Forum web site at
-      <literal>http://forum.springframework.org</literal>. You're also welcome
+      <ulink url="http://forum.springframework.org"></ulink>. You're also welcome
       to join the acegisecurity-developer mailing list. Our project home page
       (where you can obtain the latest release of the project and access to
       CVS, mailing lists, forums etc) is at
-      <literal>http://acegisecurity.sourceforge.net</literal>.</para>
+      <ulink url="http://acegisecurity.org"></ulink>.</para>
     </sect1>
   </chapter>
 </book>
