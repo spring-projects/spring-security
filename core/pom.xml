@@ -83,11 +83,23 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>directory</groupId>
-      <artifactId>apacheds-core</artifactId>
-      <version>0.9.3</version>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>org.apache.ldap.server.core</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
       <scope>test</scope>
-    </dependency> 
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>nlog4j</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.0-rc5</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>jmock</groupId>
       <artifactId>jmock</artifactId>
