@@ -71,6 +71,12 @@
       <url>http://acegisecurity.sourceforge.net/repository/snapshots</url>
       <layout>default</layout>
     </repository>
+    <repository>
+      <id>apache-maven-snapshots</id>
+      <name>Apache snapshot repository</name>
+      <url>http://svn.apache.org/maven-snapshot-repository/</url>
+      <layout>default</layout>
+    </repository>
   </repositories>
 
   <mailingLists>
