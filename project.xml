@@ -343,46 +343,28 @@
       </properties>
     </dependency>
 
-    <!-- Apache DS dependencies for embedded LDAP test server -->    
-<!--
-    The entire server jar
-    <dependency>
-      <groupId>directory</groupId>
-      <artifactId>apacheds-server-main</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
-      <type>jar</type>
-    </dependency> 
--->
+    <!-- Apache DS dependencies for embedded LDAP test server -->
 
     <dependency>
-      <groupId>directory</groupId>
-      <artifactId>apacheds-core</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
-      <type>jar</type>
-    </dependency> 
-    <dependency>
-      <groupId>directory</groupId>
-      <artifactId>apacheds-shared</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
-      <type>jar</type>
-    </dependency> 
-    <dependency>
-      <groupId>directory</groupId>
-      <artifactId>apacheds-server</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
-      <type>jar</type>
-    </dependency> 
-    <dependency>
-      <groupId>directory-asn1</groupId>
-      <artifactId>asn1-codec</artifactId>
-      <version>0.3.4-SNAPSHOT</version>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>org.apache.ldap.server.core</artifactId>
+      <version>0.9.4-20060201.032106-7</version>
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>directory-shared</groupId>
-      <artifactId>ldap-common</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
-      <type>jar</type>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>org.apache.ldap.server.shared</artifactId>
+      <version>0.9.4-20060201.032106-8</version>
+    </dependency>    
+    <dependency>
+      <groupId>org.apache.directory</groupId>
+      <artifactId>directory-asn1</artifactId>
+      <version>0.3.4-20060201.032106-8</version>
+    </dependency>    
+    <dependency>
+      <groupId>org.apache.directory</groupId>
+      <artifactId>org.apache.ldap.common</artifactId>
+      <version>0.9.4-20060201.032106-10</version>
     </dependency>
     <dependency>
       <groupId>antlr</groupId>
@@ -404,11 +386,17 @@
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>nlog4j</artifactId>
-      <version>1.2.17</version>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.0-rc5</version>
       <type>jar</type>
     </dependency>
-	
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.0</version>
+      <type>jar</type>
+      <url>http://jakarta.apache.org/commons</url>
+    </dependency>	
     <!-- End of ApacheDS dependencies -->
 							
     <!-- Keep log4j after the apacheds stuff to avoid nasty classpath errors -->
