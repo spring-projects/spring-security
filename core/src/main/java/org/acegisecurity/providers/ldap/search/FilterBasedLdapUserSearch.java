@@ -83,6 +83,25 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 
     //~ Methods ================================================================
 
+    public FilterBasedLdapUserSearch(String searchBase,
+                                     String searchFilter,
+                                     InitialDirContextFactory initialDirContextFactory) {
+        Assert.notNull(initialDirContextFactory, "initialDirContextFactory must not be null");
+        Assert.notNull(searchFilter, "searchFilter must not be null.");
+        Assert.notNull(searchBase, "searchBase must not be null (an empty string is acceptable).");
+
+        this.searchFilter = searchFilter;
+        this.initialDirContextFactory = initialDirContextFactory;
+        this.searchBase = searchBase;
+
+        if(searchBase.length() == 0) {
+            logger.info("SearchBase not set. Searches will be performed from the root: " +
+                    initialDirContextFactory.getRootDn());
+        }
+    }
+
+    //~ Methods ================================================================
+
     /**
      * Return the LdapUserInfo containing the user's information, or null if
      * no SearchResult is found.
@@ -95,6 +114,11 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
         ctls.setTimeLimit( searchTimeLimit );
         ctls.setSearchScope( searchScope );
 
+        if (logger.isDebugEnabled()) {
+            logger.debug("Searching for user '" + username + "', in context " + ctx +
+                    ", with user search " + this.toString());
+        }
+
         try {
             String[] args = new String[] { LdapUtils.escapeNameForFilter(username) };
 
@@ -106,13 +130,13 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 
             SearchResult searchResult = (SearchResult)results.next();
 
-            if(results.hasMore()) {
+            if (results.hasMore()) {
                throw new BadCredentialsException("Expected a single user but search returned multiple results");
             }
 
             StringBuffer userDn = new StringBuffer(searchResult.getName());
 
-            if(searchBase.length() > 0) {
+            if (searchBase.length() > 0) {
                 userDn.append(",");
                 userDn.append(searchBase);
             }
@@ -129,24 +153,6 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
         }
     }
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(initialDirContextFactory, "initialDirContextFactory must be set");
-        Assert.notNull(searchFilter, "searchFilter must be set.");
-
-        if(searchBase.equals("")) {
-            logger.info("No search base DN supplied. Search will be performed from the root: " +
-                    initialDirContextFactory.getRootDn());
-        }
-    }
-
-    public void setInitialDirContextFactory(InitialDirContextFactory initialDirContextFactory) {
-        this.initialDirContextFactory = initialDirContextFactory;
-    }
-
-    public void setSearchFilter(String searchFilter) {
-        this.searchFilter = searchFilter;
-    }
-
     public void setSearchSubtree(boolean searchSubtree) {
 //        this.searchSubtree = searchSubtree;
         this.searchScope = searchSubtree ?
@@ -157,7 +163,15 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
         this.searchTimeLimit = searchTimeLimit;
     }
 
-    public void setSearchBase(String searchBase) {
-        this.searchBase = searchBase;
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+
+        sb.append("[ searchFilter: '").append(searchFilter).append("', ");
+        sb.append("searchBase: '").append(searchBase).append("'");
+        sb.append(", scope: ").append(searchScope ==
+                SearchControls.SUBTREE_SCOPE ? "subtree" : "single-level, ");
+        sb.append("searchTimeLimit: ").append(searchTimeLimit).append(" ]");
+
+        return sb.toString();
     }
 }

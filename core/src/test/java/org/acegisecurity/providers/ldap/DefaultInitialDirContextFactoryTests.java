@@ -45,7 +45,6 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapServerTest
         assertEquals("dc=acegisecurity,dc=org", idf.getRootDn());
     }
 
-
     public void testConnectionFailure() throws Exception {
         // Use the wrong port
         idf = new DefaultInitialDirContextFactory("ldap://localhost:60389");
