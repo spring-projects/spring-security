@@ -56,7 +56,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0.3.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.0.jar"/>
 	<classpathentry sourcepath="DIST_BASE/commons-beanutils-1.6.1-src/src/java" kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.6.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/directory/jars/apacheds-core-0.9.4-SNAPSHOT.jar"/>
 	<classpathentry kind="src" path="core-tiger/src/main/java"/>
 	<classpathentry kind="src" path="core-tiger/src/test/java"/>
 	<classpathentry kind="src" path="core-tiger/src/main/resources"/>
@@ -71,12 +70,13 @@
 	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xmlParserAPIs-2.6.2.jar"/>
 	<classpathentry sourcepath="MAVEN_REPO/jmock/distributions/jmock-1.0.1-src.jar" kind="var" path="MAVEN_REPO/jmock/jars/jmock-1.0.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/directory/jars/apacheds-server-0.9.4-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/directory/jars/apacheds-shared-0.9.4-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/directory-asn1/jars/asn1-codec-0.3.4-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/directory-shared/jars/ldap-common-0.9.4-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jdbm/jars/jdbm-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/regexp/jars/regexp-1.2.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.slf4j/jars/nlog4j-1.2.17.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.slf4j/jars/slf4j-log4j12-1.0-rc5.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.server/jars/org.apache.ldap.server.core-0.9.4-20060201.032106-7.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.server/jars/org.apache.ldap.server.shared-0.9.4-20060201.032106-8.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory/jars/directory-asn1-0.3.4-20060201.032106-8.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory/jars/org.apache.ldap.common-0.9.4-20060201.032106-10.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/antlr/jars/antlr-2.7.2.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>
