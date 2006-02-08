@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,28 @@
 
 package org.acegisecurity.providers.x509;
 
-import java.security.cert.X509Certificate;
-
 import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
+
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.x509.cache.NullX509UserCache;
+
 import org.acegisecurity.userdetails.UserDetails;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+
 import org.springframework.util.Assert;
+
+import java.security.cert.X509Certificate;
 
 
 /**
@@ -97,8 +103,8 @@ public class X509AuthenticationProvider implements AuthenticationProvider,
             logger.debug("X509 authentication request: " + authentication);
         }
 
-        X509Certificate clientCertificate =
-                (X509Certificate) authentication.getCredentials();
+        X509Certificate clientCertificate = (X509Certificate) authentication
+            .getCredentials();
 
         if (clientCertificate == null) {
             throw new BadCredentialsException(messages.getMessage(
@@ -109,14 +115,18 @@ public class X509AuthenticationProvider implements AuthenticationProvider,
         UserDetails user = userCache.getUserFromCache(clientCertificate);
 
         if (user == null) {
-            logger.debug("Authenticating with certificate "
-                + clientCertificate);
+            logger.debug("Authenticating with certificate " + clientCertificate);
             user = x509AuthoritiesPopulator.getUserDetails(clientCertificate);
             userCache.putUserInCache(clientCertificate, user);
         }
 
-        return new X509AuthenticationToken(user, clientCertificate,
-            user.getAuthorities());
+        X509AuthenticationToken result = new X509AuthenticationToken(user,
+                clientCertificate, user.getAuthorities());
+
+        result.setDetails((authentication.getDetails() != null)
+            ? authentication.getDetails() : null);
+
+        return result;
     }
 
     public void setMessageSource(MessageSource messageSource) {
