@@ -144,4 +144,8 @@ public class SessionRegistryImpl implements SessionRegistry,
             }
         }
     }
+
+	public Object[] getAllPrincipals() {
+		return principals.keySet().toArray();
+	}
 }

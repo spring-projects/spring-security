@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,23 @@ public class SessionRegistryImplTests extends TestCase {
         assertNull(sessionRegistry.getSessionInformation(sessionId));
     }
 
+    public void testMultiplePrincipals() throws Exception {
+        Object principal1 = "principal_1";
+        Object principal2 = "principal_2";
+        String sessionId1 = "1234567890";
+        String sessionId2 = "9876543210";
+        String sessionId3 = "5432109876";
+
+        SessionRegistryImpl sessionRegistry = new SessionRegistryImpl();
+
+        sessionRegistry.registerNewSession(sessionId1, principal1);
+        sessionRegistry.registerNewSession(sessionId2, principal1);
+        sessionRegistry.registerNewSession(sessionId3, principal2);
+
+        assertEquals(principal1, sessionRegistry.getAllPrincipals()[0]);
+        assertEquals(principal2, sessionRegistry.getAllPrincipals()[1]);
+    }
+
     public void testSessionInformationLifecycle() throws Exception {
         Object principal = "Some principal object";
         String sessionId = "1234567890";
@@ -95,6 +112,33 @@ public class SessionRegistryImplTests extends TestCase {
         assertNull(sessionRegistry.getAllSessions(principal));
     }
 
+    public void testTwoSessionsOnePrincipalExpiring() throws Exception {
+        Object principal = "Some principal object";
+        String sessionId1 = "1234567890";
+        String sessionId2 = "9876543210";
+        SessionRegistryImpl sessionRegistry = new SessionRegistryImpl();
+
+        // Register new Session
+        sessionRegistry.registerNewSession(sessionId1, principal);
+        assertEquals(1, sessionRegistry.getAllSessions(principal).length);
+        assertEquals(sessionId1,
+            sessionRegistry.getAllSessions(principal)[0].getSessionId());
+
+        // Register new Session
+        sessionRegistry.registerNewSession(sessionId2, principal);
+        assertEquals(2, sessionRegistry.getAllSessions(principal).length);
+        assertEquals(sessionId2,
+            sessionRegistry.getAllSessions(principal)[1].getSessionId());
+
+        // Expire one session
+        SessionInformation session = sessionRegistry.getSessionInformation(sessionId2);
+        session.expireNow();
+
+        // Check retrieval still correct
+        assertTrue(sessionRegistry.getSessionInformation(sessionId2).isExpired());
+        assertFalse(sessionRegistry.getSessionInformation(sessionId1).isExpired());
+    }
+
     public void testTwoSessionsOnePrincipalHandling() throws Exception {
         Object principal = "Some principal object";
         String sessionId1 = "1234567890";
@@ -124,32 +168,4 @@ public class SessionRegistryImplTests extends TestCase {
         assertNull(sessionRegistry.getSessionInformation(sessionId2));
         assertNull(sessionRegistry.getAllSessions(principal));
     }
-
-    public void testTwoSessionsOnePrincipalExpiring() throws Exception {
-        Object principal = "Some principal object";
-        String sessionId1 = "1234567890";
-        String sessionId2 = "9876543210";
-        SessionRegistryImpl sessionRegistry = new SessionRegistryImpl();
-
-        // Register new Session
-        sessionRegistry.registerNewSession(sessionId1, principal);
-        assertEquals(1, sessionRegistry.getAllSessions(principal).length);
-        assertEquals(sessionId1,
-            sessionRegistry.getAllSessions(principal)[0].getSessionId());
-
-        // Register new Session
-        sessionRegistry.registerNewSession(sessionId2, principal);
-        assertEquals(2, sessionRegistry.getAllSessions(principal).length);
-        assertEquals(sessionId2,
-            sessionRegistry.getAllSessions(principal)[1].getSessionId());
-
-        // Expire one session
-        SessionInformation session = sessionRegistry.getSessionInformation(sessionId2);
-        session.expireNow();
-        
-        // Check retrieval still correct
-        assertTrue(sessionRegistry.getSessionInformation(sessionId2).isExpired());
-        assertFalse(sessionRegistry.getSessionInformation(sessionId1).isExpired());
-    }
-
 }

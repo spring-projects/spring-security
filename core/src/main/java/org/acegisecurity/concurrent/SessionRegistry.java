@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,14 @@ package org.acegisecurity.concurrent;
  */
 public interface SessionRegistry {
     //~ Methods ================================================================
+
+    /**
+     * Obtains all the known principals in the <code>SessionRegistry</code>.
+     *
+     * @return each of the unique principals, which can then be presented to
+     *         {@link #getAllSessions(Object)}.
+     */
+    public Object[] getAllPrincipals();
 
     /**
      * Obtains all the known sessions for the specified principal. Sessions
@@ -50,7 +58,8 @@ public interface SessionRegistry {
     /**
      * Updates the given <code>sessionId</code> so its last request time is
      * equal to the present date and time. Silently returns if the given
-     * <code>sessionId</code> cannot be found or the session is marked to expire.
+     * <code>sessionId</code> cannot be found or the session is marked to
+     * expire.
      *
      * @param sessionId for which to update the date and time of the last
      *        request (should never be <code>null</code>)
