@@ -18,12 +18,17 @@ package org.acegisecurity.providers.ldap;
 import org.acegisecurity.AuthenticationServiceException;
 
 /**
- * Used to wrap unexpected NamingExceptions while accessing the LDAP server.
+ * Used to wrap unexpected NamingExceptions while accessing the LDAP server
+ * or for other LDAP-related data problems such as data we can't handle.
  *
  * @author Luke Taylor
  * @version $Id$
  */
 public class LdapDataAccessException extends AuthenticationServiceException {
+
+    public LdapDataAccessException(String msg) {
+        super(msg);
+    }
 
     public LdapDataAccessException(String msg, Throwable ex) {
         super(msg, ex);

@@ -33,7 +33,7 @@ import java.util.Iterator;
  * @author Luke Taylor
  * @version $Id$
  */
-public final class BindAuthenticator extends AbstractLdapAuthenticator {
+public class BindAuthenticator extends AbstractLdapAuthenticator {
 
     //~ Static fields/initializers =============================================
 
@@ -55,14 +55,14 @@ public final class BindAuthenticator extends AbstractLdapAuthenticator {
         Iterator dns = getUserDns(username).iterator();
 
         while(dns.hasNext() && user == null) {
-            user = authenticateWithDn((String)dns.next(), password);
+            user = bindWithDn((String)dns.next(), password);
         }
 
         // Otherwise use the configured locator to find the user
         // and authenticate with the returned DN.
         if (user == null && getUserSearch() != null) {
             LdapUserInfo userFromSearch = getUserSearch().searchForUser(username);
-            user = authenticateWithDn(userFromSearch.getDn(), password);
+            user = bindWithDn(userFromSearch.getDn(), password);
         }
 
         if(user == null) {
@@ -75,10 +75,9 @@ public final class BindAuthenticator extends AbstractLdapAuthenticator {
 
     }
 
-    private LdapUserInfo authenticateWithDn(String userDn, String password) {
+    LdapUserInfo bindWithDn(String userDn, String password) {
         DirContext ctx = null;
         LdapUserInfo user = null;
-        Attributes attributes = null;
 
         if (logger.isDebugEnabled()) {
             logger.debug("Attempting to bind with DN = " + userDn);
@@ -86,15 +85,9 @@ public final class BindAuthenticator extends AbstractLdapAuthenticator {
 
         try {
             ctx = getInitialDirContextFactory().newInitialDirContext(userDn, password);
-            attributes = ctx.getAttributes(
-                    LdapUtils.getRelativeName(userDn, ctx),
-                    getUserAttributes());
+            Attributes attributes = loadAttributes(ctx, userDn);
             user = new LdapUserInfo(userDn, attributes);
 
-        } catch(NamingException ne) {
-            throw new LdapDataAccessException(messages.getMessage(
-                            "BindAuthenticator.failedToLoadAttributes", new String[] {userDn},
-                            "Failed to load attributes for user {0}"), ne);
         } catch(BadCredentialsException e) {
             // This will be thrown if an invalid user name is used and the method may
             // be called multiple times to try different names, so we trap the exception.
@@ -106,6 +99,19 @@ public final class BindAuthenticator extends AbstractLdapAuthenticator {
         }
 
         return user;
+    }
+
+    Attributes loadAttributes(DirContext ctx, String userDn) {
+        try {
+            return ctx.getAttributes(
+                    LdapUtils.getRelativeName(userDn, ctx),
+                    getUserAttributes());
+
+        } catch(NamingException ne) {
+            throw new LdapDataAccessException(messages.getMessage(
+                            "BindAuthenticator.failedToLoadAttributes", new String[] {userDn},
+                            "Failed to load attributes for user {0}"), ne);
+        }
     }
 
 }
