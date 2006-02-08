@@ -111,11 +111,11 @@ public class SecurityContextLoginModuleTests extends TestCase {
     protected void setUp() throws Exception {
         module = new SecurityContextLoginModule();
         module.initialize(subject, null, null, null);
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.clearContext();
     }
 
     protected void tearDown() throws Exception {
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.clearContext();
         module = null;
     }
 }

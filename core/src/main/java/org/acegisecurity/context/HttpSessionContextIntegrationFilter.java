@@ -279,7 +279,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean,
                 }
 
                 // Remove SecurityContextHolder contents
-                SecurityContextHolder.setContext(generateNewContext());
+                SecurityContextHolder.clearContext();
 
                 if (logger.isDebugEnabled()) {
                     logger.debug(

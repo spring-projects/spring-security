@@ -74,7 +74,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.clearContext();
 
         // Create User Details Service, provider and authentication manager
         InMemoryDaoImpl dao = new InMemoryDaoImpl();
@@ -97,7 +97,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.clearContext();
     }
 
     public void testDoFilterWithNonHttpServletRequestDetected()

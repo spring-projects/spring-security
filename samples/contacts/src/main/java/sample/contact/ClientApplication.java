@@ -137,7 +137,7 @@ public class ClientApplication {
             System.out.println(stopWatch.prettyPrint());
         }
 
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.clearContext();
     }
 
     public static void main(String[] args) {

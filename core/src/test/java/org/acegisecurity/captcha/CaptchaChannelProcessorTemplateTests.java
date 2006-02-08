@@ -39,6 +39,15 @@ import javax.servlet.ServletException;
 public class CaptchaChannelProcessorTemplateTests extends TestCase {
     //~ Methods ================================================================
 
+    public void setUp() {
+        SecurityContextHolder.clearContext();
+    }
+
+    public void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
+
+
     public void testContextRedirect() throws Exception {
         CaptchaChannelProcessorTemplate processor = new TestHumanityCaptchaChannelProcessor();
         processor.setKeyword("X");

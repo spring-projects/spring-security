@@ -67,7 +67,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.clearContext();
     }
 
     public void testAccessDeniedWhenAnonymous() throws Exception {

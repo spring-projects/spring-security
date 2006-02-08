@@ -86,7 +86,7 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.clearContext();
         // Create User Details Service
         InMemoryDaoImpl dao = new InMemoryDaoImpl();
         UserMapEditor editor = new UserMapEditor();
@@ -107,7 +107,7 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.clearContext();
     }
 
     public void testDoFilterWithNonHttpServletRequestDetected()

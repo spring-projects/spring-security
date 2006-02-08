@@ -419,12 +419,12 @@ public class AbstractProcessingFilterTests extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.clearContext();
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.clearContext();
     }
 
     private MockHttpServletRequest createMockRequest() {

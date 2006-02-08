@@ -123,7 +123,7 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 
         } finally {
 
-            SecurityContextHolder.setContext(new SecurityContextImpl());
+            SecurityContextHolder.clearContext();
 
             if (logger.isDebugEnabled()) {
                 logger.debug(

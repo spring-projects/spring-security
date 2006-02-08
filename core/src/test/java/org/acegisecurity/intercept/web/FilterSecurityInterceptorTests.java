@@ -176,7 +176,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.invoke(fi);
 
         // Destroy the Context
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.clearContext();
     }
 
     public void testNormalStartupAndGetter() throws Exception {
@@ -233,7 +233,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.invoke(fi);
 
         // Destroy the Context
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.clearContext();
     }
 
     //~ Inner Classes ==========================================================

@@ -75,4 +75,16 @@ public class SecurityContextHolder {
 
         return (SecurityContext) contextHolder.get();
     }
+
+    /**
+     * Explicitly clears the context value from thread local storage.
+     * Typically used on completion of a request to prevent potential
+     * misuse of the associated context information if the thread is
+     * reused. 
+     */
+    public static void clearContext() {
+        // Internally set the context value to null. This is never visible
+        // outside the class.
+        contextHolder.set(null);
+    }
 }

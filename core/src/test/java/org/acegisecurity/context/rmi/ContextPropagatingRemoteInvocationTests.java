@@ -66,7 +66,7 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
         // Set to null, as ContextPropagatingRemoteInvocation already obtained
         // a copy and nulling is necessary to ensure the Context delivered by
         // ContextPropagatingRemoteInvocation is used on server-side
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.clearContext();
 
         // The result from invoking the TargetObject should contain the
         // Authentication class delivered via the SecurityContextHolder

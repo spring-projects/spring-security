@@ -49,7 +49,7 @@ public class AuthzImplAuthorizeTagTest extends TestCase {
     }
 
     protected void tearDown() throws Exception {
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.clearContext();
     }
 
     public void testAlwaysReturnsUnauthorizedIfNoUserFound() {

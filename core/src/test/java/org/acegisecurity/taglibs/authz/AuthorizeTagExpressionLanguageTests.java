@@ -81,6 +81,6 @@ public class AuthorizeTagExpressionLanguageTests extends TestCase {
     }
 
     protected void tearDown() throws Exception {
-        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.clearContext();
     }
 }
