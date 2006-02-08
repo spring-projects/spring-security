@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,11 @@
 package org.acegisecurity.providers.anonymous;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.context.SecurityContextHolder;
+
+import org.acegisecurity.ui.WebAuthenticationDetails;
+
 import org.acegisecurity.userdetails.memory.UserAttribute;
 
 import org.apache.commons.logging.Log;
@@ -34,6 +38,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -62,50 +67,39 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
 
     //~ Methods ================================================================
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    /**
-     * Controls whether the filter will remove the Anonymous token after the
-     * request is complete. Generally this is desired to avoid the expense of
-     * a session being created by {@link
-     * org.acegisecurity.context.HttpSessionContextIntegrationFilter
-     * HttpSessionContextIntegrationFilter} simply to store the Anonymous
-     * authentication token.
-     * 
-     * <p>
-     * Defaults to <code>true</code>, being the most optimal and appropriate
-     * option (ie <code>AnonymousProcessingFilter</code> will clear the token
-     * at the end of each request, thus avoiding the session creation overhead
-     * in a typical configuration.
-     * </p>
-     *
-     * @param removeAfterRequest DOCUMENT ME!
-     */
-    public void setRemoveAfterRequest(boolean removeAfterRequest) {
-        this.removeAfterRequest = removeAfterRequest;
-    }
-
-    public boolean isRemoveAfterRequest() {
-        return removeAfterRequest;
-    }
-
-    public void setUserAttribute(UserAttribute userAttributeDefinition) {
-        this.userAttribute = userAttributeDefinition;
-    }
-
-    public UserAttribute getUserAttribute() {
-        return userAttribute;
-    }
-
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(userAttribute);
         Assert.hasLength(key);
+    }
+
+    /**
+     * Enables subclasses to determine whether or not an anonymous
+     * authentication token should be setup for this request. This is useful
+     * if anonymous authentication should be allowed only for specific IP
+     * subnet ranges etc.
+     *
+     * @param request to assist the method determine request details
+     *
+     * @return <code>true</code> if the anonymous token should be setup for
+     *         this request (provided that the request doesn't already have
+     *         some other <code>Authentication</code> inside it), or
+     *         <code>false</code> if no anonymous token should be setup for
+     *         this request
+     */
+    protected boolean applyAnonymousForThisRequest(ServletRequest request) {
+        return true;
+    }
+
+    protected Authentication createAuthentication(ServletRequest request) {
+        Assert.isInstanceOf(HttpServletRequest.class, request,
+            "ServletRequest must be an instance of HttpServletRequest");
+
+        AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(key,
+                userAttribute.getPassword(), userAttribute.getAuthorities());
+        auth.setDetails(new WebAuthenticationDetails(
+                (HttpServletRequest) request));
+
+        return auth;
     }
 
     /**
@@ -119,7 +113,8 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
 
         if (applyAnonymousForThisRequest(request)) {
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                SecurityContextHolder.getContext().setAuthentication(createAuthentication(
+                SecurityContextHolder.getContext()
+                                     .setAuthentication(createAuthentication(
                         request));
                 addedToken = true;
 
@@ -143,11 +138,20 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
             chain.doFilter(request, response);
         } finally {
             if (addedToken && removeAfterRequest
-                && createAuthentication(request).equals(SecurityContextHolder.getContext()
-                                                                             .getAuthentication())) {
+                && createAuthentication(request)
+                       .equals(SecurityContextHolder.getContext()
+                                                    .getAuthentication())) {
                 SecurityContextHolder.getContext().setAuthentication(null);
             }
         }
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public UserAttribute getUserAttribute() {
+        return userAttribute;
     }
 
     /**
@@ -159,26 +163,36 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
      */
     public void init(FilterConfig ignored) throws ServletException {}
 
-    /**
-     * Enables subclasses to determine whether or not an anonymous
-     * authentication token should be setup for this request. This is useful
-     * if anonymous authentication should be allowed only for specific IP
-     * subnet ranges etc.
-     *
-     * @param request to assist the method determine request details
-     *
-     * @return <code>true</code> if the anonymous token should be setup for
-     *         this request (provided that the request doesn't already have
-     *         some other <code>Authentication</code> inside it), or
-     *         <code>false</code> if no anonymous token should be setup for
-     *         this request
-     */
-    protected boolean applyAnonymousForThisRequest(ServletRequest request) {
-        return true;
+    public boolean isRemoveAfterRequest() {
+        return removeAfterRequest;
     }
 
-    protected Authentication createAuthentication(ServletRequest request) {
-        return new AnonymousAuthenticationToken(key,
-            userAttribute.getPassword(), userAttribute.getAuthorities());
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    /**
+     * Controls whether the filter will remove the Anonymous token after the
+     * request is complete. Generally this is desired to avoid the expense of
+     * a session being created by {@link
+     * org.acegisecurity.context.HttpSessionContextIntegrationFilter
+     * HttpSessionContextIntegrationFilter} simply to store the Anonymous
+     * authentication token.
+     * 
+     * <p>
+     * Defaults to <code>true</code>, being the most optimal and appropriate
+     * option (ie <code>AnonymousProcessingFilter</code> will clear the token
+     * at the end of each request, thus avoiding the session creation overhead
+     * in a typical configuration.
+     * </p>
+     *
+     * @param removeAfterRequest DOCUMENT ME!
+     */
+    public void setRemoveAfterRequest(boolean removeAfterRequest) {
+        this.removeAfterRequest = removeAfterRequest;
+    }
+
+    public void setUserAttribute(UserAttribute userAttributeDefinition) {
+        this.userAttribute = userAttributeDefinition;
     }
 }

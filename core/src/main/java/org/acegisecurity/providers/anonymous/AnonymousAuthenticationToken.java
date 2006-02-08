@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 package org.acegisecurity.providers.anonymous;
 
 import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.providers.AbstractAuthenticationToken;
 
-import org.springframework.util.Assert;
+import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 import java.io.Serializable;
 
@@ -33,6 +32,7 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
     implements Serializable {
     //~ Instance fields ========================================================
 
+    private Object details;
     private Object principal;
     private boolean authenticated;
     private int keyHash;
@@ -50,7 +50,6 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
      */
     public AnonymousAuthenticationToken(String key, Object principal,
         GrantedAuthority[] authorities) {
-
         super(authorities);
 
         if ((key == null) || ("".equals(key)) || (principal == null)
@@ -62,35 +61,10 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
 
         this.keyHash = key.hashCode();
         this.principal = principal;
-		this.authenticated = true;
+        this.authenticated = true;
     }
 
     //~ Methods ================================================================
-
-    public void setAuthenticated(boolean isAuthenticated) {
-        this.authenticated = isAuthenticated;
-    }
-
-    public boolean isAuthenticated() {
-        return this.authenticated;
-    }
-
-    /**
-     * Always returns an empty <code>String</code>
-     *
-     * @return an empty String
-     */
-    public Object getCredentials() {
-        return "";
-    }
-
-    public int getKeyHash() {
-        return this.keyHash;
-    }
-
-    public Object getPrincipal() {
-        return this.principal;
-    }
 
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
@@ -104,9 +78,50 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
                 return false;
             }
 
-            return true;
+            if ((this.details == null) && (test.getDetails() != null)) {
+                return false;
+            }
+
+            if ((this.details != null) && (test.getDetails() == null)) {
+                return false;
+            }
+
+            return this.details.equals(test.getDetails());
         }
 
         return false;
+    }
+
+    /**
+     * Always returns an empty <code>String</code>
+     *
+     * @return an empty String
+     */
+    public Object getCredentials() {
+        return "";
+    }
+
+    public Object getDetails() {
+        return details;
+    }
+
+    public int getKeyHash() {
+        return this.keyHash;
+    }
+
+    public Object getPrincipal() {
+        return this.principal;
+    }
+
+    public boolean isAuthenticated() {
+        return this.authenticated;
+    }
+
+    public void setAuthenticated(boolean isAuthenticated) {
+        this.authenticated = isAuthenticated;
+    }
+
+    public void setDetails(Object details) {
+        this.details = details;
     }
 }
