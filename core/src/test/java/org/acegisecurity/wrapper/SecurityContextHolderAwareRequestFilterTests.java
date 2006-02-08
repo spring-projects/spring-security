@@ -19,9 +19,6 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.MockFilterConfig;
 
-import org.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter;
-import org.acegisecurity.wrapper.SecurityContextHolderAwareRequestWrapper;
-
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
