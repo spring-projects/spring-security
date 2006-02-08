@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,14 @@ import org.acegisecurity.AuthorizationServiceException;
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.MockAclManager;
 import org.acegisecurity.SecurityConfig;
+
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.acl.AclManager;
 import org.acegisecurity.acl.basic.MockAclObjectIdentity;
 import org.acegisecurity.acl.basic.SimpleAclEntry;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.acegisecurity.util.SimpleMethodInvocation;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -54,12 +57,21 @@ public class BasicAclEntryVoterTests extends TestCase {
 
     //~ Methods ================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
+    private MethodInvocation getMethodInvocation(SomeDomainObject domainObject)
+        throws Exception {
+        Class clazz = SomeDomainObjectManager.class;
+        Method method = clazz.getMethod("someServiceMethod",
+                new Class[] {SomeDomainObject.class});
+
+        return new SimpleMethodInvocation(method, new Object[] {domainObject});
     }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(BasicAclEntryVoterTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testNormalOperation() throws Exception {
@@ -101,10 +113,11 @@ public class BasicAclEntryVoterTests extends TestCase {
                 attr));
     }
 
-    public void testOnlySupportsMethodInvocation() {
+    public void testOnlySupportsMethodInvocationAndJoinPoint() {
         BasicAclEntryVoter voter = new BasicAclEntryVoter();
         assertTrue(voter.supports(MethodInvocation.class));
-        assertFalse(voter.supports(JoinPoint.class));
+        assertTrue(voter.supports(JoinPoint.class));
+        assertFalse(voter.supports(String.class));
     }
 
     public void testStartupRejectsMissingAclManager() throws Exception {
@@ -454,15 +467,6 @@ public class BasicAclEntryVoterTests extends TestCase {
         } catch (AuthorizationServiceException expected) {
             assertTrue(true);
         }
-    }
-
-    private MethodInvocation getMethodInvocation(SomeDomainObject domainObject)
-        throws Exception {
-        Class clazz = SomeDomainObjectManager.class;
-        Method method = clazz.getMethod("someServiceMethod",
-                new Class[] {SomeDomainObject.class});
-
-        return new SimpleMethodInvocation(method, new Object[] {domainObject});
     }
 
     //~ Inner Classes ==========================================================

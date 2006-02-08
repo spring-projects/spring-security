@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,14 @@ package org.acegisecurity.vote;
 
 import org.acegisecurity.AuthorizationServiceException;
 import org.acegisecurity.ConfigAttribute;
+
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.acl.AclManager;
 
 import org.aopalliance.intercept.MethodInvocation;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.reflect.CodeSignature;
 
 import org.springframework.util.Assert;
 
@@ -39,8 +43,7 @@ import java.lang.reflect.Method;
  * <code>Authentication</code> object. This class is designed to process
  * {@link AclEntry}s that are subclasses of {@link
  * org.acegisecurity.acl.basic.BasicAclEntry} only. Generally these are
- * obtained by using the {@link
- * org.acegisecurity.acl.basic.BasicAclProvider}.
+ * obtained by using the {@link org.acegisecurity.acl.basic.BasicAclProvider}.
  * </p>
  * 
  * <p>
@@ -122,14 +125,40 @@ public abstract class AbstractAclVoter implements AccessDecisionVoter {
 
     //~ Methods ================================================================
 
-    public void setProcessDomainObjectClass(Class processDomainObjectClass) {
-        Assert.notNull(processDomainObjectClass,
-            "processDomainObjectClass cannot be set to null");
-        this.processDomainObjectClass = processDomainObjectClass;
+    protected Object getDomainObjectInstance(Object secureObject) {
+        Object[] args;
+        Class[] params;
+
+        if (secureObject instanceof MethodInvocation) {
+            MethodInvocation invocation = (MethodInvocation) secureObject;
+            params = invocation.getMethod().getParameterTypes();
+            args = invocation.getArguments();
+        } else {
+            JoinPoint jp = (JoinPoint) secureObject;
+            params = ((CodeSignature) jp.getStaticPart().getSignature())
+                .getParameterTypes();
+            args = jp.getArgs();
+        }
+
+        for (int i = 0; i < params.length; i++) {
+            if (processDomainObjectClass.isAssignableFrom(params[i])) {
+                return args[i];
+            }
+        }
+
+        throw new AuthorizationServiceException("Secure object: "
+            + secureObject + " did not provide any argument of type: "
+            + processDomainObjectClass);
     }
 
     public Class getProcessDomainObjectClass() {
         return processDomainObjectClass;
+    }
+
+    public void setProcessDomainObjectClass(Class processDomainObjectClass) {
+        Assert.notNull(processDomainObjectClass,
+            "processDomainObjectClass cannot be set to null");
+        this.processDomainObjectClass = processDomainObjectClass;
     }
 
     /**
@@ -143,24 +172,12 @@ public abstract class AbstractAclVoter implements AccessDecisionVoter {
      *         <code>MethodInvocation</code>, <code>false</code> otherwise
      */
     public boolean supports(Class clazz) {
-        return (MethodInvocation.class.isAssignableFrom(clazz));
-    }
-
-    protected Object getDomainObjectInstance(Object secureObject) {
-        MethodInvocation invocation = (MethodInvocation) secureObject;
-
-        // Check if this MethodInvocation provides the required argument
-        Method method = invocation.getMethod();
-        Class[] params = method.getParameterTypes();
-
-        for (int i = 0; i < params.length; i++) {
-            if (processDomainObjectClass.isAssignableFrom(params[i])) {
-                return invocation.getArguments()[i];
-            }
+        if (MethodInvocation.class.isAssignableFrom(clazz)) {
+            return true;
+        } else if (JoinPoint.class.isAssignableFrom(clazz)) {
+            return true;
+        } else {
+            return false;
         }
-
-        throw new AuthorizationServiceException("MethodInvocation: "
-            + invocation + " did not provide any argument of type: "
-            + processDomainObjectClass);
     }
 }
