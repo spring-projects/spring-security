@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,10 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.acegisecurity.ui.webapp;
 
 import org.acegisecurity.AuthenticationException;
+
 import org.acegisecurity.ui.AuthenticationEntryPoint;
+
 import org.acegisecurity.util.PortMapper;
 import org.acegisecurity.util.PortMapperImpl;
 import org.acegisecurity.util.PortResolver;
@@ -44,7 +47,7 @@ import javax.servlet.http.HttpServletResponse;
  * holds the location of the login form, relative to the web app context path,
  * and is used to commence a redirect to that form.
  * </p>
- *
+ * 
  * <p>
  * By setting the <em>forceHttps</em> property to true, you may configure the
  * class to force the protocol used for the login form to be
@@ -62,58 +65,18 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class AuthenticationProcessingFilterEntryPoint
     implements AuthenticationEntryPoint, InitializingBean {
+    //~ Static fields/initializers =============================================
+
     private static final Log logger = LogFactory.getLog(AuthenticationProcessingFilterEntryPoint.class);
+
+    //~ Instance fields ========================================================
+
     private PortMapper portMapper = new PortMapperImpl();
     private PortResolver portResolver = new PortResolverImpl();
     private String loginFormUrl;
     private boolean forceHttps = false;
 
-    /**
-     * Set to true to force login form access to be via https. If this value is
-     * ture (the default is false), and the incoming request for the protected
-     * resource which triggered the interceptor was not already
-     * <code>https</code>, then
-     *
-     * @param forceHttps
-     */
-    public void setForceHttps(boolean forceHttps) {
-        this.forceHttps = forceHttps;
-    }
-
-    public boolean getForceHttps() {
-        return forceHttps;
-    }
-
-    /**
-     * The URL where the <code>AuthenticationProcessingFilter</code> login page
-     * can be found. Should be relative to the web-app context path, and
-     * include a leading <code>/</code>
-     *
-     * @param loginFormUrl
-     */
-    public void setLoginFormUrl(String loginFormUrl) {
-        this.loginFormUrl = loginFormUrl;
-    }
-
-    public String getLoginFormUrl() {
-        return loginFormUrl;
-    }
-
-    public void setPortMapper(PortMapper portMapper) {
-        this.portMapper = portMapper;
-    }
-
-    public PortMapper getPortMapper() {
-        return portMapper;
-    }
-
-    public void setPortResolver(PortResolver portResolver) {
-        this.portResolver = portResolver;
-    }
-
-    public PortResolver getPortResolver() {
-        return portResolver;
-    }
+    //~ Methods ================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(loginFormUrl, "loginFormUrl must be specified");
@@ -133,8 +96,7 @@ public class AuthenticationProcessingFilterEntryPoint
         boolean inHttp = "http".equals(scheme.toLowerCase());
         boolean inHttps = "https".equals(scheme.toLowerCase());
 
-        boolean includePort = ((inHttp && (serverPort == 80)) ||
-            (inHttps && (serverPort == 443)));
+        boolean includePort = true;
 
         if ("http".equals(scheme.toLowerCase()) && (serverPort == 80)) {
             includePort = false;
@@ -144,7 +106,9 @@ public class AuthenticationProcessingFilterEntryPoint
             includePort = false;
         }
 
-        String redirectUrl = contextPath + loginFormUrl;
+        String redirectUrl = scheme + "://" + serverName
+            + ((includePort) ? (":" + serverPort) : "") + contextPath
+            + loginFormUrl;
 
         if (forceHttps && inHttp) {
             Integer httpPort = new Integer(portResolver.getServerPort(request));
@@ -157,9 +121,9 @@ public class AuthenticationProcessingFilterEntryPoint
                     includePort = true;
                 }
 
-                redirectUrl = "https://" + serverName +
-                    ((includePort) ? (":" + httpsPort) : "") + contextPath +
-                    loginFormUrl;
+                redirectUrl = "https://" + serverName
+                    + ((includePort) ? (":" + httpsPort) : "") + contextPath
+                    + loginFormUrl;
             }
         }
 
@@ -167,7 +131,54 @@ public class AuthenticationProcessingFilterEntryPoint
             logger.debug("Redirecting to: " + redirectUrl);
         }
 
-        ((HttpServletResponse) response).sendRedirect(((HttpServletResponse) response).encodeRedirectURL(
-                redirectUrl));
+        ((HttpServletResponse) response).sendRedirect(((HttpServletResponse) response)
+            .encodeRedirectURL(redirectUrl));
+    }
+
+    public boolean getForceHttps() {
+        return forceHttps;
+    }
+
+    public String getLoginFormUrl() {
+        return loginFormUrl;
+    }
+
+    public PortMapper getPortMapper() {
+        return portMapper;
+    }
+
+    public PortResolver getPortResolver() {
+        return portResolver;
+    }
+
+    /**
+     * Set to true to force login form access to be via https. If this value is
+     * ture (the default is false), and the incoming request for the protected
+     * resource which triggered the interceptor was not already
+     * <code>https</code>, then
+     *
+     * @param forceHttps
+     */
+    public void setForceHttps(boolean forceHttps) {
+        this.forceHttps = forceHttps;
+    }
+
+    /**
+     * The URL where the <code>AuthenticationProcessingFilter</code> login page
+     * can be found. Should be relative to the web-app context path, and
+     * include a leading <code>/</code>
+     *
+     * @param loginFormUrl
+     */
+    public void setLoginFormUrl(String loginFormUrl) {
+        this.loginFormUrl = loginFormUrl;
+    }
+
+    public void setPortMapper(PortMapper portMapper) {
+        this.portMapper = portMapper;
+    }
+
+    public void setPortResolver(PortResolver portResolver) {
+        this.portResolver = portResolver;
     }
 }
