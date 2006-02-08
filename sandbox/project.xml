@@ -18,6 +18,12 @@
       <type>jar</type>
       <url>http://acegisecurity.org</url>
     </dependency>
+    <dependency>
+      <groupId>ldapsdk</groupId>
+      <artifactId>ldapsdk</artifactId>
+      <version>4.1</version>
+      <type>jar</type>
+    </dependency>    
   </dependencies>
   <build>
     <resources>

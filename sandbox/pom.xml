@@ -17,9 +17,27 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>directory</groupId>
-      <artifactId>apacheds-main</artifactId>
-      <version>0.9-SNAPSHOT</version>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>org.apache.ldap.server.core</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.4</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>ldapsdk</groupId>
+      <artifactId>ldapsdk</artifactId>
+      <version>4.1</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.samba.jcifs</groupId>
+      <artifactId>jcifs</artifactId>
+      <version>1.2.6</version>
       <type>jar</type>
     </dependency>
   </dependencies>
