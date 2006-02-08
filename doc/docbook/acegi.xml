@@ -4328,28 +4328,31 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <para>
           A typical configuration, using some of the beans we've discussed above, might look like this:
           <programlisting>
-    &lt;bean id=&quot;initialDirContextFactory&quot; class=&quot;org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory&quot;&gt;
+    &lt;bean id=&quot;initialDirContextFactory&quot; 
+            class=&quot;org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory&quot;&gt;
       &lt;constructor-arg value=&quot;ldap://monkeymachine:389/dc=acegisecurity,dc=org&quot;/&gt;
       &lt;property name=&quot;managerDn&quot;&gt;&lt;value&gt;cn=manager,dc=acegisecurity,dc=org&lt;/value&gt;&lt;/property&gt;
       &lt;property name=&quot;managerPassword&quot;&gt;&lt;value&gt;password&lt;/value&gt;&lt;/property&gt;
     &lt;/bean&gt;
 
-    &lt;bean 
-      id=&quot;userSearch&quot;
-      class=&quot;org.acegisecurity.providers.ldap.search.FilterBasedLdapUserSearch&quot;&gt;
+    &lt;bean id=&quot;userSearch&quot;
+            class=&quot;org.acegisecurity.providers.ldap.search.FilterBasedLdapUserSearch&quot;&gt;
+      &lt;constructor-arg index=&quot;0&quot;&gt;
+        &lt;value&gt;&lt;/value&gt;
+      &lt;/constructor-arg&gt;
+      &lt;constructor-arg index=&quot;1&quot;&gt;
+        &lt;value&gt;(uid={0})&lt;/value&gt;
+      &lt;/constructor-arg&gt;
+      &lt;constructor-arg index=&quot;2&quot;&gt;
+        &lt;ref local=&quot;initialDirContextFactory&quot; /&gt;
+      &lt;/constructor-arg&gt;            
       &lt;property name=&quot;searchSubtree&quot;&gt;
         &lt;value&gt;true&lt;/value&gt;
-      &lt;/property&gt;
-      &lt;property name=&quot;initialDirContextFactory&quot;&gt;
-        &lt;ref local=&quot;initialDirContextFactory&quot; /&gt;
-      &lt;/property&gt;
-      &lt;property name=&quot;searchFilter&quot;&gt;
-        &lt;value&gt;(uid={0})&lt;/value&gt;
-      &lt;/property&gt;
+      &lt;/property&gt;            
     &lt;/bean&gt;            
             
-    &lt;bean 
-      id=&quot;ldapAuthProvider&quot; class=&quot;org.acegisecurity.providers.ldap.LdapAuthenticationProvider&quot;&gt;
+    &lt;bean id=&quot;ldapAuthProvider&quot; 
+            class=&quot;org.acegisecurity.providers.ldap.LdapAuthenticationProvider&quot;&gt;
       &lt;constructor-arg&gt;
         &lt;bean class=&quot;org.acegisecurity.providers.ldap.authenticator.BindAuthenticator&quot;&gt;
            &lt;constructor-arg&gt;&lt;ref local=&quot;initialDirContextFactory&quot;/&gt;&lt;/constructor-arg&gt;
