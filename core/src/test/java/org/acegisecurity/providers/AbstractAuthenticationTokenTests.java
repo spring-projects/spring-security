@@ -148,22 +148,17 @@ public class AbstractAuthenticationTokenTests extends TestCase {
     private class MockAuthenticationImpl extends AbstractAuthenticationToken {
         private Object credentials;
         private Object principal;
-        private GrantedAuthority[] authorities;
         private boolean authenticated = false;
 
         public MockAuthenticationImpl(Object principal, Object credentials,
             GrantedAuthority[] authorities) {
+            super(authorities);
             this.principal = principal;
             this.credentials = credentials;
-            this.authorities = authorities;
         }
 
         private MockAuthenticationImpl() {
-            super();
-        }
-
-        public GrantedAuthority[] getAuthorities() {
-            return this.authorities;
+            super(null);
         }
 
         public Object getCredentials() {

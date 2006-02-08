@@ -29,13 +29,12 @@ public abstract class AbstractAdapterAuthenticationToken
     extends AbstractAuthenticationToken implements AuthByAdapter {
     //~ Instance fields ========================================================
 
-    private GrantedAuthority[] authorities;
     private int keyHash;
 
     //~ Constructors ===========================================================
 
     protected AbstractAdapterAuthenticationToken() {
-        super();
+        super(null);
     }
 
     /**
@@ -48,9 +47,8 @@ public abstract class AbstractAdapterAuthenticationToken
      */
     protected AbstractAdapterAuthenticationToken(String key,
         GrantedAuthority[] authorities) {
-        super();
+        super(authorities);
         this.keyHash = key.hashCode();
-        this.authorities = authorities;
     }
 
     //~ Methods ================================================================
@@ -73,10 +71,6 @@ public abstract class AbstractAdapterAuthenticationToken
         return true;
     }
 
-    public GrantedAuthority[] getAuthorities() {
-        return authorities;
-    }
-
     public int getKeyHash() {
         return this.keyHash;
     }
@@ -97,8 +91,10 @@ public abstract class AbstractAdapterAuthenticationToken
      *         <code>false</code> otherwise
      */
     public boolean isUserInRole(String role) {
-        for (int i = 0; i < this.authorities.length; i++) {
-            if (role.equals(this.authorities[i].getAuthority())) {
+        GrantedAuthority[] authorities = super.getAuthorities();
+
+        for (int i = 0; i < authorities.length; i++) {
+            if (role.equals(authorities[i].getAuthority())) {
                 return true;
             }
         }

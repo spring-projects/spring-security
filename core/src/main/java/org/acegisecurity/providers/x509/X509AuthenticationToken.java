@@ -31,7 +31,6 @@ public class X509AuthenticationToken extends AbstractAuthenticationToken {
 
     private X509Certificate credentials;
     private Object principal;
-    private GrantedAuthority[] authorities;
     private boolean authenticated = false;
     private Object details = null;
 
@@ -39,13 +38,16 @@ public class X509AuthenticationToken extends AbstractAuthenticationToken {
 
     /** Used for an authentication request */
     public X509AuthenticationToken(X509Certificate credentials) {
+        super(null);
         this.credentials = credentials;
     }
 
-    public X509AuthenticationToken(Object principal, X509Certificate credentials, GrantedAuthority[] authorities) {
+    public X509AuthenticationToken(Object principal,
+                                   X509Certificate credentials,
+                                   GrantedAuthority[] authorities) {
+        super(authorities);
+        this.principal = principal;        
         this.credentials = credentials;
-        this.principal = principal;
-        this.authorities = authorities;
     }
 
     //~ Methods ================================================================
@@ -65,10 +67,6 @@ public class X509AuthenticationToken extends AbstractAuthenticationToken {
 
     public boolean isAuthenticated() {
         return authenticated;
-    }
-
-    public GrantedAuthority[] getAuthorities() {
-        return authorities;
     }
 
     public Object getCredentials() {

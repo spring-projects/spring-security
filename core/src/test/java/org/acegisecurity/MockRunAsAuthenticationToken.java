@@ -30,6 +30,12 @@ public class MockRunAsAuthenticationToken extends AbstractAuthenticationToken {
 
     private boolean authenticated = false;
 
+    //~ Constructors ===========================================================
+
+    public MockRunAsAuthenticationToken() {
+        super(null);
+    }
+
     //~ Methods ================================================================
 
     public void setAuthenticated(boolean isAuthenticated) {
@@ -38,10 +44,6 @@ public class MockRunAsAuthenticationToken extends AbstractAuthenticationToken {
 
     public boolean isAuthenticated() {
         return authenticated;
-    }
-
-    public GrantedAuthority[] getAuthorities() {
-        return null;
     }
 
     public Object getCredentials() {

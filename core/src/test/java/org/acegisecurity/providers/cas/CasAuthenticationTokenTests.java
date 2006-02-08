@@ -178,11 +178,13 @@ public class CasAuthenticationTokenTests extends TestCase {
             token.getUserDetails().getUsername());
     }
 
-    public void testNoArgConstructor() {
+    public void testNoArgConstructorDoesntExist() {
+        Class clazz = CasAuthenticationToken.class;
+
         try {
-            new CasAuthenticationToken();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
+            clazz.getDeclaredConstructor((Class[])null);
+            fail("Should have thrown NoSuchMethodException");
+        } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
     }

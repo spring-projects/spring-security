@@ -32,7 +32,6 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
     private Class originalAuthentication;
     private Object credentials;
     private Object principal;
-    private GrantedAuthority[] authorities;
     private int keyHash;
 	private boolean authenticated;
 
@@ -40,17 +39,12 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
 
     public RunAsUserToken(String key, Object principal, Object credentials,
         GrantedAuthority[] authorities, Class originalAuthentication) {
-        super();
+        super(authorities);
         this.keyHash = key.hashCode();
-        this.authorities = authorities;
         this.principal = principal;
         this.credentials = credentials;
         this.originalAuthentication = originalAuthentication;
 		this.authenticated = true;
-    }
-
-    protected RunAsUserToken() {
-        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ================================================================
@@ -61,10 +55,6 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
 
     public boolean isAuthenticated() {
         return this.authenticated;
-    }
-
-    public GrantedAuthority[] getAuthorities() {
-        return this.authorities;
     }
 
     public Object getCredentials() {
@@ -85,7 +75,7 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
 
     public String toString() {
         StringBuffer sb = new StringBuffer(super.toString());
-        sb.append("; Original Class: " + this.originalAuthentication.getName());
+        sb.append("; Original Class: ").append(this.originalAuthentication.getName());
 
         return sb.toString();
     }

@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
 
 
 /**
@@ -67,11 +68,13 @@ public class TestingAuthenticationTokenTests extends TestCase {
         assertEquals("ROLE_TWO", token.getAuthorities()[1].getAuthority());
     }
 
-    public void testNoArgConstructor() {
+    public void testNoArgConstructorDoesntExist() {
+        Class clazz = TestingAuthenticationToken.class;
+
         try {
-            new TestingAuthenticationToken();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
+            clazz.getDeclaredConstructor((Class[])null);
+            fail("Should have thrown NoSuchMethodException");
+        } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
     }

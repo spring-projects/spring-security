@@ -35,20 +35,15 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 
     private Object credentials;
     private Object principal;
-    private GrantedAuthority[] authorities;
     private boolean authenticated = false;
 
     //~ Constructors ===========================================================
 
     public TestingAuthenticationToken(Object principal, Object credentials,
         GrantedAuthority[] authorities) {
+        super(authorities);
         this.principal = principal;
         this.credentials = credentials;
-        this.authorities = authorities;
-    }
-
-    protected TestingAuthenticationToken() {
-        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ================================================================
@@ -59,10 +54,6 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 
     public boolean isAuthenticated() {
         return this.authenticated;
-    }
-
-    public GrantedAuthority[] getAuthorities() {
-        return this.authorities;
     }
 
     public Object getCredentials() {

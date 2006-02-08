@@ -38,7 +38,6 @@ public class NtlmAuthenticationToken extends AbstractAuthenticationToken {
 
     private NtlmPasswordAuthentication ntlmPasswordAuthentication;
     private transient UniAddress domainController;
-    private GrantedAuthority[] authorities;
     private boolean authenticated;
 
     //~ Constructors ===========================================================
@@ -46,6 +45,7 @@ public class NtlmAuthenticationToken extends AbstractAuthenticationToken {
     public NtlmAuthenticationToken(
         NtlmPasswordAuthentication ntlmPasswordAuthentication,
         UniAddress domainController) {
+        super(null);
         this.ntlmPasswordAuthentication = ntlmPasswordAuthentication;
         this.domainController = domainController;
     }
@@ -58,14 +58,6 @@ public class NtlmAuthenticationToken extends AbstractAuthenticationToken {
 
     public boolean isAuthenticated() {
         return authenticated;
-    }
-
-    public void setAuthorities(GrantedAuthority[] authorities) {
-        this.authorities = authorities;
-    }
-
-    public GrantedAuthority[] getAuthorities() {
-        return authorities;
     }
 
     public Object getCredentials() {

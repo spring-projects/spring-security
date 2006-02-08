@@ -24,6 +24,8 @@ import org.acegisecurity.GrantedAuthorityImpl;
 
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
+import java.util.Arrays;
+
 /**
  * Tests {@link AuthByAdapterProvider}
  *
@@ -67,7 +69,7 @@ public class AuthByAdapterTests extends TestCase {
 
         assertEquals(token.getCredentials(), response.getCredentials());
         assertEquals(token.getPrincipal(), response.getPrincipal());
-        assertEquals(token.getAuthorities(), response.getAuthorities());
+        assertTrue(Arrays.equals(token.getAuthorities(), response.getAuthorities()));
 
         if (!response.getClass().equals(token.getClass())) {
             fail("Should have returned same type of object it was given");

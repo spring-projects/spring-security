@@ -43,7 +43,6 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
     private Object principal;
     private String proxyGrantingTicketIou;
     private UserDetails userDetails;
-    private GrantedAuthority[] authorities;
     private boolean authenticated;
     private int keyHash;
 
@@ -72,6 +71,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
     public CasAuthenticationToken(String key, Object principal,
         Object credentials, GrantedAuthority[] authorities,
         UserDetails userDetails, List proxyList, String proxyGrantingTicketIou) {
+        super(authorities);
         if ((key == null) || ("".equals(key)) || (principal == null)
             || "".equals(principal) || (credentials == null)
             || "".equals(credentials) || (authorities == null)
@@ -81,24 +81,13 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
                 "Cannot pass null or empty values to constructor");
         }
 
-        for (int i = 0; i < authorities.length; i++) {
-            Assert.notNull(authorities[i],
-                "Granted authority element " + i
-                + " is null - GrantedAuthority[] cannot contain any null elements");
-        }
-
         this.keyHash = key.hashCode();
         this.principal = principal;
         this.credentials = credentials;
-        this.authorities = authorities;
         this.userDetails = userDetails;
         this.proxyList = proxyList;
         this.proxyGrantingTicketIou = proxyGrantingTicketIou;
         this.authenticated = true;
-    }
-
-    protected CasAuthenticationToken() {
-        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ================================================================
@@ -130,10 +119,6 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
         }
 
         return false;
-    }
-
-    public GrantedAuthority[] getAuthorities() {
-        return this.authorities;
     }
 
     public Object getCredentials() {
@@ -177,12 +162,10 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append(super.toString());
-        sb.append("; Credentials (Service/Proxy Ticket): ");
-        sb.append(this.credentials);
-        sb.append("; Proxy-Granting Ticket IOU: ");
-        sb.append(this.proxyGrantingTicketIou);
-        sb.append("; Proxy List: ");
-        sb.append(this.proxyList.toString());
+        sb.append("; Credentials (Service/Proxy Ticket): ").append(this.credentials);
+        sb.append("; Proxy-Granting Ticket IOU: ").append(this.proxyGrantingTicketIou);
+        sb.append("; Proxy List: ").append(this.proxyList);
+
 
         return (sb.toString());
     }

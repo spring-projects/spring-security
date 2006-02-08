@@ -34,7 +34,6 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
     //~ Instance fields ========================================================
 
     private Object principal;
-    private GrantedAuthority[] authorities;
     private boolean authenticated;
     private int keyHash;
 
@@ -51,6 +50,9 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
      */
     public AnonymousAuthenticationToken(String key, Object principal,
         GrantedAuthority[] authorities) {
+
+        super(authorities);
+
         if ((key == null) || ("".equals(key)) || (principal == null)
             || "".equals(principal) || (authorities == null)
             || (authorities.length == 0)) {
@@ -58,20 +60,9 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
                 "Cannot pass null or empty values to constructor");
         }
 
-        for (int i = 0; i < authorities.length; i++) {
-            Assert.notNull(authorities[i],
-                "Granted authority element " + i
-                + " is null - GrantedAuthority[] cannot contain any null elements");
-        }
-
         this.keyHash = key.hashCode();
         this.principal = principal;
-        this.authorities = authorities;
 		this.authenticated = true;
-    }
-
-    protected AnonymousAuthenticationToken() {
-        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ================================================================
@@ -82,10 +73,6 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
 
     public boolean isAuthenticated() {
         return this.authenticated;
-    }
-
-    public GrantedAuthority[] getAuthorities() {
-        return this.authorities;
     }
 
     /**

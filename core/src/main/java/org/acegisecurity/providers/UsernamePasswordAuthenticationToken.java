@@ -39,7 +39,6 @@ public class UsernamePasswordAuthenticationToken
     private Object credentials;
     private Object details = null;
     private Object principal;
-    private GrantedAuthority[] authorities;
     private boolean authenticated;
 
     //~ Constructors ===========================================================
@@ -54,6 +53,7 @@ public class UsernamePasswordAuthenticationToken
      */
     public UsernamePasswordAuthenticationToken(Object principal,
         Object credentials) {
+        super(null);
         this.principal = principal;
         this.credentials = credentials;
         this.authenticated = false;
@@ -72,9 +72,9 @@ public class UsernamePasswordAuthenticationToken
      */
     public UsernamePasswordAuthenticationToken(Object principal,
         Object credentials, GrantedAuthority[] authorities) {
+        super(authorities);
         this.principal = principal;
         this.credentials = credentials;
-        this.authorities = authorities;
         this.authenticated = true;
     }
 
@@ -92,10 +92,6 @@ public class UsernamePasswordAuthenticationToken
 
     public boolean isAuthenticated() {
         return this.authenticated;
-    }
-
-    public GrantedAuthority[] getAuthorities() {
-        return this.authorities;
     }
 
     public Object getCredentials() {

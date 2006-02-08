@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
 
 import java.util.List;
 import java.util.Vector;
@@ -126,11 +127,13 @@ public class AnonymousAuthenticationTokenTests extends TestCase {
         assertTrue(token.isAuthenticated());
     }
 
-    public void testNoArgConstructor() {
+    public void testNoArgConstructorDoesntExist() {
+        Class clazz = AnonymousAuthenticationToken.class;
+
         try {
-            new AnonymousAuthenticationToken();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
+            clazz.getDeclaredConstructor((Class[])null);
+            fail("Should have thrown NoSuchMethodException");
+        } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
     }

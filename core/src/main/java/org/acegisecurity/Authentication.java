@@ -96,6 +96,11 @@ public interface Authentication extends Principal, Serializable {
      * that the principal has been granted. Note that classes should not rely
      * on this value as being valid unless it has been set by a trusted
      * <code>AuthenticationManager</code>.
+     * <p>
+     * Implementations should ensure that modifications to the returned array
+     * do not affect the state of the Authentication object (e.g. by returning an
+     * array copy).
+     * </p>
      *
      * @return the authorities granted to the principal, or <code>null</code>
      *         if authentication has not been completed

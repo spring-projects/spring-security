@@ -71,11 +71,14 @@ public class RunAsUserTokenTests extends TestCase {
             token.getOriginalAuthentication());
     }
 
-    public void testNoArgsConstructor() {
+
+    public void testNoArgConstructorDoesntExist() {
+        Class clazz = RunAsUserToken.class;
+
         try {
-            new RunAsUserToken();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
+            clazz.getDeclaredConstructor((Class[])null);
+            fail("Should have thrown NoSuchMethodException");
+        } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
     }

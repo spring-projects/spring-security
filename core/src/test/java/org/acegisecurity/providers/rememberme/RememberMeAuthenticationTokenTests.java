@@ -126,11 +126,13 @@ public class RememberMeAuthenticationTokenTests extends TestCase {
         assertTrue(token.isAuthenticated());
     }
 
-    public void testNoArgConstructor() {
+    public void testNoArgConstructorDoesntExist() {
+        Class clazz = RememberMeAuthenticationToken.class;
+
         try {
-            new RememberMeAuthenticationToken();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
+            clazz.getDeclaredConstructor((Class[])null);
+            fail("Should have thrown NoSuchMethodException");
+        } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
     }

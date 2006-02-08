@@ -40,7 +40,6 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken
     //~ Instance fields ========================================================
 
     private Object principal;
-    private GrantedAuthority[] authorities;
     private int keyHash;
 	private boolean authenticated;
 
@@ -57,6 +56,8 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken
      */
     public RememberMeAuthenticationToken(String key, Object principal,
         GrantedAuthority[] authorities) {
+        super(authorities);
+
         if ((key == null) || ("".equals(key)) || (principal == null)
             || "".equals(principal) || (authorities == null)
             || (authorities.length == 0)) {
@@ -72,12 +73,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken
 
         this.keyHash = key.hashCode();
         this.principal = principal;
-        this.authorities = authorities;
 		this.authenticated = true;
-    }
-
-    protected RememberMeAuthenticationToken() {
-        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ================================================================
@@ -88,10 +84,6 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken
 
     public boolean isAuthenticated() {
         return this.authenticated;
-    }
-
-    public GrantedAuthority[] getAuthorities() {
-        return this.authorities;
     }
 
     /**

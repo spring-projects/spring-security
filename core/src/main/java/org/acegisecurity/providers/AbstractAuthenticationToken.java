@@ -16,17 +16,59 @@
 package org.acegisecurity.providers;
 
 import org.acegisecurity.Authentication;
+import org.acegisecurity.GrantedAuthority;
 
 import org.acegisecurity.userdetails.UserDetails;
 
-
 /**
- * Provides a <code>String</code> representation of the Authentication token.
+ * Base class for Authentication objects.
+ * <p>
+ * Implementations which use this class should be immutable.
+ * </p>
  *
  * @author Ben Alex
+ * @author Luke Taylor
  * @version $Id$
  */
 public abstract class AbstractAuthenticationToken implements Authentication {
+
+    //~ Instance fields
+    private GrantedAuthority[] authorities;
+
+    //~ Constructors ===========================================================
+
+    /**
+     * Retained for compatibility with subclasses written before the
+     * <tt>AbstractAuthenticationToken(GrantedAuthority[])</tt> constructor
+     * was introduced.
+     *
+     * @deprecated in favour of the constructor which takes a GrantedAuthority[]
+     * argument. 
+     */
+    public AbstractAuthenticationToken() {
+
+    }
+
+    /**
+     * Creates a token with the supplied array of authorities.
+     *
+     * @param authorities the list of <tt>GrantedAuthority</tt>s for the principal
+     *                    represented by this authentication object. A null value
+     *                    indicates that no authorities have been granted.
+     */
+    public AbstractAuthenticationToken(GrantedAuthority[] authorities) {
+        if(authorities != null) {
+            for (int i = 0; i < authorities.length; i++) {
+                if(authorities[i] == null) {
+                    throw new IllegalArgumentException("Granted authority element " + i
+                        + " is null - GrantedAuthority[] cannot contain any null elements");
+                }
+            }
+        }
+
+        this.authorities = authorities;
+    }
+
     //~ Methods ================================================================
 
     public boolean equals(Object obj) {
@@ -53,8 +95,8 @@ public abstract class AbstractAuthenticationToken implements Authentication {
             }
 
             return (this.getPrincipal().equals(test.getPrincipal())
-            && this.getCredentials().equals(test.getCredentials())
-            && (this.isAuthenticated() == test.isAuthenticated()));
+                && this.getCredentials().equals(test.getCredentials())
+                && (this.isAuthenticated() == test.isAuthenticated()));
         }
 
         return false;
@@ -76,6 +118,17 @@ public abstract class AbstractAuthenticationToken implements Authentication {
         }
 
         return this.getPrincipal().toString();
+    }
+
+    public GrantedAuthority[] getAuthorities() {
+        if(authorities == null) {
+            return null;
+        }
+
+        GrantedAuthority[] copy = new GrantedAuthority[authorities.length];
+        System.arraycopy(authorities, 0, copy, 0, authorities.length);
+
+        return copy;
     }
 
     public int hashCode() {
