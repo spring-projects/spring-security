@@ -38,20 +38,31 @@ public class X509AuthenticationToken extends AbstractAuthenticationToken {
     //~ Constructors ===========================================================
 
     /**
-     * Used for an authentication request
+     * Used for an authentication request.  The {@link
+     * Authentication#isAuthenticated()} will return <code>false</code>.
      *
-     * @param credentials DOCUMENT ME!
+     * @param credentials the certificate
      */
     public X509AuthenticationToken(X509Certificate credentials) {
         super(null);
         this.credentials = credentials;
     }
 
+    /**
+     * Used for an authentication response object. The {@link
+     * Authentication#isAuthenticated()} will return <code>true</code>.
+     *
+     * @param principal the principal, which is generally a
+     *        <code>UserDetails</code>
+     * @param credentials the certificate
+     * @param authorities the authorities
+     */
     public X509AuthenticationToken(Object principal,
         X509Certificate credentials, GrantedAuthority[] authorities) {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;
+        setAuthenticated(true);
     }
 
     //~ Methods ================================================================
