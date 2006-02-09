@@ -20,7 +20,6 @@ import jcifs.UniAddress;
 import jcifs.smb.NtlmPasswordAuthentication;
 
 import org.acegisecurity.Authentication;
-import org.acegisecurity.GrantedAuthority;
 
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 

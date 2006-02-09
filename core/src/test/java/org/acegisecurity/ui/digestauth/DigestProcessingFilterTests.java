@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,34 +15,40 @@
 
 package org.acegisecurity.ui.digestauth;
 
-import org.acegisecurity.MockFilterConfig;
 import org.acegisecurity.MockFilterChain;
+import org.acegisecurity.MockFilterConfig;
+
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.context.SecurityContextImpl;
+
 import org.acegisecurity.providers.dao.cache.NullUserCache;
+
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.memory.InMemoryDaoImpl;
-import org.acegisecurity.userdetails.memory.UserMapEditor;
 import org.acegisecurity.userdetails.memory.UserMap;
+import org.acegisecurity.userdetails.memory.UserMapEditor;
+
 import org.acegisecurity.util.StringSplitUtils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 
+import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
 import org.springframework.util.StringUtils;
 
-import org.jmock.MockObjectTestCase;
-import org.jmock.Mock;
-
 import java.io.IOException;
+
 import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
+
 
 /**
  * Tests {@link DigestProcessingFilter}.
@@ -52,6 +58,8 @@ import javax.servlet.ServletRequest;
  * @version $Id$
  */
 public class DigestProcessingFilterTests extends MockObjectTestCase {
+    //~ Static fields/initializers =============================================
+
     private static final String NC = "00000002";
     private static final String CNONCE = "c822c727a648aba7";
     private static final String REALM = "The Correct Realm Name";
@@ -60,25 +68,61 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
     private static final String USERNAME = "marissa";
     private static final String PASSWORD = "koala";
     private static final String REQUEST_URI = "/some_file.html";
+
     /** A standard valid nonce with a validity period of 60 seconds */
     private static final String NONCE = generateNonce(60);
 
+    //~ Instance fields ========================================================
 
-    //~ Instance Fields ========================================================
 //    private ApplicationContext ctx;
     private DigestProcessingFilter filter;
     private MockHttpServletRequest request;
 
     //~ Constructors ===========================================================
 
-    public DigestProcessingFilterTests() {
-    }
+    public DigestProcessingFilterTests() {}
 
     public DigestProcessingFilterTests(String arg0) {
         super(arg0);
     }
 
     //~ Methods ================================================================
+
+    private String createAuthorizationHeader(String username, String realm,
+        String nonce, String uri, String responseDigest, String qop, String nc,
+        String cnonce) {
+        return "Digest username=\"" + username + "\", realm=\"" + realm
+        + "\", nonce=\"" + nonce + "\", uri=\"" + uri + "\", response=\""
+        + responseDigest + "\", qop=" + qop + ", nc=" + nc + ", cnonce=\""
+        + cnonce + "\"";
+    }
+
+    private MockHttpServletResponse executeFilterInContainerSimulator(
+        Filter filter, ServletRequest request, boolean expectChainToProceed)
+        throws ServletException, IOException {
+        filter.init(new MockFilterConfig());
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        Mock mockChain = mock(FilterChain.class);
+        FilterChain chain = (FilterChain) mockChain.proxy();
+
+        mockChain.expects(expectChainToProceed ? once() : never())
+                 .method("doFilter");
+
+        filter.doFilter(request, response, chain);
+        filter.destroy();
+
+        return response;
+    }
+
+    private static String generateNonce(int validitySeconds) {
+        long expiryTime = System.currentTimeMillis() + (validitySeconds * 1000);
+        String signatureValue = new String(DigestUtils.md5Hex(expiryTime + ":"
+                    + KEY));
+        String nonceValue = expiryTime + ":" + signatureValue;
+
+        return new String(Base64.encodeBase64(nonceValue.getBytes()));
+    }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(DigestProcessingFilterTests.class);
@@ -87,11 +131,12 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         SecurityContextHolder.clearContext();
+
         // Create User Details Service
         InMemoryDaoImpl dao = new InMemoryDaoImpl();
         UserMapEditor editor = new UserMapEditor();
         editor.setAsText("marissa=koala,ROLE_ONE,ROLE_TWO,enabled\r\n");
-        dao.setUserMap((UserMap)editor.getValue());
+        dao.setUserMap((UserMap) editor.getValue());
 
         DigestProcessingFilterEntryPoint ep = new DigestProcessingFilterEntryPoint();
         ep.setRealmName(REALM);
@@ -140,18 +185,19 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
 
     public void testExpiredNonceReturnsForbiddenWithStaleHeader()
         throws Exception {
-
         String nonce = generateNonce(0);
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, nonce, NC, CNONCE);
+                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, nonce, NC,
+                CNONCE);
 
         request.addHeader("Authorization",
             createAuthorizationHeader(USERNAME, REALM, nonce, REQUEST_URI,
                 responseDigest, QOP, NC, CNONCE));
 
         Thread.sleep(1000); // ensures token expired
-        MockHttpServletResponse response =
-            executeFilterInContainerSimulator(filter, request, false);
+
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
+                request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -166,7 +212,6 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
 
     public void testFilterIgnoresRequestsContainingNoAuthorizationHeader()
         throws Exception {
-
         executeFilterInContainerSimulator(filter, request, true);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
@@ -193,8 +238,8 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
         request.addHeader("Authorization",
             "Digest " + new String(Base64.encodeBase64(token.getBytes())));
 
-        MockHttpServletResponse response =
-            executeFilterInContainerSimulator(filter, request, false);
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
+                request, false);
 
         assertEquals(401, response.getStatus());
         assertNull(SecurityContextHolder.getContext().getAuthentication());
@@ -203,8 +248,8 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
     public void testMalformedHeaderReturnsForbidden() throws Exception {
         request.addHeader("Authorization", "Digest scsdcsdc");
 
-        MockHttpServletResponse response =
-            executeFilterInContainerSimulator(filter, request, false);
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
+                request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -215,14 +260,15 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
         String nonce = "NOT_BASE_64_ENCODED";
 
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, nonce, NC, CNONCE);
+                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, nonce, NC,
+                CNONCE);
 
         request.addHeader("Authorization",
             createAuthorizationHeader(USERNAME, REALM, nonce, REQUEST_URI,
                 responseDigest, QOP, NC, CNONCE));
 
-        MockHttpServletResponse response =
-            executeFilterInContainerSimulator(filter, request, false);
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
+                request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -230,18 +276,18 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
 
     public void testNonceWithIncorrectSignatureForNumericFieldReturnsForbidden()
         throws Exception {
-
         String nonce = new String(Base64.encodeBase64(
                     "123456:incorrectStringPassword".getBytes()));
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, nonce, NC, CNONCE);
+                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, nonce, NC,
+                CNONCE);
 
         request.addHeader("Authorization",
             createAuthorizationHeader(USERNAME, REALM, nonce, REQUEST_URI,
                 responseDigest, QOP, NC, CNONCE));
 
-        MockHttpServletResponse response =
-            executeFilterInContainerSimulator(filter, request, false);
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
+                request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -249,18 +295,18 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
 
     public void testNonceWithNonNumericFirstElementReturnsForbidden()
         throws Exception {
-
         String nonce = new String(Base64.encodeBase64(
                     "hello:ignoredSecondElement".getBytes()));
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, nonce, NC, CNONCE);
+                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, nonce, NC,
+                CNONCE);
 
         request.addHeader("Authorization",
             createAuthorizationHeader(USERNAME, REALM, nonce, REQUEST_URI,
                 responseDigest, QOP, NC, CNONCE));
 
-        MockHttpServletResponse response =
-            executeFilterInContainerSimulator(filter, request, false);
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
+                request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -268,18 +314,18 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
 
     public void testNonceWithoutTwoColonSeparatedElementsReturnsForbidden()
         throws Exception {
-
         String nonce = new String(Base64.encodeBase64(
                     "a base 64 string without a colon".getBytes()));
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, nonce, NC, CNONCE);
+                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, nonce, NC,
+                CNONCE);
 
         request.addHeader("Authorization",
             createAuthorizationHeader(USERNAME, REALM, nonce, REQUEST_URI,
                 responseDigest, QOP, NC, CNONCE));
 
-        MockHttpServletResponse response =
-            executeFilterInContainerSimulator(filter, request, false);
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
+                request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -287,11 +333,11 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
 
     public void testNormalOperationWhenPasswordIsAlreadyEncoded()
         throws Exception {
-
         String encodedPassword = DigestProcessingFilter.encodePasswordInA1Format(USERNAME,
                 REALM, PASSWORD);
         String responseDigest = DigestProcessingFilter.generateDigest(true,
-                USERNAME, REALM, encodedPassword, "GET", REQUEST_URI, QOP, NONCE, NC, CNONCE);
+                USERNAME, REALM, encodedPassword, "GET", REQUEST_URI, QOP,
+                NONCE, NC, CNONCE);
 
         request.addHeader("Authorization",
             createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI,
@@ -307,9 +353,9 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
 
     public void testNormalOperationWhenPasswordNotAlreadyEncoded()
         throws Exception {
-
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, NONCE, NC, CNONCE);
+                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, NONCE, NC,
+                CNONCE);
 
         request.addHeader("Authorization",
             createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI,
@@ -325,25 +371,11 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
 
     public void testOtherAuthorizationSchemeIsIgnored()
         throws Exception {
-
         request.addHeader("Authorization", "SOME_OTHER_AUTHENTICATION_SCHEME");
 
         executeFilterInContainerSimulator(filter, request, true);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
-    }
-
-    public void testStartupDetectsMissingUserDetailsService()
-        throws Exception {
-        try {
-            DigestProcessingFilter filter = new DigestProcessingFilter();
-            filter.setAuthenticationEntryPoint(new DigestProcessingFilterEntryPoint());
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("A UserDetailsService is required",
-                expected.getMessage());
-        }
     }
 
     public void testStartupDetectsMissingAuthenticationEntryPoint()
@@ -359,11 +391,24 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
         }
     }
 
+    public void testStartupDetectsMissingUserDetailsService()
+        throws Exception {
+        try {
+            DigestProcessingFilter filter = new DigestProcessingFilter();
+            filter.setAuthenticationEntryPoint(new DigestProcessingFilterEntryPoint());
+            filter.afterPropertiesSet();
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("A UserDetailsService is required",
+                expected.getMessage());
+        }
+    }
+
     public void testSuccessLoginThenFailureLoginResultsInSessionLosingToken()
         throws Exception {
-
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, NONCE, NC, CNONCE);
+                USERNAME, REALM, PASSWORD, "GET", REQUEST_URI, QOP, NONCE, NC,
+                CNONCE);
 
         request.addHeader("Authorization",
             createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI,
@@ -375,14 +420,16 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
 
         // Now retry, giving an invalid nonce
         responseDigest = DigestProcessingFilter.generateDigest(false, USERNAME,
-                REALM, "WRONG_PASSWORD", "GET", REQUEST_URI, QOP, NONCE, NC, CNONCE);
+                REALM, "WRONG_PASSWORD", "GET", REQUEST_URI, QOP, NONCE, NC,
+                CNONCE);
 
         request = new MockHttpServletRequest();
         request.addHeader("Authorization",
             createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI,
                 responseDigest, QOP, NC, CNONCE));
-        MockHttpServletResponse response =
-                executeFilterInContainerSimulator(filter, request, false);
+
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
+                request, false);
 
         // Check we lost our previous authentication
         assertNull(SecurityContextHolder.getContext().getAuthentication());
@@ -391,7 +438,6 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
 
     public void testWrongCnonceBasedOnDigestReturnsForbidden()
         throws Exception {
-
         String cnonce = "NOT_SAME_AS_USED_FOR_DIGEST_COMPUTATION";
 
         String responseDigest = DigestProcessingFilter.generateDigest(false,
@@ -402,15 +448,14 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
             createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI,
                 responseDigest, QOP, NC, cnonce));
 
-        MockHttpServletResponse response =
-                executeFilterInContainerSimulator(filter, request, false);
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
+                request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
     public void testWrongDigestReturnsForbidden() throws Exception {
-
         String password = "WRONG_PASSWORD";
         String responseDigest = DigestProcessingFilter.generateDigest(false,
                 USERNAME, REALM, password, "GET", REQUEST_URI, QOP, NONCE, NC,
@@ -420,8 +465,8 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
             createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI,
                 responseDigest, QOP, NC, CNONCE));
 
-        MockHttpServletResponse response =
-                executeFilterInContainerSimulator(filter, request, false);
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
+                request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -437,8 +482,8 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
             createAuthorizationHeader(USERNAME, realm, NONCE, REQUEST_URI,
                 responseDigest, QOP, NC, CNONCE));
 
-        MockHttpServletResponse response =
-             executeFilterInContainerSimulator(filter, request, false);
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
+                request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -446,49 +491,17 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
 
     public void testWrongUsernameReturnsForbidden() throws Exception {
         String responseDigest = DigestProcessingFilter.generateDigest(false,
-                "NOT_A_KNOWN_USER", REALM, PASSWORD, "GET", REQUEST_URI, QOP, NONCE, NC,
-                CNONCE);
+                "NOT_A_KNOWN_USER", REALM, PASSWORD, "GET", REQUEST_URI, QOP,
+                NONCE, NC, CNONCE);
 
         request.addHeader("Authorization",
             createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI,
                 responseDigest, QOP, NC, CNONCE));
 
-        MockHttpServletResponse response =
-                executeFilterInContainerSimulator(filter, request, false);
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
+                request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
-    }
-
-    private String createAuthorizationHeader(String username, String realm,
-                                             String nonce, String uri, String responseDigest, String qop, String nc,
-                                             String cnonce) {
-        return "Digest username=\"" + username + "\", realm=\"" + realm
-        + "\", nonce=\"" + nonce + "\", uri=\"" + uri + "\", response=\""
-        + responseDigest + "\", qop=" + qop + ", nc=" + nc + ", cnonce=\""
-        + cnonce + "\"";
-    }
-
-    private MockHttpServletResponse executeFilterInContainerSimulator(Filter filter,
-            ServletRequest request, boolean expectChainToProceed)
-            throws ServletException, IOException {
-        filter.init(new MockFilterConfig());
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        Mock mockChain = mock(FilterChain.class);
-        FilterChain chain = (FilterChain)mockChain.proxy();
-
-        mockChain.expects( expectChainToProceed ? once() : never() ).method("doFilter");
-
-        filter.doFilter(request, response, chain);
-        filter.destroy();
-
-        return response;
-    }
-
-    private static String generateNonce(int validitySeconds) {
-        long expiryTime = System.currentTimeMillis() + (validitySeconds * 1000);
-        String signatureValue = new String(DigestUtils.md5Hex(expiryTime + ":" + KEY));
-        String nonceValue = expiryTime + ":" + signatureValue;
-        return new String(Base64.encodeBase64( nonceValue.getBytes() ));
     }
 }

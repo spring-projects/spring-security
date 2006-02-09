@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@ package org.acegisecurity.taglibs.authz;
 import junit.framework.TestCase;
 
 import org.acegisecurity.GrantedAuthority;
+
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.context.SecurityContextImpl;
+
 import org.acegisecurity.providers.TestingAuthenticationToken;
 
 import javax.servlet.jsp.JspException;
@@ -40,28 +41,6 @@ public class AuthorizeTagCustomGrantedAuthorityTests extends TestCase {
 
     //~ Methods ================================================================
 
-    public void testAllowsRequestWhenCustomAuthorityPresentsCorrectRole()
-        throws JspException {
-        authorizeTag.setIfAnyGranted("ROLE_TELLER");
-        assertEquals("authorized - ROLE_TELLER in both sets",
-            Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
-    }
-
-    public void testRejectsRequestWhenCustomAuthorityReturnsNull()
-        throws JspException {
-        authorizeTag.setIfAnyGranted("ROLE_TELLER");
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(
-                "abc", "123",
-                new GrantedAuthority[] {new CustomGrantedAuthority(null)}));
-
-        try {
-            authorizeTag.doStartTag();
-            fail("Failed to reject GrantedAuthority with NULL getAuthority()");
-        } catch (IllegalArgumentException expected) {
-            assertTrue("expected", true);
-        }
-    }
-
     protected void setUp() throws Exception {
         super.setUp();
 
@@ -74,6 +53,29 @@ public class AuthorizeTagCustomGrantedAuthorityTests extends TestCase {
 
     protected void tearDown() throws Exception {
         SecurityContextHolder.clearContext();
+    }
+
+    public void testAllowsRequestWhenCustomAuthorityPresentsCorrectRole()
+        throws JspException {
+        authorizeTag.setIfAnyGranted("ROLE_TELLER");
+        assertEquals("authorized - ROLE_TELLER in both sets",
+            Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+    }
+
+    public void testRejectsRequestWhenCustomAuthorityReturnsNull()
+        throws JspException {
+        authorizeTag.setIfAnyGranted("ROLE_TELLER");
+        SecurityContextHolder.getContext()
+                             .setAuthentication(new TestingAuthenticationToken(
+                "abc", "123",
+                new GrantedAuthority[] {new CustomGrantedAuthority(null)}));
+
+        try {
+            authorizeTag.doStartTag();
+            fail("Failed to reject GrantedAuthority with NULL getAuthority()");
+        } catch (IllegalArgumentException expected) {
+            assertTrue("expected", true);
+        }
     }
 
     //~ Inner Classes ==========================================================

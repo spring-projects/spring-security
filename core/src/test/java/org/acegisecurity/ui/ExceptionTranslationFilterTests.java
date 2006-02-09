@@ -15,13 +15,6 @@
 
 package org.acegisecurity.ui;
 
-import java.io.IOException;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
 import junit.framework.TestCase;
 
 import org.acegisecurity.AccessDeniedException;
@@ -30,12 +23,22 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.MockAuthenticationEntryPoint;
 import org.acegisecurity.MockPortResolver;
+
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.context.SecurityContextImpl;
+
 import org.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
+
 import org.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 
 /**

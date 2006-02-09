@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,9 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.context.SecurityContextImpl;
+
 import org.acegisecurity.providers.TestingAuthenticationToken;
 
 import javax.servlet.jsp.JspException;
@@ -40,6 +41,21 @@ public class AuthorizeTagTests extends TestCase {
     private TestingAuthenticationToken currentUser;
 
     //~ Methods ================================================================
+
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        currentUser = new TestingAuthenticationToken("abc", "123",
+                new GrantedAuthority[] {new GrantedAuthorityImpl(
+                        "ROLE_SUPERVISOR"), new GrantedAuthorityImpl(
+                        "ROLE_TELLER"),});
+
+        SecurityContextHolder.getContext().setAuthentication(currentUser);
+    }
+
+    protected void tearDown() throws Exception {
+        SecurityContextHolder.clearContext();
+    }
 
     public void testAlwaysReturnsUnauthorizedIfNoUserFound()
         throws JspException {
@@ -106,20 +122,5 @@ public class AuthorizeTagTests extends TestCase {
         authorizeTag.setIfNotGranted("ROLE_TELLER");
         assertEquals("prevents request - principal has ROLE_TELLER",
             Tag.SKIP_BODY, authorizeTag.doStartTag());
-    }
-
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        currentUser = new TestingAuthenticationToken("abc", "123",
-                new GrantedAuthority[] {new GrantedAuthorityImpl(
-                        "ROLE_SUPERVISOR"), new GrantedAuthorityImpl(
-                        "ROLE_TELLER"),});
-
-        SecurityContextHolder.getContext().setAuthentication(currentUser);
-    }
-
-    protected void tearDown() throws Exception {
-        SecurityContextHolder.clearContext();
     }
 }

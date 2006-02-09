@@ -17,8 +17,6 @@ package org.acegisecurity.concurrent;
 
 import org.acegisecurity.Authentication;
 
-import org.acegisecurity.ui.WebAuthenticationDetails;
-
 import org.acegisecurity.userdetails.UserDetails;
 
 import org.springframework.util.Assert;

@@ -24,7 +24,6 @@ import org.acegisecurity.MockAuthenticationManager;
 import org.acegisecurity.MockFilterConfig;
 
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.context.SecurityContextImpl;
 
 import org.acegisecurity.providers.TestingAuthenticationToken;
 

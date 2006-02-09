@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,12 @@ package org.acegisecurity.providers.jaas;
 import junit.framework.TestCase;
 
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.context.SecurityContextImpl;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.HashMap;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
@@ -44,6 +44,17 @@ public class SecurityContextLoginModuleTests extends TestCase {
             "credentials");
 
     //~ Methods ================================================================
+
+    protected void setUp() throws Exception {
+        module = new SecurityContextLoginModule();
+        module.initialize(subject, null, null, null);
+        SecurityContextHolder.clearContext();
+    }
+
+    protected void tearDown() throws Exception {
+        SecurityContextHolder.clearContext();
+        module = null;
+    }
 
     public void testAbort() throws Exception {
         assertFalse("Should return false, no auth is set", module.abort());
@@ -87,9 +98,9 @@ public class SecurityContextLoginModuleTests extends TestCase {
         try {
             SecurityContextHolder.getContext().setAuthentication(null);
             module.login();
-            fail("LoginException expected, the authentication is null in the SecurityContext");
-        } catch (Exception e) {
-        }
+            fail(
+                "LoginException expected, the authentication is null in the SecurityContext");
+        } catch (Exception e) {}
     }
 
     public void testNullAuthenticationInSecurityContextIgnored()
@@ -106,16 +117,5 @@ public class SecurityContextLoginModuleTests extends TestCase {
 
     public void testNullLogout() throws Exception {
         assertFalse(module.logout());
-    }
-
-    protected void setUp() throws Exception {
-        module = new SecurityContextLoginModule();
-        module.initialize(subject, null, null, null);
-        SecurityContextHolder.clearContext();
-    }
-
-    protected void tearDown() throws Exception {
-        SecurityContextHolder.clearContext();
-        module = null;
     }
 }

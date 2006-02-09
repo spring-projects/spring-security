@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 package sample.contact;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.context.SecurityContextImpl;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -75,7 +76,8 @@ public class ClientApplication {
                     "Trying to find setUsername(String) method on: "
                     + object.getClass().getName());
 
-                Method method = object.getClass().getMethod("setUsername",
+                Method method = object.getClass()
+                                      .getMethod("setUsername",
                         new Class[] {String.class});
                 System.out.println("Found; Trying to setUsername(String) to "
                     + authentication.getPrincipal());
@@ -95,7 +97,8 @@ public class ClientApplication {
                     "Trying to find setPassword(String) method on: "
                     + object.getClass().getName());
 
-                Method method = object.getClass().getMethod("setPassword",
+                Method method = object.getClass()
+                                      .getMethod("setPassword",
                         new Class[] {String.class});
                 method.invoke(object,
                     new Object[] {authentication.getCredentials()});

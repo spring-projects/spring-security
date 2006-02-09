@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,11 @@ import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.MockAuthenticationManager;
+
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.context.SecurityContextImpl;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices;
 
 import org.springframework.mock.web.MockFilterConfig;
@@ -66,8 +68,37 @@ public class AbstractProcessingFilterTests extends TestCase {
 
     //~ Methods ================================================================
 
+    private MockHttpServletRequest createMockRequest() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+
+        request.setServletPath("/j_mock_post");
+        request.setScheme("http");
+        request.setServerName("www.example.com");
+        request.setRequestURI("/mycontext/j_mock_post");
+
+        return request;
+    }
+
+    private void executeFilterInContainerSimulator(FilterConfig filterConfig,
+        Filter filter, ServletRequest request, ServletResponse response,
+        FilterChain filterChain) throws ServletException, IOException {
+        filter.init(filterConfig);
+        filter.doFilter(request, response, filterChain);
+        filter.destroy();
+    }
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AbstractProcessingFilterTests.class);
+    }
+
+    protected void setUp() throws Exception {
+        super.setUp();
+        SecurityContextHolder.clearContext();
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        SecurityContextHolder.clearContext();
     }
 
     public void testDefaultProcessesFilterUrlWithPathParameter() {
@@ -367,7 +398,8 @@ public class AbstractProcessingFilterTests extends TestCase {
         throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
-        request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
+        request.getSession()
+               .setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
             "/my-destination");
 
         // Setup our filter configuration
@@ -396,7 +428,8 @@ public class AbstractProcessingFilterTests extends TestCase {
         throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
-        request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
+        request.getSession()
+               .setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
             "/my-destination");
 
         // Setup our filter configuration
@@ -415,35 +448,6 @@ public class AbstractProcessingFilterTests extends TestCase {
             chain);
         assertEquals("/my-destination", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-    }
-
-    protected void setUp() throws Exception {
-        super.setUp();
-        SecurityContextHolder.clearContext();
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        SecurityContextHolder.clearContext();
-    }
-
-    private MockHttpServletRequest createMockRequest() {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-
-        request.setServletPath("/j_mock_post");
-        request.setScheme("http");
-        request.setServerName("www.example.com");
-        request.setRequestURI("/mycontext/j_mock_post");
-
-        return request;
-    }
-
-    private void executeFilterInContainerSimulator(FilterConfig filterConfig,
-        Filter filter, ServletRequest request, ServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
-        filter.init(filterConfig);
-        filter.doFilter(request, response, filterChain);
-        filter.destroy();
     }
 
     //~ Inner Classes ==========================================================
@@ -468,10 +472,6 @@ public class AbstractProcessingFilterTests extends TestCase {
             super();
         }
 
-        public String getDefaultFilterProcessesUrl() {
-            return "/j_mock_post";
-        }
-
         public Authentication attemptAuthentication(HttpServletRequest request)
             throws AuthenticationException {
             if (grantAccess) {
@@ -480,6 +480,10 @@ public class AbstractProcessingFilterTests extends TestCase {
             } else {
                 throw exceptionToThrow;
             }
+        }
+
+        public String getDefaultFilterProcessesUrl() {
+            return "/j_mock_post";
         }
 
         public void init(FilterConfig arg0) throws ServletException {}

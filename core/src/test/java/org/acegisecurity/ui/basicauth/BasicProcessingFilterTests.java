@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,33 @@ package org.acegisecurity.ui.basicauth;
 
 import org.acegisecurity.MockAuthenticationEntryPoint;
 import org.acegisecurity.MockAuthenticationManager;
-import org.acegisecurity.MockFilterConfig;
 import org.acegisecurity.MockFilterChain;
-import org.acegisecurity.providers.dao.DaoAuthenticationProvider;
-import org.acegisecurity.providers.ProviderManager;
+import org.acegisecurity.MockFilterConfig;
+
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.context.SecurityContextImpl;
+
+import org.acegisecurity.providers.ProviderManager;
+import org.acegisecurity.providers.dao.DaoAuthenticationProvider;
+
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.memory.InMemoryDaoImpl;
-import org.acegisecurity.userdetails.memory.UserMapEditor;
 import org.acegisecurity.userdetails.memory.UserMap;
+import org.acegisecurity.userdetails.memory.UserMapEditor;
 
 import org.apache.commons.codec.binary.Base64;
 
-import org.springframework.context.ApplicationEventPublisher;
+import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
+
 import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 
-import org.jmock.MockObjectTestCase;
-import org.jmock.Mock;
-
 import java.io.IOException;
+
 import java.util.Arrays;
 
 import javax.servlet.Filter;
@@ -55,7 +59,10 @@ import javax.servlet.ServletRequest;
  * @version $Id$
  */
 public class BasicProcessingFilterTests extends MockObjectTestCase {
+    //~ Instance fields ========================================================
+
     private BasicProcessingFilter filter;
+
     //~ Constructors ===========================================================
 
     public BasicProcessingFilterTests() {
@@ -67,6 +74,24 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
     }
 
     //~ Methods ================================================================
+
+    private MockHttpServletResponse executeFilterInContainerSimulator(
+        Filter filter, ServletRequest request, boolean expectChainToProceed)
+        throws ServletException, IOException {
+        filter.init(new MockFilterConfig());
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        Mock mockChain = mock(FilterChain.class);
+        FilterChain chain = (FilterChain) mockChain.proxy();
+
+        mockChain.expects(expectChainToProceed ? once() : never())
+                 .method("doFilter");
+
+        filter.doFilter(request, response, chain);
+        filter.destroy();
+
+        return response;
+    }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(BasicProcessingFilterTests.class);
@@ -80,7 +105,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         InMemoryDaoImpl dao = new InMemoryDaoImpl();
         UserMapEditor editor = new UserMapEditor();
         editor.setAsText("marissa=koala,ROLE_ONE,ROLE_TWO,enabled\r\n");
-        dao.setUserMap((UserMap)editor.getValue());
+        dao.setUserMap((UserMap) editor.getValue());
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(dao);
@@ -215,8 +240,8 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         throws Exception {
         try {
             BasicProcessingFilter filter = new BasicProcessingFilter();
-            filter.setAuthenticationEntryPoint(
-                    new MockAuthenticationEntryPoint("x"));
+            filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
+                    "x"));
             filter.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
@@ -253,8 +278,8 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         request.setSession(new MockHttpSession());
 
         // Test - the filter chain will not be invoked, as we get a 403 forbidden response
-        MockHttpServletResponse response =
-            executeFilterInContainerSimulator(filter, request, false);
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
+                request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -270,35 +295,19 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         request.setSession(new MockHttpSession());
 
         // Test - the filter chain will not be invoked, as we get a 403 forbidden response
-        MockHttpServletResponse response =
-            executeFilterInContainerSimulator(filter, request, false);
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
+                request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
-    private MockHttpServletResponse executeFilterInContainerSimulator(Filter filter,
-            ServletRequest request, boolean expectChainToProceed)
-            throws ServletException, IOException {
-        filter.init(new MockFilterConfig());
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        Mock mockChain = mock(FilterChain.class);
-        FilterChain chain = (FilterChain)mockChain.proxy();
+    //~ Inner Classes ==========================================================
 
-        mockChain.expects( expectChainToProceed ? once() : never() ).method("doFilter");
+    private class MockApplicationEventPublisher
+        implements ApplicationEventPublisher {
+        public MockApplicationEventPublisher() {}
 
-        filter.doFilter(request, response, chain);
-        filter.destroy();
-
-        return response;
-    }
-
-    private class MockApplicationEventPublisher implements ApplicationEventPublisher {
-
-		public MockApplicationEventPublisher() {
-		}
-
-    	public void publishEvent(ApplicationEvent event) {
-		}
+        public void publishEvent(ApplicationEvent event) {}
     }
 }

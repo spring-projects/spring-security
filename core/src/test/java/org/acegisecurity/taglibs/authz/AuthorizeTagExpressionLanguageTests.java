@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,9 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.context.SecurityContextImpl;
+
 import org.acegisecurity.providers.TestingAuthenticationToken;
 
 import org.springframework.mock.web.MockPageContext;
@@ -40,6 +41,22 @@ public class AuthorizeTagExpressionLanguageTests extends TestCase {
     private TestingAuthenticationToken currentUser;
 
     //~ Methods ================================================================
+
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        pageContext = new MockPageContext();
+        authorizeTag.setPageContext(pageContext);
+
+        currentUser = new TestingAuthenticationToken("abc", "123",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_TELLER"),});
+
+        SecurityContextHolder.getContext().setAuthentication(currentUser);
+    }
+
+    protected void tearDown() throws Exception {
+        SecurityContextHolder.clearContext();
+    }
 
     public void testAllGrantedUsesExpressionLanguageWhenExpressionIsEL()
         throws JspException {
@@ -66,21 +83,5 @@ public class AuthorizeTagExpressionLanguageTests extends TestCase {
 
         assertEquals("allows body - authority var contains ROLE_TELLER",
             Tag.SKIP_BODY, authorizeTag.doStartTag());
-    }
-
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        pageContext = new MockPageContext();
-        authorizeTag.setPageContext(pageContext);
-
-        currentUser = new TestingAuthenticationToken("abc", "123",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_TELLER"),});
-
-        SecurityContextHolder.getContext().setAuthentication(currentUser);
-    }
-
-    protected void tearDown() throws Exception {
-        SecurityContextHolder.clearContext();
     }
 }

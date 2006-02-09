@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.TargetObject;
+
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.context.SecurityContextImpl;
-import org.acegisecurity.context.rmi.ContextPropagatingRemoteInvocation;
-import org.acegisecurity.context.rmi.ContextPropagatingRemoteInvocationFactory;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.acegisecurity.util.SimpleMethodInvocation;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -51,15 +51,53 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
 
     //~ Methods ================================================================
 
+    private ContextPropagatingRemoteInvocation getRemoteInvocation()
+        throws Exception {
+        Class clazz = TargetObject.class;
+        Method method = clazz.getMethod("makeLowerCase",
+                new Class[] {String.class});
+        MethodInvocation mi = new SimpleMethodInvocation(method,
+                new Object[] {"SOME_STRING"});
+
+        ContextPropagatingRemoteInvocationFactory factory = new ContextPropagatingRemoteInvocationFactory();
+
+        return (ContextPropagatingRemoteInvocation) factory
+        .createRemoteInvocation(mi);
+    }
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ContextPropagatingRemoteInvocationTests.class);
+    }
+
+    public void testContextIsResetEvenIfExceptionOccurs()
+        throws Exception {
+        // Setup client-side context
+        Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("marissa",
+                "koala");
+        SecurityContextHolder.getContext()
+                             .setAuthentication(clientSideAuthentication);
+
+        ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
+
+        try {
+            // Set up the wrong arguments.
+            remoteInvocation.setArguments(new Object[] {});
+            remoteInvocation.invoke(TargetObject.class.newInstance());
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+
+        assertNull("Authentication must be null ",
+            SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testNormalOperation() throws Exception {
         // Setup client-side context
         Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("marissa",
                 "koala");
-        SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
+        SecurityContextHolder.getContext()
+                             .setAuthentication(clientSideAuthentication);
 
         ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
 
@@ -83,41 +121,5 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
 
         assertEquals("some_string Authentication empty",
             remoteInvocation.invoke(new TargetObject()));
-    }
-
-    public void testContextIsResetEvenIfExceptionOccurs() throws Exception {
-        // Setup client-side context
-        Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("marissa",
-                "koala");
-        SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
-
-        ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
-
-        try {
-            // Set up the wrong arguments.
-            remoteInvocation.setArguments(new Object[] {});
-            remoteInvocation.invoke(TargetObject.class.newInstance());
-            fail("Expected IllegalArgumentException");
-        } catch(IllegalArgumentException e) {
-            // expected
-        }
-
-        assertNull("Authentication must be null ", SecurityContextHolder.getContext().getAuthentication());
-
-    }
-
-
-    private ContextPropagatingRemoteInvocation getRemoteInvocation()
-        throws Exception {
-        Class clazz = TargetObject.class;
-        Method method = clazz.getMethod("makeLowerCase",
-                new Class[] {String.class});
-        MethodInvocation mi = new SimpleMethodInvocation(method,
-                new Object[] {"SOME_STRING"});
-
-        ContextPropagatingRemoteInvocationFactory factory = new ContextPropagatingRemoteInvocationFactory();
-
-        return (ContextPropagatingRemoteInvocation) factory
-        .createRemoteInvocation(mi);
     }
 }

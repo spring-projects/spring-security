@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.acegisecurity.providers.anonymous;
 
 import junit.framework.TestCase;
@@ -20,9 +21,11 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.MockFilterConfig;
+
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.context.SecurityContextImpl;
+
 import org.acegisecurity.providers.TestingAuthenticationToken;
+
 import org.acegisecurity.userdetails.memory.UserAttribute;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -45,6 +48,8 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 public class AnonymousProcessingFilterTests extends TestCase {
+    //~ Constructors ===========================================================
+
     public AnonymousProcessingFilterTests() {
         super();
     }
@@ -53,8 +58,28 @@ public class AnonymousProcessingFilterTests extends TestCase {
         super(arg0);
     }
 
+    //~ Methods ================================================================
+
+    private void executeFilterInContainerSimulator(FilterConfig filterConfig,
+        Filter filter, ServletRequest request, ServletResponse response,
+        FilterChain filterChain) throws ServletException, IOException {
+        filter.init(filterConfig);
+        filter.doFilter(request, response, filterChain);
+        filter.destroy();
+    }
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AnonymousProcessingFilterTests.class);
+    }
+
+    protected void setUp() throws Exception {
+        super.setUp();
+        SecurityContextHolder.clearContext();
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        SecurityContextHolder.clearContext();
     }
 
     public void testDetectsMissingKey() throws Exception {
@@ -107,7 +132,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
         // Put an Authentication object into the SecurityContextHolder
         Authentication originalAuth = new TestingAuthenticationToken("user",
                 "password",
-                new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A") });
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
         SecurityContextHolder.getContext().setAuthentication(originalAuth);
 
         // Setup our filter correctly
@@ -162,23 +187,7 @@ public class AnonymousProcessingFilterTests extends TestCase {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        SecurityContextHolder.clearContext();
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        SecurityContextHolder.clearContext();
-    }
-
-    private void executeFilterInContainerSimulator(FilterConfig filterConfig,
-        Filter filter, ServletRequest request, ServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
-        filter.init(filterConfig);
-        filter.doFilter(request, response, filterChain);
-        filter.destroy();
-    }
+    //~ Inner Classes ==========================================================
 
     private class MockFilterChain implements FilterChain {
         private boolean expectToProceed;

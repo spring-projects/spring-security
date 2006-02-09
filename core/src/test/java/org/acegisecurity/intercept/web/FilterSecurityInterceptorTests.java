@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,6 @@
 
 package org.acegisecurity.intercept.web;
 
-import java.io.IOException;
-import java.util.Iterator;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
 import junit.framework.TestCase;
 
 import org.acegisecurity.AccessDecisionManager;
@@ -38,11 +30,22 @@ import org.acegisecurity.MockAuthenticationManager;
 import org.acegisecurity.MockRunAsManager;
 import org.acegisecurity.RunAsManager;
 import org.acegisecurity.SecurityConfig;
+
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.context.SecurityContextImpl;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import java.io.IOException;
+
+import java.util.Iterator;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 
 /**
@@ -64,12 +67,12 @@ public class FilterSecurityInterceptorTests extends TestCase {
 
     //~ Methods ================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public static void main(String[] args) {
         junit.textui.TestRunner.run(FilterSecurityInterceptorTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass()
@@ -145,7 +148,8 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
         interceptor.setRunAsManager(new MockRunAsManager());
-        interceptor.setApplicationEventPublisher(MockApplicationContext.getContext());
+        interceptor.setApplicationEventPublisher(MockApplicationContext
+            .getContext());
 
         // Setup a mock config attribute definition
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
@@ -197,6 +201,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
      * test  access denied events as the abstract parent enforces that logic,
      * which is extensively tested separately.
      *
+     * @throws Throwable DOCUMENT ME!
      */
     public void testSuccessfulInvocation() throws Throwable {
         // Setup the FilterSecurityInterceptor
@@ -204,7 +209,8 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
         interceptor.setRunAsManager(new MockRunAsManager());
-        interceptor.setApplicationEventPublisher(MockApplicationContext.getContext());
+        interceptor.setApplicationEventPublisher(MockApplicationContext
+            .getContext());
 
         // Setup a mock config attribute definition
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
