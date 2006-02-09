@@ -78,6 +78,10 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
                 return false;
             }
 
+            if ((this.details == null) && (test.getDetails() == null)) {
+                return true;
+            }
+
             if ((this.details == null) && (test.getDetails() != null)) {
                 return false;
             }
