@@ -285,7 +285,8 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         assertEquals(401, response.getStatus());
     }
 
-    public void testWrongPasswordReturnsForbidden() throws Exception {
+    public void testWrongPasswordContinuesFilterChainIfIgnoreFailureIsTrue()
+        throws Exception {
         // Setup our HTTP request
         String token = "marissa:WRONG_PASSWORD";
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -293,6 +294,27 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
             "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
         request.setSession(new MockHttpSession());
+
+        filter.setIgnoreFailure(true);
+        assertTrue(filter.isIgnoreFailure());
+
+        // Test - the filter chain will be invoked, as we've set ignoreFailure = true
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
+                request, true);
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    public void testWrongPasswordReturnsForbiddenIfIgnoreFailureIsFalse()
+        throws Exception {
+        // Setup our HTTP request
+        String token = "marissa:WRONG_PASSWORD";
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization",
+            "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+        request.setServletPath("/some_file.html");
+        request.setSession(new MockHttpSession());
+        assertFalse(filter.isIgnoreFailure());
 
         // Test - the filter chain will not be invoked, as we get a 403 forbidden response
         MockHttpServletResponse response = executeFilterInContainerSimulator(filter,

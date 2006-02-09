@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,11 @@ package org.acegisecurity.ui.basicauth;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
+
 import org.acegisecurity.context.SecurityContextHolder;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.acegisecurity.ui.AuthenticationEntryPoint;
 import org.acegisecurity.ui.WebAuthenticationDetails;
 
@@ -78,8 +81,9 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
- * If authentication fails, an {@link AuthenticationEntryPoint} implementation
- * is called. Usually this should be {@link BasicProcessingFilterEntryPoint},
+ * If authentication fails and <code>ignoreFailure</code> is <code>false</code>
+ * (the default), an {@link AuthenticationEntryPoint} implementation is
+ * called. Usually this should be {@link BasicProcessingFilterEntryPoint},
  * which will prompt the user to authenticate again via BASIC authentication.
  * </p>
  * 
@@ -110,26 +114,9 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
 
     private AuthenticationEntryPoint authenticationEntryPoint;
     private AuthenticationManager authenticationManager;
+    private boolean ignoreFailure = false;
 
     //~ Methods ================================================================
-
-    public void setAuthenticationEntryPoint(
-        AuthenticationEntryPoint authenticationEntryPoint) {
-        this.authenticationEntryPoint = authenticationEntryPoint;
-    }
-
-    public AuthenticationEntryPoint getAuthenticationEntryPoint() {
-        return authenticationEntryPoint;
-    }
-
-    public void setAuthenticationManager(
-        AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-    }
-
-    public AuthenticationManager getAuthenticationManager() {
-        return authenticationManager;
-    }
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(this.authenticationManager,
@@ -196,7 +183,13 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                     }
 
                     SecurityContextHolder.getContext().setAuthentication(null);
-                    authenticationEntryPoint.commence(request, response, failed);
+
+                    if (ignoreFailure) {
+                        chain.doFilter(request, response);
+                    } else {
+                        authenticationEntryPoint.commence(request, response,
+                            failed);
+                    }
 
                     return;
                 }
@@ -214,5 +207,31 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
         chain.doFilter(request, response);
     }
 
+    public AuthenticationEntryPoint getAuthenticationEntryPoint() {
+        return authenticationEntryPoint;
+    }
+
+    public AuthenticationManager getAuthenticationManager() {
+        return authenticationManager;
+    }
+
     public void init(FilterConfig arg0) throws ServletException {}
+
+    public boolean isIgnoreFailure() {
+        return ignoreFailure;
+    }
+
+    public void setAuthenticationEntryPoint(
+        AuthenticationEntryPoint authenticationEntryPoint) {
+        this.authenticationEntryPoint = authenticationEntryPoint;
+    }
+
+    public void setAuthenticationManager(
+        AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
+
+    public void setIgnoreFailure(boolean ignoreFailure) {
+        this.ignoreFailure = ignoreFailure;
+    }
 }
