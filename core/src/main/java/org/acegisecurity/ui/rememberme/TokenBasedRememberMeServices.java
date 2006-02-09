@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,13 @@
 package org.acegisecurity.ui.rememberme;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
-import org.acegisecurity.userdetails.UserDetailsService;
+
+import org.acegisecurity.ui.WebAuthenticationDetails;
+
 import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 
 import org.apache.commons.codec.binary.Base64;
@@ -57,11 +61,11 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
- * An {@link org.acegisecurity.userdetails.UserDetailsService} is required
- * by this implementation, so that it can construct a valid
+ * An {@link org.acegisecurity.userdetails.UserDetailsService} is required by
+ * this implementation, so that it can construct a valid
  * <code>Authentication</code> from the returned {@link
- * org.acegisecurity.userdetails.UserDetails}. This is also necessary so that the
- * user's password is available and can be checked as part of the encoded
+ * org.acegisecurity.userdetails.UserDetails}. This is also necessary so that
+ * the user's password is available and can be checked as part of the encoded
  * cookie.
  * </p>
  * 
@@ -112,44 +116,12 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
 
     //~ Instance fields ========================================================
 
-    private UserDetailsService userDetailsService;
     private String key;
     private String parameter = DEFAULT_PARAMETER;
+    private UserDetailsService userDetailsService;
     private long tokenValiditySeconds = 1209600; // 14 days
 
     //~ Methods ================================================================
-
-    public void setUserDetailsService(UserDetailsService authenticationDao) {
-        this.userDetailsService = authenticationDao;
-    }
-
-    public UserDetailsService getUserDetailsService() {
-        return userDetailsService;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setParameter(String parameter) {
-        this.parameter = parameter;
-    }
-
-    public String getParameter() {
-        return parameter;
-    }
-
-    public void setTokenValiditySeconds(long tokenValiditySeconds) {
-        this.tokenValiditySeconds = tokenValiditySeconds;
-    }
-
-    public long getTokenValiditySeconds() {
-        return tokenValiditySeconds;
-    }
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(key);
@@ -258,8 +230,11 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
                             logger.debug("Remember-me cookie accepted");
                         }
 
-                        return new RememberMeAuthenticationToken(this.key,
-                            userDetails, userDetails.getAuthorities());
+                        RememberMeAuthenticationToken auth = new RememberMeAuthenticationToken(this.key,
+                                userDetails, userDetails.getAuthorities());
+                        auth.setDetails(new WebAuthenticationDetails(request));
+
+                        return auth;
                     } else {
                         cancelCookie(request, response,
                             "Cookie token did not contain 3 tokens; decoded value was '"
@@ -278,6 +253,31 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
         }
 
         return null;
+    }
+
+    private void cancelCookie(HttpServletRequest request,
+        HttpServletResponse response, String reasonForLog) {
+        if ((reasonForLog != null) && logger.isDebugEnabled()) {
+            logger.debug("Cancelling cookie for reason: " + reasonForLog);
+        }
+
+        response.addCookie(makeCancelCookie());
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getParameter() {
+        return parameter;
+    }
+
+    public long getTokenValiditySeconds() {
+        return tokenValiditySeconds;
+    }
+
+    public UserDetailsService getUserDetailsService() {
+        return userDetailsService;
     }
 
     public void loginFail(HttpServletRequest request,
@@ -353,12 +353,19 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
         return cookie;
     }
 
-    private void cancelCookie(HttpServletRequest request,
-        HttpServletResponse response, String reasonForLog) {
-        if ((reasonForLog != null) && logger.isDebugEnabled()) {
-            logger.debug("Cancelling cookie for reason: " + reasonForLog);
-        }
+    public void setKey(String key) {
+        this.key = key;
+    }
 
-        response.addCookie(makeCancelCookie());
+    public void setParameter(String parameter) {
+        this.parameter = parameter;
+    }
+
+    public void setTokenValiditySeconds(long tokenValiditySeconds) {
+        this.tokenValiditySeconds = tokenValiditySeconds;
+    }
+
+    public void setUserDetailsService(UserDetailsService authenticationDao) {
+        this.userDetailsService = authenticationDao;
     }
 }
