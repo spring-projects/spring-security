@@ -78,5 +78,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory/jars/directory-asn1-0.3.4-20060201.032106-8.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory/jars/org.apache.ldap.common-0.9.4-20060201.032106-10.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/antlr/jars/antlr-2.7.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/ldapsdk/jars/ldapsdk-4.1.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>
