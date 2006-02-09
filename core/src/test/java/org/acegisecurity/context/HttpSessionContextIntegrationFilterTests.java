@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,8 +56,34 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
     //~ Methods ================================================================
 
+    private void executeFilterInContainerSimulator(FilterConfig filterConfig,
+        Filter filter, ServletRequest request, ServletResponse response,
+        FilterChain filterChain) throws ServletException, IOException {
+        filter.init(filterConfig);
+        filter.doFilter(request, response, filterChain);
+        filter.destroy();
+    }
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(HttpSessionContextIntegrationFilterTests.class);
+    }
+
+    public void testDetectsIncompatibleSessionProperties()
+        throws Exception {
+        HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
+
+        try {
+            filter.setAllowSessionCreation(false);
+            filter.setForceEagerSessionCreation(true);
+            filter.afterPropertiesSet();
+            fail("Shown have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+
+        filter.setAllowSessionCreation(true);
+        filter.afterPropertiesSet();
+        assertTrue(true);
     }
 
     public void testDetectsMissingOrInvalidContext() throws Exception {
@@ -95,7 +121,8 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
         // Build a mock request
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.getSession().setAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY,
+        request.getSession()
+               .setAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY,
             sc);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -142,7 +169,8 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
         // Build a mock request
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.getSession().setAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY,
+        request.getSession()
+               .setAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY,
             sc);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -194,6 +222,27 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
             ((SecurityContext) context).getAuthentication());
     }
 
+    public void testHttpSessionEagerlyCreatedWhenDirected()
+        throws Exception {
+        // Build a mock request
+        MockHttpServletRequest request = new MockHttpServletRequest(null, null);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        FilterChain chain = new MockFilterChain(null, null, null);
+
+        // Prepare filter
+        HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
+        filter.setContext(SecurityContextImpl.class);
+        filter.setForceEagerSessionCreation(true); // non-default
+        filter.afterPropertiesSet();
+
+        // Execute filter
+        executeFilterInContainerSimulator(new MockFilterConfig(), filter,
+            request, response, chain);
+
+        // Check the session is not null
+        assertNotNull(request.getSession(false));
+    }
+
     public void testHttpSessionNotCreatedUnlessContextHolderChanges()
         throws Exception {
         // Build a mock request
@@ -224,7 +273,8 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
         // Build a mock request
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.getSession().setAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY,
+        request.getSession()
+               .setAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY,
             "NOT_A_CONTEXT_OBJECT");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -244,14 +294,6 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
                                                            .getAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
         assertEquals(updatedPrincipal,
             ((SecurityContext) context).getAuthentication());
-    }
-
-    private void executeFilterInContainerSimulator(FilterConfig filterConfig,
-        Filter filter, ServletRequest request, ServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
-        filter.init(filterConfig);
-        filter.doFilter(request, response, filterChain);
-        filter.destroy();
     }
 
     //~ Inner Classes ==========================================================

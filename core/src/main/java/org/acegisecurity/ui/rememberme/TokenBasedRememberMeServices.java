@@ -232,7 +232,8 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
 
                         RememberMeAuthenticationToken auth = new RememberMeAuthenticationToken(this.key,
                                 userDetails, userDetails.getAuthorities());
-                        auth.setDetails(new WebAuthenticationDetails(request));
+                        auth.setDetails(new WebAuthenticationDetails(request,
+                                false));
 
                         return auth;
                     } else {

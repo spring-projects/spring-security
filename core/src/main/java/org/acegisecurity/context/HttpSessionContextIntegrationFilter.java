@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,8 @@ import javax.servlet.http.HttpSession;
 
 /**
  * <p>
- * Populates the {@link SecurityContextHolder}</code> with information obtained
- * from the <code>HttpSession</code>.
+ * Populates the {@link SecurityContextHolder} with information obtained from
+ * the <code>HttpSession</code>.
  * </p>
  * 
  * <p>
@@ -50,7 +50,7 @@ import javax.servlet.http.HttpSession;
  * <p>
  * If a valid <code>SecurityContext</code> cannot be obtained from the
  * <code>HttpSession</code> for whatever reason, a fresh
- * <code>SecurityContext</code> will be created and used instead.  The created
+ * <code>SecurityContext</code> will be created and used instead. The created
  * object will be of the instance defined by the {@link #setContext(Class)}
  * method (which defaults to {@link
  * org.acegisecurity.context.SecurityContextImpl}.
@@ -65,7 +65,11 @@ import javax.servlet.http.HttpSession;
  * java.lang.Object#equals(java.lang.Object)} to a <code>new</code> instance
  * of {@link #setContext(Class)}. This avoids needless
  * <code>HttpSession</code> creation, but automates the storage of changes
- * made to the <code>SecurityContextHolder</code>.
+ * made to the <code>SecurityContextHolder</code>. There is one exception to
+ * this rule, that is if the {@link #forceEagerSessionCreation} property is
+ * <code>true</code>, in which case sessions will always be created
+ * irrespective of normal session-minimisation logic (the default is
+ * <code>false</code>, as this is resource intensive and not recommended).
  * </p>
  * 
  * <p>
@@ -77,18 +81,21 @@ import javax.servlet.http.HttpSession;
  * If for whatever reason no <code>HttpSession</code> should <b>ever</b> be
  * created (eg this filter is only being used with Basic authentication or
  * similar clients that will never present the same <code>jsessionid</code>
- * etc), the  {@link #setAllowSessionCreation(boolean)} should be set to
+ * etc), the {@link #setAllowSessionCreation(boolean)} should be set to
  * <code>false</code>. Only do this if you really need to conserve server
- * memory and ensure all classes using the <code>SecurityContextHolder</code> are
- * designed to have no persistence of the <code>SecurityContext</code> between web
- * requests.
+ * memory and ensure all classes using the <code>SecurityContextHolder</code>
+ * are designed to have no persistence of the <code>SecurityContext</code>
+ * between web requests. Please note that if {@link
+ * #forceEagerSessionCreation} is <code>true</code>, the
+ * <code>allowSessionCreation</code> must also be <code>true</code> (setting
+ * it to <code>false</code> will cause a startup time error).
  * </p>
  * 
  * <p>
- * This filter MUST be executed BEFORE any authentication processing mechanisms.
- * Authentication processing mechanisms (eg BASIC, CAS processing filters etc)
- * expect the <code>SecurityContextHolder</code> to contain a valid
- * <code>SecurityContext</code> by the time they execute.
+ * This filter MUST be executed BEFORE any authentication processing
+ * mechanisms. Authentication processing mechanisms (eg BASIC, CAS processing
+ * filters etc) expect the <code>SecurityContextHolder</code> to contain a
+ * valid <code>SecurityContext</code> by the time they execute.
  * </p>
  *
  * @author Ben Alex
@@ -99,39 +106,46 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean,
     Filter {
     //~ Static fields/initializers =============================================
 
+    // ~ Static fields/initializers
+    // =============================================
     protected static final Log logger = LogFactory.getLog(HttpSessionContextIntegrationFilter.class);
     private static final String FILTER_APPLIED = "__acegi_session_integration_filter_applied";
     public static final String ACEGI_SECURITY_CONTEXT_KEY = "ACEGI_SECURITY_CONTEXT";
 
     //~ Instance fields ========================================================
 
+    // ~ Instance fields
+    // ========================================================
     private Class context = SecurityContextImpl.class;
     private Object contextObject;
 
     /**
      * Indicates if this filter can create a <code>HttpSession</code> if needed
-     * (sessions are always created sparingly, but setting this value to false
-     * will prohibit sessions from ever being created). Defaults to true.
+     * (sessions are always created sparingly, but setting this value to
+     * <code>false</code> will prohibit sessions from ever being created).
+     * Defaults to <code>true</code>. Do not set to <code>false</code> if you
+     * are have set {@link #forceEagerSessionCreation} to <code>true</code>,
+     * as the properties would be in conflict.
      */
     private boolean allowSessionCreation = true;
 
+    /**
+     * Indicates if this filter is required to create a
+     * <code>HttpSession</code> for every request before proceeding through
+     * the filter chain, even if the <code>HttpSession</code> would not
+     * ordinarily have been created. By default this is <code>false</code>,
+     * which is entirely appropriate for most circumstances as you do not want
+     * a <code>HttpSession</code> created unless the filter actually needs
+     * one. It is envisaged the main situation in which this property would be
+     * set to <code>true</code> is if using other filters that depend on a
+     * <code>HttpSession</code> already existing, such as those which need to
+     * obtain a session ID. This is only required in specialised cases, so
+     * leave it set to <code>false</code> unless you have an actual
+     * requirement and are conscious of the session creation overhead.
+     */
+    private boolean forceEagerSessionCreation = false;
+
     //~ Methods ================================================================
-
-    public void setAllowSessionCreation(boolean allowSessionCreation) {
-        this.allowSessionCreation = allowSessionCreation;
-    }
-
-    public boolean isAllowSessionCreation() {
-        return allowSessionCreation;
-    }
-
-    public void setContext(Class secureContext) {
-        this.context = secureContext;
-    }
-
-    public Class getContext() {
-        return context;
-    }
 
     public void afterPropertiesSet() throws Exception {
         if ((this.context == null)
@@ -139,6 +153,12 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean,
             throw new IllegalArgumentException(
                 "context must be defined and implement SecurityContext (typically use org.acegisecurity.context.SecurityContextImpl; existing class is "
                 + this.context + ")");
+        }
+
+        if ((forceEagerSessionCreation == true)
+            && (allowSessionCreation == false)) {
+            throw new IllegalArgumentException(
+                "If using forceEagerSessionCreation, you must set allowSessionCreation to also be true");
         }
 
         this.contextObject = generateNewContext();
@@ -163,7 +183,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean,
             boolean httpSessionExistedAtStartOfRequest = false;
 
             try {
-                httpSession = ((HttpServletRequest) request).getSession(false);
+                httpSession = ((HttpServletRequest) request).getSession(forceEagerSessionCreation);
             } catch (IllegalStateException ignored) {}
 
             if (httpSession != null) {
@@ -265,8 +285,10 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean,
                     }
                 }
 
-                // If HttpSession exists, store current SecurityContextHolder contents
-                // but only if SecurityContext has actually changed (see JIRA SEC-37)
+                // If HttpSession exists, store current SecurityContextHolder
+                // contents
+                // but only if SecurityContext has actually changed (see JIRA
+                // SEC-37)
                 if ((httpSession != null)
                     && (SecurityContextHolder.getContext().hashCode() != contextWhenChainProceeded)) {
                     httpSession.setAttribute(ACEGI_SECURITY_CONTEXT_KEY,
@@ -299,6 +321,10 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean,
         }
     }
 
+    public Class getContext() {
+        return context;
+    }
+
     /**
      * Does nothing. We use IoC container lifecycle services instead.
      *
@@ -307,4 +333,26 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean,
      * @throws ServletException ignored
      */
     public void init(FilterConfig filterConfig) throws ServletException {}
+
+    public boolean isAllowSessionCreation() {
+        return allowSessionCreation;
+    }
+
+    // ~ Methods
+    // ================================================================
+    public boolean isForceEagerSessionCreation() {
+        return forceEagerSessionCreation;
+    }
+
+    public void setAllowSessionCreation(boolean allowSessionCreation) {
+        this.allowSessionCreation = allowSessionCreation;
+    }
+
+    public void setContext(Class secureContext) {
+        this.context = secureContext;
+    }
+
+    public void setForceEagerSessionCreation(boolean forceEagerSessionCreation) {
+        this.forceEagerSessionCreation = forceEagerSessionCreation;
+    }
 }

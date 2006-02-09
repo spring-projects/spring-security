@@ -97,7 +97,7 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
         AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(key,
                 userAttribute.getPassword(), userAttribute.getAuthorities());
         auth.setDetails(new WebAuthenticationDetails(
-                (HttpServletRequest) request));
+                (HttpServletRequest) request, false));
 
         return auth;
     }
