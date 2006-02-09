@@ -23,8 +23,8 @@
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring-hibernate</artifactId>
-      <version>1.2.6</version>
+      <artifactId>spring-hibernate3</artifactId>
+      <version>2.0-m2</version>
     </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>

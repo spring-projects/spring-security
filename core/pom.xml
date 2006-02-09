@@ -14,17 +14,17 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-remoting</artifactId>
-      <version>1.2.6</version>
+      <version>2.0-m2</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>1.2.6</version>
+      <version>2.0-m2</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-support</artifactId>
-      <version>1.2.6</version>
+      <version>2.0-m2</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
