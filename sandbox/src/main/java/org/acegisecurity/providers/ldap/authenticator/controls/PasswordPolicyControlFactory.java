@@ -48,3 +48,4 @@ public class PasswordPolicyControlFactory extends ControlFactory {
         return null;
     }
 }
+
