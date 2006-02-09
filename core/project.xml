@@ -2,6 +2,7 @@
 <project>
   <extend>${basedir}/../project.xml</extend>
   <pomVersion>3</pomVersion>
+  <groupId>org.acegisecurity</groupId>
   <artifactId>acegi-security</artifactId>
   <name>Acegi Security System for Spring</name>
   <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs/multiproject/acegi-security</siteDirectory>
