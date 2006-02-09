@@ -51,6 +51,7 @@
       <item name="Core JavaDocs" href="multiproject/acegi-security/apidocs/index.html" target="_blank"/>
       <item name="Contacts HTTPS" href="multiproject/acegi-security-sample-contacts/ssl/howto.txt"/>
       <item name="Project Policies" href="policies.html"/>
+      <item name="Acegi Security JIRA" href="http://opensource.atlassian.com/projects/spring/secure/BrowseProject.jspa?id=10040"/>
     </menu>
 
     <menu name="Projects">
