@@ -79,6 +79,44 @@ public class WebAuthenticationDetails implements SessionIdentifierAware,
      */
     protected void doPopulateAdditionalInformation(HttpServletRequest request) {}
 
+    public boolean equals(Object obj) {
+        if (obj instanceof WebAuthenticationDetails) {
+            WebAuthenticationDetails rhs = (WebAuthenticationDetails) obj;
+
+            if ((remoteAddress == null) && (rhs.getRemoteAddress() != null)) {
+                return false;
+            }
+
+            if ((remoteAddress != null) && (rhs.getRemoteAddress() == null)) {
+                return false;
+            }
+
+            if (remoteAddress != null) {
+                if (!remoteAddress.equals(rhs.getRemoteAddress())) {
+                    return false;
+                }
+            }
+
+            if ((sessionId == null) && (rhs.getSessionId() != null)) {
+                return false;
+            }
+
+            if ((sessionId != null) && (rhs.getSessionId() == null)) {
+                return false;
+            }
+
+            if (sessionId != null) {
+                if (!sessionId.equals(rhs.getSessionId())) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Indicates the TCP/IP address the authentication request was received
      * from.
