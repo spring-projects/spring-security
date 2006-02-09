@@ -137,6 +137,20 @@ public class WebAuthenticationDetails implements SessionIdentifierAware,
         return sessionId;
     }
 
+    public int hashCode() {
+        int code = 7654;
+
+        if (this.remoteAddress != null) {
+            code = code * (this.remoteAddress.hashCode() % 7);
+        }
+
+        if (this.sessionId != null) {
+            code = code * (this.sessionId.hashCode() % 7);
+        }
+
+        return code;
+    }
+
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append(super.toString() + ": ");
