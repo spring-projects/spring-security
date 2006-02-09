@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,16 @@
 
 package org.acegisecurity.providers.x509;
 
-import org.acegisecurity.providers.AbstractAuthenticationToken;
 import org.acegisecurity.GrantedAuthority;
+
+import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 import java.security.cert.X509Certificate;
 
+
 /**
- * <code>Authentication</code> implementation for X.509 client-certificate authentication.
+ * <code>Authentication</code> implementation for X.509 client-certificate
+ * authentication.
  *
  * @author Luke Taylor
  * @version $Id$
@@ -29,45 +32,29 @@ import java.security.cert.X509Certificate;
 public class X509AuthenticationToken extends AbstractAuthenticationToken {
     //~ Instance fields ========================================================
 
-    private X509Certificate credentials;
     private Object principal;
-    private boolean authenticated = false;
-    private Object details = null;
+    private X509Certificate credentials;
 
     //~ Constructors ===========================================================
 
-    /** Used for an authentication request */
+    /**
+     * Used for an authentication request
+     *
+     * @param credentials DOCUMENT ME!
+     */
     public X509AuthenticationToken(X509Certificate credentials) {
         super(null);
         this.credentials = credentials;
     }
 
     public X509AuthenticationToken(Object principal,
-                                   X509Certificate credentials,
-                                   GrantedAuthority[] authorities) {
+        X509Certificate credentials, GrantedAuthority[] authorities) {
         super(authorities);
-        this.principal = principal;        
+        this.principal = principal;
         this.credentials = credentials;
     }
 
     //~ Methods ================================================================
-
-    public Object getDetails() {
-        return details;
-    }
-
-    public void setDetails(Object details) {
-        this.details = details;
-    }
-
-
-    public void setAuthenticated(boolean isAuthenticated) {
-        this.authenticated = isAuthenticated;
-    }
-
-    public boolean isAuthenticated() {
-        return authenticated;
-    }
 
     public Object getCredentials() {
         return credentials;

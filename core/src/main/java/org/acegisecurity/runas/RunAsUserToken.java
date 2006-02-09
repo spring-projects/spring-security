@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@
 package org.acegisecurity.runas;
 
 import org.acegisecurity.GrantedAuthority;
+
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 
 /**
- * An immutable {@link org.acegisecurity.Authentication}  implementation
- * that supports {@link RunAsManagerImpl}.
+ * An immutable {@link org.acegisecurity.Authentication}  implementation that
+ * supports {@link RunAsManagerImpl}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -33,7 +34,6 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
     private Object credentials;
     private Object principal;
     private int keyHash;
-	private boolean authenticated;
 
     //~ Constructors ===========================================================
 
@@ -44,18 +44,10 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
         this.principal = principal;
         this.credentials = credentials;
         this.originalAuthentication = originalAuthentication;
-		this.authenticated = true;
+        setAuthenticated(true);
     }
 
     //~ Methods ================================================================
-
-    public void setAuthenticated(boolean isAuthenticated) {
-        this.authenticated = isAuthenticated;
-    }
-
-    public boolean isAuthenticated() {
-        return this.authenticated;
-    }
 
     public Object getCredentials() {
         return this.credentials;
@@ -75,7 +67,8 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
 
     public String toString() {
         StringBuffer sb = new StringBuffer(super.toString());
-        sb.append("; Original Class: ").append(this.originalAuthentication.getName());
+        sb.append("; Original Class: ")
+          .append(this.originalAuthentication.getName());
 
         return sb.toString();
     }

@@ -32,9 +32,7 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
     implements Serializable {
     //~ Instance fields ========================================================
 
-    private Object details;
     private Object principal;
-    private boolean authenticated;
     private int keyHash;
 
     //~ Constructors ===========================================================
@@ -61,7 +59,7 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
 
         this.keyHash = key.hashCode();
         this.principal = principal;
-        this.authenticated = true;
+        setAuthenticated(true);
     }
 
     //~ Methods ================================================================
@@ -77,20 +75,8 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
             if (this.getKeyHash() != test.getKeyHash()) {
                 return false;
             }
-
-            if ((this.details == null) && (test.getDetails() == null)) {
-                return true;
-            }
-
-            if ((this.details == null) && (test.getDetails() != null)) {
-                return false;
-            }
-
-            if ((this.details != null) && (test.getDetails() == null)) {
-                return false;
-            }
-
-            return this.details.equals(test.getDetails());
+            
+            return true;
         }
 
         return false;
@@ -105,27 +91,11 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
         return "";
     }
 
-    public Object getDetails() {
-        return details;
-    }
-
     public int getKeyHash() {
         return this.keyHash;
     }
 
     public Object getPrincipal() {
         return this.principal;
-    }
-
-    public boolean isAuthenticated() {
-        return this.authenticated;
-    }
-
-    public void setAuthenticated(boolean isAuthenticated) {
-        this.authenticated = isAuthenticated;
-    }
-
-    public void setDetails(Object details) {
-        this.details = details;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 package org.acegisecurity.providers.rememberme;
 
 import org.acegisecurity.GrantedAuthority;
+
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 
-import java.io.Serializable;
-
 import org.springframework.util.Assert;
+
+import java.io.Serializable;
 
 
 /**
@@ -41,7 +42,6 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken
 
     private Object principal;
     private int keyHash;
-	private boolean authenticated;
 
     //~ Constructors ===========================================================
 
@@ -66,42 +66,17 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken
         }
 
         for (int i = 0; i < authorities.length; i++) {
-            Assert.notNull(authorities[i], "Granted authority element "
-                    + i
-                    + " is null - GrantedAuthority[] cannot contain any null elements");
+            Assert.notNull(authorities[i],
+                "Granted authority element " + i
+                + " is null - GrantedAuthority[] cannot contain any null elements");
         }
 
         this.keyHash = key.hashCode();
         this.principal = principal;
-		this.authenticated = true;
+        setAuthenticated(true);
     }
 
     //~ Methods ================================================================
-
-    public void setAuthenticated(boolean isAuthenticated) {
-        this.authenticated = isAuthenticated;
-    }
-
-    public boolean isAuthenticated() {
-        return this.authenticated;
-    }
-
-    /**
-     * Always returns an empty <code>String</code>
-     *
-     * @return an empty String
-     */
-    public Object getCredentials() {
-        return "";
-    }
-
-    public int getKeyHash() {
-        return this.keyHash;
-    }
-
-    public Object getPrincipal() {
-        return this.principal;
-    }
 
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
@@ -119,5 +94,22 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken
         }
 
         return false;
+    }
+
+    /**
+     * Always returns an empty <code>String</code>
+     *
+     * @return an empty String
+     */
+    public Object getCredentials() {
+        return "";
+    }
+
+    public int getKeyHash() {
+        return this.keyHash;
+    }
+
+    public Object getPrincipal() {
+        return this.principal;
     }
 }

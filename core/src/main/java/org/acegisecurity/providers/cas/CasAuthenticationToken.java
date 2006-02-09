@@ -21,8 +21,6 @@ import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 import org.acegisecurity.userdetails.UserDetails;
 
-import org.springframework.util.Assert;
-
 import java.io.Serializable;
 
 import java.util.List;
@@ -43,7 +41,6 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
     private Object principal;
     private String proxyGrantingTicketIou;
     private UserDetails userDetails;
-    private boolean authenticated;
     private int keyHash;
 
     //~ Constructors ===========================================================
@@ -72,6 +69,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
         Object credentials, GrantedAuthority[] authorities,
         UserDetails userDetails, List proxyList, String proxyGrantingTicketIou) {
         super(authorities);
+
         if ((key == null) || ("".equals(key)) || (principal == null)
             || "".equals(principal) || (credentials == null)
             || "".equals(credentials) || (authorities == null)
@@ -87,7 +85,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
         this.userDetails = userDetails;
         this.proxyList = proxyList;
         this.proxyGrantingTicketIou = proxyGrantingTicketIou;
-        this.authenticated = true;
+        setAuthenticated(true);
     }
 
     //~ Methods ================================================================
@@ -151,21 +149,14 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
         return userDetails;
     }
 
-    public boolean isAuthenticated() {
-        return this.authenticated;
-    }
-
-    public void setAuthenticated(boolean isAuthenticated) {
-        this.authenticated = isAuthenticated;
-    }
-
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append(super.toString());
-        sb.append("; Credentials (Service/Proxy Ticket): ").append(this.credentials);
-        sb.append("; Proxy-Granting Ticket IOU: ").append(this.proxyGrantingTicketIou);
+        sb.append("; Credentials (Service/Proxy Ticket): ")
+          .append(this.credentials);
+        sb.append("; Proxy-Granting Ticket IOU: ")
+          .append(this.proxyGrantingTicketIou);
         sb.append("; Proxy List: ").append(this.proxyList);
-
 
         return (sb.toString());
     }

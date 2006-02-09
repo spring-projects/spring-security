@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ import org.acegisecurity.GrantedAuthority;
 
 
 /**
- * An {@link org.acegisecurity.Authentication} implementation that is
- * designed for simple presentation of a username and password.
+ * An {@link org.acegisecurity.Authentication} implementation that is designed
+ * for simple presentation of a username and password.
  * 
  * <p>
  * The <code>principal</code> and <code>credentials</code> should be set with
@@ -37,9 +37,7 @@ public class UsernamePasswordAuthenticationToken
     //~ Instance fields ========================================================
 
     private Object credentials;
-    private Object details = null;
     private Object principal;
-    private boolean authenticated;
 
     //~ Constructors ===========================================================
 
@@ -56,7 +54,7 @@ public class UsernamePasswordAuthenticationToken
         super(null);
         this.principal = principal;
         this.credentials = credentials;
-        this.authenticated = false;
+        setAuthenticated(false);
     }
 
     /**
@@ -75,43 +73,26 @@ public class UsernamePasswordAuthenticationToken
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;
-        this.authenticated = true;
+        super.setAuthenticated(true); // must use super, as we override
     }
 
     //~ Methods ================================================================
-
-    public void setAuthenticated(boolean isAuthenticated)
-        throws IllegalArgumentException {
-        if (isAuthenticated) {
-            throw new IllegalArgumentException(
-                "Cannot set this token to trusted - use constructor containing GrantedAuthority[]s instead");
-        }
-
-        this.authenticated = isAuthenticated;
-    }
-
-    public boolean isAuthenticated() {
-        return this.authenticated;
-    }
 
     public Object getCredentials() {
         return this.credentials;
     }
 
-    public void setDetails(Object details) {
-        this.details = details;
-    }
-
-    /**
-     * Usually a {@link org.acegisecurity.ui.WebAuthenticationDetails}.
-     *
-     * @return the authentication request details, or <code>null</code>
-     */
-    public Object getDetails() {
-        return details;
-    }
-
     public Object getPrincipal() {
         return this.principal;
+    }
+
+    public void setAuthenticated(boolean isAuthenticated)
+        throws IllegalArgumentException {
+        if (isAuthenticated == true) {
+            throw new IllegalArgumentException(
+                "Cannot set this token to trusted - use constructor containing GrantedAuthority[]s instead");
+        }
+
+        super.setAuthenticated(false);
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,6 @@ import org.acegisecurity.providers.AbstractAuthenticationToken;
  * @version $Id$
  */
 public class MockRunAsAuthenticationToken extends AbstractAuthenticationToken {
-    //~ Instance fields ========================================================
-
-    private boolean authenticated = false;
-
     //~ Constructors ===========================================================
 
     public MockRunAsAuthenticationToken() {
@@ -37,14 +33,6 @@ public class MockRunAsAuthenticationToken extends AbstractAuthenticationToken {
     }
 
     //~ Methods ================================================================
-
-    public void setAuthenticated(boolean isAuthenticated) {
-        authenticated = isAuthenticated;
-    }
-
-    public boolean isAuthenticated() {
-        return authenticated;
-    }
 
     public Object getCredentials() {
         return null;

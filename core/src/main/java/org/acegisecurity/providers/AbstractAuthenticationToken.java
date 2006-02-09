@@ -20,8 +20,12 @@ import org.acegisecurity.GrantedAuthority;
 
 import org.acegisecurity.userdetails.UserDetails;
 
+import org.springframework.util.Assert;
+
+
 /**
- * Base class for Authentication objects.
+ * Base class for <code>Authentication</code> objects.
+ * 
  * <p>
  * Implementations which use this class should be immutable.
  * </p>
@@ -31,9 +35,11 @@ import org.acegisecurity.userdetails.UserDetails;
  * @version $Id$
  */
 public abstract class AbstractAuthenticationToken implements Authentication {
+    //~ Instance fields ========================================================
 
-    //~ Instance fields
+    private Object details;
     private GrantedAuthority[] authorities;
+    private boolean authenticated = false;
 
     //~ Constructors ===========================================================
 
@@ -42,27 +48,27 @@ public abstract class AbstractAuthenticationToken implements Authentication {
      * <tt>AbstractAuthenticationToken(GrantedAuthority[])</tt> constructor
      * was introduced.
      *
-     * @deprecated in favour of the constructor which takes a GrantedAuthority[]
-     * argument. 
+     * @deprecated in favour of the constructor which takes a
+     *             <code>GrantedAuthority[]</code> argument.
      */
-    public AbstractAuthenticationToken() {
-
-    }
+    public AbstractAuthenticationToken() {}
 
     /**
      * Creates a token with the supplied array of authorities.
      *
-     * @param authorities the list of <tt>GrantedAuthority</tt>s for the principal
-     *                    represented by this authentication object. A null value
-     *                    indicates that no authorities have been granted.
+     * @param authorities the list of <tt>GrantedAuthority</tt>s for the
+     *        principal represented by this authentication object. A
+     *        <code>null</code> value indicates that no authorities have been
+     *        granted (pursuant to the interface contract specified by {@link
+     *        Authentication#getAuthorities()}<code>null</code> should only be
+     *        presented if the principal has not been authenticated).
      */
     public AbstractAuthenticationToken(GrantedAuthority[] authorities) {
-        if(authorities != null) {
+        if (authorities != null) {
             for (int i = 0; i < authorities.length; i++) {
-                if(authorities[i] == null) {
-                    throw new IllegalArgumentException("Granted authority element " + i
-                        + " is null - GrantedAuthority[] cannot contain any null elements");
-                }
+                Assert.notNull(authorities[i],
+                    "Granted authority element " + i
+                    + " is null - GrantedAuthority[] cannot contain any null elements");
             }
         }
 
@@ -94,22 +100,40 @@ public abstract class AbstractAuthenticationToken implements Authentication {
                 }
             }
 
+            if ((this.details == null) && (test.getDetails() != null)) {
+                return false;
+            }
+
+            if ((this.details != null) && (test.getDetails() == null)) {
+                return false;
+            }
+
+            if ((this.details != null)
+                && (!this.details.equals(test.getDetails()))) {
+                return false;
+            }
+
             return (this.getPrincipal().equals(test.getPrincipal())
-                && this.getCredentials().equals(test.getCredentials())
-                && (this.isAuthenticated() == test.isAuthenticated()));
+            && this.getCredentials().equals(test.getCredentials())
+            && (this.isAuthenticated() == test.isAuthenticated()));
         }
 
         return false;
     }
 
-    /**
-     * Subclasses should override if they wish to provide additional details
-     * about the authentication event.
-     *
-     * @return always <code>null</code>
-     */
+    public GrantedAuthority[] getAuthorities() {
+        if (authorities == null) {
+            return null;
+        }
+
+        GrantedAuthority[] copy = new GrantedAuthority[authorities.length];
+        System.arraycopy(authorities, 0, copy, 0, authorities.length);
+
+        return copy;
+    }
+
     public Object getDetails() {
-        return null;
+        return details;
     }
 
     public String getName() {
@@ -118,17 +142,6 @@ public abstract class AbstractAuthenticationToken implements Authentication {
         }
 
         return this.getPrincipal().toString();
-    }
-
-    public GrantedAuthority[] getAuthorities() {
-        if(authorities == null) {
-            return null;
-        }
-
-        GrantedAuthority[] copy = new GrantedAuthority[authorities.length];
-        System.arraycopy(authorities, 0, copy, 0, authorities.length);
-
-        return copy;
     }
 
     public int hashCode() {
@@ -148,11 +161,27 @@ public abstract class AbstractAuthenticationToken implements Authentication {
             code = code * (this.getCredentials().hashCode() % 7);
         }
 
+        if (this.getDetails() != null) {
+            code = code * (this.getDetails().hashCode() % 7);
+        }
+
         if (this.isAuthenticated()) {
-            code = code * -1;
+            code = code * -3;
         }
 
         return code;
+    }
+
+    public boolean isAuthenticated() {
+        return authenticated;
+    }
+
+    public void setAuthenticated(boolean authenticated) {
+        this.authenticated = authenticated;
+    }
+
+    public void setDetails(Object details) {
+        this.details = details;
     }
 
     public String toString() {

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import jcifs.smb.NtlmPasswordAuthentication;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
+
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 
@@ -38,7 +39,6 @@ public class NtlmAuthenticationToken extends AbstractAuthenticationToken {
 
     private NtlmPasswordAuthentication ntlmPasswordAuthentication;
     private transient UniAddress domainController;
-    private boolean authenticated;
 
     //~ Constructors ===========================================================
 
@@ -51,14 +51,6 @@ public class NtlmAuthenticationToken extends AbstractAuthenticationToken {
     }
 
     //~ Methods ================================================================
-
-    public void setAuthenticated(boolean isAuthenticated) {
-        this.authenticated = isAuthenticated;
-    }
-
-    public boolean isAuthenticated() {
-        return authenticated;
-    }
 
     public Object getCredentials() {
         return ntlmPasswordAuthentication.getPassword();
