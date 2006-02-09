@@ -66,6 +66,15 @@ applications:
 	an additional filter entry to web.xml and use FilterToBeanProxy to access the FilterSecurityInterceptor.
 	</li>
 	
+	<li>
+	If you are directly using SecurityContextHolder.setContext(SecurityContext) - which is not
+	very common - please not that best practise is now to call SecurityContextHolder.clearContext()
+	if you wish to erase the contents of the SecurityContextHolder. Previously code such as
+	SecurityContextHolder.setContext(new SecurityContextImpl()) would have been used. The revised
+	method internally stores null, which helps avoids redeployment issue caused by the previous
+	approaches (see SEC-159 for further details).
+	</li>
+	
     </ul>
 
 </body>
