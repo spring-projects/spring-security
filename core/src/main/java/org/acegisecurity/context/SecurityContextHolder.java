@@ -20,7 +20,7 @@ import org.springframework.util.Assert;
 
 /**
  * Associates a given {@link SecurityContext} with the current execution
- * thread and any new threads the current execution thread may spawn.
+ * thread.
  * 
  * <p>
  * To guarantee that {@link #getContext()} never returns <code>null</code>, this
