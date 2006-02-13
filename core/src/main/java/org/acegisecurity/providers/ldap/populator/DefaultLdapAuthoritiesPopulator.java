@@ -290,6 +290,10 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         }
     }
 
+    protected InitialDirContextFactory getInitialDirContextFactory() {
+        return initialDirContextFactory;
+    }
+
     protected String[] getUserRoleAttributes() {
         return userRoleAttributes;
     }
