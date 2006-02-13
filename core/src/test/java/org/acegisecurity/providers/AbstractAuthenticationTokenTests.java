@@ -28,6 +28,10 @@ import org.acegisecurity.GrantedAuthorityImpl;
  * @version $Id$
  */
 public class AbstractAuthenticationTokenTests extends TestCase {
+    //~ Instance fields ========================================================
+
+    private GrantedAuthority[] authorities = null;
+
     //~ Constructors ===========================================================
 
     public AbstractAuthenticationTokenTests() {
@@ -46,13 +50,14 @@ public class AbstractAuthenticationTokenTests extends TestCase {
 
     public final void setUp() throws Exception {
         super.setUp();
+
+        authorities = new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"),
+                    new GrantedAuthorityImpl("ROLE_TWO")};
     }
 
     public void testGetters() throws Exception {
         MockAuthenticationImpl token = new MockAuthenticationImpl("Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+                "Password", authorities);
         assertEquals("Test", token.getPrincipal());
         assertEquals("Password", token.getCredentials());
         assertEquals("Test", token.getName());
@@ -60,13 +65,9 @@ public class AbstractAuthenticationTokenTests extends TestCase {
 
     public void testHashCode() throws Exception {
         MockAuthenticationImpl token1 = new MockAuthenticationImpl("Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+                "Password", authorities);
         MockAuthenticationImpl token2 = new MockAuthenticationImpl("Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+                "Password", authorities);
         MockAuthenticationImpl token3 = new MockAuthenticationImpl(null, null,
                 new GrantedAuthority[] {});
         assertEquals(token1.hashCode(), token2.hashCode());
@@ -79,25 +80,17 @@ public class AbstractAuthenticationTokenTests extends TestCase {
 
     public void testObjectsEquals() throws Exception {
         MockAuthenticationImpl token1 = new MockAuthenticationImpl("Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+                "Password", authorities);
         MockAuthenticationImpl token2 = new MockAuthenticationImpl("Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+                "Password", authorities);
         assertEquals(token1, token2);
 
         MockAuthenticationImpl token3 = new MockAuthenticationImpl("Test",
-                "Password_Changed",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+                "Password_Changed", authorities);
         assertTrue(!token1.equals(token3));
 
         MockAuthenticationImpl token4 = new MockAuthenticationImpl("Test_Changed",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+                "Password", authorities);
         assertTrue(!token1.equals(token4));
 
         MockAuthenticationImpl token5 = new MockAuthenticationImpl("Test",
@@ -121,9 +114,7 @@ public class AbstractAuthenticationTokenTests extends TestCase {
 
     public void testSetAuthenticated() throws Exception {
         MockAuthenticationImpl token = new MockAuthenticationImpl("Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+                "Password", authorities);
         assertTrue(!token.isAuthenticated());
         token.setAuthenticated(true);
         assertTrue(token.isAuthenticated());
@@ -131,9 +122,7 @@ public class AbstractAuthenticationTokenTests extends TestCase {
 
     public void testToStringWithAuthorities() {
         MockAuthenticationImpl token = new MockAuthenticationImpl("Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+                "Password", authorities);
         assertTrue(token.toString().lastIndexOf("ROLE_TWO") != -1);
     }
 
@@ -141,6 +130,23 @@ public class AbstractAuthenticationTokenTests extends TestCase {
         MockAuthenticationImpl token = new MockAuthenticationImpl("Test",
                 "Password", null);
         assertTrue(token.toString().lastIndexOf("Not granted any authorities") != -1);
+    }
+
+    public void testAuthoritiesAreImmutable() {
+        MockAuthenticationImpl token = new MockAuthenticationImpl("Test",
+                "Password", authorities);
+        GrantedAuthority[] gotAuthorities = token.getAuthorities();
+        assertNotSame(authorities, gotAuthorities);
+
+        gotAuthorities[0] = new GrantedAuthorityImpl("ROLE_SUPER_USER");
+
+        // reget them and check nothing has changed
+        gotAuthorities = token.getAuthorities();
+        assertEquals(2, gotAuthorities.length);
+        assertEquals(gotAuthorities[0], authorities[0]);
+        assertEquals(gotAuthorities[1], authorities[1]);
+        assertFalse(gotAuthorities[0].equals("ROLE_SUPER_USER"));
+        assertFalse(gotAuthorities[1].equals("ROLE_SUPER_USER"));        
     }
 
     //~ Inner Classes ==========================================================
