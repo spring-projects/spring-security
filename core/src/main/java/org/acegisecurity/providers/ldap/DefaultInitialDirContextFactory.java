@@ -46,9 +46,9 @@ import org.apache.commons.logging.LogFactory;
  * binding with a specific username and password.
  * </p>
  * <p>
- * The no-args version will bind anonymously or if a manager login has been configured
- * using the properties <tt>managerDn</tt> and <tt>managerPassword</tt> it will bind as
- * that user.
+ * The no-args version will bind anonymously unless a manager login has been configured
+ * using the properties <tt>managerDn</tt> and <tt>managerPassword</tt>, in which case
+ * it will bind as the manager user.
  * </p>
  * <p>
  * Connection pooling is enabled by default for anonymous or manager connections, but
