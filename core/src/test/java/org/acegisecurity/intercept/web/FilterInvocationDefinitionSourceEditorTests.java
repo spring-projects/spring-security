@@ -154,11 +154,13 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         assertEquals(2, map.getMapSize());
     }
 
-    public void testNoArgsConstructor() {
+    public void testNoArgConstructorDoesntExist() {
+        Class clazz = RegExpBasedFilterInvocationDefinitionMap.EntryHolder.class;
+
         try {
-            new RegExpBasedFilterInvocationDefinitionMap().new EntryHolder();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
+            clazz.getDeclaredConstructor((Class[])null);
+            fail("Should have thrown NoSuchMethodException");
+        } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
     }

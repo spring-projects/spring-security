@@ -51,10 +51,6 @@ public class InterceptorStatusToken {
         this.secureObject = secureObject;
     }
 
-    protected InterceptorStatusToken() {
-        throw new IllegalArgumentException("Cannot use default constructor");
-    }
-
     //~ Methods ================================================================
 
     public ConfigAttributeDefinition getAttr() {

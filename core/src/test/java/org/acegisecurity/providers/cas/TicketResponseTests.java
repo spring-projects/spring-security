@@ -82,11 +82,13 @@ public class TicketResponseTests extends TestCase {
             ticket.getProxyGrantingTicketIou());
     }
 
-    public void testNoArgConstructor() {
+    public void testNoArgConstructorDoesntExist() {
+        Class clazz = TicketResponse.class;
+
         try {
-            new TicketResponse();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
+            clazz.getDeclaredConstructor((Class[])null);
+            fail("Should have thrown NoSuchMethodException");
+        } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
     }

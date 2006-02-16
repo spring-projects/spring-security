@@ -101,11 +101,13 @@ public class UserTests extends TestCase {
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE")})));
     }
 
-    public void testNoArgConstructor() {
+    public void testNoArgConstructorDoesntExist() {
+        Class clazz = User.class;
+
         try {
-            new User();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
+            clazz.getDeclaredConstructor((Class[])null);
+            fail("Should have thrown NoSuchMethodException");
+        } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
     }

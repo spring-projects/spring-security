@@ -71,15 +71,6 @@ public class AbstractAdapterAuthenticationTokenTests extends TestCase {
         assertTrue(!token.isUserInRole("ROLE_XXXX"));
     }
 
-    public void testNoArgsConstructor() {
-        try {
-            new MockDecisionManagerImpl();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-    }
-
     public void testObjectsEquals() throws Exception {
         MockDecisionManagerImpl token1 = new MockDecisionManagerImpl("my_password",
                 "Test", "Password",
@@ -146,10 +137,6 @@ public class AbstractAdapterAuthenticationTokenTests extends TestCase {
             super(key, authorities);
             this.username = username;
             this.password = password;
-        }
-
-        private MockDecisionManagerImpl() {
-            throw new IllegalArgumentException();
         }
 
         public Object getCredentials() {

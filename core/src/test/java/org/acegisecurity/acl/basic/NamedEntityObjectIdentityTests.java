@@ -75,11 +75,13 @@ public class NamedEntityObjectIdentityTests extends TestCase {
         }
     }
 
-    public void testDefaultConstructorRejected() {
+    public void testNoArgConstructorDoesntExist() {
+        Class clazz = NamedEntityObjectIdentity.class;
+
         try {
-            new NamedEntityObjectIdentity();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
+            clazz.getDeclaredConstructor((Class[])null);
+            fail("Should have thrown NoSuchMethodException");
+        } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
     }

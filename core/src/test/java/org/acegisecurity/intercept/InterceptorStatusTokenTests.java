@@ -48,11 +48,13 @@ public class InterceptorStatusTokenTests extends TestCase {
         junit.textui.TestRunner.run(InterceptorStatusTokenTests.class);
     }
 
-    public void testDefaultConstructor() {
+    public void testNoArgConstructorDoesntExist() {
+        Class clazz = InterceptorStatusToken.class;
+
         try {
-            new InterceptorStatusToken();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
+            clazz.getDeclaredConstructor((Class[])null);
+            fail("Should have thrown NoSuchMethodException");
+        } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
     }

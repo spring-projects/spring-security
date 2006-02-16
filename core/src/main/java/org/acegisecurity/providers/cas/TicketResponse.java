@@ -72,10 +72,6 @@ public class TicketResponse {
         this.proxyGrantingTicketIou = proxyGrantingTicketIou;
     }
 
-    protected TicketResponse() {
-        throw new IllegalArgumentException("Cannot use default constructor");
-    }
-
     //~ Methods ================================================================
 
     public String getProxyGrantingTicketIou() {

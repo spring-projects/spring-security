@@ -71,10 +71,6 @@ public class FilterInvocation {
         this.chain = chain;
     }
 
-    protected FilterInvocation() {
-        throw new IllegalArgumentException("Cannot use default constructor");
-    }
-
     //~ Methods ================================================================
 
     public FilterChain getChain() {

@@ -46,10 +46,6 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
         this.id = id;
     }
 
-    protected NamedEntityObjectIdentity() {
-        throw new IllegalArgumentException("Cannot use default constructor");
-    }
-
     /**
      * Creates the <code>NamedEntityObjectIdentity</code> based on the passed
      * object instance. The passed object must provide a <code>getId()</code>

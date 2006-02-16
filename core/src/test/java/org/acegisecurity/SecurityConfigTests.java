@@ -49,12 +49,14 @@ public class SecurityConfigTests extends TestCase {
         SecurityConfig config = new SecurityConfig("TEST");
         assertEquals("TEST".hashCode(), config.hashCode());
     }
+   
+    public void testNoArgConstructorDoesntExist() {
+        Class clazz = SecurityConfig.class;
 
-    public void testNoArgsConstructor() {
         try {
-            new SecurityConfig();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
+            clazz.getDeclaredConstructor((Class[])null);
+            fail("Should have thrown NoSuchMethodException");
+        } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
     }

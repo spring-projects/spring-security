@@ -35,8 +35,6 @@ import org.springframework.util.Assert;
 public class User implements UserDetails {
     //~ Instance fields ========================================================
 
-    // ~ Instance fields
-    // ========================================================
     private String password;
     private String username;
     private GrantedAuthority[] authorities;
@@ -46,12 +44,6 @@ public class User implements UserDetails {
     private boolean enabled;
 
     //~ Constructors ===========================================================
-
-    // ~ Constructors
-    // ===========================================================
-    protected User() {
-        throw new IllegalArgumentException("Cannot use default constructor");
-    }
 
     /**
      * Construct the <code>User</code> with the details required by {@link
@@ -192,8 +184,6 @@ public class User implements UserDetails {
         return username;
     }
 
-    // ~ Methods
-    // ================================================================
     public int hashCode() {
         int code = 9792;
 
@@ -260,13 +250,13 @@ public class User implements UserDetails {
 
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        sb.append(super.toString() + ": ");
-        sb.append("Username: " + this.username + "; ");
+        sb.append(super.toString()).append(": ");
+        sb.append("Username: ").append(this.username).append("; ");
         sb.append("Password: [PROTECTED]; ");
-        sb.append("Enabled: " + this.enabled + "; ");
-        sb.append("AccountNonExpired: " + this.accountNonExpired + "; ");
-        sb.append("credentialsNonExpired: " + this.credentialsNonExpired + "; ");
-        sb.append("AccountNonLocked: " + this.accountNonLocked + "; ");
+        sb.append("Enabled: ").append(this.enabled).append("; ");
+        sb.append("AccountNonExpired: ").append(this.accountNonExpired).append("; ");
+        sb.append("credentialsNonExpired: ").append(this.credentialsNonExpired).append("; ");
+        sb.append("AccountNonLocked: ").append(this.accountNonLocked).append("; ");
 
         if (this.getAuthorities() != null) {
             sb.append("Granted Authorities: ");

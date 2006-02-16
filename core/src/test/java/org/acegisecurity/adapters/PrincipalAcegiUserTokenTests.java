@@ -59,12 +59,14 @@ public class PrincipalAcegiUserTokenTests extends TestCase {
         assertEquals("Test", token.getName());
     }
 
-    public void testNoArgsConstructor() {
+    public void testNoArgConstructorDoesntExist() {
+        Class clazz = PrincipalAcegiUserToken.class;
+
         try {
-            new PrincipalAcegiUserToken();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
+            clazz.getDeclaredConstructor((Class[])null);
+            fail("Should have thrown NoSuchMethodException");
+        } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
-    }
+    }    
 }

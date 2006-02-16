@@ -77,11 +77,13 @@ public class FilterInvocationTests extends MockObjectTestCase {
             fi.getFullRequestUrl());
     }
 
-    public void testNoArgsConstructor() {
+    public void testNoArgConstructorDoesntExist() {
+        Class clazz = FilterInvocation.class;
+
         try {
-            new FilterInvocation();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
+            clazz.getDeclaredConstructor((Class[])null);
+            fail("Should have thrown NoSuchMethodException");
+        } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
     }
