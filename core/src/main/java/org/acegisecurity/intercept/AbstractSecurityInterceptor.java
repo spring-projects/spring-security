@@ -210,30 +210,24 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
         Assert.notNull(this.obtainObjectDefinitionSource(),
             "An ObjectDefinitionSource is required");
 
-        if (!this.obtainObjectDefinitionSource()
-                 .supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
+        Assert.isTrue(this.obtainObjectDefinitionSource()
+                .supports(getSecureObjectClass()),
                 "ObjectDefinitionSource does not support secure object class: "
-                + getSecureObjectClass());
-        }
+                + getSecureObjectClass()
+                );
 
-        if (!this.runAsManager.supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
+        Assert.isTrue(this.runAsManager.supports(getSecureObjectClass()),
                 "RunAsManager does not support secure object class: "
-                + getSecureObjectClass());
-        }
+                + getSecureObjectClass() );
 
-        if (!this.accessDecisionManager.supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
+        Assert.isTrue(this.accessDecisionManager.supports(getSecureObjectClass()),
                 "AccessDecisionManager does not support secure object class: "
                 + getSecureObjectClass());
-        }
 
-        if ((this.afterInvocationManager != null)
-            && !this.afterInvocationManager.supports(getSecureObjectClass())) {
-            throw new IllegalArgumentException(
-                "AfterInvocationManager does not support secure object class: "
-                + getSecureObjectClass());
+        if (this.afterInvocationManager != null) {
+            Assert.isTrue(this.afterInvocationManager.supports(getSecureObjectClass()),
+                    "AfterInvocationManager does not support secure object class: "
+                    + getSecureObjectClass());
         }
 
         if (this.validateConfigAttributes) {
@@ -281,12 +275,13 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 
     protected InterceptorStatusToken beforeInvocation(Object object) {
         Assert.notNull(object, "Object was null");
-        Assert.isTrue(getSecureObjectClass()
-                          .isAssignableFrom(object.getClass()),
-            "Security invocation attempted for object "
+
+        if(!getSecureObjectClass().isAssignableFrom(object.getClass())) {
+            throw new IllegalArgumentException ("Security invocation attempted for object "
             + object.getClass().getName()
             + " but AbstractSecurityInterceptor only configured to support secure objects of type: "
             + getSecureObjectClass());
+        }
 
         ConfigAttributeDefinition attr = this.obtainObjectDefinitionSource()
                                              .getAttributes(object);
