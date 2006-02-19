@@ -16,8 +16,8 @@
 package org.acegisecurity.concurrent;
 
 /**
- * Implemented by {@link Authentication#getDetails()} implementations that are
- * capable of returning a session ID.
+ * Implemented by {@link org.acegisecurity.Authentication#getDetails()}
+ * implementations that are capable of returning a session ID.
  * 
  * <p>
  * This interface is used by {@link
