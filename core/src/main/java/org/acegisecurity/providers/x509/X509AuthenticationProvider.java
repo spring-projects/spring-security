@@ -123,8 +123,7 @@ public class X509AuthenticationProvider implements AuthenticationProvider,
         X509AuthenticationToken result = new X509AuthenticationToken(user,
                 clientCertificate, user.getAuthorities());
 
-        result.setDetails((authentication.getDetails() != null)
-            ? authentication.getDetails() : null);
+        result.setDetails(authentication.getDetails());
 
         return result;
     }
