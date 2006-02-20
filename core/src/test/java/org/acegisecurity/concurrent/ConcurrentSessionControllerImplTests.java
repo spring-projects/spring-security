@@ -118,6 +118,6 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         request.setSession(session);
         request.setUserPrincipal(auth);
 
-        return new WebAuthenticationDetails(request);
+        return new WebAuthenticationDetails(request, false);
     }
 }

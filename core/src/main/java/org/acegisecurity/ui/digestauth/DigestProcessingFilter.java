@@ -369,9 +369,10 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
                     + "' with response: '" + responseDigest + "'");
             }
 
-            UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(user,
-                    user.getPassword());
-            authRequest.setDetails(new WebAuthenticationDetails(httpRequest));
+            UsernamePasswordAuthenticationToken authRequest =
+                    new UsernamePasswordAuthenticationToken(user, user.getPassword());
+
+            authRequest.setDetails(new WebAuthenticationDetails(httpRequest, false));
 
             SecurityContextHolder.getContext().setAuthentication(authRequest);
         }

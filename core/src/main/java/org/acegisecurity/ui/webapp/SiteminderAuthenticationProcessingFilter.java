@@ -240,7 +240,7 @@ public class SiteminderAuthenticationProcessingFilter
      */
     protected void setDetails(HttpServletRequest request,
         UsernamePasswordAuthenticationToken authRequest) {
-        authRequest.setDetails(new WebAuthenticationDetails(request));
+        authRequest.setDetails(new WebAuthenticationDetails(request, false));
     }
 
     /**

@@ -102,9 +102,10 @@ public class CasProcessingFilter extends AbstractProcessingFilter {
             password = "";
         }
 
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username,
-                password);
-        authRequest.setDetails(new WebAuthenticationDetails(request));
+        UsernamePasswordAuthenticationToken authRequest =
+                new UsernamePasswordAuthenticationToken(username, password);
+
+        authRequest.setDetails(new WebAuthenticationDetails(request, false));
 
         return this.getAuthenticationManager().authenticate(authRequest);
     }

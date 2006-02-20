@@ -103,7 +103,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
      */
     protected void setDetails(HttpServletRequest request,
         UsernamePasswordAuthenticationToken authRequest) {
-        authRequest.setDetails(new WebAuthenticationDetails(request));
+        authRequest.setDetails(new WebAuthenticationDetails(request, false));
     }
 
     /**
