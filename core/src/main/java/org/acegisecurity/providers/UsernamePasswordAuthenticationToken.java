@@ -88,7 +88,7 @@ public class UsernamePasswordAuthenticationToken
 
     public void setAuthenticated(boolean isAuthenticated)
         throws IllegalArgumentException {
-        if (isAuthenticated == true) {
+        if (isAuthenticated) {
             throw new IllegalArgumentException(
                 "Cannot set this token to trusted - use constructor containing GrantedAuthority[]s instead");
         }
