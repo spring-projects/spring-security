@@ -81,5 +81,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/antlr/jars/antlr-2.7.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/ldapsdk/jars/ldapsdk-4.1.jar"/>
 	<classpathentry sourcepath="/MAVEN_REPO/springframework/src/spring-2.0-m2.zip" kind="var" path="MAVEN_REPO/springframework/jars/spring-hibernate3-2.0-m2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/cas/jars/cas-server-3.0.4.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>

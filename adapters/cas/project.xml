@@ -18,6 +18,14 @@
       <type>jar</type>
       <url>http://www.yale.edu/tp/cas</url>
     </dependency>
+    
+    <dependency>
+    	<groupId>cas</groupId>
+    	<artifactId>cas-server</artifactId>
+    	<version>3.0.4</version>
+    	<type>jar</type>
+    	<url>http://www.ja-sig.org/products/cas/</url>
+    </dependency>
   </dependencies>
   <build>
     <resources>
