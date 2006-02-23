@@ -35,10 +35,16 @@ import javax.naming.ldap.Control;
  */
 public class PasswordPolicyControl implements Control {
 
+    //~ Static fields/initializers ============================================
+
     /** OID of the Password Policy Control */
     public static final String OID = "1.3.6.1.4.1.42.2.27.8.5.1";
 
+    //~ Instance fields =======================================================    
+
     private boolean critical;
+
+    //~ Constructors ==========================================================
 
     /**
      * Creates a non-critical (request) control.
@@ -56,6 +62,8 @@ public class PasswordPolicyControl implements Control {
     public PasswordPolicyControl(boolean critical) {
         this.critical = critical;
     }
+
+    //~ Methods ================================================================
 
     /**
      * Returns the OID of the Password Policy Control.

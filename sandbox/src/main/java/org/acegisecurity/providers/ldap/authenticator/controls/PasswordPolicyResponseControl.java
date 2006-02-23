@@ -57,14 +57,17 @@ import netscape.ldap.ber.stream.BEREnumerated;
  */
 public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 
+    //~ Static fields/initializers ============================================
+
     private static final Log logger = LogFactory.getLog(PasswordPolicyResponseControl.class);
 
     public static final int ERROR_NONE = -1;
-
     public static final int ERROR_PASSWORD_EXPIRED = 0;
     public static final int ERROR_ACCOUNT_LOCKED = 1;
-
     public static final int WARNINGS_DEFAULT = -1;
+
+
+    //~ Instance fields =======================================================
 
     private byte[] encodedValue;
 
@@ -79,6 +82,8 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
             "invalid password syntax", "password too short", "password too young",
             "password in history" };
 
+    //~ Constructors ==========================================================
+
     public PasswordPolicyResponseControl(byte[] encodedValue) {
         this.encodedValue = encodedValue;
 
@@ -91,6 +96,8 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
             throw new LdapDataAccessException("Failed to parse control value", e);
         }
     }
+
+    //~ Methods ================================================================    
 
     /**
      * Decodes the Ber encoded control data.
