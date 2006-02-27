@@ -36,7 +36,7 @@ import javax.servlet.http.HttpServletResponse;
  * authentication via the Yale Central Authentication Service (CAS).
  * 
  * <P>
- * The user's browser will be redirected to the Yale CAS enterprise-wide login
+ * The user's browser will be redirected to the JA-SIG CAS enterprise-wide login
  * page. This page is specified by the <code>loginUrl</code> property. Once
  * login is complete, the CAS login page will redirect to the page indicated
  * by the <code>service</code> property. The <code>service</code> is a HTTP

@@ -158,7 +158,7 @@
 			<lib dir="${dist.lib.dir}" includes="acegi-security.jar"/>
 		</war>
 
-		<!-- Make WAR suitable for deployment into containers using Yale CAS -->
+		<!-- Make WAR suitable for deployment into containers using JA-SIG CAS -->
         <delete file="${dist.dir}/${name.cas}.war"/>
         <mkdir dir="${tmp.dir}/${name.cas}"/>
 		<copy todir="${tmp.dir}/${name.cas}">
