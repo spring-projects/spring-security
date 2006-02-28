@@ -78,14 +78,34 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapServerTest
         ctx.close();
     }
 
+    public void testBindAsManagerFailsIfNoPasswordSet() throws Exception {
+        idf.setManagerDn(MANAGER_USER);
+
+        DirContext ctx = null;
+
+        try {
+            ctx = idf.newInitialDirContext();
+            fail("Binding with no manager password should fail.");
+// Can't rely on this property being there with embedded server
+//        assertEquals("true",ctx.getEnvironment().get("com.sun.jndi.ldap.connect.pool"));
+        } catch(BadCredentialsException expected) {
+        }
+
+        LdapUtils.closeContext(ctx);
+    }
+
     public void testInvalidPasswordCausesBadCredentialsException() throws Exception {
         idf.setManagerDn(MANAGER_USER);
         idf.setManagerPassword("wrongpassword");
+
+        DirContext ctx = null;
         try {
-            DirContext ctx = idf.newInitialDirContext();
-            fail("Authentication with wrong credentials should fail.");
+            ctx = idf.newInitialDirContext();
+            fail("Binding with wrong credentials should fail.");
         } catch(BadCredentialsException expected) {
         }
+
+        LdapUtils.closeContext(ctx);
     }
 
     public void testConnectionAsSpecificUserSucceeds() throws Exception {

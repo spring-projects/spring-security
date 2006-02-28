@@ -100,7 +100,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
     /**
      * The manager user's password.
      */
-    private String managerPassword = null;
+    private String managerPassword = "manager_password_not_set";
 
     /** Type of authentication within LDAP; default is simple. */
     private String authenticationType = "simple";
@@ -164,6 +164,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
         Hashtable env = getEnvironment();
         env.put(Context.SECURITY_AUTHENTICATION, AUTH_TYPE_NONE);
+
         return connect(env);
     }
 
