@@ -135,7 +135,7 @@ public abstract class AbstractProcessingFilter implements Filter,
 
     //~ Instance fields ========================================================
 
-    private ApplicationEventPublisher eventPublisher;
+    protected ApplicationEventPublisher eventPublisher;
     private AuthenticationManager authenticationManager;
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private Properties exceptionMappings = new Properties();
