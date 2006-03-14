@@ -32,8 +32,7 @@
 	<classpathentry kind="src" path="core/src/main/java"/>
 	<classpathentry kind="src" path="core/src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="MAVEN_REPO/resin/jars/resin-3.0.9.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/retroweaver/jars/retroweaver-1.0fcs.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/com.caucho/jars/resin-3.0.9.jar"/>
 	<classpathentry sourcepath="/MAVEN_REPO/springframework/src/spring-2.0-m2.zip" kind="var" path="MAVEN_REPO/springframework/jars/spring-2.0-m2.jar"/>
 	<classpathentry sourcepath="/MAVEN_REPO/springframework/src/spring-2.0-m2.zip" kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-2.0-m2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/aopalliance/jars/aopalliance-1.0.jar"/>
@@ -49,7 +48,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/tomcat/jars/catalina-4.1.9.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jetty/jars/org.mortbay.jetty-4.2.22.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jboss/jars/jboss-common-3.2.3.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/jboss/jars/jboss-jmx-3.2.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jboss/jars/jbosssx-3.2.3.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/ehcache/jars/ehcache-1.1.jar"/>
@@ -68,7 +66,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/org.samba.jcifs/jars/jcifs-1.2.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/dom4j/jars/dom4j-1.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xercesImpl-2.6.2.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xmlParserAPIs-2.6.2.jar"/>
 	<classpathentry sourcepath="MAVEN_REPO/jmock/distributions/jmock-1.0.1-src.jar" kind="var" path="MAVEN_REPO/jmock/jars/jmock-1.0.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jdbm/jars/jdbm-1.0.jar"/>
@@ -82,5 +79,8 @@
 	<classpathentry kind="var" path="MAVEN_REPO/ldapsdk/jars/ldapsdk-4.1.jar"/>
 	<classpathentry sourcepath="/MAVEN_REPO/springframework/src/spring-2.0-m2.zip" kind="var" path="MAVEN_REPO/springframework/jars/spring-hibernate3-2.0-m2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/cas/jars/cas-server-3.0.4.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/net.sourceforge.retroweaver/jars/retroweaver-1.0fcs.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/taglibs/jars/standard-1.0.6.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/commons-attributes/jars/commons-attributes-api-2.1.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>
