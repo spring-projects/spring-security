@@ -86,7 +86,7 @@ public class CasAuthenticationProviderTests extends TestCase {
         }
 
         CasAuthenticationToken casResult = (CasAuthenticationToken) result;
-        assertEquals("marissa", casResult.getPrincipal());
+        assertEquals(makeUserDetailsFromAuthoritiesPopulator(), casResult.getPrincipal());
         assertEquals("PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt",
             casResult.getProxyGrantingTicketIou());
         assertEquals("https://localhost/portal/j_acegi_cas_security_check",
@@ -129,7 +129,7 @@ public class CasAuthenticationProviderTests extends TestCase {
             fail("Should have returned a CasAuthenticationToken");
         }
 
-        assertEquals("marissa", result.getPrincipal());
+        assertEquals(makeUserDetailsFromAuthoritiesPopulator(), result.getPrincipal());
         assertEquals("ST-456", result.getCredentials());
 
         // Now try to authenticate again. To ensure TicketValidator not
@@ -138,7 +138,7 @@ public class CasAuthenticationProviderTests extends TestCase {
 
         // Previously created UsernamePasswordAuthenticationToken is OK
         Authentication newResult = cap.authenticate(token);
-        assertEquals("marissa", newResult.getPrincipal());
+        assertEquals(makeUserDetailsFromAuthoritiesPopulator(), newResult.getPrincipal());
         assertEquals("ST-456", newResult.getCredentials());
     }
 
@@ -177,7 +177,7 @@ public class CasAuthenticationProviderTests extends TestCase {
         cap.afterPropertiesSet();
 
         CasAuthenticationToken token = new CasAuthenticationToken("WRONG_KEY",
-                "test", "credentials",
+               makeUserDetails(), "credentials",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("XX")},
                 makeUserDetails(), new Vector(), "IOU-xxx");
 
@@ -331,15 +331,19 @@ public class CasAuthenticationProviderTests extends TestCase {
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                     "ROLE_TWO")});
     }
+    
+    private UserDetails makeUserDetailsFromAuthoritiesPopulator() {
+    	return new User("user", "password", true, true, true, true,
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl(
+                "ROLE_B")});
+    }
 
     //~ Inner Classes ==========================================================
 
     private class MockAuthoritiesPopulator implements CasAuthoritiesPopulator {
         public UserDetails getUserDetails(String casUserId)
             throws AuthenticationException {
-            return new User("user", "password", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl(
-                        "ROLE_B")});
+            return makeUserDetailsFromAuthoritiesPopulator();
         }
     }
 

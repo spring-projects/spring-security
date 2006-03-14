@@ -106,7 +106,7 @@ public class EhCacheBasedTicketCacheTests extends TestCase {
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")});
 
-        return new CasAuthenticationToken("key", "marissa",
+        return new CasAuthenticationToken("key", user,
             "ST-0-ER94xMJmn6pha35CQRoZ",
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                     "ROLE_TWO")}, user, proxyList,

@@ -36,12 +36,12 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
     implements Serializable {
     //~ Instance fields ========================================================
 
-    private List proxyList;
-    private Object credentials;
-    private Object principal;
-    private String proxyGrantingTicketIou;
-    private UserDetails userDetails;
-    private int keyHash;
+    private final List proxyList;
+    private final Object credentials;
+    private final Object principal;
+    private final String proxyGrantingTicketIou;
+    private final UserDetails userDetails;
+    private final int keyHash;
 
     //~ Constructors ===========================================================
 
@@ -65,9 +65,9 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
      *
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
-    public CasAuthenticationToken(String key, Object principal,
-        Object credentials, GrantedAuthority[] authorities,
-        UserDetails userDetails, List proxyList, String proxyGrantingTicketIou) {
+    public CasAuthenticationToken(final String key, final Object principal,
+    		final Object credentials, final GrantedAuthority[] authorities,
+    		final UserDetails userDetails, final List proxyList, final String proxyGrantingTicketIou) {
         super(authorities);
 
         if ((key == null) || ("".equals(key)) || (principal == null)
@@ -90,7 +90,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
 
     //~ Methods ================================================================
 
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (!super.equals(obj)) {
             return false;
         }

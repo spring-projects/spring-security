@@ -154,7 +154,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider,
                 .getUser());
 
         // Construct CasAuthenticationToken
-        return new CasAuthenticationToken(this.key, response.getUser(),
+        return new CasAuthenticationToken(this.key, userDetails,
             authentication.getCredentials(), userDetails.getAuthorities(),
             userDetails, response.getProxyList(),
             response.getProxyGrantingTicketIou());

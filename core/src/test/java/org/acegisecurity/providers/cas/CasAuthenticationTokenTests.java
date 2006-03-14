@@ -56,7 +56,7 @@ public class CasAuthenticationTokenTests extends TestCase {
 
     public void testConstructorRejectsNulls() {
         try {
-            new CasAuthenticationToken(null, "Test", "Password",
+            new CasAuthenticationToken(null, makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), new Vector(),
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -76,7 +76,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         }
 
         try {
-            new CasAuthenticationToken("key", "Test", null,
+            new CasAuthenticationToken("key", makeUserDetails(), null,
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), new Vector(),
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -86,7 +86,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         }
 
         try {
-            new CasAuthenticationToken("key", "Test", "Password", null,
+            new CasAuthenticationToken("key", makeUserDetails(), "Password", null,
                 makeUserDetails(), new Vector(),
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
             fail("Should have thrown IllegalArgumentException");
@@ -95,7 +95,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         }
 
         try {
-            new CasAuthenticationToken("key", "Test", "Password",
+            new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), null,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -105,7 +105,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         }
 
         try {
-            new CasAuthenticationToken("key", "Test", "Password",
+            new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, null, new Vector(),
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -115,7 +115,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         }
 
         try {
-            new CasAuthenticationToken("key", "Test", "Password",
+            new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), new Vector(), null);
             fail("Should have thrown IllegalArgumentException");
@@ -124,7 +124,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         }
 
         try {
-            new CasAuthenticationToken("key", "Test", "Password",
+            new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), null, new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), new Vector(),
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -139,7 +139,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key",
-                "Test", "Password",
+        		makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), proxyList1,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -148,7 +148,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         proxyList2.add("https://localhost/newPortal/j_acegi_cas_security_check");
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("key",
-                "Test", "Password",
+        		makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), proxyList2,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -162,12 +162,12 @@ public class CasAuthenticationTokenTests extends TestCase {
         proxyList.add("https://localhost/newPortal/j_acegi_cas_security_check");
 
         CasAuthenticationToken token = new CasAuthenticationToken("key",
-                "Test", "Password",
+        		makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), proxyList,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
         assertEquals("key".hashCode(), token.getKeyHash());
-        assertEquals("Test", token.getPrincipal());
+        assertEquals(makeUserDetails(), token.getPrincipal());
         assertEquals("Password", token.getCredentials());
         assertEquals("ROLE_ONE", token.getAuthorities()[0].getAuthority());
         assertEquals("ROLE_TWO", token.getAuthorities()[1].getAuthority());
@@ -194,7 +194,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key",
-                "Test", "Password",
+        		makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), proxyList1,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -203,7 +203,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         proxyList2.add("https://localhost/newPortal/j_acegi_cas_security_check");
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("key",
-                "OTHER_VALUE", "Password",
+        		makeUserDetails("OTHER_NAME"), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), proxyList2,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -216,7 +216,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key",
-                "Test", "Password",
+        		makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), proxyList1,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -234,7 +234,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key",
-                "Test", "Password",
+        		makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), proxyList1,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -243,7 +243,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         proxyList2.add("https://localhost/newPortal/j_acegi_cas_security_check");
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("DIFFERENT_KEY",
-                "Test", "Password",
+        		makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), proxyList2,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -256,7 +256,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key",
-                "Test", "Password",
+        		makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), proxyList1,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -265,7 +265,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         proxyList2.add("https://localhost/newPortal/j_acegi_cas_security_check");
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("key",
-                "Test", "Password",
+        		makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), proxyList2,
                 "PGTIOU-SOME_OTHER_VALUE");
@@ -278,7 +278,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key",
-                "Test", "Password",
+        		makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), proxyList1,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -288,7 +288,7 @@ public class CasAuthenticationTokenTests extends TestCase {
             "https://localhost/SOME_OTHER_PORTAL/j_acegi_cas_security_check");
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("key",
-                "Test", "Password",
+        		makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), proxyList2,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -298,7 +298,7 @@ public class CasAuthenticationTokenTests extends TestCase {
 
     public void testSetAuthenticated() {
         CasAuthenticationToken token = new CasAuthenticationToken("key",
-                "Test", "Password",
+        		makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), new Vector(),
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -309,7 +309,7 @@ public class CasAuthenticationTokenTests extends TestCase {
 
     public void testToString() {
         CasAuthenticationToken token = new CasAuthenticationToken("key",
-                "Test", "Password",
+        		makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
                         "ROLE_TWO")}, makeUserDetails(), new Vector(),
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
@@ -320,8 +320,12 @@ public class CasAuthenticationTokenTests extends TestCase {
     }
 
     private UserDetails makeUserDetails() {
-        return new User("user", "password", true, true, true, true,
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                    "ROLE_TWO")});
+    	return makeUserDetails("user");
+    }
+    
+    private UserDetails makeUserDetails(final String name) {
+        return new User(name, "password", true, true, true, true,
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
+                        "ROLE_TWO")});
     }
 }
