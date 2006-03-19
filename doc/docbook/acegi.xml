@@ -885,20 +885,22 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 
         <para>To secure <literal>FilterInvocation</literal>s, developers need
         to add a filter to their <literal>web.xml</literal> that delegates to
-        the <literal>SecurityEnforcementFilter</literal>. A typical
-        configuration example is provided below: <programlisting>&lt;filter&gt;
-  &lt;filter-name&gt;Acegi HTTP Request Security Filter&lt;/filter-name&gt;
-  &lt;filter-class&gt;org.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
-  &lt;init-param&gt;
-    &lt;param-name&gt;targetClass&lt;/param-name&gt;
-    &lt;param-value&gt;org.acegisecurity.intercept.web.SecurityEnforcementFilter&lt;/param-value&gt;
-  &lt;/init-param&gt;
-&lt;/filter&gt;
+        the <literal>FilterSecurityInterceptor</literal>. A typical
+        configuration example is provided below: <programlisting><![CDATA[
+<filter>
+  <filter-name>Acegi HTTP Request Security Filter</filter-name>
+  <filter-class>org.acegisecurity.util.FilterToBeanProxy</filter-class>
+  <init-param>
+    <param-name>targetClass</param-name>
+    <param-value>org.acegisecurity.intercept.web.FilterSecurityInterceptor</param-value>
+  </init-param>
+</filter>
 
-&lt;filter-mapping&gt;
-  &lt;filter-name&gt;Acegi HTTP Request Security Filter&lt;/filter-name&gt;
-  &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-&lt;/filter-mapping&gt;</programlisting></para>
+<filter-mapping>
+  <filter-name>Acegi HTTP Request Security Filter</filter-name>
+  <url-pattern>/*</url-pattern>
+</filter-mapping>
+]]></programlisting></para>
 
         <para>Notice that the filter is actually a
         <literal>FilterToBeanProxy</literal>. Most of the filters used by the
@@ -908,29 +910,48 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <para>In the application context you will need to configure three
         beans:</para>
 
-        <programlisting>&lt;bean id="securityEnforcementFilter" class="org.acegisecurity.intercept.web.SecurityEnforcementFilter"&gt;
-  &lt;property name="filterSecurityInterceptor"&gt;&lt;ref bean="filterInvocationInterceptor"/&gt;&lt;/property&gt;
-  &lt;property name="authenticationEntryPoint"&gt;&lt;ref bean="authenticationEntryPoint"/&gt;&lt;/property&gt;
-&lt;/bean&gt;
+        <programlisting><![CDATA[
+<bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
+  <property name="authenticationEntryPoint"><ref local="authenticationEntryPoint"/></property>
+</bean>
 
-&lt;bean id="authenticationEntryPoint" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint"&gt;
-  &lt;property name="loginFormUrl"&gt;&lt;value&gt;/acegilogin.jsp&lt;/value&gt;&lt;/property&gt;
-  &lt;property name="forceHttps"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
-&lt;/bean&gt;
-
-&lt;bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
-  &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
-  &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
-  &lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
-  &lt;property name="objectDefinitionSource"&gt;
-    &lt;value&gt;
+<bean id="authenticationEntryPoint" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+  <property name="loginFormUrl"><value>/acegilogin.jsp</value></property>
+  <property name="forceHttps"><value>false</value></property>
+</bean>
+      
+<bean id="filterSecurityInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
+  <property name="authenticationManager"><ref bean="authenticationManager"/></property>
+  <property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
+  <property name="objectDefinitionSource">
+    <value>
       CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
       \A/secure/super/.*\Z=ROLE_WE_DONT_HAVE
       \A/secure/.*\Z=ROLE_SUPERVISOR,ROLE_TELLER
-    &lt;/value&gt;
-  &lt;/property&gt;
-&lt;/bean&gt;</programlisting>
+    </value>
+  </property>
+</bean>
+]]>
+        </programlisting>
 
+<!-- Not in listing above, so removed. L.T.
+        <para>The <literal>PortMapper</literal> provides information on which
+        HTTPS ports correspond to which HTTP ports. This is used by the
+        <literal>AuthenticationProcessingFilterEntryPoint</literal> and
+        several other beans. The default implementation,
+        <literal>PortMapperImpl</literal>, knows the common HTTP ports 80 and
+        8080 map to HTTPS ports 443 and 8443 respectively. You can customise
+        this mapping if desired.</para>
+-->
+        <para>The <classname>ExceptionTranslationFilter</classname> 
+        provides the bridge between Java exceptions and HTTP responses. 
+        It is solely concerned with maintaining the
+        user interface. This filter does not do any actual security enforcement.
+        If an <exceptionname>AuthenticationException</exceptionname> is detected, 
+        the filter will call the AuthenticationEntryPoint to commence the
+        authentication process (e.g. a user login).
+        </para>
+        
         <para>The <literal>AuthenticationEntryPoint</literal> will be called
         if the user requests a secure HTTP resource but they are not
         authenticated. The class handles presenting the appropriate response
@@ -945,28 +966,15 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <literal>AuthenticationProcessingFilterEntryPoint</literal> and
         <literal>CasProcessingFilterEntryPoint</literal> have optional
         properties related to forcing the use of HTTPS, so please refer to the
-        JavaDocs if you require this.</para>
-
-        <para>The <literal>PortMapper</literal> provides information on which
-        HTTPS ports correspond to which HTTP ports. This is used by the
-        <literal>AuthenticationProcessingFilterEntryPoint</literal> and
-        several other beans. The default implementation,
-        <literal>PortMapperImpl</literal>, knows the common HTTP ports 80 and
-        8080 map to HTTPS ports 443 and 8443 respectively. You can customise
-        this mapping if desired.</para>
-
-        <para>The <literal>SecurityEnforcementFilter</literal> primarily
-        provides session management support and initiates authentication when
-        required. It delegates actual <literal>FilterInvocation</literal>
-        security decisions to the configured
-        <literal>FilterSecurityInterceptor</literal>.</para>
-
-        <para>Like any other security interceptor, the
-        <literal>FilterSecurityInterceptor</literal> requires a reference to
-        an <literal>AuthenticationManager</literal>,
-        <literal>AccessDecisionManager</literal> and
-        <literal>RunAsManager</literal>, which are each discussed in separate
-        sections below. The <literal>FilterSecurityInterceptor</literal> is
+        JavaDocs if you require this.</para>        
+        
+        <para><literal>FilterSecurityInterceptor</literal> is responsible for 
+        handling the security of HTTP resources.
+        Like any other security 
+        interceptor, it requires a reference to an <literal>AuthenticationManager</literal>
+        and an  <literal>AccessDecisionManager</literal>, which are both 
+        discussed in separate sections below. The 
+        <literal>FilterSecurityInterceptor</literal> is
         also configured with configuration attributes that apply to different
         HTTP URL requests. A full discussion of configuration attributes is
         provided in the High Level Design section of this document.</para>
@@ -1760,7 +1768,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
          &lt;value&gt;
              CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
              PATTERN_TYPE_APACHE_ANT
-            /**=httpSessionContextIntegrationFilter,authenticationProcessingFilter,securityEnforcementFilter
+            /**=httpSessionContextIntegrationFilter,authenticationProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor
          &lt;/value&gt;
       &lt;/property&gt;
     &lt;/bean&gt;</programlisting></para>
@@ -2593,7 +2601,7 @@ public boolean supports(Class clazz);</programlisting></para>
         attribute specified by
         <literal>AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY</literal>.
         This attribute is automatically set by the
-        <literal>SecurityEnforcementFilter</literal> when an
+        <literal>ExceptionTranslationFilter</literal> when an
         <literal>AuthenticationException</literal> occurs, so that after login
         is completed the user can return to what they were trying to access.
         If for some reason the <literal>HttpSession</literal> does not
@@ -2862,7 +2870,7 @@ key:              A private key to prevent modification of the nonce token
         <literal>isAnonymous(Authentication)</literal> method, which allows
         interested classes to take into account this special type of
         authentication status. The
-        <literal>SecurityEnforcementFilter</literal> uses this interface in
+        <literal>ExceptionTranslationFilter</literal> uses this interface in
         processing <literal>AccessDeniedException</literal>s. If an
         <literal>AccessDeniedException</literal> is thrown, and the
         authentication is of an anonymous type, instead of throwing a 403
@@ -3516,7 +3524,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
           <listitem>
             <para>The user eventually requests a page that is either secure or
             one of the beans it uses is secure. Acegi Security's
-            <literal>SecurityEnforcementFilter</literal> will detect the
+            <literal>ExceptionTranslationFilter</literal> will detect the
             <literal>AuthenticationException</literal>.</para>
           </listitem>
 
@@ -3524,7 +3532,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             <para>Because the user's <literal>Authentication</literal> object
             (or lack thereof) caused an
             <literal>AuthenticationException</literal>, the
-            <literal>SecurityEnforcementFilter</literal> will call the
+            <literal>ExceptionTranslationFilter</literal> will call the
             configured <literal>AuthenticationEntryPoint</literal>. If using
             CAS, this will be the
             <literal>CasProcessingFilterEntryPoint</literal> class.</para>
@@ -3815,22 +3823,24 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <para>The following beans should be configured to commence the CAS
         authentication process:</para>
 
-        <para><programlisting>&lt;bean id="casProcessingFilter" class="org.acegisecurity.ui.cas.CasProcessingFilter"&gt;
-  &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
-  &lt;property name="authenticationFailureUrl"&gt;&lt;value&gt;/casfailed.jsp&lt;/value&gt;&lt;/property&gt;
-  &lt;property name="defaultTargetUrl"&gt;&lt;value&gt;/&lt;/value&gt;&lt;/property&gt;
-  &lt;property name="filterProcessesUrl"&gt;&lt;value&gt;/j_acegi_cas_security_check&lt;/value&gt;&lt;/property&gt;
-&lt;/bean&gt;
+        <para><programlisting><![CDATA[
+<bean id="casProcessingFilter" class="org.acegisecurity.ui.cas.CasProcessingFilter">
+  <property name="authenticationManager"><ref bean="authenticationManager"/></property>
+  <property name="authenticationFailureUrl"><value>/casfailed.jsp</value></property>
+  <property name="defaultTargetUrl"><value>/</value></property>
+  <property name="filterProcessesUrl"><value>/j_acegi_cas_security_check</value></property>
+</bean>
 
-&lt;bean id="securityEnforcementFilter" class="org.acegisecurity.intercept.web.SecurityEnforcementFilter"&gt;
-  &lt;property name="filterSecurityInterceptor"&gt;&lt;ref bean="filterInvocationInterceptor"/&gt;&lt;/property&gt;
-  &lt;property name="authenticationEntryPoint"&gt;&lt;ref bean="casProcessingFilterEntryPoint"/&gt;&lt;/property&gt;
-&lt;/bean&gt;
+<bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
+  <property name="authenticationEntryPoint"><ref local="casProcessingFilterEntryPoint"/></property>
+</bean>          
 
-&lt;bean id="casProcessingFilterEntryPoint" class="org.acegisecurity.ui.cas.CasProcessingFilterEntryPoint"&gt;
-  &lt;property name="loginUrl"&gt;&lt;value&gt;https://localhost:8443/cas/login&lt;/value&gt;&lt;/property&gt;
-  &lt;property name="serviceProperties"&gt;&lt;ref bean="serviceProperties"/&gt;&lt;/property&gt;
-&lt;/bean&gt;</programlisting></para>
+<bean id="casProcessingFilterEntryPoint" class="org.acegisecurity.ui.cas.CasProcessingFilterEntryPoint">
+  <property name="loginUrl"><value>https://localhost:8443/cas/login</value></property>
+  <property name="serviceProperties"><ref bean="serviceProperties"/></property>
+</bean>
+]]>
+        </programlisting></para>
 
         <para>You will also need to add the
         <literal>CasProcessingFilter</literal> to web.xml:</para>
@@ -3855,7 +3865,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         self-explanatory.</para>
 
         <para>For CAS to operate, the
-        <literal>SecurityEnforcementFilter</literal> must have its
+        <literal>ExceptionTranslationFilter</literal> must have its
         <literal>authenticationEntryPoint</literal> property set to the
         <literal>CasProcessingFilterEntryPoint</literal> bean.</para>
 
@@ -4106,7 +4116,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
               valid <classname>Authentication</classname> object in the secure
               context and the invocation will procede as normal. If no
               certificate was found, or the certificate was rejected, then the
-              <classname>SecurityEnforcementFilter</classname> will invoke the
+              <classname>ExceptionTranslationFilter</classname> will invoke the
               <classname>X509ProcessingFilterEntryPoint</classname> which
               returns a 403 error (forbidden) to the user.</para>
             </listitem>
@@ -5099,14 +5109,14 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
     &lt;value&gt;
       CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
       PATTERN_TYPE_APACHE_ANT
-      /webServices/**=httpSessionContextIntegrationFilterWithASCFalse,basicProcessingFilter,securityEnforcementFilter
-      /**=httpSessionContextIntegrationFilterWithASCTrue,authenticationProcessingFilter,securityEnforcementFilter
+      /webServices/**=httpSessionContextIntegrationFilterWithASCFalse,basicProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor
+      /**=httpSessionContextIntegrationFilterWithASCTrue,authenticationProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor
     &lt;/value&gt;
   &lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
 
         <para>You may notice similarities with the way
-        <literal>SecurityEnforcementFilter</literal> is declared. Both regular
+        <literal>FilterSecurityInterceptor</literal> is declared. Both regular
         expressions and Ant Paths are supported, and the most specific URIs
         appear first. At runtime the <literal>FilterChainProxy</literal> will
         locate the first URI pattern that matches the current web request.
@@ -5117,10 +5127,10 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
         <literal>Filter</literal> can elect not to proceed with the chain if
         it wishes to end processing).</para>
 
-        <para>As you can see, <literal>FitlerChainProxy</literal> requires the
+        <para>As you can see, <literal>FilterChainProxy</literal> requires the
         duplication of filter names for different request patterns (in the
-        above example, <literal>httpSessionContextIntegrationFilter</literal>
-        and <literal>securityEnforcementFilter</literal> are duplicated). This
+        above example, <literal>exceptionTranslationFilter</literal>
+        and <literal>filterSecurityInterceptor</literal> are duplicated). This
         design decision was made to enable <literal>FilterChainProxy</literal>
         to specify different <literal>Filter</literal> invocation orders for
         different URI patterns, and also to improve both the expressiveness
@@ -5229,10 +5239,15 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
           </listitem>
 
           <listitem>
-            <para><literal>SecurityEnforcementFilter</literal>, to protect web
-            URIs and catch any Acegi Security exceptions so that an
-            appropriate <literal>AuthenticationEntryPoint</literal> can be
-            launched</para>
+            <para><literal>ExceptionTranslationFilter</literal>, catch any Acegi Security 
+            exceptions so that an either an HTTP error response can be returned
+            or an appropriate <literal>AuthenticationEntryPoint</literal> 
+            can be launched</para>
+          </listitem>          
+          
+          <listitem>
+            <para><literal>FilterSecurityInterceptor</literal>, to protect web
+            URIs</para>
           </listitem>
         </orderedlist>
 
@@ -5334,7 +5349,7 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
       requests. If using either of these WARs, be sure to try visiting
       <literal>http://localhost:8080/contacts/secure/super</literal>, which
       will demonstrate access being denied by the
-      <literal>SecurityEnforcementFilter</literal>. Note the sample
+      <literal>FilterSecurityInterceptor</literal>. Note the sample
       application enables you to modify the access control lists associated
       with different contacts. Be sure to give this a try and understand how
       it works by reviewing the sample application's application context XML
