@@ -23,8 +23,6 @@ import org.acegisecurity.domain.PersistableEntity;
 import org.acegisecurity.domain.dao.Dao;
 import org.acegisecurity.domain.dao.PaginatedList;
 import org.acegisecurity.domain.util.GenericsUtils;
-
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.util.Assert;
 
@@ -34,39 +32,25 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class ImmutableManagerImpl<E extends PersistableEntity> extends ApplicationObjectSupport implements ImmutableManager<E>, InitializingBean {
+public class ImmutableManagerImpl<E extends PersistableEntity> extends ApplicationObjectSupport implements ImmutableManager<E> {
     //~ Instance fields ========================================================
 
     /** The class that this instance provides services for */
     private Class supportsClass;
-	private String beanName;
 	
 	protected Dao<E> dao;
 
     //~ Methods ================================================================
 	
-	public ImmutableManagerImpl() {
+	public ImmutableManagerImpl(Dao<E> dao) {
+		// work out what domain object we support
 		this.supportsClass = GenericsUtils.getGeneric(getClass());
-		if (supportsClass == null) {
-			if (logger.isWarnEnabled()) {
-				logger.warn("Could not determine the generics type - you will need to set manually");
-			}
-		}
-	}
-
-    public void setSupportsClass(Class supportClass) {
-        this.supportsClass = supportClass;
-    }
-
-    public Class getSupportsClass() {
-        return supportsClass;
-    }
-
-    public Dao<E> getDao() {
-		return dao;
-	}
-
-	public void setDao(Dao<E> dao) {
+		Assert.notNull(this.supportsClass, "Could not determine the generics type");
+        Assert.isTrue(PersistableEntity.class.isAssignableFrom(supportsClass), "supportClass is not an implementation of PersistableEntity");
+        
+        // store the DAO and check it also supports our domain object type
+		Assert.notNull(dao, "Non-null DAO (that supports the same domain object class as this services layer) is required as a constructor argument");
+		Assert.isTrue(dao.supports(supportsClass), "Dao '" + dao + "' does not support '" + supportsClass + "'");
 		this.dao = dao;
 	}
 
@@ -75,22 +59,6 @@ public class ImmutableManagerImpl<E extends PersistableEntity> extends Applicati
 	 */
 	protected String getDefaultSortOrder() {
 		return "id";
-	}
-	
-	/**
-	 * Provides hook for custom subclasses to provide initialization behaviour
-	 * 
-	 * @throws Exception
-	 */
-	protected void doInitManager() throws Exception {}
-	
-	public final void afterPropertiesSet() throws Exception {
-        Assert.notNull(supportsClass, "supportClass is required");
-        Assert.isTrue(PersistableEntity.class.isAssignableFrom(supportsClass),
-        "supportClass is not an implementation of PersistableEntity");
-		Assert.notNull(dao, "Dao is null");
-		Assert.isTrue(dao.supports(supportsClass), "Dao '" + dao + "' does not support '" + supportsClass + "'");
-		doInitManager();
 	}
 
     public List<E> findAll() {
@@ -108,11 +76,6 @@ public class ImmutableManagerImpl<E extends PersistableEntity> extends Applicati
         return dao.readId(id);
     }
 
-    public E readPopulatedId(Serializable id) {
-		Assert.notNull(id);
-		return dao.readPopulatedId(id);
-	}
-
 	public PaginatedList<E> scroll(E value, int firstElement,
         int maxElements) {
         Assert.notNull(value);
@@ -120,13 +83,6 @@ public class ImmutableManagerImpl<E extends PersistableEntity> extends Applicati
 
         return dao.scroll(value, firstElement, maxElements, getDefaultSortOrder());
     }
-
-    public PaginatedList<E> scrollPopulated(E value, int firstElement, int maxElements) {
-        Assert.notNull(value);
-		Assert.isInstanceOf(this.supportsClass, value, "Can only scroll with values this manager supports");
-		
-		return dao.scrollPopulated(value, firstElement, maxElements, getDefaultSortOrder());
-	}
 
 	public PaginatedList<E> scrollWithSubclasses(E value, int firstElement,
 	        int maxElements) {
@@ -136,20 +92,8 @@ public class ImmutableManagerImpl<E extends PersistableEntity> extends Applicati
 	        return dao.scrollWithSubclasses(value, firstElement, maxElements, getDefaultSortOrder());
 	    }
 
-	public PaginatedList<E> scrollPopulatedWithSubclasses(E value, int firstElement, int maxElements) {
-        Assert.notNull(value);
-		Assert.isInstanceOf(this.supportsClass, value, "Can only scroll with values this manager supports");
-
-		return dao.scrollPopulatedWithSubclasses(value, firstElement, maxElements, getDefaultSortOrder());
-	}
-
 	public boolean supports(Class clazz) {
         Assert.notNull(clazz);
-
         return this.supportsClass.equals(clazz);
     }
-
-	public void setBeanName(String beanName) {
-		this.beanName = beanName;
-	}
 }

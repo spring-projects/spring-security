@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.sql.Types; 
 
 
+import org.acegisecurity.domain.util.GenericsUtils;
 import org.hibernate.HibernateException; 
 import org.hibernate.usertype.UserType; 
 
@@ -32,9 +33,11 @@ import org.hibernate.usertype.UserType;
  * @version $Id$
  */
 public class EnumUserType<E extends Enum<E>> implements UserType { 
-    private Class<E> clazz = null; 
-    protected EnumUserType(Class<E> c) { 
-        this.clazz = c; 
+    private Class<E> clazz = null;
+    
+    @SuppressWarnings("unchecked")
+	protected EnumUserType() { 
+		this.clazz = GenericsUtils.getGeneric(getClass());
     } 
  
     private static final int[] SQL_TYPES = {Types.VARCHAR}; 

@@ -64,13 +64,4 @@ public abstract class AbstractPersistableEntity extends BusinessObject
     public int getVersion() {
         return version;
     }
-
-    /**
-     * Sets the version numbers.
-     *
-     * @param version the new version number to use
-     */
-    public void setVersion(int version) {
-        this.version = version;
-    }
 }

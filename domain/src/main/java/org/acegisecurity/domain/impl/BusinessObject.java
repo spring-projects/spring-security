@@ -51,7 +51,11 @@ public abstract class BusinessObject implements Serializable, Cloneable {
      * Swallow cloning.
      * 
      * <p>
-     * This method delegates to BeanUtils.cloneBean().
+     * This method delegates to BeanUtils.cloneBean(). Please note that
+     * this class uses serialization to achieve a clone, so this may
+     * represent a performance issue in certain applications. In
+     * such circumstances you should override this method and provide
+     * alternative cloning logic.
      * </p>
      *
      * @return a clone of the current instance

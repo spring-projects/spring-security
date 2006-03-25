@@ -17,6 +17,7 @@ package org.acegisecurity.domain.impl;
 
 import java.io.Serializable;
 
+
 /**
  * A persistable entity that uses a <code>Integer</code> based identity.
  *
@@ -26,49 +27,22 @@ import java.io.Serializable;
 public abstract class PersistableEntityInteger extends AbstractPersistableEntity {
     //~ Instance fields ========================================================
 
-    protected Integer id;
+    private Integer id;
 
     //~ Methods ================================================================
 
     /**
-     * DO NOT USE DIRECTLY.
-     * 
-     * <p>
-     * Typically only used by the persistence layer, but provided with public
-     * visibility to not limit flexibility.
-     * </p>
-     *
-     * @param id the new instance identity
-     */
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    /**
      * Obtains the persistence identity of this instance.
-     * 
-     * <p>Marked as abstract to remind users to implement. They'll need to implement
-     * so their annotations reflect the correct sequence name.
      */
-    public abstract Integer getId();
-
+    public Integer getId() {
+    	return this.id;
+    }
+    
     /**
-     * DO NOT USE DIRECTLY.
-     * 
-     * <p>
-     * Use {@link #getId()} instead, as it provides the correct return type.
-     * This method is only provided for use by the persistence layer and to
-     * satisfy the {@link org.acegisecurity.domain.PersistableEntity}
-     * interface contract.
-     * </p>
-     * 
-     * <p>
-     * Internally delegates to {@link #getId()}.
-     * </p>
-     *
-     * @return the instance's identity
+     * Required solely because Hibernate
      */
     public Serializable getInternalId() {
-        return this.getId();
+    	return this.id;
     }
+
 }

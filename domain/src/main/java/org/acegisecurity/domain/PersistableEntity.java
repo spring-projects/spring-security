@@ -52,5 +52,5 @@ public interface PersistableEntity {
      *
      * @return the persistence identity of this instance
      */
-    abstract Serializable getInternalId();
+    public abstract Serializable getInternalId();
 }

@@ -17,6 +17,7 @@ package org.acegisecurity.domain.service;
 
 import org.acegisecurity.domain.PersistableEntity;
 import org.acegisecurity.domain.dao.PaginatedList;
+import org.springframework.dao.DataAccessException;
 
 import java.io.Serializable;
 
@@ -28,18 +29,16 @@ import java.util.List;
  * PersistableEntity}, using JDK 1.5 generics.
  * 
  * <P>
- * This interface provides a remoting protocol compliant approach to accessing
- * services layer logic for a given application. A generics-based services
- * layer interface decreases development time because the basic CRUD and finder
- * operations can be specified in a typesafe fashion that reuses superclass
- * code.
+ * A design decision was to rely on by-reference calling semantics typical of
+ * recommended same-JVM (colocated) deployment environments. If you are using
+ * remoting you may need to provide a remoting facade that returns the updated
+ * object to the client.
  * </p>
  * 
  * <p>
  * It is not envisioned that this interface will provide <b>all</b> services layer
  * functions. The significant value of a services layer is the value-add beyond
- * simply fronting the DAO or applying validation/binding logic that is better
- * situated in the domain object or its validator. The type of value-adds
+ * simply fronting the DAO. The type of value-adds
  * expected to be provided by a services layer include incrementing business
  * identifiers (eg an invoice number); generating messages for logging/audit
  * purposes (thus such messages are at a business transaction level of granularity,
@@ -47,17 +46,9 @@ import java.util.List;
  * the message becomes unclear); updating related domain objects via
  * their respective services layer beans (eg an invoice services layer bean
  * would call the general journal services layer bean to create the accrual
- * accounting entries); making changes to a domain object that requires
- * logic that is unsuitable to put into a validator because it extends
- * beyond a single domain object instance or requires access to other persistent
- * entities (eg computing taxation appliable to an invoice based on a break-down
- * of each item on the order, its delivery destination, and the customer);
- * producing messages (eg notify another system the invoice was created or
- * email the customer via SMTP); provide a layer to locate transaction and 
- * security configuration; expose a reasonably protocol-independent interface
- * to the application that can be used by a variety of web services and
- * client types; ensure any returned objects are eagerly loaded to a well-defined
- * interface contract etc.
+ * accounting entries); producing messages (eg notify another system the invoice
+ * was created or email the customer via SMTP); provide a layer to locate transaction
+ * and security configuration etc.
  * </p>
  * 
  * <P>
@@ -85,7 +76,7 @@ public interface ImmutableManager<E extends PersistableEntity> {
      * @return all persistence instances (an empty <code>List</code> will be
      *         returned if no matches are found)
      */
-    public List<E> findAll();
+    public List<E> findAll() throws DataAccessException;
 
     /**
      * Find a <code>List</code> of <code>PersistableEntity</code>s, searched by
@@ -96,7 +87,7 @@ public interface ImmutableManager<E extends PersistableEntity> {
      * @return the values with those identifiers (an empty <code>List</code>
      *         will be returned if no matches are found)
      */
-    public List<E> findId(Collection<Serializable> ids);
+    public List<E> findId(Collection<Serializable> ids) throws DataAccessException;
 
     /**
      * Load a persistent instance by its identifier, although some properties
@@ -108,19 +99,8 @@ public interface ImmutableManager<E extends PersistableEntity> {
      *
      * @return the request item, or <code>null</code> if not found
      */
-    public E readId(Serializable id);
+    public E readId(Serializable id) throws DataAccessException;
 
-	/**
-	 * Loads a persistent instance by its identifier, along with any
-	 * lazy loaded properties associated with that instance.
-	 * 
-     * @param id the identifier of the persistent instance desired to be
-     *        retrieved
-     *
-     * @return the request item, or <code>null</code> if not found
-	 */
-	public E readPopulatedId(Serializable id);
-	
     /**
      * Find persistent instances with properties matching those of the passed
      * <code>PersistableEntity</code>.
@@ -143,33 +123,7 @@ public interface ImmutableManager<E extends PersistableEntity> {
      *         <code>PaginatedList</code> is returned if no results match)
      */
     public PaginatedList<E> scroll(E value, int firstElement,
-        int maxElements);
-
-    /**
-     * Find persistent instances with properties matching those of the passed
-     * <code>PersistableEntity</code>, with a guarantee the returned results
-     * will have each of the <code>value</code> class' immediate properties
-     * initialized.
-     * 
-     * <P>
-     * Persistent instances are matched on the basis of query by example.
-     * Properties whose value is <code>null</code>, empty
-     * <code>String</code>s, and any <code>Collection</code>s are ignored in
-     * the query by example evaluation.
-     * </p>
-     *
-     * @param value parameters to filter on (the class of this object will
-     * be added to the filter)
-     * @param firstElement the first result (start at zero to obtain all
-     *        results)
-     * @param maxElements the maximum number of results desired for this page
-     *        of the result set
-     *
-     * @return the requested page of the result list (a properly formed
-     *         <code>PaginatedList</code> is returned if no results match)
-     */
-    public PaginatedList<E> scrollPopulated(E value, int firstElement,
-        int maxElements);
+        int maxElements) throws DataAccessException;
 
 	/**
      * Find persistent instances with properties matching those of the passed
@@ -188,29 +142,8 @@ public interface ImmutableManager<E extends PersistableEntity> {
      *         <code>PaginatedList</code> is returned if no results match)
 	 */
     public PaginatedList<E> scrollWithSubclasses(E value, int firstElement,
-	        int maxElements);
+	        int maxElements) throws DataAccessException;
 
-	/**
-     * Find persistent instances with properties matching those of the passed
-     * <code>PersistableEntity</code>, ignoring the class of the passed
-     * <code>PersistableEntity</code> (useful if you pass a superclass, as you
-     * want to find all subclass instances which match). Guarantees the returned 
-     * results will have each of the DAO's <code>supports</code> class' immediate
-     * properties initialized.
-	 * 
-     * @param value parameters to filter on (the class of this object will
-     * NOT be added to the filter)
-     * @param firstElement the first result (start at zero to obtain all
-     *        results)
-     * @param maxElements the maximum number of results desired for this page
-     *        of the result set
-     *
-     * @return the requested page of the result list (a properly formed
-     *         <code>PaginatedList</code> is returned if no results match)
-	 */
-    public PaginatedList<E> scrollPopulatedWithSubclasses(E value, int firstElement,
-	        int maxElements);
-	
 	/**
      * Indicates whether the DAO instance provides persistence services for the
      * specified class.

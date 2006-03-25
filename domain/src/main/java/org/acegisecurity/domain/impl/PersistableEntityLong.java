@@ -17,6 +17,7 @@ package org.acegisecurity.domain.impl;
 
 import java.io.Serializable;
 
+
 /**
  * A persistable entity that uses a <code>Long</code> based identity.
  *
@@ -26,49 +27,23 @@ import java.io.Serializable;
 public abstract class PersistableEntityLong extends AbstractPersistableEntity {
     //~ Instance fields ========================================================
 
-    protected Long id;
+    private Long id;
 
     //~ Methods ================================================================
 
-
-    /**
-     * DO NOT USE DIRECTLY.
-     * 
-     * <p>
-     * Typically only used by the persistence layer, but provided with public
-     * visibility to not limit flexibility.
-     * </p>
-     *
-     * @param id the new instance identity
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
-    
     /**
      * Obtains the persistence identity of this instance.
      */
     public Long getId() {
     	return this.id;
     }
-
+    
     /**
-     * DO NOT USE DIRECTLY.
-     * 
-     * <p>
-     * Use {@link #getId()} instead, as it provides the correct return type.
-     * This method is only provided for use by the persistence layer and to
-     * satisfy the {@link org.acegisecurity.domain.PersistableEntity}
-     * interface contract.
-     * </p>
-     * 
-     * <p>
-     * Internally delegates to {@link #getId()}.
-     * </p>
-     *
-     * @return the instance's identity
+     * Required solely because Hibernate
      */
     public Serializable getInternalId() {
-        return this.getId();
+    	return this.id;
     }
+
+
 }

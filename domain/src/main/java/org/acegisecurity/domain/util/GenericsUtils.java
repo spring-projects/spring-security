@@ -17,7 +17,7 @@ public class GenericsUtils {
      * @param clazz The class to introspect
      * @return the first generic declaration, or <code>null</code> if cannot be determined
      */
-    public static Class getGeneric(Class clazz) {
+	public static Class getGeneric(Class clazz) {
         Type genType = clazz.getGenericSuperclass();
 
         if (genType instanceof ParameterizedType) {
