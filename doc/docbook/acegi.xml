@@ -982,7 +982,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         for commencing a form-based authentication,
         <literal>BasicProcessingFilterEntryPoint</literal> for commencing a
         HTTP Basic authentication process, and
-        <literal>CasProcessingFilterEntryPoint</literal> for commencing a Yale
+        <literal>CasProcessingFilterEntryPoint</literal> for commencing a JA-SIG
         Central Authentication Service (CAS) login. The
         <literal>AuthenticationProcessingFilterEntryPoint</literal> and
         <literal>CasProcessingFilterEntryPoint</literal> have optional
@@ -1147,7 +1147,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 
           <listitem>
             <para><literal>CasAuthenticationToken</literal> is used to
-            represent a successful Yale Central Authentication Service (CAS)
+            represent a successful JA-SIG Central Authentication Service (CAS)
             authentication. This is discussed further in the CAS
             section.</para>
           </listitem>
@@ -1311,7 +1311,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 
             <listitem>
               <para><literal>CasAuthenticationProvider</literal> is able to
-              authenticate Yale Central Authentication Service (CAS) tickets.
+              authenticate JA-SIG Central Authentication Service (CAS) tickets.
               This is discussed further in the CAS Single Sign On
               section.</para>
             </listitem>
@@ -2616,7 +2616,7 @@ public boolean supports(Class clazz);</programlisting></para>
         Another approach (commonly use with web services) is HTTP Basic
         Authentication, which allows clients to use HTTP headers to present
         authentication information to the Acegi Security System for Spring.
-        Alternatively, you can also use Yale Central Authentication Service
+        Alternatively, you can also use JA-SIG Central Authentication Service
         (CAS) for enterprise-wide single sign on. The final (and generally
         unrecommended) approach is via Container Adapters, which allow
         supported web containers to perform the authentication themselves.
@@ -3560,13 +3560,13 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
     </sect1>
 
     <sect1 id="security-cas">
-      <title>Yale Central Authentication Service (CAS) Single Sign On</title>
+      <title>JA-SIG Central Authentication Service (CAS) Single Sign On</title>
 
       <sect2 id="security-cas-overview">
         <title>Overview</title>
 
-        <para>Yale University produces an enterprise-wide single sign on
-        system known as CAS. Unlike other initiatives, Yale's Central
+        <para>JA-SIG produces an enterprise-wide single sign on
+        system known as CAS. Unlike other initiatives, JA-SIG's Central
         Authentication Service is open source, widely used, simple to
         understand, platform independent, and supports proxy capabilities. The
         Acegi Security System for Spring fully supports CAS, and provides an
@@ -3575,7 +3575,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         enterprise-wide CAS server.</para>
 
         <para>You can learn more about CAS at
-        <literal>http://www.yale.edu/tp/auth/</literal>. You will need to
+        <literal>http://www.ja-sig.org/products/cas/</literal>. You will need to
         visit this URL to download the CAS Server files. Whilst the Acegi
         Security System for Spring includes two CAS libraries in the
         "-with-dependencies" ZIP file, you will still need the CAS Java Server
@@ -3589,22 +3589,25 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <para>Whilst the CAS web site above contains two documents that detail
         the architecture of CAS, we present the general overview again here
         within the context of the Acegi Security System for Spring. The
-        following refers to CAS 2.0, being the version of CAS that Acegi
-        Security System for Spring supports.</para>
+        following refers to both CAS 2.0 (produced by Yale) and CAS 3.0
+        (produced by JA-SIG), being the versions of CAS that Acegi Security
+        System for Spring supports.</para>
 
         <para>Somewhere in your enterprise you will need to setup a CAS
         server. The CAS server is simply a standard WAR file, so there isn't
         anything difficult about setting up your server. Inside the WAR file
         you will customise the login and other single sign on pages displayed
-        to users. You will also need to specify in the web.xml a
-        <literal>PasswordHandler</literal>. The
+        to users.</para>
+        
+        <para>If you are deploying CAS 2.0, you will also need to specify in
+        the web.xml a <literal>PasswordHandler</literal>. The 
         <literal>PasswordHandler</literal> has a simple method that returns a
         boolean as to whether a given username and password is valid. Your
         <literal>PasswordHandler</literal> implementation will need to link
         into some type of backend authentication repository, such as an LDAP
         server or database.</para>
 
-        <para>If you are already running an existing CAS server instance, you
+        <para>If you are already running an existing CAS 2.0 server instance, you
         will have already established a <literal>PasswordHandler</literal>. If
         you do not already have a <literal>PasswordHandler</literal>, you
         might prefer to use the Acegi Security System for Spring
@@ -3617,6 +3620,32 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         will function as a CAS client successfully irrespective of the
         <literal>PasswordHandler</literal> you've chosen for your CAS
         server.</para>
+        
+        <para>If you are deploying CAS 3.0, you will also need to specify an
+        <literal>AuthenticationHandler</literal> in the
+        deployerConfigContext.xml included with CAS.  The
+        <literal>AuthenticationHandler</literal> has a simple method that
+        returns a boolean as to whether a given set of Credentials is valid.
+        Your <literal>AuthenticationHandler</literal> implementation will need
+        to link into some type of backend authentication repository, such as an
+        LDAP server or database.  CAS itself includes numerous
+        <literal>AuthenticationHandler</literal>s out of the box to assist with
+        this.</para>
+        
+        <para>If you are already running an existing CAS 3.0 server instance,
+        you will have already established an
+        <literal>AuthenticationHandler</literal>.  If you do not already have an
+        <literal>AuthenticationHandler</literal>, you might prefer to use the
+        Acegi Security System for Spring 
+        <literal>CasAuthenticationHandler</literal> class. This class delegates
+        through to the standard Acegi Security 
+        <literal>AuthenticationManager</literal>, enabling you to use a security
+        configuration you might already have in place.  You do not need to use
+        the <literal>CasAuthenticationHandler</literal> class on your CAS server
+        if you do not wish. The Acegi Security System for Spring will function
+        as a CAS client successfully irrespective of the
+        <literal>AuthenticationHandler</literal> you've chosen for your CAS
+        server.</para>
 
         <para>Apart from the CAS server itself, the other key player is of
         course the secure web applications deployed throughout your
@@ -3626,7 +3655,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         the user. This will be explained more fully later.</para>
 
         <para>Services can be developed in a large variety of languages, due
-        to CAS 2.0's very light XML-based protocol. The Yale CAS home page
+        to CAS 2.0's very light XML-based protocol. The JA-SIG CAS home page
         contains a clients archive which demonstrates CAS clients in Java,
         Active Server Pages, Perl, Python and others. Naturally, Java support
         is very strong given the CAS server is written in Java. You do not
@@ -3675,8 +3704,10 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
             session cookie which indicates they've previously logged on, they
             will not be prompted to login again (there is an exception to this
             procedure, which we'll cover later). CAS will use the
-            <literal>PasswordHandler</literal> discussed above to decide
-            whether the username and password is valid.</para>
+            <literal>PasswordHandler</literal> (or
+            <literal>AuthenticationHandler</literal> if using CAS 3.0)
+            discussed above to decide whether the username and password is
+            valid.</para>
           </listitem>
 
           <listitem>
@@ -3833,12 +3864,12 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         configured.</para>
       </sect2>
 
-      <sect2 id="security-cas-install-server">
-        <title>CAS Server Installation (Optional)</title>
+      <sect2 id="security-cas-2-install-server">
+        <title>CAS 2.0 Server Installation (Optional)</title>
 
         <para>As mentioned above, the Acegi Security System for Spring
         includes a <literal>PasswordHandler</literal> that bridges your
-        existing <literal>AuthenticationManager</literal> into CAS. You do not
+        existing <literal>AuthenticationManager</literal> into CAS 2.0. You do not
         need to use this <literal>PasswordHandler</literal> to use Acegi
         Security on the client side (any CAS
         <literal>PasswordHandler</literal> will do).</para>
@@ -3923,6 +3954,94 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         container's documentation on setting up HTTPS, if you need some
         additional help or a test certificate you might like to check the
         <literal>samples/contacts/etc/ssl</literal> directory.</para>
+      </sect2>
+      
+      <sect2 id="security-cas-3-install-server">
+      	<title>CAS 3.0 Server Installation (Optional)</title>
+		<para>As mentioned above, the Acegi Security System for Spring
+        includes an <literal>AuthenticationHandler</literal> that bridges your
+        existing <literal>AuthenticationManager</literal> into CAS 3.0. You do not
+        need to use this <literal>AuthenticationHandler</literal> to use Acegi
+        Security on the client side (any CAS
+        <literal>AuthenticationHandler</literal> will do).</para>
+
+        <para>To install, you will need to download and extract the CAS server
+        archive. We used version 3.0.4. There will be a
+        <literal>/webapp</literal> directory in the root of the deployment. Edit the
+        an <literal>deployerConfigContext.xml</literal> so that it contains your
+        <literal>AuthenticationManager</literal> as well as the
+        <literal>CasAuthenticationHandler</literal>.  A sample
+        <literal>applicationContext.xml</literal> is included below:</para>
+      
+      <programlisting><![CDATA[
+	<?xml version="1.0" encoding="UTF-8"?>
+	<!DOCTYPE beans PUBLIC  "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+	<beans>
+		<bean
+			id="authenticationManager"
+			class="org.jasig.cas.authentication.AuthenticationManagerImpl">
+			<property name="credentialsToPrincipalResolvers">
+				<list>
+					<bean class="org.jasig.cas.authentication.principal.UsernamePasswordCredentialsToPrincipalResolver" />
+					<bean class="org.jasig.cas.authentication.principal.HttpBasedServiceCredentialsToPrincipalResolver" />
+				</list>
+			</property>
+	
+			<property name="authenticationHandlers">
+				<list>
+					<bean class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler" />
+					<bean class="org.acegisecurity.adapters.cas3.CasAuthenticationHandler">
+						<property name="authenticationManager" ref="acegiAuthenticationManager" />
+					</bean>
+				</list>
+			</property>
+		</bean>
+		
+		
+		<bean id="inMemoryDaoImpl" class="org.acegisecurity.userdetails.memory.InMemoryDaoImpl">
+	  		<property name="userMap">
+				<value>
+					marissa=koala,ROLES_IGNORED_BY_CAS
+					dianne=emu,ROLES_IGNORED_BY_CAS
+					scott=wombat,ROLES_IGNORED_BY_CAS
+					peter=opal,disabled,ROLES_IGNORED_BY_CAS
+				</value>
+			</property>
+		</bean>
+		
+		<bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
+	     	<property name="userDetailsService"><ref bean="inMemoryDaoImpl"/></property>
+		</bean>
+	
+		<bean id="acegiAuthenticationManager" class="org.acegisecurity.providers.ProviderManager">
+			<property name="providers">
+			  <list>
+			    <ref bean="daoAuthenticationProvider"/>
+			  </list>
+			</property>
+		</bean>
+	</beans>
+	]]>
+        </programlisting>
+       <para>Note the granted authorities are ignored by CAS because it has
+        no way of communicating the granted authorities to calling
+        applications. CAS is only concerned with username and passwords (and
+        the enabled/disabled status).</para>
+        
+		<para>Copy the <literal>acegi-security.jar</literal> file into
+        <literal>/localPlugins/lib</literal>. Now use the <literal>ant
+        war</literal> task in the <literal>build.xml</literal> in the /localPlugins
+        directory. This will create
+        <literal>/localPlugins/target/cas.war</literal>, which is ready for deployment to your
+        servlet container.</para>
+
+        <para>Note CAS heavily relies on HTTPS. You can't even test the system
+        without a HTTPS certificate. Whilst you should refer to your web
+        container's documentation on setting up HTTPS, if you need some
+        additional help or a test certificate you might like to check the
+        CAS documentation on setting up SSL:
+        <literal>http://www.ja-sig.org/products/cas/server/ssl/index.html</literal>
+        </para>
       </sect2>
 
       <sect2 id="security-cas-install-client">
@@ -5439,7 +5558,7 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
       <literal><literal>acegi-security-sample-contacts-ca.war</literal></literal>
       is configured to use a Container Adapter. Finally,
       <literal>acegi-security-sample-contacts-cas.war</literal> is designed to
-      work with a Yale CAS server. If you're just wanting to see how the
+      work with a JA-SIG CAS server. If you're just wanting to see how the
       sample application works, please use
       <literal><literal>acegi-security-sample-contacts-filter.war</literal></literal>
       as it does not require special configuration of your container. This is
