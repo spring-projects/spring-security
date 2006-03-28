@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
 
 
 /**
- * An {@link AuthenticationProvider} implementation that integrates with Yale
+ * An {@link AuthenticationProvider} implementation that integrates with JA-SIG
  * Central Authentication Service (CAS).
  * 
  * <p>

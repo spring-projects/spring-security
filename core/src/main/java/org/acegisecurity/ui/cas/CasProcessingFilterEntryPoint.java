@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Used by the <code>SecurityEnforcementFilter</code> to commence
- * authentication via the Yale Central Authentication Service (CAS).
+ * authentication via the JA-SIG Central Authentication Service (CAS).
  * 
  * <P>
  * The user's browser will be redirected to the JA-SIG CAS enterprise-wide login
