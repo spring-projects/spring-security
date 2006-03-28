@@ -50,7 +50,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
      *
      * @param key to identify if this object made by a given {@link
      *        CasAuthenticationProvider}
-     * @param principal the username from CAS (cannot be <code>null</code>)
+     * @param principal typically the UserDetails object (cannot  be <code>null</code>)
      * @param credentials the service/proxy ticket ID from CAS (cannot be
      *        <code>null</code>)
      * @param authorities the authorities granted to the user (from {@link
