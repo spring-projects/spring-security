@@ -32,24 +32,24 @@ public interface RemoteAuthenticationManager {
      * and password. If authentication is successful, an array of
      * <code>GrantedAuthority[]</code> objects will be returned.
      * 
-     * <P>
+     * <p>
      * In order to maximise remoting protocol compatibility, a design decision
      * was taken to operate with minimal arguments and return only the minimal
-     * amount information required for remote clients to enable/disable
+     * amount of information required for remote clients to enable/disable
      * relevant user interface commands etc. There is nothing preventing users
      * from implementing their own equivalent package that works with more
      * complex object types.
      * </p>
      *
      * @param username the username the remote client wishes to authenticate
-     *        with
+     *        with.
      * @param password the password the remote client wishes to authenticate
-     *        wish
+     *        with.
      *
      * @return all of the granted authorities the specified username and
-     *         password have access to
+     *         password have access to.
      *
-     * @throws RemoteAuthenticationException if the authentication failed
+     * @throws RemoteAuthenticationException if the authentication failed.
      */
     public GrantedAuthority[] attemptAuthentication(String username,
         String password) throws RemoteAuthenticationException;
