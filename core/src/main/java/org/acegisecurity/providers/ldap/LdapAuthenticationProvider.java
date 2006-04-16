@@ -21,11 +21,13 @@ import org.acegisecurity.ldap.LdapUserInfo;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.BadCredentialsException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.naming.directory.Attributes;
 
@@ -141,6 +143,12 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     }
 
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+        if(!StringUtils.hasLength(username)) {
+            throw new BadCredentialsException(messages.getMessage(
+                "LdapAuthenticationProvider.emptyUsername",
+                "Empty Username"));
+        }
+
         if (logger.isDebugEnabled()) {
             logger.debug("Retrieving user " + username);
         }
