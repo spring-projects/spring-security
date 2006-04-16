@@ -15,8 +15,6 @@
 
 package org.acegisecurity.providers.ldap;
 
-import org.acegisecurity.providers.ldap.LdapUserInfo;
-
 /**
  * Obtains a user's information from the LDAP directory given a login name.
  * <p>
@@ -25,19 +23,10 @@ import org.acegisecurity.providers.ldap.LdapUserInfo;
  * mapping.
  * </p>
  *
+ * @deprecated moved to org.acegisecurity.ldap
  * @author Luke Taylor
  * @version $Id$
  */
-public interface LdapUserSearch {
-
-    /**
-     * Locates a single user in the directory and returns the LDAP information
-     * for that user.
-     *
-     * @param username the login name supplied to the authentication service.
-     * @return an LdapUserInfo object containing the user's full DN and requested attributes.
-     * TODO: Need to optionally supply required attributes here for the search.
-     */
-    LdapUserInfo searchForUser(String username);
+public interface LdapUserSearch extends org.acegisecurity.ldap.LdapUserSearch {
 
 }
