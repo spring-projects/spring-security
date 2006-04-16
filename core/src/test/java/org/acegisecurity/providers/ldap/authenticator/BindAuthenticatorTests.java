@@ -1,8 +1,7 @@
 package org.acegisecurity.providers.ldap.authenticator;
 
-import org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory;
-import org.acegisecurity.providers.ldap.LdapUserInfo;
-import org.acegisecurity.providers.ldap.AbstractLdapServerTestCase;
+import org.acegisecurity.ldap.LdapUserInfo;
+import org.acegisecurity.ldap.AbstractLdapServerTestCase;
 import org.acegisecurity.BadCredentialsException;
 
 /**
@@ -13,19 +12,16 @@ import org.acegisecurity.BadCredentialsException;
  */
 public class BindAuthenticatorTests extends AbstractLdapServerTestCase {
 
-    private DefaultInitialDirContextFactory dirCtxFactory;
     private BindAuthenticator authenticator;
 
-    public void setUp() throws Exception {
-        dirCtxFactory = new DefaultInitialDirContextFactory(PROVIDER_URL);
-        dirCtxFactory.setInitialContextFactory(CONTEXT_FACTORY);
-        dirCtxFactory.setExtraEnvVars(EXTRA_ENV);
-        authenticator = new BindAuthenticator(dirCtxFactory);
+    public void onSetUp() {
+        authenticator = new BindAuthenticator(getInitialCtxFactory());
     }
 
     public void testUserDnPatternReturnsCorrectDn() throws Exception {
         authenticator.setUserDnPatterns(new String[] {"cn={0},ou=people"});
-        assertEquals("cn=Joe,ou=people,"+ ROOT_DN, authenticator.getUserDns("Joe").get(0));
+        assertEquals("cn=Joe,ou=people,"+ getInitialCtxFactory().getRootDn(),
+                authenticator.getUserDns("Joe").get(0));
     }
 
     public void testAuthenticationWithCorrectPasswordSucceeds() throws Exception {
@@ -34,7 +30,7 @@ public class BindAuthenticatorTests extends AbstractLdapServerTestCase {
     }
 
     public void testAuthenticationWithWrongPasswordFails() {
-        BindAuthenticator authenticator = new BindAuthenticator(dirCtxFactory);
+//        BindAuthenticator authenticator = new BindAuthenticator(dirCtxFactory);
 
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
 
@@ -46,7 +42,7 @@ public class BindAuthenticatorTests extends AbstractLdapServerTestCase {
     }
 
     public void testAuthenticationWithUserSearch() throws Exception {
-        LdapUserInfo user = new LdapUserInfo("uid=bob,ou=people," + ROOT_DN, null);
+        LdapUserInfo user = new LdapUserInfo("uid=bob,ou=people," + getInitialCtxFactory().getRootDn(), null);
         authenticator.setUserSearch(new MockUserSearch(user));
         authenticator.afterPropertiesSet();
         authenticator.authenticate("bob","bobspassword");

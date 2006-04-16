@@ -2,7 +2,7 @@ package org.acegisecurity.providers.ldap.authenticator;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.acegisecurity.providers.ldap.InitialDirContextFactory;
+import org.acegisecurity.ldap.InitialDirContextFactory;
 
 import javax.naming.directory.DirContext;
 import javax.naming.directory.BasicAttributes;

@@ -1,8 +1,7 @@
 package org.acegisecurity.providers.ldap.authenticator;
 
-import org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory;
-import org.acegisecurity.providers.ldap.LdapUserInfo;
-import org.acegisecurity.providers.ldap.AbstractLdapServerTestCase;
+import org.acegisecurity.ldap.LdapUserInfo;
+import org.acegisecurity.ldap.AbstractLdapServerTestCase;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 
@@ -15,16 +14,12 @@ import javax.naming.directory.BasicAttributes;
  * @version $Id$
  */
 public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTestCase {
-    private DefaultInitialDirContextFactory dirCtxFactory;
     private PasswordComparisonAuthenticator authenticator;
 
-    public void setUp() throws Exception {
-        dirCtxFactory = new DefaultInitialDirContextFactory(PROVIDER_URL);
-        dirCtxFactory.setInitialContextFactory(CONTEXT_FACTORY);
-        dirCtxFactory.setExtraEnvVars(EXTRA_ENV);
-        dirCtxFactory.setManagerDn(MANAGER_USER);
-        dirCtxFactory.setManagerPassword(MANAGER_PASSWORD);
-        authenticator = new PasswordComparisonAuthenticator(dirCtxFactory);
+    public void onSetUp() {
+        getInitialCtxFactory().setManagerDn(MANAGER_USER);
+        getInitialCtxFactory().setManagerPassword(MANAGER_PASSWORD);
+        authenticator = new PasswordComparisonAuthenticator(getInitialCtxFactory());
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
     }
 
@@ -73,7 +68,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
     }
 
     public void testLocalCompareSucceedsWithShaEncodedPassword() {
-        authenticator = new PasswordComparisonAuthenticator(dirCtxFactory);
+        authenticator = new PasswordComparisonAuthenticator(getInitialCtxFactory());
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
         authenticator.authenticate("ben", "benspassword");
     }
@@ -116,17 +111,18 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
  */
 
     public void testWithUserSearch() {
-        authenticator = new PasswordComparisonAuthenticator(dirCtxFactory);
+        authenticator = new PasswordComparisonAuthenticator(getInitialCtxFactory());
         assertTrue("User DN matches shouldn't be available",
                 authenticator.getUserDns("Bob").isEmpty());
-        LdapUserInfo user = new LdapUserInfo("uid=Bob,ou=people" + ROOT_DN,
+        LdapUserInfo user = new LdapUserInfo("uid=Bob,ou=people" +
+                getInitialCtxFactory().getRootDn(),
                 new BasicAttributes("userPassword","bobspassword"));
         authenticator.setUserSearch(new MockUserSearch(user));
         authenticator.authenticate("ShouldntBeUsed","bobspassword");
     }
 
     public void testFailedSearchGivesUserNotFoundException() throws Exception {
-        authenticator = new PasswordComparisonAuthenticator(dirCtxFactory);
+        authenticator = new PasswordComparisonAuthenticator(getInitialCtxFactory());
         assertTrue("User DN matches shouldn't be available",
                 authenticator.getUserDns("Bob").isEmpty());
         authenticator.setUserSearch(new MockUserSearch(null));

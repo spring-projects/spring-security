@@ -6,6 +6,9 @@ import javax.naming.directory.BasicAttributes;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.ldap.LdapUserInfo;
+import org.acegisecurity.ldap.AbstractLdapServerTestCase;
+import org.acegisecurity.ldap.DefaultInitialDirContextFactory;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.userdetails.UserDetails;
 

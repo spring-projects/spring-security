@@ -5,8 +5,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.BasicAttribute;
 
 import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.providers.ldap.AbstractLdapServerTestCase;
-import org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory;
+import org.acegisecurity.ldap.AbstractLdapServerTestCase;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -16,14 +15,10 @@ import java.util.HashSet;
  * @version $Id$
  */
 public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTestCase {
-    private DefaultInitialDirContextFactory dirCtxFactory;
 
-    public void setUp() {
-        dirCtxFactory = new DefaultInitialDirContextFactory(PROVIDER_URL);
-        dirCtxFactory.setInitialContextFactory(CONTEXT_FACTORY);
-        dirCtxFactory.setExtraEnvVars(EXTRA_ENV);
-        dirCtxFactory.setManagerDn(MANAGER_USER);
-        dirCtxFactory.setManagerPassword(MANAGER_PASSWORD);
+    public void onSetUp() {
+        getInitialCtxFactory().setManagerDn(MANAGER_USER);
+        getInitialCtxFactory().setManagerPassword(MANAGER_PASSWORD);
     }
 
     public void testUserAttributeMappingToRoles() {
@@ -39,7 +34,8 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
         attr.add("role2"); // duplicate
         userAttrs.put(attr);
 
-        GrantedAuthority[] authorities = populator.getGrantedAuthorities("Ignored", "Ignored", userAttrs);
+        GrantedAuthority[] authorities =
+                populator.getGrantedAuthorities("Ignored", "Ignored", userAttrs);
         assertEquals("User should have three roles", 3, authorities.length);
     }
 
@@ -47,13 +43,15 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
         DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator();
         populator.setDefaultRole("ROLE_USER");
 
-        GrantedAuthority[] authorities = populator.getGrantedAuthorities("Ignored", "Ignored", new BasicAttributes());
+        GrantedAuthority[] authorities =
+                populator.getGrantedAuthorities("Ignored", "Ignored", new BasicAttributes());
         assertEquals(1, authorities.length);
         assertEquals("ROLE_USER", authorities[0].getAuthority());
     }
 
     public void testGroupSearch() throws Exception {
-        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(dirCtxFactory, "ou=groups");
+        DefaultLdapAuthoritiesPopulator populator =
+                new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(), "ou=groups");
         populator.setRolePrefix("ROLE_");
         populator.setGroupRoleAttribute("ou");
         populator.setSearchSubtree(true);
@@ -61,7 +59,9 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
         populator.setConvertToUpperCase(true);
         populator.setGroupSearchFilter("(member={0})");
 
-        GrantedAuthority[] authorities = populator.getGrantedAuthorities("ben", "uid=ben,ou=people,"+ROOT_DN, new BasicAttributes());
+        GrantedAuthority[] authorities =
+                populator.getGrantedAuthorities("ben", "uid=ben,ou=people,"+
+                        getInitialCtxFactory().getRootDn(), new BasicAttributes());
         assertEquals("Should have 2 roles", 2, authorities.length);
         Set roles = new HashSet();
         roles.add(authorities[0].toString());
