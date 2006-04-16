@@ -35,6 +35,8 @@ import javax.naming.NamingEnumeration;
 /**
  * LdapUserSearch implementation which uses an Ldap filter to locate the user.
  *
+ * @see SearchControls
+ *
  * @author Robert Sanders
  * @author Luke Taylor
  * @version $Id$
@@ -53,12 +55,10 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
     private String searchBase = "";
 
     /**
-     * If true then searches the entire subtree as identified by context,
-     * if false (the default) then only searches the level identified by the context.
+     * The LDAP SearchControls object used for the search. Shared between searches
+     * so shouldn't be modified once the bean has been configured.
      */
-//    private boolean searchSubtree = false;
-
-    private int searchScope = SearchControls.ONELEVEL_SCOPE;
+    private SearchControls searchControls = new SearchControls();
 
     /**
      * The filter expression used in the user search. This is an LDAP
@@ -76,12 +76,6 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
      *
      */
     private String searchFilter;
-
-    /**
-     * The time (in milliseconds) which to wait before the search fails;
-     * the default is zero, meaning forever.
-     */
-    private int searchTimeLimit = 0;
 
     private InitialDirContextFactory initialDirContextFactory;
 
@@ -114,9 +108,6 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
      */
     public LdapUserInfo searchForUser(String username) {
         DirContext ctx = initialDirContextFactory.newInitialDirContext();
-        SearchControls ctls = new SearchControls();
-        ctls.setTimeLimit( searchTimeLimit );
-        ctls.setSearchScope( searchScope );
 
         if (logger.isDebugEnabled()) {
             logger.debug("Searching for user '" + username + "', in context " + ctx +
@@ -126,7 +117,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
         try {
             String[] args = new String[] { LdapUtils.escapeNameForFilter(username) };
 
-            NamingEnumeration results = ctx.search(searchBase, searchFilter, args, ctls);
+            NamingEnumeration results = ctx.search(searchBase, searchFilter, args, searchControls);
 
             if (!results.hasMore()) {
                 throw new UsernameNotFoundException("User " + username + " not found in directory.");
@@ -157,14 +148,30 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
         }
     }
 
+    /**
+     * If true then searches the entire subtree as identified by context,
+     * if false (the default) then only searches the level identified by the context.
+     */
     public void setSearchSubtree(boolean searchSubtree) {
-//        this.searchSubtree = searchSubtree;
-        this.searchScope = searchSubtree ?
-                SearchControls.SUBTREE_SCOPE : SearchControls.ONELEVEL_SCOPE;
+        searchControls.setSearchScope(searchSubtree ?
+                SearchControls.SUBTREE_SCOPE : SearchControls.ONELEVEL_SCOPE);
     }
 
+    /**
+     * The time (in milliseconds) which to wait before the search fails;
+     * the default is zero, meaning forever.
+     */
     public void setSearchTimeLimit(int searchTimeLimit) {
-        this.searchTimeLimit = searchTimeLimit;
+        searchControls.setTimeLimit(searchTimeLimit);
+    }
+
+    /**
+     * Sets the corresponding property on the SearchControls instance used
+     * in the search.
+     *
+     */
+    public void setDerefLinkFlag(boolean deref) {
+        searchControls.setDerefLinkFlag(deref);
     }
 
     public String toString() {
@@ -172,9 +179,10 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 
         sb.append("[ searchFilter: '").append(searchFilter).append("', ");
         sb.append("searchBase: '").append(searchBase).append("'");
-        sb.append(", scope: ").append(searchScope ==
+        sb.append(", scope: ").append(searchControls.getSearchScope() ==
                 SearchControls.SUBTREE_SCOPE ? "subtree" : "single-level, ");
-        sb.append("searchTimeLimit: ").append(searchTimeLimit).append(" ]");
+        sb.append("searchTimeLimit: ").append(searchControls.getTimeLimit());
+        sb.append("derefLinkFlag: ").append(searchControls.getDerefLinkFlag()).append(" ]");
 
         return sb.toString();
     }
