@@ -15,6 +15,8 @@
 
 package org.acegisecurity.providers.ldap;
 
+import org.acegisecurity.ldap.LdapUserInfo;
+
 /**
  * The strategy interface for locating and authenticating an Ldap user.
  * <p>

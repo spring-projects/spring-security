@@ -17,11 +17,14 @@ package org.acegisecurity.providers.ldap;
 
 import org.acegisecurity.providers.dao.AbstractUserDetailsAuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.*;
+import org.acegisecurity.ldap.LdapUserInfo;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.User;
+import org.acegisecurity.AuthenticationException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.util.Assert;
 
 import javax.naming.directory.Attributes;
@@ -143,7 +146,7 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         }
 
         String password = (String)authentication.getCredentials();
-        Assert.hasLength(password, "Null or empty password was supplied in authentication token");
+        Assert.notNull(password, "Null password was supplied in authentication token");
 
         LdapUserInfo ldapUser = authenticator.authenticate(username, password);
 

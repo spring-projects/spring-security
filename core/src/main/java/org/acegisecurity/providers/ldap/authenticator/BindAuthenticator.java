@@ -15,14 +15,19 @@
 
 package org.acegisecurity.providers.ldap.authenticator;
 
-import org.acegisecurity.providers.ldap.*;
+import org.acegisecurity.ldap.LdapUtils;
+import org.acegisecurity.ldap.LdapUserInfo;
+import org.acegisecurity.ldap.LdapDataAccessException;
+import org.acegisecurity.ldap.InitialDirContextFactory;
 import org.acegisecurity.BadCredentialsException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.naming.directory.DirContext;
 import javax.naming.directory.Attributes;
 import javax.naming.NamingException;
+
 import java.util.Iterator;
 
 /**

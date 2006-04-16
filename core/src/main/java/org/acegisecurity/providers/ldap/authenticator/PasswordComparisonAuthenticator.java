@@ -15,13 +15,15 @@
 
 package org.acegisecurity.providers.ldap.authenticator;
 
-import org.acegisecurity.providers.ldap.LdapUserInfo;
-import org.acegisecurity.providers.ldap.LdapUtils;
-import org.acegisecurity.providers.ldap.InitialDirContextFactory;
+import org.acegisecurity.ldap.LdapUserInfo;
+import org.acegisecurity.ldap.LdapUtils;
+import org.acegisecurity.ldap.InitialDirContextFactory;
 import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
+
 import org.springframework.util.Assert;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -30,6 +32,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.Attribute;
+
 import java.util.Iterator;
 
 /**

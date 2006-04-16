@@ -16,9 +16,10 @@
 package org.acegisecurity.providers.ldap.authenticator;
 
 import org.acegisecurity.providers.ldap.LdapAuthenticator;
-import org.acegisecurity.providers.ldap.InitialDirContextFactory;
-import org.acegisecurity.providers.ldap.LdapUserSearch;
+import org.acegisecurity.ldap.InitialDirContextFactory;
+import org.acegisecurity.ldap.LdapUserSearch;
 import org.acegisecurity.AcegiMessageSource;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.springframework.context.support.MessageSourceAccessor;

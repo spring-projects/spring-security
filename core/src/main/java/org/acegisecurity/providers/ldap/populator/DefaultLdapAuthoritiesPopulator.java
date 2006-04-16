@@ -16,9 +16,9 @@
 package org.acegisecurity.providers.ldap.populator;
 
 import org.acegisecurity.providers.ldap.LdapAuthoritiesPopulator;
-import org.acegisecurity.providers.ldap.LdapDataAccessException;
-import org.acegisecurity.providers.ldap.InitialDirContextFactory;
-import org.acegisecurity.providers.ldap.LdapUtils;
+import org.acegisecurity.ldap.LdapDataAccessException;
+import org.acegisecurity.ldap.InitialDirContextFactory;
+import org.acegisecurity.ldap.LdapUtils;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.apache.commons.logging.Log;
