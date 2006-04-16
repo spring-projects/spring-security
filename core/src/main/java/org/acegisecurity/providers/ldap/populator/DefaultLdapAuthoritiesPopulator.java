@@ -161,9 +161,14 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      */
     public DefaultLdapAuthoritiesPopulator(InitialDirContextFactory initialDirContextFactory, String groupSearchBase) {
         Assert.notNull(initialDirContextFactory, "InitialDirContextFactory must not be null");
-        Assert.hasLength(groupSearchBase, "The groupSearchBase (name to search under), must be specified.");
+        Assert.notNull(groupSearchBase, "The groupSearchBase (name to search under), must not be null.");
         this.initialDirContextFactory = initialDirContextFactory;
         this.groupSearchBase = groupSearchBase;
+
+        if(groupSearchBase.length() == 0) {
+            logger.info("groupSearchBase is empty. Searches will be performed from the root: " +
+                    initialDirContextFactory.getRootDn());
+        }
     }
 
     //~ Methods ================================================================
