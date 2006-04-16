@@ -156,8 +156,9 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be
      * set as a property.
      *
-     * @param initialDirContextFactory
-     * @param groupSearchBase
+     * @param initialDirContextFactory supplies the contexts used to search for user roles.
+     * @param groupSearchBase if this is an empty string the search will be performed from the root DN of the
+     * context factory.
      */
     public DefaultLdapAuthoritiesPopulator(InitialDirContextFactory initialDirContextFactory, String groupSearchBase) {
         Assert.notNull(initialDirContextFactory, "InitialDirContextFactory must not be null");
@@ -214,7 +215,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * Searches for groups the user is a member of.
      *
      * @param userDn the user's distinguished name.
-     * @param userAttributes
+     * @param userAttributes the retrieved user's attributes (unused by default).
      * @return the set of roles obtained from a group membership search, or null if
      *         <tt>groupSearchBase</tt> has been set.
      */
