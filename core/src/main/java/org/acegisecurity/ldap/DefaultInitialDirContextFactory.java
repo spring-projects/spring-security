@@ -56,7 +56,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
     //~ Static fields/initializers =============================================
 
-    private static final Log logger = LogFactory.getLog(org.acegisecurity.ldap.DefaultInitialDirContextFactory.class);
+    private static final Log logger = LogFactory.getLog(DefaultInitialDirContextFactory.class);
 
     private static final String CONNECTION_POOL_KEY = "com.sun.jndi.ldap.connect.pool";
 
@@ -123,7 +123,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
             String url = st.nextToken();
             String urlRootDn = LdapUtils.parseRootDnFromUrl(url);
 
-            org.acegisecurity.ldap.DefaultInitialDirContextFactory.logger.info(" URL '" + url +"', root DN is '" + urlRootDn + "'");
+            logger.info(" URL '" + url +"', root DN is '" + urlRootDn + "'");
 
             if(rootDn == null) {
                 rootDn = urlRootDn;
@@ -152,7 +152,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
         }
 
         Hashtable env = getEnvironment();
-        env.put(Context.SECURITY_AUTHENTICATION, org.acegisecurity.ldap.DefaultInitialDirContextFactory.AUTH_TYPE_NONE);
+        env.put(Context.SECURITY_AUTHENTICATION, AUTH_TYPE_NONE);
 
         return connect(env);
     }
@@ -162,7 +162,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
         // Don't pool connections for individual users
         if (!username.equals(managerDn)) {
-            env.remove(org.acegisecurity.ldap.DefaultInitialDirContextFactory.CONNECTION_POOL_KEY);
+            env.remove(CONNECTION_POOL_KEY);
         }
 
         env.put(Context.SECURITY_PRINCIPAL, username);
@@ -183,7 +183,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
         env.put(Context.PROVIDER_URL, providerUrl);
 
         if (useConnectionPool) {
-            env.put(org.acegisecurity.ldap.DefaultInitialDirContextFactory.CONNECTION_POOL_KEY, "true");
+            env.put(CONNECTION_POOL_KEY, "true");
         }
 
         if ((extraEnvVars != null) && (extraEnvVars.size() > 0)) {
@@ -195,14 +195,14 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
     private InitialDirContext connect(Hashtable env) {
 
-        if (org.acegisecurity.ldap.DefaultInitialDirContextFactory.logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             Hashtable envClone = (Hashtable)env.clone();
 
             if (envClone.containsKey(Context.SECURITY_CREDENTIALS)) {
                 envClone.put(Context.SECURITY_CREDENTIALS, "******");
             }
 
-            org.acegisecurity.ldap.DefaultInitialDirContextFactory.logger.debug("Creating InitialDirContext with environment " + envClone);
+            logger.debug("Creating InitialDirContext with environment " + envClone);
         }
 
         try {
