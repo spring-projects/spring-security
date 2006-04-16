@@ -22,7 +22,10 @@ import org.acegisecurity.ldap.LdapUtils;
 import org.acegisecurity.ldap.InitialDirContextFactory;
 import org.acegisecurity.ldap.LdapUserInfo;
 import org.acegisecurity.ldap.LdapDataAccessException;
+
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -136,8 +139,12 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
                 userDn.append(searchBase);
             }
 
-            userDn.append(",");
-            userDn.append(ctx.getNameInNamespace());
+            String nameInNamespace = ctx.getNameInNamespace();
+
+            if(StringUtils.hasLength(nameInNamespace)) {
+                userDn.append(",");
+                userDn.append(nameInNamespace);
+            }
 
             return new LdapUserInfo(userDn.toString(), searchResult.getAttributes());
 
