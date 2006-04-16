@@ -31,7 +31,7 @@ public abstract class BasePasswordEncoder implements PasswordEncoder {
      * <code>String</code> created using {@link
      * #mergePasswordAndSalt(String,Object,boolean)}.
      * 
-     * <P>
+     * <p>
      * The first element in the returned array is the password. The second
      * element is the salt. The salt array element will always be present,
      * even if no salt was found in the <code>mergedPasswordSalt</code>
@@ -44,7 +44,7 @@ public abstract class BasePasswordEncoder implements PasswordEncoder {
      * @return an array, in which the first element is the password and the
      *         second the salt
      *
-     * @throws IllegalArgumentException DOCUMENT ME!
+     * @throws IllegalArgumentException if mergedPasswordSalt is null or empty.
      */
     protected String[] demergePasswordAndSalt(String mergedPasswordSalt) {
         if ((mergedPasswordSalt == null) || "".equals(mergedPasswordSalt)) {
@@ -76,7 +76,7 @@ public abstract class BasePasswordEncoder implements PasswordEncoder {
      * <code>password{salt}</code>.
      * </p>
      * 
-     * <P>
+     * <p>
      * A <code>null</code> can be passed to either method, and will be handled
      * correctly. If the <code>salt</code> is <code>null</code> or empty, the
      * resulting generated password will simply be the passed
@@ -90,7 +90,7 @@ public abstract class BasePasswordEncoder implements PasswordEncoder {
      *
      * @return a merged password and salt <code>String</code>
      *
-     * @throws IllegalArgumentException DOCUMENT ME!
+     * @throws IllegalArgumentException if the salt contains '{' or '}' characters.
      */
     protected String mergePasswordAndSalt(String password, Object salt,
         boolean strict) {
