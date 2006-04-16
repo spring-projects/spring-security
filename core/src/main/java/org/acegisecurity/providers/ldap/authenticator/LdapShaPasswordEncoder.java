@@ -18,9 +18,8 @@ package org.acegisecurity.providers.ldap.authenticator;
 import org.acegisecurity.providers.encoding.ShaPasswordEncoder;
 
 /**
- * A version of {@link ShaPasswordEncoder} which always uses
- * Base-64 encoding and prepends the string
- * "{SHA}" to the encoded hash.
+ * A version of {@link ShaPasswordEncoder} which usesBase-64 encoding
+ * by default and always prepends the string "{SHA}" to the encoded hash.
  *
  * @author Luke Taylor
  * @version $Id$
