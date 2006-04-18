@@ -184,5 +184,9 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
                 authoritiesPopulator.getGrantedAuthorities(username, userDn, attributes));
 
     }
+
+    protected LdapAuthoritiesPopulator getAuthoritiesPoulator() {
+        return authoritiesPopulator;
+    }
 }
 
