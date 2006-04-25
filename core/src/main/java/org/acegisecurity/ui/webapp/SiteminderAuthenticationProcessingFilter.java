@@ -15,16 +15,11 @@
 
 package org.acegisecurity.ui.webapp;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
-
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-
-import org.acegisecurity.ui.WebAuthenticationDetails;
-
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -153,15 +148,6 @@ public class SiteminderAuthenticationProcessingFilter
     }
 
     /**
-     * This filter by default responds to <code>/j_acegi_security_check</code>.
-     *
-     * @return the default
-     */
-    public String getDefaultFilterProcessesUrl() {
-        return "/j_acegi_security_check";
-    }
-
-    /**
      * Returns the form password parameter key.
      *
      * @return The form password parameter key.
@@ -198,21 +184,8 @@ public class SiteminderAuthenticationProcessingFilter
     }
 
     /**
-     * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
-     */
-    public void init(FilterConfig filterConfig) throws ServletException {}
-
-    /**
-     * Enables subclasses to override the composition of the password, such as
-     * by including additional values and a separator.
-     * 
-     * <p>
-     * This might be used for example if a postcode/zipcode was required in
-     * addition to the password. A delimiter such as a pipe (|) should be used
-     * to separate the password and extended value(s). The
-     * <code>AuthenticationDao</code> will need to generate the expected
-     * password in a corresponding manner.
-     * </p>
+     * Overridden method to obtain different value depending on whether
+     * Siteminder or form validation is being performed.
      *
      * @param request so that request attributes can be retrieved
      *
@@ -229,21 +202,7 @@ public class SiteminderAuthenticationProcessingFilter
         }
     }
 
-    /**
-     * Provided so that subclasses may configure what is put into the
-     * authentication request's details property. The default implementation
-     * simply constructs {@link WebAuthenticationDetails}.
-     *
-     * @param request that an authentication request is being created for
-     * @param authRequest the authentication request object that should have
-     *        its details set
-     */
-    protected void setDetails(HttpServletRequest request,
-        UsernamePasswordAuthenticationToken authRequest) {
-        authRequest.setDetails(new WebAuthenticationDetails(request, false));
-    }
-
-    /**
+     /**
      * Sets the form password parameter key.
      *
      * @param key The form password parameter key.
