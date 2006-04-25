@@ -263,7 +263,7 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>springframework</groupId>
+      <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
       <version>2.0-m2</version>
       <type>jar</type>
@@ -273,7 +273,7 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>springframework</groupId>
+      <groupId>org.springframework</groupId>
       <artifactId>spring-mock</artifactId>
       <version>2.0-m2</version>
       <type>jar</type>
