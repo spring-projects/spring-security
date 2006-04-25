@@ -16,15 +16,20 @@
 package org.acegisecurity.ui.webapp;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.context.HttpSessionContextIntegrationFilter;
+import org.acegisecurity.context.SecurityContext;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
- * Extends Acegi's AuthenticationProcessingFilter to pick up Netegrity
- * Siteminder's headers.
+ * Extends Acegi's AuthenticationProcessingFilter to pick up CA/Netegrity
+ * Siteminder headers.
  * 
  * <P>
  * Also provides a backup form-based authentication and the ability set source
@@ -56,7 +61,11 @@ import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
  */
 public class SiteminderAuthenticationProcessingFilter
     extends AuthenticationProcessingFilter {
+	
     //~ Instance fields ========================================================
+	
+	/** Log instance for debugging */
+	private static final Log logger = LogFactory.getLog(SiteminderAuthenticationProcessingFilter.class);
 
     /** Form password request key. */
     private String formPasswordParameterKey = null;
@@ -203,6 +212,55 @@ public class SiteminderAuthenticationProcessingFilter
     }
 
      /**
+     * Overridden to perform authentication not only on j_security_check, but also on
+     * requests for the default target URL when the user isn't already authenticated.
+     * 
+     * <p>Thank you Paul Garvey for providing a straightforward solution (and code) for this!</p>
+     * 
+     * @see org.acegisecurity.ui.AbstractProcessingFilter#requiresAuthentication(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+     */
+    protected boolean requiresAuthentication(final HttpServletRequest request, 
+            final HttpServletResponse response) {
+    	
+    	String uri = request.getRequestURI();
+		int pathParamIndex = uri.indexOf(';');
+
+		if (pathParamIndex > 0) {
+			// strip everything after the first semi-colon 
+			uri = uri.substring(0, pathParamIndex);
+		}
+		
+		//attempt authentication if j_secuity_check is present or if the getDefaultTargetUrl() 
+		//is present and user is not already authenticated. 
+		boolean bAuthenticated = false;
+		SecurityContext context = (SecurityContext) request
+				.getSession()
+				.getAttribute(
+						HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
+		if (context != null) {
+			Authentication auth = context.getAuthentication();
+			if (auth != null
+					&& auth instanceof UsernamePasswordAuthenticationToken) {
+				UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) auth;
+				bAuthenticated = token.isAuthenticated();
+			}
+		}
+		
+		//if true is returned then authentication will be attempted. 
+		boolean bAttemptAuthentication = (uri.endsWith(request.getContextPath()
+				+ getFilterProcessesUrl()))
+				|| ((uri.endsWith(getDefaultTargetUrl()) && !bAuthenticated));
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("Authentication attempted for the following URI ==> "
+					+ uri + " is " + bAttemptAuthentication);
+		}
+		
+		return bAttemptAuthentication;
+		
+	}
+
+    /**
      * Sets the form password parameter key.
      *
      * @param key The form password parameter key.
@@ -229,6 +287,7 @@ public class SiteminderAuthenticationProcessingFilter
         this.siteminderPasswordHeaderKey = key;
     }
 
+	
     /**
      * Sets the Siteminder username header key.
      *
@@ -236,5 +295,6 @@ public class SiteminderAuthenticationProcessingFilter
      */
     public void setSiteminderUsernameHeaderKey(final String key) {
         this.siteminderUsernameHeaderKey = key;
-    }
+    } 
+
 }
