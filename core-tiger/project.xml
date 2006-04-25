@@ -6,9 +6,9 @@
   <name>Acegi Security System for Spring - Java 5 (Tiger)</name>
   <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs/multiproject/acegi-security-tiger</siteDirectory>
   <repository>
-    <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</connection>
-    <developerConnection>scm:cvs:ext:${maven.username}@cvs.sourceforge.net:/cvsroot/acegisecurity:acegisecurity</developerConnection>
-    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/acegisecurity/acegisecurity/core-tiger/</url>
+    <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</connection>
+    <developerConnection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</developerConnection>
+    <url>http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/core-tiger/</url>
   </repository>
   <dependencies>
     <dependency>

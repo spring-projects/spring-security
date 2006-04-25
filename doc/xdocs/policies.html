@@ -40,15 +40,15 @@
   <ul type="1">
   
     <li>
-    This project uses <a href="http://opensource.atlassian.com/projects/spring/secure/BrowseProject.jspa?id=10040">JIRA</a>. Please log a task in JIRA for any changes you make to CVS, with the exception of very minor changes that users are unlikely to ever be interested in searching for and/or the change affects code that has never been in an officially released version of the project (eg ongoing changes to a new feature in CVS HEAD that hasn't been released previously).<br><br>
+    This project uses <a href="http://opensource.atlassian.com/projects/spring/secure/BrowseProject.jspa?id=10040">JIRA</a>. Please log a task in JIRA for any changes you make to SVN, with the exception of very minor changes that users are unlikely to ever be interested in searching for and/or the change affects code that has never been in an officially released version of the project (eg ongoing changes to a new feature in SVN HEAD that hasn't been released previously).<br><br>
 	</li>
 	
 	<li>
-	Any users running from CVS HEAD are warmly encouraged to <a href="http://lists.sourceforge.net/mailman/listinfo/acegisecurity-cvs">join acegisecurity-cvs</a> so that they can keep an eye on commit comments. Developers are encouraged to join acegisecurity-cvs and read the commit comments. If anyone has a concern with any commit, please raise it on <a href="http://lists.sourceforge.net/mailman/listinfo/acegisecurity-developer">acegisecurity-developer</a> so that the broader community can participate (not acegisecurity-cvs). Alternatively, contact the author of the change directly if you think that would be more appropriate or diplomatic.<br><br>
+	Any users running from SVN HEAD are warmly encouraged to <a href="http://lists.sourceforge.net/mailman/listinfo/acegisecurity-cvs">join acegisecurity-cvs</a> so that they can keep an eye on commit comments. Developers are encouraged to join acegisecurity-cvs and read the commit comments. If anyone has a concern with any commit, please raise it on <a href="http://lists.sourceforge.net/mailman/listinfo/acegisecurity-developer">acegisecurity-developer</a> so that the broader community can participate (not acegisecurity-cvs). Alternatively, contact the author of the change directly if you think that would be more appropriate or diplomatic.<br><br>
 	</li>
 	
 	<li>
-	Please make your commit comments informative, yet not too detailed. Detailed comments are ideally placed in the JIRA task. In the case of a contribution by a non-developer, please use the CVS commits to reflect who provided the contribution and add that person's name to /project.xml in the contributors section. If the contributors section does not list the name of someone who has contributed accepted code, please add them or let me know so that I can do so.<br><br>
+	Please make your commit comments informative, yet not too detailed. Detailed comments are ideally placed in the JIRA task. In the case of a contribution by a non-developer, please use the SVN commits to reflect who provided the contribution and add that person's name to /project.xml in the contributors section. If the contributors section does not list the name of someone who has contributed accepted code, please add them or let me know so that I can do so.<br><br>
 	</li>
 	
 	<li>
@@ -56,7 +56,7 @@
 	</li>
 	
 	<li>
-	Please make sure /docs/xdocs/changes.xml has a reference to JIRA for the upcoming release version.  You don't need to add the name of contributors to /doc/xdocs/changes.xml, as acknowledgement is already provided via /project.xml, source code @author tags, the CVS commit message, and typically a JIRA task.<br><br>
+	Please make sure /docs/xdocs/changes.xml has a reference to JIRA for the upcoming release version.  You don't need to add the name of contributors to /doc/xdocs/changes.xml, as acknowledgement is already provided via /project.xml, source code @author tags, the SVN commit message, and typically a JIRA task.<br><br>
 	</li>
 	
 	<li>
@@ -68,7 +68,7 @@
 	</li>
 	
 	<li>
-	The /sandbox can be used to obtain feedback from fellow developers and the community about your code, general approach or new ideas. If you have CVS rights, please use /sandbox instead of emailing ZIP files to other developers for feedback. The community should understand that code in the sandbox is unsupported, subject to refactoring, may not have any unit tests, and may be removed at any time. The /sandbox will never be included in official release ZIPs. It's a "scratching pad" only.<br><br>
+	The /sandbox can be used to obtain feedback from fellow developers and the community about your code, general approach or new ideas. If you have SVN rights, please use /sandbox instead of emailing ZIP files to other developers for feedback. The community should understand that code in the sandbox is unsupported, subject to refactoring, may not have any unit tests, and may be removed at any time. The /sandbox will never be included in official release ZIPs. It's a "scratching pad" only.<br><br>
 	</li>
 	
 	<li>
@@ -76,7 +76,7 @@
 	</li>
 	
 	<li>
-	Never check in code if the unit tests fail. This means, at minimum, successfully running "maven test:test" from /core. Always name your unit test classes so they end in "*Tests" - this ensures that Maven picks them up. If there is code in CVS which you didn't write and it is breaking the unit tests, please correct it yourself - don't leave CVS "broken" whilst waiting for the responsible developer to address it (the delay causes confusing and long-running threads on the list and forum). You can always rollback to the previous working version if in doubt of how the class works (just remember to comment the commit appropriately and let the author know).<br><br>
+	Never check in code if the unit tests fail. This means, at minimum, successfully running "maven test:test" from /core. Always name your unit test classes so they end in "*Tests" - this ensures that Maven picks them up. If there is code in SVN which you didn't write and it is breaking the unit tests, please correct it yourself - don't leave SVN "broken" whilst waiting for the responsible developer to address it (the delay causes confusing and long-running threads on the list and forum). You can always rollback to the previous working version if in doubt of how the class works (just remember to comment the commit appropriately and let the author know).<br><br>
 	</li>
 	
 	<li>
@@ -100,11 +100,11 @@
 	</li>
 	
 	<li>
-	 No code in CVS is "sacred". If you have a good idea or refactoring for an area of code that someone else wrote, raise it on acegisecurity-developer or contact the author directly. Please don't commit changes to such code unless it is a unit test failure correction, or you've firstly raised it on the acegisecurity-developer list or directly with the author.<br><br>
+	 No code in SVN is "sacred". If you have a good idea or refactoring for an area of code that someone else wrote, raise it on acegisecurity-developer or contact the author directly. Please don't commit changes to such code unless it is a unit test failure correction, or you've firstly raised it on the acegisecurity-developer list or directly with the author.<br><br>
 	</li>
 	
 	<li>
-	People's priorities are ever-changing, and we're all short on time. For this reason it's perfectly understandable that over time developers will move on to other things. This is not a negative reflection in any way - just part of any long-term project. If a developer no longer has the time or inclination to participate in the project , please send an email to acegisecurity-developer or myself. I will remove the CVS rights and reassign any JIRA tasks. Importantly, this helps find a new maintainer of the former developer's code (or, in very extreme cases, their code might be relocated to the sandbox or removed).<br><br>
+	People's priorities are ever-changing, and we're all short on time. For this reason it's perfectly understandable that over time developers will move on to other things. This is not a negative reflection in any way - just part of any long-term project. If a developer no longer has the time or inclination to participate in the project , please send an email to acegisecurity-developer or myself. I will remove the SVN rights and reassign any JIRA tasks. Importantly, this helps find a new maintainer of the former developer's code (or, in very extreme cases, their code might be relocated to the sandbox or removed).<br><br>
 	</li>
 	
 	<li>
