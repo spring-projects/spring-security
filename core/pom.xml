@@ -31,6 +31,7 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-mock</artifactId>
       <optional>true</optional>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>ehcache</groupId>
@@ -84,8 +85,8 @@
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>org.apache.ldap.server.core</artifactId>
-      <version>0.9.4-SNAPSHOT</version>
+      <artifactId>apacheds-core</artifactId>
+      <version>1.0-RC1</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
