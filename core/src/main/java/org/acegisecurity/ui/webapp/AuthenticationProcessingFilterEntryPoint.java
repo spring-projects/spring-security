@@ -98,11 +98,9 @@ public class AuthenticationProcessingFilterEntryPoint
 
         boolean includePort = true;
 
-        if ("http".equals(scheme.toLowerCase()) && (serverPort == 80)) {
+        if (inHttp && (serverPort == 80)) {
             includePort = false;
-        }
-
-        if ("https".equals(scheme.toLowerCase()) && (serverPort == 443)) {
+        } else if (inHttps && (serverPort == 443)) {
             includePort = false;
         }
 
@@ -111,8 +109,8 @@ public class AuthenticationProcessingFilterEntryPoint
             + loginFormUrl;
 
         if (forceHttps && inHttp) {
-            Integer httpPort = new Integer(portResolver.getServerPort(request));
-            Integer httpsPort = (Integer) portMapper.lookupHttpsPort(httpPort);
+            Integer httpsPort = (Integer) portMapper.lookupHttpsPort(new Integer(
+                        serverPort));
 
             if (httpsPort != null) {
                 if (httpsPort.intValue() == 443) {
