@@ -129,6 +129,25 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean,
                 // Attempt authenticaton via AuthenticationManager
                 try {
                     authenticationManager.authenticate(rememberMeAuth);
+                    
+                    // Store to SecurityContextHolder
+                    SecurityContextHolder.getContext()
+                                         .setAuthentication(rememberMeAuth);
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(
+                            "SecurityContextHolder populated with remember-me token: '"
+                            + SecurityContextHolder.getContext().getAuthentication()
+                            + "'");
+                    }
+
+                    // Fire event
+                    if (this.eventPublisher != null) {
+                        eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(
+                                SecurityContextHolder.getContext()
+                                                     .getAuthentication(),
+                                this.getClass()));
+                    }
                 } catch (AuthenticationException authenticationException) {
                     if (logger.isDebugEnabled()) {
                         logger.debug(
@@ -139,27 +158,8 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean,
                     }
 
                     rememberMeServices.loginFail(httpRequest, httpResponse);
-                    chain.doFilter(request, response);
                 }
 
-                // Store to SecurityContextHolder
-                SecurityContextHolder.getContext()
-                                     .setAuthentication(rememberMeAuth);
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug(
-                        "SecurityContextHolder populated with remember-me token: '"
-                        + SecurityContextHolder.getContext().getAuthentication()
-                        + "'");
-                }
-
-                // Fire event
-                if (this.eventPublisher != null) {
-                    eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(
-                            SecurityContextHolder.getContext()
-                                                 .getAuthentication(),
-                            this.getClass()));
-                }
             }
 
             chain.doFilter(request, response);
