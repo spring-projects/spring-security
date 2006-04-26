@@ -28,15 +28,17 @@ import org.springframework.util.Assert;
 /**
  * Base implementation of {@link ConcurrentSessionControllerImpl} which
  * prohibits simultaneous logins.
- * 
  * <p>
- * By default uses {@link org.acegisecurity.concurrent.SessionRegistryImpl},
+ * By default uses {@link SessionRegistryImpl},
  * although any <code>SessionRegistry</code> may be used.
  * </p>
+ *
+ * @author Ben Alex
+ * @version $Id$
  */
-public class ConcurrentSessionControllerImpl
-    implements ConcurrentSessionController, InitializingBean,
-        MessageSourceAware {
+public class ConcurrentSessionControllerImpl implements ConcurrentSessionController,
+        InitializingBean, MessageSourceAware {
+
     //~ Instance fields ========================================================
 
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
@@ -49,7 +51,7 @@ public class ConcurrentSessionControllerImpl
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(sessionRegistry, "SessionRegistry required");
         Assert.isTrue(maximumSessions != 0,
-            "MaximumLogins must be either -1 to allow unlimited logins, or a positive integer to specify a maximum");
+                "MaximumLogins must be either -1 to allow unlimited logins, or a positive integer to specify a maximum");
         Assert.notNull(this.messages, "A message source must be set");
     }
 
@@ -57,22 +59,21 @@ public class ConcurrentSessionControllerImpl
      * Allows subclasses to customise behaviour when too many sessions are
      * detected.
      *
-     * @param sessionId the session ID of the present request
-     * @param sessions either <code>null</code> or all unexpired sessions
-     *        associated with the principal
+     * @param sessionId         the session ID of the present request
+     * @param sessions          either <code>null</code> or all unexpired sessions
+     *                          associated with the principal
      * @param allowableSessions DOCUMENT ME!
-     * @param registry an instance of the <code>SessionRegistry</code> for
-     *        subclass use
-     *
+     * @param registry          an instance of the <code>SessionRegistry</code> for
+     *                          subclass use
      * @throws ConcurrentLoginException DOCUMENT ME!
      */
     protected void allowableSessionsExceeded(String sessionId,
-        SessionInformation[] sessions, int allowableSessions,
-        SessionRegistry registry) {
+                                             SessionInformation[] sessions, int allowableSessions,
+                                             SessionRegistry registry) {
         if (exceptionIfMaximumExceeded || (sessions == null)) {
             throw new ConcurrentLoginException(messages.getMessage(
                     "ConcurrentSessionControllerImpl.exceededAllowed",
-                    new Object[] {new Integer(allowableSessions)},
+                    new Object[]{new Integer(allowableSessions)},
                     "Maximum sessions of {0} for this principal exceeded"));
         }
 
@@ -81,8 +82,8 @@ public class ConcurrentSessionControllerImpl
 
         for (int i = 0; i < sessions.length; i++) {
             if ((leastRecentlyUsed == null)
-                || sessions[i].getLastRequest()
-                              .before(leastRecentlyUsed.getLastRequest())) {
+                    || sessions[i].getLastRequest()
+                    .before(leastRecentlyUsed.getLastRequest())) {
                 leastRecentlyUsed = sessions[i];
             }
         }
@@ -91,87 +92,86 @@ public class ConcurrentSessionControllerImpl
     }
 
     public void checkAuthenticationAllowed(Authentication request)
-        throws AuthenticationException {
+            throws AuthenticationException {
         Assert.notNull(request,
-            "Authentication request cannot be null (violation of interface contract)");
+                "Authentication request cannot be null (violation of interface contract)");
 
         Object principal = SessionRegistryUtils
                 .obtainPrincipalFromAuthentication(request);
-            String sessionId = SessionRegistryUtils
-                    .obtainSessionIdFromAuthentication(request);
+        String sessionId = SessionRegistryUtils
+                .obtainSessionIdFromAuthentication(request);
 
-                SessionInformation[] sessions = sessionRegistry.getAllSessions(principal);
+        SessionInformation[] sessions = sessionRegistry.getAllSessions(principal);
 
-                int sessionCount = 0;
+        int sessionCount = 0;
 
-                if (sessions != null) {
-                    sessionCount = sessions.length;
-                }
+        if (sessions != null) {
+            sessionCount = sessions.length;
+        }
 
-                int allowableSessions = getMaximumSessionsForThisUser(request);
-                Assert.isTrue(allowableSessions != 0,
-                    "getMaximumSessionsForThisUser() must return either -1 to allow unlimited logins, or a positive integer to specify a maximum");
+        int allowableSessions = getMaximumSessionsForThisUser(request);
+        Assert.isTrue(allowableSessions != 0,
+                "getMaximumSessionsForThisUser() must return either -1 to allow unlimited logins, or a positive integer to specify a maximum");
 
-                if (sessionCount < allowableSessions) {
+        if (sessionCount < allowableSessions) {
+            return;
+        } else if (sessionCount == allowableSessions) {
+            // Only permit it though if this request is associated with one of the sessions
+            for (int i = 0; i < sessionCount; i++) {
+                if (sessions[i].getSessionId().equals(sessionId)) {
                     return;
-                } else if (sessionCount == allowableSessions) {
-                    // Only permit it though if this request is associated with one of the sessions
-                    for (int i = 0; i < sessionCount; i++) {
-                        if (sessions[i].getSessionId().equals(sessionId)) {
-                            return;
-                        }
-                    }
                 }
-
-                allowableSessionsExceeded(sessionId, sessions,
-                    allowableSessions, sessionRegistry);
             }
+        }
 
-            /**
-             * Method intended for use by subclasses to override the maximum
-             * number of sessions that are permitted for a particular
-             * authentication. The default implementation simply returns the
-             * <code>maximumSessions</code> value for the bean.
-             *
-             * @param authentication to determine the maximum sessions for
-             *
-             * @return either -1 meaning unlimited, or a positive integer to
-             *         limit (never zero)
-             */
-            protected int getMaximumSessionsForThisUser(
-                Authentication authentication) {
-                return maximumSessions;
-            }
+        allowableSessionsExceeded(sessionId, sessions,
+                allowableSessions, sessionRegistry);
+    }
 
-            public void registerSuccessfulAuthentication(
-                Authentication authentication) {
-                Assert.notNull(authentication,
-                    "Authentication cannot be null (violation of interface contract)");
+    /**
+     * Method intended for use by subclasses to override the maximum
+     * number of sessions that are permitted for a particular
+     * authentication. The default implementation simply returns the
+     * <code>maximumSessions</code> value for the bean.
+     *
+     * @param authentication to determine the maximum sessions for
+     * @return either -1 meaning unlimited, or a positive integer to
+     *         limit (never zero)
+     */
+    protected int getMaximumSessionsForThisUser(
+            Authentication authentication) {
+        return maximumSessions;
+    }
 
-                Object principal = SessionRegistryUtils
-                        .obtainPrincipalFromAuthentication(authentication);
-                    String sessionId = SessionRegistryUtils
-                            .obtainSessionIdFromAuthentication(authentication);
+    public void registerSuccessfulAuthentication(
+            Authentication authentication) {
+        Assert.notNull(authentication,
+                "Authentication cannot be null (violation of interface contract)");
 
-                        sessionRegistry.removeSessionInformation(sessionId);
-                        sessionRegistry.registerNewSession(sessionId, principal);
-                    }
+        Object principal = SessionRegistryUtils
+                .obtainPrincipalFromAuthentication(authentication);
+        String sessionId = SessionRegistryUtils
+                .obtainSessionIdFromAuthentication(authentication);
 
-                    public void setExceptionIfMaximumExceeded(
-                        boolean exceptionIfMaximumExceeded) {
-                        this.exceptionIfMaximumExceeded = exceptionIfMaximumExceeded;
-                    }
+        sessionRegistry.removeSessionInformation(sessionId);
+        sessionRegistry.registerNewSession(sessionId, principal);
+    }
 
-                    public void setMaximumSessions(int maximumSessions) {
-                        this.maximumSessions = maximumSessions;
-                    }
+    public void setExceptionIfMaximumExceeded(
+            boolean exceptionIfMaximumExceeded) {
+        this.exceptionIfMaximumExceeded = exceptionIfMaximumExceeded;
+    }
 
-                    public void setMessageSource(MessageSource messageSource) {
-                        this.messages = new MessageSourceAccessor(messageSource);
-                    }
+    public void setMaximumSessions(int maximumSessions) {
+        this.maximumSessions = maximumSessions;
+    }
 
-                    public void setSessionRegistry(
-                        SessionRegistry sessionRegistry) {
-                        this.sessionRegistry = sessionRegistry;
-                    }
-                }
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
+    }
+
+    public void setSessionRegistry(
+            SessionRegistry sessionRegistry) {
+        this.sessionRegistry = sessionRegistry;
+    }
+}
