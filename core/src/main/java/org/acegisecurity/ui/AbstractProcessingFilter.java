@@ -139,12 +139,12 @@ public abstract class AbstractProcessingFilter implements Filter,
 
     public static final String ACEGI_SECURITY_TARGET_URL_KEY = "ACEGI_SECURITY_TARGET_URL";
     public static final String ACEGI_SECURITY_LAST_EXCEPTION_KEY = "ACEGI_SECURITY_LAST_EXCEPTION";
-    protected static final Log logger = LogFactory.getLog(AbstractProcessingFilter.class);
 
     //~ Instance fields ========================================================
 
     protected ApplicationEventPublisher eventPublisher;
     private AuthenticationManager authenticationManager;
+    protected final Log logger = LogFactory.getLog(this.getClass());
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private Properties exceptionMappings = new Properties();
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
