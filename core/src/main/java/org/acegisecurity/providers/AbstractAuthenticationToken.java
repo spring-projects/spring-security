@@ -145,28 +145,28 @@ public abstract class AbstractAuthenticationToken implements Authentication {
     }
 
     public int hashCode() {
-        int code = 2305;
+        int code = 31;
 
         if (this.getAuthorities() != null) {
             for (int i = 0; i < this.getAuthorities().length; i++) {
-                code = code * (this.getAuthorities()[i].hashCode() % 7);
+                code ^= this.getAuthorities()[i].hashCode();         
             }
         }
 
         if (this.getPrincipal() != null) {
-            code = code * (this.getPrincipal().hashCode() % 7);
+            code ^= this.getPrincipal().hashCode();         
         }
 
         if (this.getCredentials() != null) {
-            code = code * (this.getCredentials().hashCode() % 7);
+            code ^= this.getCredentials().hashCode();         
         }
 
         if (this.getDetails() != null) {
-            code = code * (this.getDetails().hashCode() % 7);
+            code ^= this.getDetails().hashCode();         
         }
 
         if (this.isAuthenticated()) {
-            code = code * -3;
+            code ^= -37;
         }
 
         return code;
