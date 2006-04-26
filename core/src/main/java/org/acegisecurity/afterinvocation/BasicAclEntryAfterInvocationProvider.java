@@ -100,10 +100,17 @@ public class BasicAclEntryAfterInvocationProvider
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private String processConfigAttribute = "AFTER_ACL_READ";
     private int[] requirePermission = {SimpleAclEntry.READ};
+    private Class processDomainObjectClass = Object.class;
 
     //~ Methods ================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    public void setProcessDomainObjectClass(Class processDomainObjectClass) {
+        Assert.notNull(processDomainObjectClass,
+        "processDomainObjectClass cannot be set to null");
+        this.processDomainObjectClass = processDomainObjectClass;
+	}
+
+	public void afterPropertiesSet() throws Exception {
         Assert.notNull(processConfigAttribute,
             "A processConfigAttribute is mandatory");
         Assert.notNull(aclManager, "An aclManager is mandatory");
@@ -130,6 +137,14 @@ public class BasicAclEntryAfterInvocationProvider
                     // As they have permission to null/nothing, grant access
                     if (logger.isDebugEnabled()) {
                         logger.debug("Return object is null, skipping");
+                    }
+
+                    return null;
+                }
+                
+                if (!processDomainObjectClass.isAssignableFrom(returnedObject.getClass())) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Return object is not applicable for this provider, skipping");
                     }
 
                     return null;

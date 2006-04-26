@@ -113,8 +113,15 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
     private AclManager aclManager;
     private String processConfigAttribute = "AFTER_ACL_COLLECTION_READ";
     private int[] requirePermission = {SimpleAclEntry.READ};
+    private Class processDomainObjectClass = Object.class;
 
     //~ Methods ================================================================
+
+    public void setProcessDomainObjectClass(Class processDomainObjectClass) {
+        Assert.notNull(processDomainObjectClass,
+        "processDomainObjectClass cannot be set to null");
+        this.processDomainObjectClass = processDomainObjectClass;
+	}
 
     public void setAclManager(AclManager aclManager) {
         this.aclManager = aclManager;
@@ -195,6 +202,8 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
 
                     if (domainObject == null) {
                         hasPermission = true;
+                    } else if (!processDomainObjectClass.isAssignableFrom(domainObject.getClass())) {
+                    	hasPermission = true;
                     } else {
                         acls = aclManager.getAcls(domainObject, authentication);
                     }
