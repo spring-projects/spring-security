@@ -350,6 +350,17 @@ public abstract class AbstractProcessingFilter implements Filter,
         return uri.endsWith(request.getContextPath() + filterProcessesUrl);
     }
 
+    protected void sendRedirect(HttpServletRequest request,
+        HttpServletResponse response, String failureUrl)
+        throws IOException {
+        if (!failureUrl.startsWith("http://")
+            && !failureUrl.startsWith("https://")) {
+            failureUrl = request.getContextPath() + failureUrl;
+        }
+
+        response.sendRedirect(response.encodeRedirectURL(failureUrl));
+    }
+
     public void setAlwaysUseDefaultTargetUrl(boolean alwaysUseDefaultTargetUrl) {
         this.alwaysUseDefaultTargetUrl = alwaysUseDefaultTargetUrl;
     }
@@ -466,7 +477,6 @@ public abstract class AbstractProcessingFilter implements Filter,
 
         rememberMeServices.loginFail(request, response);
 
-        response.sendRedirect(response.encodeRedirectURL(request.getContextPath()
-                + failureUrl));
+        sendRedirect(request, response, failureUrl);
     }
 }
