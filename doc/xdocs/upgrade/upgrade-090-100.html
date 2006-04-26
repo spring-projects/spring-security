@@ -74,6 +74,14 @@ applications:
 	method internally stores null, which helps avoids redeployment issue caused by the previous
 	approaches (see SEC-159 for further details).
 	</li>
+
+    <h1>Changes RC2 to Final</h1>
+	
+	<li>
+	AbstractProcessingFilter.onUnsuccessfulAuthentication(HttpServletRequest, HttpServletResponse)
+    has changed it signature (SEC-238). If subclassing, please override the new signature.
+	</li>
+
 	
     </ul>
 
