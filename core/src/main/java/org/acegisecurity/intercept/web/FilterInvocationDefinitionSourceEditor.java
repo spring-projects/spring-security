@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,9 @@ package org.acegisecurity.intercept.web;
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.ConfigAttributeEditor;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.springframework.util.StringUtils;
 
 import java.beans.PropertyEditorSupport;
 
@@ -116,15 +115,21 @@ public class FilterInvocationDefinitionSourceEditor
                     continue;
                 }
 
-                // Tokenize the line into its name/value tokens
-                String[] nameValue = StringUtils.delimitedListToStringArray(line, "=");
-                String name = nameValue[0];
-                String value = nameValue[1];
-
-                if(!StringUtils.hasLength(name) || !StringUtils.hasLength(value)) {
-                    throw new IllegalArgumentException("Failed to parse a valid name/value pair from " + line);
+                if (line.lastIndexOf("==") != -1) {
+                    throw new IllegalArgumentException(
+                            "Only single equals should be used in line " + line);
                 }
 
+                // Tokenize the line into its name/value tokens
+                // As per SEC-219, use the LAST equals as the delimiter between LHS and RHS
+                String name = StringUtils.substringBeforeLast(line, "=");
+                String value = StringUtils.substringAfterLast(line, "=");
+
+                if (StringUtils.isBlank(name) || StringUtils.isBlank(value)) {
+                    throw new IllegalArgumentException(
+                        "Failed to parse a valid name/value pair from " + line);
+                }
+                
                 // Convert value to series of security configuration attributes
                 ConfigAttributeEditor configAttribEd = new ConfigAttributeEditor();
                 configAttribEd.setAsText(value);
