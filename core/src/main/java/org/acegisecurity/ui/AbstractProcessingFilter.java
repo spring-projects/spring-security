@@ -143,6 +143,7 @@ public abstract class AbstractProcessingFilter implements Filter,
     //~ Instance fields ========================================================
 
     protected ApplicationEventPublisher eventPublisher;
+    protected AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
     private AuthenticationManager authenticationManager;
     protected final Log logger = LogFactory.getLog(this.getClass());
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
@@ -369,6 +370,13 @@ public abstract class AbstractProcessingFilter implements Filter,
     public void setApplicationEventPublisher(
         ApplicationEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
+    }
+
+    public void setAuthenticationDetailsSource(
+        AuthenticationDetailsSource authenticationDetailsSource) {
+        Assert.notNull(authenticationDetailsSource,
+            "AuthenticationDetailsSource required");
+        this.authenticationDetailsSource = authenticationDetailsSource;
     }
 
     public void setAuthenticationFailureUrl(String authenticationFailureUrl) {

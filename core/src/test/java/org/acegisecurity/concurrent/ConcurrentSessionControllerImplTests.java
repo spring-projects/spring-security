@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,11 @@ package org.acegisecurity.concurrent;
 import junit.framework.TestCase;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.acegisecurity.ui.WebAuthenticationDetails;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 
@@ -32,6 +35,23 @@ import org.springframework.mock.web.MockHttpSession;
  */
 public class ConcurrentSessionControllerImplTests extends TestCase {
     //~ Methods ================================================================
+
+    private Authentication createAuthentication(String user, String password) {
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user,
+                password);
+        auth.setDetails(createWebDetails(auth));
+
+        return auth;
+    }
+
+    private WebAuthenticationDetails createWebDetails(Authentication auth) {
+        MockHttpSession session = new MockHttpSession();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setSession(session);
+        request.setUserPrincipal(auth);
+
+        return new WebAuthenticationDetails(request);
+    }
 
     public void testLifecycle() throws Exception {
         // Build a test fixture
@@ -102,22 +122,5 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
-    }
-
-    private Authentication createAuthentication(String user, String password) {
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user,
-                password);
-        auth.setDetails(createWebDetails(auth));
-
-        return auth;
-    }
-
-    private WebAuthenticationDetails createWebDetails(Authentication auth) {
-        MockHttpSession session = new MockHttpSession();
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setSession(session);
-        request.setUserPrincipal(auth);
-
-        return new WebAuthenticationDetails(request, false);
     }
 }

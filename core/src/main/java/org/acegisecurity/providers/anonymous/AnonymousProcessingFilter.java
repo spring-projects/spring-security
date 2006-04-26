@@ -19,7 +19,8 @@ import org.acegisecurity.Authentication;
 
 import org.acegisecurity.context.SecurityContextHolder;
 
-import org.acegisecurity.ui.WebAuthenticationDetails;
+import org.acegisecurity.ui.AuthenticationDetailsSource;
+import org.acegisecurity.ui.AuthenticationDetailsSourceImpl;
 
 import org.acegisecurity.userdetails.memory.UserAttribute;
 
@@ -61,6 +62,7 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
 
     //~ Instance fields ========================================================
 
+    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
     private String key;
     private UserAttribute userAttribute;
     private boolean removeAfterRequest = true;
@@ -96,8 +98,8 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
 
         AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(key,
                 userAttribute.getPassword(), userAttribute.getAuthorities());
-        auth.setDetails(new WebAuthenticationDetails(
-                (HttpServletRequest) request, false));
+        auth.setDetails(authenticationDetailsSource.buildDetails(
+                (HttpServletRequest) request));
 
         return auth;
     }
@@ -165,6 +167,13 @@ public class AnonymousProcessingFilter implements Filter, InitializingBean {
 
     public boolean isRemoveAfterRequest() {
         return removeAfterRequest;
+    }
+
+    public void setAuthenticationDetailsSource(
+        AuthenticationDetailsSource authenticationDetailsSource) {
+        Assert.notNull(authenticationDetailsSource,
+            "AuthenticationDetailsSource required");
+        this.authenticationDetailsSource = authenticationDetailsSource;
     }
 
     public void setKey(String key) {

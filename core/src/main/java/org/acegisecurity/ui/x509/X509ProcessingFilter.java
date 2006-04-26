@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,24 @@ package org.acegisecurity.ui.x509;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
+
 import org.acegisecurity.context.SecurityContextHolder;
+
 import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
+
 import org.acegisecurity.providers.x509.X509AuthenticationToken;
+
 import org.acegisecurity.ui.AbstractProcessingFilter;
-import org.acegisecurity.ui.WebAuthenticationDetails;
+import org.acegisecurity.ui.AuthenticationDetailsSource;
+import org.acegisecurity.ui.AuthenticationDetailsSourceImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 
-import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 
 import org.springframework.util.Assert;
 
@@ -60,10 +65,11 @@ import javax.servlet.http.HttpServletResponse;
  * 
  * <p>
  * If authentication is successful, an {@link
- * org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent} will be
- * published to the application context. No events will be published if
- * authentication was unsuccessful, because this would generally be recorded
- * via an <code>AuthenticationManager</code>-specific application event.
+ * org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent}
+ * will be published to the application context. No events will be published
+ * if authentication was unsuccessful, because this would generally be
+ * recorded via an <code>AuthenticationManager</code>-specific application
+ * event.
  * </p>
  * 
  * <p>
@@ -76,7 +82,7 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public class X509ProcessingFilter implements Filter, InitializingBean,
-        ApplicationEventPublisherAware {
+    ApplicationEventPublisherAware {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(X509ProcessingFilter.class);
@@ -84,18 +90,10 @@ public class X509ProcessingFilter implements Filter, InitializingBean,
     //~ Instance fields ========================================================
 
     private ApplicationEventPublisher eventPublisher;
+    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
     private AuthenticationManager authenticationManager;
 
     //~ Methods ================================================================
-
-    public void setApplicationEventPublisher(ApplicationEventPublisher context) {
-        this.eventPublisher = context;
-    }
-
-    public void setAuthenticationManager(
-        AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-    }
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(authenticationManager,
@@ -154,7 +152,8 @@ public class X509ProcessingFilter implements Filter, InitializingBean,
             try {
                 X509AuthenticationToken authRequest = new X509AuthenticationToken(clientCertificate);
 
-                authRequest.setDetails(new WebAuthenticationDetails(httpRequest));
+                authRequest.setDetails(authenticationDetailsSource.buildDetails(
+                        (HttpServletRequest) request));
                 authResult = authenticationManager.authenticate(authRequest);
                 successfulAuthentication(httpRequest, httpResponse, authResult);
             } catch (AuthenticationException failed) {
@@ -165,7 +164,38 @@ public class X509ProcessingFilter implements Filter, InitializingBean,
         filterChain.doFilter(request, response);
     }
 
+    private X509Certificate extractClientCertificate(HttpServletRequest request) {
+        X509Certificate[] certs = (X509Certificate[]) request.getAttribute(
+                "javax.servlet.request.X509Certificate");
+
+        if ((certs != null) && (certs.length > 0)) {
+            return certs[0];
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("No client certificate found in request.");
+        }
+
+        return null;
+    }
+
     public void init(FilterConfig ignored) throws ServletException {}
+
+    public void setApplicationEventPublisher(ApplicationEventPublisher context) {
+        this.eventPublisher = context;
+    }
+
+    public void setAuthenticationDetailsSource(
+        AuthenticationDetailsSource authenticationDetailsSource) {
+        Assert.notNull(authenticationDetailsSource,
+            "AuthenticationDetailsSource required");
+        this.authenticationDetailsSource = authenticationDetailsSource;
+    }
+
+    public void setAuthenticationManager(
+        AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
 
     /**
      * Puts the <code>Authentication</code> instance returned by the
@@ -206,25 +236,12 @@ public class X509ProcessingFilter implements Filter, InitializingBean,
         SecurityContextHolder.getContext().setAuthentication(null);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Updated SecurityContextHolder to contain null Authentication");
+            logger.debug(
+                "Updated SecurityContextHolder to contain null Authentication");
         }
 
-        request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY,
+        request.getSession()
+               .setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY,
             failed);
-    }
-
-    private X509Certificate extractClientCertificate(HttpServletRequest request) {
-        X509Certificate[] certs = (X509Certificate[]) request.getAttribute(
-                "javax.servlet.request.X509Certificate");
-
-        if ((certs != null) && (certs.length > 0)) {
-            return certs[0];
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("No client certificate found in request.");
-        }
-
-        return null;
     }
 }

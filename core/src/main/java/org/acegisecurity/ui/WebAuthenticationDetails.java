@@ -52,15 +52,8 @@ public class WebAuthenticationDetails implements SessionIdentifierAware,
      */
     public WebAuthenticationDetails(HttpServletRequest request) {
         this.remoteAddress = request.getRemoteAddr();
-        this.sessionId = request.getSession(true).getId();
-        doPopulateAdditionalInformation(request);
-    }
 
-    public WebAuthenticationDetails(HttpServletRequest request,
-        boolean forceSessionCreation) {
-        this.remoteAddress = request.getRemoteAddr();
-
-        HttpSession session = request.getSession(forceSessionCreation);
+        HttpSession session = request.getSession(false);
         this.sessionId = (session != null) ? session.getId() : null;
 
         doPopulateAdditionalInformation(request);

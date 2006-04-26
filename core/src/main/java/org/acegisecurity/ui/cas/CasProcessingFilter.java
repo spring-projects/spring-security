@@ -19,7 +19,6 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.ui.AbstractProcessingFilter;
-import org.acegisecurity.ui.WebAuthenticationDetails;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -105,7 +104,7 @@ public class CasProcessingFilter extends AbstractProcessingFilter {
         UsernamePasswordAuthenticationToken authRequest =
                 new UsernamePasswordAuthenticationToken(username, password);
 
-        authRequest.setDetails(new WebAuthenticationDetails(request, false));
+        authRequest.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
 
         return this.getAuthenticationManager().authenticate(authRequest);
     }

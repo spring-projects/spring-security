@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@ package org.acegisecurity.ui.webapp;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.acegisecurity.ui.AbstractProcessingFilter;
-import org.acegisecurity.ui.WebAuthenticationDetails;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -55,15 +56,6 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
 
     //~ Methods ================================================================
 
-    /**
-     * This filter by default responds to <code>/j_acegi_security_check</code>.
-     *
-     * @return the default
-     */
-    public String getDefaultFilterProcessesUrl() {
-        return "/j_acegi_security_check";
-    }
-
     public Authentication attemptAuthentication(HttpServletRequest request)
         throws AuthenticationException {
         String username = obtainUsername(request);
@@ -84,27 +76,22 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
         setDetails(request, authRequest);
 
         // Place the last username attempted into HttpSession for views
-        request.getSession().setAttribute(ACEGI_SECURITY_LAST_USERNAME_KEY,
-            username);
+        request.getSession()
+               .setAttribute(ACEGI_SECURITY_LAST_USERNAME_KEY, username);
 
         return this.getAuthenticationManager().authenticate(authRequest);
     }
 
-    public void init(FilterConfig filterConfig) throws ServletException {}
-
     /**
-     * Provided so that subclasses may configure what is put into the
-     * authentication request's details property. The default implementation
-     * simply constructs {@link WebAuthenticationDetails}.
+     * This filter by default responds to <code>/j_acegi_security_check</code>.
      *
-     * @param request that an authentication request is being created for
-     * @param authRequest the authentication request object that should have
-     *        its details set
+     * @return the default
      */
-    protected void setDetails(HttpServletRequest request,
-        UsernamePasswordAuthenticationToken authRequest) {
-        authRequest.setDetails(new WebAuthenticationDetails(request, false));
+    public String getDefaultFilterProcessesUrl() {
+        return "/j_acegi_security_check";
     }
+
+    public void init(FilterConfig filterConfig) throws ServletException {}
 
     /**
      * Enables subclasses to override the composition of the password, such as
@@ -140,5 +127,18 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
      */
     protected String obtainUsername(HttpServletRequest request) {
         return request.getParameter(ACEGI_SECURITY_FORM_USERNAME_KEY);
+    }
+
+    /**
+     * Provided so that subclasses may configure what is put into the
+     * authentication request's details property.
+     *
+     * @param request that an authentication request is being created for
+     * @param authRequest the authentication request object that should have
+     *        its details set
+     */
+    protected void setDetails(HttpServletRequest request,
+        UsernamePasswordAuthenticationToken authRequest) {
+        authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
     }
 }

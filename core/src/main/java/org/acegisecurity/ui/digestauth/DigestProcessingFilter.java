@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,42 @@
 
 package org.acegisecurity.ui.digestauth;
 
+import org.acegisecurity.AcegiMessageSource;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationServiceException;
+import org.acegisecurity.BadCredentialsException;
+
+import org.acegisecurity.context.SecurityContextHolder;
+
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.providers.dao.UserCache;
+import org.acegisecurity.providers.dao.cache.NullUserCache;
+
+import org.acegisecurity.ui.AuthenticationDetailsSource;
+import org.acegisecurity.ui.AuthenticationDetailsSourceImpl;
+
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
+
+import org.acegisecurity.util.StringSplitUtils;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+
 import java.io.IOException;
+
 import java.util.Map;
 
 import javax.servlet.Filter;
@@ -26,30 +61,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.acegisecurity.AcegiMessageSource;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.providers.dao.UserCache;
-import org.acegisecurity.providers.dao.cache.NullUserCache;
-import org.acegisecurity.ui.WebAuthenticationDetails;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UserDetailsService;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.acegisecurity.util.StringSplitUtils;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
-import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 
 /**
@@ -84,9 +95,9 @@ import org.springframework.util.StringUtils;
  * 
  * <p>
  * If authentication fails, an {@link
- * org.acegisecurity.ui.AuthenticationEntryPoint
- * AuthenticationEntryPoint} implementation is called. This must always be
- * {@link DigestProcessingFilterEntryPoint}, which will prompt the user to
+ * org.acegisecurity.ui.AuthenticationEntryPoint AuthenticationEntryPoint}
+ * implementation is called. This must always be {@link
+ * DigestProcessingFilterEntryPoint}, which will prompt the user to
  * authenticate again via Digest authentication.
  * </p>
  * 
@@ -112,10 +123,11 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
 
     //~ Instance fields ========================================================
 
-    private UserDetailsService userDetailsService;
+    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
     private DigestProcessingFilterEntryPoint authenticationEntryPoint;
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private UserCache userCache = new NullUserCache();
+    private UserDetailsService userDetailsService;
     private boolean passwordAlreadyEncoded = false;
 
     //~ Methods ================================================================
@@ -369,10 +381,11 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
                     + "' with response: '" + responseDigest + "'");
             }
 
-            UsernamePasswordAuthenticationToken authRequest =
-                    new UsernamePasswordAuthenticationToken(user, user.getPassword());
+            UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(user,
+                    user.getPassword());
 
-            authRequest.setDetails(new WebAuthenticationDetails(httpRequest, false));
+            authRequest.setDetails(authenticationDetailsSource.buildDetails(
+                    (HttpServletRequest) request));
 
             SecurityContextHolder.getContext().setAuthentication(authRequest);
         }
@@ -405,8 +418,8 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
      * <code>response</code> independently. Provided as a static method to
      * simplify the coding of user agents.
      *
-     * @param passwordAlreadyEncoded true if the password argument is already encoded in
-     *                               the correct format. False if it is plain text.
+     * @param passwordAlreadyEncoded true if the password argument is already
+     *        encoded in the correct format. False if it is plain text.
      * @param username the user's login name.
      * @param realm the name of the realm.
      * @param password the user's password in plaintext or ready-encoded.
@@ -419,7 +432,8 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
      *
      * @return the MD5 of the digest authentication response, encoded in hex
      *
-     * @throws IllegalArgumentException if the supplied qop value is unsupported.
+     * @throws IllegalArgumentException if the supplied qop value is
+     *         unsupported.
      */
     public static String generateDigest(boolean passwordAlreadyEncoded,
         String username, String realm, String password, String httpMethod,
@@ -454,10 +468,6 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
         return digestMd5;
     }
 
-    public UserDetailsService getUserDetailsService() {
-        return userDetailsService;
-    }
-
     public DigestProcessingFilterEntryPoint getAuthenticationEntryPoint() {
         return authenticationEntryPoint;
     }
@@ -466,10 +476,17 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
         return userCache;
     }
 
+    public UserDetailsService getUserDetailsService() {
+        return userDetailsService;
+    }
+
     public void init(FilterConfig ignored) throws ServletException {}
 
-    public void setUserDetailsService(UserDetailsService authenticationDao) {
-        this.userDetailsService = authenticationDao;
+    public void setAuthenticationDetailsSource(
+        AuthenticationDetailsSource authenticationDetailsSource) {
+        Assert.notNull(authenticationDetailsSource,
+            "AuthenticationDetailsSource required");
+        this.authenticationDetailsSource = authenticationDetailsSource;
     }
 
     public void setAuthenticationEntryPoint(
@@ -487,5 +504,9 @@ public class DigestProcessingFilter implements Filter, InitializingBean,
 
     public void setUserCache(UserCache userCache) {
         this.userCache = userCache;
+    }
+
+    public void setUserDetailsService(UserDetailsService authenticationDao) {
+        this.userDetailsService = authenticationDao;
     }
 }

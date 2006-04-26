@@ -23,8 +23,9 @@ import org.acegisecurity.context.SecurityContextHolder;
 
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
+import org.acegisecurity.ui.AuthenticationDetailsSource;
+import org.acegisecurity.ui.AuthenticationDetailsSourceImpl;
 import org.acegisecurity.ui.AuthenticationEntryPoint;
-import org.acegisecurity.ui.WebAuthenticationDetails;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -115,8 +116,14 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
     private AuthenticationEntryPoint authenticationEntryPoint;
     private AuthenticationManager authenticationManager;
     private boolean ignoreFailure = false;
+    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
 
     //~ Methods ================================================================
+
+    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+    	Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
+		this.authenticationDetailsSource = authenticationDetailsSource;
+	}
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(this.authenticationManager,
@@ -168,8 +175,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                 || !existingAuth.isAuthenticated()) {
                 UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username,
                         password);
-                authRequest.setDetails(new WebAuthenticationDetails(
-                        httpRequest, false));
+                authRequest.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
 
                 Authentication authResult;
 

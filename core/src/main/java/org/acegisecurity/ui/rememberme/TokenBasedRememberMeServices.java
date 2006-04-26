@@ -19,7 +19,8 @@ import org.acegisecurity.Authentication;
 
 import org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
 
-import org.acegisecurity.ui.WebAuthenticationDetails;
+import org.acegisecurity.ui.AuthenticationDetailsSource;
+import org.acegisecurity.ui.AuthenticationDetailsSourceImpl;
 
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
@@ -116,6 +117,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
 
     //~ Instance fields ========================================================
 
+    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
     private String key;
     private String parameter = DEFAULT_PARAMETER;
     private UserDetailsService userDetailsService;
@@ -232,8 +234,8 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
 
                         RememberMeAuthenticationToken auth = new RememberMeAuthenticationToken(this.key,
                                 userDetails, userDetails.getAuthorities());
-                        auth.setDetails(new WebAuthenticationDetails(request,
-                                false));
+                        auth.setDetails(authenticationDetailsSource.buildDetails(
+                                (HttpServletRequest) request));
 
                         return auth;
                     } else {
@@ -347,13 +349,21 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
         return cookie;
     }
 
-    protected Cookie makeValidCookie(long expiryTime, String tokenValueBase64, HttpServletRequest request) {
+    protected Cookie makeValidCookie(long expiryTime, String tokenValueBase64,
+        HttpServletRequest request) {
         Cookie cookie = new Cookie(ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
                 tokenValueBase64);
         cookie.setMaxAge(60 * 60 * 24 * 365 * 5); // 5 years
         cookie.setPath(request.getContextPath());
-        
+
         return cookie;
+    }
+
+    public void setAuthenticationDetailsSource(
+        AuthenticationDetailsSource authenticationDetailsSource) {
+        Assert.notNull(authenticationDetailsSource,
+            "AuthenticationDetailsSource required");
+        this.authenticationDetailsSource = authenticationDetailsSource;
     }
 
     public void setKey(String key) {
