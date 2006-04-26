@@ -192,6 +192,16 @@
       </properties>
     </dependency>
     <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.0</version>
+      <type>jar</type>
+      <url>http://jakarta.apache.org/commons</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>	
+    <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
       <version>1.3</version>
@@ -390,13 +400,6 @@
       <version>1.0-rc5</version>
       <type>jar</type>
     </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>2.0</version>
-      <type>jar</type>
-      <url>http://jakarta.apache.org/commons</url>
-    </dependency>	
     <!-- End of ApacheDS dependencies -->
 							
     <!-- Keep log4j after the apacheds stuff to avoid nasty classpath errors -->
