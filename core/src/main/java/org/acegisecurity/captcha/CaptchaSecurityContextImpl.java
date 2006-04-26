@@ -33,9 +33,6 @@ public class CaptchaSecurityContextImpl extends SecurityContextImpl
 
     //~ Constructors ===========================================================
 
-    /**
-     *
-     */
     public CaptchaSecurityContextImpl() {
         super();
         human = false;
@@ -46,7 +43,7 @@ public class CaptchaSecurityContextImpl extends SecurityContextImpl
     //~ Methods ================================================================
 
     /**
-     * reset the lastPassedCaptchaDate and count.
+     * Reset the lastPassedCaptchaDate and count.
      */
     public void setHuman() {
         this.human = true;
@@ -54,29 +51,14 @@ public class CaptchaSecurityContextImpl extends SecurityContextImpl
         this.humanRestrictedResourcesRequestsCount = 0;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.acegisecurity.context.CaptchaSecurityContext#isHuman()
-     */
     public boolean isHuman() {
         return human;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.acegisecurity.context.CaptchaSecurityContext#getHumanRestrictedResourcesRequestsCount()
-     */
     public int getHumanRestrictedResourcesRequestsCount() {
         return humanRestrictedResourcesRequestsCount;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.acegisecurity.context.CaptchaSecurityContext#getLastPassedCaptchaDateInMillis()
-     */
     public long getLastPassedCaptchaDateInMillis() {
         return lastPassedCaptchaDate;
     }
@@ -87,4 +69,31 @@ public class CaptchaSecurityContextImpl extends SecurityContextImpl
     public void incrementHumanRestrictedRessoucesRequestsCount() {
         humanRestrictedResourcesRequestsCount++;
     }
+
+	public boolean equals(Object obj) {
+		if (obj instanceof CaptchaSecurityContextImpl) {
+			CaptchaSecurityContextImpl rhs = (CaptchaSecurityContextImpl) obj;
+			if (this.isHuman() != rhs.isHuman()) {
+				return false;
+			}
+			if (this.getHumanRestrictedResourcesRequestsCount() != rhs.getHumanRestrictedResourcesRequestsCount()) {
+				return false;
+			}
+			if (this.getLastPassedCaptchaDateInMillis() != rhs.getLastPassedCaptchaDateInMillis()) {
+				return false;
+			}
+			return super.equals(obj);
+		}
+		return false;
+	}
+
+	public int hashCode() {
+		int code = super.hashCode();
+		code ^= this.humanRestrictedResourcesRequestsCount;
+		code ^= this.lastPassedCaptchaDate;
+		if (this.isHuman()) {
+			code ^= -37;
+		}
+		return code;
+	}
 }

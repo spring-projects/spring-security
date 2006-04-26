@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,42 @@ public class CaptchaSecurityContextImplTests extends SecurityContextImplTests {
             context.getLastPassedCaptchaDateInMillis());
         assertEquals("should be 0", 0,
             context.getHumanRestrictedResourcesRequestsCount());
+    }
+
+    public void testEquals() {
+        CaptchaSecurityContext context1 = new CaptchaSecurityContextImpl();
+        CaptchaSecurityContext context2 = new CaptchaSecurityContextImpl();
+
+        assertEquals(context1, context2);
+
+        assertFalse(context1.isHuman());
+        context1.setHuman();
+        assertNotSame(context1, context2);
+
+        // Get fresh copy
+        context1 = new CaptchaSecurityContextImpl();
+        assertEquals(context1, context2);
+
+        context1.incrementHumanRestrictedRessoucesRequestsCount();
+        assertNotSame(context1, context2);
+    }
+
+    public void testHashcode() {
+        CaptchaSecurityContext context1 = new CaptchaSecurityContextImpl();
+        CaptchaSecurityContext context2 = new CaptchaSecurityContextImpl();
+
+        assertEquals(context1.hashCode(), context2.hashCode());
+
+        assertFalse(context1.isHuman());
+        context1.setHuman();
+        assertTrue(context1.hashCode() != context2.hashCode());
+
+        // Get fresh copy
+        context1 = new CaptchaSecurityContextImpl();
+        assertEquals(context1.hashCode(), context2.hashCode());
+
+        context1.incrementHumanRestrictedRessoucesRequestsCount();
+        assertTrue(context1 != context2);
     }
 
     public void testIncrementRequests() {
