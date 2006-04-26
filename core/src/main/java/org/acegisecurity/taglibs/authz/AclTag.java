@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,17 @@
 package org.acegisecurity.taglibs.authz;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.acl.AclManager;
 import org.acegisecurity.acl.basic.BasicAclEntry;
+
 import org.acegisecurity.context.SecurityContextHolder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.springframework.beans.factory.BeanFactoryUtils;
 
 import org.springframework.context.ApplicationContext;
 
@@ -30,7 +34,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.util.ExpressionEvaluationUtils;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -54,7 +57,8 @@ import javax.servlet.jsp.tagext.TagSupport;
  * One or more comma separate integer permissions are specified via the
  * <code>hasPermission</code> attribute. The tag will include its body if
  * <b>any</b> of the integer permissions have been granted to the current
- * <code>Authentication</code> (obtained from the <code>SecurityContextHolder</code>).
+ * <code>Authentication</code> (obtained from the
+ * <code>SecurityContextHolder</code>).
  * </p>
  * 
  * <p>
@@ -81,22 +85,6 @@ public class AclTag extends TagSupport {
     private String hasPermission = "";
 
     //~ Methods ================================================================
-
-    public void setDomainObject(Object domainObject) {
-        this.domainObject = domainObject;
-    }
-
-    public Object getDomainObject() {
-        return domainObject;
-    }
-
-    public void setHasPermission(String hasPermission) {
-        this.hasPermission = hasPermission;
-    }
-
-    public String getHasPermission() {
-        return hasPermission;
-    }
 
     public int doStartTag() throws JspException {
         if ((null == hasPermission) || "".equals(hasPermission)) {
@@ -146,16 +134,16 @@ public class AclTag extends TagSupport {
                                                    .getAuthentication();
 
         ApplicationContext context = getContext(pageContext);
-        Map beans = context.getBeansOfType(AclManager.class, false, false);
+        String[] beans = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context,
+                AclManager.class, false, false);
 
-        if (beans.size() == 0) {
+        if (beans.length == 0) {
             throw new JspException(
                 "No AclManager would found the application context: "
                 + context.toString());
         }
 
-        String beanName = (String) beans.keySet().iterator().next();
-        AclManager aclManager = (AclManager) context.getBean(beanName);
+        AclManager aclManager = (AclManager) context.getBean(beans[0]);
 
         // Obtain aclEntrys applying to the current Authentication object
         AclEntry[] acls = aclManager.getAcls(resolvedDomainObject, auth);
@@ -174,7 +162,7 @@ public class AclTag extends TagSupport {
         for (int i = 0; i < acls.length; i++) {
             // Locate processable AclEntrys
             if (acls[i] instanceof BasicAclEntry) {
-            	BasicAclEntry processableAcl = (BasicAclEntry) acls[i];
+                BasicAclEntry processableAcl = (BasicAclEntry) acls[i];
 
                 // See if principal has any of the required permissions
                 for (int y = 0; y < requiredIntegers.length; y++) {
@@ -214,6 +202,14 @@ public class AclTag extends TagSupport {
         return WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
     }
 
+    public Object getDomainObject() {
+        return domainObject;
+    }
+
+    public String getHasPermission() {
+        return hasPermission;
+    }
+
     private Integer[] parseIntegersString(String integersString)
         throws NumberFormatException {
         final Set integers = new HashSet();
@@ -226,5 +222,13 @@ public class AclTag extends TagSupport {
         }
 
         return (Integer[]) integers.toArray(new Integer[] {});
+    }
+
+    public void setDomainObject(Object domainObject) {
+        this.domainObject = domainObject;
+    }
+
+    public void setHasPermission(String hasPermission) {
+        this.hasPermission = hasPermission;
     }
 }
