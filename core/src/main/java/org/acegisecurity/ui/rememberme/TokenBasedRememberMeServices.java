@@ -21,6 +21,7 @@ import org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
 
 import org.acegisecurity.ui.AuthenticationDetailsSource;
 import org.acegisecurity.ui.AuthenticationDetailsSourceImpl;
+import org.acegisecurity.ui.logout.LogoutHandler;
 
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
@@ -108,7 +109,7 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public class TokenBasedRememberMeServices implements RememberMeServices,
-    InitializingBean {
+    InitializingBean, LogoutHandler {
     //~ Static fields/initializers =============================================
 
     public static final String ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY = "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE";
@@ -338,6 +339,12 @@ public class TokenBasedRememberMeServices implements RememberMeServices,
             logger.debug("Added remember-me cookie for user '" + username
                 + "', expiry: '" + new Date(expiryTime) + "'");
         }
+    }
+
+    public void logout(HttpServletRequest request,
+        HttpServletResponse response, Authentication authentication) {
+        cancelCookie(request, response,
+            "Logout of user " + authentication.getName());
     }
 
     protected Cookie makeCancelCookie(HttpServletRequest request) {

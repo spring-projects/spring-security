@@ -21,7 +21,7 @@
          <value>
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 		    PATTERN_TYPE_APACHE_ANT
-            /**=httpSessionContextIntegrationFilter,authenticationProcessingFilter,basicProcessingFilter,rememberMeProcessingFilter,anonymousProcessingFilter,switchUserProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
+            /**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,rememberMeProcessingFilter,anonymousProcessingFilter,switchUserProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
          </value>
       </property>
     </bean>
@@ -101,6 +101,16 @@
    
    <bean id="rememberMeAuthenticationProvider" class="org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider">
       <property name="key"><value>springRocks</value></property>
+   </bean>
+   
+   <bean id="logoutFilter" class="org.acegisecurity.ui.logout.LogoutFilter">
+      <constructor-arg value="/index.jsp"/> <!-- URL redirected to after logout -->
+      <constructor-arg>
+         <list>
+              <ref bean="rememberMeServices"/>
+              <bean class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler"/>
+         </list>
+      </constructor-arg>
    </bean>
 
    <!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->

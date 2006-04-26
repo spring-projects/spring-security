@@ -21,7 +21,7 @@
          <value>
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 		    PATTERN_TYPE_APACHE_ANT
-            /**=httpSessionContextIntegrationFilter,httpRequestIntegrationFilter
+            /**=httpSessionContextIntegrationFilter,httpRequestIntegrationFilter,logoutFilter
          </value>
       </property>
     </bean>
@@ -49,6 +49,16 @@
    <bean id="httpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter">
    </bean>
 
+	<!-- note logout has little impact, due to container authentication functionality (used only so /j_acegi_logout doesn't give URL error) -->
+   <bean id="logoutFilter" class="org.acegisecurity.ui.logout.LogoutFilter">
+      <constructor-arg value="/index.jsp"/> <!-- URL redirected to after logout -->
+      <constructor-arg>
+         <list>
+              <bean class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler"/>
+         </list>
+      </constructor-arg>
+   </bean>
+   
 	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
 	
 				<!-- Implement by servlet specification -->

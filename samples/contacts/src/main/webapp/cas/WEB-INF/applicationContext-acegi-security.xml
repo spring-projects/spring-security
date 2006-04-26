@@ -19,7 +19,7 @@
          <value>
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 		    PATTERN_TYPE_APACHE_ANT
-            /**=channelProcessingFilter,httpSessionContextIntegrationFilter,casProcessingFilter,basicProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
+            /**=channelProcessingFilter,httpSessionContextIntegrationFilter,logoutFilter,casProcessingFilter,basicProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
          </value>
       </property>
     </bean>
@@ -91,6 +91,17 @@
 		<property name="service"><value>https://localhost:8443/contacts-cas/j_acegi_cas_security_check</value></property>
 		<property name="sendRenew"><value>false</value></property>
 	</bean>
+
+	<!-- note logout has little impact, due to CAS reauthentication functionality (it will cause a refresh of the authentication though) -->
+   <bean id="logoutFilter" class="org.acegisecurity.ui.logout.LogoutFilter">
+      <constructor-arg value="/index.jsp"/> <!-- URL redirected to after logout -->
+      <constructor-arg>
+         <list>
+              <bean class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler"/>
+         </list>
+      </constructor-arg>
+   </bean>
+
 
 	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
 	

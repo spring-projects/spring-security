@@ -19,7 +19,7 @@
          <value>
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 		    PATTERN_TYPE_APACHE_ANT
-            /**=channelProcessingFilter,httpSessionContextIntegrationFilter,x509ProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
+            /**=channelProcessingFilter,httpSessionContextIntegrationFilter,logoutFilter,x509ProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
          </value>
       </property>
     </bean>
@@ -74,6 +74,17 @@
 		<property name="userDetailsService"><ref local="jdbcDaoImpl"/></property>
       <!--  <property name="subjectDNRegex"><value>emailAddress=(.*?),</value></property> -->
 	</bean>
+
+	<!-- note logout has little impact, due to X509 certificate still being presented (it will cause a refresh of the authentication though) -->
+   <bean id="logoutFilter" class="org.acegisecurity.ui.logout.LogoutFilter">
+      <constructor-arg value="/index.jsp"/> <!-- URL redirected to after logout -->
+      <constructor-arg>
+         <list>
+              <bean class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler"/>
+         </list>
+      </constructor-arg>
+   </bean>
+
 
 	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
 	
