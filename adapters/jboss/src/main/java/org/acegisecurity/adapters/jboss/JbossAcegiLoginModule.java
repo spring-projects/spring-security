@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,11 @@ import org.jboss.security.SimpleGroup;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
 
-import org.springframework.beans.factory.access.*;
+import org.springframework.beans.factory.access.BeanFactoryLocator;
+import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.beans.factory.access.SingletonBeanFactoryLocator;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.security.Principal;
@@ -73,6 +75,67 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
 
     //~ Methods ================================================================
 
+    protected Principal getIdentity() {
+        return this.identity;
+    }
+
+    protected Group[] getRoleSets() throws LoginException {
+        SimpleGroup roles = new SimpleGroup("Roles");
+        Group[] roleSets = {roles};
+
+        if (this.identity instanceof Authentication) {
+            Authentication user = (Authentication) this.identity;
+
+            for (int i = 0; i < user.getAuthorities().length; i++) {
+                roles.addMember(new SimplePrincipal(
+                        user.getAuthorities()[i].getAuthority()));
+            }
+        }
+
+        return roleSets;
+    }
+
+    protected String[] getUsernameAndPassword() throws LoginException {
+        String[] info = {null, null};
+
+        // prompt for a username and password
+        if (callbackHandler == null) {
+            throw new LoginException("Error: no CallbackHandler available "
+                + "to collect authentication information");
+        }
+
+        NameCallback nc = new NameCallback("User name: ", "guest");
+        PasswordCallback pc = new PasswordCallback("Password: ", false);
+        Callback[] callbacks = {nc, pc};
+        String username = null;
+        String password = null;
+
+        try {
+            callbackHandler.handle(callbacks);
+            username = nc.getName();
+
+            char[] tmpPassword = pc.getPassword();
+
+            if (tmpPassword != null) {
+                credential = new char[tmpPassword.length];
+                System.arraycopy(tmpPassword, 0, credential, 0,
+                    tmpPassword.length);
+                pc.clearPassword();
+                password = new String(credential);
+            }
+        } catch (java.io.IOException ioe) {
+            throw new LoginException(ioe.toString());
+        } catch (UnsupportedCallbackException uce) {
+            throw new LoginException("CallbackHandler does not support: "
+                + uce.getCallback());
+        }
+
+        info[0] = username;
+        info[1] = password;
+
+        return info;
+    }
+
     public void initialize(Subject subject, CallbackHandler callbackHandler,
         Map sharedState, Map options) {
         super.initialize(subject, callbackHandler, sharedState, options);
@@ -101,7 +164,8 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
 
         // Attempt to find the appContextLocation only if no singletonId was defined
         if ((singletonId == null) || "".equals(singletonId)) {
-            if (Thread.currentThread().getContextClassLoader().getResource(appContextLocation) == null) {
+            if (Thread.currentThread().getContextClassLoader()
+                      .getResource(appContextLocation) == null) {
                 if (super.log.isInfoEnabled()) {
                     super.log.info("cannot locate " + appContextLocation);
                 }
@@ -111,7 +175,7 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
             }
         }
 
-        ClassPathXmlApplicationContext ctx = null;
+        ApplicationContext ctx = null;
 
         if ((singletonId == null) || "".equals(singletonId)) {
             try {
@@ -133,7 +197,7 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
 
             BeanFactoryLocator bfl = SingletonBeanFactoryLocator.getInstance();
             BeanFactoryReference bf = bfl.useBeanFactory(singletonId);
-            ctx = (ClassPathXmlApplicationContext) bf.getFactory();
+            ctx = (ApplicationContext) bf.getFactory();
 
             if (ctx == null) {
                 if (super.log.isInfoEnabled()) {
@@ -259,66 +323,5 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
             + loginOk);
 
         return true;
-    }
-
-    protected Principal getIdentity() {
-        return this.identity;
-    }
-
-    protected Group[] getRoleSets() throws LoginException {
-        SimpleGroup roles = new SimpleGroup("Roles");
-        Group[] roleSets = {roles};
-
-        if (this.identity instanceof Authentication) {
-            Authentication user = (Authentication) this.identity;
-
-            for (int i = 0; i < user.getAuthorities().length; i++) {
-                roles.addMember(new SimplePrincipal(
-                        user.getAuthorities()[i].getAuthority()));
-            }
-        }
-
-        return roleSets;
-    }
-
-    protected String[] getUsernameAndPassword() throws LoginException {
-        String[] info = {null, null};
-
-        // prompt for a username and password
-        if (callbackHandler == null) {
-            throw new LoginException("Error: no CallbackHandler available "
-                + "to collect authentication information");
-        }
-
-        NameCallback nc = new NameCallback("User name: ", "guest");
-        PasswordCallback pc = new PasswordCallback("Password: ", false);
-        Callback[] callbacks = {nc, pc};
-        String username = null;
-        String password = null;
-
-        try {
-            callbackHandler.handle(callbacks);
-            username = nc.getName();
-
-            char[] tmpPassword = pc.getPassword();
-
-            if (tmpPassword != null) {
-                credential = new char[tmpPassword.length];
-                System.arraycopy(tmpPassword, 0, credential, 0,
-                    tmpPassword.length);
-                pc.clearPassword();
-                password = new String(credential);
-            }
-        } catch (java.io.IOException ioe) {
-            throw new LoginException(ioe.toString());
-        } catch (UnsupportedCallbackException uce) {
-            throw new LoginException("CallbackHandler does not support: "
-                + uce.getCallback());
-        }
-
-        info[0] = username;
-        info[1] = password;
-
-        return info;
     }
 }
