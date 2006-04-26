@@ -15,26 +15,23 @@
 
 package org.acegisecurity.userdetails.jdbc;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.List;
-
-import javax.sql.DataSource;
-
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.object.MappingSqlQuery;
+
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.List;
 
 
 /**
@@ -70,7 +67,6 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 
     public static final String DEF_USERS_BY_USERNAME_QUERY = "SELECT username,password,enabled FROM users WHERE username = ?";
     public static final String DEF_AUTHORITIES_BY_USERNAME_QUERY = "SELECT username,authority FROM authorities WHERE username = ?";
-    private static final Log logger = LogFactory.getLog(JdbcDaoImpl.class);
 
     //~ Instance fields ========================================================
 
@@ -182,15 +178,14 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 
         List dbAuths = authoritiesByUsernameMapping.execute(user.getUsername());
 
+        addCustomAuthorities(user.getUsername(), dbAuths);
+
         if (dbAuths.size() == 0) {
             throw new UsernameNotFoundException("User has no GrantedAuthority");
         }
 
-        GrantedAuthority[] arrayAuths = {};
-
-        addCustomAuthorities(user.getUsername(), dbAuths);
-
-        arrayAuths = (GrantedAuthority[]) dbAuths.toArray(arrayAuths);
+        GrantedAuthority[] arrayAuths =
+                (GrantedAuthority[]) dbAuths.toArray(new GrantedAuthority[dbAuths.size()]);
 
         String returnUsername = user.getUsername();
 
