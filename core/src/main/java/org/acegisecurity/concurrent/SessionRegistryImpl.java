@@ -70,7 +70,10 @@ public class SessionRegistryImpl implements SessionRegistry,
         Iterator iter = sessionsUsedByPrincipal.iterator();
         while (iter.hasNext()) {
         	String sessionId = (String) iter.next();
-        	list.add(getSessionInformation(sessionId));
+        	SessionInformation sessionInformation = getSessionInformation(sessionId);
+        	if (!sessionInformation.isExpired()) {
+            	list.add(sessionInformation);
+        	}
         }
 
         return (SessionInformation[]) list.toArray(new SessionInformation[] {});
