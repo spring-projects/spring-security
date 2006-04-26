@@ -311,7 +311,8 @@ public abstract class AbstractProcessingFilter implements Filter,
         throws IOException {}
 
     protected void onUnsuccessfulAuthentication(HttpServletRequest request,
-        HttpServletResponse response) throws IOException {}
+        HttpServletResponse response, AuthenticationException failed)
+        throws IOException {}
 
     /**
      * <p>
@@ -473,7 +474,7 @@ public abstract class AbstractProcessingFilter implements Filter,
                    .setAttribute(ACEGI_SECURITY_LAST_EXCEPTION_KEY, failed);
         } catch (Exception ignored) {}
 
-        onUnsuccessfulAuthentication(request, response);
+        onUnsuccessfulAuthentication(request, response, failed);
 
         rememberMeServices.loginFail(request, response);
 
