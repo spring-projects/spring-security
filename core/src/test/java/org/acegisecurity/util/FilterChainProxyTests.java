@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,14 @@ import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.MockApplicationContext;
 import org.acegisecurity.MockFilterConfig;
+
 import org.acegisecurity.intercept.web.FilterInvocationDefinitionSource;
 import org.acegisecurity.intercept.web.MockFilterInvocationDefinitionSource;
 import org.acegisecurity.intercept.web.PathBasedFilterInvocationDefinitionMap;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -60,8 +62,7 @@ public class FilterChainProxyTests extends TestCase {
     public void testDetectsFilterInvocationDefinitionSourceThatDoesNotReturnAllConfigAttributes()
         throws Exception {
         FilterChainProxy filterChainProxy = new FilterChainProxy();
-        filterChainProxy.setApplicationContext(MockApplicationContext
-            .getContext());
+        filterChainProxy.setApplicationContext(MockApplicationContext.getContext());
         filterChainProxy.setFilterInvocationDefinitionSource(new MockFilterInvocationDefinitionSource(
                 false, false));
 
@@ -77,8 +78,7 @@ public class FilterChainProxyTests extends TestCase {
     public void testDetectsIfConfigAttributeDoesNotReturnValueForGetAttributeMethod()
         throws Exception {
         FilterChainProxy filterChainProxy = new FilterChainProxy();
-        filterChainProxy.setApplicationContext(MockApplicationContext
-            .getContext());
+        filterChainProxy.setApplicationContext(MockApplicationContext.getContext());
 
         ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
         cad.addConfigAttribute(new MockConfigAttribute());
@@ -93,15 +93,15 @@ public class FilterChainProxyTests extends TestCase {
             filterChainProxy.init(new MockFilterConfig());
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertTrue(expected.getMessage().endsWith("returned null to the getAttribute() method, which is invalid when used with FilterChainProxy"));
+            assertTrue(expected.getMessage()
+                               .endsWith("returned null to the getAttribute() method, which is invalid when used with FilterChainProxy"));
         }
     }
 
     public void testDetectsMissingFilterInvocationDefinitionSource()
         throws Exception {
         FilterChainProxy filterChainProxy = new FilterChainProxy();
-        filterChainProxy.setApplicationContext(MockApplicationContext
-            .getContext());
+        filterChainProxy.setApplicationContext(MockApplicationContext.getContext());
 
         try {
             filterChainProxy.afterPropertiesSet();
@@ -110,6 +110,26 @@ public class FilterChainProxyTests extends TestCase {
             assertEquals("filterInvocationDefinitionSource must be specified",
                 expected.getMessage());
         }
+    }
+
+    public void testDoNotFilter() throws Exception {
+        ApplicationContext appCtx = new ClassPathXmlApplicationContext(
+                "org/acegisecurity/util/filtertest-valid.xml");
+        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChain",
+                FilterChainProxy.class);
+        MockFilter filter = (MockFilter) appCtx.getBean("mockFilter",
+                MockFilter.class);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setServletPath("/do/not/filter/somefile.html");
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain(true);
+
+        filterChainProxy.doFilter(request, response, chain);
+        assertFalse(filter.isWasInitialized());
+        assertFalse(filter.isWasDoFiltered());
+        assertFalse(filter.isWasDestroyed());
     }
 
     public void testGettersSetters() {

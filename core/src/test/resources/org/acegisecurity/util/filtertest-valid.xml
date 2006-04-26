@@ -34,6 +34,7 @@
 		    PATTERN_TYPE_APACHE_ANT
             /foo/**=mockFilter
             /some/other/path/**=mockFilter
+            /do/not/filter=#NONE#
          </value>
       </property>
     </bean>

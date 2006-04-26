@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.acegisecurity.util;
 
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
+
 import org.acegisecurity.intercept.web.FilterInvocation;
 import org.acegisecurity.intercept.web.FilterInvocationDefinitionSource;
 
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
 import org.springframework.util.Assert;
 
 import java.io.IOException;
@@ -90,16 +92,20 @@ import javax.servlet.ServletResponse;
  * <p>
  * It is particularly noted the <code>Filter</code> lifecycle mismatch between
  * the servlet container and IoC container. As per {@link
- * org.acegisecurity.util.FilterToBeanProxy} JavaDocs, we recommend you
- * allow the IoC container to manage lifecycle instead of the servlet
- * container. By default the <code>FilterToBeanProxy</code> will never call
- * this class' {@link #init(FilterConfig)} and {@link #destroy()} methods,
- * meaning each of the filters defined against
- * <code>FilterInvocationDefinitionSource</code> will not be called. If you do
- * need your filters to be initialized and destroyed, please set the
- * <code>lifecycle</code> initialization parameter against the
- * <code>FilterToBeanProxy</code> to specify servlet container lifecycle
- * management.
+ * org.acegisecurity.util.FilterToBeanProxy} JavaDocs, we recommend you allow
+ * the IoC container to manage lifecycle instead of the servlet container. By
+ * default the <code>FilterToBeanProxy</code> will never call this class'
+ * {@link #init(FilterConfig)} and {@link #destroy()} methods, meaning each of
+ * the filters defined against <code>FilterInvocationDefinitionSource</code>
+ * will not be called. If you do need your filters to be initialized and
+ * destroyed, please set the <code>lifecycle</code> initialization parameter
+ * against the <code>FilterToBeanProxy</code> to specify servlet container
+ * lifecycle management.
+ * </p>
+ * 
+ * <p>
+ * If a filter name of {@link #TOKEN_NONE} is used, this allows specification
+ * of a filter pattern which should never cause any filters to fire.
  * </p>
  *
  * @author Carlos Sanchez
@@ -111,6 +117,7 @@ public class FilterChainProxy implements Filter, InitializingBean,
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(FilterChainProxy.class);
+    public static final String TOKEN_NONE = "#NONE#";
 
     //~ Instance fields ========================================================
 
@@ -119,36 +126,27 @@ public class FilterChainProxy implements Filter, InitializingBean,
 
     //~ Methods ================================================================
 
-    public void setApplicationContext(ApplicationContext applicationContext)
-        throws BeansException {
-        this.applicationContext = applicationContext;
-    }
-
-    public void setFilterInvocationDefinitionSource(
-        FilterInvocationDefinitionSource filterInvocationDefinitionSource) {
-        this.filterInvocationDefinitionSource = filterInvocationDefinitionSource;
-    }
-
-    public FilterInvocationDefinitionSource getFilterInvocationDefinitionSource() {
-        return filterInvocationDefinitionSource;
-    }
-
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(filterInvocationDefinitionSource, "filterInvocationDefinitionSource must be specified");
-        Assert.notNull(this.filterInvocationDefinitionSource.getConfigAttributeDefinitions(), "FilterChainProxy requires the FilterInvocationDefinitionSource to return a non-null response to getConfigAttributeDefinitions()");
+        Assert.notNull(filterInvocationDefinitionSource,
+            "filterInvocationDefinitionSource must be specified");
+        Assert.notNull(this.filterInvocationDefinitionSource
+            .getConfigAttributeDefinitions(),
+            "FilterChainProxy requires the FilterInvocationDefinitionSource to return a non-null response to getConfigAttributeDefinitions()");
     }
 
     public void destroy() {
         Filter[] filters = obtainAllDefinedFilters();
 
         for (int i = 0; i < filters.length; i++) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "Destroying Filter defined in ApplicationContext: '"
-                    + filters[i].toString() + "'");
-            }
+            if (filters[i] != null) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "Destroying Filter defined in ApplicationContext: '"
+                        + filters[i].toString() + "'");
+                }
 
-            filters[i].destroy();
+                filters[i].destroy();
+            }
         }
     }
 
@@ -174,17 +172,23 @@ public class FilterChainProxy implements Filter, InitializingBean,
         }
     }
 
+    public FilterInvocationDefinitionSource getFilterInvocationDefinitionSource() {
+        return filterInvocationDefinitionSource;
+    }
+
     public void init(FilterConfig filterConfig) throws ServletException {
         Filter[] filters = obtainAllDefinedFilters();
 
         for (int i = 0; i < filters.length; i++) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "Initializing Filter defined in ApplicationContext: '"
-                    + filters[i].toString() + "'");
-            }
+            if (filters[i] != null) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                        "Initializing Filter defined in ApplicationContext: '"
+                        + filters[i].toString() + "'");
+                }
 
-            filters[i].init(filterConfig);
+                filters[i].init(filterConfig);
+            }
         }
     }
 
@@ -231,11 +235,8 @@ public class FilterChainProxy implements Filter, InitializingBean,
      *        <code>Filter</code>s
      *
      * @return the <code>Filter</code>s against the specified
-     *         <code>ConfigAttributeDefinition</code>
-     *
-     * @throws IllegalArgumentException if a configuration attribute provides a
-     *         <code>null</code> return value from the {@link
-     *         ConfigAttribute#getAttribute()} method
+     *         <code>ConfigAttributeDefinition</code> (never
+     *         <code>null</code>)
      */
     private Filter[] obtainAllDefinedFilters(
         ConfigAttributeDefinition configAttributeDefinition) {
@@ -246,14 +247,27 @@ public class FilterChainProxy implements Filter, InitializingBean,
             ConfigAttribute attr = (ConfigAttribute) attributes.next();
             String filterName = attr.getAttribute();
 
-            Assert.notNull(filterName, "Configuration attribute: '"
-                    + attr
-                    + "' returned null to the getAttribute() method, which is invalid when used with FilterChainProxy");
+            Assert.notNull(filterName,
+                "Configuration attribute: '" + attr
+                + "' returned null to the getAttribute() method, which is invalid when used with FilterChainProxy");
 
-            list.add(this.applicationContext.getBean(filterName, Filter.class));
+            if (!filterName.equals(TOKEN_NONE)) {
+                list.add(this.applicationContext.getBean(filterName,
+                        Filter.class));
+            }
         }
 
         return (Filter[]) list.toArray(new Filter[] {null});
+    }
+
+    public void setApplicationContext(ApplicationContext applicationContext)
+        throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    public void setFilterInvocationDefinitionSource(
+        FilterInvocationDefinitionSource filterInvocationDefinitionSource) {
+        this.filterInvocationDefinitionSource = filterInvocationDefinitionSource;
     }
 
     //~ Inner Classes ==========================================================
