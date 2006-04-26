@@ -16,6 +16,7 @@
 package org.acegisecurity.ui;
 
 import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.AcegiSecurityException;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationTrustResolver;
 import org.acegisecurity.AuthenticationTrustResolverImpl;
@@ -145,38 +146,20 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
             if (logger.isDebugEnabled()) {
                 logger.debug("Chain processed normally");
             }
-        } catch (AuthenticationException authentication) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Authentication exception occurred; redirecting to authentication entry point",
-                    authentication);
-            }
-
-            sendStartAuthentication(request, response, chain, authentication);
-        } catch (AccessDeniedException accessDenied) {
-            if (authenticationTrustResolver.isAnonymous(
-                    SecurityContextHolder.getContext().getAuthentication())) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Access is denied (user is anonymous); redirecting to authentication entry point",
-                        accessDenied);
-                }
-
-                sendStartAuthentication(request, response, chain,
-                    new InsufficientAuthenticationException(
-                        "Full authentication is required to access this resource"));
+        } catch (AuthenticationException ex) {
+            handleException(request, response, chain, ex);
+        } catch (AccessDeniedException ex) {
+            handleException(request, response, chain, ex);
+        } catch (ServletException ex) {
+            if (ex.getRootCause() instanceof AuthenticationException
+                || ex.getRootCause() instanceof AccessDeniedException) {
+                handleException(request, response, chain,
+                    (AcegiSecurityException) ex.getRootCause());
             } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Access is denied (user is not anonymous); sending back forbidden response",
-                        accessDenied);
-                }
-
-                sendAccessDeniedError(request, response, chain, accessDenied);
+                throw ex;
             }
-        } catch (ServletException e) {
-            throw e;
-        } catch (IOException e) {
-            throw e;
-        } catch (Throwable otherException) {
-            throw new ServletException(otherException);
+        } catch (IOException ex) {
+            throw ex;
         }
     }
 
@@ -190,6 +173,40 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
 
     public PortResolver getPortResolver() {
         return portResolver;
+    }
+
+    private void handleException(ServletRequest request,
+        ServletResponse response, FilterChain chain,
+        AcegiSecurityException exception) throws IOException, ServletException {
+        if (exception instanceof AuthenticationException) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Authentication exception occurred; redirecting to authentication entry point",
+                    exception);
+            }
+
+            sendStartAuthentication(request, response, chain,
+                (AuthenticationException) exception);
+        } else if (exception instanceof AccessDeniedException) {
+            if (authenticationTrustResolver.isAnonymous(
+                    SecurityContextHolder.getContext().getAuthentication())) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Access is denied (user is anonymous); redirecting to authentication entry point",
+                        exception);
+                }
+
+                sendStartAuthentication(request, response, chain,
+                    new InsufficientAuthenticationException(
+                        "Full authentication is required to access this resource"));
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Access is denied (user is not anonymous); sending back forbidden response",
+                        exception);
+                }
+
+                sendAccessDeniedError(request, response, chain,
+                    (AccessDeniedException) exception);
+            }
+        }
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {}
