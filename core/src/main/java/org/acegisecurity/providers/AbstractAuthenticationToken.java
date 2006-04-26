@@ -146,10 +146,12 @@ public abstract class AbstractAuthenticationToken implements Authentication {
 
     public int hashCode() {
         int code = 31;
-
-        if (this.getAuthorities() != null) {
-            for (int i = 0; i < this.getAuthorities().length; i++) {
-                code ^= this.getAuthorities()[i].hashCode();         
+        
+        // Copy authorities to local variable for performance (SEC-223)
+        GrantedAuthority[] authorities = this.getAuthorities();
+        if (authorities != null) {
+            for (int i = 0; i < authorities.length; i++) {
+                code ^= authorities[i].hashCode();         
             }
         }
 
