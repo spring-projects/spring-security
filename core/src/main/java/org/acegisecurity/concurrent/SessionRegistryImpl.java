@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,13 @@
 
 package org.acegisecurity.concurrent;
 
+import org.acegisecurity.ui.session.HttpSessionDestroyedEvent;
+
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+
+import org.springframework.util.Assert;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -27,18 +34,12 @@ import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
-import org.acegisecurity.ui.session.HttpSessionDestroyedEvent;
-
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.util.Assert;
-
 
 /**
- * Base implementation of {@link
- * org.acegisecurity.concurrent.SessionRegistry} which also listens for
- * {@link org.acegisecurity.ui.session.HttpSessionDestroyedEvent}s
- * published in the Spring application context.
+ * Base implementation of {@link org.acegisecurity.concurrent.SessionRegistry}
+ * which also listens for {@link
+ * org.acegisecurity.ui.session.HttpSessionDestroyedEvent}s published in the
+ * Spring application context.
  * 
  * <p>
  * NB: It is important that you register the {@link
@@ -59,21 +60,29 @@ public class SessionRegistryImpl implements SessionRegistry,
 
     //~ Methods ================================================================
 
+    public Object[] getAllPrincipals() {
+        return principals.keySet().toArray();
+    }
+
     public SessionInformation[] getAllSessions(Object principal) {
         Set sessionsUsedByPrincipal = (Set) principals.get(principal);
 
         if (sessionsUsedByPrincipal == null) {
             return null;
         }
-        
+
         List list = new ArrayList();
         Iterator iter = sessionsUsedByPrincipal.iterator();
+
         while (iter.hasNext()) {
-        	String sessionId = (String) iter.next();
-        	SessionInformation sessionInformation = getSessionInformation(sessionId);
-        	if (!sessionInformation.isExpired()) {
-            	list.add(sessionInformation);
-        	}
+            synchronized (sessionsUsedByPrincipal) {
+                String sessionId = (String) iter.next();
+                SessionInformation sessionInformation = getSessionInformation(sessionId);
+
+                if (!sessionInformation.isExpired()) {
+                    list.add(sessionInformation);
+                }
+            }
         }
 
         return (SessionInformation[]) list.toArray(new SessionInformation[] {});
@@ -134,21 +143,18 @@ public class SessionRegistryImpl implements SessionRegistry,
         if (info != null) {
             sessionIds.remove(sessionId);
 
-            Set sessionsUsedByPrincipal = (Set) principals.get(info
-                    .getPrincipal());
+            Set sessionsUsedByPrincipal = (Set) principals.get(info.getPrincipal());
 
             if (sessionsUsedByPrincipal != null) {
-                sessionsUsedByPrincipal.remove(sessionId);
-                
-                if (sessionsUsedByPrincipal.size() == 0) {
-                	// No need to keep pbject in principals Map anymore 
-                	principals.remove(info.getPrincipal());
+                synchronized (sessionsUsedByPrincipal) {
+                    sessionsUsedByPrincipal.remove(sessionId);
+
+                    if (sessionsUsedByPrincipal.size() == 0) {
+                        // No need to keep object in principals Map anymore 
+                        principals.remove(info.getPrincipal());
+                    }
                 }
             }
         }
     }
-
-	public Object[] getAllPrincipals() {
-		return principals.keySet().toArray();
-	}
 }
