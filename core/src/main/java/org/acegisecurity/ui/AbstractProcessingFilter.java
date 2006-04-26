@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,33 @@
 
 package org.acegisecurity.ui;
 
+import org.acegisecurity.AcegiMessageSource;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationManager;
+
+import org.acegisecurity.context.SecurityContextHolder;
+
+import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
+
+import org.acegisecurity.ui.rememberme.NullRememberMeServices;
+import org.acegisecurity.ui.rememberme.RememberMeServices;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.beans.factory.InitializingBean;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+
+import org.springframework.util.Assert;
+
 import java.io.IOException;
+
 import java.util.Properties;
 
 import javax.servlet.Filter;
@@ -26,24 +52,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.acegisecurity.AcegiMessageSource;
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationManager;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
-import org.acegisecurity.ui.rememberme.NullRememberMeServices;
-import org.acegisecurity.ui.rememberme.RememberMeServices;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
-import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.util.Assert;
 
 
 /**
@@ -100,11 +108,11 @@ import org.springframework.util.Assert;
  * fully-qualified exception class name to a redirection url target.<br>
  * For example:<br>
  * <code> &lt;property name="exceptionMappings"&gt;<br>
- * &nbsp;&nbsp;&lt;props&gt;<br>
- * &nbsp;&nbsp;&nbsp;&nbsp;&lt;prop&gt; key="org.acegisecurity.BadCredentialsException"&gt;/bad_credentials.jsp&lt;/prop&gt;<br>
- * &nbsp;&nbsp;&lt;/props&gt;<br>
- * &lt;/property&gt;<br>
- * </code><br>
+ * *  &nbsp;&nbsp;&lt;props&gt;<br>
+ * *  &nbsp;&nbsp;&nbsp;&nbsp;&lt;prop&gt; key="org.acegisecurity.BadCredentialsException"&gt;/bad_credentials.jsp&lt;/prop&gt;<br>
+ * *  &nbsp;&nbsp;&lt;/props&gt;<br>
+ * *  &lt;/property&gt;<br>
+ * * </code><br>
  * The example above would redirect all {@link
  * org.acegisecurity.BadCredentialsException}s thrown, to a page in the
  * web-application called /bad_credentials.jsp.
@@ -220,11 +228,10 @@ public abstract class AbstractProcessingFilter implements Filter,
                 logger.debug("Request is to process authentication");
             }
 
-            onPreAuthentication(httpRequest, httpResponse);
-
             Authentication authResult;
 
             try {
+                onPreAuthentication(httpRequest, httpResponse);
                 authResult = attemptAuthentication(httpRequest);
             } catch (AuthenticationException failed) {
                 // Authentication failed
@@ -296,7 +303,8 @@ public abstract class AbstractProcessingFilter implements Filter,
     }
 
     protected void onPreAuthentication(HttpServletRequest request,
-        HttpServletResponse response) throws IOException {}
+        HttpServletResponse response)
+        throws AuthenticationException, IOException {}
 
     protected void onSuccessfulAuthentication(HttpServletRequest request,
         HttpServletResponse response, Authentication authResult)
