@@ -246,10 +246,11 @@ public class SiteminderAuthenticationProcessingFilter
 			}
 		}
 		
-		//if true is returned then authentication will be attempted. 
+		// if true is returned then authentication will be attempted.
 		boolean bAttemptAuthentication = (uri.endsWith(request.getContextPath()
 				+ getFilterProcessesUrl()))
-				|| ((uri.endsWith(getDefaultTargetUrl()) && !bAuthenticated));
+				|| ((getDefaultTargetUrl() != null
+						&& uri.endsWith(getDefaultTargetUrl()) && !bAuthenticated));
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Authentication attempted for the following URI ==> "
