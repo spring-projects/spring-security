@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
 
 package org.acegisecurity.context;
 
-import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Constructor;
 
 
 /**
@@ -23,27 +25,97 @@ import org.springframework.util.Assert;
  * thread.
  * 
  * <p>
- * To guarantee that {@link #getContext()} never returns <code>null</code>, this
- * class defaults to returning <code>SecurityContextImpl</code> if no
- * <code>SecurityContext</code> has ever been associated with the current
- * thread of execution. Despite this behaviour, in general another class will
- * select the concrete <code>SecurityContext</code> implementation to use and
- * expressly set an instance of that implementation against the
- * <code>SecurityContextHolder</code>.
+ * This class provides a series of static methods that delegate to an instance
+ * of {@link org.acegisecurity.context.SecurityContextHolderStrategy}. The
+ * purpose of the class is to provide a convenient way to specify the strategy
+ * that should be used for a given JVM. This is a JVM-wide setting, since
+ * everything in this class is <code>static</code> to facilitate ease of use
+ * in calling code.
+ * </p>
+ * 
+ * <p>
+ * To specify which strategy should be used, you must provide a mode setting. A
+ * mode setting is one of the three valid <code>MODE_</code> settings defined
+ * as <code>static final</code> fields, or a fully qualified classname to a
+ * concrete implementation of {@link
+ * org.acegisecurity.context.SecurityContextHolderStrategy} that provides a
+ * public no-argument constructor.
+ * </p>
+ * 
+ * <p>
+ * There are two ways to specify the desired mode <code>String</code>. The
+ * first is to specify it via the system property keyed on {@link
+ * #SYSTEM_PROPERTY}. The second is to call {@link #setStrategyName(String)}
+ * before using the class. If neither approach is used, the class will default
+ * to using {@link #MODE_THREADLOCAL}, which is backwards compatible, has
+ * fewer JVM incompatibilities and is appropriate on servers (whereas {@link
+ * #MODE_GLOBAL} is not).
  * </p>
  *
  * @author Ben Alex
  * @version $Id$
  *
- * @see java.lang.ThreadLocal
  * @see org.acegisecurity.context.HttpSessionContextIntegrationFilter
  */
 public class SecurityContextHolder {
     //~ Static fields/initializers =============================================
 
-    private static ThreadLocal contextHolder = new ThreadLocal();
+    public static final String MODE_THREADLOCAL = "MODE_THREADLOCAL";
+    public static final String MODE_INHERITABLETHREADLOCAL = "MODE_INHERITABLETHREADLOCAL";
+    public static final String MODE_GLOBAL = "MODE_GLOBAL";
+    public static final String SYSTEM_PROPERTY = "acegi.security.strategy";
+    private static String strategyName = System.getProperty(SYSTEM_PROPERTY);
+    private static Constructor customStrategy;
+    private static SecurityContextHolderStrategy strategy;
 
     //~ Methods ================================================================
+
+    /**
+     * Explicitly clears the context value from the current thread.
+     */
+    public static void clearContext() {
+        initialize();
+        strategy.clearContext();
+    }
+
+    /**
+     * Obtain the current <code>SecurityContext</code>.
+     *
+     * @return the security context (never <code>null</code>)
+     */
+    public static SecurityContext getContext() {
+        initialize();
+
+        return strategy.getContext();
+    }
+
+    private static void initialize() {
+        if ((strategyName == null) || "".equals(strategyName)) {
+            // Set default
+            strategyName = MODE_THREADLOCAL;
+        }
+
+        if (strategyName.equals(MODE_THREADLOCAL)) {
+            strategy = new ThreadLocalSecurityContextHolderStrategy();
+        } else if (strategyName.equals(MODE_INHERITABLETHREADLOCAL)) {
+            strategy = new InheritableThreadLocalSecurityContextHolderStrategy();
+        } else if (strategyName.equals(MODE_GLOBAL)) {
+            strategy = new GlobalSecurityContextHolderStrategy();
+        } else {
+            // Try to load a custom strategy
+            try {
+                if (customStrategy == null) {
+                    Class clazz = Class.forName(strategyName);
+                    customStrategy = clazz.getConstructor(new Class[] {});
+                }
+
+                strategy = (SecurityContextHolderStrategy) customStrategy
+                    .newInstance(new Object[] {});
+            } catch (Exception ex) {
+                ReflectionUtils.handleReflectionException(ex);
+            }
+        }
+    }
 
     /**
      * Associates a new <code>SecurityContext</code> with the current thread of
@@ -53,38 +125,24 @@ public class SecurityContextHolder {
      *        <code>null</code>)
      */
     public static void setContext(SecurityContext context) {
-        Assert.notNull(context,
-            "Only non-null SecurityContext instances are permitted");
-        contextHolder.set(context);
+        initialize();
+        strategy.setContext(context);
     }
 
     /**
-     * Obtains the <code>SecurityContext</code> associated with the current
-     * thread of execution. If no <code>SecurityContext</code> has been
-     * associated with the current thread of execution, a new instance of
-     * {@link SecurityContextImpl} is associated with the current thread and
-     * then returned.
+     * Changes the preferred strategy. Do <em>NOT</em> call this method more
+     * than once for a given JVM, as it will reinitialize the strategy and
+     * adversely affect any existing threads using the old strategy.
      *
-     * @return the current <code>SecurityContext</code> (guaranteed to never be
-     *         <code>null</code>)
+     * @param strategyName the fully qualified classname of the strategy that
+     *        should be used.
      */
-    public static SecurityContext getContext() {
-        if (contextHolder.get() == null) {
-            contextHolder.set(new SecurityContextImpl());
-        }
-
-        return (SecurityContext) contextHolder.get();
+    public static void setStrategyName(String strategyName) {
+        SecurityContextHolder.strategyName = strategyName;
+        initialize();
     }
 
-    /**
-     * Explicitly clears the context value from thread local storage.
-     * Typically used on completion of a request to prevent potential
-     * misuse of the associated context information if the thread is
-     * reused. 
-     */
-    public static void clearContext() {
-        // Internally set the context value to null. This is never visible
-        // outside the class.
-        contextHolder.set(null);
+    public String toString() {
+        return "SecurityContextHolder[strategy='" + strategyName + "']";
     }
 }
