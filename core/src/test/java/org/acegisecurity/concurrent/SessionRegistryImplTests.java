@@ -88,7 +88,7 @@ public class SessionRegistryImplTests extends TestCase {
                                      .getLastRequest());
 
         // Retrieve existing session by principal
-        assertEquals(1, sessionRegistry.getAllSessions(principal).length);
+        assertEquals(1, sessionRegistry.getAllSessions(principal, false).length);
 
         // Sleep to ensure SessionRegistryImpl will update time
         Thread.sleep(1000);
@@ -102,14 +102,14 @@ public class SessionRegistryImplTests extends TestCase {
 
         // Check it retrieves correctly when looked up via principal
         assertEquals(retrieved,
-            sessionRegistry.getAllSessions(principal)[0].getLastRequest());
+            sessionRegistry.getAllSessions(principal, false)[0].getLastRequest());
 
         // Clear session information
         sessionRegistry.removeSessionInformation(sessionId);
 
         // Check attempts to retrieve cleared session return null
         assertNull(sessionRegistry.getSessionInformation(sessionId));
-        assertNull(sessionRegistry.getAllSessions(principal));
+        assertNull(sessionRegistry.getAllSessions(principal, false));
     }
 
     public void testTwoSessionsOnePrincipalExpiring() throws Exception {
@@ -120,15 +120,15 @@ public class SessionRegistryImplTests extends TestCase {
 
         // Register new Session
         sessionRegistry.registerNewSession(sessionId1, principal);
-        assertEquals(1, sessionRegistry.getAllSessions(principal).length);
+        assertEquals(1, sessionRegistry.getAllSessions(principal, false).length);
         assertEquals(sessionId1,
-            sessionRegistry.getAllSessions(principal)[0].getSessionId());
+            sessionRegistry.getAllSessions(principal, false)[0].getSessionId());
 
         // Register new Session
         sessionRegistry.registerNewSession(sessionId2, principal);
-        assertEquals(2, sessionRegistry.getAllSessions(principal).length);
+        assertEquals(2, sessionRegistry.getAllSessions(principal, false).length);
         assertEquals(sessionId2,
-            sessionRegistry.getAllSessions(principal)[1].getSessionId());
+            sessionRegistry.getAllSessions(principal, false)[1].getSessionId());
 
         // Expire one session
         SessionInformation session = sessionRegistry.getSessionInformation(sessionId2);
@@ -147,25 +147,25 @@ public class SessionRegistryImplTests extends TestCase {
 
         // Register new Session
         sessionRegistry.registerNewSession(sessionId1, principal);
-        assertEquals(1, sessionRegistry.getAllSessions(principal).length);
+        assertEquals(1, sessionRegistry.getAllSessions(principal, false).length);
         assertEquals(sessionId1,
-            sessionRegistry.getAllSessions(principal)[0].getSessionId());
+            sessionRegistry.getAllSessions(principal, false)[0].getSessionId());
 
         // Register new Session
         sessionRegistry.registerNewSession(sessionId2, principal);
-        assertEquals(2, sessionRegistry.getAllSessions(principal).length);
+        assertEquals(2, sessionRegistry.getAllSessions(principal, false).length);
         assertEquals(sessionId2,
-            sessionRegistry.getAllSessions(principal)[1].getSessionId());
+            sessionRegistry.getAllSessions(principal, false)[1].getSessionId());
 
         // Clear session information
         sessionRegistry.removeSessionInformation(sessionId1);
-        assertEquals(1, sessionRegistry.getAllSessions(principal).length);
+        assertEquals(1, sessionRegistry.getAllSessions(principal, false).length);
         assertEquals(sessionId2,
-            sessionRegistry.getAllSessions(principal)[0].getSessionId());
+            sessionRegistry.getAllSessions(principal, false)[0].getSessionId());
 
         // Clear final session
         sessionRegistry.removeSessionInformation(sessionId2);
         assertNull(sessionRegistry.getSessionInformation(sessionId2));
-        assertNull(sessionRegistry.getAllSessions(principal));
+        assertNull(sessionRegistry.getAllSessions(principal, false));
     }
 }
