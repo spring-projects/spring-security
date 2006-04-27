@@ -169,6 +169,9 @@
     <contributor>
       <name>Mike Perham</name>
     </contributor>
+    <contributor>
+      <name>Eric Crampton</name>
+    </contributor>
   </contributors>
   <dependencies>
     <dependency>
