@@ -1,11 +1,12 @@
 package org.acegisecurity.ui.webapp;
 
 import junit.framework.TestCase;
+
 import org.acegisecurity.Authentication;
 import org.acegisecurity.MockAuthenticationManager;
 import org.acegisecurity.ui.WebAuthenticationDetails;
-
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 /**
  * Tests SiteminderAuthenticationProcessingFilter.
@@ -141,6 +142,46 @@ public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
 	}
 
 	/**
+	 * Tests the overridden testRequiresAuthentication method.
+	 * 
+	 * @throws Exception
+	 */
+	public void testRequiresAuthentication() throws Exception {
+		
+		// Create a Siteminder-style request from an unauthenticated user for a strange URI
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		
+		request.addHeader("SM_USER", "A123456");
+
+		// Create the Siteminder filter, set a mock authentication manager to automatically grant access
+		SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
+		filter.setDefaultTargetUrl("/defaultTargetUri");
+		MockAuthenticationManager authMgrThatGrantsAccess = new MockAuthenticationManager(true);
+		filter.setAuthenticationManager(authMgrThatGrantsAccess);
+
+		filter.setSiteminderUsernameHeaderKey("SM_USER");
+		filter.setSiteminderPasswordHeaderKey("SM_USER");
+		filter.init(null);
+		
+		// Requests for an unknown URL should NOT require (re)authentication
+		request.setRequestURI("http://an.unknown.url");
+		boolean requiresAuthentication = filter.requiresAuthentication(request, response);
+		assertFalse(requiresAuthentication);
+
+		// Requests for the filter processing URI SHOULD require (re)authentication
+		request.setRequestURI(request.getContextPath() + filter.getFilterProcessesUrl());
+		requiresAuthentication = filter.requiresAuthentication(request, response);
+		assertTrue(requiresAuthentication);
+
+		// Requests for the default target URI SHOULD require (re)authentication
+		request.setRequestURI(request.getContextPath() + filter.getDefaultTargetUrl());
+		requiresAuthentication = filter.requiresAuthentication(request, response);
+		assertTrue(requiresAuthentication);
+
+	}
+
+	/**
 	 * Tests form null username handling.
 	 * 
 	 * @throws Exception
@@ -172,7 +213,7 @@ public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
 	public void testSiteminderNormalOperation() throws Exception {
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("SM_USER", "E099544");
+		request.addHeader("SM_USER", "A123456");
 
 		MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
 
