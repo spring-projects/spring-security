@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
  * <p>
  * return false if thresold is lower than average time millis between any
  * CaptchaChannelProcessorTemplate mapped urls requests and is human;<br>
- * Default keyword : REQUIRES_CAPTCHA_AFTER_THRESOLD_IN_MILLIS <br>
+ * Default keyword : REQUIRES_CAPTCHA_BELOW_AVERAGE_TIME_IN_MILLIS_REQUESTS <br>
  * Note : before first humanity check
  * </p>
  *
