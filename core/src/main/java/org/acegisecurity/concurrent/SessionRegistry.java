@@ -34,15 +34,20 @@ public interface SessionRegistry {
 
     /**
      * Obtains all the known sessions for the specified principal. Sessions
-     * that have expired or destroyed are not returned.
+     * that have been destroyed are not returned. Sessions that have expired
+     * may be returned, depending on the passed argument.
      *
      * @param principal to locate sessions for (should never be
      *        <code>null</code>)
+     * @param includeExpiredSessions if <code>true</code>, the returned
+     *        sessions will also include those that have expired for the
+     *        principal
      *
-     * @return the unexpired and undestroyed sessions for this principal, or
-     *         <code>null</code> if none were found
+     * @return the matching sessions for this principal, or <code>null</code>
+     *         if none were found
      */
-    public SessionInformation[] getAllSessions(Object principal);
+    public SessionInformation[] getAllSessions(Object principal,
+        boolean includeExpiredSessions);
 
     /**
      * Obtains the session information for the specified

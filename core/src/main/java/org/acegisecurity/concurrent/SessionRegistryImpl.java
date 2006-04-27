@@ -64,7 +64,8 @@ public class SessionRegistryImpl implements SessionRegistry,
         return principals.keySet().toArray();
     }
 
-    public SessionInformation[] getAllSessions(Object principal) {
+    public SessionInformation[] getAllSessions(Object principal,
+        boolean includeExpiredSessions) {
         Set sessionsUsedByPrincipal = (Set) principals.get(principal);
 
         if (sessionsUsedByPrincipal == null) {
@@ -79,7 +80,7 @@ public class SessionRegistryImpl implements SessionRegistry,
                 String sessionId = (String) iter.next();
                 SessionInformation sessionInformation = getSessionInformation(sessionId);
 
-                if (!sessionInformation.isExpired()) {
+                if (includeExpiredSessions || !sessionInformation.isExpired()) {
                     list.add(sessionInformation);
                 }
             }
