@@ -72,12 +72,12 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username,
                 password);
 
-        // Allow subclasses to set the "details" property
-        setDetails(request, authRequest);
-
         // Place the last username attempted into HttpSession for views
         request.getSession()
                .setAttribute(ACEGI_SECURITY_LAST_USERNAME_KEY, username);
+
+        // Allow subclasses to set the "details" property
+        setDetails(request, authRequest);
 
         return this.getAuthenticationManager().authenticate(authRequest);
     }
