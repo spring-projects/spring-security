@@ -172,6 +172,9 @@
     <contributor>
       <name>Eric Crampton</name>
     </contributor>
+    <contributor>
+   	  <name>Paul Garvey</name>
+   	</contributor>
   </contributors>
   <dependencies>
     <dependency>
