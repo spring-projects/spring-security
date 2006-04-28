@@ -81,7 +81,11 @@ applications:
 	AbstractProcessingFilter.onUnsuccessfulAuthentication(HttpServletRequest, HttpServletResponse)
     has changed it signature (SEC-238). If subclassing, please override the new signature.
 	</li>
-
+	
+	<li>
+	ExceptionTranslationFilter no longer provides a sendAccessDenied() method. Use the
+	new AccessDeniedHandler instead if custom handling is required.
+	</li>
 	
     </ul>
 

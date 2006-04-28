@@ -69,13 +69,9 @@ import javax.servlet.http.HttpServletResponse;
  * If an {@link AccessDeniedException} is detected, the filter will determine
  * whether or not the user is an anonymous user. If they are an anonymous
  * user, the <code>authenticationEntryPoint</code> will be launched. If they
- * are not an anonymous user, the filter will respond with a
- * <code>HttpServletResponse.SC_FORBIDDEN</code> (403 error).  In addition,
- * the <code>AccessDeniedException</code> itself will be placed in the
- * <code>HttpSession</code> attribute keyed against {@link
- * #ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY} (to allow access to the stack
- * trace etc). Again, this allows common access denied handling irrespective
- * of the originating security interceptor.
+ * are not an anonymous user, the filter will delegate to the {@link
+ * org.acegisecurity.ui.AccessDeniedHandler}. By default the filter will use
+ * {@link org.acegisecurity.ui.AccessDeniedHandlerImpl}.
  * </p>
  * 
  * <p>
@@ -109,10 +105,10 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(ExceptionTranslationFilter.class);
-    public static final String ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY = "ACEGI_SECURITY_403_EXCEPTION";
 
     //~ Instance fields ========================================================
 
+    private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
     private AuthenticationEntryPoint authenticationEntryPoint;
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
     private PortResolver portResolver = new PortResolverImpl();
@@ -199,11 +195,11 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
                         "Full authentication is required to access this resource"));
             } else {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Access is denied (user is not anonymous); sending back forbidden response",
+                    logger.debug("Access is denied (user is not anonymous); delegating to AccessDeniedHandler",
                         exception);
                 }
 
-                sendAccessDeniedError(request, response, chain,
+                accessDeniedHandler.handle(request, response,
                     (AccessDeniedException) exception);
             }
         }
@@ -229,20 +225,6 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
      */
     public boolean isCreateSessionAllowed() {
         return createSessionAllowed;
-    }
-
-    protected void sendAccessDeniedError(ServletRequest request,
-        ServletResponse response, FilterChain chain,
-        AccessDeniedException accessDenied)
-        throws ServletException, IOException {
-        if (createSessionAllowed) {
-            ((HttpServletRequest) request).getSession()
-             .setAttribute(ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY,
-                accessDenied);
-        }
-
-        ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN,
-            accessDenied.getMessage()); // 403
     }
 
     protected void sendStartAuthentication(ServletRequest request,
@@ -272,6 +254,11 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
 
         authenticationEntryPoint.commence(httpRequest,
             (HttpServletResponse) response, reason);
+    }
+
+    public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
+        Assert.notNull(accessDeniedHandler, "AccessDeniedHandler required");
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     public void setAuthenticationEntryPoint(

@@ -113,17 +113,22 @@ public class ExceptionTranslationFilterTests extends TestCase {
         // Setup SecurityContextHolder, as filter needs to check if user is anonymous
         SecurityContextHolder.getContext().setAuthentication(null);
 
+        // Setup a new AccessDeniedHandlerImpl that will do a "forward"
+        AccessDeniedHandlerImpl adh = new AccessDeniedHandlerImpl();
+        adh.setErrorPage("/error.jsp");
+
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
         filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
                 "/login.jsp"));
+        filter.setAccessDeniedHandler(adh);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
         assertEquals(403, response.getStatus());
         assertEquals(AccessDeniedException.class,
-            request.getSession()
-                   .getAttribute(ExceptionTranslationFilter.ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY)
+            request.getAttribute(
+                AccessDeniedHandlerImpl.ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY)
                    .getClass());
     }
 
