@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,12 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.MockFilterChain;
-
-
 import org.acegisecurity.SecurityConfig;
-
-import java.util.Iterator;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import java.util.Iterator;
 
 
 /**
@@ -49,12 +47,12 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
 
     //~ Methods ================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public static void main(String[] args) {
         junit.textui.TestRunner.run(FilterInvocationDefinitionSourceEditorTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testConvertUrlToLowercaseDefaultSettingUnchangedByEditor() {
@@ -65,6 +63,19 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
             .getValue();
         assertFalse(map.isConvertUrlToLowercaseBeforeComparison());
+    }
+
+    public void testConvertUrlToLowercaseDetectsUppercaseEntries() {
+        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
+
+        try {
+            editor.setAsText(
+                "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON\r\nPATTERN_TYPE_APACHE_ANT\r\n\\/secUre/super/**=ROLE_WE_DONT_HAVE");
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(expected.getMessage()
+                               .lastIndexOf("you have specified an uppercase character in line") != -1);
+        }
     }
 
     public void testConvertUrlToLowercaseSettingApplied() {
@@ -85,6 +96,45 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         FilterInvocationDefinitionMap map = (FilterInvocationDefinitionMap) editor
             .getValue();
         assertTrue(map instanceof RegExpBasedFilterInvocationDefinitionMap);
+    }
+
+    public void testDetectsDuplicateDirectivesOnSameLineSituation1() {
+        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
+
+        try {
+            editor.setAsText(
+                "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON PATTERN_TYPE_APACHE_ANT\r\n\\/secure/super/**=ROLE_WE_DONT_HAVE");
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(expected.getMessage()
+                               .lastIndexOf("Line appears to be malformed") != -1);
+        }
+    }
+
+    public void testDetectsDuplicateDirectivesOnSameLineSituation2() {
+        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
+
+        try {
+            editor.setAsText(
+                "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON\r\nPATTERN_TYPE_APACHE_ANT /secure/super/**=ROLE_WE_DONT_HAVE");
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(expected.getMessage()
+                               .lastIndexOf("Line appears to be malformed") != -1);
+        }
+    }
+
+    public void testDetectsDuplicateDirectivesOnSameLineSituation3() {
+        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
+
+        try {
+            editor.setAsText(
+                "PATTERN_TYPE_APACHE_ANT\r\nCONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON /secure/super/**=ROLE_WE_DONT_HAVE");
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(expected.getMessage()
+                               .lastIndexOf("Line appears to be malformed") != -1);
+        }
     }
 
     public void testEmptyStringReturnsEmptyMap() {
@@ -158,7 +208,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         Class clazz = RegExpBasedFilterInvocationDefinitionMap.EntryHolder.class;
 
         try {
-            clazz.getDeclaredConstructor((Class[])null);
+            clazz.getDeclaredConstructor((Class[]) null);
             fail("Should have thrown NoSuchMethodException");
         } catch (NoSuchMethodException expected) {
             assertTrue(true);

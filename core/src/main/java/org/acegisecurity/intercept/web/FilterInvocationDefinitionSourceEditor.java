@@ -55,6 +55,9 @@ public class FilterInvocationDefinitionSourceEditor
     //~ Static fields/initializers =============================================
 
     private static final Log logger = LogFactory.getLog(FilterInvocationDefinitionSourceEditor.class);
+    public static final String DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON =
+        "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON";
+    public static final String DIRECTIVE_PATTERN_TYPE_APACHE_ANT = "PATTERN_TYPE_APACHE_ANT";
 
     //~ Methods ================================================================
 
@@ -65,12 +68,25 @@ public class FilterInvocationDefinitionSourceEditor
             // Leave target object empty
         } else {
             // Check if we need to override the default definition map
-            if (s.lastIndexOf("PATTERN_TYPE_APACHE_ANT") != -1) {
+            if (s.lastIndexOf(DIRECTIVE_PATTERN_TYPE_APACHE_ANT) != -1) {
                 source = new PathBasedFilterInvocationDefinitionMap();
 
                 if (logger.isDebugEnabled()) {
-                    logger.debug(("Detected PATTERN_TYPE_APACHE_ANT directive; using Apache Ant style path expressions"));
+                    logger.debug(("Detected "
+                        + DIRECTIVE_PATTERN_TYPE_APACHE_ANT
+                        + " directive; using Apache Ant style path expressions"));
                 }
+            }
+
+            if (s.lastIndexOf(
+                    DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON) != -1) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Detected "
+                        + DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+                        + " directive; Instructing mapper to convert URLs to lowercase before comparison");
+                }
+
+                source.setConvertUrlToLowercaseBeforeComparison(true);
             }
 
             BufferedReader br = new BufferedReader(new StringReader(s));
@@ -100,24 +116,36 @@ public class FilterInvocationDefinitionSourceEditor
                     continue;
                 }
 
-                if (line.equals("CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON")) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Line " + counter
-                            + ": Instructing mapper to convert URLs to lowercase before comparison");
+                // Attempt to detect malformed lines (as per SEC-204)
+                if (line.lastIndexOf(
+                        DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON) != -1) {
+                    // Directive found; check for second directive or name=value
+                    if ((line.lastIndexOf(DIRECTIVE_PATTERN_TYPE_APACHE_ANT) != -1)
+                        || (line.lastIndexOf("=") != -1)) {
+                        throw new IllegalArgumentException(
+                            "Line appears to be malformed: " + line);
                     }
-
-                    source.setConvertUrlToLowercaseBeforeComparison(true);
-
-                    continue;
                 }
 
+                // Attempt to detect malformed lines (as per SEC-204)
+                if (line.lastIndexOf(DIRECTIVE_PATTERN_TYPE_APACHE_ANT) != -1) {
+                    // Directive found; check for second directive or name=value
+                    if ((line.lastIndexOf(
+                            DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON) != -1)
+                        || (line.lastIndexOf("=") != -1)) {
+                        throw new IllegalArgumentException(
+                            "Line appears to be malformed: " + line);
+                    }
+                }
+
+                // Skip lines that are not directives
                 if (line.lastIndexOf('=') == -1) {
                     continue;
                 }
 
                 if (line.lastIndexOf("==") != -1) {
                     throw new IllegalArgumentException(
-                            "Only single equals should be used in line " + line);
+                        "Only single equals should be used in line " + line);
                 }
 
                 // Tokenize the line into its name/value tokens
@@ -129,7 +157,25 @@ public class FilterInvocationDefinitionSourceEditor
                     throw new IllegalArgumentException(
                         "Failed to parse a valid name/value pair from " + line);
                 }
-                
+
+                // Attempt to detect malformed lines (as per SEC-204)
+                if (source.isConvertUrlToLowercaseBeforeComparison()
+                    && source instanceof PathBasedFilterInvocationDefinitionMap) {
+                    // Should all be lowercase; check each character
+                    // We only do this for Ant (regexp have control chars)
+                    for (int i = 0; i < name.length(); i++) {
+                        String character = name.substring(i, i + 1);
+
+                        if (!character.toLowerCase().equals(character)) {
+                            throw new IllegalArgumentException(
+                                "You are using the "
+                                + DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+                                + " with Ant Paths, yet you have specified an uppercase character in line: "
+                                + line + " (character '" + character + "')");
+                        }
+                    }
+                }
+
                 // Convert value to series of security configuration attributes
                 ConfigAttributeEditor configAttribEd = new ConfigAttributeEditor();
                 configAttribEd.setAsText(value);

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,10 @@ import org.acegisecurity.ConfigAttributeDefinition;
 public interface FilterInvocationDefinitionMap {
     //~ Methods ================================================================
 
+    public void addSecureUrl(String expression, ConfigAttributeDefinition attr);
+
+    public boolean isConvertUrlToLowercaseBeforeComparison();
+
     public void setConvertUrlToLowercaseBeforeComparison(
         boolean convertUrlToLowercaseBeforeComparison);
-
-    public void addSecureUrl(String expression, ConfigAttributeDefinition attr);
 }
