@@ -149,6 +149,11 @@
 
    <bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
       <property name="authenticationEntryPoint"><ref local="authenticationProcessingFilterEntryPoint"/></property>
+      <property name="accessDeniedHandler">
+      	<bean class="org.acegisecurity.ui.AccessDeniedHandlerImpl">
+      		<property name="errorPage" value="/accessDenied.jsp"/>
+      	</bean>
+      </property>
    </bean>
 
    <bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
