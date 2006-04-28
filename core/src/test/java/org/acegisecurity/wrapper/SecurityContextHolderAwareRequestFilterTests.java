@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.MockFilterConfig;
 
+import org.springframework.mock.web.MockHttpServletRequest;
+
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-
-import org.springframework.mock.web.MockHttpServletRequest;
 
 
 /**
@@ -48,23 +48,23 @@ public class SecurityContextHolderAwareRequestFilterTests extends TestCase {
 
     //~ Methods ================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SecurityContextHolderAwareRequestFilterTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testCorrectOperation() throws Exception {
         SecurityContextHolderAwareRequestFilter filter = new SecurityContextHolderAwareRequestFilter();
         filter.init(new MockFilterConfig());
         filter.doFilter(new MockHttpServletRequest(null, null), null,
-            new MockFilterChain(SecurityContextHolderAwareRequestWrapper.class));
+            new MockFilterChain(SavedRequestAwareWrapper.class));
 
         // Now re-execute the filter, ensuring our replacement wrapper is still used
         filter.doFilter(new MockHttpServletRequest(null, null), null,
-            new MockFilterChain(SecurityContextHolderAwareRequestWrapper.class));
+            new MockFilterChain(SavedRequestAwareWrapper.class));
 
         filter.destroy();
     }

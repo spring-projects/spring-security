@@ -24,7 +24,7 @@ import org.acegisecurity.InsufficientAuthenticationException;
 
 import org.acegisecurity.context.SecurityContextHolder;
 
-import org.acegisecurity.intercept.web.FilterInvocation;
+import org.acegisecurity.ui.savedrequest.SavedRequest;
 
 import org.acegisecurity.util.PortResolver;
 import org.acegisecurity.util.PortResolverImpl;
@@ -250,34 +250,20 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
         AuthenticationException reason) throws ServletException, IOException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-        int port = portResolver.getServerPort(httpRequest);
-        boolean includePort = true;
-
-        if ("http".equals(httpRequest.getScheme().toLowerCase())
-            && (port == 80)) {
-            includePort = false;
-        }
-
-        if ("https".equals(httpRequest.getScheme().toLowerCase())
-            && (port == 443)) {
-            includePort = false;
-        }
-
-        String targetUrl = httpRequest.getScheme() + "://"
-            + httpRequest.getServerName() + ((includePort) ? (":" + port) : "")
-            + httpRequest.getContextPath()
-            + new FilterInvocation(request, response, chain).getRequestUrl();
+        SavedRequest savedRequest = new SavedRequest(httpRequest, portResolver);
 
         if (logger.isDebugEnabled()) {
             logger.debug(
-                "Authentication entry point being called; target URL added to Session: "
-                + targetUrl);
+                "Authentication entry point being called; SavedRequest added to Session: "
+                + savedRequest);
         }
 
         if (createSessionAllowed) {
+            // Store the HTTP request itself. Used by AbstractProcessingFilter
+            // for redirection after successful authentication (SEC-29)
             httpRequest.getSession()
-                       .setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
-                targetUrl);
+                       .setAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY,
+                savedRequest);
         }
 
         // SEC-112: Clear the SecurityContextHolder's Authentication, as the

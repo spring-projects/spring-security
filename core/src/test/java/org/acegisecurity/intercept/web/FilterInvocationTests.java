@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,14 @@ package org.acegisecurity.intercept.web;
 
 import org.acegisecurity.MockFilterChain;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import org.jmock.MockObjectTestCase;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.jmock.MockObjectTestCase;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
 
 /**
  * Tests {@link FilterInvocation}.
@@ -44,12 +46,12 @@ public class FilterInvocationTests extends MockObjectTestCase {
 
     //~ Methods ================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public static void main(String[] args) {
         junit.textui.TestRunner.run(FilterInvocationTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testGettersAndStringMethods() {
@@ -73,7 +75,7 @@ public class FilterInvocationTests extends MockObjectTestCase {
         assertEquals("/HelloWorld/some/more/segments.html", fi.getRequestUrl());
         assertEquals("FilterInvocation: URL: /HelloWorld/some/more/segments.html",
             fi.toString());
-        assertEquals("http://www.example.com:80/mycontext/HelloWorld/some/more/segments.html",
+        assertEquals("http://www.example.com/mycontext/HelloWorld/some/more/segments.html",
             fi.getFullRequestUrl());
     }
 
@@ -81,7 +83,7 @@ public class FilterInvocationTests extends MockObjectTestCase {
         Class clazz = FilterInvocation.class;
 
         try {
-            clazz.getDeclaredConstructor((Class[])null);
+            clazz.getDeclaredConstructor((Class[]) null);
             fail("Should have thrown NoSuchMethodException");
         } catch (NoSuchMethodException expected) {
             assertTrue(true);
@@ -125,7 +127,7 @@ public class FilterInvocationTests extends MockObjectTestCase {
     }
 
     public void testRejectsServletRequestWhichIsNotHttpServletRequest() {
-        ServletRequest request = (ServletRequest)newDummy(ServletRequest.class);
+        ServletRequest request = (ServletRequest) newDummy(ServletRequest.class);
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 
@@ -167,7 +169,7 @@ public class FilterInvocationTests extends MockObjectTestCase {
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         assertEquals("/HelloWorld?foo=bar", fi.getRequestUrl());
         assertEquals("FilterInvocation: URL: /HelloWorld?foo=bar", fi.toString());
-        assertEquals("http://www.example.com:80/mycontext/HelloWorld?foo=bar",
+        assertEquals("http://www.example.com/mycontext/HelloWorld?foo=bar",
             fi.getFullRequestUrl());
     }
 
@@ -185,7 +187,7 @@ public class FilterInvocationTests extends MockObjectTestCase {
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         assertEquals("/HelloWorld", fi.getRequestUrl());
         assertEquals("FilterInvocation: URL: /HelloWorld", fi.toString());
-        assertEquals("http://www.example.com:80/mycontext/HelloWorld",
+        assertEquals("http://www.example.com/mycontext/HelloWorld",
             fi.getFullRequestUrl());
     }
 }

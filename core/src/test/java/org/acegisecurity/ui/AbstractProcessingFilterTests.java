@@ -30,6 +30,9 @@ import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices;
+import org.acegisecurity.ui.savedrequest.SavedRequest;
+
+import org.acegisecurity.util.PortResolverImpl;
 
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -89,6 +92,16 @@ public class AbstractProcessingFilterTests extends TestCase {
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AbstractProcessingFilterTests.class);
+    }
+
+    private SavedRequest makeSavedRequestForUrl() {
+        MockHttpServletRequest request = createMockRequest();
+        request.setServletPath("/some_protected_file.html");
+        request.setScheme("http");
+        request.setServerName("www.example.com");
+        request.setRequestURI("/mycontext/some_protected_file.html");
+
+        return new SavedRequest(request, new PortResolverImpl());
     }
 
     protected void setUp() throws Exception {
@@ -399,8 +412,8 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
         request.getSession()
-               .setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
-            "/my-destination");
+               .setAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY,
+            makeSavedRequestForUrl());
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null);
@@ -429,8 +442,8 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
         request.getSession()
-               .setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY,
-            "/my-destination");
+               .setAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY,
+            makeSavedRequestForUrl());
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null);
@@ -446,7 +459,8 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Test
         executeFilterInContainerSimulator(config, filter, request, response,
             chain);
-        assertEquals("/my-destination", response.getRedirectedUrl());
+        assertEquals(makeSavedRequestForUrl().getFullRequestUrl(),
+            response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 

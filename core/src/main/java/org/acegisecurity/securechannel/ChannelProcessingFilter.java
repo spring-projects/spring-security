@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.acegisecurity.securechannel;
 
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
+
 import org.acegisecurity.intercept.web.FilterInvocation;
 import org.acegisecurity.intercept.web.FilterInvocationDefinitionSource;
 
@@ -24,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.util.Assert;
 
 import java.io.IOException;
@@ -78,34 +80,19 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
 
     //~ Methods ================================================================
 
-    public void setChannelDecisionManager(
-        ChannelDecisionManager channelDecisionManager) {
-        this.channelDecisionManager = channelDecisionManager;
-    }
-
-    public ChannelDecisionManager getChannelDecisionManager() {
-        return channelDecisionManager;
-    }
-
-    public void setFilterInvocationDefinitionSource(
-        FilterInvocationDefinitionSource filterInvocationDefinitionSource) {
-        this.filterInvocationDefinitionSource = filterInvocationDefinitionSource;
-    }
-
-    public FilterInvocationDefinitionSource getFilterInvocationDefinitionSource() {
-        return filterInvocationDefinitionSource;
-    }
-
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(filterInvocationDefinitionSource, "filterInvocationDefinitionSource must be specified");
-        Assert.notNull(channelDecisionManager, "channelDecisionManager must be specified");
+        Assert.notNull(filterInvocationDefinitionSource,
+            "filterInvocationDefinitionSource must be specified");
+        Assert.notNull(channelDecisionManager,
+            "channelDecisionManager must be specified");
 
         Iterator iter = this.filterInvocationDefinitionSource
-                .getConfigAttributeDefinitions();
+            .getConfigAttributeDefinitions();
 
         if (iter == null) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Could not validate configuration attributes as the FilterInvocationDefinitionSource did not return a ConfigAttributeDefinition Iterator");
+                logger.warn(
+                    "Could not validate configuration attributes as the FilterInvocationDefinitionSource did not return a ConfigAttributeDefinition Iterator");
             }
 
             return;
@@ -115,7 +102,7 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
 
         while (iter.hasNext()) {
             ConfigAttributeDefinition def = (ConfigAttributeDefinition) iter
-                    .next();
+                .next();
             Iterator attributes = def.getConfigAttributes();
 
             while (attributes.hasNext()) {
@@ -132,7 +119,8 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
                 logger.info("Validated configuration attributes");
             }
         } else {
-            throw new IllegalArgumentException("Unsupported configuration attributes: " + set.toString());
+            throw new IllegalArgumentException(
+                "Unsupported configuration attributes: " + set.toString());
         }
     }
 
@@ -154,7 +142,7 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
 
         if (attr != null) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Request: " + fi.getFullRequestUrl()
+                logger.debug("Request: " + fi.toString()
                     + "; ConfigAttributes: " + attr.toString());
             }
 
@@ -168,5 +156,23 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
         chain.doFilter(request, response);
     }
 
+    public ChannelDecisionManager getChannelDecisionManager() {
+        return channelDecisionManager;
+    }
+
+    public FilterInvocationDefinitionSource getFilterInvocationDefinitionSource() {
+        return filterInvocationDefinitionSource;
+    }
+
     public void init(FilterConfig filterConfig) throws ServletException {}
+
+    public void setChannelDecisionManager(
+        ChannelDecisionManager channelDecisionManager) {
+        this.channelDecisionManager = channelDecisionManager;
+    }
+
+    public void setFilterInvocationDefinitionSource(
+        FilterInvocationDefinitionSource filterInvocationDefinitionSource) {
+        this.filterInvocationDefinitionSource = filterInvocationDefinitionSource;
+    }
 }

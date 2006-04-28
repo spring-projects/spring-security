@@ -26,6 +26,7 @@ import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEv
 
 import org.acegisecurity.ui.rememberme.NullRememberMeServices;
 import org.acegisecurity.ui.rememberme.RememberMeServices;
+import org.acegisecurity.ui.savedrequest.SavedRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -78,10 +79,12 @@ import javax.servlet.http.HttpServletResponse;
  * <li>
  * <code>defaultTargetUrl</code> indicates the URL that should be used for
  * redirection if the <code>HttpSession</code> attribute named {@link
- * #ACEGI_SECURITY_TARGET_URL_KEY} does not indicate the target URL once
- * authentication is completed successfully. eg: <code>/</code>. This will be
- * treated as relative to the web-app's context path, and should include the
- * leading <code>/</code>.
+ * #ACEGI_SAVED_REQUEST_KEY} does not indicate the target URL once
+ * authentication is completed successfully. eg: <code>/</code>. The
+ * <code>defaultTargetUrl</code> will be treated as relative to the web-app's
+ * context path, and should include the leading <code>/</code>. Alternatively,
+ * inclusion of a scheme name (eg http:// or https://) as the prefix will
+ * denote a fully-qualified URL and this is also supported.
  * </li>
  * <li>
  * <code>authenticationFailureUrl</code> indicates the URL that should be used
@@ -95,8 +98,8 @@ import javax.servlet.http.HttpServletResponse;
  * <li>
  * <code>alwaysUseDefaultTargetUrl</code> causes successful authentication to
  * always redirect to the <code>defaultTargetUrl</code>, even if the
- * <code>HttpSession</code> attribute named {@link
- * #ACEGI_SECURITY_TARGET_URL_KEY} defines the intended target URL.
+ * <code>HttpSession</code> attribute named {@link #ACEGI_SAVED_REQUEST_KEY}
+ * defines the intended target URL.
  * </li>
  * </ul>
  * 
@@ -132,12 +135,15 @@ import javax.servlet.http.HttpServletResponse;
  * recorded via an <code>AuthenticationManager</code>-specific application
  * event.
  * </p>
+ *
+ * @author Ben Alex
+ * @version $Id$
  */
 public abstract class AbstractProcessingFilter implements Filter,
     InitializingBean, ApplicationEventPublisherAware, MessageSourceAware {
     //~ Static fields/initializers =============================================
 
-    public static final String ACEGI_SECURITY_TARGET_URL_KEY = "ACEGI_SECURITY_TARGET_URL";
+    public static final String ACEGI_SAVED_REQUEST_KEY = "ACEGI_SAVED_REQUEST_KEY";
     public static final String ACEGI_SECURITY_LAST_EXCEPTION_KEY = "ACEGI_SECURITY_LAST_EXCEPTION";
 
     //~ Instance fields ========================================================
@@ -303,6 +309,13 @@ public abstract class AbstractProcessingFilter implements Filter,
         return continueChainBeforeSuccessfulAuthentication;
     }
 
+    public static String obtainFullRequestUrl(HttpServletRequest request) {
+        SavedRequest savedRequest = (SavedRequest) request.getSession()
+                                                          .getAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY);
+
+        return (savedRequest == null) ? null : savedRequest.getFullRequestUrl();
+    }
+
     protected void onPreAuthentication(HttpServletRequest request,
         HttpServletResponse response)
         throws AuthenticationException, IOException {}
@@ -428,9 +441,7 @@ public abstract class AbstractProcessingFilter implements Filter,
                 + authResult + "'");
         }
 
-        String targetUrl = (String) request.getSession()
-                                           .getAttribute(ACEGI_SECURITY_TARGET_URL_KEY);
-        request.getSession().removeAttribute(ACEGI_SECURITY_TARGET_URL_KEY);
+        String targetUrl = obtainFullRequestUrl(request);
 
         if (alwaysUseDefaultTargetUrl == true) {
             targetUrl = null;

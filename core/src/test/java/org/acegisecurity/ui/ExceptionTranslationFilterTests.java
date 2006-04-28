@@ -28,8 +28,6 @@ import org.acegisecurity.context.SecurityContextHolder;
 
 import org.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
 
-import org.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -101,8 +99,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
         assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
         assertEquals("http://www.example.com/mycontext/secure/page.html",
-            request.getSession()
-                   .getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
+            AbstractProcessingFilter.obtainFullRequestUrl(request));
     }
 
     public void testAccessDeniedWhenNonAnonymous() throws Exception {
@@ -192,8 +189,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
         assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
         assertEquals("http://www.example.com/mycontext/secure/page.html",
-            request.getSession()
-                   .getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
+            AbstractProcessingFilter.obtainFullRequestUrl(request));
     }
 
     public void testRedirectedToLoginFormAndSessionShowsOriginalTargetWithExoticPortWhenAuthenticationException()
@@ -221,8 +217,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
         assertEquals("/mycontext/login.jsp", response.getRedirectedUrl());
         assertEquals("http://www.example.com:8080/mycontext/secure/page.html",
-            request.getSession()
-                   .getAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY));
+            AbstractProcessingFilter.obtainFullRequestUrl(request));
     }
 
     public void testStartupDetectsMissingAuthenticationEntryPoint()

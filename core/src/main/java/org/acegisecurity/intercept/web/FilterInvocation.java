@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  */
 
 package org.acegisecurity.intercept.web;
+
+import org.acegisecurity.util.UrlUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletRequest;
@@ -88,10 +90,7 @@ public class FilterInvocation {
      * @return the full URL of this request
      */
     public String getFullRequestUrl() {
-        return getHttpRequest().getScheme() + "://"
-        + getHttpRequest().getServerName() + ":"
-        + getHttpRequest().getServerPort() + getHttpRequest().getContextPath()
-        + getRequestUrl();
+        return UrlUtils.getFullRequestUrl(this);
     }
 
     public HttpServletRequest getHttpRequest() {
@@ -106,19 +105,13 @@ public class FilterInvocation {
         return request;
     }
 
+    /**
+     * Obtains the web application-specific fragment of the URL.
+     *
+     * @return the URL, excluding any server name, context path or servlet path
+     */
     public String getRequestUrl() {
-        String pathInfo = getHttpRequest().getPathInfo();
-        String queryString = getHttpRequest().getQueryString();
-
-        String uri = getHttpRequest().getServletPath();
-
-        if (uri == null) {
-            uri = getHttpRequest().getRequestURI();
-            uri = uri.substring(getHttpRequest().getContextPath().length());
-        }
-
-        return uri + ((pathInfo == null) ? "" : pathInfo)
-        + ((queryString == null) ? "" : ("?" + queryString));
+        return UrlUtils.getRequestUrl(this);
     }
 
     public ServletResponse getResponse() {
