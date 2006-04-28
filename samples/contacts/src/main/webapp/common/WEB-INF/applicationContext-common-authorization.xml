@@ -11,6 +11,14 @@
 
 <beans>
 
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>classpath:/org/acegisecurity/messages</value>
+			</list>
+		</property>
+	</bean>
+
    <!-- ~~~~~~~~~~~~~~~~~~ "BEFORE INVOCATION" AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~ -->
 
    <!-- ACL permission masks used by this application -->
