@@ -26,6 +26,7 @@ import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.ui.AuthenticationDetailsSource;
 import org.acegisecurity.ui.AuthenticationDetailsSourceImpl;
 import org.acegisecurity.ui.AuthenticationEntryPoint;
+import org.acegisecurity.ui.rememberme.RememberMeServices;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -98,6 +99,13 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * <p>
+ * Note that if a {@link #rememberMeServices} is set, this filter will
+ * automatically send back remember-me details to the client. Therefore,
+ * subsequent requests will not need to present a BASIC authentication header
+ * as they will be authenticated using the remember-me mechanism.
+ * </p>
+ * 
+ * <p>
  * <b>Do not use this class directly.</b> Instead configure
  * <code>web.xml</code> to use the {@link
  * org.acegisecurity.util.FilterToBeanProxy}.
@@ -113,17 +121,13 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
 
     //~ Instance fields ========================================================
 
+    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
     private AuthenticationEntryPoint authenticationEntryPoint;
     private AuthenticationManager authenticationManager;
+    private RememberMeServices rememberMeServices;
     private boolean ignoreFailure = false;
-    private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
 
     //~ Methods ================================================================
-
-    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
-    	Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
-		this.authenticationDetailsSource = authenticationDetailsSource;
-	}
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(this.authenticationManager,
@@ -145,6 +149,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
         }
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String header = httpRequest.getHeader("Authorization");
 
@@ -175,7 +180,8 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                 || !existingAuth.isAuthenticated()) {
                 UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username,
                         password);
-                authRequest.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
+                authRequest.setDetails(authenticationDetailsSource.buildDetails(
+                        (HttpServletRequest) request));
 
                 Authentication authResult;
 
@@ -189,6 +195,10 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                     }
 
                     SecurityContextHolder.getContext().setAuthentication(null);
+
+                    if (rememberMeServices != null) {
+                        rememberMeServices.loginFail(httpRequest, httpResponse);
+                    }
 
                     if (ignoreFailure) {
                         chain.doFilter(request, response);
@@ -207,6 +217,11 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                 }
 
                 SecurityContextHolder.getContext().setAuthentication(authResult);
+
+                if (rememberMeServices != null) {
+                    rememberMeServices.loginSuccess(httpRequest, httpResponse,
+                        authResult);
+                }
             }
         }
 
@@ -227,6 +242,13 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
         return ignoreFailure;
     }
 
+    public void setAuthenticationDetailsSource(
+        AuthenticationDetailsSource authenticationDetailsSource) {
+        Assert.notNull(authenticationDetailsSource,
+            "AuthenticationDetailsSource required");
+        this.authenticationDetailsSource = authenticationDetailsSource;
+    }
+
     public void setAuthenticationEntryPoint(
         AuthenticationEntryPoint authenticationEntryPoint) {
         this.authenticationEntryPoint = authenticationEntryPoint;
@@ -239,5 +261,9 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
 
     public void setIgnoreFailure(boolean ignoreFailure) {
         this.ignoreFailure = ignoreFailure;
+    }
+
+    public void setRememberMeServices(RememberMeServices rememberMeServices) {
+        this.rememberMeServices = rememberMeServices;
     }
 }
