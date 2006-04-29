@@ -15,11 +15,11 @@
 
 package org.acegisecurity.ldap;
 
-import org.apache.ldap.server.configuration.MutableDirectoryPartitionConfiguration;
-import org.apache.ldap.server.configuration.MutableStartupConfiguration;
-import org.apache.ldap.server.configuration.Configuration;
-import org.apache.ldap.server.jndi.CoreContextFactory;
-import org.acegisecurity.ldap.LdapUtils;
+import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
+import org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.Configuration;
+import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -75,15 +75,17 @@ public class LdapTestServer {
 
         System.out.println("Working directory is " + workingDir.getAbsolutePath());
 
-        initConfiguration();
-
         Properties env = new Properties();
 
         env.setProperty( Context.PROVIDER_URL, "dc=acegisecurity,dc=org" );
         env.setProperty( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName());
-        env.putAll( cfg.toJndiEnvironment() );
+        env.setProperty( Context.SECURITY_AUTHENTICATION, "simple");
+        env.setProperty( Context.SECURITY_PRINCIPAL, DirectoryPartitionNexus.ADMIN_PRINCIPAL);
+        env.setProperty( Context.SECURITY_CREDENTIALS, DirectoryPartitionNexus.ADMIN_PASSWORD);
 
         try {
+            initConfiguration();
+            env.putAll( cfg.toJndiEnvironment() );
             serverContext = new InitialDirContext( env );
         } catch (NamingException e) {
             System.err.println("Failed to start Apache DS");
@@ -190,7 +192,7 @@ public class LdapTestServer {
         }
     }
 
-    private void initConfiguration() {
+    private void initConfiguration() throws NamingException {
 
         // Create the partition for the acegi tests
         MutableDirectoryPartitionConfiguration acegiDit = new MutableDirectoryPartitionConfiguration();

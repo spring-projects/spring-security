@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 
 import java.util.Hashtable;
 
-import org.apache.ldap.server.jndi.CoreContextFactory;
+import org.apache.directory.server.core.jndi.CoreContextFactory;
 
 /**
  * @author Luke Taylor
