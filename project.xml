@@ -200,7 +200,7 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>2.0</version>
+      <version>2.1</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/commons</url>
       <properties>
@@ -220,7 +220,7 @@
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
-      <version>3.0</version>
+      <version>3.1</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/commons</url>
       <properties>
@@ -360,27 +360,31 @@
     </dependency>
 
     <!-- Apache DS dependencies for embedded LDAP test server -->
-
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>org.apache.ldap.server.core</artifactId>
-      <version>0.9.4-20060201.032106-7</version>
-      <type>jar</type>
+      <artifactId>apacheds-core</artifactId>
+      <version>1.0-RC1</version>
+      <properties>
+        <scope>test</scope>
+      </properties>
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>org.apache.ldap.server.shared</artifactId>
-      <version>0.9.4-20060201.032106-8</version>
+      <artifactId>apacheds-core-shared</artifactId>
+      <version>1.0-RC1</version>
+      <properties>
+        <scope>test</scope>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-asn1</artifactId>
+      <version>0.9.5</version>
     </dependency>    
     <dependency>
-      <groupId>org.apache.directory</groupId>
-      <artifactId>directory-asn1</artifactId>
-      <version>0.3.4-20060201.032106-8</version>
-    </dependency>    
-    <dependency>
-      <groupId>org.apache.directory</groupId>
-      <artifactId>org.apache.ldap.common</artifactId>
-      <version>0.9.4-20060201.032106-10</version>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
+      <version>0.9.5</version>
     </dependency>
     <dependency>
       <groupId>antlr</groupId>
@@ -427,12 +431,12 @@
     </dependency>    
     
     <!-- plugins not bundled with maven 1.0.2 -->
-    <dependency>
+    <!--dependency>
       <groupId>statcvs</groupId>
       <artifactId>maven-statcvs-plugin</artifactId>
       <version>2.7</version>
       <type>plugin</type>
-    </dependency>
+    </dependency -->
     <dependency>
       <groupId>maven-plugins</groupId>
       <artifactId>maven-findbugs-plugin</artifactId>
