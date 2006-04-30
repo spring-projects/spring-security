@@ -20,7 +20,7 @@
     </dependency>
   </dependencies>
   <reports>
-    <report>maven-statcvs-plugin</report>
+    <!-- report>maven-statcvs-plugin</report-->
     <report>maven-license-plugin</report>
     <report>maven-changes-plugin</report>
     <report>maven-dashboard-plugin</report>

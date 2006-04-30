@@ -481,7 +481,7 @@
     </resources>
   </build>
   <reports>
-    <report>maven-changelog-plugin</report>
+    <!-- report>maven-changelog-plugin</report -->
     <report>maven-checkstyle-plugin</report>
     <report>maven-clover-plugin</report>
     <report>maven-javadoc-plugin</report>
