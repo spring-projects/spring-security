@@ -24,8 +24,9 @@ import org.springframework.util.Assert;
 import java.security.MessageDigest;
 
 /**
- * A version of {@link ShaPasswordEncoder} which usesBase-64 encoding
- * by default and always prepends the string "{SHA}" to the encoded hash.
+ * A version of {@link ShaPasswordEncoder} which supports Ldap SHA
+ * and SSHA (salted-SHA) encodings. The values are base-64 encoded
+ * and have the label "{SHA}" (or "{SSHA}") prepended to the encoded hash.
  *
  * @author Luke Taylor
  * @version $Id$
