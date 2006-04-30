@@ -15,7 +15,10 @@
 
 package org.acegisecurity.ldap;
 
+import java.util.Set;
+
 /**
+ *
  * @author Luke Taylor
  * @version $Id$
  */
@@ -41,5 +44,15 @@ public class LdapTemplateTests extends AbstractLdapServerTestCase {
 //        assertFalse(template.compare("uid=bob,ou=people", "userPassword", LdapUtils.getUtf8Bytes("wrongvalue")));
     }
 
+    public void testSearchForSingleAttributeValues() {
+        LdapTemplate template = new LdapTemplate(getInitialCtxFactory());
 
+        String param = "uid=ben,ou=people," + getInitialCtxFactory().getRootDn();
+
+        Set values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "ou");
+
+        assertEquals("Expected 2 results from search", 2, values.size());
+        assertTrue(values.contains("developer"));
+        assertTrue(values.contains("manager"));
+    }
 }
