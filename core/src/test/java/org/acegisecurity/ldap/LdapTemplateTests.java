@@ -32,12 +32,22 @@ public class LdapTemplateTests extends AbstractLdapServerTestCase {
 
     public void testCompareOfCorrectValueSucceeds() {
         LdapTemplate template = new LdapTemplate(getInitialCtxFactory());
+        assertTrue(template.compare("uid=bob,ou=people", "uid", "bob"));
+    }
+
+    public void testCompareOfWrongValueFails() {
+        LdapTemplate template = new LdapTemplate(getInitialCtxFactory());
+        assertFalse(template.compare("uid=bob,ou=people", "uid", "wrongvalue"));
+    }
+
+    public void testCompareOfCorrectByteValueSucceeds() {
+        LdapTemplate template = new LdapTemplate(getInitialCtxFactory());
 
 // Doesn't work with embedded server due to bugs in apacheds
 //        assertTrue(template.compare("uid=bob,ou=people", "userPassword", LdapUtils.getUtf8Bytes("bobspassword")));
     }
 
-    public void testCompareOfWrongValueFails() {
+    public void testCompareOfWrongByteValueFails() {
         LdapTemplate template = new LdapTemplate(getInitialCtxFactory());
 
 // Doesn't work with embedded server due to bugs in apacheds
