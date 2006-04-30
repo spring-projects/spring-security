@@ -22,8 +22,6 @@ import org.springframework.util.Assert;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * LDAP Utility methods.
@@ -45,24 +43,6 @@ public class LdapUtils {
             }
         } catch (NamingException e) {
             logger.error("Failed to close context.", e);
-        }
-    }
-
-    /**
-     * Parses the supplied LDAP URL.
-     * @param url the URL (e.g. <tt>ldap://monkeymachine:11389/dc=acegisecurity,dc=org</tt>).
-     * @return the URI object created from the URL
-     * @throws IllegalArgumentException if the URL is null, empty or the URI syntax is invalid.
-     */
-    public static URI parseLdapUrl(String url) {
-        Assert.hasLength(url);
-
-        try {
-            return new URI(url);
-        } catch (URISyntaxException e) {
-            IllegalArgumentException iae = new IllegalArgumentException("Unable to parse url: " + url);
-            iae.initCause(e);
-            throw iae;
         }
     }
 
@@ -127,14 +107,24 @@ public class LdapUtils {
     public static String parseRootDnFromUrl(String url) {
         Assert.hasLength(url);
 
-        String urlRootDn = null;
+        String urlRootDn = "";
 
         if (url.startsWith("ldap:") || url.startsWith("ldaps:")) {
 
-            URI uri = parseLdapUrl(url);
+//            URI uri = parseLdapUrl(url);
 
-            urlRootDn = uri.getPath();
+//            urlRootDn = uri.getPath();
+            // skip past the "://"
+            int colon = url.indexOf(':');
 
+            url = url.substring(colon + 3);
+
+            // Match the slash at the end of the address (if there)
+            int slash = url.indexOf('/');
+
+            if(slash >= 0) {
+                urlRootDn = url.substring(slash);
+            }
         } else {
             // Assume it's an embedded server
             urlRootDn = url;
@@ -146,4 +136,25 @@ public class LdapUtils {
 
         return urlRootDn;
     }
+
+    // removed for 1.3 compatibility
+
+    /**
+     * Parses the supplied LDAP URL.
+     * @param url the URL (e.g. <tt>ldap://monkeymachine:11389/dc=acegisecurity,dc=org</tt>).
+     * @return the URI object created from the URL
+     * @throws IllegalArgumentException if the URL is null, empty or the URI syntax is invalid.
+     */
+//    private static URI parseLdapUrl(String url) {
+//        Assert.hasLength(url);
+//
+//        try {
+//            return new URI(url);
+//        } catch (URISyntaxException e) {
+//            IllegalArgumentException iae = new IllegalArgumentException("Unable to parse url: " + url);
+//            iae.initCause(e);
+//            throw iae;
+//        }
+//    }
+
 }
