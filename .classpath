@@ -71,8 +71,8 @@
 	<classpathentry kind="var" path="MAVEN_REPO/jdbm/jars/jdbm-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/regexp/jars/regexp-1.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.slf4j/jars/slf4j-log4j12-1.0-rc5.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.server/jars/org.apache.ldap.server.core-0.9.4-20060201.032106-7.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.server/jars/org.apache.ldap.server.shared-0.9.4-20060201.032106-8.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.server/jars/apacheds-core-1.0-RC1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.server/jars/apacheds-core-shared-1.0-RC1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory/jars/directory-asn1-0.3.4-20060201.032106-8.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory/jars/org.apache.ldap.common-0.9.4-20060201.032106-10.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/antlr/jars/antlr-2.7.2.jar"/>
