@@ -124,7 +124,7 @@ public class LdapTemplate {
     public Set searchForSingleAttributeValues(final String base, final String filter, final Object[] params, final String attributeName) {
 
 
-        class LdapSearchCallback implements LdapCallback {
+        class SingleAttributeSearchCallback implements LdapCallback {
 
             public Object execute(DirContext ctx) throws NamingException {
                 Set unionOfValues = new HashSet();
@@ -160,6 +160,6 @@ public class LdapTemplate {
             }
         }
 
-        return (Set)execute(new LdapSearchCallback());
+        return (Set)execute(new SingleAttributeSearchCallback());
     }
 }
