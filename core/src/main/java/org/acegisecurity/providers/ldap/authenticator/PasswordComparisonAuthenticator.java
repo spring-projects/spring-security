@@ -18,6 +18,8 @@ package org.acegisecurity.providers.ldap.authenticator;
 import org.acegisecurity.ldap.LdapUserInfo;
 import org.acegisecurity.ldap.LdapUtils;
 import org.acegisecurity.ldap.InitialDirContextFactory;
+import org.acegisecurity.ldap.LdapTemplate;
+import org.acegisecurity.ldap.AttributesMapper;
 import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
@@ -32,6 +34,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 
 import java.util.Iterator;
 
@@ -82,26 +85,35 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
         // locate the user and check the password
         LdapUserInfo user = null;
 
-        DirContext ctx = getInitialDirContextFactory().newInitialDirContext();
         Iterator dns = getUserDns(username).iterator();
 
+        LdapTemplate ldapTemplate = new LdapTemplate(getInitialDirContextFactory());
+
+        while(dns.hasNext() && user == null) {
+            final String userDn = (String)dns.next();
+
+            if(ldapTemplate.nameExists(userDn)) {
+                AttributesMapper mapper = new AttributesMapper() {
+                    public Object mapAttributes(Attributes attributes) {
+                        return new LdapUserInfo(userDn, attributes);
+                    }
+                };
+
+                user = (LdapUserInfo)ldapTemplate.retrieveEntry(userDn, mapper, getUserAttributes());
+            }
+        }
+
+        if (user == null && getUserSearch() != null) {
+            user = getUserSearch().searchForUser(username);
+        }
+
+        if (user == null) {
+            throw new UsernameNotFoundException(username);
+        }
+
+        DirContext ctx = getInitialDirContextFactory().newInitialDirContext();        
+
         try {
-            while(dns.hasNext() && user == null) {
-                String userDn = (String)dns.next();
-                String relativeName = LdapUtils.getRelativeName(userDn, ctx);
-
-                user = new LdapUserInfo(userDn,
-                        ctx.getAttributes(relativeName, getUserAttributes()));
-            }
-
-            if (user == null && getUserSearch() != null) {
-                user = getUserSearch().searchForUser(username);
-            }
-
-            if (user == null) {
-                throw new UsernameNotFoundException(username);
-            }
-
             Attribute passwordAttribute = user.getAttributes().get(passwordAttributeName);
 
             if(passwordAttribute != null) {

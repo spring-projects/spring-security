@@ -67,6 +67,11 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
         authenticator.authenticate("Bob", "bobspassword");
     }
 
+    public void testMultipleDnPatternsWorkOk() {
+        authenticator.setUserDnPatterns(new String[] {"uid={0},ou=nonexistent", "uid={0},ou=people"});
+        authenticator.authenticate("Bob", "bobspassword");
+    }
+
     public void testLocalCompareSucceedsWithShaEncodedPassword() {
         authenticator = new PasswordComparisonAuthenticator(getInitialCtxFactory());
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
