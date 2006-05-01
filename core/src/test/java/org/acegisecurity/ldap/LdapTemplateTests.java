@@ -23,40 +23,36 @@ import java.util.Set;
  * @version $Id$
  */
 public class LdapTemplateTests extends AbstractLdapServerTestCase {
+    private LdapTemplate template;
 
     protected void onSetUp() {
         getInitialCtxFactory().setManagerDn(MANAGER_USER);
         getInitialCtxFactory().setManagerPassword(MANAGER_PASSWORD);
+        template = new LdapTemplate(getInitialCtxFactory());
     }
 
 
     public void testCompareOfCorrectValueSucceeds() {
-        LdapTemplate template = new LdapTemplate(getInitialCtxFactory());
         assertTrue(template.compare("uid=bob,ou=people", "uid", "bob"));
     }
 
     public void testCompareOfWrongValueFails() {
-        LdapTemplate template = new LdapTemplate(getInitialCtxFactory());
         assertFalse(template.compare("uid=bob,ou=people", "uid", "wrongvalue"));
     }
 
     public void testCompareOfCorrectByteValueSucceeds() {
-        LdapTemplate template = new LdapTemplate(getInitialCtxFactory());
 
 // Doesn't work with embedded server due to bugs in apacheds
 //        assertTrue(template.compare("uid=bob,ou=people", "userPassword", LdapUtils.getUtf8Bytes("bobspassword")));
     }
 
     public void testCompareOfWrongByteValueFails() {
-        LdapTemplate template = new LdapTemplate(getInitialCtxFactory());
 
 // Doesn't work with embedded server due to bugs in apacheds
 //        assertFalse(template.compare("uid=bob,ou=people", "userPassword", LdapUtils.getUtf8Bytes("wrongvalue")));
     }
 
     public void testSearchForSingleAttributeValues() {
-        LdapTemplate template = new LdapTemplate(getInitialCtxFactory());
-
         String param = "uid=ben,ou=people," + getInitialCtxFactory().getRootDn();
 
         Set values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "ou");
@@ -64,5 +60,13 @@ public class LdapTemplateTests extends AbstractLdapServerTestCase {
         assertEquals("Expected 2 results from search", 2, values.size());
         assertTrue(values.contains("developer"));
         assertTrue(values.contains("manager"));
+    }
+
+    public void testNameExistsForValidNameSucceeds() {
+        assertTrue(template.nameExists("ou=groups,dc=acegisecurity,dc=org"));
+    }
+
+    public void testNameExistsForInValidNameFails() {
+        assertFalse(template.nameExists("ou=doesntexist,dc=acegisecurity,dc=org"));
     }
 }
