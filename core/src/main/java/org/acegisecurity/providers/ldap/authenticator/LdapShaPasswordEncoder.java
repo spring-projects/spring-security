@@ -32,7 +32,7 @@ import java.security.MessageDigest;
  * @version $Id$
  */
 public class LdapShaPasswordEncoder implements PasswordEncoder {
-    /** The nuber of bytes in a SHA hash */
+    /** The number of bytes in a SHA hash */
     private static final int SHA_LENGTH = 20;
 
     private static final String SSHA_PREFIX = "{SSHA}";
