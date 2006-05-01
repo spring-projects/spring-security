@@ -17,6 +17,7 @@ package org.acegisecurity.ldap;
 
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NameNotFoundException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -44,7 +45,7 @@ public class LdapTemplate {
     public static final String[] NO_ATTRS = new String[0];
 
     private InitialDirContextFactory dirContextFactory;
-    private String userDn = null;
+    private String managerDn = null;
     private String password = null;
     /** Default search scope */
     private int searchScope = SearchControls.SUBTREE_SCOPE;
@@ -57,10 +58,10 @@ public class LdapTemplate {
     public LdapTemplate(InitialDirContextFactory dirContextFactory, String userDn, String password) {
         this(dirContextFactory);
 
-        Assert.hasLength(userDn, "userDn must not be null or empty");
+        Assert.hasLength(userDn, "managerDn must not be null or empty");
         Assert.notNull(password, "password cannot be null");
 
-        this.userDn = userDn;
+        this.managerDn = userDn;
         this.password = password;
     }
 
@@ -72,9 +73,9 @@ public class LdapTemplate {
         DirContext ctx = null;
 
         try {
-            ctx = (userDn == null) ?
+            ctx = (managerDn == null) ?
                     dirContextFactory.newInitialDirContext() :
-                    dirContextFactory.newInitialDirContext(userDn, password);
+                    dirContextFactory.newInitialDirContext(managerDn, password);
 
             return callback.execute(ctx);
 
@@ -161,5 +162,42 @@ public class LdapTemplate {
         }
 
         return (Set)execute(new SingleAttributeSearchCallback());
+    }
+
+    public boolean nameExists(final String dn) {
+
+        Boolean exists = (Boolean) execute( new LdapCallback() {
+
+                public Object execute(DirContext ctx) throws NamingException {
+                    try {
+                        ctx.lookup( LdapUtils.getRelativeName(dn, ctx) );
+                    } catch(NameNotFoundException nnfe) {
+                        return Boolean.FALSE;
+                    }
+
+                    return Boolean.TRUE;
+                }
+            }
+        );
+
+        return exists.booleanValue();
+    }
+
+    /**
+     * Composes an object from the attributes of the given DN.
+     *
+     * @param dn the directory entry which will be read
+     * @param mapper maps the attributes to the required object
+     * @param attributesToRetrieve the named attributes which will be retrieved from the directory entry.
+     * @return the object created by the mapper
+     */
+    public Object retrieveEntry(final String dn, final AttributesMapper mapper, final String[] attributesToRetrieve) {
+        return execute ( new LdapCallback() {
+
+            public Object execute(DirContext ctx) throws NamingException {
+                return mapper.mapAttributes( ctx.getAttributes(LdapUtils.getRelativeName(dn, ctx), attributesToRetrieve) );
+
+            }
+        } );
     }
 }
