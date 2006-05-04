@@ -20,6 +20,7 @@ import org.acegisecurity.ui.AuthenticationEntryPoint;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 
@@ -28,6 +29,7 @@ import java.net.URLEncoder;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
@@ -57,7 +59,7 @@ public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint,
 
     //~ Methods ================================================================
 
-    public void setLoginUrl(String loginUrl) {
+    public void setLoginUrl(final String loginUrl) {
         this.loginUrl = loginUrl;
     }
 
@@ -68,35 +70,38 @@ public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint,
      * @return the enterprise-wide CAS login URL
      */
     public String getLoginUrl() {
-        return loginUrl;
+        return this.loginUrl;
     }
 
-    public void setServiceProperties(ServiceProperties serviceProperties) {
+    public void setServiceProperties(final ServiceProperties serviceProperties) {
         this.serviceProperties = serviceProperties;
     }
 
     public ServiceProperties getServiceProperties() {
-        return serviceProperties;
+        return this.serviceProperties;
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.hasLength(loginUrl, "loginUrl must be specified");
-        Assert.notNull(serviceProperties, "serviceProperties must be specified");
+        Assert.hasLength(this.loginUrl, "loginUrl must be specified");
+        Assert.notNull(this.serviceProperties, "serviceProperties must be specified");
     }
 
-    public void commence(ServletRequest request, ServletResponse response,
-        AuthenticationException authenticationException)
+    public void commence(final ServletRequest servletRequest, final ServletResponse servletResponse,
+    		final AuthenticationException authenticationException)
         throws IOException, ServletException {
-        String url;
+    	final HttpServletRequest request = (HttpServletRequest) servletRequest;
+    	final HttpServletResponse response = (HttpServletResponse) servletResponse;
+    	final String urlEncodedService = response.encodeURL(this.serviceProperties.getService());
 
-        if (serviceProperties.isSendRenew()) {
-            url = loginUrl + "?renew=true" + "&service="
-                + serviceProperties.getService();
-        } else {
-            url = loginUrl + "?service="
-                + URLEncoder.encode(serviceProperties.getService(), "UTF-8");
-        }
-
-        ((HttpServletResponse) response).sendRedirect(url);
+    	final StringBuffer buffer = new StringBuffer(255);
+    	
+    	synchronized (buffer) {
+			buffer.append(this.loginUrl);
+			buffer.append("?service=");
+			buffer.append(URLEncoder.encode(urlEncodedService, "UTF-8"));
+			buffer.append(this.serviceProperties.isSendRenew() ? "&renew=true" : "");
+		}
+                
+        response.sendRedirect(buffer.toString());
     }
 }
