@@ -17,15 +17,10 @@ package org.acegisecurity.ui.cas;
 
 import junit.framework.TestCase;
 
-
-
-
-
 import java.net.URLEncoder;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
 
 /**
  * Tests {@link CasProcessingFilterEntryPoint}.
@@ -129,7 +124,7 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
 
         ep.afterPropertiesSet();
         ep.commence(request, response, null);
-        assertEquals("https://cas/login?renew=true&service=https://mycompany.com/bigWebApp/j_acegi_cas_security_check",
+        assertEquals("https://cas/login?service=" + URLEncoder.encode("https://mycompany.com/bigWebApp/j_acegi_cas_security_check", "UTF-8") + "&renew=true",
             response.getRedirectedUrl());
     }
 }
