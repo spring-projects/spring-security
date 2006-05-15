@@ -2,9 +2,9 @@ package org.acegisecurity.ldap.search;
 
 import org.acegisecurity.ldap.AbstractLdapServerTestCase;
 import org.acegisecurity.ldap.DefaultInitialDirContextFactory;
-import org.acegisecurity.ldap.LdapUserInfo;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.userdetails.ldap.LdapUserDetails;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 
 /**
  * Tests for FilterBasedLdapUserSearch.
@@ -32,7 +32,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
     public void testBasicSearch() throws Exception {
         FilterBasedLdapUserSearch locator =
                 new FilterBasedLdapUserSearch("ou=people", "(uid={0})", dirCtxFactory);
-        LdapUserInfo bob = locator.searchForUser("bob");
+        LdapUserDetails bob = locator.searchForUser("bob");
         locator.setSearchSubtree(false);
         locator.setSearchTimeLimit(0);
         // name is wrong with embedded apacheDS
@@ -45,7 +45,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
                 new FilterBasedLdapUserSearch("", "(cn={0})", dirCtxFactory);
         locator.setSearchSubtree(true);
 
-        LdapUserInfo ben = locator.searchForUser("Ben Alex");
+        LdapUserDetails ben = locator.searchForUser("Ben Alex");
 //        assertEquals("uid=ben,ou=people,"+ROOT_DN, bob.getDn());
     }
 
@@ -67,7 +67,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
         try {
             locator.searchForUser("Ignored");
             fail("Expected exception for multiple search matches.");
-        } catch (BadCredentialsException expected) {
+        } catch (IncorrectResultSizeDataAccessException expected) {
         }
     }
 
@@ -80,7 +80,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
                         dirCtxFactory);
 
         // Search for bob, get back ben...
-        LdapUserInfo ben = locator.searchForUser("bob");
+        LdapUserDetails ben = locator.searchForUser("bob");
         String cn = (String)ben.getAttributes().get("cn").get();
         assertEquals("Ben Alex", cn);
 //        assertEquals("uid=ben,ou=people,"+ROOT_DN, ben.getDn());

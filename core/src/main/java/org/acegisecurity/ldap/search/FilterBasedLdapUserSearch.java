@@ -16,24 +16,22 @@
 package org.acegisecurity.ldap.search;
 
 import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
+import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 import org.acegisecurity.ldap.LdapUserSearch;
-import org.acegisecurity.ldap.LdapUtils;
 import org.acegisecurity.ldap.InitialDirContextFactory;
-import org.acegisecurity.ldap.LdapUserInfo;
-import org.acegisecurity.ldap.LdapDataAccessException;
+import org.acegisecurity.ldap.LdapTemplate;
+import org.acegisecurity.ldap.LdapEntryMapper;
 
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
+
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.directory.DirContext;
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
 
 /**
  * LdapUserSearch implementation which uses an Ldap filter to locate the user.
@@ -82,6 +80,8 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 
     private InitialDirContextFactory initialDirContextFactory;
 
+    private LdapEntryMapper userDetailsMapper = new LdapUserDetailsMapper();
+
     //~ Methods ================================================================
 
     public FilterBasedLdapUserSearch(String searchBase,
@@ -104,12 +104,12 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
     //~ Methods ================================================================
 
     /**
-     * Return the LdapUserInfo containing the user's information, or null if
-     * no SearchResult is found.
+     * Return the LdapUserDetailsImpl containing the user's information
      *
      * @param username the username to search for.
+     * @throws UsernameNotFoundException if no matching entry is found.
      */
-    public LdapUserInfo searchForUser(String username) {
+    public LdapUserDetails searchForUser(String username) {
         DirContext ctx = initialDirContextFactory.newInitialDirContext();
 
         if (logger.isDebugEnabled()) {
@@ -117,42 +117,20 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
                     ", with user search " + this.toString());
         }
 
+        LdapTemplate template = new LdapTemplate(initialDirContextFactory);
+
+        template.setSearchControls(searchControls);
+
         try {
-            String[] args = new String[] { LdapUtils.escapeNameForFilter(username) };
+            Object user = template.searchForSingleEntry(searchBase, searchFilter, new String[] { username }, userDetailsMapper);
+            Assert.isInstanceOf(LdapUserDetails.class, user, "Entry mapper must return an LdapUserDetailsImpl instance");
 
-            NamingEnumeration results = ctx.search(searchBase, searchFilter, args, searchControls);
+            return (LdapUserDetails)user;
 
-            if (!results.hasMore()) {
-                throw new UsernameNotFoundException("User " + username + " not found in directory.");
-            }
-
-            SearchResult searchResult = (SearchResult)results.next();
-
-            if (results.hasMore()) {
-               throw new BadCredentialsException("Expected a single user but search returned multiple results");
-            }
-
-            StringBuffer userDn = new StringBuffer(searchResult.getName());
-
-            if (searchBase.length() > 0) {
-                userDn.append(",");
-                userDn.append(searchBase);
-            }
-
-            String nameInNamespace = ctx.getNameInNamespace();
-
-            if(StringUtils.hasLength(nameInNamespace)) {
-                userDn.append(",");
-                userDn.append(nameInNamespace);
-            }
-
-            return new LdapUserInfo(userDn.toString(), searchResult.getAttributes());
-
-        } catch(NamingException ne) {
-            throw new LdapDataAccessException("User Couldn't be found due to exception", ne);
-        } finally {
-            LdapUtils.closeContext(ctx);
+        } catch(EmptyResultDataAccessException notFound) {
+            throw new UsernameNotFoundException("User " + username + " not found in directory.");
         }
+
     }
 
     /**

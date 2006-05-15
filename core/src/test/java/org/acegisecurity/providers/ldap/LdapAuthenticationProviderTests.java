@@ -6,11 +6,12 @@ import javax.naming.directory.BasicAttributes;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.ldap.LdapUserInfo;
-import org.acegisecurity.ldap.AbstractLdapServerTestCase;
+import org.acegisecurity.ldap.*;
 import org.acegisecurity.ldap.DefaultInitialDirContextFactory;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
+import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 
 /**
  * @author Luke Taylor
@@ -82,18 +83,20 @@ public class LdapAuthenticationProviderTests extends AbstractLdapServerTestCase 
 */
     class MockAuthoritiesPopulator implements LdapAuthoritiesPopulator {
 
-        public GrantedAuthority[] getGrantedAuthorities(String userDn, String dn, Attributes userAttributes) {
-            return new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_USER") };
+        public GrantedAuthority[] getGrantedAuthorities(LdapUserDetails userDetailsll) {
+           return new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_USER") };
         }
     }
 
     class MockAuthenticator implements LdapAuthenticator {
         Attributes userAttributes = new BasicAttributes("cn","bob");
 
-        public LdapUserInfo authenticate(String username, String password) {
+        public LdapUserDetails authenticate(String username, String password) {
             if(username.equals("bob") && password.equals("bobspassword")) {
-
-                return new LdapUserInfo("cn=bob,ou=people,dc=acegisecurity,dc=org", userAttributes);
+                LdapUserDetailsImpl.Essence creator = new LdapUserDetailsImpl.Essence();
+                creator.setDn("cn=bob,ou=people,dc=acegisecurity,dc=org");
+                creator.setAttributes(userAttributes);
+                return creator.createUserDetails();
             }
             throw new BadCredentialsException("Authentication of Bob failed.");
         }

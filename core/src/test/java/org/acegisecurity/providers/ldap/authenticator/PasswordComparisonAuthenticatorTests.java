@@ -1,11 +1,11 @@
 package org.acegisecurity.providers.ldap.authenticator;
 
-import org.acegisecurity.ldap.LdapUserInfo;
 import org.acegisecurity.ldap.AbstractLdapServerTestCase;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
-
-import javax.naming.directory.BasicAttributes;
+import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
+import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
+import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 
 /**
  * Tests for {@link PasswordComparisonAuthenticator}.
@@ -87,7 +87,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
     }
 
     public void testAllAttributesAreRetrivedByDefault() {
-        LdapUserInfo user = authenticator.authenticate("Bob", "bobspassword");
+        LdapUserDetails user = authenticator.authenticate("Bob", "bobspassword");
         System.out.println(user.getAttributes().toString());
         assertEquals("User should have 5 attributes", 5, user.getAttributes().size());
 
@@ -103,7 +103,10 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
     }
 */
     public void testUseOfDifferentPasswordAttribute() {
+        LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
+        mapper.setPasswordAttributeName("uid");
         authenticator.setPasswordAttributeName("uid");
+        authenticator.setUserDetailsMapper(mapper);
         authenticator.authenticate("bob", "bob");
     }
 /*
@@ -119,10 +122,11 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
         authenticator = new PasswordComparisonAuthenticator(getInitialCtxFactory());
         assertTrue("User DN matches shouldn't be available",
                 authenticator.getUserDns("Bob").isEmpty());
-        LdapUserInfo user = new LdapUserInfo("uid=Bob,ou=people" +
-                getInitialCtxFactory().getRootDn(),
-                new BasicAttributes("userPassword","bobspassword"));
-        authenticator.setUserSearch(new MockUserSearch(user));
+        LdapUserDetailsImpl.Essence userEssence = new LdapUserDetailsImpl.Essence();
+        userEssence.setDn("uid=Bob,ou=people,dc=acegisecurity,dc=org");
+        userEssence.setPassword("bobspassword");
+
+        authenticator.setUserSearch(new MockUserSearch(userEssence.createUserDetails()));
         authenticator.authenticate("ShouldntBeUsed","bobspassword");
     }
 

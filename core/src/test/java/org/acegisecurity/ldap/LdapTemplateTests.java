@@ -33,27 +33,27 @@ public class LdapTemplateTests extends AbstractLdapServerTestCase {
 
 
     public void testCompareOfCorrectValueSucceeds() {
-        assertTrue(template.compare("uid=bob,ou=people", "uid", "bob"));
+        assertTrue(template.compare("uid=bob,ou=people,dc=acegisecurity,dc=org", "uid", "bob"));
     }
 
     public void testCompareOfWrongValueFails() {
-        assertFalse(template.compare("uid=bob,ou=people", "uid", "wrongvalue"));
+        assertFalse(template.compare("uid=bob,ou=people,dc=acegisecurity,dc=org", "uid", "wrongvalue"));
     }
 
     public void testCompareOfCorrectByteValueSucceeds() {
 
 // Doesn't work with embedded server due to bugs in apacheds
-//        assertTrue(template.compare("uid=bob,ou=people", "userPassword", LdapUtils.getUtf8Bytes("bobspassword")));
+//        assertTrue(template.compare("uid=bob,ou=people,dc=acegisecurity,dc=org", "userPassword", LdapUtils.getUtf8Bytes("bobspassword")));
     }
 
     public void testCompareOfWrongByteValueFails() {
 
 // Doesn't work with embedded server due to bugs in apacheds
-//        assertFalse(template.compare("uid=bob,ou=people", "userPassword", LdapUtils.getUtf8Bytes("wrongvalue")));
+//        assertFalse(template.compare("uid=bob,ou=people,dc=acegisecurity,dc=org", "userPassword", LdapUtils.getUtf8Bytes("wrongvalue")));
     }
 
     public void testSearchForSingleAttributeValues() {
-        String param = "uid=ben,ou=people," + getInitialCtxFactory().getRootDn();
+        String param = "uid=ben,ou=people,dc=acegisecurity,dc=org";
 
         Set values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "ou");
 

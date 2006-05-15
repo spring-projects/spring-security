@@ -22,16 +22,9 @@ import javax.naming.NamingException;
 /**
  * A user representation which is used internally by the Ldap provider.
  *
- * It contains the user's distinguished name and a set of attributes that
- * have been retrieved from the Ldap server.
- * <p>
- * An instance may be created as the result of a search, or when user information
- * is retrieved during authentication.
- * </p>
- * <p>
- * An instance of this class will be used by the <tt>LdapAuthenticationProvider</tt>
- * to construct the final user details object that it returns.
- * </p>
+ *
+ * @deprecated in favour of {@link org.acegisecurity.userdetails.ldap.LdapUserDetails}
+ *
  *
  * @author Luke Taylor
  * @version $Id$

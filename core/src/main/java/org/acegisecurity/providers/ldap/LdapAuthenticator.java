@@ -15,7 +15,7 @@
 
 package org.acegisecurity.providers.ldap;
 
-import org.acegisecurity.ldap.LdapUserInfo;
+import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 
 /**
  * The strategy interface for locating and authenticating an Ldap user.
@@ -37,5 +37,5 @@ public interface LdapAuthenticator {
      * @param password the user's password supplied at login.
      * @return the details of the successfully authenticated user.
      */
-    LdapUserInfo authenticate(String username, String password);
+    LdapUserDetails authenticate(String username, String password);
 }

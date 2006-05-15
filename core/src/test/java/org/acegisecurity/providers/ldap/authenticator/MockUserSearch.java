@@ -1,20 +1,20 @@
 package org.acegisecurity.providers.ldap.authenticator;
 
-import org.acegisecurity.ldap.LdapUserInfo;
 import org.acegisecurity.ldap.LdapUserSearch;
+import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 
 /**
  * @author Luke Taylor
  * @version $Id$
  */
 public class MockUserSearch implements LdapUserSearch {
-    LdapUserInfo user;
+    LdapUserDetails user;
 
-    public MockUserSearch(LdapUserInfo user) {
+    public MockUserSearch(LdapUserDetails user) {
         this.user = user;
     }
 
-    public LdapUserInfo searchForUser(String username) {
+    public LdapUserDetails searchForUser(String username) {
         return user;
     }
 }

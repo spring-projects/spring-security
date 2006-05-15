@@ -16,24 +16,20 @@
 package org.acegisecurity.providers.ldap.populator;
 
 import org.acegisecurity.providers.ldap.LdapAuthoritiesPopulator;
-import org.acegisecurity.ldap.LdapDataAccessException;
 import org.acegisecurity.ldap.InitialDirContextFactory;
-import org.acegisecurity.ldap.LdapUtils;
+import org.acegisecurity.ldap.LdapTemplate;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import javax.naming.directory.Attributes;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.directory.DirContext;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * The default strategy for obtaining user role information from the directory.
@@ -114,7 +110,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     //~ Instance fields ========================================================
 
     /** Attributes of the User's LDAP Object that contain role name information. */
-    private String[] userRoleAttributes = null;
+//    private String[] userRoleAttributes = null;
 
     private String rolePrefix = "ROLE_";
 
@@ -175,21 +171,26 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     //~ Methods ================================================================
 
     /**
-     *
-     * @param username the login name passed to the authentication provider.
-     * @param userDn the user's DN.
-     * @param userAttributes the attributes retrieved from the user's directory entry.
-     * @return the full set of roles granted to the user.
+     * @return the set of roles granted to the user.
      */
-    public GrantedAuthority[] getGrantedAuthorities(String username, String userDn, Attributes userAttributes) {
+    public final GrantedAuthority[] getGrantedAuthorities(LdapUserDetails userDetails) {
+        String userDn = userDetails.getDn();
+
         logger.debug("Getting authorities for user " + userDn);
 
-        Set roles = getRolesFromUserAttributes(userDn, userAttributes);
+        Set roles = getGroupMembershipRoles(userDn);
 
-        Set groupRoles = getGroupMembershipRoles(userDn, userAttributes);
+        // Temporary use of deprecated method
+        Set oldGroupRoles = getGroupMembershipRoles(userDn, userDetails.getAttributes());
 
-        if(groupRoles != null) {
-            roles.addAll(groupRoles);
+        if(oldGroupRoles != null) {
+            roles.addAll(oldGroupRoles);
+        }
+
+        Set extraRoles = getAdditionalRoles(userDetails);
+
+        if(extraRoles != null) {
+            roles.addAll(extraRoles);
         }
 
         if(defaultRole != null) {
@@ -199,31 +200,23 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         return (GrantedAuthority[])roles.toArray(new GrantedAuthority[roles.size()]);
     }
 
-    protected Set getRolesFromUserAttributes(String userDn, Attributes userAttributes) {
-        Set userRoles = new HashSet();
+//    protected Set getRolesFromUserAttributes(String userDn, Attributes userAttributes) {
+//        Set userRoles = new HashSet();
+//
+//        for(int i=0; userRoleAttributes != null && i < userRoleAttributes.length; i++) {
+//            Attribute roleAttribute = userAttributes.get(userRoleAttributes[i]);
+//
+//            addAttributeValuesToRoleSet(roleAttribute, userRoles);
+//        }
+//
+//        return userRoles;
+//    }
 
-        for(int i=0; userRoleAttributes != null && i < userRoleAttributes.length; i++) {
-            Attribute roleAttribute = userAttributes.get(userRoleAttributes[i]);
-
-            addAttributeValuesToRoleSet(roleAttribute, userRoles);
-        }
-
-        return userRoles;
-    }
-
-    /**
-     * Searches for groups the user is a member of.
-     *
-     * @param userDn the user's distinguished name.
-     * @param userAttributes the retrieved user's attributes (unused by default).
-     * @return the set of roles obtained from a group membership search, or null if
-     *         <tt>groupSearchBase</tt> has been set.
-     */
-    protected Set getGroupMembershipRoles(String userDn, Attributes userAttributes) {
-        Set userRoles = new HashSet();
+    private Set getGroupMembershipRoles(String userDn) {
+        Set authorities = new HashSet();
 
         if (groupSearchBase == null) {
-            return null;
+            return authorities;
         }
 
         if (logger.isDebugEnabled()) {
@@ -232,80 +225,58 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
                     + " in search base '" + groupSearchBase + "'");
         }
 
-        DirContext ctx = initialDirContextFactory.newInitialDirContext();
-        SearchControls ctls = new SearchControls();
+        LdapTemplate template = new LdapTemplate(initialDirContextFactory);
 
-        ctls.setSearchScope(searchScope);
-        ctls.setReturningAttributes(new String[] {groupRoleAttribute});
+        template.setSearchScope(searchScope);
 
-        try {
-            NamingEnumeration groups =
-                    ctx.search(groupSearchBase, groupSearchFilter, new String[]{userDn}, ctls);
-
-            while (groups.hasMore()) {
-                SearchResult result = (SearchResult) groups.next();
-                Attributes attrs = result.getAttributes();
-
-                // There should only be one role attribute.
-                NamingEnumeration groupRoleAttributes = attrs.getAll();
-
-                while(groupRoleAttributes.hasMore()) {
-                    Attribute roleAttribute = (Attribute) groupRoleAttributes.next();
-
-                    addAttributeValuesToRoleSet(roleAttribute, userRoles);
-                }
-            }
-        } catch (NamingException e) {
-            throw new LdapDataAccessException("Group search failed for user " + userDn, e);
-        } finally {
-            LdapUtils.closeContext(ctx);
-        }
+        Set userRoles = template.searchForSingleAttributeValues(groupSearchBase, groupSearchFilter, new String[]{userDn}, groupRoleAttribute);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Roles from search: " + userRoles);
         }
 
-        return userRoles;
+        Iterator it = userRoles.iterator();
+
+        while(it.hasNext()) {
+            Object role = it.next();
+
+            // We only handle Strings for the time being
+            if(role instanceof String) {
+                if(convertToUpperCase) {
+                    role = ((String)role).toUpperCase();
+                }
+
+                authorities.add(new GrantedAuthorityImpl(rolePrefix + role));
+            } else {
+                logger.warn("Non-String value found for role: " + role);
+            }
+        }
+
+        return authorities;
+
     }
 
-    private void addAttributeValuesToRoleSet(Attribute roleAttribute, Set roles) {
-        if (roleAttribute == null) {
-            return;
-        }
 
-        try {
-            NamingEnumeration attributeRoles = roleAttribute.getAll();
+    protected Set getAdditionalRoles(LdapUserDetails ldapUser) {
+        return null;
+    }
 
-            while(attributeRoles.hasMore()) {
-                Object role = attributeRoles.next();
-
-                // We only handle Strings for the time being
-                if(role instanceof String) {
-                    if(convertToUpperCase) {
-                        role = ((String)role).toUpperCase();
-                    }
-
-                    roles.add(new GrantedAuthorityImpl(rolePrefix + role));
-                } else {
-                    logger.warn("Non-String value found for role attribute " + roleAttribute.getID());
-                }
-            }
-        } catch(NamingException ne) {
-            throw new LdapDataAccessException("Error retrieving values for role attribute " +
-                    roleAttribute.getID(), ne);
-        }
+    /**
+     * Searches for groups the user is a member of.
+     *
+     * @deprecated Subclasses should implement <tt>getAdditionalRoles</tt> instead.
+     *
+     * @param userDn the user's distinguished name.
+     * @param userAttributes the retrieved user's attributes (unused by default).
+     * @return the set of roles obtained from a group membership search, or null if
+     *         <tt>groupSearchBase</tt> has been set.
+     */
+    protected Set getGroupMembershipRoles(String userDn, Attributes userAttributes) {
+        return new HashSet();
     }
 
     protected InitialDirContextFactory getInitialDirContextFactory() {
         return initialDirContextFactory;
-    }
-
-    protected String[] getUserRoleAttributes() {
-        return userRoleAttributes;
-    }
-
-    public void setUserRoleAttributes(String[] userRoleAttributes) {
-        this.userRoleAttributes = userRoleAttributes;
     }
 
     public void setRolePrefix(String rolePrefix) {

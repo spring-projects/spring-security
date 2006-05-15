@@ -1,8 +1,11 @@
 package org.acegisecurity.providers.ldap.authenticator;
 
-import org.acegisecurity.ldap.LdapUserInfo;
 import org.acegisecurity.ldap.AbstractLdapServerTestCase;
 import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
+import org.acegisecurity.userdetails.ldap.LdapUserDetails;
+import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
 
 /**
  * Tests for {@link BindAuthenticator}.
@@ -26,12 +29,10 @@ public class BindAuthenticatorTests extends AbstractLdapServerTestCase {
 
     public void testAuthenticationWithCorrectPasswordSucceeds() throws Exception {
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
-        LdapUserInfo user = authenticator.authenticate("bob","bobspassword");
+        LdapUserDetails user = authenticator.authenticate("bob","bobspassword");
     }
 
     public void testAuthenticationWithWrongPasswordFails() {
-//        BindAuthenticator authenticator = new BindAuthenticator(dirCtxFactory);
-
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
 
         try {
@@ -42,25 +43,36 @@ public class BindAuthenticatorTests extends AbstractLdapServerTestCase {
     }
 
     public void testAuthenticationWithUserSearch() throws Exception {
-        LdapUserInfo user = new LdapUserInfo("uid=bob,ou=people," + getInitialCtxFactory().getRootDn(), null);
-        authenticator.setUserSearch(new MockUserSearch(user));
+        LdapUserDetailsImpl.Essence userEssence = new LdapUserDetailsImpl.Essence();
+        userEssence.setDn("uid=bob,ou=people,dc=acegisecurity,dc=org");
+
+        authenticator.setUserSearch(new MockUserSearch(userEssence.createUserDetails()));
         authenticator.afterPropertiesSet();
         authenticator.authenticate("bob","bobspassword");
     }
 
+    public void testAuthenticationWithInvalidUserNameFails() {
+        authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
 
-// Apache DS falls apart with unknown DNs.
-//
-//    public void testAuthenticationWithInvalidUserNameFails() {
-//        BindAuthenticator authenticator = new BindAuthenticator();
-//
-//        authenticator.setInitialDirContextFactory(dirCtxFactory);
-//        authenticator.setUserDnPatterns("cn={0},ou=people");
-//        try {
-//            authenticator.authenticate("Baz","bobspassword");
-//            fail("Shouldn't be able to bind with invalid username");
-//        } catch(BadCredentialsException expected) {
-//        }
-//    }
+        try {
+            authenticator.authenticate("nonexistentsuser","bobspassword");
+            fail("Shouldn't be able to bind with invalid username");
+        } catch(BadCredentialsException expected) {
+        }
+    }
+
+    // TODO: Create separate tests for base class
+    public void testRoleRetrieval() {
+        authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
+        LdapUserDetailsMapper userMapper = new LdapUserDetailsMapper();
+        userMapper.setRoleAttributes(new String[] {"uid"});
+
+        authenticator.setUserDetailsMapper(userMapper);
+
+        LdapUserDetails user = authenticator.authenticate("bob","bobspassword");
+
+        assertEquals(1, user.getAuthorities().length);
+        assertEquals(new GrantedAuthorityImpl("ROLE_BOB"), user.getAuthorities()[0]);
+    }
 }
 

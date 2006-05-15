@@ -15,18 +15,14 @@
 
 package org.acegisecurity.providers.ldap.authenticator;
 
-import org.acegisecurity.ldap.LdapUtils;
-import org.acegisecurity.ldap.LdapUserInfo;
-import org.acegisecurity.ldap.LdapDataAccessException;
 import org.acegisecurity.ldap.InitialDirContextFactory;
+import org.acegisecurity.ldap.LdapTemplate;
 import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.naming.directory.DirContext;
-import javax.naming.directory.Attributes;
-import javax.naming.NamingException;
+import org.springframework.util.Assert;
 
 import java.util.Iterator;
 
@@ -44,6 +40,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
     private static final Log logger = LogFactory.getLog(BindAuthenticator.class);
 
+
     //~ Constructors ===========================================================
 
     public BindAuthenticator(InitialDirContextFactory initialDirContextFactory) {
@@ -52,9 +49,9 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
     //~ Methods ================================================================
 
-    public LdapUserInfo authenticate(String username, String password) {
+    public LdapUserDetails authenticate(String username, String password) {
 
-        LdapUserInfo user = null;
+        LdapUserDetails user = null;
 
         // If DN patterns are configured, try authenticating with them directly
         Iterator dns = getUserDns(username).iterator();
@@ -66,7 +63,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
         // Otherwise use the configured locator to find the user
         // and authenticate with the returned DN.
         if (user == null && getUserSearch() != null) {
-            LdapUserInfo userFromSearch = getUserSearch().searchForUser(username);
+            LdapUserDetails userFromSearch = getUserSearch().searchForUser(username);
             user = bindWithDn(userFromSearch.getDn(), password);
         }
 
@@ -80,18 +77,19 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
     }
 
-    LdapUserInfo bindWithDn(String userDn, String password) {
-        DirContext ctx = null;
-        LdapUserInfo user = null;
+    LdapUserDetails bindWithDn(String userDn, String password) {
+        LdapTemplate template = new LdapTemplate(getInitialDirContextFactory(), userDn, password);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Attempting to bind with DN = " + userDn);
         }
 
         try {
-            ctx = getInitialDirContextFactory().newInitialDirContext(userDn, password);
-            Attributes attributes = loadAttributes(ctx, userDn);
-            user = new LdapUserInfo(userDn, attributes);
+
+            Object user = (LdapUserDetails)template.retrieveEntry(userDn, getUserDetailsMapper(), getUserAttributes());
+            Assert.isInstanceOf(LdapUserDetails.class, user, "Entry mapper must return an LdapUserDetails instance");
+
+            return (LdapUserDetails) user;
 
         } catch(BadCredentialsException e) {
             // This will be thrown if an invalid user name is used and the method may
@@ -99,24 +97,8 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
             if (logger.isDebugEnabled()) {
                 logger.debug("Failed to bind as " + userDn + ": " + e.getCause());
             }
-        } finally {
-            LdapUtils.closeContext(ctx);
         }
 
-        return user;
+        return null;
     }
-
-    Attributes loadAttributes(DirContext ctx, String userDn) {
-        try {
-            return ctx.getAttributes(
-                    LdapUtils.getRelativeName(userDn, ctx),
-                    getUserAttributes());
-
-        } catch(NamingException ne) {
-            throw new LdapDataAccessException(messages.getMessage(
-                            "BindAuthenticator.failedToLoadAttributes", new String[] {userDn},
-                            "Failed to load attributes for user {0}"), ne);
-        }
-    }
-
 }

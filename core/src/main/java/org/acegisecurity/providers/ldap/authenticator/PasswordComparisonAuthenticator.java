@@ -15,11 +15,10 @@
 
 package org.acegisecurity.providers.ldap.authenticator;
 
-import org.acegisecurity.ldap.LdapUserInfo;
 import org.acegisecurity.ldap.LdapUtils;
 import org.acegisecurity.ldap.InitialDirContextFactory;
 import org.acegisecurity.ldap.LdapTemplate;
-import org.acegisecurity.ldap.AttributesMapper;
+import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
@@ -28,13 +27,6 @@ import org.springframework.util.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import java.util.Iterator;
 
@@ -62,13 +54,9 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 
     private static final Log logger = LogFactory.getLog(PasswordComparisonAuthenticator.class);
 
-    private static final String[] NO_ATTRS = new String[0];
-
     //~ Instance fields ========================================================
 
     private String passwordAttributeName = "userPassword";
-
-    private String passwordCompareFilter = "(userPassword={0})";
 
     private PasswordEncoder passwordEncoder = new LdapShaPasswordEncoder();
 
@@ -80,10 +68,10 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 
     //~ Methods ================================================================
 
-    public LdapUserInfo authenticate(String username, String password) {
+    public LdapUserDetails authenticate(final String username, final String password) {
 
         // locate the user and check the password
-        LdapUserInfo user = null;
+        LdapUserDetails user = null;
 
         Iterator dns = getUserDns(username).iterator();
 
@@ -93,13 +81,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
             final String userDn = (String)dns.next();
 
             if(ldapTemplate.nameExists(userDn)) {
-                AttributesMapper mapper = new AttributesMapper() {
-                    public Object mapAttributes(Attributes attributes) {
-                        return new LdapUserInfo(userDn, attributes);
-                    }
-                };
-
-                user = (LdapUserInfo)ldapTemplate.retrieveEntry(userDn, mapper, getUserAttributes());
+                user = (LdapUserDetails)ldapTemplate.retrieveEntry(userDn, getUserDetailsMapper(), getUserAttributes());
             }
         }
 
@@ -111,40 +93,36 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
             throw new UsernameNotFoundException(username);
         }
 
-        DirContext ctx = getInitialDirContextFactory().newInitialDirContext();        
+        String retrievedPassword = user.getPassword();
 
-        try {
-            Attribute passwordAttribute = user.getAttributes().get(passwordAttributeName);
-
-            if(passwordAttribute != null) {
-                Object retrievedPassword = passwordAttribute.get();
-
-                if (!(retrievedPassword instanceof String)) {
-                    // Assume it's binary
-                    retrievedPassword = new String((byte[])retrievedPassword);
-                }
-
-                if (!verifyPassword(password, (String)retrievedPassword)) {
-                    throw new BadCredentialsException(messages.getMessage(
-                            "PasswordComparisonAuthenticator.badCredentials",
-                            "Bad credentials"));
-                }
-
-            } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Password attribute " + passwordAttributeName
-                            + " wasn't retrieved for user " + username);
-                }
-
-                doPasswordCompare(ctx, user.getRelativeName(ctx), password);
+        if(retrievedPassword != null) {
+            if (!verifyPassword(password, retrievedPassword)) {
+                throw new BadCredentialsException(messages.getMessage(
+                        "PasswordComparisonAuthenticator.badCredentials",
+                        "Bad credentials"));
             }
 
             return user;
-        } catch(NamingException ne) {
-            throw new BadCredentialsException("Authentication failed due to exception ", ne);
-        } finally {
-            LdapUtils.closeContext(ctx);
         }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Password attribute wasn't retrieved for user '" + username
+                    + "' using mapper " + getUserDetailsMapper()
+                    + ". Performing LDAP compare of password attribute '"
+                    + passwordAttributeName + "'" );
+        }
+
+        String encodedPassword = passwordEncoder.encodePassword(password, null);
+        byte[] passwordBytes = LdapUtils.getUtf8Bytes(encodedPassword);
+
+        if(!ldapTemplate.compare(user.getDn(), passwordAttributeName, passwordBytes)) {
+
+            throw new BadCredentialsException(messages.getMessage(
+                        "PasswordComparisonAuthenticator.badCredentials",
+                        "Bad credentials"));
+        }
+
+        return user;
     }
 
     /**
@@ -162,32 +140,9 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
         return false;
     }
 
-    private void doPasswordCompare(DirContext ctx, String name, String password) throws NamingException {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Performing LDAP compare of password for " + name);
-        }
-
-        password = passwordEncoder.encodePassword(password, null);
-        byte[] passwordBytes = LdapUtils.getUtf8Bytes(password);
-
-        SearchControls ctls = new SearchControls();
-        ctls.setReturningAttributes(NO_ATTRS);
-        ctls.setSearchScope(SearchControls.OBJECT_SCOPE);
-
-        NamingEnumeration results = ctx.search(name, passwordCompareFilter,
-                new Object[]{passwordBytes}, ctls);
-
-        if(!results.hasMore()) {
-            throw new BadCredentialsException(messages.getMessage(
-                            "PasswordComparisonAuthenticator.badCredentials",
-                            "Bad credentials"));
-        }
-    }
-
     public void setPasswordAttributeName(String passwordAttribute) {
         Assert.hasLength(passwordAttribute, "passwordAttributeName must not be empty or null");
         this.passwordAttributeName = passwordAttribute;
-        this.passwordCompareFilter = "(" + passwordAttributeName + "={0})";
     }
 
     public void setPasswordEncoder(PasswordEncoder passwordEncoder) {

@@ -17,9 +17,9 @@ package org.acegisecurity.providers.ldap;
 
 import org.acegisecurity.providers.dao.AbstractUserDetailsAuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.ldap.LdapUserInfo;
 import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.User;
+import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
+import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
 
@@ -28,8 +28,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import javax.naming.directory.Attributes;
 
 /**
  * An {@link org.acegisecurity.providers.AuthenticationProvider} implementation that
@@ -156,33 +154,35 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         String password = (String)authentication.getCredentials();
         Assert.notNull(password, "Null password was supplied in authentication token");
 
-        LdapUserInfo ldapUser = authenticator.authenticate(username, password);
+        LdapUserDetails ldapUser = authenticator.authenticate(username, password);
 
-        return createUserDetails(username, password, ldapUser.getDn(), ldapUser.getAttributes());
+        return createUserDetails(ldapUser);
     }
 
     /**
-     * Creates the user final <tt>UserDetails</tt> object that will be returned by the provider
+     * Creates the final <tt>UserDetails</tt> object that will be returned by the provider
      * once the user has been authenticated.
      * <p>
      * The <tt>LdapAuthoritiesPopulator</tt> will be used to create the granted authorites for the
      * user.
      * </p>
      * <p>
-     * Can be overridden to customize the mapping of user attributes to additional user information.
+     * Can be overridden to customize the creation of the final UserDetails instance. The
+     * default will merge any additional authorities retrieved from the populator with the
+     * original <tt>ldapUser</tt> object.
      * </p>
      *
-     * @param username The user login, as passed to the provider
-     * @param password The submitted password
-     * @param userDn The DN of the user in the Ldap system.
-     * @param attributes The user attributes retrieved from the Ldap system.
+     * @param ldapUser The intermediate LdapUserDetails instance returned from the authenticator.  
+     *
      * @return The UserDetails for the successfully authenticated user.
      */
-    protected UserDetails createUserDetails(String username, String password, String userDn, Attributes attributes) {
+    protected UserDetails createUserDetails(LdapUserDetails ldapUser) {
 
-        return new User(username, password, true, true, true, true,
-                authoritiesPopulator.getGrantedAuthorities(username, userDn, attributes));
+        LdapUserDetailsImpl.Essence user = new LdapUserDetailsImpl.Essence(ldapUser);
 
+        user.setAuthorities(authoritiesPopulator.getGrantedAuthorities(ldapUser));
+
+        return user.createUserDetails();
     }
 
     protected LdapAuthoritiesPopulator getAuthoritiesPoulator() {

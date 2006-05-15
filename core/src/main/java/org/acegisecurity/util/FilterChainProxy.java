@@ -163,13 +163,26 @@ public class FilterChainProxy implements Filter, InitializingBean,
             }
 
             chain.doFilter(request, response);
-        } else {
-            Filter[] filters = obtainAllDefinedFilters(cad);
 
-            VirtualFilterChain virtualFilterChain = new VirtualFilterChain(fi,
-                    filters);
-            virtualFilterChain.doFilter(fi.getRequest(), fi.getResponse());
+            return;
         }
+
+        Filter[] filters = obtainAllDefinedFilters(cad);
+
+        if(filters.length == 0) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(fi.getRequestUrl() + " has an empty filter list");
+            }
+
+            chain.doFilter(request, response);
+
+            return;
+
+        }
+
+        VirtualFilterChain virtualFilterChain = new VirtualFilterChain(fi,
+                filters);
+        virtualFilterChain.doFilter(fi.getRequest(), fi.getResponse());
     }
 
     public FilterInvocationDefinitionSource getFilterInvocationDefinitionSource() {
@@ -224,7 +237,7 @@ public class FilterChainProxy implements Filter, InitializingBean,
             }
         }
 
-        return (Filter[]) list.toArray(new Filter[] {null});
+        return (Filter[]) list.toArray(new Filter[0]);
     }
 
     /**
@@ -247,9 +260,10 @@ public class FilterChainProxy implements Filter, InitializingBean,
             ConfigAttribute attr = (ConfigAttribute) attributes.next();
             String filterName = attr.getAttribute();
 
-            Assert.notNull(filterName,
-                "Configuration attribute: '" + attr
+            if(filterName == null) {
+                throw new IllegalArgumentException("Configuration attribute: '" + attr
                 + "' returned null to the getAttribute() method, which is invalid when used with FilterChainProxy");
+            }
 
             if (!filterName.equals(TOKEN_NONE)) {
                 list.add(this.applicationContext.getBean(filterName,
@@ -257,7 +271,7 @@ public class FilterChainProxy implements Filter, InitializingBean,
             }
         }
 
-        return (Filter[]) list.toArray(new Filter[] {null});
+        return (Filter[]) list.toArray(new Filter[list.size()]);
     }
 
     public void setApplicationContext(ApplicationContext applicationContext)

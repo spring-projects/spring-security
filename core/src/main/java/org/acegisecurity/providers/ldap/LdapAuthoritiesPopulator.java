@@ -16,9 +16,8 @@
 package org.acegisecurity.providers.ldap;
 
 import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 import org.acegisecurity.ldap.LdapDataAccessException;
-
-import javax.naming.directory.Attributes;
 
 /**
  * Obtains a list of granted authorities for an Ldap user.
@@ -35,13 +34,11 @@ public interface LdapAuthoritiesPopulator {
     /**
      * Get the list of authorities for the user.
      *
-     * @param username the login name which was passed to the LDAP provider.
-     * @param userDn the full DN of the user
-     * @param userAttributes the user's LDAP attributes that were retrieved from the directory.
+     * @param userDetails the user details object which was returned by the LDAP authenticator.
      * @return the granted authorities for the given user.
      * @throws org.acegisecurity.ldap.LdapDataAccessException if there is a problem accessing the directory.
      */
-    GrantedAuthority[] getGrantedAuthorities(String username, String userDn, Attributes userAttributes)
+    GrantedAuthority[] getGrantedAuthorities(LdapUserDetails userDetails)
             throws LdapDataAccessException;
 
 }

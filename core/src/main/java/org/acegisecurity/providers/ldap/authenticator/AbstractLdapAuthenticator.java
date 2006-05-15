@@ -18,7 +18,9 @@ package org.acegisecurity.providers.ldap.authenticator;
 import org.acegisecurity.providers.ldap.LdapAuthenticator;
 import org.acegisecurity.ldap.InitialDirContextFactory;
 import org.acegisecurity.ldap.LdapUserSearch;
+import org.acegisecurity.ldap.LdapEntryMapper;
 import org.acegisecurity.AcegiMessageSource;
+import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -54,6 +56,8 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 
     /** The attributes which will be retrieved from the directory. Null means all attributes */
     private String[] userAttributes = null;
+
+    private LdapEntryMapper userDetailsMapper = new LdapUserDetailsMapper();
 
     /**
      * The suffix to be added to the DN patterns, worked out internally from the root DN of the
@@ -135,6 +139,15 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
     public void setUserSearch(LdapUserSearch userSearch) {
         Assert.notNull(userSearch, "The userSearch cannot be set to null");
         this.userSearch = userSearch;
+    }
+
+    public void setUserDetailsMapper(LdapEntryMapper userDetailsMapper) {
+        Assert.notNull("userDetailsMapper must not be null");
+        this.userDetailsMapper = userDetailsMapper;
+    }
+
+    protected LdapEntryMapper getUserDetailsMapper() {
+        return userDetailsMapper;
     }
 
     protected LdapUserSearch getUserSearch() {
