@@ -19,6 +19,8 @@ import junit.framework.TestCase;
 
 import java.util.Hashtable;
 
+import org.apache.directory.server.core.jndi.CoreContextFactory;
+
 /**
  * @author Luke Taylor
  * @version $Id$
@@ -29,16 +31,16 @@ public abstract class AbstractLdapServerTestCase extends TestCase {
     protected static final String MANAGER_PASSWORD = "acegisecurity";
 
     // External server config
-    private static final String PROVIDER_URL = "ldap://monkeymachine:389/"+ROOT_DN;
-    private static final String CONTEXT_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
-    private static final Hashtable EXTRA_ENV = new Hashtable();
+//    private static final String PROVIDER_URL = "ldap://monkeymachine:389/"+ROOT_DN;
+//    private static final String CONTEXT_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
+//    private static final Hashtable EXTRA_ENV = new Hashtable();
 
 
     // Embedded (non-networked) server config
-//    private static final LdapTestServer SERVER = new LdapTestServer();
-//    private static final String PROVIDER_URL = ROOT_DN;
-//    private static final String CONTEXT_FACTORY = CoreContextFactory.class.getName();
-//    private static final Hashtable EXTRA_ENV = SERVER.getConfiguration().toJndiEnvironment();
+    private static final LdapTestServer SERVER = new LdapTestServer();
+    private static final String PROVIDER_URL = ROOT_DN;
+    private static final String CONTEXT_FACTORY = CoreContextFactory.class.getName();
+    private static final Hashtable EXTRA_ENV = SERVER.getConfiguration().toJndiEnvironment();
 
     protected AbstractLdapServerTestCase() {
     }
