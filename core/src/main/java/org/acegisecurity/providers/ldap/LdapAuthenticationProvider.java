@@ -22,6 +22,7 @@ import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
 import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.GrantedAuthority;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -129,10 +130,6 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         this.authenticator = authenticator;
         this.authoritiesPopulator = authoritiesPopulator;
 
-        // TODO: Check that the role attributes specified for the populator will be retrieved
-        // by the authenticator. If not, add them to the authenticator's list and log a
-        // warning.
-
     }
 
     //~ Methods ================================================================
@@ -180,7 +177,11 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
 
         LdapUserDetailsImpl.Essence user = new LdapUserDetailsImpl.Essence(ldapUser);
 
-        user.setAuthorities(authoritiesPopulator.getGrantedAuthorities(ldapUser));
+        GrantedAuthority[] extraAuthorities = authoritiesPopulator.getGrantedAuthorities(ldapUser);
+
+        for(int i = 0; i < extraAuthorities.length; i++) {
+            user.addAuthority(extraAuthorities[i]);
+        }
 
         return user.createUserDetails();
     }
