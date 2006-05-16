@@ -140,15 +140,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     //~ Constructors ===========================================================
 
     /**
-     * Constructor for non-group search scenarios. Typically in this case
-     * the <tt>userRoleAttributes</tt> property will be set to obtain roles directly
-     * from the user's directory entry attributes. The <tt>defaultRole</tt> property
-     * may also be set and will be assigned to all users.
-     */
-    public DefaultLdapAuthoritiesPopulator() {
-    }
-
-    /**
      * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be
      * set as a property.
      *

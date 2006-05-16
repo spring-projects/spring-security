@@ -44,11 +44,11 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
 //    }
 
     public void testDefaultRoleIsAssignedWhenSet() {
-        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator();
+        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(), "ou=groups");
         populator.setDefaultRole("ROLE_USER");
         LdapUserDetailsImpl.Essence user = new LdapUserDetailsImpl.Essence();
-        user.setDn("Ignored");
-        user.setUsername("Ignored");
+        user.setDn("cn=notfound");
+        user.setUsername("notfound");
         user.setAttributes(new BasicAttributes());
 
         GrantedAuthority[] authorities =
@@ -57,7 +57,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
         assertEquals("ROLE_USER", authorities[0].getAuthority());
     }
 
-    public void testGroupSearch() throws Exception {
+    public void testGroupSearchReturnsExpectedRoles() {
         DefaultLdapAuthoritiesPopulator populator =
                 new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(), "ou=groups");
         populator.setRolePrefix("ROLE_");
