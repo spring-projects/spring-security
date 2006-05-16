@@ -113,7 +113,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
             instance.credentialsNonExpired = copyMe.isCredentialsNonExpired();
             instance.accountNonLocked = copyMe.isAccountNonLocked();
             instance.controls = copyMe.getControls();
-            mutableAuthorities = Arrays.asList(copyMe.getAuthorities());
+            mutableAuthorities = new ArrayList(Arrays.asList(copyMe.getAuthorities()));
         }
 
         public Essence setDn(String dn) {
