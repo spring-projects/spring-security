@@ -82,4 +82,21 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
         assertTrue(roles.contains("ROLE_DEVELOPER"));
         assertTrue(roles.contains("ROLE_MANAGER"));
     }
+
+    public void testUseOfUsernameParameterReturnsExpectedRoles() {
+        DefaultLdapAuthoritiesPopulator populator =
+                new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(), "ou=groups");
+        populator.setGroupRoleAttribute("ou");
+        populator.setConvertToUpperCase(true);
+        populator.setGroupSearchFilter("(ou={1})");
+
+        LdapUserDetailsImpl.Essence user = new LdapUserDetailsImpl.Essence();
+        user.setUsername("manager");
+        user.setDn("uid=ben,ou=people,dc=acegisecurity,dc=org");
+
+        GrantedAuthority[] authorities =
+                populator.getGrantedAuthorities(user.createUserDetails());
+        assertEquals("Should have 1 role", 1, authorities.length);
+        assertTrue(authorities[0].equals("ROLE_MANAGER"));
+    }
 }

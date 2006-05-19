@@ -169,7 +169,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
         logger.debug("Getting authorities for user " + userDn);
 
-        Set roles = getGroupMembershipRoles(userDn);
+        Set roles = getGroupMembershipRoles(userDn, userDetails.getUsername());
 
         // Temporary use of deprecated method
         Set oldGroupRoles = getGroupMembershipRoles(userDn, userDetails.getAttributes());
@@ -203,7 +203,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 //        return userRoles;
 //    }
 
-    private Set getGroupMembershipRoles(String userDn) {
+    private Set getGroupMembershipRoles(String userDn, String username) {
         Set authorities = new HashSet();
 
         if (groupSearchBase == null) {
@@ -211,7 +211,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Searching for roles for user '"
+            logger.debug("Searching for roles for user '" + username + "', DN = " + "'" 
                     + userDn + "', with filter "+ groupSearchFilter
                     + " in search base '" + groupSearchBase + "'");
         }
@@ -220,7 +220,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
         template.setSearchScope(searchScope);
 
-        Set userRoles = template.searchForSingleAttributeValues(groupSearchBase, groupSearchFilter, new String[]{userDn}, groupRoleAttribute);
+        Set userRoles = template.searchForSingleAttributeValues(groupSearchBase, groupSearchFilter, new String[]{userDn, username}, groupRoleAttribute);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Roles from search: " + userRoles);
