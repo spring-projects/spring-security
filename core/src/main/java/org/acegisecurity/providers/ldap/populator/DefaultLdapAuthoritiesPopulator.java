@@ -211,7 +211,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Searching for roles for user '" + username + "', DN = " + "'" 
+            logger.debug("Searching for roles for user '" + username + "', DN = " + "'"
                     + userDn + "', with filter "+ groupSearchFilter
                     + " in search base '" + groupSearchBase + "'");
         }
@@ -229,18 +229,13 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         Iterator it = userRoles.iterator();
 
         while(it.hasNext()) {
-            Object role = it.next();
+            String role = (String) it.next();
 
-            // We only handle Strings for the time being
-            if(role instanceof String) {
-                if(convertToUpperCase) {
-                    role = ((String)role).toUpperCase();
-                }
-
-                authorities.add(new GrantedAuthorityImpl(rolePrefix + role));
-            } else {
-                logger.warn("Non-String value found for role: " + role);
+            if(convertToUpperCase) {
+                role = role.toUpperCase();
             }
+
+            authorities.add(new GrantedAuthorityImpl(rolePrefix + role));
         }
 
         return authorities;

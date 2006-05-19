@@ -53,6 +53,8 @@ public class LdapTemplate {
     /** Default search controls */
     private SearchControls searchControls = new SearchControls();
 
+    private NamingExceptionTranslator exceptionTranslator = new LdapExceptionTranslator();
+
     public LdapTemplate(InitialDirContextFactory dirContextFactory) {
         Assert.notNull(dirContextFactory, "An InitialDirContextFactory is required");
         this.dirContextFactory = dirContextFactory;
@@ -112,8 +114,7 @@ public class LdapTemplate {
             return callback.execute(ctx);
 
         } catch (NamingException exception) {
-            // TODO: Write a static method in separate NamingExceptionExceptionTranslator class called public DataAccessException convert(NamingException);
-            throw new LdapDataAccessException("xxxx", exception);
+            throw exceptionTranslator.translate("LdapCallback", exception);
         } finally {
             LdapUtils.closeContext(ctx);
         }
@@ -148,13 +149,13 @@ public class LdapTemplate {
     /**
      * Performs a search using the supplied filter and returns the union of the values of the named
      * attribute found in all entries matched by the search. Note that one directory entry may have several
-     * values for the attribute.
+     * values for the attribute. Intended for role searches and similar scenarios.
      *
      * @param base the DN to search in
      * @param filter search filter to use
      * @param params the parameters to substitute in the search filter
      * @param attributeName the attribute who's values are to be retrieved.
-     * @return the set of values for the attribute as a union of the values found in all the matching entries.
+     * @return the set of String values for the attribute as a union of the values found in all the matching entries.
      */
     public Set searchForSingleAttributeValues(final String base, final String filter, final Object[] params, final String attributeName) {
 
@@ -187,7 +188,8 @@ public class LdapTemplate {
 
                         while(attributeValues.hasMore()) {
                             Object value = attributeValues.next();
-                            unionOfValues.add(value);
+
+                            unionOfValues.add(value.toString());
                         }
 
                     }
@@ -286,6 +288,14 @@ public class LdapTemplate {
 
         }
         );
+    }
+
+
+    private static class LdapExceptionTranslator implements NamingExceptionTranslator {
+
+        public DataAccessException translate(String task, NamingException e) {
+            return new LdapDataAccessException(task + ";" + e.getMessage(), e);
+        }
     }
 
 }
