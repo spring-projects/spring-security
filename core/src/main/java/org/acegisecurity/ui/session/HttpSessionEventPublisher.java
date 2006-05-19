@@ -21,25 +21,27 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
 import org.springframework.web.context.support.WebApplicationContextUtils;
-import org.springframework.util.Assert;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
 
 /**
  * Declared in web.xml as <br>
- * <code> &lt;listener&gt;<br>
- * &lt;listener-class&gt;org.acegisecurity.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;<br>
- * &lt;/listener&gt;<br>
- * </code> Publishes <code>HttpSessionApplicationEvent</code>s to the Spring
- * Root WebApplicationContext. <br>
+ * <pre>
+ * &lt;listener&gt;
+ * &lt;listener-class&gt;org.acegisecurity.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;
+ * &lt;/listener&gt;
+ * </pre>
+ * Publishes <code>HttpSessionApplicationEvent</code>s to the Spring
+ * Root WebApplicationContext.
  * Maps javax.servlet.http.HttpSessionListener.sessionCreated() to {@link
- * HttpSessionCreatedEvent}. <br>
+ * HttpSessionCreatedEvent}.
  * Maps javax.servlet.http.HttpSessionListener.sessionDestroyed() to {@link
- * HttpSessionDestroyedEvent}. <br>
+ * HttpSessionDestroyedEvent}.
  *
  * @author Ray Krueger
  */
@@ -51,7 +53,8 @@ public class HttpSessionEventPublisher implements HttpSessionListener,
 
     //~ Instance fields ========================================================
 
-    private ApplicationContext context;
+    private ApplicationContext appContext;
+    private ServletContext servletContext = null;
 
     //~ Methods ================================================================
 
@@ -64,22 +67,28 @@ public class HttpSessionEventPublisher implements HttpSessionListener,
 
     /**
      * Handled internally by a call to {@link
-     * org.springframework.web.context.support.WebApplicationContextUtils#getRequiredWebApplicationContext(javax.servlet.ServletContext)}
+     * org.springframework.web.appContext.support.WebApplicationContextUtils#getRequiredWebApplicationContext(javax.servlet.ServletContext)}
      *
      * @param event the ServletContextEvent passed in by the container,
      *        event.getServletContext() will be used to get the
      *        WebApplicationContext
      */
     public void contextInitialized(ServletContextEvent event) {
-        if (log.isDebugEnabled())
-            log.debug("Received ServletContextEvent: " + event);
-        setContext(WebApplicationContextUtils.getRequiredWebApplicationContext(
-                event.getServletContext()));
+        log.debug("Received ServletContextEvent: " + event);
+
+        appContext = WebApplicationContextUtils.getWebApplicationContext(
+                event.getServletContext());
+
+        if(appContext == null) {
+            log.warn("Web application context is null. Will delay initialization until it's first used.");
+            servletContext = event.getServletContext();
+        }
+
     }
 
     /**
      * Handles the HttpSessionEvent by publishing a {@link
-     * HttpSessionCreatedEvent} to the application context.
+     * HttpSessionCreatedEvent} to the application appContext.
      *
      * @param event HttpSessionEvent passed in by the container
      */
@@ -94,7 +103,7 @@ public class HttpSessionEventPublisher implements HttpSessionListener,
 
     /**
      * Handles the HttpSessionEvent by publishing a {@link
-     * HttpSessionDestroyedEvent} to the application context.
+     * HttpSessionDestroyedEvent} to the application appContext.
      *
      * @param event The HttpSessionEvent pass in by the container
      */
@@ -107,19 +116,11 @@ public class HttpSessionEventPublisher implements HttpSessionListener,
         getContext().publishEvent(e);
     }
 
-    /**
-     * Package level method for testing and internal usage
-     *
-     * @param context The ApplicationContext this class will use to publish
-     *        events
-     */
-    void setContext(ApplicationContext context) {
-        this.context = context;
-        log.debug("Using context: " + context);
-    }
-
     ApplicationContext getContext() {
-       Assert.notNull(context, "setContext(...) never called, ApplicationContext must not be null");
-        return context;
+        if(appContext == null) {
+            appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+        }
+
+        return appContext;
     }
 }

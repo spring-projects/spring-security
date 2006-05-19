@@ -20,12 +20,9 @@ import junit.framework.TestCase;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.web.context.support.StaticWebApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.http.HttpSessionEvent;
-
-import org.acegisecurity.MockApplicationContext;
 
 
 /**
@@ -39,9 +36,8 @@ public class HttpSessionEventPublisherTests extends TestCase {
 
     /**
      * It's not that complicated so we'll just run it straight through here.
-     * @throws Exception
      */
-    public void testPublisher() throws Exception {
+    public void testPublisher() {
         HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
 
         StaticWebApplicationContext context = new StaticWebApplicationContext();
@@ -77,21 +73,29 @@ public class HttpSessionEventPublisherTests extends TestCase {
         publisher.contextDestroyed(new ServletContextEvent(servletContext));
     }
 
-    public void testContext() throws Exception {
-        HttpSessionEventPublisher pub  = new HttpSessionEventPublisher();
-        ConfigurableApplicationContext c = MockApplicationContext.getContext();
-        pub.setContext(c);
-        assertEquals(c, pub.getContext());
+
+    public void testDelayedContextInitializationSucceeds() {
+        HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
+        MockServletContext servletContext = new MockServletContext();
+
+        // shouldn't fail, even with null context
+        publisher.contextInitialized(new ServletContextEvent(servletContext));
+
+
+        StaticWebApplicationContext context = new StaticWebApplicationContext();
+        context.setServletContext(servletContext);
+
+
     }
 
-    public void testNullContextCheck() throws Exception {
-        HttpSessionEventPublisher pub  = new HttpSessionEventPublisher();
+    public void testGetContextThrowsExceptionIfContextNotSet() {
+        HttpSessionEventPublisher publisher  = new HttpSessionEventPublisher();
+        publisher.contextInitialized(new ServletContextEvent(new MockServletContext()));
 
         try {
-            pub.getContext();
-            fail("IllegalArgumentException expected, the context is null");
-        } catch (IllegalArgumentException e) {
-            assertTrue(true);
+            publisher.getContext();
+            fail("IllegalStateException expected when no context set");
+        } catch (IllegalStateException expected) {
         }
     }
 }
