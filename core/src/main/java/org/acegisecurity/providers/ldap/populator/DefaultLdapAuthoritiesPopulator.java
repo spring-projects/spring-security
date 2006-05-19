@@ -123,11 +123,11 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     /** The ID of the attribute which contains the role name for a group */
     private String groupRoleAttribute = "cn";
 
-    /** Whether group searches should be performed over the full sub-tree from the base DN */
-    // private boolean searchSubtree = false;
+    /** Controls used to determine whether group searches should be performed over the
+     * full sub-tree from the base DN. Modified by searchSubTree property
+     */
 
-    /** Internal variable, tied to searchSubTree property */
-    private int searchScope = SearchControls.ONELEVEL_SCOPE;
+    private SearchControls searchControls = new SearchControls();
 
     private boolean convertToUpperCase = true;
 
@@ -136,6 +136,9 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
     /** An initial context factory is only required if searching for groups is required. */
     private InitialDirContextFactory initialDirContextFactory = null;
+
+    private LdapTemplate ldapTemplate;
+
 
     //~ Constructors ===========================================================
 
@@ -157,6 +160,9 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
             logger.info("groupSearchBase is empty. Searches will be performed from the root: " +
                     initialDirContextFactory.getRootDn());
         }
+
+        ldapTemplate = new LdapTemplate(initialDirContextFactory);
+        ldapTemplate.setSearchControls(searchControls);
     }
 
     //~ Methods ================================================================
@@ -216,11 +222,9 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
                     + " in search base '" + groupSearchBase + "'");
         }
 
-        LdapTemplate template = new LdapTemplate(initialDirContextFactory);
 
-        template.setSearchScope(searchScope);
-
-        Set userRoles = template.searchForSingleAttributeValues(groupSearchBase, groupSearchFilter, new String[]{userDn, username}, groupRoleAttribute);
+        Set userRoles = ldapTemplate.searchForSingleAttributeValues(groupSearchBase, groupSearchFilter,
+                new String[]{userDn, username}, groupRoleAttribute);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Roles from search: " + userRoles);
@@ -281,9 +285,9 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     }
 
     public void setSearchSubtree(boolean searchSubtree) {
-    //    this.searchSubtree = searchSubtree;
-        this.searchScope = searchSubtree ?
+        int searchScope = searchSubtree ?
                 SearchControls.SUBTREE_SCOPE : SearchControls.ONELEVEL_SCOPE;
+        searchControls.setSearchScope(searchScope);
     }
 
     public void setConvertToUpperCase(boolean convertToUpperCase) {
