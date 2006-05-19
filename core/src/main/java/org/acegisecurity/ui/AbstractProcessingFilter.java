@@ -443,7 +443,7 @@ public abstract class AbstractProcessingFilter implements Filter,
 
         String targetUrl = obtainFullRequestUrl(request);
 
-        if (alwaysUseDefaultTargetUrl == true) {
+        if (alwaysUseDefaultTargetUrl) {
             targetUrl = null;
         }
 
