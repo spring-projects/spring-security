@@ -14,7 +14,11 @@
  */
 package org.acegisecurity.ldap;
 
-import junit.framework.TestCase;
+import org.jmock.MockObjectTestCase;
+import org.jmock.Mock;
+
+import javax.naming.directory.DirContext;
+import javax.naming.Context;
 
 /**
  * Tests {@link LdapUtils}
@@ -22,7 +26,7 @@ import junit.framework.TestCase;
  * @author Luke Taylor
  * @version $Id$
  */
-public class LdapUtilsTests extends TestCase {
+public class LdapUtilsTests extends MockObjectTestCase {
 
     public void testRootDnsAreParsedFromUrlsCorrectly() {
         assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine"));
@@ -32,5 +36,22 @@ public class LdapUtilsTests extends TestCase {
         assertEquals("dc=acegisecurity,dc=org", LdapUtils.parseRootDnFromUrl("ldap:///dc=acegisecurity,dc=org"));
         assertEquals("dc=acegisecurity,dc=org", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/dc=acegisecurity,dc=org"));
         assertEquals("dc=acegisecurity,dc=org/ou=blah", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/dc=acegisecurity,dc=org/ou=blah"));
+    }
+
+    public void testGetRelativeNameReturnsFullDnWithEmptyBaseName() throws Exception {
+        Mock mockCtx = mock(DirContext.class);
+
+        mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue(""));
+
+        assertEquals("cn=jane,dc=acegisecurity,dc=org",
+                LdapUtils.getRelativeName("cn=jane,dc=acegisecurity,dc=org", (Context) mockCtx.proxy()));
+    }
+
+    public void testGetRelativeNameReturnsEmptyStringForDnEqualToBaseName() throws Exception {
+        Mock mockCtx = mock(DirContext.class);
+
+        mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=acegisecurity,dc=org"));
+
+        assertEquals("", LdapUtils.getRelativeName("dc=acegisecurity,dc=org", (Context) mockCtx.proxy()));
     }
 }

@@ -55,14 +55,6 @@ public class LdapUtils {
         }
     }
 
-    public static String escapeNameForFilter(String name) {
-        // TODO: Implement escaping as defined in RFC 2254
-        // Think this is probably not needed as filter args should be escaped automatically
-        // by the search methods.
-
-        return name;
-    }
-
     /**
      * Obtains the part of a DN relative to a supplied base context.
      * <p>
