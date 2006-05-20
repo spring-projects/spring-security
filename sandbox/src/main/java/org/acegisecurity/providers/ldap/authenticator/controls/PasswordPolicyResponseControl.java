@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import org.acegisecurity.providers.ldap.LdapDataAccessException;
+import org.acegisecurity.ldap.LdapDataAccessException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
