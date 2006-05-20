@@ -2,7 +2,7 @@ package org.acegisecurity.providers.ldap.authenticator;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.acegisecurity.ldap.InitialDirContextFactory;
+import org.acegisecurity.ldap.MockInitialDirContextFactory;
 
 import javax.naming.directory.DirContext;
 import javax.naming.directory.BasicAttributes;
@@ -35,27 +35,5 @@ public class PasswordComparisonAuthenticatorMockTests extends MockObjectTestCase
                 eq("(userPassword={0})"), NOT_NULL, NOT_NULL).will(returnValue(searchResults.getAll()));
         mockCtx.expects(atLeastOnce()).method("close");
         authenticator.authenticate("Bob", "bobspassword");
-    }
-
-    class MockInitialDirContextFactory implements InitialDirContextFactory {
-        DirContext ctx;
-        String baseDn;
-
-        public MockInitialDirContextFactory(DirContext ctx, String baseDn) {
-            this.baseDn = baseDn;
-            this.ctx = ctx;
-        }
-
-        public DirContext newInitialDirContext() {
-            return ctx;
-        }
-
-        public DirContext newInitialDirContext(String username, String password) {
-            return ctx;
-        }
-
-        public String getRootDn() {
-            return baseDn;
-        }
     }
 }
