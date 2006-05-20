@@ -36,7 +36,7 @@
       </property>
    </bean>
 
-   <bean id="initialDirContextFactory" class="org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory">
+   <bean id="initialDirContextFactory" class="org.acegisecurity.ldap.DefaultInitialDirContextFactory">
      <constructor-arg value="ldap://monkeymachine:389/dc=acegisecurity,dc=org"/>
      <property name="managerDn"><value>cn=manager,dc=acegisecurity,dc=org</value></property>
      <property name="managerPassword"><value>acegisecurity</value></property>
