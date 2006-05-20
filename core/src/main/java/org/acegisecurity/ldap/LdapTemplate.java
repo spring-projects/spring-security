@@ -78,27 +78,11 @@ public class LdapTemplate {
         this.password = password;
     }
 
-    public void setSearchScope(int searchScope) {
-        searchControls.setSearchScope(searchScope);
-    }
-
     /**
-     * The time (in milliseconds) which to wait before the search fails;
-     * the default is zero, meaning forever.
-     */
-    public void setSearchTimeLimit(int searchTimeLimit) {
-        searchControls.setTimeLimit(searchTimeLimit);
-    }
-
-    /**
-     * Sets the corresponding property on the SearchControls instance used
-     * in the search.
+     * Sets the search controls which will be used for search operations by the template.
      *
+     * @param searchControls the SearchControls instance which will be cached in the template.
      */
-    public void setDerefLinkFlag(boolean deref) {
-        searchControls.setDerefLinkFlag(deref);
-    }
-
     public void setSearchControls(SearchControls searchControls) {
         this.searchControls = searchControls;
     }
@@ -120,7 +104,15 @@ public class LdapTemplate {
         }
     }
 
-
+    /**
+     * Performs an LDAP compare operation of the value of an attribute for a
+     * particular directory entry.
+     *
+     * @param dn the entry who's attribute is to be used
+     * @param attributeName the attribute who's value we want to compare
+     * @param value the value to be checked against the directory value
+     * @return true if the supplied value matches that in the directory
+     */
     public boolean compare(final String dn, final String attributeName, final Object value) {
         final String comparisonFilter = "(" + attributeName + "={0})";
 
@@ -165,6 +157,8 @@ public class LdapTemplate {
             public Object execute(DirContext ctx) throws NamingException {
                 Set unionOfValues = new HashSet();
 
+                // We're only interested in a single attribute for this method, so we make a copy of
+                // the search controls and override the returningAttributes property
                 SearchControls ctls = new SearchControls();
 
                 ctls.setSearchScope(searchControls.getSearchScope());
