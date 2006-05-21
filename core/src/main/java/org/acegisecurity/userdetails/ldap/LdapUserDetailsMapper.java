@@ -50,6 +50,14 @@ public class LdapUserDetailsMapper implements LdapEntryMapper {
         this.roleAttributes = roleAttributes;
     }
 
+    public void setConvertToUpperCase(boolean convertToUpperCase) {
+        this.convertToUpperCase = convertToUpperCase;
+    }
+
+    public void setRolePrefix(String rolePrefix) {
+        this.rolePrefix = rolePrefix;
+    }
+
     public Object mapAttributes(String dn, Attributes attributes) throws NamingException {
         LdapUserDetailsImpl.Essence essence = new LdapUserDetailsImpl.Essence();
 
