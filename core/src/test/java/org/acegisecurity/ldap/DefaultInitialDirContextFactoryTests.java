@@ -20,6 +20,7 @@ import javax.naming.directory.DirContext;
 import java.util.Hashtable;
 
 import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.AcegiMessageSource;
 
 /**
  * Tests {@link org.acegisecurity.ldap.DefaultInitialDirContextFactory}.
@@ -32,6 +33,7 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapServerTest
 
     public void onSetUp() {
         idf = getInitialCtxFactory();
+        idf.setMessageSource(new AcegiMessageSource());
     }
 
 //    public void testNonLdapUrlIsRejected() throws Exception {
@@ -50,7 +52,6 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapServerTest
     public void testServiceLocationUrlIsSupported() {
         idf = new DefaultInitialDirContextFactory("ldap:///dc=acegisecurity,dc=org");
         assertEquals("dc=acegisecurity,dc=org", idf.getRootDn());
-
     }
 
     public void testSecureLdapUrlIsSupported() {
@@ -65,6 +66,7 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapServerTest
         Hashtable env = new Hashtable();
         env.put("com.sun.jndi.ldap.connect.timeout", "200");
         idf.setExtraEnvVars(env);
+        idf.setUseConnectionPool(false); // coverage purposes only
 
         try {
             idf.newInitialDirContext();
@@ -159,7 +161,7 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapServerTest
         assertEquals("extravarvalue", env.get("extravar"));
     }
 
-    public void testBaseDnIsParsedFromCorrectlyFromUrl() throws Exception {
+    public void testBaseDnIsParsedFromCorrectlyFromUrl() {
         idf = new DefaultInitialDirContextFactory("ldap://acegisecurity.org/dc=acegisecurity,dc=org");
         assertEquals("dc=acegisecurity,dc=org", idf.getRootDn());
 
