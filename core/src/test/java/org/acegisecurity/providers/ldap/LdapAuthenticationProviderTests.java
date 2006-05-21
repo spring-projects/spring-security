@@ -32,6 +32,8 @@ public class LdapAuthenticationProviderTests extends AbstractLdapServerTestCase 
         LdapAuthenticationProvider ldapProvider
                 = new LdapAuthenticationProvider(new MockAuthenticator(), new MockAuthoritiesPopulator());
 
+        assertNotNull(ldapProvider.getAuthoritiesPoulator());
+
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("bob","bobspassword");
         UserDetails user = ldapProvider.retrieveUser("bob", token);
         assertEquals(2, user.getAuthorities().length);
@@ -44,6 +46,24 @@ public class LdapAuthenticationProviderTests extends AbstractLdapServerTestCase 
         assertTrue(authorities.contains("ROLE_FROM_POPULATOR"));
 
         ldapProvider.additionalAuthenticationChecks(user, token);
+    }
+
+    public void testEmptyOrNullUserNameThrowsException() {
+        LdapAuthenticationProvider ldapProvider
+                = new LdapAuthenticationProvider(new MockAuthenticator(), new MockAuthoritiesPopulator());
+
+        try {
+            ldapProvider.retrieveUser("", new UsernamePasswordAuthenticationToken("bob","bobspassword"));
+            fail("Expected BadCredentialsException for empty username");
+        } catch(BadCredentialsException expected) {
+        }
+
+        try {
+            ldapProvider.retrieveUser(null, new UsernamePasswordAuthenticationToken("bob","bobspassword"));
+            fail("Expected BadCredentialsException for null username");
+        } catch(BadCredentialsException expected) {
+        }
+
     }
 
 // This test kills apacheDS in embedded mode because the search returns an invalid DN
