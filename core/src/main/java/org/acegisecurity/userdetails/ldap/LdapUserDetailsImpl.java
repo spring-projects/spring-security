@@ -104,16 +104,16 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
         }
 
         public Essence(LdapUserDetails copyMe) {
-            instance.dn = copyMe.getDn();
-            instance.attributes = copyMe.getAttributes();
-            instance.username = copyMe.getUsername();
-            instance.password = copyMe.getPassword();
-            instance.enabled = copyMe.isEnabled();
-            instance.accountNonExpired = copyMe.isAccountNonExpired();
-            instance.credentialsNonExpired = copyMe.isCredentialsNonExpired();
-            instance.accountNonLocked = copyMe.isAccountNonLocked();
-            instance.controls = copyMe.getControls();
-            mutableAuthorities = new ArrayList(Arrays.asList(copyMe.getAuthorities()));
+            setDn(copyMe.getDn());
+            setAttributes(copyMe.getAttributes());
+            setUsername(copyMe.getUsername());
+            setPassword(copyMe.getPassword());
+            setEnabled(copyMe.isEnabled());
+            setAccountNonExpired(copyMe.isAccountNonExpired());
+            setCredentialsNonExpired(copyMe.isCredentialsNonExpired());
+            setAccountNonLocked(copyMe.isAccountNonLocked());
+            setControls(copyMe.getControls());
+            setAuthorities(copyMe.getAuthorities());
         }
 
         public Essence setDn(String dn) {
@@ -157,8 +157,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
         }
 
         public Essence setAuthorities(GrantedAuthority[] authorities) {
-            mutableAuthorities = Arrays.asList(authorities);
-
+            mutableAuthorities = new ArrayList(Arrays.asList(authorities));
             return this;
         }
 
@@ -170,6 +169,10 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
 
         public GrantedAuthority[] getGrantedAuthorities() {
             return (GrantedAuthority[])mutableAuthorities.toArray(new GrantedAuthority[0]);
+        }
+
+        public void setControls(Control[] controls) {
+            instance.controls = controls;
         }
 
         public LdapUserDetails createUserDetails() {
