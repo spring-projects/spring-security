@@ -15,6 +15,8 @@
 
 package org.acegisecurity.ldap;
 
+import javax.naming.directory.DirContext;
+import javax.naming.NamingException;
 import java.util.Set;
 
 /**
@@ -68,5 +70,19 @@ public class LdapTemplateTests extends AbstractLdapServerTestCase {
 
     public void testNameExistsForInValidNameFails() {
         assertFalse(template.nameExists("ou=doesntexist,dc=acegisecurity,dc=org"));
+    }
+
+    public void testNamingExceptionIsTranslatedCorrectly() {
+        try {
+            template.execute(new LdapCallback() {
+
+                public Object doInDirContext(DirContext dirContext) throws NamingException {
+                    throw new NamingException();
+                }
+            });
+            fail("Expected LdapDataAccessException on NamingException");
+        }
+        catch(LdapDataAccessException expected) {
+        }
     }
 }

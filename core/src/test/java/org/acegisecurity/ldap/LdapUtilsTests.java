@@ -19,6 +19,7 @@ import org.jmock.Mock;
 
 import javax.naming.directory.DirContext;
 import javax.naming.Context;
+import javax.naming.NamingException;
 
 /**
  * Tests {@link LdapUtils}
@@ -27,6 +28,8 @@ import javax.naming.Context;
  * @version $Id$
  */
 public class LdapUtilsTests extends MockObjectTestCase {
+
+    private final LdapDataAccessException tempCoverageBoost = new LdapDataAccessException("");
 
     public void testRootDnsAreParsedFromUrlsCorrectly() {
         assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine"));
@@ -53,5 +56,13 @@ public class LdapUtilsTests extends MockObjectTestCase {
         mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=acegisecurity,dc=org"));
 
         assertEquals("", LdapUtils.getRelativeName("dc=acegisecurity,dc=org", (Context) mockCtx.proxy()));
+    }
+
+    public void testCloseContextSwallowsNamingException() {
+        Mock mockCtx = mock(DirContext.class);
+
+        mockCtx.expects(once()).method("close").will(throwException(new NamingException()));
+
+        LdapUtils.closeContext((Context) mockCtx.proxy());
     }
 }

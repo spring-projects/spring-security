@@ -3,6 +3,7 @@ package org.acegisecurity.providers.ldap.authenticator;
 import org.acegisecurity.ldap.AbstractLdapServerTestCase;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
 import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
@@ -19,15 +20,16 @@ public class BindAuthenticatorTests extends AbstractLdapServerTestCase {
 
     public void onSetUp() {
         authenticator = new BindAuthenticator(getInitialCtxFactory());
+        authenticator.setMessageSource(new AcegiMessageSource());        
     }
 
-    public void testUserDnPatternReturnsCorrectDn() throws Exception {
+    public void testUserDnPatternReturnsCorrectDn() {
         authenticator.setUserDnPatterns(new String[] {"cn={0},ou=people"});
         assertEquals("cn=Joe,ou=people,"+ getInitialCtxFactory().getRootDn(),
                 authenticator.getUserDns("Joe").get(0));
     }
 
-    public void testAuthenticationWithCorrectPasswordSucceeds() throws Exception {
+    public void testAuthenticationWithCorrectPasswordSucceeds() {
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
         LdapUserDetails user = authenticator.authenticate("bob","bobspassword");
     }

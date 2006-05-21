@@ -95,7 +95,7 @@ public class LdapTemplate {
                     dirContextFactory.newInitialDirContext() :
                     dirContextFactory.newInitialDirContext(principalDn, password);
 
-            return callback.execute(ctx);
+            return callback.doInDirContext(ctx);
 
         } catch (NamingException exception) {
             throw exceptionTranslator.translate("LdapCallback", exception);
@@ -118,7 +118,7 @@ public class LdapTemplate {
 
         class LdapCompareCallback implements LdapCallback {
 
-            public Object execute(DirContext ctx) throws NamingException {
+            public Object doInDirContext(DirContext ctx) throws NamingException {
                 SearchControls ctls = new SearchControls();
                 ctls.setReturningAttributes(NO_ATTRS);
                 ctls.setSearchScope(SearchControls.OBJECT_SCOPE);
@@ -154,7 +154,7 @@ public class LdapTemplate {
 
         class SingleAttributeSearchCallback implements LdapCallback {
 
-            public Object execute(DirContext ctx) throws NamingException {
+            public Object doInDirContext(DirContext ctx) throws NamingException {
                 Set unionOfValues = new HashSet();
 
                 // We're only interested in a single attribute for this method, so we make a copy of
@@ -200,7 +200,7 @@ public class LdapTemplate {
 
         Boolean exists = (Boolean) execute( new LdapCallback() {
 
-                public Object execute(DirContext ctx) throws NamingException {
+                public Object doInDirContext(DirContext ctx) throws NamingException {
                     try {
                         ctx.lookup( LdapUtils.getRelativeName(dn, ctx) );
                     } catch(NameNotFoundException nnfe) {
@@ -226,7 +226,7 @@ public class LdapTemplate {
     public Object retrieveEntry(final String dn, final LdapEntryMapper mapper, final String[] attributesToRetrieve) {
         return execute ( new LdapCallback() {
 
-            public Object execute(DirContext ctx) throws NamingException {
+            public Object doInDirContext(DirContext ctx) throws NamingException {
                 return mapper.mapAttributes(dn, ctx.getAttributes(LdapUtils.getRelativeName(dn, ctx), attributesToRetrieve) );
 
             }
@@ -248,7 +248,7 @@ public class LdapTemplate {
     public Object searchForSingleEntry(final String base, final String filter, final Object[] params, final LdapEntryMapper mapper) {
         return execute ( new LdapCallback() {
 
-            public Object execute(DirContext ctx) throws NamingException {
+            public Object doInDirContext(DirContext ctx) throws NamingException {
                 NamingEnumeration results = ctx.search(base, filter, params, searchControls);
 
                 if (!results.hasMore()) {

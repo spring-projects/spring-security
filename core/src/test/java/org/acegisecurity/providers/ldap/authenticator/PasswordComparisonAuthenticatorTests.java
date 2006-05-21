@@ -2,6 +2,7 @@ package org.acegisecurity.providers.ldap.authenticator;
 
 import org.acegisecurity.ldap.AbstractLdapServerTestCase;
 import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
 import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
@@ -72,9 +73,8 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
         authenticator.authenticate("Bob", "bobspassword");
     }
 
-    public void testLocalCompareSucceedsWithShaEncodedPassword() {
-        authenticator = new PasswordComparisonAuthenticator(getInitialCtxFactory());
-        authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
+    public void testLocalComparisonSucceedsWithShaEncodedPassword() {
+        // Ben's password is SHA encoded
         authenticator.authenticate("ben", "benspassword");
     }
 
@@ -92,16 +92,16 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
         assertEquals("User should have 5 attributes", 5, user.getAttributes().size());
 
     }
-/*
+
     public void testOnlySpecifiedAttributesAreRetrieved() throws Exception {
-        authenticator.setUserAttributes(new String[] {"cn", "uid"});
+        authenticator.setUserAttributes(new String[] {"userPassword"});
         authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
-        LdapUserInfo user = authenticator.authenticate("Bob", "bobspassword");
-        assertEquals("Should have retrieved 2 attributes (cn, uid)",2, user.getAttributes().size());
-        assertEquals("Bob Hamilton", user.getAttributes().get("cn").get());
-        assertEquals("bob", user.getAttributes().get("uid").get());
+        LdapUserDetails user = authenticator.authenticate("Bob", "bobspassword");
+        assertEquals("Should have retrieved 1 attribute (userPassword)",1, user.getAttributes().size());
+//        assertEquals("Bob Hamilton", user.getAttributes().get("cn").get());
+//        assertEquals("bob", user.getAttributes().get("uid").get());
     }
-*/
+
     public void testUseOfDifferentPasswordAttribute() {
         LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
         mapper.setPasswordAttributeName("uid");
@@ -110,7 +110,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
         authenticator.authenticate("bob", "bob");
     }
 /*
-    public void testLdapCompareWithDifferentPasswordAttribute() {
+    public void testLdapCompareWithDifferentPasswordAttributeSucceeds() {
         authenticator.setUserAttributes(new String[] {"cn"});
         authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
         authenticator.setPasswordAttributeName("uid");

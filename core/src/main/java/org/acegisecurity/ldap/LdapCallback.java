@@ -23,5 +23,5 @@ import javax.naming.directory.DirContext;
  * @author Ben Alex
  */
 public interface LdapCallback {
-	public Object execute(DirContext dirContext) throws NamingException;
+	public Object doInDirContext(DirContext dirContext) throws NamingException;
 }
