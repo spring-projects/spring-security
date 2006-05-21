@@ -29,24 +29,26 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
         super();
     }
 
-    public void testBasicSearch() throws Exception {
+    public void testBasicSearch() {
         FilterBasedLdapUserSearch locator =
                 new FilterBasedLdapUserSearch("ou=people", "(uid={0})", dirCtxFactory);
-        LdapUserDetails bob = locator.searchForUser("bob");
         locator.setSearchSubtree(false);
         locator.setSearchTimeLimit(0);
+        locator.setDerefLinkFlag(false);
+
+        LdapUserDetails bob = locator.searchForUser("bob");
         // name is wrong with embedded apacheDS
-//        assertEquals("uid=bob,ou=people,"+ROOT_DN, bob.getDn());
+//        assertEquals("uid=bob,ou=people,dc=acegisecurity,dc=org", bob.getDn());
     }
 
-    public void testSubTreeSearchSucceeds() throws Exception {
+    public void testSubTreeSearchSucceeds() {
         // Don't set the searchBase, so search from the root.
         FilterBasedLdapUserSearch locator =
                 new FilterBasedLdapUserSearch("", "(cn={0})", dirCtxFactory);
         locator.setSearchSubtree(true);
 
         LdapUserDetails ben = locator.searchForUser("Ben Alex");
-//        assertEquals("uid=ben,ou=people,"+ROOT_DN, bob.getDn());
+//        assertEquals("uid=ben,ou=people,dc=acegisecurity,dc=org", ben.getDn());
     }
 
     public void testSearchForInvalidUserFails() {
