@@ -37,6 +37,8 @@ public class LdapAuthenticationProviderTests extends AbstractLdapServerTestCase 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("bob","bobspassword");
         UserDetails user = ldapProvider.retrieveUser("bob", token);
         assertEquals(2, user.getAuthorities().length);
+        assertEquals("bobspassword", user.getPassword());
+        assertEquals("bob", user.getUsername());
 
         ArrayList authorities = new ArrayList();
         authorities.add(user.getAuthorities()[0].getAuthority());
@@ -101,6 +103,7 @@ public class LdapAuthenticationProviderTests extends AbstractLdapServerTestCase 
             if(username.equals("bob") && password.equals("bobspassword")) {
                 LdapUserDetailsImpl.Essence userEssence = new LdapUserDetailsImpl.Essence();
                 userEssence.setDn("cn=bob,ou=people,dc=acegisecurity,dc=org");
+                userEssence.setPassword("{SHA}anencodedpassword");
                 userEssence.setAttributes(userAttributes);
                 userEssence.addAuthority(new GrantedAuthorityImpl("ROLE_FROM_ENTRY"));
                 return userEssence.createUserDetails();

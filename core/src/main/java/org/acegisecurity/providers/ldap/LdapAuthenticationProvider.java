@@ -153,7 +153,7 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
 
         LdapUserDetails ldapUser = authenticator.authenticate(username, password);
 
-        return createUserDetails(ldapUser);
+        return createUserDetails(ldapUser, username, password);
     }
 
     /**
@@ -166,16 +166,20 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
      * <p>
      * Can be overridden to customize the creation of the final UserDetails instance. The
      * default will merge any additional authorities retrieved from the populator with the
-     * original <tt>ldapUser</tt> object.
+     * propertis of original <tt>ldapUser</tt> object and set the values of the username and password.
      * </p>
      *
-     * @param ldapUser The intermediate LdapUserDetails instance returned from the authenticator.  
+     * @param ldapUser The intermediate LdapUserDetails instance returned by the authenticator.
+     * @param username the username submitted to the provider
+     * @param password the password submitted to the provider
      *
      * @return The UserDetails for the successfully authenticated user.
      */
-    protected UserDetails createUserDetails(LdapUserDetails ldapUser) {
+    protected UserDetails createUserDetails(LdapUserDetails ldapUser, String username, String password) {
 
         LdapUserDetailsImpl.Essence user = new LdapUserDetailsImpl.Essence(ldapUser);
+        user.setUsername(username);
+        user.setPassword(password);
 
         GrantedAuthority[] extraAuthorities = authoritiesPopulator.getGrantedAuthorities(ldapUser);
 
