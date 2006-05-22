@@ -135,6 +135,12 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     //~ Methods ================================================================
 
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+
+        if (!userDetails.getPassword().equals(authentication.getCredentials().toString())) {
+            throw new BadCredentialsException(messages.getMessage(
+                    "AbstractUserDetailsAuthenticationProvider.badCredentials",
+                    "Bad credentials"), userDetails);
+        }
     }
 
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {

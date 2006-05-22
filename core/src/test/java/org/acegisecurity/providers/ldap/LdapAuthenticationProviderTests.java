@@ -6,7 +6,6 @@ import javax.naming.directory.BasicAttributes;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.ldap.*;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
@@ -14,11 +13,13 @@ import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 
 import java.util.ArrayList;
 
+import junit.framework.TestCase;
+
 /**
  * @author Luke Taylor
  * @version $Id$
  */
-public class LdapAuthenticationProviderTests extends AbstractLdapServerTestCase {
+public class LdapAuthenticationProviderTests extends TestCase {
 
     public LdapAuthenticationProviderTests(String string) {
         super(string);
@@ -34,8 +35,8 @@ public class LdapAuthenticationProviderTests extends AbstractLdapServerTestCase 
 
         assertNotNull(ldapProvider.getAuthoritiesPoulator());
 
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("bob","bobspassword");
-        UserDetails user = ldapProvider.retrieveUser("bob", token);
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("bob","bobspassword");
+        UserDetails user = ldapProvider.retrieveUser("bob", authRequest);
         assertEquals(2, user.getAuthorities().length);
         assertEquals("bobspassword", user.getPassword());
         assertEquals("bob", user.getUsername());
@@ -47,7 +48,25 @@ public class LdapAuthenticationProviderTests extends AbstractLdapServerTestCase 
         assertTrue(authorities.contains("ROLE_FROM_ENTRY"));
         assertTrue(authorities.contains("ROLE_FROM_POPULATOR"));
 
-        ldapProvider.additionalAuthenticationChecks(user, token);
+        ldapProvider.additionalAuthenticationChecks(user, authRequest);
+    }
+
+    public void testDifferentCacheValueCausesException() {
+        LdapAuthenticationProvider ldapProvider
+                = new LdapAuthenticationProvider(new MockAuthenticator(), new MockAuthoritiesPopulator());
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("bob","bobspassword");
+        // User is authenticated here
+        UserDetails user = ldapProvider.retrieveUser("bob", authRequest);
+        // Assume the user details object is cached...
+
+        // And a subsequent authentication request comes in on the cached data
+        authRequest = new UsernamePasswordAuthenticationToken("bob","wrongpassword");
+
+        try {
+            ldapProvider.additionalAuthenticationChecks(user, authRequest);
+            fail("Expected BadCredentialsException should have failed with wrong password");
+        } catch(BadCredentialsException expected) {
+        }
     }
 
     public void testEmptyOrNullUserNameThrowsException() {
