@@ -37,6 +37,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
         locator.setDerefLinkFlag(false);
 
         LdapUserDetails bob = locator.searchForUser("bob");
+        assertEquals("bob", bob.getUsername());
         // name is wrong with embedded apacheDS
 //        assertEquals("uid=bob,ou=people,dc=acegisecurity,dc=org", bob.getDn());
     }
@@ -48,6 +49,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
         locator.setSearchSubtree(true);
 
         LdapUserDetails ben = locator.searchForUser("Ben Alex");
+        assertEquals("Ben Alex", ben.getUsername());
 //        assertEquals("uid=ben,ou=people,dc=acegisecurity,dc=org", ben.getDn());
     }
 

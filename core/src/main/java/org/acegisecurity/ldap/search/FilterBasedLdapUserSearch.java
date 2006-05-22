@@ -18,10 +18,10 @@ package org.acegisecurity.ldap.search;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
 import org.acegisecurity.userdetails.ldap.LdapUserDetails;
+import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
 import org.acegisecurity.ldap.LdapUserSearch;
 import org.acegisecurity.ldap.InitialDirContextFactory;
 import org.acegisecurity.ldap.LdapTemplate;
-import org.acegisecurity.ldap.LdapEntryMapper;
 
 import org.springframework.util.Assert;
 
@@ -80,7 +80,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 
     private InitialDirContextFactory initialDirContextFactory;
 
-    private LdapEntryMapper userDetailsMapper = new LdapUserDetailsMapper();
+    private LdapUserDetailsMapper userDetailsMapper = new LdapUserDetailsMapper();
 
     //~ Methods ================================================================
 
@@ -122,10 +122,11 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
         template.setSearchControls(searchControls);
 
         try {
-            Object user = template.searchForSingleEntry(searchBase, searchFilter, new String[] { username }, userDetailsMapper);
-            Assert.isInstanceOf(LdapUserDetails.class, user, "Entry mapper must return an LdapUserDetailsImpl instance");
+            LdapUserDetailsImpl.Essence user = (LdapUserDetailsImpl.Essence)
+                    template.searchForSingleEntry(searchBase, searchFilter, new String[] { username }, userDetailsMapper);
+            user.setUsername(username);
 
-            return (LdapUserDetails)user;
+            return user.createUserDetails();
 
         } catch(EmptyResultDataAccessException notFound) {
             throw new UsernameNotFoundException("User " + username + " not found in directory.");

@@ -57,7 +57,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
     /** The attributes which will be retrieved from the directory. Null means all attributes */
     private String[] userAttributes = null;
 
-    private LdapEntryMapper userDetailsMapper = new LdapUserDetailsMapper();
+    private LdapUserDetailsMapper userDetailsMapper = new LdapUserDetailsMapper();
 
     /**
      * The suffix to be added to the DN patterns, worked out internally from the root DN of the
@@ -141,7 +141,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
         this.userSearch = userSearch;
     }
 
-    public void setUserDetailsMapper(LdapEntryMapper userDetailsMapper) {
+    public void setUserDetailsMapper(LdapUserDetailsMapper userDetailsMapper) {
         Assert.notNull("userDetailsMapper must not be null");
         this.userDetailsMapper = userDetailsMapper;
     }

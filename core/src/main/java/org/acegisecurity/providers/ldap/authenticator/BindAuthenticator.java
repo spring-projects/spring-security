@@ -19,10 +19,10 @@ import org.acegisecurity.ldap.InitialDirContextFactory;
 import org.acegisecurity.ldap.LdapTemplate;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.userdetails.ldap.LdapUserDetails;
+import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
 
 import java.util.Iterator;
 
@@ -57,14 +57,14 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
         Iterator dns = getUserDns(username).iterator();
 
         while(dns.hasNext() && user == null) {
-            user = bindWithDn((String)dns.next(), password);
+            user = bindWithDn((String)dns.next(), username, password);
         }
 
         // Otherwise use the configured locator to find the user
         // and authenticate with the returned DN.
         if (user == null && getUserSearch() != null) {
             LdapUserDetails userFromSearch = getUserSearch().searchForUser(username);
-            user = bindWithDn(userFromSearch.getDn(), password);
+            user = bindWithDn(userFromSearch.getDn(), username, password);
         }
 
         if(user == null) {
@@ -77,7 +77,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
     }
 
-    LdapUserDetails bindWithDn(String userDn, String password) {
+    private LdapUserDetails bindWithDn(String userDn, String username, String password) {
         LdapTemplate template = new LdapTemplate(getInitialDirContextFactory(), userDn, password);
 
         if (logger.isDebugEnabled()) {
@@ -86,10 +86,11 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
         try {
 
-            Object user = (LdapUserDetails)template.retrieveEntry(userDn, getUserDetailsMapper(), getUserAttributes());
-            Assert.isInstanceOf(LdapUserDetails.class, user, "Entry mapper must return an LdapUserDetails instance");
+            LdapUserDetailsImpl.Essence user =
+                    (LdapUserDetailsImpl.Essence) template.retrieveEntry(userDn, getUserDetailsMapper(), getUserAttributes());
+            user.setUsername(username);
 
-            return (LdapUserDetails) user;
+            return user.createUserDetails();
 
         } catch(BadCredentialsException e) {
             // This will be thrown if an invalid user name is used and the method may

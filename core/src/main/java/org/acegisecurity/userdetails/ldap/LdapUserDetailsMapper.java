@@ -27,6 +27,10 @@ import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 
 /**
+ * The entry mapper used by the authenticators to create an ldap user
+ * object.
+ *
+ *
  * @author Luke Taylor
  * @version $Id$
  */
@@ -100,6 +104,6 @@ public class LdapUserDetailsMapper implements LdapEntryMapper {
             }
         }
 
-        return essence.createUserDetails();
+        return essence;
     }
 }

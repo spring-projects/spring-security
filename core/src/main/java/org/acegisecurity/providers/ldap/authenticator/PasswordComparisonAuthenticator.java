@@ -19,6 +19,7 @@ import org.acegisecurity.ldap.LdapUtils;
 import org.acegisecurity.ldap.InitialDirContextFactory;
 import org.acegisecurity.ldap.LdapTemplate;
 import org.acegisecurity.userdetails.ldap.LdapUserDetails;
+import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
 import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
@@ -81,7 +82,10 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
             final String userDn = (String)dns.next();
 
             if(ldapTemplate.nameExists(userDn)) {
-                user = (LdapUserDetails)ldapTemplate.retrieveEntry(userDn, getUserDetailsMapper(), getUserAttributes());
+                LdapUserDetailsImpl.Essence userEssence =
+                    (LdapUserDetailsImpl.Essence) ldapTemplate.retrieveEntry(userDn, getUserDetailsMapper(), getUserAttributes());
+                userEssence.setUsername(username);
+                user = userEssence.createUserDetails();
             }
         }
 

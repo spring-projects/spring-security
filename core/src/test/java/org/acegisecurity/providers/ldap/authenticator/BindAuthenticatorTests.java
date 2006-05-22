@@ -32,6 +32,7 @@ public class BindAuthenticatorTests extends AbstractLdapServerTestCase {
     public void testAuthenticationWithCorrectPasswordSucceeds() {
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
         LdapUserDetails user = authenticator.authenticate("bob","bobspassword");
+        assertEquals("bob", user.getUsername());
     }
 
     public void testAuthenticationWithWrongPasswordFails() {

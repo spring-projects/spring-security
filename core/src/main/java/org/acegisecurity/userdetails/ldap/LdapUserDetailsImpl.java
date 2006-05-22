@@ -1,6 +1,7 @@
 package org.acegisecurity.userdetails.ldap;
 
 import org.acegisecurity.GrantedAuthority;
+import org.springframework.util.Assert;
 
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
@@ -93,7 +94,9 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
 
     //~ Inner classes ==========================================================
 
-    /** Variation of essence pattern. Used to create mutable intermediate object */
+    /**
+     * Variation of essence pattern. Used to create mutable intermediate object
+     */
     public static class Essence {
 
         LdapUserDetailsImpl instance = new LdapUserDetailsImpl();
@@ -178,9 +181,15 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
         public LdapUserDetails createUserDetails() {
             //TODO: Validation of properties
 
+            Assert.notNull(instance, "Essence can only be used to create a single instance");
+
             instance.authorities = getGrantedAuthorities();
 
-            return instance;
+            LdapUserDetails newInstance = instance;
+
+            instance = null;
+
+            return newInstance;
         }
     }
 }

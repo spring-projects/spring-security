@@ -65,7 +65,10 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
     }
 */
     public void testLocalPasswordComparisonSucceedsWithCorrectPassword() {
-        authenticator.authenticate("Bob", "bobspassword");
+        LdapUserDetails user = authenticator.authenticate("Bob", "bobspassword");
+        // check username is retrieved.
+        assertEquals("Bob", user.getUsername());
+        assertEquals("bobspassword", user.getPassword());
     }
 
     public void testMultipleDnPatternsWorkOk() {
@@ -88,7 +91,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
 
     public void testAllAttributesAreRetrivedByDefault() {
         LdapUserDetails user = authenticator.authenticate("Bob", "bobspassword");
-        System.out.println(user.getAttributes().toString());
+        //System.out.println(user.getAttributes().toString());
         assertEquals("User should have 5 attributes", 5, user.getAttributes().size());
 
     }
@@ -107,7 +110,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
         mapper.setPasswordAttributeName("uid");
         authenticator.setPasswordAttributeName("uid");
         authenticator.setUserDetailsMapper(mapper);
-        authenticator.authenticate("bob", "bob");
+        LdapUserDetails bob = authenticator.authenticate("bob", "bob");
     }
 /*
     public void testLdapCompareWithDifferentPasswordAttributeSucceeds() {
