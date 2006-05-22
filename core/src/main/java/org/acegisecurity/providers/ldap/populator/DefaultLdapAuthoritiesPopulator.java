@@ -209,7 +209,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 //        return userRoles;
 //    }
 
-    private Set getGroupMembershipRoles(String userDn, String username) {
+    public final Set getGroupMembershipRoles(String userDn, String username) {
         Set authorities = new HashSet();
 
         if (groupSearchBase == null) {
