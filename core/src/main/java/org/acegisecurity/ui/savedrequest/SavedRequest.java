@@ -61,7 +61,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Ben Alex
  * @version $Id$
  */
-public class SavedRequest {
+public class SavedRequest implements java.io.Serializable {
     //~ Static fields/initializers =============================================
 
     protected static final Log logger = LogFactory.getLog(SavedRequest.class);
