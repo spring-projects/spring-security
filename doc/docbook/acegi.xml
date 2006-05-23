@@ -3385,7 +3385,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <para><programlisting> 
 &lt;application-policy name = "SpringPoweredRealm"&gt;
    &lt;authentication&gt;
-      &lt;login-module code = "org.acegisecurity.adapters.jboss.JbossSpringLoginModule"
+      &lt;login-module code = "org.acegisecurity.adapters.jboss.JbossAcegiLoginModule"
         flag = "required"&gt;
         &lt;module-option name = "appContextLocation"&gt;acegisecurity.xml&lt;/module-option&gt;
         &lt;module-option name = "key"&gt;my_password&lt;/module-option&gt;
@@ -3411,7 +3411,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <para><programlisting>
 &lt;application-policy name = "SpringPoweredRealm"&gt;
    &lt;authentication&gt;
-      &lt;login-module code = "org.acegisecurity.adapters.jboss.JbossSpringLoginModule"
+      &lt;login-module code = "org.acegisecurity.adapters.jboss.JbossAcegiLoginModule"
         flag = "required"&gt;
         &lt;module-option name = "singletonId"&gt;springRealm&lt;/module-option&gt;
         &lt;module-option name = "key"&gt;my_password&lt;/module-option&gt;
