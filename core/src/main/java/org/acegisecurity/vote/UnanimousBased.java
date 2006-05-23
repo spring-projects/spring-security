@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
 
 package org.acegisecurity.vote;
 
-import java.util.Iterator;
-
 import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
+
+import java.util.Iterator;
 
 
 /**
@@ -60,7 +60,6 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
     public void decide(Authentication authentication, Object object,
         ConfigAttributeDefinition config) throws AccessDeniedException {
         int grant = 0;
-        int deny = 0;
         int abstain = 0;
 
         Iterator configIter = config.getConfigAttributes();
@@ -82,9 +81,9 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
                     break;
 
                 case AccessDecisionVoter.ACCESS_DENIED:
-                    deny++;
-
-                    break;
+                    throw new AccessDeniedException(messages.getMessage(
+                            "AbstractAccessDecisionManager.accessDenied",
+                            "Access is denied"));
 
                 default:
                     abstain++;
@@ -92,12 +91,6 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
                     break;
                 }
             }
-        }
-
-        if (deny > 0) {
-            throw new AccessDeniedException(messages.getMessage(
-                    "AbstractAccessDecisionManager.accessDenied",
-                    "Access is denied"));
         }
 
         // To get this far, there were no deny votes
