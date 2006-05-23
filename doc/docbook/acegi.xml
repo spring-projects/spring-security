@@ -26,7 +26,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>1.0.0 RC 2</releaseinfo>
+    <releaseinfo>1.0.0</releaseinfo>
 
     <authorgroup>
       <author>
@@ -1846,13 +1846,14 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
           username and other properties you deem relevant.</para>
 
           <para>Advanced tip &amp; word to the wise: the
-          <literal>SiteminderAuthenticationProcessingFilter</literal> actually extends
-          <literal>AuthenticationProcessingFilter</literal> and thus additionally supports form
-          validation. If you configure the filter to support both, and code
-          your <literal>daoAuthenticationProvider</literal> to match the
-          username and passwords as described above, you'll potentially defeat
-          any security you have in place if the web server's Siteminder agent
-          is deactivated. Don't do this, especially in production!</para>
+          <literal>SiteminderAuthenticationProcessingFilter</literal> actually
+          extends <literal>AuthenticationProcessingFilter</literal> and thus
+          additionally supports form validation. If you configure the filter
+          to support both, and code your
+          <literal>daoAuthenticationProvider</literal> to match the username
+          and passwords as described above, you'll potentially defeat any
+          security you have in place if the web server's Siteminder agent is
+          deactivated. Don't do this, especially in production!</para>
         </sect3>
       </sect2>
 
@@ -5150,7 +5151,54 @@ INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);</programlisting></para>
         <para>As can be seen, database-specific constraints are used
         extensively to ensure the integrity of the ACL information. If you
         need to use a different database (Hypersonic SQL statements are shown
-        above), you should try to implement equivalent constraints.</para>
+        above), you should try to implement equivalent constraints. The
+        equivalent Oracle configuration is:</para>
+
+        <para><programlisting>CREATE TABLE ACL_OBJECT_IDENTITY (
+     ID number(19,0) not null,
+     OBJECT_IDENTITY varchar2(255) NOT NULL,
+     PARENT_OBJECT number(19,0),
+     ACL_CLASS varchar2(255) NOT NULL,
+     primary key (ID)
+);
+ALTER TABLE ACL_OBJECT_IDENTITY ADD CONTRAINT FK_PARENT_OBJECT foreign key (ID) references ACL_OBJECT_IDENTITY
+
+CREATE SEQUENCE ACL_OBJECT_IDENTITY_SEQ;
+
+CREATE OR REPLACE TRIGGER ACL_OBJECT_IDENTITY_ID
+BEFORE INSERT ON ACL_OBJECT_IDENTITY
+FOR EACH ROW
+BEGIN
+  SELECT ACL_OBJECT_IDENTITY_SEQ.NEXTVAL INTO :new.id FROM dual;
+END;
+
+CREATE TABLE ACL_PERMISSION (
+     ID number(19,0) not null,
+     ACL_OBJECT_IDENTITY number(19,0) NOT NULL,
+     RECIPIENT varchar2(255) NOT NULL,
+     MASK number(19,0) NOT NULL,
+     primary key (ID)
+);
+
+ALTER TABLE ACL_PERMISSION ADD CONTRAINT UNIQUE_ID_RECIPIENT unique (acl_object_identity, recipient);
+
+CREATE SEQUENCE ACL_PERMISSION_SEQ;
+
+CREATE OR REPLACE TRIGGER ACL_PERMISSION_ID
+BEFORE INSERT ON ACL_PERMISSION
+FOR EACH ROW
+BEGIN
+  SELECT ACL_PERMISSION_SEQ.NEXTVAL INTO :new.id FROM dual;
+END;
+
+&lt;bean id="basicAclExtendedDao" class="org.acegisecurity.acl.basic.jdbc.JdbcExtendedDaoImpl"&gt;
+    &lt;property name="dataSource"&gt;
+        &lt;ref bean="dataSource"/&gt;
+    &lt;/property&gt;
+    &lt;property name="objectPropertiesQuery" value="${acegi.objectPropertiesQuery}"/&gt;
+&lt;/bean&gt;
+
+&lt;prop key="acegi.objectPropertiesQuery"&gt;SELECT CHILD.ID, CHILD.OBJECT_IDENTITY, CHILD.ACL_CLASS, PARENT.OBJECT_IDENTITY as PARENT_OBJECT_IDENTITY FROM acl_object_identity as CHILD LEFT OUTER JOIN acl_object_identity as PARENT ON CHILD.parent_object=PARENT.id WHERE CHILD.object_identity = ?&lt;/prop&gt; </programlisting></para>
 
         <para>The <literal>JdbcDaoImpl</literal> will only respond to requests
         for <literal>NamedEntityObjectIdentity</literal>s. It converts such
