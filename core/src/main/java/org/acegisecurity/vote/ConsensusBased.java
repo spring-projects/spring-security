@@ -15,14 +15,11 @@
 
 package org.acegisecurity.vote;
 
+import java.util.Iterator;
+
 import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttributeDefinition;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Iterator;
 
 
 /**
@@ -31,10 +28,6 @@ import java.util.Iterator;
  * approach.
  */
 public class ConsensusBased extends AbstractAccessDecisionManager {
-    //~ Static fields/initializers =============================================
-
-    private static final Log logger = LogFactory.getLog(ConsensusBased.class);
-
     //~ Instance fields ========================================================
 
     private boolean allowIfEqualGrantedDeniedDecisions = true;

@@ -15,15 +15,12 @@
 
 package org.acegisecurity.vote;
 
+import java.util.Iterator;
+
 import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Iterator;
 
 
 /**
@@ -32,10 +29,6 @@ import java.util.Iterator;
  * abstain or grant access.
  */
 public class UnanimousBased extends AbstractAccessDecisionManager {
-    //~ Static fields/initializers =============================================
-
-    private static final Log logger = LogFactory.getLog(UnanimousBased.class);
-
     //~ Methods ================================================================
 
     /**

@@ -15,14 +15,11 @@
 
 package org.acegisecurity.vote;
 
+import java.util.Iterator;
+
 import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttributeDefinition;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Iterator;
 
 
 /**
@@ -31,10 +28,6 @@ import java.util.Iterator;
  * <code>AccessDecisionVoter</code> returns an affirmative response.
  */
 public class AffirmativeBased extends AbstractAccessDecisionManager {
-    //~ Static fields/initializers =============================================
-
-    private static final Log logger = LogFactory.getLog(AffirmativeBased.class);
-
     //~ Methods ================================================================
 
     /**
