@@ -121,7 +121,11 @@ public class ConcurrentSessionControllerImpl
             "getMaximumSessionsForThisUser() must return either -1 to allow unlimited logins, or a positive integer to specify a maximum");
 
         if (sessionCount < allowableSessions) {
+        	// They haven't got too many login sessions running at present
             return;
+        } else if (allowableSessions == -1) {
+        	// We permit unlimited logins
+        	return;
         } else if (sessionCount == allowableSessions) {
             // Only permit it though if this request is associated with one of the sessions
             for (int i = 0; i < sessionCount; i++) {
