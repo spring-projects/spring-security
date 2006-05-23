@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.acegisecurity.AccessDecisionManager;
+import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.ConfigAttribute;
 import org.springframework.beans.factory.InitializingBean;
@@ -138,4 +139,12 @@ public abstract class AbstractAccessDecisionManager
 
         return true;
     }
+    
+    protected final void checkAllowIfAllAbstainDecisions() {
+        if (!this.isAllowIfAllAbstainDecisions()) {
+            throw new AccessDeniedException(messages.getMessage(
+                    "AbstractAccessDecisionManager.accessDenied",
+                    "Access is denied"));
+        }
+    } 
 }

@@ -106,12 +106,6 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
         }
 
         // To get this far, every AccessDecisionVoter abstained
-        if (this.isAllowIfAllAbstainDecisions()) {
-            return;
-        } else {
-            throw new AccessDeniedException(messages.getMessage(
-                    "AbstractAccessDecisionManager.accessDenied",
-                    "Access is denied"));
-        }
+        checkAllowIfAllAbstainDecisions();
     }
 }
