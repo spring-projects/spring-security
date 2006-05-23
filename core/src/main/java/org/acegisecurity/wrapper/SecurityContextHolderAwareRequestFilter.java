@@ -35,44 +35,30 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * A <code>Filter</code> which populates the <code>ServletRequest</code> with a
- * new request wrapper.
- * 
- * <p>
- * Several request wrappers are included with the framework. The simplest
- * version is {@link SecurityContextHolderAwareRequestWrapper}. A more complex
- * and powerful request wrapper is {@link
- * org.acegisecurity.wrapper.SavedRequestAwareWrapper}. The latter is also the
- * default.
- * </p>
- * 
- * <p>
- * To modify the wrapper used, call {@link #setWrapperClass(Class)}.
- * </p>
- * 
- * <p>
- * Any request wrapper configured for instantiation by this class must provide
- * a public constructor that accepts two arguments, being a
- * <code>HttpServletRequest</code> and a <code>PortResolver</code>.
- * </p>
+ * A <code>Filter</code> which populates the <code>ServletRequest</code> with a new request wrapper.<p>Several
+ * request wrappers are included with the framework. The simplest version is {@link
+ * SecurityContextHolderAwareRequestWrapper}. A more complex and powerful request wrapper is {@link
+ * org.acegisecurity.wrapper.SavedRequestAwareWrapper}. The latter is also the default.</p>
+ *  <p>To modify the wrapper used, call {@link #setWrapperClass(Class)}.</p>
+ *  <p>Any request wrapper configured for instantiation by this class must provide a public constructor that
+ * accepts two arguments, being a <code>HttpServletRequest</code> and a <code>PortResolver</code>.</p>
  *
  * @author Orlando Garcia Carmona
  * @author Ben Alex
  * @version $Id$
  */
 public class SecurityContextHolderAwareRequestFilter implements Filter {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Class wrapperClass = SavedRequestAwareWrapper.class;
     private Constructor constructor;
     private PortResolver portResolver = new PortResolverImpl();
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void destroy() {}
 
-    public void doFilter(ServletRequest servletRequest,
-        ServletResponse servletResponse, FilterChain filterChain)
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
         throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
 
@@ -104,8 +90,7 @@ public class SecurityContextHolderAwareRequestFilter implements Filter {
 
     public void setWrapperClass(Class wrapperClass) {
         Assert.notNull(wrapperClass, "WrapperClass required");
-        Assert.isTrue(HttpServletRequest.class.isAssignableFrom(wrapperClass),
-            "Wrapper must be a HttpServletRequest");
+        Assert.isTrue(HttpServletRequest.class.isAssignableFrom(wrapperClass), "Wrapper must be a HttpServletRequest");
         this.wrapperClass = wrapperClass;
     }
 }

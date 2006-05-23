@@ -19,29 +19,25 @@ import java.io.Serializable;
 
 
 /**
- * Basic concrete implementation of a {@link GrantedAuthority}.
- * 
- * <p>
- * Stores a <code>String</code> representation of an authority granted to  the
- * {@link Authentication} object.
- * </p>
+ * Basic concrete implementation of a {@link GrantedAuthority}.<p>Stores a <code>String</code> representation of an
+ * authority granted to  the {@link Authentication} object.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class GrantedAuthorityImpl implements GrantedAuthority, Serializable {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private String role;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public GrantedAuthorityImpl(String role) {
         super();
         this.role = role;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public boolean equals(Object obj) {
         if (obj instanceof String) {

@@ -31,37 +31,28 @@ import javax.servlet.ServletResponse;
 
 
 /**
- * Static utility methods for creating <code>FilterInvocation</code>s usable
- * within Acegi Security.
- * 
- * <p>
- * The generated <code>FilterInvocation</code> objects are not intended for use
- * with <code>AbstractSecurityInterceptor</code> subclasses. Instead they are
- * generally used by <code>WebInvocationPrivilegeEvaluator</code>.
- * </p>
+ * Static utility methods for creating <code>FilterInvocation</code>s usable within Acegi Security.<p>The generated
+ * <code>FilterInvocation</code> objects are not intended for use with <code>AbstractSecurityInterceptor</code>
+ * subclasses. Instead they are generally used by <code>WebInvocationPrivilegeEvaluator</code>.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class FilterInvocationUtils {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Creates a <code>FilterInvocation</code> for the specified
-     * <code>contextPath</code> and <code>Uri</code>. Note the normal
-     * subclasses of <code>AbstractFilterInvocationDefinitionSource</code>
-     * disregard the <code>contextPath</code> when evaluating which secure
-     * object metadata applies to a given <code>FilterInvocation</code>, so
-     * generally the <code>contextPath</code> is unimportant unless you are
-     * using a custom <code>FilterInvocationDefinitionSource</code>.
+     * Creates a <code>FilterInvocation</code> for the specified <code>contextPath</code> and <code>Uri</code>.
+     * Note the normal subclasses of <code>AbstractFilterInvocationDefinitionSource</code> disregard the
+     * <code>contextPath</code> when evaluating which secure object metadata applies to a given
+     * <code>FilterInvocation</code>, so generally the <code>contextPath</code> is unimportant unless you are using a
+     * custom <code>FilterInvocationDefinitionSource</code>.
      *
-     * @param contextPath the <code>contextPath</code> that will be contained
-     *        within the
+     * @param contextPath the <code>contextPath</code> that will be contained within the
      *        <code>FilterInvocation</code><code>HttpServletRequest</code>
      * @param uri the URI of the request, such as <code>/foo/default.jsp</code>
      *
-     * @return a fully-formed <code>FilterInvocation</code> (never
-     *         <code>null</code>)
+     * @return a fully-formed <code>FilterInvocation</code> (never <code>null</code>)
      *
      * @throws UnsupportedOperationException DOCUMENT ME!
      */
@@ -74,11 +65,9 @@ public class FilterInvocationUtils {
         req.setContextPath(contextPath);
         req.setServletPath(null);
 
-        FilterInvocation fi = new FilterInvocation(req,
-                new MockHttpServletResponse(),
+        FilterInvocation fi = new FilterInvocation(req, new MockHttpServletResponse(),
                 new FilterChain() {
-                    public void doFilter(ServletRequest arg0,
-                        ServletResponse arg1)
+                    public void doFilter(ServletRequest arg0, ServletResponse arg1)
                         throws IOException, ServletException {
                         throw new UnsupportedOperationException(
                             "WebInvocationPrivilegeEvaluator does not support filter chains");
@@ -89,14 +78,12 @@ public class FilterInvocationUtils {
     }
 
     /**
-     * Creates a <code>FilterInvocation</code> for the specified
-     * <code>Uri</code>. The <code>contextPath</code> is set to a default
-     * value.
+     * Creates a <code>FilterInvocation</code> for the specified <code>Uri</code>. The <code>contextPath</code>
+     * is set to a default value.
      *
      * @param uri the URI of the request, such as <code>/foo/default.jsp</code>
      *
-     * @return a fully-formed <code>FilterInvocation</code> (never
-     *         <code>null</code>)
+     * @return a fully-formed <code>FilterInvocation</code> (never <code>null</code>)
      */
     public static FilterInvocation create(String uri) {
         return create("/notused", uri);

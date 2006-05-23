@@ -36,7 +36,7 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 public class SecurityContextHolderAwareRequestFilterTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public SecurityContextHolderAwareRequestFilterTests() {
         super();
@@ -46,7 +46,7 @@ public class SecurityContextHolderAwareRequestFilterTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SecurityContextHolderAwareRequestFilterTests.class);
@@ -69,7 +69,7 @@ public class SecurityContextHolderAwareRequestFilterTests extends TestCase {
         filter.destroy();
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockFilterChain implements FilterChain {
         private Class expectedServletRequest;
@@ -87,8 +87,7 @@ public class SecurityContextHolderAwareRequestFilterTests extends TestCase {
             if (request.getClass().isAssignableFrom(expectedServletRequest)) {
                 assertTrue(true);
             } else {
-                fail("Expected class to be of type " + expectedServletRequest
-                    + " but was: " + request.getClass());
+                fail("Expected class to be of type " + expectedServletRequest + " but was: " + request.getClass());
             }
         }
     }

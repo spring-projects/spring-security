@@ -29,20 +29,20 @@ import org.acegisecurity.providers.TestingAuthenticationToken;
  * DOCUMENT ME!
  */
 public class AuthzImplAuthorizeTagTest extends TestCase {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Authz authz = new AuthzImpl();
     private TestingAuthenticationToken currentUser;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     protected void setUp() throws Exception {
         super.setUp();
 
         currentUser = new TestingAuthenticationToken("abc", "123",
-                new GrantedAuthority[] {new GrantedAuthorityImpl(
-                        "ROLE_SUPERVISOR"), new GrantedAuthorityImpl(
-                        "ROLE_TELLER"),});
+                new GrantedAuthority[] {
+                    new GrantedAuthorityImpl("ROLE_SUPERVISOR"), new GrantedAuthorityImpl("ROLE_TELLER"),
+                });
 
         SecurityContextHolder.getContext().setAuthentication(currentUser);
     }

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.acegisecurity.GrantedAuthorityImpl;
  * @version $Id$
  */
 public class PrincipalAcegiUserTokenTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public PrincipalAcegiUserTokenTests() {
         super();
@@ -38,21 +38,20 @@ public class PrincipalAcegiUserTokenTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(PrincipalAcegiUserTokenTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testGetters() throws Exception {
-        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("my_password",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")}, null);
+        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("my_password", "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
+                null);
         assertEquals("Test", token.getPrincipal());
         assertEquals("Password", token.getCredentials());
         assertEquals("my_password".hashCode(), token.getKeyHash());
@@ -63,10 +62,10 @@ public class PrincipalAcegiUserTokenTests extends TestCase {
         Class clazz = PrincipalAcegiUserToken.class;
 
         try {
-            clazz.getDeclaredConstructor((Class[])null);
+            clazz.getDeclaredConstructor((Class[]) null);
             fail("Should have thrown NoSuchMethodException");
         } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
-    }    
+    }
 }

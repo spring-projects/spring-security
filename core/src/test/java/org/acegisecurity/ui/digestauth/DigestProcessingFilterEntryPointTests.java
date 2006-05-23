@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,15 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.DisabledException;
 
-
-
 import org.acegisecurity.util.StringSplitUtils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import org.springframework.util.StringUtils;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
@@ -40,7 +39,7 @@ import java.util.Map;
  * @version $Id$
  */
 public class DigestProcessingFilterEntryPointTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public DigestProcessingFilterEntryPointTests() {
         super();
@@ -50,14 +49,28 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
+    private void checkNonceValid(String nonce) {
+        // Check the nonce seems to be generated correctly
+        // format of nonce is:  
+        //   base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
+        assertTrue(Base64.isArrayByteBase64(nonce.getBytes()));
+
+        String decodedNonce = new String(Base64.decodeBase64(nonce.getBytes()));
+        String[] nonceTokens = StringUtils.delimitedListToStringArray(decodedNonce, ":");
+        assertEquals(2, nonceTokens.length);
+
+        String expectedNonceSignature = DigestUtils.md5Hex(nonceTokens[0] + ":" + "key");
+        assertEquals(expectedNonceSignature, nonceTokens[1]);
     }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(DigestProcessingFilterEntryPointTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testDetectsMissingKey() throws Exception {
@@ -103,6 +116,7 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/some_path");
+
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         ep.afterPropertiesSet();
@@ -132,12 +146,12 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/some_path");
+
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         ep.afterPropertiesSet();
 
-        ep.commence(request, response,
-            new NonceExpiredException("expired nonce"));
+        ep.commence(request, response, new NonceExpiredException("expired nonce"));
 
         // Check response is properly formed
         assertEquals(401, response.getStatus());
@@ -146,29 +160,12 @@ public class DigestProcessingFilterEntryPointTests extends TestCase {
         // Break up response header
         String header = response.getHeader("WWW-Authenticate").toString().substring(7);
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
-        Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries,
-                "=", "\"");
+        Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
         assertEquals("hello", headerMap.get("realm"));
         assertEquals("auth", headerMap.get("qop"));
         assertEquals("true", headerMap.get("stale"));
 
         checkNonceValid((String) headerMap.get("nonce"));
-    }
-
-    private void checkNonceValid(String nonce) {
-        // Check the nonce seems to be generated correctly
-        // format of nonce is:  
-        //   base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
-        assertTrue(Base64.isArrayByteBase64(nonce.getBytes()));
-
-        String decodedNonce = new String(Base64.decodeBase64(nonce.getBytes()));
-        String[] nonceTokens = StringUtils.delimitedListToStringArray(decodedNonce,
-                ":");
-        assertEquals(2, nonceTokens.length);
-
-        String expectedNonceSignature = DigestUtils.md5Hex(nonceTokens[0] + ":"
-                + "key");
-        assertEquals(expectedNonceSignature, nonceTokens[1]);
     }
 }

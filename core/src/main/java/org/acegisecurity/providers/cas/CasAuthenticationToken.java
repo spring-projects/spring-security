@@ -32,9 +32,8 @@ import java.util.List;
  * @author Ben Alex
  * @version $Id$
  */
-public class CasAuthenticationToken extends AbstractAuthenticationToken
-    implements Serializable {
-    //~ Instance fields ========================================================
+public class CasAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
+    //~ Instance fields ================================================================================================
 
     private final List proxyList;
     private final Object credentials;
@@ -43,9 +42,9 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
     private final UserDetails userDetails;
     private final int keyHash;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructor.
      *
      * @param key to identify if this object made by a given {@link
@@ -65,18 +64,15 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
      *
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
-    public CasAuthenticationToken(final String key, final Object principal,
-    		final Object credentials, final GrantedAuthority[] authorities,
-    		final UserDetails userDetails, final List proxyList, final String proxyGrantingTicketIou) {
+    public CasAuthenticationToken(final String key, final Object principal, final Object credentials,
+        final GrantedAuthority[] authorities, final UserDetails userDetails, final List proxyList,
+        final String proxyGrantingTicketIou) {
         super(authorities);
 
-        if ((key == null) || ("".equals(key)) || (principal == null)
-            || "".equals(principal) || (credentials == null)
-            || "".equals(credentials) || (authorities == null)
-            || (userDetails == null) || (proxyList == null)
+        if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal) || (credentials == null)
+            || "".equals(credentials) || (authorities == null) || (userDetails == null) || (proxyList == null)
             || (proxyGrantingTicketIou == null)) {
-            throw new IllegalArgumentException(
-                "Cannot pass null or empty values to constructor");
+            throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
         }
 
         this.keyHash = key.hashCode();
@@ -88,7 +84,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
         setAuthenticated(true);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public boolean equals(final Object obj) {
         if (!super.equals(obj)) {
@@ -99,8 +95,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
             CasAuthenticationToken test = (CasAuthenticationToken) obj;
 
             // proxyGrantingTicketIou is never null due to constructor
-            if (!this.getProxyGrantingTicketIou()
-                     .equals(test.getProxyGrantingTicketIou())) {
+            if (!this.getProxyGrantingTicketIou().equals(test.getProxyGrantingTicketIou())) {
                 return false;
             }
 
@@ -134,8 +129,8 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
     /**
      * Obtains the proxy granting ticket IOU.
      *
-     * @return the PGT IOU-ID or an empty <code>String</code> if no proxy
-     *         callback was requested when validating the service ticket
+     * @return the PGT IOU-ID or an empty <code>String</code> if no proxy callback was requested when validating the
+     *         service ticket
      */
     public String getProxyGrantingTicketIou() {
         return proxyGrantingTicketIou;
@@ -152,10 +147,8 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append(super.toString());
-        sb.append("; Credentials (Service/Proxy Ticket): ")
-          .append(this.credentials);
-        sb.append("; Proxy-Granting Ticket IOU: ")
-          .append(this.proxyGrantingTicketIou);
+        sb.append("; Credentials (Service/Proxy Ticket): ").append(this.credentials);
+        sb.append("; Proxy-Granting Ticket IOU: ").append(this.proxyGrantingTicketIou);
         sb.append("; Proxy List: ").append(this.proxyList);
 
         return (sb.toString());

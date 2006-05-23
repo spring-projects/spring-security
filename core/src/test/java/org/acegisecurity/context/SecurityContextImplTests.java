@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.acegisecurity.context;
 import junit.framework.TestCase;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 
@@ -28,7 +29,7 @@ import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
  * @version $Id$
  */
 public class SecurityContextImplTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public SecurityContextImplTests() {
         super();
@@ -38,14 +39,14 @@ public class SecurityContextImplTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SecurityContextImplTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testEmptyObjectsAreEquals() {
@@ -56,8 +57,7 @@ public class SecurityContextImplTests extends TestCase {
 
     public void testSecurityContextCorrectOperation() {
         SecurityContext context = new SecurityContextImpl();
-        Authentication auth = new UsernamePasswordAuthenticationToken("marissa",
-                "koala");
+        Authentication auth = new UsernamePasswordAuthenticationToken("marissa", "koala");
         context.setAuthentication(auth);
         assertEquals(auth, context.getAuthentication());
         assertTrue(context.toString().lastIndexOf("marissa") != -1);

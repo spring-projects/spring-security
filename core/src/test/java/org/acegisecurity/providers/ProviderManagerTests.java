@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
 
 package org.acegisecurity.providers;
 
-import java.util.List;
-import java.util.Vector;
-
 import junit.framework.TestCase;
 
 import org.acegisecurity.Authentication;
@@ -25,10 +22,15 @@ import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationServiceException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.concurrent.ConcurrentSessionControllerImpl;
 import org.acegisecurity.concurrent.NullConcurrentSessionController;
+
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
+
+import java.util.List;
+import java.util.Vector;
 
 
 /**
@@ -38,7 +40,7 @@ import org.springframework.context.ApplicationEventPublisher;
  * @version $Id$
  */
 public class ProviderManagerTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public ProviderManagerTests() {
         super();
@@ -48,21 +50,45 @@ public class ProviderManagerTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ProviderManagerTests.class);
     }
 
+    private ProviderManager makeProviderManager() throws Exception {
+        MockProvider provider1 = new MockProvider();
+        List providers = new Vector();
+        providers.add(provider1);
+
+        ProviderManager mgr = new ProviderManager();
+        mgr.setProviders(providers);
+
+        mgr.afterPropertiesSet();
+
+        return mgr;
+    }
+
+    private ProviderManager makeProviderManagerWithMockProviderWhichReturnsNullInList() {
+        MockProviderWhichReturnsNull provider1 = new MockProviderWhichReturnsNull();
+        MockProvider provider2 = new MockProvider();
+        List providers = new Vector();
+        providers.add(provider1);
+        providers.add(provider2);
+
+        ProviderManager mgr = new ProviderManager();
+        mgr.setProviders(providers);
+
+        return mgr;
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testAuthenticationFails() throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
 
         ProviderManager mgr = makeProviderManager();
         mgr.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
@@ -76,13 +102,12 @@ public class ProviderManagerTests extends TestCase {
     }
 
     public void testAuthenticationSuccess() throws Exception {
-        TestingAuthenticationToken token = new TestingAuthenticationToken("Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+        TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
 
         ProviderManager mgr = makeProviderManager();
         mgr.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
+
         Authentication result = mgr.authenticate(token);
 
         if (!(result instanceof TestingAuthenticationToken)) {
@@ -97,13 +122,12 @@ public class ProviderManagerTests extends TestCase {
     }
 
     public void testAuthenticationSuccessWhenFirstProviderReturnsNullButSecondAuthenticates() {
-        TestingAuthenticationToken token = new TestingAuthenticationToken("Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+        TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
 
         ProviderManager mgr = makeProviderManagerWithMockProviderWhichReturnsNullInList();
         mgr.setApplicationEventPublisher(new MockApplicationEventPublisher(true));
+
         Authentication result = mgr.authenticate(token);
 
         if (!(result instanceof TestingAuthenticationToken)) {
@@ -175,32 +199,21 @@ public class ProviderManagerTests extends TestCase {
         assertEquals(1, mgr.getProviders().size());
     }
 
-    private ProviderManager makeProviderManager() throws Exception {
-        MockProvider provider1 = new MockProvider();
-        List providers = new Vector();
-        providers.add(provider1);
+    //~ Inner Classes ==================================================================================================
 
-        ProviderManager mgr = new ProviderManager();
-        mgr.setProviders(providers);
-        
-        mgr.afterPropertiesSet();
-        return mgr;
+    private class MockApplicationEventPublisher implements ApplicationEventPublisher {
+        private boolean expectedEvent;
+
+        public MockApplicationEventPublisher(boolean expectedEvent) {
+            this.expectedEvent = expectedEvent;
+        }
+
+        public void publishEvent(ApplicationEvent event) {
+            if (expectedEvent == false) {
+                throw new IllegalStateException("The ApplicationEventPublisher did not expect to receive this event");
+            }
+        }
     }
-
-    private ProviderManager makeProviderManagerWithMockProviderWhichReturnsNullInList() {
-        MockProviderWhichReturnsNull provider1 = new MockProviderWhichReturnsNull();
-        MockProvider provider2 = new MockProvider();
-        List providers = new Vector();
-        providers.add(provider1);
-        providers.add(provider2);
-
-        ProviderManager mgr = new ProviderManager();
-        mgr.setProviders(providers);
-
-        return mgr;
-    }
-
-    //~ Inner Classes ==========================================================
 
     private class MockProvider implements AuthenticationProvider {
         public Authentication authenticate(Authentication authentication)
@@ -208,14 +221,12 @@ public class ProviderManagerTests extends TestCase {
             if (supports(authentication.getClass())) {
                 return authentication;
             } else {
-                throw new AuthenticationServiceException(
-                    "Don't support this class");
+                throw new AuthenticationServiceException("Don't support this class");
             }
         }
 
         public boolean supports(Class authentication) {
-            if (TestingAuthenticationToken.class.isAssignableFrom(
-                    authentication)) {
+            if (TestingAuthenticationToken.class.isAssignableFrom(authentication)) {
                 return true;
             } else {
                 return false;
@@ -229,32 +240,16 @@ public class ProviderManagerTests extends TestCase {
             if (supports(authentication.getClass())) {
                 return null;
             } else {
-                throw new AuthenticationServiceException(
-                    "Don't support this class");
+                throw new AuthenticationServiceException("Don't support this class");
             }
         }
 
         public boolean supports(Class authentication) {
-            if (TestingAuthenticationToken.class.isAssignableFrom(
-                    authentication)) {
+            if (TestingAuthenticationToken.class.isAssignableFrom(authentication)) {
                 return true;
             } else {
                 return false;
             }
         }
-    }
-    
-    private class MockApplicationEventPublisher implements ApplicationEventPublisher {
-		private boolean expectedEvent;
-    	
-		public MockApplicationEventPublisher(boolean expectedEvent) {
-			this.expectedEvent = expectedEvent;
-		}
-		
-    	public void publishEvent(ApplicationEvent event) {
-			if (expectedEvent == false) {
-				throw new IllegalStateException("The ApplicationEventPublisher did not expect to receive this event");				
-			}
-		}
     }
 }

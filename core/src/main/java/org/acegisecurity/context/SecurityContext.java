@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,24 +32,20 @@ import java.io.Serializable;
  * @version $Id$
  */
 public interface SecurityContext extends Serializable {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Changes the currently authenticated principal, or removes the
-     * authentication information.
+     * Obtains the currently authenticated principal, or an authentication request token.
      *
-     * @param authentication the new <code>Authentication</code> token, or
-     *        <code>null</code> if no further authentication information
-     *        should be stored
-     */
-    public void setAuthentication(Authentication authentication);
-
-    /**
-     * Obtains the currently authenticated principal, or an authentication
-     * request token.
-     *
-     * @return the <code>Authentication</code> or <code>null</code> if no
-     *         authentication information is available
+     * @return the <code>Authentication</code> or <code>null</code> if no authentication information is available
      */
     public Authentication getAuthentication();
+
+    /**
+     * Changes the currently authenticated principal, or removes the authentication information.
+     *
+     * @param authentication the new <code>Authentication</code> token, or <code>null</code> if no further
+     *        authentication information should be stored
+     */
+    public void setAuthentication(Authentication authentication);
 }

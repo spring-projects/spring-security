@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
 
 package org.acegisecurity.providers.x509.cache;
 
-import org.acegisecurity.providers.x509.X509UserCache;
-import org.acegisecurity.userdetails.UserDetails;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+
+import org.acegisecurity.providers.x509.X509UserCache;
+
+import org.acegisecurity.userdetails.UserDetails;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,20 +43,19 @@ import java.security.cert.X509Certificate;
  * @author Ben Alex
  * @version $Id$
  */
-public class EhCacheBasedX509UserCache implements X509UserCache,
-    InitializingBean {
-    //~ Static fields/initializers =============================================
+public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBean {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(EhCacheBasedX509UserCache.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Cache cache;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void setCache(Cache cache) {
-        this.cache = cache;
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(cache, "cache is mandatory");
     }
 
     public UserDetails getUserFromCache(X509Certificate userCert) {
@@ -64,8 +64,7 @@ public class EhCacheBasedX509UserCache implements X509UserCache,
         try {
             element = cache.get(userCert);
         } catch (CacheException cacheException) {
-            throw new DataRetrievalFailureException("Cache failure: "
-                + cacheException.getMessage());
+            throw new DataRetrievalFailureException("Cache failure: " + cacheException.getMessage());
         }
 
         if (logger.isDebugEnabled()) {
@@ -85,10 +84,6 @@ public class EhCacheBasedX509UserCache implements X509UserCache,
         }
     }
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(cache, "cache is mandatory");
-    }
-
     public void putUserInCache(X509Certificate userCert, UserDetails user) {
         Element element = new Element(userCert, user);
 
@@ -105,5 +100,9 @@ public class EhCacheBasedX509UserCache implements X509UserCache,
         }
 
         cache.remove(userCert);
+    }
+
+    public void setCache(Cache cache) {
+        this.cache = cache;
     }
 }

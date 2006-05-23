@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.LockedException;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 
@@ -29,14 +30,22 @@ import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
  * @version $Id$
  */
 public class LoggerListenerTests extends TestCase {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
+    private Authentication getAuthentication() {
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
+                "Credentials");
+        authentication.setDetails("127.0.0.1");
+
+        return authentication;
     }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(LoggerListenerTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testLogsEvents() {
@@ -45,13 +54,5 @@ public class LoggerListenerTests extends TestCase {
         LoggerListener listener = new LoggerListener();
         listener.onApplicationEvent(event);
         assertTrue(true);
-    }
-
-    private Authentication getAuthentication() {
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
-                "Credentials");
-        authentication.setDetails("127.0.0.1");
-
-        return authentication;
     }
 }

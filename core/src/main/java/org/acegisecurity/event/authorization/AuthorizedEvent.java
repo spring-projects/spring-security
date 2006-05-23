@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,24 +20,21 @@ import org.acegisecurity.ConfigAttributeDefinition;
 
 
 /**
- * Event indicating a secure object was invoked successfully.
- * 
- * <P>
- * Published just before the secure object attempts to proceed.
- * </p>
+ * Event indicating a secure object was invoked successfully.<P>Published just before the secure object attempts to
+ * proceed.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class AuthorizedEvent extends AbstractAuthorizationEvent {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Authentication authentication;
     private ConfigAttributeDefinition configAttributeDefinition;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Construct the event.
      *
      * @param secureObject the secure object
@@ -46,20 +43,18 @@ public class AuthorizedEvent extends AbstractAuthorizationEvent {
      *
      * @throws IllegalArgumentException DOCUMENT ME!
      */
-    public AuthorizedEvent(Object secureObject,
-        ConfigAttributeDefinition configAttribs, Authentication authentication) {
+    public AuthorizedEvent(Object secureObject, ConfigAttributeDefinition configAttribs, Authentication authentication) {
         super(secureObject);
 
         if ((configAttribs == null) || (authentication == null)) {
-            throw new IllegalArgumentException(
-                "All parameters are required and cannot be null");
+            throw new IllegalArgumentException("All parameters are required and cannot be null");
         }
 
         this.configAttributeDefinition = configAttribs;
         this.authentication = authentication;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Authentication getAuthentication() {
         return authentication;

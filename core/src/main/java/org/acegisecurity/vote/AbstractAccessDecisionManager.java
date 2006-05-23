@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,48 +15,53 @@
 
 package org.acegisecurity.vote;
 
-import java.util.Iterator;
-import java.util.List;
-
 import org.acegisecurity.AccessDecisionManager;
 import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.ConfigAttribute;
+
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+
 import org.springframework.util.Assert;
+
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
- * Abstract implementation of {@link AccessDecisionManager}.
- * 
- * <p>
- * Handles configuration of a bean context defined list of  {@link
- * AccessDecisionVoter}s and the access control behaviour if all  voters
- * abstain from voting (defaults to deny access).
- * </p>
+ * Abstract implementation of {@link AccessDecisionManager}.<p>Handles configuration of a bean context defined list
+ * of  {@link AccessDecisionVoter}s and the access control behaviour if all  voters abstain from voting (defaults to
+ * deny access).</p>
  */
-public abstract class AbstractAccessDecisionManager
-    implements AccessDecisionManager, InitializingBean, MessageSourceAware {
-    //~ Instance fields ========================================================
+public abstract class AbstractAccessDecisionManager implements AccessDecisionManager, InitializingBean,
+    MessageSourceAware {
+    //~ Instance fields ================================================================================================
 
     private List decisionVoters;
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private boolean allowIfAllAbstainDecisions = false;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         checkIfValidList(this.decisionVoters);
         Assert.notNull(this.messages, "A message source must be set");
     }
 
+    protected final void checkAllowIfAllAbstainDecisions() {
+        if (!this.isAllowIfAllAbstainDecisions()) {
+            throw new AccessDeniedException(messages.getMessage("AbstractAccessDecisionManager.accessDenied",
+                    "Access is denied"));
+        }
+    }
+
     private void checkIfValidList(List listToCheck) {
         if ((listToCheck == null) || (listToCheck.size() == 0)) {
-            throw new IllegalArgumentException(
-                "A list of AccessDecisionVoters is required");
+            throw new IllegalArgumentException("A list of AccessDecisionVoters is required");
         }
     }
 
@@ -68,8 +73,7 @@ public abstract class AbstractAccessDecisionManager
         return allowIfAllAbstainDecisions;
     }
 
-    public void setAllowIfAllAbstainDecisions(
-        boolean allowIfAllAbstainDecisions) {
+    public void setAllowIfAllAbstainDecisions(boolean allowIfAllAbstainDecisions) {
         this.allowIfAllAbstainDecisions = allowIfAllAbstainDecisions;
     }
 
@@ -86,8 +90,7 @@ public abstract class AbstractAccessDecisionManager
 
                 AccessDecisionVoter attemptToCast = (AccessDecisionVoter) currentObject;
             } catch (ClassCastException cce) {
-                throw new IllegalArgumentException("AccessDecisionVoter "
-                    + currentObject.getClass().getName()
+                throw new IllegalArgumentException("AccessDecisionVoter " + currentObject.getClass().getName()
                     + " must implement AccessDecisionVoter");
             }
         }
@@ -114,13 +117,8 @@ public abstract class AbstractAccessDecisionManager
     }
 
     /**
-     * Iterates through all <code>AccessDecisionVoter</code>s and ensures each
-     * can support the presented class.
-     * 
-     * <p>
-     * If one or more voters cannot support the presented class,
-     * <code>false</code> is returned.
-     * </p>
+     * Iterates through all <code>AccessDecisionVoter</code>s and ensures each can support the presented class.<p>If
+     * one or more voters cannot support the presented class, <code>false</code> is returned.</p>
      *
      * @param clazz DOCUMENT ME!
      *
@@ -139,12 +137,4 @@ public abstract class AbstractAccessDecisionManager
 
         return true;
     }
-    
-    protected final void checkAllowIfAllAbstainDecisions() {
-        if (!this.isAllowIfAllAbstainDecisions()) {
-            throw new AccessDeniedException(messages.getMessage(
-                    "AbstractAccessDecisionManager.accessDenied",
-                    "Access is denied"));
-        }
-    } 
 }

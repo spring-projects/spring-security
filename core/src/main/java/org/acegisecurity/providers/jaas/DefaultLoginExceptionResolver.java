@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,13 @@ import javax.security.auth.login.LoginException;
 
 
 /**
- * This LoginExceptionResolver simply wraps the LoginException with an
- * AuthenticationServiceException.
+ * This LoginExceptionResolver simply wraps the LoginException with an AuthenticationServiceException.
  *
  * @author Ray Krueger
  * @version $Revision$
  */
 public class DefaultLoginExceptionResolver implements LoginExceptionResolver {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public AcegiSecurityException resolveException(LoginException e) {
         return new AuthenticationServiceException(e.getMessage(), e);

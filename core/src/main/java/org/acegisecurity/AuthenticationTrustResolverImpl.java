@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,29 +20,29 @@ import org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
 
 
 /**
- * Basic implementation of {@link AuthenticationTrustResolver}.
- * 
- * <p>
- * Makes trust decisions based on whether the passed
- * <code>Authentication</code> is an instance of a defined class.
- * </p>
- * 
- * <p>
- * If {@link #anonymousClass} or {@link #rememberMeClass} is <code>null</code>,
- * the corresponding method will always return <code>false</code>.
- * </p>
+ * Basic implementation of {@link AuthenticationTrustResolver}.<p>Makes trust decisions based on whether the passed
+ * <code>Authentication</code> is an instance of a defined class.</p>
+ *  <p>If {@link #anonymousClass} or {@link #rememberMeClass} is <code>null</code>, the corresponding method will
+ * always return <code>false</code>.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthenticationTrustResolverImpl
-    implements AuthenticationTrustResolver {
-    //~ Instance fields ========================================================
+public class AuthenticationTrustResolverImpl implements AuthenticationTrustResolver {
+    //~ Instance fields ================================================================================================
 
     private Class anonymousClass = AnonymousAuthenticationToken.class;
     private Class rememberMeClass = RememberMeAuthenticationToken.class;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    public Class getAnonymousClass() {
+        return anonymousClass;
+    }
+
+    public Class getRememberMeClass() {
+        return rememberMeClass;
+    }
 
     public boolean isAnonymous(Authentication authentication) {
         if ((anonymousClass == null) || (authentication == null)) {
@@ -50,14 +50,6 @@ public class AuthenticationTrustResolverImpl
         }
 
         return anonymousClass.isAssignableFrom(authentication.getClass());
-    }
-
-    public void setAnonymousClass(Class anonymousClass) {
-        this.anonymousClass = anonymousClass;
-    }
-
-    public Class getAnonymousClass() {
-        return anonymousClass;
     }
 
     public boolean isRememberMe(Authentication authentication) {
@@ -68,11 +60,11 @@ public class AuthenticationTrustResolverImpl
         return rememberMeClass.isAssignableFrom(authentication.getClass());
     }
 
-    public void setRememberMeClass(Class rememberMeClass) {
-        this.rememberMeClass = rememberMeClass;
+    public void setAnonymousClass(Class anonymousClass) {
+        this.anonymousClass = anonymousClass;
     }
 
-    public Class getRememberMeClass() {
-        return rememberMeClass;
+    public void setRememberMeClass(Class rememberMeClass) {
+        this.rememberMeClass = rememberMeClass;
     }
 }

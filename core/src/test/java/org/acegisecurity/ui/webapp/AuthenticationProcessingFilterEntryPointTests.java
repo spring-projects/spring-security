@@ -36,7 +36,7 @@ import java.util.Map;
  * @version $Id$
  */
 public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AuthenticationProcessingFilterEntryPointTests.class);
@@ -120,22 +120,19 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
 
         ep.commence(request, response, null);
-        assertEquals("https://www.example.com/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("https://www.example.com/bigWebApp/hello", response.getRedirectedUrl());
 
         request.setServerPort(8080);
         response = new MockHttpServletResponse();
         ep.setPortResolver(new MockPortResolver(8080, 8443));
         ep.commence(request, response, null);
-        assertEquals("https://www.example.com:8443/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("https://www.example.com:8443/bigWebApp/hello", response.getRedirectedUrl());
 
         // Now test an unusual custom HTTP:HTTPS is handled properly
         request.setServerPort(8888);
         response = new MockHttpServletResponse();
         ep.commence(request, response, null);
-        assertEquals("https://www.example.com:8443/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("https://www.example.com:8443/bigWebApp/hello", response.getRedirectedUrl());
 
         PortMapperImpl portMapper = new PortMapperImpl();
         Map map = new HashMap();
@@ -152,8 +149,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
 
         ep.commence(request, response, null);
-        assertEquals("https://www.example.com:9999/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("https://www.example.com:9999/bigWebApp/hello", response.getRedirectedUrl());
     }
 
     public void testHttpsOperationFromOriginalHttpsUrl()
@@ -176,15 +172,13 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
 
         ep.commence(request, response, null);
-        assertEquals("https://www.example.com/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("https://www.example.com/bigWebApp/hello", response.getRedirectedUrl());
 
         request.setServerPort(8443);
         response = new MockHttpServletResponse();
         ep.setPortResolver(new MockPortResolver(8080, 8443));
         ep.commence(request, response, null);
-        assertEquals("https://www.example.com:8443/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("https://www.example.com:8443/bigWebApp/hello", response.getRedirectedUrl());
     }
 
     public void testNormalOperation() throws Exception {
@@ -206,8 +200,7 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
 
         ep.afterPropertiesSet();
         ep.commence(request, response, null);
-        assertEquals("http://www.example.com/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("http://www.example.com/bigWebApp/hello", response.getRedirectedUrl());
     }
 
     public void testOperationWhenHttpsRequestsButHttpsPortUnknown()
@@ -233,7 +226,6 @@ public class AuthenticationProcessingFilterEntryPointTests extends TestCase {
         ep.commence(request, response, null);
 
         // Response doesn't switch to HTTPS, as we didn't know HTTP port 8888 to HTTP port mapping
-        assertEquals("http://www.example.com:8888/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("http://www.example.com:8888/bigWebApp/hello", response.getRedirectedUrl());
     }
 }

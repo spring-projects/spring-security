@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.acegisecurity.acl.basic;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.acl.AclProvider;
 import org.acegisecurity.acl.basic.cache.NullAclEntryCache;
@@ -24,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Constructor;
@@ -34,70 +36,59 @@ import java.util.Map;
 
 
 /**
- * <P>
- * Retrieves access control lists (ACL) entries for domain object instances
- * from a data access object (DAO).
- * </p>
- * 
- * <P>
- * This implementation will provide ACL lookup services for any object that it
- * can determine the {@link AclObjectIdentity} for by calling the {@link
- * #obtainIdentity(Object)} method. Subclasses can override this method if
- * they only want the <code>BasicAclProvider</code> responding to particular
- * domain object instances.
- * </p>
- * 
- * <P>
- * <code>BasicAclProvider</code> will walk an inheritance hierarchy if a
- * <code>BasicAclEntry</code> returned by the DAO indicates it has a parent.
- * NB: inheritance occurs at a <I>domain instance object</I> level. It does
- * not occur at an ACL recipient level. This means
- * <B>all</B><code>BasicAclEntry</code>s for a given domain instance object
- * <B>must</B> have the <B>same</B> parent identity, or
- * <B>all</B><code>BasicAclEntry</code>s must have <code>null</code> as their
- * parent identity.
- * </p>
- * 
- * <P>
- * A cache should be used. This is provided by the {@link BasicAclEntryCache}.
- * <code>BasicAclProvider</code> by default is setup to use the {@link
- * NullAclEntryCache}, which performs no caching.
- * </p>
- * 
- * <P>
- * To implement the {@link #getAcls(Object, Authentication)} method,
- * <code>BasicAclProvider</code> requires a {@link EffectiveAclsResolver} to
- * be configured against it. By default the {@link
- * GrantedAuthorityEffectiveAclsResolver} is used.
- * </p>
+ * <P>Retrieves access control lists (ACL) entries for domain object instances from a data access object (DAO).</p>
+ *  <P>This implementation will provide ACL lookup services for any object that it can determine the {@link
+ * AclObjectIdentity} for by calling the {@link #obtainIdentity(Object)} method. Subclasses can override this method
+ * if they only want the <code>BasicAclProvider</code> responding to particular domain object instances.</p>
+ *  <P><code>BasicAclProvider</code> will walk an inheritance hierarchy if a <code>BasicAclEntry</code> returned by
+ * the DAO indicates it has a parent. NB: inheritance occurs at a <I>domain instance object</I> level. It does not
+ * occur at an ACL recipient level. This means <B>all</B><code>BasicAclEntry</code>s for a given domain instance
+ * object <B>must</B> have the <B>same</B> parent identity, or <B>all</B><code>BasicAclEntry</code>s must have
+ * <code>null</code> as their parent identity.</p>
+ *  <P>A cache should be used. This is provided by the {@link BasicAclEntryCache}. <code>BasicAclProvider</code> by
+ * default is setup to use the {@link NullAclEntryCache}, which performs no caching.</p>
+ *  <P>To implement the {@link #getAcls(Object, Authentication)} method, <code>BasicAclProvider</code> requires a
+ * {@link EffectiveAclsResolver} to be configured against it. By default the {@link
+ * GrantedAuthorityEffectiveAclsResolver} is used.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class BasicAclProvider implements AclProvider, InitializingBean {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(BasicAclProvider.class);
 
-    /**
-     * Marker added to the cache to indicate an AclObjectIdentity has no
-     * corresponding BasicAclEntry[]s
-     */
+    /** Marker added to the cache to indicate an AclObjectIdentity has no corresponding BasicAclEntry[]s */
     private static String RECIPIENT_FOR_CACHE_EMPTY = "RESERVED_RECIPIENT_NOBODY";
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
-    /**
-     * Must be set to an appropriate data access object. Defaults to
-     * <code>null</code>.
-     */
+    /** Must be set to an appropriate data access object. Defaults to <code>null</code>. */
     private BasicAclDao basicAclDao;
     private BasicAclEntryCache basicAclEntryCache = new NullAclEntryCache();
     private Class defaultAclObjectIdentityClass = NamedEntityObjectIdentity.class;
     private Class restrictSupportToClass = null;
     private EffectiveAclsResolver effectiveAclsResolver = new GrantedAuthorityEffectiveAclsResolver();
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    public void afterPropertiesSet() {
+        Assert.notNull(basicAclDao, "basicAclDao required");
+        Assert.notNull(basicAclEntryCache, "basicAclEntryCache required");
+        Assert.notNull(basicAclEntryCache, "basicAclEntryCache required");
+        Assert.notNull(effectiveAclsResolver, "effectiveAclsResolver required");
+        Assert.notNull(defaultAclObjectIdentityClass, "defaultAclObjectIdentityClass required");
+        Assert.isTrue(AclObjectIdentity.class.isAssignableFrom(this.defaultAclObjectIdentityClass),
+            "defaultAclObjectIdentityClass must implement AclObjectIdentity");
+
+        try {
+            Constructor constructor = defaultAclObjectIdentityClass.getConstructor(new Class[] {Object.class});
+        } catch (NoSuchMethodException nsme) {
+            throw new IllegalArgumentException(
+                "defaultAclObjectIdentityClass must provide a constructor that accepts the domain object instance!");
+        }
+    }
 
     public AclEntry[] getAcls(Object domainInstance) {
         Map map = new HashMap();
@@ -120,15 +111,13 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
         // Add the leaf objects to the Map, keyed on recipient
         for (int i = 0; i < instanceAclEntries.length; i++) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Explicit add: "
-                        + instanceAclEntries[i].toString());
+                logger.debug("Explicit add: " + instanceAclEntries[i].toString());
             }
 
             map.put(instanceAclEntries[i].getRecipient(), instanceAclEntries[i]);
         }
 
-        AclObjectIdentity parent = instanceAclEntries[0]
-                .getAclObjectParentIdentity();
+        AclObjectIdentity parent = instanceAclEntries[0].getAclObjectParentIdentity();
 
         while (parent != null) {
             BasicAclEntry[] parentAclEntries = lookup(parent);
@@ -150,16 +139,13 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
             for (int i = 0; i < parentAclEntries.length; i++) {
                 if (!map.containsKey(parentAclEntries[i].getRecipient())) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Added parent to map: "
-                                + parentAclEntries[i].toString());
+                        logger.debug("Added parent to map: " + parentAclEntries[i].toString());
                     }
 
-                    map.put(parentAclEntries[i].getRecipient(),
-                            parentAclEntries[i]);
+                    map.put(parentAclEntries[i].getRecipient(), parentAclEntries[i]);
                 } else {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Did NOT add parent to map: "
-                                + parentAclEntries[i].toString());
+                        logger.debug("Did NOT add parent to map: " + parentAclEntries[i].toString());
                     }
                 }
             }
@@ -170,209 +156,33 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
 
         Collection collection = map.values();
 
-        return (AclEntry[]) collection.toArray(new AclEntry[]{});
+        return (AclEntry[]) collection.toArray(new AclEntry[] {});
     }
 
-    public AclEntry[] getAcls(Object domainInstance,
-        Authentication authentication) {
+    public AclEntry[] getAcls(Object domainInstance, Authentication authentication) {
         AclEntry[] allAcls = (AclEntry[]) this.getAcls(domainInstance);
 
-        return this.effectiveAclsResolver.resolveEffectiveAcls(allAcls,
-            authentication);
-    }
-
-    public void setBasicAclDao(BasicAclDao basicAclDao) {
-        this.basicAclDao = basicAclDao;
+        return this.effectiveAclsResolver.resolveEffectiveAcls(allAcls, authentication);
     }
 
     public BasicAclDao getBasicAclDao() {
         return basicAclDao;
     }
 
-    public void setBasicAclEntryCache(BasicAclEntryCache basicAclEntryCache) {
-        this.basicAclEntryCache = basicAclEntryCache;
-    }
-
     public BasicAclEntryCache getBasicAclEntryCache() {
         return basicAclEntryCache;
-    }
-
-    /**
-     * Allows selection of the <code>AclObjectIdentity</code> class that an
-     * attempt should be made to construct if the passed object does not
-     * implement <code>AclObjectIdentityAware</code>.
-     * 
-     * <P>
-     * NB: Any <code>defaultAclObjectIdentityClass</code><b>must</b> provide a
-     * public constructor that accepts an <code>Object</code>. Otherwise it is
-     * not possible for the <code>BasicAclProvider</code> to try to create the
-     * <code>AclObjectIdentity</code> instance at runtime.
-     * </p>
-     *
-     * @param defaultAclObjectIdentityClass
-     */
-    public void setDefaultAclObjectIdentityClass(
-        Class defaultAclObjectIdentityClass) {
-        this.defaultAclObjectIdentityClass = defaultAclObjectIdentityClass;
     }
 
     public Class getDefaultAclObjectIdentityClass() {
         return defaultAclObjectIdentityClass;
     }
 
-    public void setEffectiveAclsResolver(
-        EffectiveAclsResolver effectiveAclsResolver) {
-        this.effectiveAclsResolver = effectiveAclsResolver;
-    }
-
     public EffectiveAclsResolver getEffectiveAclsResolver() {
         return effectiveAclsResolver;
     }
 
-    /**
-     * If set to a value other than <code>null</code>, the {@link
-     * #supports(Object)} method will <b>only</b> support the indicates class.
-     * This is useful if you wish to wire multiple
-     * <code>BasicAclProvider</code>s in a list of
-     * <code>AclProviderManager.providers</code> but only have particular
-     * instances respond to particular domain object types.
-     *
-     * @param restrictSupportToClass the class to restrict this
-     *        <code>BasicAclProvider</code> to service request for, or
-     *        <code>null</code> (the default) if the
-     *        <code>BasicAclProvider</code> should respond to every class
-     *        presented
-     */
-    public void setRestrictSupportToClass(Class restrictSupportToClass) {
-        this.restrictSupportToClass = restrictSupportToClass;
-    }
-
     public Class getRestrictSupportToClass() {
         return restrictSupportToClass;
-    }
-
-    public void afterPropertiesSet() {
-        Assert.notNull(basicAclDao, "basicAclDao required");
-        Assert.notNull(basicAclEntryCache, "basicAclEntryCache required");
-        Assert.notNull(basicAclEntryCache, "basicAclEntryCache required");
-        Assert.notNull(effectiveAclsResolver, "effectiveAclsResolver required");
-        Assert.notNull(defaultAclObjectIdentityClass, "defaultAclObjectIdentityClass required");
-        Assert.isTrue(AclObjectIdentity.class.isAssignableFrom(this.defaultAclObjectIdentityClass),
-                "defaultAclObjectIdentityClass must implement AclObjectIdentity");
-
-        try {
-            Constructor constructor = defaultAclObjectIdentityClass
-                    .getConstructor(new Class[]{Object.class});
-        } catch (NoSuchMethodException nsme) {
-            throw new IllegalArgumentException("defaultAclObjectIdentityClass must provide a constructor that accepts the domain object instance!");
-        }
-    }
-
-    /**
-     * Indicates support for the passed object.
-     * 
-     * <p>
-     * An object will only be supported if it (i) is allowed to be supported as
-     * defined by the {@link #setRestrictSupportToClass(Class)} method,
-     * <b>and</b> (ii) if an <code>AclObjectIdentity</code> is returned by
-     * {@link #obtainIdentity(Object)} for that object.
-     * </p>
-     *
-     * @param domainInstance the instance to check
-     *
-     * @return <code>true</code> if this provider supports the passed object,
-     *         <code>false</code> otherwise
-     */
-    public boolean supports(Object domainInstance) {
-        if (domainInstance == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("domainInstance is null");
-            }
-
-            return false;
-        }
-
-        if ((restrictSupportToClass != null)
-            && !restrictSupportToClass.isAssignableFrom(
-                domainInstance.getClass())) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("domainInstance not instance of "
-                    + restrictSupportToClass);
-            }
-
-            return false;
-        }
-
-        if (obtainIdentity(domainInstance) == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("obtainIdentity returned null");
-            }
-
-            return false;
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("obtainIdentity returned "
-                    + obtainIdentity(domainInstance));
-            }
-
-            return true;
-        }
-    }
-
-    /**
-     * This method looks up the <code>AclObjectIdentity</code> of a passed
-     * domain object instance.
-     * 
-     * <P>
-     * This implementation attempts to obtain the
-     * <code>AclObjectIdentity</code> via reflection inspection of the class
-     * for the {@link AclObjectIdentityAware} interface. If this fails, an
-     * attempt is made to construct a {@link
-     * #getDefaultAclObjectIdentityClass()} object by passing the domain
-     * instance object into its constructor.
-     * </p>
-     *
-     * @param domainInstance the domain object instance (never
-     *        <code>null</code>)
-     *
-     * @return an ACL object identity, or <code>null</code> if one could not be
-     *         obtained
-     */
-    protected AclObjectIdentity obtainIdentity(Object domainInstance) {
-        if (domainInstance instanceof AclObjectIdentityAware) {
-            AclObjectIdentityAware aclObjectIdentityAware = (AclObjectIdentityAware) domainInstance;
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("domainInstance: " + domainInstance
-                    + " cast to AclObjectIdentityAware");
-            }
-
-            return aclObjectIdentityAware.getAclObjectIdentity();
-        }
-
-        try {
-            Constructor constructor = defaultAclObjectIdentityClass
-                .getConstructor(new Class[] {Object.class});
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("domainInstance: " + domainInstance
-                    + " attempting to pass to constructor: " + constructor);
-            }
-
-            return (AclObjectIdentity) constructor.newInstance(new Object[] {domainInstance});
-        } catch (Exception ex) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Error attempting construction of "
-                    + defaultAclObjectIdentityClass + ": " + ex.getMessage(), ex);
-
-                if (ex.getCause() != null) {
-                    logger.debug("Cause: " + ex.getCause().getMessage(),
-                        ex.getCause());
-                }
-            }
-
-            return null;
-        }
     }
 
     private BasicAclEntry[] lookup(AclObjectIdentity aclObjectIdentity) {
@@ -389,8 +199,9 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
         result = basicAclDao.getAcls(aclObjectIdentity);
 
         if (result == null) {
-            SimpleAclEntry[] emptyAclEntries = {new SimpleAclEntry(RECIPIENT_FOR_CACHE_EMPTY,
-                        aclObjectIdentity, null, 0)};
+            SimpleAclEntry[] emptyAclEntries = {
+                    new SimpleAclEntry(RECIPIENT_FOR_CACHE_EMPTY, aclObjectIdentity, null, 0)
+                };
             basicAclEntryCache.putEntriesInCache(emptyAclEntries);
 
             return null;
@@ -399,5 +210,128 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
         basicAclEntryCache.putEntriesInCache(result);
 
         return result;
+    }
+
+    /**
+     * This method looks up the <code>AclObjectIdentity</code> of a passed domain object instance.<P>This
+     * implementation attempts to obtain the <code>AclObjectIdentity</code> via reflection inspection of the class for
+     * the {@link AclObjectIdentityAware} interface. If this fails, an attempt is made to construct a {@link
+     * #getDefaultAclObjectIdentityClass()} object by passing the domain instance object into its constructor.</p>
+     *
+     * @param domainInstance the domain object instance (never <code>null</code>)
+     *
+     * @return an ACL object identity, or <code>null</code> if one could not be obtained
+     */
+    protected AclObjectIdentity obtainIdentity(Object domainInstance) {
+        if (domainInstance instanceof AclObjectIdentityAware) {
+            AclObjectIdentityAware aclObjectIdentityAware = (AclObjectIdentityAware) domainInstance;
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("domainInstance: " + domainInstance + " cast to AclObjectIdentityAware");
+            }
+
+            return aclObjectIdentityAware.getAclObjectIdentity();
+        }
+
+        try {
+            Constructor constructor = defaultAclObjectIdentityClass.getConstructor(new Class[] {Object.class});
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("domainInstance: " + domainInstance + " attempting to pass to constructor: " + constructor);
+            }
+
+            return (AclObjectIdentity) constructor.newInstance(new Object[] {domainInstance});
+        } catch (Exception ex) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Error attempting construction of " + defaultAclObjectIdentityClass + ": "
+                    + ex.getMessage(), ex);
+
+                if (ex.getCause() != null) {
+                    logger.debug("Cause: " + ex.getCause().getMessage(), ex.getCause());
+                }
+            }
+
+            return null;
+        }
+    }
+
+    public void setBasicAclDao(BasicAclDao basicAclDao) {
+        this.basicAclDao = basicAclDao;
+    }
+
+    public void setBasicAclEntryCache(BasicAclEntryCache basicAclEntryCache) {
+        this.basicAclEntryCache = basicAclEntryCache;
+    }
+
+    /**
+     * Allows selection of the <code>AclObjectIdentity</code> class that an attempt should be made to construct
+     * if the passed object does not implement <code>AclObjectIdentityAware</code>.<P>NB: Any
+     * <code>defaultAclObjectIdentityClass</code><b>must</b> provide a public constructor that accepts an
+     * <code>Object</code>. Otherwise it is not possible for the <code>BasicAclProvider</code> to try to create the
+     * <code>AclObjectIdentity</code> instance at runtime.</p>
+     *
+     * @param defaultAclObjectIdentityClass
+     */
+    public void setDefaultAclObjectIdentityClass(Class defaultAclObjectIdentityClass) {
+        this.defaultAclObjectIdentityClass = defaultAclObjectIdentityClass;
+    }
+
+    public void setEffectiveAclsResolver(EffectiveAclsResolver effectiveAclsResolver) {
+        this.effectiveAclsResolver = effectiveAclsResolver;
+    }
+
+    /**
+     * If set to a value other than <code>null</code>, the {@link #supports(Object)} method will <b>only</b>
+     * support the indicates class. This is useful if you wish to wire multiple <code>BasicAclProvider</code>s in a
+     * list of <code>AclProviderManager.providers</code> but only have particular instances respond to particular
+     * domain object types.
+     *
+     * @param restrictSupportToClass the class to restrict this <code>BasicAclProvider</code> to service request for,
+     *        or <code>null</code> (the default) if the <code>BasicAclProvider</code> should respond to every class
+     *        presented
+     */
+    public void setRestrictSupportToClass(Class restrictSupportToClass) {
+        this.restrictSupportToClass = restrictSupportToClass;
+    }
+
+    /**
+     * Indicates support for the passed object.<p>An object will only be supported if it (i) is allowed to be
+     * supported as defined by the {@link #setRestrictSupportToClass(Class)} method, <b>and</b> (ii) if an
+     * <code>AclObjectIdentity</code> is returned by {@link #obtainIdentity(Object)} for that object.</p>
+     *
+     * @param domainInstance the instance to check
+     *
+     * @return <code>true</code> if this provider supports the passed object, <code>false</code> otherwise
+     */
+    public boolean supports(Object domainInstance) {
+        if (domainInstance == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("domainInstance is null");
+            }
+
+            return false;
+        }
+
+        if ((restrictSupportToClass != null) && !restrictSupportToClass.isAssignableFrom(domainInstance.getClass())) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("domainInstance not instance of " + restrictSupportToClass);
+            }
+
+            return false;
+        }
+
+        if (obtainIdentity(domainInstance) == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("obtainIdentity returned null");
+            }
+
+            return false;
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("obtainIdentity returned " + obtainIdentity(domainInstance));
+            }
+
+            return true;
+        }
     }
 }

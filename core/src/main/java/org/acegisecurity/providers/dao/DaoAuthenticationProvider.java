@@ -33,21 +33,19 @@ import org.springframework.util.Assert;
 
 
 /**
- * An {@link AuthenticationProvider} implementation that retrieves user details
- * from an {@link UserDetailsService}.
+ * An {@link AuthenticationProvider} implementation that retrieves user details from an {@link UserDetailsService}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class DaoAuthenticationProvider
-    extends AbstractUserDetailsAuthenticationProvider {
-    //~ Instance fields ========================================================
+public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
+    //~ Instance fields ================================================================================================
 
     private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
     private SaltSource saltSource;
     private UserDetailsService userDetailsService;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     protected void additionalAuthenticationChecks(UserDetails userDetails,
         UsernamePasswordAuthenticationToken authentication)
@@ -58,17 +56,14 @@ public class DaoAuthenticationProvider
             salt = this.saltSource.getSalt(userDetails);
         }
 
-        if (!passwordEncoder.isPasswordValid(userDetails.getPassword(),
-                authentication.getCredentials().toString(), salt)) {
+        if (!passwordEncoder.isPasswordValid(userDetails.getPassword(), authentication.getCredentials().toString(), salt)) {
             throw new BadCredentialsException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.badCredentials",
-                    "Bad credentials"), userDetails);
+                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"), userDetails);
         }
     }
 
     protected void doAfterPropertiesSet() throws Exception {
-        Assert.notNull(this.userDetailsService,
-            "An Authentication DAO must be set");
+        Assert.notNull(this.userDetailsService, "An Authentication DAO must be set");
     }
 
     public PasswordEncoder getPasswordEncoder() {
@@ -83,17 +78,14 @@ public class DaoAuthenticationProvider
         return userDetailsService;
     }
 
-    protected final UserDetails retrieveUser(String username,
-        UsernamePasswordAuthenticationToken authentication)
+    protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
         throws AuthenticationException {
         UserDetails loadedUser;
 
         try {
-            loadedUser = this.getUserDetailsService()
-                             .loadUserByUsername(username);
+            loadedUser = this.getUserDetailsService().loadUserByUsername(username);
         } catch (DataAccessException repositoryProblem) {
-            throw new AuthenticationServiceException(repositoryProblem
-                .getMessage(), repositoryProblem);
+            throw new AuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);
         }
 
         if (loadedUser == null) {
@@ -105,9 +97,8 @@ public class DaoAuthenticationProvider
     }
 
     /**
-     * Sets the PasswordEncoder instance to be used to encode and validate
-     * passwords. If not set, {@link PlaintextPasswordEncoder} will be used by
-     * default.
+     * Sets the PasswordEncoder instance to be used to encode and validate passwords. If not set, {@link
+     * PlaintextPasswordEncoder} will be used by default.
      *
      * @param passwordEncoder The passwordEncoder to use
      */
@@ -116,12 +107,11 @@ public class DaoAuthenticationProvider
     }
 
     /**
-     * The source of salts to use when decoding passwords. <code>null</code> is
-     * a valid value, meaning the <code>DaoAuthenticationProvider</code> will
-     * present <code>null</code> to the relevant <code>PasswordEncoder</code>.
+     * The source of salts to use when decoding passwords. <code>null</code> is a valid value, meaning the
+     * <code>DaoAuthenticationProvider</code> will present <code>null</code> to the relevant
+     * <code>PasswordEncoder</code>.
      *
-     * @param saltSource to use when attempting to decode passwords via the
-     *        <code>PasswordEncoder</code>
+     * @param saltSource to use when attempting to decode passwords via the <code>PasswordEncoder</code>
      */
     public void setSaltSource(SaltSource saltSource) {
         this.saltSource = saltSource;

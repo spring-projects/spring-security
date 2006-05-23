@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,10 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.MockFilterChain;
-
-
 import org.acegisecurity.SecurityConfig;
 
 import org.acegisecurity.intercept.web.FilterInvocation;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -35,14 +34,14 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @version $Id$
  */
 public class SecureChannelProcessorTests extends TestCase {
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SecureChannelProcessorTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testDecideDetectsAcceptableChannel() throws Exception {
@@ -151,8 +150,7 @@ public class SecureChannelProcessorTests extends TestCase {
 
     public void testSupports() {
         SecureChannelProcessor processor = new SecureChannelProcessor();
-        assertTrue(processor.supports(
-                new SecurityConfig("REQUIRES_SECURE_CHANNEL")));
+        assertTrue(processor.supports(new SecurityConfig("REQUIRES_SECURE_CHANNEL")));
         assertFalse(processor.supports(null));
         assertFalse(processor.supports(new SecurityConfig("NOT_SUPPORTED")));
     }

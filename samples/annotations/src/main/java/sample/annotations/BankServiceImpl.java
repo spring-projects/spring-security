@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,12 @@ package sample.annotations;
 
 /**
  * <code>BankService</code> sample implementation.
- *  
+ *
  * @author Mark St.Godard
  * @version $Id$
  */
 public class BankServiceImpl implements BankService {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public float balance(String accountNumber) {
         return 42000000;

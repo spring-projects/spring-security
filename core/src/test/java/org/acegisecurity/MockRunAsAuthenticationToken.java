@@ -19,20 +19,20 @@ import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 
 /**
- * Simple holder that indicates the {@link MockRunAsManager} returned a
- * different <Code>Authentication</code> object.
+ * Simple holder that indicates the {@link MockRunAsManager} returned a different <Code>Authentication</code>
+ * object.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MockRunAsAuthenticationToken extends AbstractAuthenticationToken {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public MockRunAsAuthenticationToken() {
         super(null);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Object getCredentials() {
         return null;

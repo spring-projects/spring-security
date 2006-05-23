@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,14 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.MockAclManager;
 import org.acegisecurity.MockApplicationContext;
+
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.acl.AclManager;
 import org.acegisecurity.acl.basic.MockAclObjectIdentity;
 import org.acegisecurity.acl.basic.SimpleAclEntry;
+
 import org.acegisecurity.context.SecurityContextHolder;
+
 import org.acegisecurity.providers.TestingAuthenticationToken;
 
 import org.springframework.context.ApplicationContext;
@@ -43,20 +46,18 @@ import javax.servlet.jsp.tagext.Tag;
  * @version $Id$
  */
 public class AclTagTests extends TestCase {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private final MyAclTag aclTag = new MyAclTag();
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void testInclusionDeniedWhenAclManagerUnawareOfObject()
         throws JspException {
-        Authentication auth = new TestingAuthenticationToken("marissa",
-                "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        aclTag.setHasPermission(new Long(SimpleAclEntry.ADMINISTRATION)
-            .toString());
+        aclTag.setHasPermission(new Long(SimpleAclEntry.ADMINISTRATION).toString());
         aclTag.setDomainObject(new Integer(54));
         assertEquals(Tag.SKIP_BODY, aclTag.doStartTag());
 
@@ -65,8 +66,7 @@ public class AclTagTests extends TestCase {
 
     public void testInclusionDeniedWhenNoListOfPermissionsGiven()
         throws JspException {
-        Authentication auth = new TestingAuthenticationToken("marissa",
-                "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         aclTag.setHasPermission(null);
@@ -78,14 +78,12 @@ public class AclTagTests extends TestCase {
 
     public void testInclusionDeniedWhenPrincipalDoesNotHoldAnyPermissions()
         throws JspException {
-        Authentication auth = new TestingAuthenticationToken("john", "crow",
-                new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("john", "crow", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        aclTag.setHasPermission(new Integer(SimpleAclEntry.ADMINISTRATION)
-            + "," + new Integer(SimpleAclEntry.READ));
-        assertEquals(new Integer(SimpleAclEntry.ADMINISTRATION) + ","
-            + new Integer(SimpleAclEntry.READ), aclTag.getHasPermission());
+        aclTag.setHasPermission(new Integer(SimpleAclEntry.ADMINISTRATION) + "," + new Integer(SimpleAclEntry.READ));
+        assertEquals(new Integer(SimpleAclEntry.ADMINISTRATION) + "," + new Integer(SimpleAclEntry.READ),
+            aclTag.getHasPermission());
         aclTag.setDomainObject("object1");
         assertEquals("object1", aclTag.getDomainObject());
         assertEquals(Tag.SKIP_BODY, aclTag.doStartTag());
@@ -95,8 +93,7 @@ public class AclTagTests extends TestCase {
 
     public void testInclusionDeniedWhenPrincipalDoesNotHoldRequiredPermissions()
         throws JspException {
-        Authentication auth = new TestingAuthenticationToken("marissa",
-                "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         aclTag.setHasPermission(new Integer(SimpleAclEntry.DELETE).toString());
@@ -110,8 +107,7 @@ public class AclTagTests extends TestCase {
         throws JspException {
         SecurityContextHolder.getContext().setAuthentication(null);
 
-        aclTag.setHasPermission(new Long(SimpleAclEntry.ADMINISTRATION)
-            .toString());
+        aclTag.setHasPermission(new Long(SimpleAclEntry.ADMINISTRATION).toString());
         aclTag.setDomainObject("object1");
         assertEquals(Tag.SKIP_BODY, aclTag.doStartTag());
 
@@ -127,8 +123,7 @@ public class AclTagTests extends TestCase {
 
     public void testJspExceptionThrownIfHasPermissionNotValidFormat()
         throws JspException {
-        Authentication auth = new TestingAuthenticationToken("john", "crow",
-                new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("john", "crow", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         aclTag.setHasPermission("0,5, 6"); // shouldn't be any space
@@ -145,12 +140,10 @@ public class AclTagTests extends TestCase {
 
     public void testOperationWhenPrincipalHoldsPermissionOfMultipleList()
         throws JspException {
-        Authentication auth = new TestingAuthenticationToken("marissa",
-                "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        aclTag.setHasPermission(new Integer(SimpleAclEntry.ADMINISTRATION)
-            + "," + new Integer(SimpleAclEntry.READ));
+        aclTag.setHasPermission(new Integer(SimpleAclEntry.ADMINISTRATION) + "," + new Integer(SimpleAclEntry.READ));
         aclTag.setDomainObject("object1");
         assertEquals(Tag.EVAL_BODY_INCLUDE, aclTag.doStartTag());
 
@@ -159,8 +152,7 @@ public class AclTagTests extends TestCase {
 
     public void testOperationWhenPrincipalHoldsPermissionOfSingleList()
         throws JspException {
-        Authentication auth = new TestingAuthenticationToken("marissa",
-                "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         aclTag.setHasPermission(new Integer(SimpleAclEntry.READ).toString());
@@ -170,7 +162,7 @@ public class AclTagTests extends TestCase {
         SecurityContextHolder.getContext().setAuthentication(null);
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockAclEntry implements AclEntry {
         // just so AclTag iterates some different types of AclEntrys
@@ -178,16 +170,15 @@ public class AclTagTests extends TestCase {
 
     private class MyAclTag extends AclTag {
         protected ApplicationContext getContext(PageContext pageContext) {
-            ConfigurableApplicationContext context = MockApplicationContext
-                .getContext();
+            ConfigurableApplicationContext context = MockApplicationContext.getContext();
 
             // Create an AclManager
             AclManager aclManager = new MockAclManager("object1", "marissa",
-                    new AclEntry[] {new MockAclEntry(), new SimpleAclEntry(
-                            "marissa", new MockAclObjectIdentity(), null,
-                            SimpleAclEntry.ADMINISTRATION), new SimpleAclEntry(
-                            "marissa", new MockAclObjectIdentity(), null,
-                            SimpleAclEntry.READ)});
+                    new AclEntry[] {
+                        new MockAclEntry(),
+                        new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                        new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ)
+                    });
 
             // Register the AclManager into our ApplicationContext
             context.getBeanFactory().registerSingleton("aclManager", aclManager);

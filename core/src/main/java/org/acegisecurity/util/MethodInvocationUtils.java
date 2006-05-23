@@ -26,50 +26,38 @@ import java.util.List;
 
 
 /**
- * Static utility methods for creating <code>MethodInvocation</code>s usable
- * within Acegi Security.
- * 
- * <p>
- * All methods of this class return a {@link
- * org.acegisecurity.util.SimpleMethodInvocation}.
- * </p>
+ * Static utility methods for creating <code>MethodInvocation</code>s usable within Acegi Security.<p>All methods
+ * of this class return a {@link org.acegisecurity.util.SimpleMethodInvocation}.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MethodInvocationUtils {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Generates a <code>MethodInvocation</code> for specified
-     * <code>methodName</code> on the passed object.
+     * Generates a <code>MethodInvocation</code> for specified <code>methodName</code> on the passed object.
      *
-     * @param object the object that will be used to find the relevant
-     *        <code>Method</code>
+     * @param object the object that will be used to find the relevant <code>Method</code>
      * @param methodName the name of the method to find
      *
-     * @return a <code>MethodInvocation</code>, or <code>null</code> if there
-     *         was a problem
+     * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a problem
      */
     public static MethodInvocation create(Object object, String methodName) {
         return create(object, methodName, null);
     }
 
     /**
-     * Generates a <code>MethodInvocation</code> for specified
-     * <code>methodName</code> on the passed object, using the
-     * <code>args</code> to locate the method.
+     * Generates a <code>MethodInvocation</code> for specified <code>methodName</code> on the passed object,
+     * using the <code>args</code> to locate the method.
      *
-     * @param object the object that will be used to find the relevant
-     *        <code>Method</code>
+     * @param object the object that will be used to find the relevant <code>Method</code>
      * @param methodName the name of the method to find
      * @param args arguments that are required as part of the method signature
      *
-     * @return a <code>MethodInvocation</code>, or <code>null</code> if there
-     *         was a problem
+     * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a problem
      */
-    public static MethodInvocation create(Object object, String methodName,
-        Object[] args) {
+    public static MethodInvocation create(Object object, String methodName, Object[] args) {
         Assert.notNull(object, "Object required");
 
         Class[] classArgs = null;
@@ -88,36 +76,28 @@ public class MethodInvocationUtils {
     }
 
     /**
-     * Generates a <code>MethodInvocation</code> for specified
-     * <code>methodName</code> on the passed class.
+     * Generates a <code>MethodInvocation</code> for specified <code>methodName</code> on the passed class.
      *
-     * @param clazz the class of object that will be used to find the relevant
-     *        <code>Method</code>
+     * @param clazz the class of object that will be used to find the relevant <code>Method</code>
      * @param methodName the name of the method to find
      *
-     * @return a <code>MethodInvocation</code>, or <code>null</code> if there
-     *         was a problem
+     * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a problem
      */
-    public static MethodInvocation createFromClass(Class clazz,
-        String methodName) {
+    public static MethodInvocation createFromClass(Class clazz, String methodName) {
         return createFromClass(clazz, methodName, null);
     }
 
     /**
-     * Generates a <code>MethodInvocation</code> for specified
-     * <code>methodName</code> on the passed class, using the
-     * <code>args</code> to locate the method.
+     * Generates a <code>MethodInvocation</code> for specified <code>methodName</code> on the passed class,
+     * using the <code>args</code> to locate the method.
      *
-     * @param clazz the class of object that will be used to find the relevant
-     *        <code>Method</code>
+     * @param clazz the class of object that will be used to find the relevant <code>Method</code>
      * @param methodName the name of the method to find
      * @param args arguments that are required as part of the method signature
      *
-     * @return a <code>MethodInvocation</code>, or <code>null</code> if there
-     *         was a problem
+     * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a problem
      */
-    public static MethodInvocation createFromClass(Class clazz,
-        String methodName, Class[] args) {
+    public static MethodInvocation createFromClass(Class clazz, String methodName, Class[] args) {
         Assert.notNull(clazz, "Class required");
         Assert.hasText(methodName, "MethodName required");
 

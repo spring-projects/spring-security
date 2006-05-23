@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @version $Id$
  */
 public class HttpRequestIntegrationFilterTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public HttpRequestIntegrationFilterTests() {
         super();
@@ -45,18 +45,26 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(HttpRequestIntegrationFilterTests.class);
     }
 
+    protected void setUp() throws Exception {
+        super.setUp();
+        SecurityContextHolder.getContext().setAuthentication(null);
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        SecurityContextHolder.getContext().setAuthentication(null);
+    }
+
     public void testCorrectOperation() throws Exception {
         HttpRequestIntegrationFilter filter = new HttpRequestIntegrationFilter();
-        PrincipalAcegiUserToken principal = new PrincipalAcegiUserToken("key",
-                "someone", "password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")},
-                null);
+        PrincipalAcegiUserToken principal = new PrincipalAcegiUserToken("key", "someone", "password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")}, null);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setUserPrincipal(principal);
@@ -67,8 +75,7 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
 
         if (!(SecurityContextHolder.getContext().getAuthentication() instanceof PrincipalAcegiUserToken)) {
-            System.out.println(SecurityContextHolder.getContext()
-                                                    .getAuthentication());
+            System.out.println(SecurityContextHolder.getContext().getAuthentication());
             fail("Should have returned PrincipalAcegiUserToken");
         }
 
@@ -98,15 +105,5 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         filter.doFilter(request, response, chain);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
-    }
-
-    protected void setUp() throws Exception {
-        super.setUp();
-        SecurityContextHolder.getContext().setAuthentication(null);
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 }

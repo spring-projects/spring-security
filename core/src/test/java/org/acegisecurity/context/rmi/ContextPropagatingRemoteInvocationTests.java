@@ -32,14 +32,13 @@ import java.lang.reflect.Method;
 
 
 /**
- * Tests {@link ContextPropagatingRemoteInvocation} and {@link
- * ContextPropagatingRemoteInvocationFactory}.
+ * Tests {@link ContextPropagatingRemoteInvocation} and {@link ContextPropagatingRemoteInvocationFactory}.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class ContextPropagatingRemoteInvocationTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public ContextPropagatingRemoteInvocationTests() {
         super();
@@ -49,20 +48,17 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     private ContextPropagatingRemoteInvocation getRemoteInvocation()
         throws Exception {
         Class clazz = TargetObject.class;
-        Method method = clazz.getMethod("makeLowerCase",
-                new Class[] {String.class});
-        MethodInvocation mi = new SimpleMethodInvocation(method,
-                new Object[] {"SOME_STRING"});
+        Method method = clazz.getMethod("makeLowerCase", new Class[] {String.class});
+        MethodInvocation mi = new SimpleMethodInvocation(method, new Object[] {"SOME_STRING"});
 
         ContextPropagatingRemoteInvocationFactory factory = new ContextPropagatingRemoteInvocationFactory();
 
-        return (ContextPropagatingRemoteInvocation) factory
-        .createRemoteInvocation(mi);
+        return (ContextPropagatingRemoteInvocation) factory.createRemoteInvocation(mi);
     }
 
     public static void main(String[] args) {
@@ -72,10 +68,8 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
     public void testContextIsResetEvenIfExceptionOccurs()
         throws Exception {
         // Setup client-side context
-        Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("marissa",
-                "koala");
-        SecurityContextHolder.getContext()
-                             .setAuthentication(clientSideAuthentication);
+        Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("marissa", "koala");
+        SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 
         ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
 
@@ -88,16 +82,13 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
             // expected
         }
 
-        assertNull("Authentication must be null ",
-            SecurityContextHolder.getContext().getAuthentication());
+        assertNull("Authentication must be null ", SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testNormalOperation() throws Exception {
         // Setup client-side context
-        Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("marissa",
-                "koala");
-        SecurityContextHolder.getContext()
-                             .setAuthentication(clientSideAuthentication);
+        Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("marissa", "koala");
+        SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 
         ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
 
@@ -119,7 +110,6 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
         ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
         SecurityContextHolder.getContext().setAuthentication(null); // unnecessary, but for explicitness
 
-        assertEquals("some_string Authentication empty",
-            remoteInvocation.invoke(new TargetObject()));
+        assertEquals("some_string Authentication empty", remoteInvocation.invoke(new TargetObject()));
     }
 }

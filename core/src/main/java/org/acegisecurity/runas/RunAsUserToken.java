@@ -21,24 +21,23 @@ import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 
 /**
- * An immutable {@link org.acegisecurity.Authentication}  implementation that
- * supports {@link RunAsManagerImpl}.
+ * An immutable {@link org.acegisecurity.Authentication}  implementation that supports {@link RunAsManagerImpl}.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class RunAsUserToken extends AbstractAuthenticationToken {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Class originalAuthentication;
     private Object credentials;
     private Object principal;
     private int keyHash;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    public RunAsUserToken(String key, Object principal, Object credentials,
-        GrantedAuthority[] authorities, Class originalAuthentication) {
+    public RunAsUserToken(String key, Object principal, Object credentials, GrantedAuthority[] authorities,
+        Class originalAuthentication) {
         super(authorities);
         this.keyHash = key.hashCode();
         this.principal = principal;
@@ -47,7 +46,7 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
         setAuthenticated(true);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Object getCredentials() {
         return this.credentials;
@@ -67,8 +66,7 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
 
     public String toString() {
         StringBuffer sb = new StringBuffer(super.toString());
-        sb.append("; Original Class: ")
-          .append(this.originalAuthentication.getName());
+        sb.append("; Original Class: ").append(this.originalAuthentication.getName());
 
         return sb.toString();
     }

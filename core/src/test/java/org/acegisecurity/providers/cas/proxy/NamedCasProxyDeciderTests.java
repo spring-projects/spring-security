@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,19 @@
 
 package org.acegisecurity.providers.cas.proxy;
 
-import java.util.List;
-import java.util.Vector;
-
 import junit.framework.TestCase;
 
 import org.acegisecurity.providers.cas.ProxyUntrustedException;
+
+import java.util.List;
+import java.util.Vector;
 
 
 /**
  * Tests {@link NamedCasProxyDecider}.
  */
 public class NamedCasProxyDeciderTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public NamedCasProxyDeciderTests() {
         super();
@@ -37,7 +37,7 @@ public class NamedCasProxyDeciderTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(NamedCasProxyDeciderTests.class);
@@ -58,8 +58,7 @@ public class NamedCasProxyDeciderTests extends TestCase {
         // Build the list of valid nearest proxies
         List validProxies = new Vector();
         validProxies.add("https://localhost/portal/j_acegi_cas_security_check");
-        validProxies.add(
-            "https://localhost/newPortal/j_acegi_cas_security_check");
+        validProxies.add("https://localhost/newPortal/j_acegi_cas_security_check");
         proxyDecider.setValidProxies(validProxies);
         proxyDecider.afterPropertiesSet();
 
@@ -83,8 +82,7 @@ public class NamedCasProxyDeciderTests extends TestCase {
             proxyDecider.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("A validProxies list must be set",
-                expected.getMessage());
+            assertEquals("A validProxies list must be set", expected.getMessage());
         }
     }
 
@@ -105,8 +103,7 @@ public class NamedCasProxyDeciderTests extends TestCase {
         // Build the list of valid nearest proxies
         List validProxies = new Vector();
         validProxies.add("https://localhost/portal/j_acegi_cas_security_check");
-        validProxies.add(
-            "https://localhost/newPortal/j_acegi_cas_security_check");
+        validProxies.add("https://localhost/newPortal/j_acegi_cas_security_check");
         proxyDecider.setValidProxies(validProxies);
 
         assertEquals(validProxies, proxyDecider.getValidProxies());
@@ -118,14 +115,12 @@ public class NamedCasProxyDeciderTests extends TestCase {
 
         // Build the ticket returned from CAS
         List proxyList = new Vector();
-        proxyList.add(
-            "https://localhost/untrustedWebApp/j_acegi_cas_security_check");
+        proxyList.add("https://localhost/untrustedWebApp/j_acegi_cas_security_check");
 
         // Build the list of valid nearest proxies
         List validProxies = new Vector();
         validProxies.add("https://localhost/portal/j_acegi_cas_security_check");
-        validProxies.add(
-            "https://localhost/newPortal/j_acegi_cas_security_check");
+        validProxies.add("https://localhost/newPortal/j_acegi_cas_security_check");
         proxyDecider.setValidProxies(validProxies);
         proxyDecider.afterPropertiesSet();
 

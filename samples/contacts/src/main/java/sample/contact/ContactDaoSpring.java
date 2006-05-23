@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import javax.sql.DataSource;
  * @version $Id$
  */
 public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private ContactDelete contactDelete;
     private ContactInsert contactInsert;
@@ -46,21 +46,10 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
     private PrincipalsAllQuery principalsAllQuery;
     private RolesAllQuery rolesAllQuery;
 
-    //~ Methods ================================================================
-
-    public Contact getById(Long id) {
-        List list = contactsByIdQuery.execute(id.longValue());
-
-        if (list.size() == 0) {
-            return null;
-        } else {
-            return (Contact) list.get(0);
-        }
-    }
+    //~ Methods ========================================================================================================
 
     public void create(Contact contact) {
-        System.out.println("creating contact w/ id " + contact.getId() + " "
-            + contact.getEmail());
+        System.out.println("creating contact w/ id " + contact.getId() + " " + contact.getEmail());
         contactInsert.insert(contact);
     }
 
@@ -80,8 +69,14 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         return rolesAllQuery.execute();
     }
 
-    public void update(Contact contact) {
-        contactUpdate.update(contact);
+    public Contact getById(Long id) {
+        List list = contactsByIdQuery.execute(id.longValue());
+
+        if (list.size() == 0) {
+            return null;
+        } else {
+            return (Contact) list.get(0);
+        }
     }
 
     protected void initDao() throws Exception {
@@ -98,13 +93,15 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         return contact.getClass().getName() + ":" + contact.getId();
     }
 
-    //~ Inner Classes ==========================================================
+    public void update(Contact contact) {
+        contactUpdate.update(contact);
+    }
 
-    protected class AclObjectIdentityByObjectIdentityQuery
-        extends MappingSqlQuery {
+    //~ Inner Classes ==================================================================================================
+
+    protected class AclObjectIdentityByObjectIdentityQuery extends MappingSqlQuery {
         protected AclObjectIdentityByObjectIdentityQuery(DataSource ds) {
-            super(ds,
-                "SELECT id FROM acl_object_identity WHERE object_identity = ?");
+            super(ds, "SELECT id FROM acl_object_identity WHERE object_identity = ?");
             declareParameter(new SqlParameter(Types.VARCHAR));
             compile();
         }
@@ -125,8 +122,7 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
             compile();
         }
 
-        protected int insert(String objectIdentity,
-            Long parentAclObjectIdentity, String aclClass) {
+        protected int insert(String objectIdentity, Long parentAclObjectIdentity, String aclClass) {
             Object[] objs = new Object[] {null, objectIdentity, parentAclObjectIdentity, aclClass};
             super.update(objs);
 
@@ -156,16 +152,14 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         }
 
         protected void insert(Contact contact) {
-            Object[] objs = new Object[] {contact.getId(), contact.getName(), contact
-                    .getEmail()};
+            Object[] objs = new Object[] {contact.getId(), contact.getName(), contact.getEmail()};
             super.update(objs);
         }
     }
 
     protected class ContactUpdate extends SqlUpdate {
         protected ContactUpdate(DataSource ds) {
-            super(ds,
-                "UPDATE contacts SET contact_name = ?, address = ? WHERE id = ?");
+            super(ds, "UPDATE contacts SET contact_name = ?, address = ? WHERE id = ?");
             declareParameter(new SqlParameter(Types.VARCHAR));
             declareParameter(new SqlParameter(Types.VARCHAR));
             declareParameter(new SqlParameter(Types.BIGINT));
@@ -173,8 +167,7 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
         }
 
         protected void update(Contact contact) {
-            Object[] objs = new Object[] {contact.getName(), contact.getEmail(), contact
-                    .getId()};
+            Object[] objs = new Object[] {contact.getName(), contact.getEmail(), contact.getId()};
             super.update(objs);
         }
     }
@@ -198,8 +191,7 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
 
     protected class ContactsByIdQuery extends MappingSqlQuery {
         protected ContactsByIdQuery(DataSource ds) {
-            super(ds,
-                "SELECT id, contact_name, email FROM contacts WHERE id = ? ORDER BY id");
+            super(ds, "SELECT id, contact_name, email FROM contacts WHERE id = ? ORDER BY id");
             declareParameter(new SqlParameter(Types.BIGINT));
             compile();
         }
@@ -217,8 +209,7 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
 
     protected class PermissionDelete extends SqlUpdate {
         protected PermissionDelete(DataSource ds) {
-            super(ds,
-                "DELETE FROM acl_permission WHERE ACL_OBJECT_IDENTITY = ? AND RECIPIENT = ?");
+            super(ds, "DELETE FROM acl_permission WHERE ACL_OBJECT_IDENTITY = ? AND RECIPIENT = ?");
             declareParameter(new SqlParameter(Types.BIGINT));
             declareParameter(new SqlParameter(Types.VARCHAR));
             compile();
@@ -239,8 +230,7 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
             compile();
         }
 
-        protected int insert(Long aclObjectIdentity, String recipient,
-            Integer mask) {
+        protected int insert(Long aclObjectIdentity, String recipient, Integer mask) {
             Object[] objs = new Object[] {null, aclObjectIdentity, recipient, mask};
             super.update(objs);
 
@@ -262,8 +252,7 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
 
     protected class RolesAllQuery extends MappingSqlQuery {
         protected RolesAllQuery(DataSource ds) {
-            super(ds,
-                "SELECT DISTINCT authority FROM authorities ORDER BY authority");
+            super(ds, "SELECT DISTINCT authority FROM authorities ORDER BY authority");
             compile();
         }
 

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,9 +47,7 @@ import java.lang.annotation.Target;
 @Inherited
 @Documented
 public @interface Secured {
-    //~ Methods ================================================================
-
-    /**
+/**
      * Returns the list of security configuration attributes. 
      *   (i.e. ROLE_USER, ROLE_ADMIN etc.)
      * @return String[] The secure method attributes 

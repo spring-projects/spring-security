@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import org.springframework.context.ApplicationContext;
  * @version $Id$
  */
 public interface Authz {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * all the listed roles must be granted to return true, otherwise fasle;
@@ -64,28 +64,18 @@ public interface Authz {
     public ApplicationContext getAppCtx();
 
     /**
-     * return the principal's name, supports the various type of principals
-     * that can exist in the {@link Authentication} object, such as a String
-     * or {@link UserDetails} instance
+     * return the principal's name, supports the various type of principals that can exist in the {@link
+     * Authentication} object, such as a String or {@link UserDetails} instance
      *
      * @return string representation of principal's name
      */
     public String getPrincipal();
 
     /**
-     * return true if the principal holds either permission specified for the
-     * provided domain object
-     * 
-     * <P>
-     * Only works with permissions that are subclasses of {@link
-     * net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry}.
-     * </p>
-     * 
-     * <p>
-     * For this class to operate it must be able to access the application
-     * context via the <code>WebApplicationContextUtils</code> and locate an
-     * {@link AclManager}.
-     * </p>
+     * return true if the principal holds either permission specified for the provided domain object<P>Only
+     * works with permissions that are subclasses of {@link net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry}.</p>
+     *  <p>For this class to operate it must be able to access the application context via the
+     * <code>WebApplicationContextUtils</code> and locate an {@link AclManager}.</p>
      *
      * @param domainObject - domain object need acl control
      * @param permissions - comma separate integer permissions

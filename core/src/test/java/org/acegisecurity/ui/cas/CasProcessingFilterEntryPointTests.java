@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@ package org.acegisecurity.ui.cas;
 
 import junit.framework.TestCase;
 
-import java.net.URLEncoder;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import java.net.URLEncoder;
+
 
 /**
  * Tests {@link CasProcessingFilterEntryPoint}.
@@ -29,7 +30,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @version $Id$
  */
 public class CasProcessingFilterEntryPointTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public CasProcessingFilterEntryPointTests() {
         super();
@@ -39,14 +40,14 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(CasProcessingFilterEntryPointTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testDetectsMissingLoginFormUrl() throws Exception {
@@ -69,8 +70,7 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
             ep.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("serviceProperties must be specified",
-                expected.getMessage());
+            assertEquals("serviceProperties must be specified", expected.getMessage());
         }
     }
 
@@ -86,8 +86,7 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
     public void testNormalOperationWithRenewFalse() throws Exception {
         ServiceProperties sp = new ServiceProperties();
         sp.setSendRenew(false);
-        sp.setService(
-            "https://mycompany.com/bigWebApp/j_acegi_cas_security_check");
+        sp.setService("https://mycompany.com/bigWebApp/j_acegi_cas_security_check");
 
         CasProcessingFilterEntryPoint ep = new CasProcessingFilterEntryPoint();
         ep.setLoginUrl("https://cas/login");
@@ -102,16 +101,14 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
         ep.commence(request, response, null);
 
         assertEquals("https://cas/login?service="
-            + URLEncoder.encode(
-                "https://mycompany.com/bigWebApp/j_acegi_cas_security_check",
-                "UTF-8"), response.getRedirectedUrl());
+            + URLEncoder.encode("https://mycompany.com/bigWebApp/j_acegi_cas_security_check", "UTF-8"),
+            response.getRedirectedUrl());
     }
 
     public void testNormalOperationWithRenewTrue() throws Exception {
         ServiceProperties sp = new ServiceProperties();
         sp.setSendRenew(true);
-        sp.setService(
-            "https://mycompany.com/bigWebApp/j_acegi_cas_security_check");
+        sp.setService("https://mycompany.com/bigWebApp/j_acegi_cas_security_check");
 
         CasProcessingFilterEntryPoint ep = new CasProcessingFilterEntryPoint();
         ep.setLoginUrl("https://cas/login");
@@ -124,7 +121,8 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
 
         ep.afterPropertiesSet();
         ep.commence(request, response, null);
-        assertEquals("https://cas/login?service=" + URLEncoder.encode("https://mycompany.com/bigWebApp/j_acegi_cas_security_check", "UTF-8") + "&renew=true",
+        assertEquals("https://cas/login?service="
+            + URLEncoder.encode("https://mycompany.com/bigWebApp/j_acegi_cas_security_check", "UTF-8") + "&renew=true",
             response.getRedirectedUrl());
     }
 }

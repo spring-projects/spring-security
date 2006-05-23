@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.acegisecurity.acl.basic.jdbc;
 import junit.framework.TestCase;
 
 import org.acegisecurity.PopulatedDatabase;
+
 import org.acegisecurity.acl.basic.AclObjectIdentity;
 import org.acegisecurity.acl.basic.BasicAclEntry;
 import org.acegisecurity.acl.basic.NamedEntityObjectIdentity;
@@ -35,11 +36,11 @@ import java.sql.SQLException;
  * @version $Id$
  */
 public class JdbcDaoImplTests extends TestCase {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     public static final String OBJECT_IDENTITY = "org.acegisecurity.acl.DomainObject";
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public JdbcDaoImplTests() {
         super();
@@ -49,21 +50,28 @@ public class JdbcDaoImplTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(JdbcDaoImplTests.class);
     }
 
+    private JdbcDaoImpl makePopulatedJdbcDao() throws Exception {
+        JdbcDaoImpl dao = new JdbcDaoImpl();
+        dao.setDataSource(PopulatedDatabase.getDataSource());
+        dao.afterPropertiesSet();
+
+        return dao;
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testExceptionThrownIfBasicAclEntryClassNotFound()
         throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
-        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "7");
+        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "7");
 
         try {
             dao.getAcls(identity);
@@ -76,8 +84,7 @@ public class JdbcDaoImplTests extends TestCase {
     public void testGetsEntriesWhichExistInDatabaseAndHaveAcls()
         throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
-        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "2");
+        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "2");
         BasicAclEntry[] acls = dao.getAcls(identity);
         assertEquals(2, acls.length);
     }
@@ -85,18 +92,15 @@ public class JdbcDaoImplTests extends TestCase {
     public void testGetsEntriesWhichExistInDatabaseButHaveNoAcls()
         throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
-        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "5");
+        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "5");
         BasicAclEntry[] acls = dao.getAcls(identity);
         assertEquals(1, acls.length);
-        assertEquals(JdbcDaoImpl.RECIPIENT_USED_FOR_INHERITENCE_MARKER,
-            acls[0].getRecipient());
+        assertEquals(JdbcDaoImpl.RECIPIENT_USED_FOR_INHERITENCE_MARKER, acls[0].getRecipient());
     }
 
     public void testGetsEntriesWhichHaveNoParent() throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
-        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "1");
+        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "1");
         BasicAclEntry[] acls = dao.getAcls(identity);
         assertEquals(1, acls.length);
         assertNull(acls[0].getAclObjectParentIdentity());
@@ -116,8 +120,7 @@ public class JdbcDaoImplTests extends TestCase {
 
     public void testNullReturnedIfEntityNotFound() throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
-        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "NOT_VALID_ID");
+        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "NOT_VALID_ID");
         BasicAclEntry[] result = dao.getAcls(identity);
         assertNull(result);
     }
@@ -131,15 +134,7 @@ public class JdbcDaoImplTests extends TestCase {
         assertNull(dao.getAcls(identity));
     }
 
-    private JdbcDaoImpl makePopulatedJdbcDao() throws Exception {
-        JdbcDaoImpl dao = new JdbcDaoImpl();
-        dao.setDataSource(PopulatedDatabase.getDataSource());
-        dao.afterPropertiesSet();
-
-        return dao;
-    }
-
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockMappingSqlQuery extends MappingSqlQuery {
         protected Object mapRow(ResultSet arg0, int arg1)

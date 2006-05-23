@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,16 @@ import java.util.Iterator;
 
 
 /**
- * If there is a configuration attribute of "AFTER_INVOCATION_MOCK", modifies
- * the return value to null.
+ * If there is a configuration attribute of "AFTER_INVOCATION_MOCK", modifies the return value to null.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MockAfterInvocationManager implements AfterInvocationManager {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public Object decide(Authentication authentication, Object object,
-        ConfigAttributeDefinition config, Object returnedObject)
-        throws AccessDeniedException {
+    public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+        Object returnedObject) throws AccessDeniedException {
         Iterator iter = config.getConfigAttributes();
 
         while (iter.hasNext()) {

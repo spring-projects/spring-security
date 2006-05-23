@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,41 +16,34 @@
 package org.acegisecurity.providers.cas.populator;
 
 import org.acegisecurity.AuthenticationException;
+
 import org.acegisecurity.providers.cas.CasAuthoritiesPopulator;
-import org.acegisecurity.userdetails.UserDetailsService;
+
 import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UserDetailsService;
 
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.util.Assert;
 
 
 /**
- * Populates the CAS authorities via an {@link UserDetailsService}.
- * 
- * <P>
- * The additional information (username, password, enabled status etc)  an
- * <code>AuthenticationDao</code> implementation provides about  a
- * <code>User</code> is ignored. Only the <code>GrantedAuthority</code>s are
- * relevant to this class.
- * </p>
+ * Populates the CAS authorities via an {@link UserDetailsService}.<P>The additional information (username,
+ * password, enabled status etc)  an <code>AuthenticationDao</code> implementation provides about  a <code>User</code>
+ * is ignored. Only the <code>GrantedAuthority</code>s are relevant to this class.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class DaoCasAuthoritiesPopulator implements CasAuthoritiesPopulator,
-    InitializingBean {
-    //~ Instance fields ========================================================
+public class DaoCasAuthoritiesPopulator implements CasAuthoritiesPopulator, InitializingBean {
+    //~ Instance fields ================================================================================================
 
     private UserDetailsService userDetailsService;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void setUserDetailsService(UserDetailsService authenticationDao) {
-        this.userDetailsService = authenticationDao;
-    }
-
-    public UserDetailsService getUserDetailsService() {
-        return userDetailsService;
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(this.userDetailsService, "An authenticationDao must be set");
     }
 
     public UserDetails getUserDetails(String casUserId)
@@ -58,7 +51,11 @@ public class DaoCasAuthoritiesPopulator implements CasAuthoritiesPopulator,
         return this.userDetailsService.loadUserByUsername(casUserId);
     }
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.userDetailsService, "An authenticationDao must be set");
+    public UserDetailsService getUserDetailsService() {
+        return userDetailsService;
+    }
+
+    public void setUserDetailsService(UserDetailsService authenticationDao) {
+        this.userDetailsService = authenticationDao;
     }
 }

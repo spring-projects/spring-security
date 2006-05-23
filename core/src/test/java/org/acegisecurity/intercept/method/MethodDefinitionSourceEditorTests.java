@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,14 +31,13 @@ import java.util.Iterator;
 
 
 /**
- * Tests {@link MethodDefinitionSourceEditor} and its asociated {@link
- * MethodDefinitionMap}.
+ * Tests {@link MethodDefinitionSourceEditor} and its asociated {@link MethodDefinitionMap}.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MethodDefinitionSourceEditorTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public MethodDefinitionSourceEditorTests() {
         super();
@@ -48,26 +47,24 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(MethodDefinitionSourceEditorTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testAspectJJointPointLookup() throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
-        editor.setAsText(
-            "org.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
+        editor.setAsText("org.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
 
         Class clazz = TargetObject.class;
-        Method method = clazz.getMethod("countLength",
-                new Class[] {String.class});
+        Method method = clazz.getMethod("countLength", new Class[] {String.class});
         MockJoinPoint joinPoint = new MockJoinPoint(new TargetObject(), method);
 
         ConfigAttributeDefinition returnedCountLength = map.getAttributes(joinPoint);
@@ -75,8 +72,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         ConfigAttributeDefinition expectedCountLength = new ConfigAttributeDefinition();
         expectedCountLength.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         expectedCountLength.addConfigAttribute(new SecurityConfig("ROLE_TWO"));
-        expectedCountLength.addConfigAttribute(new SecurityConfig(
-                "RUN_AS_ENTRY"));
+        expectedCountLength.addConfigAttribute(new SecurityConfig("RUN_AS_ENTRY"));
         assertEquals(expectedCountLength, returnedCountLength);
     }
 
@@ -106,8 +102,7 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
 
         try {
-            editor.setAsText(
-                "org.acegisecurity.TargetObject.INVALID_METHOD=FOO,BAR");
+            editor.setAsText("org.acegisecurity.TargetObject.INVALID_METHOD=FOO,BAR");
             fail("Should have given IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -123,22 +118,17 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
 
-        ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(
-                    TargetObject.class, "makeLowerCase",
-                    new Class[] {String.class}));
+        ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(TargetObject.class,
+                    "makeLowerCase", new Class[] {String.class}));
         ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition();
-        expectedMakeLower.addConfigAttribute(new SecurityConfig(
-                "ROLE_FROM_INTERFACE"));
+        expectedMakeLower.addConfigAttribute(new SecurityConfig("ROLE_FROM_INTERFACE"));
         assertEquals(expectedMakeLower, returnedMakeLower);
 
-        ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(
-                    TargetObject.class, "makeUpperCase",
-                    new Class[] {String.class}));
+        ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(TargetObject.class,
+                    "makeUpperCase", new Class[] {String.class}));
         ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition();
-        expectedMakeUpper.addConfigAttribute(new SecurityConfig(
-                "ROLE_FROM_IMPLEMENTATION"));
-        expectedMakeUpper.addConfigAttribute(new SecurityConfig(
-                "ROLE_FROM_INTERFACE"));
+        expectedMakeUpper.addConfigAttribute(new SecurityConfig("ROLE_FROM_IMPLEMENTATION"));
+        expectedMakeUpper.addConfigAttribute(new SecurityConfig("ROLE_FROM_INTERFACE"));
         assertEquals(expectedMakeUpper, returnedMakeUpper);
     }
 
@@ -185,40 +175,34 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         assertEquals(5, map.getMethodMapSize());
 
-        ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(
-                    TargetObject.class, "makeLowerCase",
-                    new Class[] {String.class}));
+        ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(TargetObject.class,
+                    "makeLowerCase", new Class[] {String.class}));
         ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition();
         expectedMakeLower.addConfigAttribute(new SecurityConfig("ROLE_LOWER"));
         assertEquals(expectedMakeLower, returnedMakeLower);
 
-        ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(
-                    TargetObject.class, "makeUpperCase",
-                    new Class[] {String.class}));
+        ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(TargetObject.class,
+                    "makeUpperCase", new Class[] {String.class}));
         ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition();
         expectedMakeUpper.addConfigAttribute(new SecurityConfig("ROLE_UPPER"));
         assertEquals(expectedMakeUpper, returnedMakeUpper);
 
-        ConfigAttributeDefinition returnedCountLength = map.getAttributes(new MockMethodInvocation(
-                    TargetObject.class, "countLength",
-                    new Class[] {String.class}));
+        ConfigAttributeDefinition returnedCountLength = map.getAttributes(new MockMethodInvocation(TargetObject.class,
+                    "countLength", new Class[] {String.class}));
         ConfigAttributeDefinition expectedCountLength = new ConfigAttributeDefinition();
-        expectedCountLength.addConfigAttribute(new SecurityConfig(
-                "ROLE_GENERAL"));
+        expectedCountLength.addConfigAttribute(new SecurityConfig("ROLE_GENERAL"));
         assertEquals(expectedCountLength, returnedCountLength);
     }
 
     public void testNullIsReturnedByMethodDefinitionSourceWhenMethodInvocationNotDefined()
         throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
-        editor.setAsText(
-            "org.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
+        editor.setAsText("org.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
 
         ConfigAttributeDefinition configAttributeDefinition = map.getAttributes(new MockMethodInvocation(
-                    TargetObject.class, "makeLowerCase",
-                    new Class[] {String.class}));
+                    TargetObject.class, "makeLowerCase", new Class[] {String.class}));
         assertNull(configAttributeDefinition);
     }
 
@@ -232,34 +216,31 @@ public class MethodDefinitionSourceEditorTests extends TestCase {
 
     public void testSingleMethodParsing() throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
-        editor.setAsText(
-            "org.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
+        editor.setAsText("org.acegisecurity.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
 
-        ConfigAttributeDefinition returnedCountLength = map.getAttributes(new MockMethodInvocation(
-                    TargetObject.class, "countLength",
-                    new Class[] {String.class}));
+        ConfigAttributeDefinition returnedCountLength = map.getAttributes(new MockMethodInvocation(TargetObject.class,
+                    "countLength", new Class[] {String.class}));
         ConfigAttributeDefinition expectedCountLength = new ConfigAttributeDefinition();
         expectedCountLength.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         expectedCountLength.addConfigAttribute(new SecurityConfig("ROLE_TWO"));
-        expectedCountLength.addConfigAttribute(new SecurityConfig(
-                "RUN_AS_ENTRY"));
+        expectedCountLength.addConfigAttribute(new SecurityConfig("RUN_AS_ENTRY"));
         assertEquals(expectedCountLength, returnedCountLength);
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockMethodInvocation implements MethodInvocation {
         Method method;
 
-        public MockMethodInvocation(Class clazz, String methodName,
-            Class[] parameterTypes) throws NoSuchMethodException {
-            method = clazz.getMethod(methodName, parameterTypes);
-        }
-
         private MockMethodInvocation() {
             super();
+        }
+
+        public MockMethodInvocation(Class clazz, String methodName, Class[] parameterTypes)
+            throws NoSuchMethodException {
+            method = clazz.getMethod(methodName, parameterTypes);
         }
 
         public Object[] getArguments() {

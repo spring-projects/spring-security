@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import org.acegisecurity.userdetails.UserDetails;
  * @version $Id$
  */
 public interface SaltSource {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Returns the salt to use for the indicated user.

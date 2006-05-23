@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,21 @@
 package org.acegisecurity;
 
 /**
- * Abstract superclass for all exceptions related an {@link Authentication}
- * object being invalid for whatever reason.
+ * Abstract superclass for all exceptions related an {@link Authentication} object being invalid for whatever
+ * reason.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public abstract class AuthenticationException extends AcegiSecurityException {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
-    /**
-     * The authentication that related to this exception (may be
-     * <code>null</code>)
-     */
+    /** The authentication that related to this exception (may be <code>null</code>) */
     private Authentication authentication;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructs an <code>AuthenticationException</code> with the specified
      * message and root cause.
      *
@@ -44,7 +41,7 @@ public abstract class AuthenticationException extends AcegiSecurityException {
         super(msg, t);
     }
 
-    /**
+/**
      * Constructs an <code>AuthenticationException</code> with the specified
      * message and no root cause.
      *
@@ -54,7 +51,7 @@ public abstract class AuthenticationException extends AcegiSecurityException {
         super(msg);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Authentication getAuthentication() {
         return authentication;

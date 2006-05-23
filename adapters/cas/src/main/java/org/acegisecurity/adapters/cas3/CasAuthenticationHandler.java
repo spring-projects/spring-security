@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,90 +12,80 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.acegisecurity.adapters.cas3;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationManager;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.jasig.cas.authentication.handler.AuthenticationException;
 import org.jasig.cas.authentication.handler.AuthenticationHandler;
 import org.jasig.cas.authentication.handler.support.AbstractUsernamePasswordAuthenticationHandler;
 import org.jasig.cas.authentication.principal.UsernamePasswordCredentials;
+
 import org.springframework.util.Assert;
 
+
 /**
- * <p>
- * Provides JA-SIG CAS 3 authentication by delegating to the Acegi
- * <code>AuthenticationManager</code>.
- * </p>
- * <p>
- * This class would be configured in the
- * <code>webapp/WEB-INF/deployerConfigContext.xml</code> file in the CAS
- * distribution.
- * </p>
- * 
+ * <p>Provides JA-SIG CAS 3 authentication by delegating to the Acegi <code>AuthenticationManager</code>.</p>
+ *  <p>This class would be configured in the <code>webapp/WEB-INF/deployerConfigContext.xml</code> file in the CAS
+ * distribution.</p>
+ *
  * @author Scott Battaglia
  * @version $Id$
- * 
+ *
  * @see AuthenticationHandler
  * @see AuthenticationManager
  */
-public final class CasAuthenticationHandler extends
-		AbstractUsernamePasswordAuthenticationHandler {
+public final class CasAuthenticationHandler extends AbstractUsernamePasswordAuthenticationHandler {
+    //~ Instance fields ================================================================================================
 
-	private Log log = LogFactory.getLog(this.getClass());
+    private AuthenticationManager authenticationManager;
+    private Log log = LogFactory.getLog(this.getClass());
 
-	private AuthenticationManager authenticationManager;
+    //~ Methods ========================================================================================================
 
-	protected boolean authenticateUsernamePasswordInternal(
-			final UsernamePasswordCredentials credentials)
-			throws AuthenticationException {
+    protected void afterPropertiesSetInternal() throws Exception {
+        Assert.notNull(this.authenticationManager, "authenticationManager cannot be null.");
+    }
 
-		final Authentication authenticationRequest = new UsernamePasswordAuthenticationToken(
-				credentials.getUsername(), credentials.getPassword());
+    protected boolean authenticateUsernamePasswordInternal(final UsernamePasswordCredentials credentials)
+        throws AuthenticationException {
+        final Authentication authenticationRequest = new UsernamePasswordAuthenticationToken(credentials.getUsername(),
+                credentials.getPassword());
 
-		if (log.isDebugEnabled()) {
-			log.debug("Attempting to authenticate for user: "
-					+ credentials.getUsername());
-		}
+        if (log.isDebugEnabled()) {
+            log.debug("Attempting to authenticate for user: " + credentials.getUsername());
+        }
 
-		try {
-			this.authenticationManager.authenticate(authenticationRequest);
-		} catch (final org.acegisecurity.AuthenticationException e) {
-			if (log.isDebugEnabled()) {
-				log
-						.debug("Authentication request for "
-								+ credentials.getUsername() + "failed: "
-								+ e.toString());
-			}
-			return false;
-		}
+        try {
+            this.authenticationManager.authenticate(authenticationRequest);
+        } catch (final org.acegisecurity.AuthenticationException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Authentication request for " + credentials.getUsername() + "failed: " + e.toString());
+            }
 
-		if (log.isDebugEnabled()) {
-			log.debug("Authentication request for " + credentials.getUsername()
-					+ " successful.");
-		}
+            return false;
+        }
 
-		return true;
-	}
+        if (log.isDebugEnabled()) {
+            log.debug("Authentication request for " + credentials.getUsername() + " successful.");
+        }
 
-	protected void afterPropertiesSetInternal() throws Exception {
-		Assert.notNull(this.authenticationManager,
-				"authenticationManager cannot be null.");
-	}
+        return true;
+    }
 
-	/**
-	 * Method to set the Acegi <code>AuthenticationManager</code> to delegate
-	 * to.
-	 * 
-	 * @param authenticationManager
-	 *            the Acegi AuthenticationManager that knows how to authenticate
-	 *            users.
-	 */
-	public void setAuthenticationManager(
-			final AuthenticationManager authenticationManager) {
-		this.authenticationManager = authenticationManager;
-	}
+    /**
+     * Method to set the Acegi <code>AuthenticationManager</code> to delegate to.
+     *
+     * @param authenticationManager the Acegi AuthenticationManager that knows how to authenticate users.
+     */
+    public void setAuthenticationManager(final AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
 }

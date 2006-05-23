@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,15 @@
 
 package org.acegisecurity.domain.dao;
 
+import org.acegisecurity.domain.PersistableEntity;
+
+import org.springframework.dao.DataAccessException;
+
 import java.io.Serializable;
+
 import java.util.Collection;
 import java.util.List;
 
-import org.acegisecurity.domain.PersistableEntity;
-import org.springframework.dao.DataAccessException;
 
 /**
  * Provides fundamental DAO capabilities for a single concrete {@link
@@ -58,13 +61,14 @@ import org.springframework.dao.DataAccessException;
  * @version $Id$
  */
 public interface Dao<E extends PersistableEntity> {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Create a new object, with the current {@link
-     * PersistableEntity#getInternalId()} value being ignored.
+     * Create a new object, with the current {@link PersistableEntity#getInternalId()} value being ignored.
      *
      * @param value (without the identity property initialized)
+     *
+     * @throws DataAccessException DOCUMENT ME!
      */
     public void create(E value) throws DataAccessException;
 
@@ -72,106 +76,98 @@ public interface Dao<E extends PersistableEntity> {
      * Delete an object.
      *
      * @param value the value to delete
+     *
+     * @throws DataAccessException DOCUMENT ME!
      */
     public void delete(E value) throws DataAccessException;
 
     /**
      * Return all persistent instances, including subclasses.
      *
-     * @return all persistence instances (an empty <code>List</code> will be
-     *         returned if no matches are found)
+     * @return all persistence instances (an empty <code>List</code> will be returned if no matches are found)
+     *
+     * @throws DataAccessException DOCUMENT ME!
      */
     public List<E> findAll() throws DataAccessException;
 
     /**
-     * Find a <code>List</code> of <code>PersistableEntity</code>s, searched by
-     * their identifiers.
+     * Find a <code>List</code> of <code>PersistableEntity</code>s, searched by their identifiers.
      *
      * @param ids collection of identifiers to locate
      *
-     * @return the values with those identifiers (an empty <code>List</code>
-     *         will be returned if no matches are found)
+     * @return the values with those identifiers (an empty <code>List</code> will be returned if no matches are found)
+     *
+     * @throws DataAccessException DOCUMENT ME!
      */
-    public List<E> findId(Collection<Serializable> ids) throws DataAccessException;
+    public List<E> findId(Collection<Serializable> ids)
+        throws DataAccessException;
 
     /**
-     * Load a persistent instance by its identifier, although some properties
-     * may be lazy loaded depending on the underlying DAO implementation and/or
-     * persistence engine mapping document.
+     * Load a persistent instance by its identifier, although some properties may be lazy loaded depending on
+     * the underlying DAO implementation and/or persistence engine mapping document.
      *
-     * @param id the identifier of the persistent instance desired to be
-     *        retrieved
+     * @param id the identifier of the persistent instance desired to be retrieved
      *
      * @return the request item, or <code>null</code> if not found
+     *
+     * @throws DataAccessException DOCUMENT ME!
      */
     public E readId(Serializable id) throws DataAccessException;
 
     /**
-     * Find persistent instances with properties matching those of the passed
-     * <code>PersistableEntity</code>.
-     * 
-     * <P>
-     * Persistent instances are matched on the basis of query by example.
-     * Properties whose value is <code>null</code>, empty
-     * <code>String</code>s, and any <code>Collection</code>s are ignored in
-     * the query by example evaluation.
-     * </p>
+     * Find persistent instances with properties matching those of the passed <code>PersistableEntity</code>.<P>Persistent
+     * instances are matched on the basis of query by example. Properties whose value is <code>null</code>, empty
+     * <code>String</code>s, and any <code>Collection</code>s are ignored in the query by example evaluation.</p>
      *
-     * @param value parameters to filter on (the class of this object will
-     * be added to the filter)
-     * @param firstElement the first result (start at zero to obtain all
-     *        results)
-     * @param maxElements the maximum number of results desired for this page
-     *        of the result set
-     * @param orderByAsc the property name of the
-     *        <code>PersistableEntity</code> that should be used to order the
+     * @param value parameters to filter on (the class of this object will be added to the filter)
+     * @param firstElement the first result (start at zero to obtain all results)
+     * @param maxElements the maximum number of results desired for this page of the result set
+     * @param orderByAsc the property name of the <code>PersistableEntity</code> that should be used to order the
      *        results
      *
-     * @return the requested page of the result list (a properly formed
-     *         <code>PaginatedList</code> is returned if no results match)
+     * @return the requested page of the result list (a properly formed <code>PaginatedList</code> is returned if no
+     *         results match)
+     *
+     * @throws DataAccessException DOCUMENT ME!
      */
-    public PaginatedList<E> scroll(E value, int firstElement,
-        int maxElements, String orderByAsc) throws DataAccessException;
+    public PaginatedList<E> scroll(E value, int firstElement, int maxElements, String orderByAsc)
+        throws DataAccessException;
 
-	/**
-     * Find persistent instances with properties matching those of the passed
-     * <code>PersistableEntity</code>, ignoring the class of the passed
-     * <code>PersistableEntity</code> (useful if you pass a superclass, as you
-     * want to find all subclass instances which match).
-	 * 
-     * @param value parameters to filter on (the class of this object will
-     * NOT be added to the filter)
-     * @param firstElement the first result (start at zero to obtain all
-     *        results)
-     * @param maxElements the maximum number of results desired for this page
-     *        of the result set
-     * @param orderByAsc the property name of the
-     *        <code>PersistableEntity</code> that should be used to order the
+    /**
+     * Find persistent instances with properties matching those of the passed <code>PersistableEntity</code>,
+     * ignoring the class of the passed <code>PersistableEntity</code> (useful if you pass a superclass, as you want
+     * to find all subclass instances which match).
+     *
+     * @param value parameters to filter on (the class of this object will NOT be added to the filter)
+     * @param firstElement the first result (start at zero to obtain all results)
+     * @param maxElements the maximum number of results desired for this page of the result set
+     * @param orderByAsc the property name of the <code>PersistableEntity</code> that should be used to order the
      *        results
      *
-     * @return the requested page of the result list (a properly formed
-     *         <code>PaginatedList</code> is returned if no results match)
-	 */
-    public PaginatedList<E> scrollWithSubclasses(E value, int firstElement,
-	        int maxElements, String orderByAsc) throws DataAccessException;
+     * @return the requested page of the result list (a properly formed <code>PaginatedList</code> is returned if no
+     *         results match)
+     *
+     * @throws DataAccessException DOCUMENT ME!
+     */
+    public PaginatedList<E> scrollWithSubclasses(E value, int firstElement, int maxElements, String orderByAsc)
+        throws DataAccessException;
 
-	/**
-     * Indicates whether the DAO instance provides persistence services for the
-     * specified class.
+    /**
+     * Indicates whether the DAO instance provides persistence services for the specified class.
      *
-     * @param clazz to test, which should be an implementation of
-     *        <code>PersistableEntity</code>
+     * @param clazz to test, which should be an implementation of <code>PersistableEntity</code>
      *
-     * @return <code>true</code> or <code>false</code>, indicating whether or
-     *         not the passed class is supported by this DAO instance
+     * @return <code>true</code> or <code>false</code>, indicating whether or not the passed class is supported by this
+     *         DAO instance
      */
     public boolean supports(Class clazz);
 
     /**
      * Update an object.
      *
-     * @param value to update, with the <code>PersistableEntity</code> having a
-     *        non-<code>null</code> identifier
+     * @param value to update, with the <code>PersistableEntity</code> having a non-<code>null</code> identifier
+     *
+     * @throws DataAccessException DOCUMENT ME!
      */
     public void update(E value) throws DataAccessException;
 }

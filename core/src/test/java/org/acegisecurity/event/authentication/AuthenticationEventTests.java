@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.DisabledException;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 
@@ -30,14 +31,22 @@ import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
  * @version $Id$
  */
 public class AuthenticationEventTests extends TestCase {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
+    private Authentication getAuthentication() {
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
+                "Credentials");
+        authentication.setDetails("127.0.0.1");
+
+        return authentication;
     }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AuthenticationEventTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testAbstractAuthenticationEvent() {
@@ -49,8 +58,7 @@ public class AuthenticationEventTests extends TestCase {
     public void testAbstractAuthenticationFailureEvent() {
         Authentication auth = getAuthentication();
         AuthenticationException exception = new DisabledException("TEST");
-        AbstractAuthenticationFailureEvent event = new AuthenticationFailureDisabledEvent(auth,
-                exception);
+        AbstractAuthenticationFailureEvent event = new AuthenticationFailureDisabledEvent(auth, exception);
         assertEquals(auth, event.getAuthentication());
         assertEquals(exception, event.getException());
     }
@@ -59,8 +67,7 @@ public class AuthenticationEventTests extends TestCase {
         AuthenticationException exception = new DisabledException("TEST");
 
         try {
-            AuthenticationFailureDisabledEvent event = new AuthenticationFailureDisabledEvent(null,
-                    exception);
+            AuthenticationFailureDisabledEvent event = new AuthenticationFailureDisabledEvent(null, exception);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -74,13 +81,5 @@ public class AuthenticationEventTests extends TestCase {
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
-    }
-
-    private Authentication getAuthentication() {
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
-                "Credentials");
-        authentication.setDetails("127.0.0.1");
-
-        return authentication;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ package org.acegisecurity.event.authorization;
 import junit.framework.TestCase;
 
 import org.acegisecurity.ConfigAttributeDefinition;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.acegisecurity.util.SimpleMethodInvocation;
 
 
@@ -29,7 +31,7 @@ import org.acegisecurity.util.SimpleMethodInvocation;
  * @version $Id$
  */
 public class AuthorizedEventTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AuthorizedEventTests() {
         super();
@@ -39,7 +41,7 @@ public class AuthorizedEventTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AuthorizedEventTests.class);
@@ -63,8 +65,7 @@ public class AuthorizedEventTests extends TestCase {
         }
 
         try {
-            new AuthorizedEvent(new SimpleMethodInvocation(),
-                new ConfigAttributeDefinition(), null);
+            new AuthorizedEvent(new SimpleMethodInvocation(), new ConfigAttributeDefinition(), null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);

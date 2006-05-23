@@ -36,25 +36,13 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * Represents central information from a <code>HttpServletRequest</code>.
- * 
- * <p>
- * This class is used by {@link org.acegisecurity.ui.AbstractProcessingFilter}
- * and {@link org.acegisecurity.wrapper.SavedRequestAwareWrapper} to reproduce
- * the request after successful authentication. An instance of this class is
- * stored at the time of an authentication exception by {@link
- * org.acegisecurity.ui.ExceptionTranslationFilter}.
- * </p>
- * 
- * <p>
- * <em>IMPLEMENTATION NOTE</em>: It is assumed that this object is accessed
- * only from the context of a single thread, so no synchronization around
- * internal collection classes is performed.
- * </p>
- * 
- * <p>
- * This class is based on code in Apache Tomcat.
- * </p>
+ * Represents central information from a <code>HttpServletRequest</code>.<p>This class is used by {@link
+ * org.acegisecurity.ui.AbstractProcessingFilter} and {@link org.acegisecurity.wrapper.SavedRequestAwareWrapper} to
+ * reproduce the request after successful authentication. An instance of this class is stored at the time of an
+ * authentication exception by {@link org.acegisecurity.ui.ExceptionTranslationFilter}.</p>
+ *  <p><em>IMPLEMENTATION NOTE</em>: It is assumed that this object is accessed only from the context of a single
+ * thread, so no synchronization around internal collection classes is performed.</p>
+ *  <p>This class is based on code in Apache Tomcat.</p>
  *
  * @author Craig McClanahan
  * @author Andrey Grebnev
@@ -62,11 +50,11 @@ import javax.servlet.http.HttpServletRequest;
  * @version $Id$
  */
 public class SavedRequest implements java.io.Serializable {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     protected static final Log logger = LogFactory.getLog(SavedRequest.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private ArrayList cookies = new ArrayList();
     private ArrayList locales = new ArrayList();
@@ -83,7 +71,7 @@ public class SavedRequest implements java.io.Serializable {
     private String servletPath;
     private int serverPort;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public SavedRequest(HttpServletRequest request, PortResolver portResolver) {
         Assert.notNull(request, "Request required");
@@ -142,7 +130,7 @@ public class SavedRequest implements java.io.Serializable {
         this.servletPath = request.getServletPath();
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     private void addCookie(Cookie cookie) {
         cookies.add(cookie);
@@ -168,17 +156,15 @@ public class SavedRequest implements java.io.Serializable {
     }
 
     /**
-     * Determines if the current request matches the <code>SavedRequest</code>.
-     * All URL arguments are considered, but <em>not</em> method (POST/GET),
-     * cookies, locales, headers or parameters.
+     * Determines if the current request matches the <code>SavedRequest</code>. All URL arguments are
+     * considered, but <em>not</em> method (POST/GET), cookies, locales, headers or parameters.
      *
      * @param request DOCUMENT ME!
      * @param portResolver DOCUMENT ME!
      *
      * @return DOCUMENT ME!
      */
-    public boolean doesRequestMatch(HttpServletRequest request,
-        PortResolver portResolver) {
+    public boolean doesRequestMatch(HttpServletRequest request, PortResolver portResolver) {
         Assert.notNull(request, "Request required");
         Assert.notNull(portResolver, "PortResolver required");
 
@@ -186,23 +172,19 @@ public class SavedRequest implements java.io.Serializable {
             return false;
         }
 
-        if (!propertyEquals("queryString", this.queryString,
-                request.getQueryString())) {
+        if (!propertyEquals("queryString", this.queryString, request.getQueryString())) {
             return false;
         }
 
-        if (!propertyEquals("requestURI", this.requestURI,
-                request.getRequestURI())) {
+        if (!propertyEquals("requestURI", this.requestURI, request.getRequestURI())) {
             return false;
         }
 
-        if (!propertyEquals("serverPort", new Integer(this.serverPort),
-                new Integer(portResolver.getServerPort(request)))) {
+        if (!propertyEquals("serverPort", new Integer(this.serverPort), new Integer(portResolver.getServerPort(request)))) {
             return false;
         }
 
-        if (!propertyEquals("requestURL", this.requestURL,
-                request.getRequestURL().toString())) {
+        if (!propertyEquals("requestURL", this.requestURL, request.getRequestURL().toString())) {
             return false;
         }
 
@@ -210,18 +192,15 @@ public class SavedRequest implements java.io.Serializable {
             return false;
         }
 
-        if (!propertyEquals("serverName", this.serverName,
-                request.getServerName())) {
+        if (!propertyEquals("serverName", this.serverName, request.getServerName())) {
             return false;
         }
 
-        if (!propertyEquals("contextPath", this.contextPath,
-                request.getContextPath())) {
+        if (!propertyEquals("contextPath", this.contextPath, request.getContextPath())) {
             return false;
         }
 
-        if (!propertyEquals("servletPath", this.servletPath,
-                request.getServletPath())) {
+        if (!propertyEquals("servletPath", this.servletPath, request.getServletPath())) {
             return false;
         }
 
@@ -329,11 +308,9 @@ public class SavedRequest implements java.io.Serializable {
             return true;
         }
 
-        if (((arg1 == null) && (arg2 != null))
-            || ((arg1 != null) && (arg2 == null))) {
+        if (((arg1 == null) && (arg2 != null)) || ((arg1 != null) && (arg2 == null))) {
             if (logger.isDebugEnabled()) {
-                logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2
-                    + " (property not equals)");
+                logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2 + " (property not equals)");
             }
 
             return false;
@@ -341,15 +318,13 @@ public class SavedRequest implements java.io.Serializable {
 
         if (arg1.equals(arg2)) {
             if (logger.isDebugEnabled()) {
-                logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2
-                    + " (property equals)");
+                logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2 + " (property equals)");
             }
 
             return true;
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2
-                    + " (property not equals)");
+                logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2 + " (property not equals)");
             }
 
             return false;

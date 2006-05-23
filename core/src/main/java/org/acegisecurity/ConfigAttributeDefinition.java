@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,52 +23,29 @@ import java.util.Vector;
 
 
 /**
- * Holds a group of {@link ConfigAttribute}s that are associated with a given
- * secure object target.
- * 
- * <p>
- * All the <code>ConfigAttributeDefinition</code>s associated with a given
- * {@link org.acegisecurity.intercept.AbstractSecurityInterceptor} are
- * stored in an {@link org.acegisecurity.intercept.ObjectDefinitionSource}.
- * </p>
+ * Holds a group of {@link ConfigAttribute}s that are associated with a given secure object target.<p>All the
+ * <code>ConfigAttributeDefinition</code>s associated with a given {@link
+ * org.acegisecurity.intercept.AbstractSecurityInterceptor} are stored in an {@link
+ * org.acegisecurity.intercept.ObjectDefinitionSource}.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class ConfigAttributeDefinition implements Serializable {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private List configAttributes = new Vector();
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public ConfigAttributeDefinition() {
         super();
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Returns an <code>Iterator</code> over all the
-     * <code>ConfigAttribute</code>s defined by this
-     * <code>ConfigAttributeDefinition</code>.
-     * 
-     * <P>
-     * Allows <code>AccessDecisionManager</code>s and other classes to loop
-     * through every configuration attribute associated with a target secure
-     * object.
-     * </p>
-     *
-     * @return all the configuration attributes stored by the instance, or
-     *         <code>null</code> if an <code>Iterator</code> is unavailable
-     */
-    public Iterator getConfigAttributes() {
-        return this.configAttributes.iterator();
-    }
-
-    /**
-     * Adds a <code>ConfigAttribute</code> that is related to the secure object
-     * method.
+     * Adds a <code>ConfigAttribute</code> that is related to the secure object method.
      *
      * @param newConfigAttribute the new configuration attribute to add
      */
@@ -77,13 +54,13 @@ public class ConfigAttributeDefinition implements Serializable {
     }
 
     /**
-     * Indicates whether the specified <code>ConfigAttribute</code> is
-     * contained within this <code>ConfigAttributeDefinition</code>.
+     * Indicates whether the specified <code>ConfigAttribute</code> is contained within this
+     * <code>ConfigAttributeDefinition</code>.
      *
      * @param configAttribute the attribute to locate
      *
-     * @return <code>true</code> if the specified <code>ConfigAttribute</code>
-     *         is contained, <code>false</code> otherwise
+     * @return <code>true</code> if the specified <code>ConfigAttribute</code> is contained, <code>false</code>
+     *         otherwise
      */
     public boolean contains(ConfigAttribute configAttribute) {
         return configAttributes.contains(configAttribute);
@@ -115,6 +92,18 @@ public class ConfigAttributeDefinition implements Serializable {
         }
 
         return false;
+    }
+
+    /**
+     * Returns an <code>Iterator</code> over all the <code>ConfigAttribute</code>s defined by this
+     * <code>ConfigAttributeDefinition</code>.<P>Allows <code>AccessDecisionManager</code>s and other classes
+     * to loop through every configuration attribute associated with a target secure object.</p>
+     *
+     * @return all the configuration attributes stored by the instance, or <code>null</code> if an
+     *         <code>Iterator</code> is unavailable
+     */
+    public Iterator getConfigAttributes() {
+        return this.configAttributes.iterator();
     }
 
     /**

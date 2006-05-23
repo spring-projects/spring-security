@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.util.Assert;
 
 import java.util.Iterator;
@@ -28,27 +29,31 @@ import java.util.List;
 
 
 /**
- * Iterates through a list of {@link AclProvider}s to locate the ACLs that
- * apply to a given domain object instance.
- * 
- * <P>
- * If no compatible provider is found, it is assumed that no ACLs apply for the
- * specified domain object instance and <code>null</code> is returned.
- * </p>
+ * Iterates through a list of {@link AclProvider}s to locate the ACLs that apply to a given domain object instance.<P>If
+ * no compatible provider is found, it is assumed that no ACLs apply for the specified domain object instance and
+ * <code>null</code> is returned.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class AclProviderManager implements AclManager, InitializingBean {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(AclProviderManager.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private List providers;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    public void afterPropertiesSet() throws Exception {
+        checkIfValidList(this.providers);
+    }
+
+    private void checkIfValidList(List listToCheck) {
+        Assert.notEmpty(listToCheck, "A list of AclManagers is required");
+    }
 
     public AclEntry[] getAcls(Object domainInstance) {
         Assert.notNull(domainInstance, "domainInstance is null - violating interface contract");
@@ -60,8 +65,7 @@ public class AclProviderManager implements AclManager, InitializingBean {
 
             if (provider.supports(domainInstance)) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("ACL lookup using "
-                            + provider.getClass().getName());
+                    logger.debug("ACL lookup using " + provider.getClass().getName());
                 }
 
                 return provider.getAcls(domainInstance);
@@ -69,15 +73,13 @@ public class AclProviderManager implements AclManager, InitializingBean {
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("No AclProvider found for "
-                    + domainInstance.toString());
+            logger.debug("No AclProvider found for " + domainInstance.toString());
         }
 
         return null;
     }
 
-    public AclEntry[] getAcls(Object domainInstance,
-        Authentication authentication) {
+    public AclEntry[] getAcls(Object domainInstance, Authentication authentication) {
         Assert.notNull(domainInstance, "domainInstance is null - violating interface contract");
         Assert.notNull(authentication, "authentication is null - violating interface contract");
 
@@ -88,25 +90,26 @@ public class AclProviderManager implements AclManager, InitializingBean {
 
             if (provider.supports(domainInstance)) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("ACL lookup using "
-                            + provider.getClass().getName());
+                    logger.debug("ACL lookup using " + provider.getClass().getName());
                 }
 
                 return provider.getAcls(domainInstance, authentication);
             } else {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Provider " + provider.toString()
-                            + " does not support " + domainInstance);
+                    logger.debug("Provider " + provider.toString() + " does not support " + domainInstance);
                 }
             }
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("No AclProvider found for "
-                    + domainInstance.toString());
+            logger.debug("No AclProvider found for " + domainInstance.toString());
         }
 
         return null;
+    }
+
+    public List getProviders() {
+        return this.providers;
     }
 
     /**
@@ -114,8 +117,7 @@ public class AclProviderManager implements AclManager, InitializingBean {
      *
      * @param newList that should be used for ACL determinations
      *
-     * @throws IllegalArgumentException if an invalid provider was included in
-     *         the list
+     * @throws IllegalArgumentException if an invalid provider was included in the list
      */
     public void setProviders(List newList) {
         checkIfValidList(newList);
@@ -130,24 +132,11 @@ public class AclProviderManager implements AclManager, InitializingBean {
 
                 AclProvider attemptToCast = (AclProvider) currentObject;
             } catch (ClassCastException cce) {
-                throw new IllegalArgumentException("AclProvider "
-                    + currentObject.getClass().getName()
+                throw new IllegalArgumentException("AclProvider " + currentObject.getClass().getName()
                     + " must implement AclProvider");
             }
         }
 
         this.providers = newList;
-    }
-
-    public List getProviders() {
-        return this.providers;
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        checkIfValidList(this.providers);
-    }
-
-    private void checkIfValidList(List listToCheck) {
-        Assert.notEmpty(listToCheck, "A list of AclManagers is required");
     }
 }

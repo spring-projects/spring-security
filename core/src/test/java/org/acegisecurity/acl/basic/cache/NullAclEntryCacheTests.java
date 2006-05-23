@@ -29,7 +29,7 @@ import org.acegisecurity.acl.basic.SimpleAclEntry;
  * @version $Id$
  */
 public class NullAclEntryCacheTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public NullAclEntryCacheTests() {
         super();
@@ -39,7 +39,7 @@ public class NullAclEntryCacheTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(NullAclEntryCacheTests.class);
@@ -52,9 +52,7 @@ public class NullAclEntryCacheTests extends TestCase {
     public void testCacheOperation() throws Exception {
         NullAclEntryCache cache = new NullAclEntryCache();
         cache.putEntriesInCache(new BasicAclEntry[] {new SimpleAclEntry()});
-        cache.getEntriesFromCache(new NamedEntityObjectIdentity("not_used",
-                "not_used"));
-        cache.removeEntriesFromCache(new NamedEntityObjectIdentity("not_used",
-                "not_used"));
+        cache.getEntriesFromCache(new NamedEntityObjectIdentity("not_used", "not_used"));
+        cache.removeEntriesFromCache(new NamedEntityObjectIdentity("not_used", "not_used"));
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import java.util.Locale;
  * Tests {@link org.acegisecurity.AcegiMessageSource}.
  */
 public class AcegiMessageSourceTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AcegiMessageSourceTests() {
         super();
@@ -37,7 +37,7 @@ public class AcegiMessageSourceTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AcegiMessageSourceTests.class);
@@ -45,8 +45,7 @@ public class AcegiMessageSourceTests extends TestCase {
 
     public void testOperation() {
         AcegiMessageSource msgs = new AcegiMessageSource();
-        assertEquals("Proxy tickets are rejected",
-            msgs.getMessage("RejectProxyTickets.reject", null, Locale.ENGLISH));
+        assertEquals("Proxy tickets are rejected", msgs.getMessage("RejectProxyTickets.reject", null, Locale.ENGLISH));
     }
 
     public void testReplacableLookup() {
@@ -57,8 +56,8 @@ public class AcegiMessageSourceTests extends TestCase {
         // Cause a message to be generated
         MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
         assertEquals("Missing mandatory digest value; received header FOOBAR",
-            messages.getMessage("DigestProcessingFilter.missingMandatory",
-                new Object[] {"FOOBAR"}, "ERROR - FAILED TO LOOKUP"));
+            messages.getMessage("DigestProcessingFilter.missingMandatory", new Object[] {"FOOBAR"},
+                "ERROR - FAILED TO LOOKUP"));
 
         // Revert to original Locale
         LocaleContextHolder.setLocale(before);

@@ -17,6 +17,7 @@ package org.acegisecurity.acls.objectidentity;
 
 import java.io.Serializable;
 
+
 /**
  * Interface representing the identity of an individual domain object instance.
  * 
@@ -33,29 +34,22 @@ import java.io.Serializable;
  * @version $Id$
  */
 public interface ObjectIdentity extends Serializable {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Refer to the <code>java.lang.Object</code> documentation for the
-     * interface contract.
+     * Refer to the <code>java.lang.Object</code> documentation for the interface contract.
      *
      * @param obj to be compared
      *
-     * @return <code>true</code> if the objects are equal, <code>false</code>
-     *         otherwise
+     * @return <code>true</code> if the objects are equal, <code>false</code> otherwise
      */
     public boolean equals(Object obj);
 
     /**
-     * Obtains the actual identifier. This identifier must not be reused to
-     * represent other domain objects with the same <code>javaType</code>.
-     * 
-     * <p>
-     * Because ACLs are largely immutable, it is strongly recommended to use a
-     * synthetic identifier (such as a database sequence number for the
-     * primary key). Do not use an identifier with business meaning, as that
-     * business meaning may change.
-     * </p>
+     * Obtains the actual identifier. This identifier must not be reused to represent other domain objects with
+     * the same <code>javaType</code>.<p>Because ACLs are largely immutable, it is strongly recommended to use
+     * a synthetic identifier (such as a database sequence number for the primary key). Do not use an identifier with
+     * business meaning, as that business meaning may change.</p>
      *
      * @return the identifier (unique within this <code>javaType</code>
      */
@@ -69,8 +63,7 @@ public interface ObjectIdentity extends Serializable {
     public Class getJavaType();
 
     /**
-     * Refer to the <code>java.lang.Object</code> documentation for the
-     * interface contract.
+     * Refer to the <code>java.lang.Object</code> documentation for the interface contract.
      *
      * @return a hash code representation of this object
      */

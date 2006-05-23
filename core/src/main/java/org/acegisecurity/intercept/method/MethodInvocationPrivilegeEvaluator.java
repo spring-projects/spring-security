@@ -32,32 +32,25 @@ import org.springframework.util.Assert;
 
 
 /**
- * Allows users to determine whether they have "before invocation" privileges
- * for a given method invocation.
- * 
- * <p>
- * Of course, if an {@link org.acegisecurity.AfterInvocationManager} is used to
- * authorize the <em>result</em> of a method invocation, this class cannot
- * assist determine whether or not the <code>AfterInvocationManager</code>
- * will enable access. Instead this class aims to allow applications to
- * determine whether or not the current principal would be allowed to at least
- * attempt to invoke the method, irrespective of the "after" invocation
- * handling.
- * </p>
+ * Allows users to determine whether they have "before invocation" privileges for a given method invocation.<p>Of
+ * course, if an {@link org.acegisecurity.AfterInvocationManager} is used to authorize the <em>result</em> of a method
+ * invocation, this class cannot assist determine whether or not the <code>AfterInvocationManager</code> will enable
+ * access. Instead this class aims to allow applications to determine whether or not the current principal would be
+ * allowed to at least attempt to invoke the method, irrespective of the "after" invocation handling.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     protected static final Log logger = LogFactory.getLog(MethodInvocationPrivilegeEvaluator.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private AbstractSecurityInterceptor securityInterceptor;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(securityInterceptor, "SecurityInterceptor required");
@@ -65,11 +58,9 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
 
     public boolean isAllowed(MethodInvocation mi, Authentication authentication) {
         Assert.notNull(mi, "MethodInvocation required");
-        Assert.notNull(mi.getMethod(),
-            "MethodInvocation must provide a non-null getMethod()");
+        Assert.notNull(mi.getMethod(), "MethodInvocation must provide a non-null getMethod()");
 
-        ConfigAttributeDefinition attrs = securityInterceptor.obtainObjectDefinitionSource()
-                                                             .getAttributes(mi);
+        ConfigAttributeDefinition attrs = securityInterceptor.obtainObjectDefinitionSource().getAttributes(mi);
 
         if (attrs == null) {
             if (securityInterceptor.isRejectPublicInvocations()) {
@@ -79,17 +70,16 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
             return true;
         }
 
-        if (authentication == null || authentication.getAuthorities() == null || authentication.getAuthorities().length == 0) {
+        if ((authentication == null) || (authentication.getAuthorities() == null)
+            || (authentication.getAuthorities().length == 0)) {
             return false;
         }
 
         try {
-            securityInterceptor.getAccessDecisionManager()
-                               .decide(authentication, mi, attrs);
+            securityInterceptor.getAccessDecisionManager().decide(authentication, mi, attrs);
         } catch (AccessDeniedException unauthorized) {
             if (logger.isDebugEnabled()) {
-                logger.debug(mi.toString() + " denied for "
-                    + authentication.toString(), unauthorized);
+                logger.debug(mi.toString() + " denied for " + authentication.toString(), unauthorized);
             }
 
             return false;
@@ -98,12 +88,9 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
         return true;
     }
 
-    public void setSecurityInterceptor(
-        AbstractSecurityInterceptor securityInterceptor) {
-        Assert.notNull(securityInterceptor,
-            "AbstractSecurityInterceptor cannot be null");
-        Assert.isTrue(MethodInvocation.class.equals(
-                securityInterceptor.getSecureObjectClass()),
+    public void setSecurityInterceptor(AbstractSecurityInterceptor securityInterceptor) {
+        Assert.notNull(securityInterceptor, "AbstractSecurityInterceptor cannot be null");
+        Assert.isTrue(MethodInvocation.class.equals(securityInterceptor.getSecureObjectClass()),
             "AbstractSecurityInterceptor does not support MethodInvocations");
         Assert.notNull(securityInterceptor.getAccessDecisionManager(),
             "AbstractSecurityInterceptor must provide a non-null AccessDecisionManager");

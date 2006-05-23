@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,13 @@ import org.aopalliance.intercept.MethodInvocation;
 
 
 /**
- * Tests {@link AbstractMethodDefinitionSource} and associated {@link
- * ConfigAttributeDefinition}.
+ * Tests {@link AbstractMethodDefinitionSource} and associated {@link ConfigAttributeDefinition}.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class AbstractMethodDefinitionSourceTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AbstractMethodDefinitionSourceTests() {
         super();
@@ -40,25 +39,23 @@ public class AbstractMethodDefinitionSourceTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AbstractMethodDefinitionSourceTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testDoesNotSupportAnotherObject() {
-        MockMethodDefinitionSource mds = new MockMethodDefinitionSource(false,
-                true);
+        MockMethodDefinitionSource mds = new MockMethodDefinitionSource(false, true);
         assertFalse(mds.supports(String.class));
     }
 
     public void testGetAttributesForANonMethodInvocation() {
-        MockMethodDefinitionSource mds = new MockMethodDefinitionSource(false,
-                true);
+        MockMethodDefinitionSource mds = new MockMethodDefinitionSource(false, true);
 
         try {
             mds.getAttributes(new String());
@@ -69,8 +66,7 @@ public class AbstractMethodDefinitionSourceTests extends TestCase {
     }
 
     public void testGetAttributesForANullObject() {
-        MockMethodDefinitionSource mds = new MockMethodDefinitionSource(false,
-                true);
+        MockMethodDefinitionSource mds = new MockMethodDefinitionSource(false, true);
 
         try {
             mds.getAttributes(null);
@@ -81,8 +77,7 @@ public class AbstractMethodDefinitionSourceTests extends TestCase {
     }
 
     public void testGetAttributesForMethodInvocation() {
-        MockMethodDefinitionSource mds = new MockMethodDefinitionSource(false,
-                true);
+        MockMethodDefinitionSource mds = new MockMethodDefinitionSource(false, true);
 
         try {
             mds.getAttributes(new SimpleMethodInvocation());
@@ -93,8 +88,7 @@ public class AbstractMethodDefinitionSourceTests extends TestCase {
     }
 
     public void testSupportsMethodInvocation() {
-        MockMethodDefinitionSource mds = new MockMethodDefinitionSource(false,
-                true);
+        MockMethodDefinitionSource mds = new MockMethodDefinitionSource(false, true);
         assertTrue(mds.supports(MethodInvocation.class));
     }
 }

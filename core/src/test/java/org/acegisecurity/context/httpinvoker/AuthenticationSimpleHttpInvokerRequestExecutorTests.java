@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ package org.acegisecurity.context.httpinvoker;
 import junit.framework.TestCase;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.context.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import java.io.IOException;
@@ -37,9 +39,8 @@ import java.util.Map;
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthenticationSimpleHttpInvokerRequestExecutorTests
-    extends TestCase {
-    //~ Constructors ===========================================================
+public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCase {
+    //~ Constructors ===================================================================================================
 
     public AuthenticationSimpleHttpInvokerRequestExecutorTests() {
         super();
@@ -49,7 +50,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AuthenticationSimpleHttpInvokerRequestExecutorTests.class);
@@ -57,22 +58,19 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests
 
     public void testNormalOperation() throws Exception {
         // Setup client-side context
-        Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("Aladdin",
-                "open sesame");
+        Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("Aladdin", "open sesame");
         SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 
         // Create a connection and ensure our executor sets its
         // properties correctly
         AuthenticationSimpleHttpInvokerRequestExecutor executor = new AuthenticationSimpleHttpInvokerRequestExecutor();
-        HttpURLConnection conn = new MockHttpURLConnection(new URL(
-                    "http://localhost/"));
+        HttpURLConnection conn = new MockHttpURLConnection(new URL("http://localhost/"));
         executor.prepareConnection(conn, 10);
 
         // Check connection properties
         // See http://www.faqs.org/rfcs/rfc1945.html section 11.1 for example
         // we are comparing against
-        assertEquals("Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==",
-            conn.getRequestProperty("Authorization"));
+        assertEquals("Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==", conn.getRequestProperty("Authorization"));
 
         SecurityContextHolder.getContext().setAuthentication(null);
     }
@@ -83,15 +81,14 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests
         // Create a connection and ensure our executor sets its
         // properties correctly
         AuthenticationSimpleHttpInvokerRequestExecutor executor = new AuthenticationSimpleHttpInvokerRequestExecutor();
-        HttpURLConnection conn = new MockHttpURLConnection(new URL(
-                    "http://localhost/"));
+        HttpURLConnection conn = new MockHttpURLConnection(new URL("http://localhost/"));
         executor.prepareConnection(conn, 10);
 
         // Check connection properties (shouldn't be an Authorization header)
         assertNull(conn.getRequestProperty("Authorization"));
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockHttpURLConnection extends HttpURLConnection {
         private Map requestProperties = new HashMap();
@@ -100,20 +97,20 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests
             super(u);
         }
 
-        public void setRequestProperty(String key, String value) {
-            requestProperties.put(key, value);
-        }
-
-        public String getRequestProperty(String key) {
-            return (String) requestProperties.get(key);
-        }
-
         public void connect() throws IOException {
             throw new UnsupportedOperationException("mock not implemented");
         }
 
         public void disconnect() {
             throw new UnsupportedOperationException("mock not implemented");
+        }
+
+        public String getRequestProperty(String key) {
+            return (String) requestProperties.get(key);
+        }
+
+        public void setRequestProperty(String key, String value) {
+            requestProperties.put(key, value);
         }
 
         public boolean usingProxy() {

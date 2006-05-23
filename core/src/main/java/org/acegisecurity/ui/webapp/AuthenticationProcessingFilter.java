@@ -28,33 +28,24 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * Processes an authentication form.
- * 
- * <p>
- * Login forms must present two parameters to this filter: a username and
- * password. The parameter names to use are contained in the static fields
- * {@link #ACEGI_SECURITY_FORM_USERNAME_KEY} and {@link
- * #ACEGI_SECURITY_FORM_PASSWORD_KEY}.
- * </p>
- * 
- * <P>
- * <B>Do not use this class directly.</B> Instead configure
- * <code>web.xml</code> to use the {@link
- * org.acegisecurity.util.FilterToBeanProxy}.
- * </p>
+ * Processes an authentication form.<p>Login forms must present two parameters to this filter: a username and
+ * password. The parameter names to use are contained in the static fields {@link #ACEGI_SECURITY_FORM_USERNAME_KEY}
+ * and {@link #ACEGI_SECURITY_FORM_PASSWORD_KEY}.</p>
+ *  <P><B>Do not use this class directly.</B> Instead configure <code>web.xml</code> to use the {@link
+ * org.acegisecurity.util.FilterToBeanProxy}.</p>
  *
  * @author Ben Alex
  * @author Colin Sampaleanu
  * @version $Id$
  */
 public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     public static final String ACEGI_SECURITY_FORM_USERNAME_KEY = "j_username";
     public static final String ACEGI_SECURITY_FORM_PASSWORD_KEY = "j_password";
     public static final String ACEGI_SECURITY_LAST_USERNAME_KEY = "ACEGI_SECURITY_LAST_USERNAME";
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Authentication attemptAuthentication(HttpServletRequest request)
         throws AuthenticationException {
@@ -69,12 +60,10 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
             password = "";
         }
 
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username,
-                password);
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
 
         // Place the last username attempted into HttpSession for views
-        request.getSession()
-               .setAttribute(ACEGI_SECURITY_LAST_USERNAME_KEY, username);
+        request.getSession().setAttribute(ACEGI_SECURITY_LAST_USERNAME_KEY, username);
 
         // Allow subclasses to set the "details" property
         setDetails(request, authRequest);
@@ -94,21 +83,14 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
     public void init(FilterConfig filterConfig) throws ServletException {}
 
     /**
-     * Enables subclasses to override the composition of the password, such as
-     * by including additional values and a separator.
-     * 
-     * <p>
-     * This might be used for example if a postcode/zipcode was required in
-     * addition to the password. A delimiter such as a pipe (|) should be used
-     * to separate the password and extended value(s). The
-     * <code>AuthenticationDao</code> will need to generate the expected
-     * password in a corresponding manner.
-     * </p>
+     * Enables subclasses to override the composition of the password, such as by including additional values
+     * and a separator.<p>This might be used for example if a postcode/zipcode was required in addition to the
+     * password. A delimiter such as a pipe (|) should be used to separate the password and extended value(s). The
+     * <code>AuthenticationDao</code> will need to generate the expected password in a corresponding manner.</p>
      *
      * @param request so that request attributes can be retrieved
      *
-     * @return the password that will be presented in the
-     *         <code>Authentication</code> request token to the
+     * @return the password that will be presented in the <code>Authentication</code> request token to the
      *         <code>AuthenticationManager</code>
      */
     protected String obtainPassword(HttpServletRequest request) {
@@ -116,13 +98,12 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
     }
 
     /**
-     * Enables subclasses to override the composition of the username, such as
-     * by including additional values and a separator.
+     * Enables subclasses to override the composition of the username, such as by including additional values
+     * and a separator.
      *
      * @param request so that request attributes can be retrieved
      *
-     * @return the username that will be presented in the
-     *         <code>Authentication</code> request token to the
+     * @return the username that will be presented in the <code>Authentication</code> request token to the
      *         <code>AuthenticationManager</code>
      */
     protected String obtainUsername(HttpServletRequest request) {
@@ -130,15 +111,13 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
     }
 
     /**
-     * Provided so that subclasses may configure what is put into the
-     * authentication request's details property.
+     * Provided so that subclasses may configure what is put into the authentication request's details
+     * property.
      *
      * @param request that an authentication request is being created for
-     * @param authRequest the authentication request object that should have
-     *        its details set
+     * @param authRequest the authentication request object that should have its details set
      */
-    protected void setDetails(HttpServletRequest request,
-        UsernamePasswordAuthenticationToken authRequest) {
+    protected void setDetails(HttpServletRequest request, UsernamePasswordAuthenticationToken authRequest) {
         authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
     }
 }

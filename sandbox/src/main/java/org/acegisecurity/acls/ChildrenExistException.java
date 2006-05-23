@@ -19,16 +19,15 @@ import org.acegisecurity.AcegiSecurityException;
 
 
 /**
- * Thrown if an {@link Acl} cannot be deleted because children
- * <code>Acl</code>s exist.
+ * Thrown if an {@link Acl} cannot be deleted because children <code>Acl</code>s exist.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class ChildrenExistException extends AcegiSecurityException {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructs an <code>ChildrenExistException</code> with the specified
      * message.
      *
@@ -38,7 +37,7 @@ public class ChildrenExistException extends AcegiSecurityException {
         super(msg);
     }
 
-    /**
+/**
      * Constructs an <code>ChildrenExistException</code> with the specified
      * message and root cause.
      *

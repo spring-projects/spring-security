@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,45 +15,49 @@
 
 package org.acegisecurity.ldap;
 
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NameNotFoundException;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.Attribute;
-
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
+
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
+
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
 
 /**
- * LDAP equivalent of the Spring JdbcTemplate class.
- * <p>
- * This is mainly intended to simplify Ldap access within Acegi Security's
- * LDAP-related services.
- * </p>
+ * LDAP equivalent of the Spring JdbcTemplate class.<p>This is mainly intended to simplify Ldap access within Acegi
+ * Security's LDAP-related services.</p>
  *
  * @author Ben Alex
  * @author Luke Taylor
- *
  */
 public class LdapTemplate {
+    //~ Static fields/initializers =====================================================================================
+
     public static final String[] NO_ATTRS = new String[0];
 
+    //~ Instance fields ================================================================================================
+
     private InitialDirContextFactory dirContextFactory;
-    private String principalDn = null;
-    private String password = null;
+    private NamingExceptionTranslator exceptionTranslator = new LdapExceptionTranslator();
+
     /** Default search controls */
     private SearchControls searchControls = new SearchControls();
+    private String password = null;
+    private String principalDn = null;
 
-    private NamingExceptionTranslator exceptionTranslator = new LdapExceptionTranslator();
+    //~ Constructors ===================================================================================================
 
     public LdapTemplate(InitialDirContextFactory dirContextFactory) {
         Assert.notNull(dirContextFactory, "An InitialDirContextFactory is required");
@@ -62,7 +66,7 @@ public class LdapTemplate {
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
     }
 
-    /**
+/**
      *
      * @param dirContextFactory the source of DirContexts
      * @param userDn the user name to authenticate as when obtaining new contexts
@@ -78,25 +82,48 @@ public class LdapTemplate {
         this.password = password;
     }
 
+    //~ Methods ========================================================================================================
+
     /**
-     * Sets the search controls which will be used for search operations by the template.
+     * Performs an LDAP compare operation of the value of an attribute for a particular directory entry.
      *
-     * @param searchControls the SearchControls instance which will be cached in the template.
+     * @param dn the entry who's attribute is to be used
+     * @param attributeName the attribute who's value we want to compare
+     * @param value the value to be checked against the directory value
+     *
+     * @return true if the supplied value matches that in the directory
      */
-    public void setSearchControls(SearchControls searchControls) {
-        this.searchControls = searchControls;
+    public boolean compare(final String dn, final String attributeName, final Object value) {
+        final String comparisonFilter = "(" + attributeName + "={0})";
+
+        class LdapCompareCallback implements LdapCallback {
+            public Object doInDirContext(DirContext ctx)
+                throws NamingException {
+                SearchControls ctls = new SearchControls();
+                ctls.setReturningAttributes(NO_ATTRS);
+                ctls.setSearchScope(SearchControls.OBJECT_SCOPE);
+
+                String relativeName = LdapUtils.getRelativeName(dn, ctx);
+
+                NamingEnumeration results = ctx.search(relativeName, comparisonFilter, new Object[] {value}, ctls);
+
+                return Boolean.valueOf(results.hasMore());
+            }
+        }
+
+        Boolean matches = (Boolean) execute(new LdapCompareCallback());
+
+        return matches.booleanValue();
     }
 
     public Object execute(LdapCallback callback) throws DataAccessException {
         DirContext ctx = null;
 
         try {
-            ctx = (principalDn == null) ?
-                    dirContextFactory.newInitialDirContext() :
-                    dirContextFactory.newInitialDirContext(principalDn, password);
+            ctx = (principalDn == null) ? dirContextFactory.newInitialDirContext()
+                                        : dirContextFactory.newInitialDirContext(principalDn, password);
 
             return callback.doInDirContext(ctx);
-
         } catch (NamingException exception) {
             throw exceptionTranslator.translate("LdapCallback", exception);
         } finally {
@@ -104,57 +131,59 @@ public class LdapTemplate {
         }
     }
 
-    /**
-     * Performs an LDAP compare operation of the value of an attribute for a
-     * particular directory entry.
-     *
-     * @param dn the entry who's attribute is to be used
-     * @param attributeName the attribute who's value we want to compare
-     * @param value the value to be checked against the directory value
-     * @return true if the supplied value matches that in the directory
-     */
-    public boolean compare(final String dn, final String attributeName, final Object value) {
-        final String comparisonFilter = "(" + attributeName + "={0})";
+    public boolean nameExists(final String dn) {
+        Boolean exists = (Boolean) execute(new LdapCallback() {
+                    public Object doInDirContext(DirContext ctx)
+                        throws NamingException {
+                        try {
+                            ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
+                        } catch (NameNotFoundException nnfe) {
+                            return Boolean.FALSE;
+                        }
 
-        class LdapCompareCallback implements LdapCallback {
+                        return Boolean.TRUE;
+                    }
+                });
 
-            public Object doInDirContext(DirContext ctx) throws NamingException {
-                SearchControls ctls = new SearchControls();
-                ctls.setReturningAttributes(NO_ATTRS);
-                ctls.setSearchScope(SearchControls.OBJECT_SCOPE);
-
-                String relativeName = LdapUtils.getRelativeName(dn, ctx);
-
-                NamingEnumeration results =
-                        ctx.search(relativeName, comparisonFilter, new Object[]{value}, ctls);
-
-                return Boolean.valueOf(results.hasMore());
-            }
-        }
-
-
-        Boolean matches = (Boolean)execute(new LdapCompareCallback());
-
-        return matches.booleanValue();
+        return exists.booleanValue();
     }
 
     /**
-     * Performs a search using the supplied filter and returns the union of the values of the named
-     * attribute found in all entries matched by the search. Note that one directory entry may have several
-     * values for the attribute. Intended for role searches and similar scenarios.
+     * Composes an object from the attributes of the given DN.
+     *
+     * @param dn the directory entry which will be read
+     * @param mapper maps the attributes to the required object
+     * @param attributesToRetrieve the named attributes which will be retrieved from the directory entry.
+     *
+     * @return the object created by the mapper
+     */
+    public Object retrieveEntry(final String dn, final LdapEntryMapper mapper, final String[] attributesToRetrieve) {
+        return execute(new LdapCallback() {
+                public Object doInDirContext(DirContext ctx)
+                    throws NamingException {
+                    return mapper.mapAttributes(dn,
+                        ctx.getAttributes(LdapUtils.getRelativeName(dn, ctx), attributesToRetrieve));
+                }
+            });
+    }
+
+    /**
+     * Performs a search using the supplied filter and returns the union of the values of the named attribute
+     * found in all entries matched by the search. Note that one directory entry may have several values for the
+     * attribute. Intended for role searches and similar scenarios.
      *
      * @param base the DN to search in
      * @param filter search filter to use
      * @param params the parameters to substitute in the search filter
      * @param attributeName the attribute who's values are to be retrieved.
+     *
      * @return the set of String values for the attribute as a union of the values found in all the matching entries.
      */
-    public Set searchForSingleAttributeValues(final String base, final String filter, final Object[] params, final String attributeName) {
-
-
+    public Set searchForSingleAttributeValues(final String base, final String filter, final Object[] params,
+        final String attributeName) {
         class SingleAttributeSearchCallback implements LdapCallback {
-
-            public Object doInDirContext(DirContext ctx) throws NamingException {
+            public Object doInDirContext(DirContext ctx)
+                throws NamingException {
                 Set unionOfValues = new HashSet();
 
                 // We're only interested in a single attribute for this method, so we make a copy of
@@ -166,8 +195,7 @@ public class LdapTemplate {
                 ctls.setDerefLinkFlag(searchControls.getDerefLinkFlag());
                 ctls.setReturningAttributes(new String[] {attributeName});
 
-                NamingEnumeration matchingEntries =
-                        ctx.search(base, filter, params, ctls);
+                NamingEnumeration matchingEntries = ctx.search(base, filter, params, ctls);
 
                 while (matchingEntries.hasMore()) {
                     SearchResult result = (SearchResult) matchingEntries.next();
@@ -176,16 +204,15 @@ public class LdapTemplate {
                     // There should only be one attribute in each matching entry.
                     NamingEnumeration returnedAttributes = attrs.getAll();
 
-                    while(returnedAttributes.hasMore()) {
+                    while (returnedAttributes.hasMore()) {
                         Attribute returnedAttribute = (Attribute) returnedAttributes.next();
                         NamingEnumeration attributeValues = returnedAttribute.getAll();
 
-                        while(attributeValues.hasMore()) {
+                        while (attributeValues.hasMore()) {
                             Object value = attributeValues.next();
 
                             unionOfValues.add(value.toString());
                         }
-
                     }
                 }
 
@@ -193,103 +220,74 @@ public class LdapTemplate {
             }
         }
 
-        return (Set)execute(new SingleAttributeSearchCallback());
-    }
-
-    public boolean nameExists(final String dn) {
-
-        Boolean exists = (Boolean) execute( new LdapCallback() {
-
-                public Object doInDirContext(DirContext ctx) throws NamingException {
-                    try {
-                        ctx.lookup( LdapUtils.getRelativeName(dn, ctx) );
-                    } catch(NameNotFoundException nnfe) {
-                        return Boolean.FALSE;
-                    }
-
-                    return Boolean.TRUE;
-                }
-            }
-        );
-
-        return exists.booleanValue();
+        return (Set) execute(new SingleAttributeSearchCallback());
     }
 
     /**
-     * Composes an object from the attributes of the given DN.
-     *
-     * @param dn the directory entry which will be read
-     * @param mapper maps the attributes to the required object
-     * @param attributesToRetrieve the named attributes which will be retrieved from the directory entry.
-     * @return the object created by the mapper
-     */
-    public Object retrieveEntry(final String dn, final LdapEntryMapper mapper, final String[] attributesToRetrieve) {
-        return execute ( new LdapCallback() {
-
-            public Object doInDirContext(DirContext ctx) throws NamingException {
-                return mapper.mapAttributes(dn, ctx.getAttributes(LdapUtils.getRelativeName(dn, ctx), attributesToRetrieve) );
-
-            }
-        } );
-    }
-
-    /**
-     * Performs a search, with the requirement that the search shall return a single directory entry, and
-     * uses the supplied mapper to create the object from that entry.
+     * Performs a search, with the requirement that the search shall return a single directory entry, and uses
+     * the supplied mapper to create the object from that entry.
      *
      * @param base
      * @param filter
      * @param params
      * @param mapper
+     *
      * @return the object created by the mapper from the matching entry
+     *
      * @throws EmptyResultDataAccessException if no results are found.
      * @throws IncorrectResultSizeDataAccessException if the search returns more than one result.
      */
-    public Object searchForSingleEntry(final String base, final String filter, final Object[] params, final LdapEntryMapper mapper) {
-        return execute ( new LdapCallback() {
+    public Object searchForSingleEntry(final String base, final String filter, final Object[] params,
+        final LdapEntryMapper mapper) {
+        return execute(new LdapCallback() {
+                public Object doInDirContext(DirContext ctx)
+                    throws NamingException {
+                    NamingEnumeration results = ctx.search(base, filter, params, searchControls);
 
-            public Object doInDirContext(DirContext ctx) throws NamingException {
-                NamingEnumeration results = ctx.search(base, filter, params, searchControls);
+                    if (!results.hasMore()) {
+                        throw new EmptyResultDataAccessException(1);
+                    }
 
-                if (!results.hasMore()) {
-                    throw new EmptyResultDataAccessException(1);
+                    SearchResult searchResult = (SearchResult) results.next();
+
+                    if (results.hasMore()) {
+                        throw new IncorrectResultSizeDataAccessException(1);
+                    }
+
+                    // Work out the DN of the matched entry
+                    StringBuffer dn = new StringBuffer(searchResult.getName());
+
+                    if (base.length() > 0) {
+                        dn.append(",");
+                        dn.append(base);
+                    }
+
+                    String nameInNamespace = ctx.getNameInNamespace();
+
+                    if (StringUtils.hasLength(nameInNamespace)) {
+                        dn.append(",");
+                        dn.append(nameInNamespace);
+                    }
+
+                    return mapper.mapAttributes(dn.toString(), searchResult.getAttributes());
                 }
-
-                SearchResult searchResult = (SearchResult)results.next();
-
-                if (results.hasMore()) {
-                    throw new IncorrectResultSizeDataAccessException(1);
-                }
-
-                // Work out the DN of the matched entry
-                StringBuffer dn = new StringBuffer(searchResult.getName());
-
-                if (base.length() > 0) {
-                    dn.append(",");
-                    dn.append(base);
-                }
-
-                String nameInNamespace = ctx.getNameInNamespace();
-
-                if(StringUtils.hasLength(nameInNamespace)) {
-                    dn.append(",");
-                    dn.append(nameInNamespace);
-                }
-
-                return mapper.mapAttributes(dn.toString(), searchResult.getAttributes());
-
-            }
-
-        }
-        );
+            });
     }
 
+    /**
+     * Sets the search controls which will be used for search operations by the template.
+     *
+     * @param searchControls the SearchControls instance which will be cached in the template.
+     */
+    public void setSearchControls(SearchControls searchControls) {
+        this.searchControls = searchControls;
+    }
+
+    //~ Inner Classes ==================================================================================================
 
     private static class LdapExceptionTranslator implements NamingExceptionTranslator {
-
         public DataAccessException translate(String task, NamingException e) {
             return new LdapDataAccessException(task + ";" + e.getMessage(), e);
         }
     }
-
 }

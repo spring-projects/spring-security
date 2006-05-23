@@ -59,7 +59,7 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public class AbstractProcessingFilterTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AbstractProcessingFilterTests() {
         super();
@@ -69,7 +69,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     private MockHttpServletRequest createMockRequest() {
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -82,9 +82,9 @@ public class AbstractProcessingFilterTests extends TestCase {
         return request;
     }
 
-    private void executeFilterInContainerSimulator(FilterConfig filterConfig,
-        Filter filter, ServletRequest request, ServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
+    private void executeFilterInContainerSimulator(FilterConfig filterConfig, Filter filter, ServletRequest request,
+        ServletResponse response, FilterChain filterChain)
+        throws ServletException, IOException {
         filter.init(filterConfig);
         filter.doFilter(request, response, filterChain);
         filter.destroy();
@@ -120,8 +120,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setFilterProcessesUrl("/j_acegi_security_check");
 
-        request.setRequestURI(
-            "/mycontext/j_acegi_security_check;jsessionid=I8MIONOSTHOR");
+        request.setRequestURI("/mycontext/j_acegi_security_check;jsessionid=I8MIONOSTHOR");
         assertTrue(filter.requiresAuthentication(request, response));
     }
 
@@ -130,12 +129,10 @@ public class AbstractProcessingFilterTests extends TestCase {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
 
         try {
-            filter.doFilter(null, new MockHttpServletResponse(),
-                new MockFilterChain());
+            filter.doFilter(null, new MockHttpServletResponse(), new MockFilterChain());
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("Can only process HttpServletRequest",
-                expected.getMessage());
+            assertEquals("Can only process HttpServletRequest", expected.getMessage());
         }
     }
 
@@ -144,12 +141,10 @@ public class AbstractProcessingFilterTests extends TestCase {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
 
         try {
-            filter.doFilter(new MockHttpServletRequest(null, null), null,
-                new MockFilterChain());
+            filter.doFilter(new MockHttpServletRequest(null, null), null, new MockFilterChain());
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("Can only process HttpServletResponse",
-                expected.getMessage());
+            assertEquals("Can only process HttpServletResponse", expected.getMessage());
         }
     }
 
@@ -170,26 +165,22 @@ public class AbstractProcessingFilterTests extends TestCase {
         filter.setAuthenticationFailureUrl("/myApp/failed.jsp");
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
 
         assertEquals("/myApp/failed.jsp", response.getRedirectedUrl());
         assertNull(SecurityContextHolder.getContext().getAuthentication());
 
         //Prepare again, this time using the exception mapping
-        filter = new MockAbstractProcessingFilter(new AccountExpiredException(
-                    "You're account is expired"));
+        filter = new MockAbstractProcessingFilter(new AccountExpiredException("You're account is expired"));
         filter.setAuthenticationFailureUrl("/myApp/failed.jsp");
 
         Properties exceptionMappings = filter.getExceptionMappings();
-        exceptionMappings.setProperty(AccountExpiredException.class.getName(),
-            "/myApp/accountExpired.jsp");
+        exceptionMappings.setProperty(AccountExpiredException.class.getName(), "/myApp/accountExpired.jsp");
         filter.setExceptionMappings(exceptionMappings);
         response = new MockHttpServletResponse();
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
 
         assertEquals("/myApp/accountExpired.jsp", response.getRedirectedUrl());
         assertNull(SecurityContextHolder.getContext().getAuthentication());
@@ -215,21 +206,17 @@ public class AbstractProcessingFilterTests extends TestCase {
         filter.setDefaultTargetUrl("/logged_in.jsp");
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
         assertEquals("/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-        assertEquals("test",
-            SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-                                 .toString());
+        assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
     }
 
     public void testGettersSetters() {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
         assertNotNull(filter.getRememberMeServices());
         filter.setRememberMeServices(new TokenBasedRememberMeServices());
-        assertEquals(TokenBasedRememberMeServices.class,
-            filter.getRememberMeServices().getClass());
+        assertEquals(TokenBasedRememberMeServices.class, filter.getRememberMeServices().getClass());
 
         filter.setAuthenticationFailureUrl("/x");
         assertEquals("/x", filter.getAuthenticationFailureUrl());
@@ -265,8 +252,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
     }
 
     public void testNormalOperationWithDefaultFilterProcessesUrl()
@@ -290,13 +276,10 @@ public class AbstractProcessingFilterTests extends TestCase {
         filter.afterPropertiesSet();
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
         assertEquals("/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-        assertEquals("test",
-            SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-                                 .toString());
+        assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
     }
 
     public void testStartupDetectsInvalidAuthenticationFailureUrl()
@@ -310,8 +293,7 @@ public class AbstractProcessingFilterTests extends TestCase {
             filter.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("authenticationFailureUrl must be specified",
-                expected.getMessage());
+            assertEquals("authenticationFailureUrl must be specified", expected.getMessage());
         }
     }
 
@@ -326,8 +308,7 @@ public class AbstractProcessingFilterTests extends TestCase {
             filter.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("authenticationManager must be specified",
-                expected.getMessage());
+            assertEquals("authenticationManager must be specified", expected.getMessage());
         }
     }
 
@@ -342,8 +323,7 @@ public class AbstractProcessingFilterTests extends TestCase {
             filter.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("defaultTargetUrl must be specified",
-                expected.getMessage());
+            assertEquals("defaultTargetUrl must be specified", expected.getMessage());
         }
     }
 
@@ -359,8 +339,7 @@ public class AbstractProcessingFilterTests extends TestCase {
             filter.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("filterProcessesUrl must be specified",
-                expected.getMessage());
+            assertEquals("filterProcessesUrl must be specified", expected.getMessage());
         }
     }
 
@@ -382,13 +361,10 @@ public class AbstractProcessingFilterTests extends TestCase {
         filter.setDefaultTargetUrl("/logged_in.jsp");
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
         assertEquals("/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-        assertEquals("test",
-            SecurityContextHolder.getContext().getAuthentication().getPrincipal()
-                                 .toString());
+        assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
 
         // Now try again but this time have filter deny access
         // Setup our HTTP request
@@ -402,8 +378,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         filter.setAuthenticationFailureUrl("/failed.jsp");
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
@@ -411,9 +386,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
-        request.getSession()
-               .setAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY,
-            makeSavedRequestForUrl());
+        request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null);
@@ -431,8 +404,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertTrue(filter.isAlwaysUseDefaultTargetUrl()); // check changed
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
         assertEquals("/foobar", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
@@ -441,9 +413,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
-        request.getSession()
-               .setAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY,
-            makeSavedRequestForUrl());
+        request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null);
@@ -457,14 +427,12 @@ public class AbstractProcessingFilterTests extends TestCase {
         filter.setFilterProcessesUrl("/j_mock_post");
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
-        assertEquals(makeSavedRequestForUrl().getFullRequestUrl(),
-            response.getRedirectedUrl());
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
+        assertEquals(makeSavedRequestForUrl().getFullRequestUrl(), response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockAbstractProcessingFilter extends AbstractProcessingFilter {
         private AuthenticationException exceptionToThrow;
@@ -472,12 +440,10 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         public MockAbstractProcessingFilter(boolean grantAccess) {
             this.grantAccess = grantAccess;
-            this.exceptionToThrow = new BadCredentialsException(
-                    "Mock requested to do so");
+            this.exceptionToThrow = new BadCredentialsException("Mock requested to do so");
         }
 
-        public MockAbstractProcessingFilter(
-            AuthenticationException exceptionToThrow) {
+        public MockAbstractProcessingFilter(AuthenticationException exceptionToThrow) {
             this.grantAccess = false;
             this.exceptionToThrow = exceptionToThrow;
         }
@@ -502,8 +468,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         public void init(FilterConfig arg0) throws ServletException {}
 
-        public boolean requiresAuthentication(HttpServletRequest request,
-            HttpServletResponse response) {
+        public boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
             return super.requiresAuthentication(request, response);
         }
     }

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,12 @@ package org.acegisecurity.util;
 
 import junit.framework.TestCase;
 
+import java.io.IOException;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import java.io.IOException;
 
 
 /**
@@ -31,20 +32,20 @@ import java.io.IOException;
  * @version $Id$
  */
 public class MockFilterChain implements FilterChain {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private boolean expectToProceed;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public MockFilterChain(boolean expectToProceed) {
         this.expectToProceed = expectToProceed;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void doFilter(ServletRequest request, ServletResponse response)
-            throws IOException, ServletException {
+        throws IOException, ServletException {
         if (expectToProceed) {
             TestCase.assertTrue(true);
         } else {

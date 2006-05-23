@@ -26,14 +26,14 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 
 /**
- * Tests parts of {@link PathBasedFilterInvocationDefinitionMap} not tested by
- * {@link FilterInvocationDefinitionSourceEditorWithPathsTests}.
+ * Tests parts of {@link PathBasedFilterInvocationDefinitionMap} not tested by {@link
+ * FilterInvocationDefinitionSourceEditorWithPathsTests}.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class PathBasedFilterDefinitionMapTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public PathBasedFilterDefinitionMapTests() {
         super();
@@ -43,7 +43,7 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(PathBasedFilterDefinitionMapTests.class);
@@ -80,11 +80,9 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         MockHttpServletRequest req = request;
         req.setServletPath("/SeCuRE/super/somefile.html");
 
-        FilterInvocation fi = new FilterInvocation(req,
-                new MockHttpServletResponse(), new MockFilterChain());
+        FilterInvocation fi = new FilterInvocation(req, new MockHttpServletResponse(), new MockFilterChain());
 
-        ConfigAttributeDefinition response = map.lookupAttributes(fi
-                .getRequestUrl());
+        ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
     }
 
@@ -103,11 +101,9 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         MockHttpServletRequest req = request;
         req.setServletPath("/SeCuRE/super/somefile.html");
 
-        FilterInvocation fi = new FilterInvocation(req,
-                new MockHttpServletResponse(), new MockFilterChain());
+        FilterInvocation fi = new FilterInvocation(req, new MockHttpServletResponse(), new MockFilterChain());
 
-        ConfigAttributeDefinition response = map.lookupAttributes(fi
-                .getRequestUrl());
+        ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(null, response);
     }
 
@@ -126,11 +122,9 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         MockHttpServletRequest req = request;
         req.setServletPath("/secure/super/somefile.html");
 
-        FilterInvocation fi = new FilterInvocation(req,
-                new MockHttpServletResponse(), new MockFilterChain());
+        FilterInvocation fi = new FilterInvocation(req, new MockHttpServletResponse(), new MockFilterChain());
 
-        ConfigAttributeDefinition response = map.lookupAttributes(fi
-                .getRequestUrl());
+        ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
     }
 
@@ -149,11 +143,9 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         MockHttpServletRequest req = request;
         req.setServletPath("/someAdminPage.html?a=/test");
 
-        FilterInvocation fi = new FilterInvocation(req,
-                new MockHttpServletResponse(), new MockFilterChain());
+        FilterInvocation fi = new FilterInvocation(req, new MockHttpServletResponse(), new MockFilterChain());
 
-        ConfigAttributeDefinition response = map.lookupAttributes(fi
-                .getRequestUrl());
+        ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response); // see SEC-161 (it should truncate after ? sign)
     }
 }

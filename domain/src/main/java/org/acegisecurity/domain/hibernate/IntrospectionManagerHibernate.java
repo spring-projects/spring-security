@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,60 +40,33 @@ import java.util.Map;
 
 
 /**
- * {@link IntrospectionManager} that uses Hibernate metadata to locate
- * children.
- * 
- * <p>
- * Add children objects are added to the <code>List</code> of children objects
- * to validate, irrespective of whether a save/update/delete operation will
- * cascade to them. This is not a perfect solution, but addresses most
- * real-world validation requirements (you can always implement your own
- * <code>IntrospectionManager</code> if you prefer).
- * </p>
- * 
- * <p>
- * This implementation only adds properties of a parent object that have a
- * Hibernate {@link net.sf.hibernate.type.Type} that indicates it is an object
- * type (ie {@link net.sf.hibernate.type.Type#isObjectType()}).
- * </p>
+ * {@link IntrospectionManager} that uses Hibernate metadata to locate children.<p>Add children objects are added
+ * to the <code>List</code> of children objects to validate, irrespective of whether a save/update/delete operation
+ * will cascade to them. This is not a perfect solution, but addresses most real-world validation requirements (you
+ * can always implement your own <code>IntrospectionManager</code> if you prefer).</p>
+ *  <p>This implementation only adds properties of a parent object that have a Hibernate {@link
+ * net.sf.hibernate.type.Type} that indicates it is an object type (ie {@link
+ * net.sf.hibernate.type.Type#isObjectType()}).</p>
  *
  * @author Matthew Porter
  * @author Ben Alex
  */
-public class IntrospectionManagerHibernate implements IntrospectionManager,
-    InitializingBean {
-    //~ Instance fields ========================================================
+public class IntrospectionManagerHibernate implements IntrospectionManager, InitializingBean {
+    //~ Instance fields ================================================================================================
 
-    private SessionFactory[] sessionFactories;
     private ValidationRegistryManager validationRegistryManager;
+    private SessionFactory[] sessionFactories;
 
-    //~ Methods ================================================================
-
-    public void setSessionFactories(SessionFactory[] sessionFactorys) {
-        this.sessionFactories = sessionFactorys;
-    }
-
-    public SessionFactory[] getSessionFactories() {
-        return this.sessionFactories;
-    }
-
-    public void setValidationRegistryManager(
-        ValidationRegistryManager validationRegistryManager) {
-        this.validationRegistryManager = validationRegistryManager;
-    }
-
-    public ValidationRegistryManager getValidationRegistryManager() {
-        return validationRegistryManager;
-    }
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(validationRegistryManager, "ValidationRegistryManager is required");
         Assert.notNull(sessionFactories, "SessionFactories are required");
         Assert.notEmpty(sessionFactories, "SessionFactories are required");
-        
+
         // Eagerly pre-register Validators for all Hibernate metadata-defined classes
         for (int i = 0; i < sessionFactories.length; i++) {
-    		Map<String,ClassMetadata> metadataMap = this.sessionFactories[i].getAllClassMetadata();
+            Map<String, ClassMetadata> metadataMap = this.sessionFactories[i].getAllClassMetadata();
             Collection<String> mappedClasses = metadataMap.keySet();
 
             for (Iterator<String> iter = mappedClasses.iterator(); iter.hasNext();) {
@@ -103,11 +76,29 @@ public class IntrospectionManagerHibernate implements IntrospectionManager,
         }
     }
 
+    private ClassMetadata findMetadata(Class clazz) throws HibernateSystemException {
+        for (int i = 0; i < sessionFactories.length; i++) {
+            ClassMetadata result = sessionFactories[i].getClassMetadata(clazz);
+
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    public SessionFactory[] getSessionFactories() {
+        return this.sessionFactories;
+    }
+
+    public ValidationRegistryManager getValidationRegistryManager() {
+        return validationRegistryManager;
+    }
+
     public void obtainImmediateChildren(Object parentObject, List<Object> allObjects) {
-        Assert.notNull(parentObject,
-            "Violation of interface contract: parentObject null");
-        Assert.notNull(allObjects,
-            "Violation of interface contract: allObjects null");
+        Assert.notNull(parentObject, "Violation of interface contract: parentObject null");
+        Assert.notNull(allObjects, "Violation of interface contract: allObjects null");
 
         ClassMetadata classMetadata = null;
 
@@ -122,13 +113,14 @@ public class IntrospectionManagerHibernate implements IntrospectionManager,
 
                     // Add this property to the List of Objects to validate
                     // only if a Validator is registered for that Object AND
-					// the object is initialized (ie not lazy loaded)
-                    if (this.validationRegistryManager.findValidator(
-                            propertyType.getReturnedClass()) != null) {
-                        Object childObject = classMetadata.getPropertyValue(parentObject, propertyNames[i], EntityMode.POJO);
-                        if (childObject != null && Hibernate.isInitialized(childObject)) {
+                    // the object is initialized (ie not lazy loaded)
+                    if (this.validationRegistryManager.findValidator(propertyType.getReturnedClass()) != null) {
+                        Object childObject = classMetadata.getPropertyValue(parentObject, propertyNames[i],
+                                EntityMode.POJO);
+
+                        if ((childObject != null) && Hibernate.isInitialized(childObject)) {
                             if (childObject instanceof Collection) {
-                                allObjects.addAll((Collection)childObject);
+                                allObjects.addAll((Collection) childObject);
                             } else {
                                 allObjects.add(childObject);
                             }
@@ -140,14 +132,12 @@ public class IntrospectionManagerHibernate implements IntrospectionManager,
             throw new HibernateSystemException(he);
         }
     }
-    
-    private ClassMetadata findMetadata(Class clazz) throws HibernateSystemException {
-    	for (int i = 0; i < sessionFactories.length; i++) {
-    		ClassMetadata result = sessionFactories[i].getClassMetadata(clazz);
-    		if (result != null) {
-    			return result;
-    		}
-    	}
-    	return null;
+
+    public void setSessionFactories(SessionFactory[] sessionFactorys) {
+        this.sessionFactories = sessionFactorys;
+    }
+
+    public void setValidationRegistryManager(ValidationRegistryManager validationRegistryManager) {
+        this.validationRegistryManager = validationRegistryManager;
     }
 }

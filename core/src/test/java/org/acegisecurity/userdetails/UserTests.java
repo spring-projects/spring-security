@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
 
@@ -30,7 +31,7 @@ import org.acegisecurity.userdetails.UserDetails;
  * @version $Id$
  */
 public class UserTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public UserTests() {
         super();
@@ -40,20 +41,19 @@ public class UserTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(UserTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testEquals() {
         User user1 = new User("marissa", "koala", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
 
         assertFalse(user1.equals(null));
         assertFalse(user1.equals("A STRING"));
@@ -62,39 +62,31 @@ public class UserTests extends TestCase {
 
         assertTrue(user1.equals(
                 new User("marissa", "koala", true, true, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                            "ROLE_TWO")})));
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")})));
 
         assertFalse(user1.equals(
                 new User("DIFFERENT_USERNAME", "koala", true, true, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                            "ROLE_TWO")})));
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")})));
 
         assertFalse(user1.equals(
-                new User("marissa", "DIFFERENT_PASSWORD", true, true, true,
-                    true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                            "ROLE_TWO")})));
+                new User("marissa", "DIFFERENT_PASSWORD", true, true, true, true,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")})));
 
         assertFalse(user1.equals(
                 new User("marissa", "koala", false, true, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                            "ROLE_TWO")})));
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")})));
 
         assertFalse(user1.equals(
                 new User("marissa", "koala", true, false, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                            "ROLE_TWO")})));
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")})));
 
         assertFalse(user1.equals(
                 new User("marissa", "koala", true, true, false, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                            "ROLE_TWO")})));
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")})));
 
         assertFalse(user1.equals(
                 new User("marissa", "koala", true, true, true, false,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                            "ROLE_TWO")})));
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")})));
 
         assertFalse(user1.equals(
                 new User("marissa", "koala", true, true, true, true,
@@ -105,7 +97,7 @@ public class UserTests extends TestCase {
         Class clazz = User.class;
 
         try {
-            clazz.getDeclaredConstructor((Class[])null);
+            clazz.getDeclaredConstructor((Class[]) null);
             fail("Should have thrown NoSuchMethodException");
         } catch (NoSuchMethodException expected) {
             assertTrue(true);
@@ -115,34 +107,29 @@ public class UserTests extends TestCase {
     public void testNullValuesRejected() throws Exception {
         try {
             UserDetails user = new User(null, "koala", true, true, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                            "ROLE_TWO")});
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
 
         try {
-            UserDetails user = new User("marissa", null, true, true, true,
-                    true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                            "ROLE_TWO")});
+            UserDetails user = new User("marissa", null, true, true, true, true,
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
 
         try {
-            UserDetails user = new User("marissa", "koala", true, true, true,
-                    true, null);
+            UserDetails user = new User("marissa", "koala", true, true, true, true, null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
 
         try {
-            UserDetails user = new User("marissa", "koala", true, true, true,
-                    true,
+            UserDetails user = new User("marissa", "koala", true, true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), null});
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
@@ -154,9 +141,10 @@ public class UserTests extends TestCase {
         throws Exception {
         try {
             UserDetails user = new User(null, "koala", true, true, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                            "ROLE_TWO"), null, new GrantedAuthorityImpl(
-                            "ROLE_THREE")});
+                    new GrantedAuthority[] {
+                        new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO"), null,
+                        new GrantedAuthorityImpl("ROLE_THREE")
+                    });
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -165,23 +153,18 @@ public class UserTests extends TestCase {
 
     public void testUserGettersSetter() throws Exception {
         UserDetails user = new User("marissa", "koala", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
         assertEquals("marissa", user.getUsername());
         assertEquals("koala", user.getPassword());
         assertTrue(user.isEnabled());
-        assertEquals(new GrantedAuthorityImpl("ROLE_ONE"),
-            user.getAuthorities()[0]);
-        assertEquals(new GrantedAuthorityImpl("ROLE_TWO"),
-            user.getAuthorities()[1]);
+        assertEquals(new GrantedAuthorityImpl("ROLE_ONE"), user.getAuthorities()[0]);
+        assertEquals(new GrantedAuthorityImpl("ROLE_TWO"), user.getAuthorities()[1]);
         assertTrue(user.toString().indexOf("marissa") != -1);
     }
 
     public void testUserIsEnabled() throws Exception {
-        UserDetails user = new User("marissa", "koala", false, true, true,
-                true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+        UserDetails user = new User("marissa", "koala", false, true, true, true,
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
         assertTrue(!user.isEnabled());
     }
 }

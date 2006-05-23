@@ -20,25 +20,22 @@ import javax.naming.ldap.ControlFactory;
 
 
 /**
- * Transforms a control object to a PasswordPolicyResponseControl object, if
- * appropriate.
+ * Transforms a control object to a PasswordPolicyResponseControl object, if appropriate.
  *
  * @author Stefan Zoerner
  * @author Luke Taylor
  * @version $Id$
  */
 public class PasswordPolicyControlFactory extends ControlFactory {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Creates an instance of PasswordPolicyResponseControl if the passed
-     * control is a response control of this type. Attributes of the result
-     * are filled with the correct values (e.g. error code).
+     * Creates an instance of PasswordPolicyResponseControl if the passed control is a response control of this
+     * type. Attributes of the result are filled with the correct values (e.g. error code).
      *
      * @param ctl the control the check
      *
-     * @return a response control of type PasswordPolicyResponseControl, or
-     *         null
+     * @return a response control of type PasswordPolicyResponseControl, or null
      */
     public Control getControlInstance(Control ctl) {
         if (ctl.getID().equals(PasswordPolicyControl.OID)) {
@@ -47,5 +44,4 @@ public class PasswordPolicyControlFactory extends ControlFactory {
 
         return null;
     }
-}                
-
+}

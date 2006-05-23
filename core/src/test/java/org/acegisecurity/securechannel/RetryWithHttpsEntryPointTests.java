@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,15 @@ package org.acegisecurity.securechannel;
 
 import junit.framework.TestCase;
 
-
-
 import org.acegisecurity.MockPortResolver;
 
 import org.acegisecurity.util.PortMapperImpl;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -37,14 +35,14 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @version $Id$
  */
 public class RetryWithHttpsEntryPointTests extends TestCase {
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(RetryWithHttpsEntryPointTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testDetectsMissingPortMapper() throws Exception {
@@ -97,8 +95,7 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
 
         ep.commence(request, response);
-        assertEquals("https://www.example.com/bigWebApp/hello/pathInfo.html?open=true",
-            response.getRedirectedUrl());
+        assertEquals("https://www.example.com/bigWebApp/hello/pathInfo.html?open=true", response.getRedirectedUrl());
     }
 
     public void testNormalOperationWithNullPathInfoAndNullQueryString()
@@ -119,8 +116,7 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
 
         ep.commence(request, response);
-        assertEquals("https://www.example.com/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("https://www.example.com/bigWebApp/hello", response.getRedirectedUrl());
     }
 
     public void testOperationWhenTargetPortIsUnknown()
@@ -168,7 +164,6 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
 
         ep.commence(request, response);
-        assertEquals("https://www.example.com:9999/bigWebApp/hello/pathInfo.html?open=true",
-            response.getRedirectedUrl());
+        assertEquals("https://www.example.com:9999/bigWebApp/hello/pathInfo.html?open=true", response.getRedirectedUrl());
     }
 }

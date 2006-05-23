@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.acegisecurity.acl.basic;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.acl.AclEntry;
 
 
@@ -45,21 +46,16 @@ import org.acegisecurity.acl.AclEntry;
  * @version $Id$
  */
 public interface EffectiveAclsResolver {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Determines the ACLs that apply to the presented
-     * <code>Authentication</code> object.
+     * Determines the ACLs that apply to the presented <code>Authentication</code> object.
      *
      * @param allAcls every ACL assigned to a domain object instance
-     * @param filteredBy the principal (populated with
-     *        <code>GrantedAuthority</code>s along with any other members that
-     *        relate to role or group membership) that effective ACLs should
-     *        be returned for
+     * @param filteredBy the principal (populated with <code>GrantedAuthority</code>s along with any other members that
+     *        relate to role or group membership) that effective ACLs should be returned for
      *
-     * @return the ACLs that apply to the presented principal, or
-     *         <code>null</code> if there are none after filtering
+     * @return the ACLs that apply to the presented principal, or <code>null</code> if there are none after filtering
      */
-    public AclEntry[] resolveEffectiveAcls(AclEntry[] allAcls,
-        Authentication filteredBy);
+    public AclEntry[] resolveEffectiveAcls(AclEntry[] allAcls, Authentication filteredBy);
 }

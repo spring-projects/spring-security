@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,22 +30,18 @@ import java.util.Properties;
 
 
 /**
- * Property editor to assist with the setup of a {@link
- * MethodDefinitionSource}.
- * 
- * <p>
- * The class creates and populates a {@link MethodDefinitionMap}.
- * </p>
+ * Property editor to assist with the setup of a {@link MethodDefinitionSource}.<p>The class creates and populates
+ * a {@link MethodDefinitionMap}.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MethodDefinitionSourceEditor extends PropertyEditorSupport {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(MethodDefinitionSourceEditor.class);
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void setAsText(String s) throws IllegalArgumentException {
         MethodDefinitionMap source = new MethodDefinitionMap();
@@ -69,8 +65,7 @@ public class MethodDefinitionSourceEditor extends PropertyEditorSupport {
                 // Convert value to series of security configuration attributes
                 configAttribEd.setAsText(value);
 
-                ConfigAttributeDefinition attr = (ConfigAttributeDefinition) configAttribEd
-                    .getValue();
+                ConfigAttributeDefinition attr = (ConfigAttributeDefinition) configAttribEd.getValue();
 
                 // Register name and attribute
                 source.addSecureMethod(name, attr);

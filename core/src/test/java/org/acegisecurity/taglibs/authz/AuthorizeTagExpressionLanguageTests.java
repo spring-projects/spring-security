@@ -34,13 +34,13 @@ import javax.servlet.jsp.tagext.Tag;
  * Test case to implement commons-el expression language expansion.
  */
 public class AuthorizeTagExpressionLanguageTests extends TestCase {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private final AuthorizeTag authorizeTag = new AuthorizeTag();
     private MockPageContext pageContext;
     private TestingAuthenticationToken currentUser;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -63,8 +63,8 @@ public class AuthorizeTagExpressionLanguageTests extends TestCase {
         pageContext.setAttribute("authority", "ROLE_TELLER");
         authorizeTag.setIfAllGranted("${authority}");
 
-        assertEquals("allows body - authority var contains ROLE_TELLER",
-            Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+        assertEquals("allows body - authority var contains ROLE_TELLER", Tag.EVAL_BODY_INCLUDE,
+            authorizeTag.doStartTag());
     }
 
     public void testAnyGrantedUsesExpressionLanguageWhenExpressionIsEL()
@@ -72,8 +72,8 @@ public class AuthorizeTagExpressionLanguageTests extends TestCase {
         pageContext.setAttribute("authority", "ROLE_TELLER");
         authorizeTag.setIfAnyGranted("${authority}");
 
-        assertEquals("allows body - authority var contains ROLE_TELLER",
-            Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+        assertEquals("allows body - authority var contains ROLE_TELLER", Tag.EVAL_BODY_INCLUDE,
+            authorizeTag.doStartTag());
     }
 
     public void testNotGrantedUsesExpressionLanguageWhenExpressionIsEL()
@@ -81,7 +81,6 @@ public class AuthorizeTagExpressionLanguageTests extends TestCase {
         pageContext.setAttribute("authority", "ROLE_TELLER");
         authorizeTag.setIfNotGranted("${authority}");
 
-        assertEquals("allows body - authority var contains ROLE_TELLER",
-            Tag.SKIP_BODY, authorizeTag.doStartTag());
+        assertEquals("allows body - authority var contains ROLE_TELLER", Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 }

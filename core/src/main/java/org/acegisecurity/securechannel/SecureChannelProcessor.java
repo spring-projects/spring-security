@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,11 @@ package org.acegisecurity.securechannel;
 
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
+
 import org.acegisecurity.intercept.web.FilterInvocation;
 
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.util.Assert;
 
 import java.io.IOException;
@@ -30,59 +32,31 @@ import javax.servlet.ServletException;
 
 
 /**
- * <p>
- * Ensures channel security is active by review of
- * <code>HttpServletRequest.isSecure()</code> responses.
- * </p>
- * 
- * <P>
- * The class responds to one case-sensitive keyword, {@link #getSecureKeyword}.
- * If this keyword is detected, <code>HttpServletRequest.isSecure()</code> is
- * used to determine the channel security offered. If channel security is not
- * present, the configured <code>ChannelEntryPoint</code> is called. By
- * default the entry point is {@link RetryWithHttpsEntryPoint}.
- * </p>
- * 
- * <P>
- * The default <code>secureKeyword</code> is
- * <code>REQUIRES_SECURE_CHANNEL</code>.
- * </p>
+ * <p>Ensures channel security is active by review of <code>HttpServletRequest.isSecure()</code> responses.</p>
+ *  <P>The class responds to one case-sensitive keyword, {@link #getSecureKeyword}. If this keyword is detected,
+ * <code>HttpServletRequest.isSecure()</code> is used to determine the channel security offered. If channel security
+ * is not present, the configured <code>ChannelEntryPoint</code> is called. By default the entry point is {@link
+ * RetryWithHttpsEntryPoint}.</p>
+ *  <P>The default <code>secureKeyword</code> is <code>REQUIRES_SECURE_CHANNEL</code>.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class SecureChannelProcessor implements InitializingBean,
-    ChannelProcessor {
-    //~ Instance fields ========================================================
+public class SecureChannelProcessor implements InitializingBean, ChannelProcessor {
+    //~ Instance fields ================================================================================================
 
     private ChannelEntryPoint entryPoint = new RetryWithHttpsEntryPoint();
     private String secureKeyword = "REQUIRES_SECURE_CHANNEL";
 
-    //~ Methods ================================================================
-
-    public void setEntryPoint(ChannelEntryPoint entryPoint) {
-        this.entryPoint = entryPoint;
-    }
-
-    public ChannelEntryPoint getEntryPoint() {
-        return entryPoint;
-    }
-
-    public void setSecureKeyword(String secureKeyword) {
-        this.secureKeyword = secureKeyword;
-    }
-
-    public String getSecureKeyword() {
-        return secureKeyword;
-    }
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(secureKeyword, "secureKeyword required");
         Assert.notNull(entryPoint, "entryPoint required");
     }
 
-    public void decide(FilterInvocation invocation,
-        ConfigAttributeDefinition config) throws IOException, ServletException {
+    public void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
+        throws IOException, ServletException {
         Assert.isTrue((invocation != null) && (config != null), "Nulls cannot be provided");
 
         Iterator iter = config.getConfigAttributes();
@@ -92,11 +66,26 @@ public class SecureChannelProcessor implements InitializingBean,
 
             if (supports(attribute)) {
                 if (!invocation.getHttpRequest().isSecure()) {
-                    entryPoint.commence(invocation.getRequest(),
-                        invocation.getResponse());
+                    entryPoint.commence(invocation.getRequest(), invocation.getResponse());
                 }
             }
         }
+    }
+
+    public ChannelEntryPoint getEntryPoint() {
+        return entryPoint;
+    }
+
+    public String getSecureKeyword() {
+        return secureKeyword;
+    }
+
+    public void setEntryPoint(ChannelEntryPoint entryPoint) {
+        this.entryPoint = entryPoint;
+    }
+
+    public void setSecureKeyword(String secureKeyword) {
+        this.secureKeyword = secureKeyword;
     }
 
     public boolean supports(ConfigAttribute attribute) {

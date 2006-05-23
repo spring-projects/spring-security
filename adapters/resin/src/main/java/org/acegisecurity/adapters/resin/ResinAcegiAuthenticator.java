@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,62 +41,32 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Adapter to enable Resin to authenticate via the Acegi Security System for
- * Spring.
- * 
- * <p>
- * Returns a {@link PrincipalAcegiUserToken} to Resin's authentication system,
- * which is subsequently available via
- * <code>HttpServletRequest.getUserPrincipal()</code>.
- * </p>
+ * Adapter to enable Resin to authenticate via the Acegi Security System for Spring.<p>Returns a {@link
+ * PrincipalAcegiUserToken} to Resin's authentication system, which is subsequently available via
+ * <code>HttpServletRequest.getUserPrincipal()</code>.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class ResinAcegiAuthenticator extends AbstractAuthenticator {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(ResinAcegiAuthenticator.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private AuthenticationManager authenticationManager;
     private String appContextLocation;
     private String key;
 
-    //~ Methods ================================================================
-
-    public void setAppContextLocation(String appContextLocation) {
-        this.appContextLocation = appContextLocation;
-    }
+    //~ Methods ========================================================================================================
 
     public String getAppContextLocation() {
         return appContextLocation;
     }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
     public String getKey() {
         return key;
-    }
-
-    public boolean isUserInRole(HttpServletRequest request,
-        HttpServletResponse response, ServletContext application,
-        Principal principal, String role) {
-        if (!(principal instanceof PrincipalAcegiUserToken)) {
-            if (logger.isWarnEnabled()) {
-                logger.warn(
-                    "Expected passed principal to be of type PrincipalAcegiUserToken");
-            }
-
-            return false;
-        }
-
-        PrincipalAcegiUserToken test = (PrincipalAcegiUserToken) principal;
-
-        return test.isUserInRole(role);
     }
 
     public void init() throws ServletException {
@@ -118,13 +88,27 @@ public class ResinAcegiAuthenticator extends AbstractAuthenticator {
         Map beans = ctx.getBeansOfType(AuthenticationManager.class, true, true);
 
         if (beans.size() == 0) {
-            throw new ServletException(
-                "Bean context must contain at least one bean of type AuthenticationManager");
+            throw new ServletException("Bean context must contain at least one bean of type AuthenticationManager");
         }
 
         String beanName = (String) beans.keySet().iterator().next();
         authenticationManager = (AuthenticationManager) beans.get(beanName);
         logger.info("ResinAcegiAuthenticator Started");
+    }
+
+    public boolean isUserInRole(HttpServletRequest request, HttpServletResponse response, ServletContext application,
+        Principal principal, String role) {
+        if (!(principal instanceof PrincipalAcegiUserToken)) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("Expected passed principal to be of type PrincipalAcegiUserToken");
+            }
+
+            return false;
+        }
+
+        PrincipalAcegiUserToken test = (PrincipalAcegiUserToken) principal;
+
+        return test.isUserInRole(role);
     }
 
     protected Principal loginImpl(String username, String credentials) {
@@ -136,30 +120,33 @@ public class ResinAcegiAuthenticator extends AbstractAuthenticator {
             credentials = "";
         }
 
-        Authentication request = new UsernamePasswordAuthenticationToken(username,
-                credentials);
+        Authentication request = new UsernamePasswordAuthenticationToken(username, credentials);
         Authentication response = null;
 
         try {
             response = authenticationManager.authenticate(request);
         } catch (AuthenticationException failed) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Authentication request for user: " + username
-                    + " failed: " + failed.toString());
+                logger.debug("Authentication request for user: " + username + " failed: " + failed.toString());
             }
 
             return null;
         }
 
-        return new PrincipalAcegiUserToken(this.key,
-            response.getPrincipal().toString(),
-            response.getCredentials().toString(), response.getAuthorities(),
-            response.getPrincipal());
+        return new PrincipalAcegiUserToken(this.key, response.getPrincipal().toString(),
+            response.getCredentials().toString(), response.getAuthorities(), response.getPrincipal());
     }
 
-    protected Principal loginImpl(HttpServletRequest request,
-        HttpServletResponse response, ServletContext application,
+    protected Principal loginImpl(HttpServletRequest request, HttpServletResponse response, ServletContext application,
         String userName, String password) throws ServletException {
         return loginImpl(userName, password);
+    }
+
+    public void setAppContextLocation(String appContextLocation) {
+        this.appContextLocation = appContextLocation;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 }

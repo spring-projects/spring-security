@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.acegisecurity.userdetails;
 
 import org.acegisecurity.providers.dao.DaoAuthenticationProvider;
+
 import org.springframework.dao.DataAccessException;
 
 
@@ -32,24 +33,20 @@ import org.springframework.dao.DataAccessException;
  * @version $Id$
  */
 public interface UserDetailsService {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Locates the user based on the username. In the actual implementation,
-     * the search may possibly be case insensitive, or case insensitive
-     * depending on how the implementaion instance is configured. In this
-     * case, the <code>UserDetails</code> object that comes back may have a
-     * username that is of a different case than what was actually requested..
+     * Locates the user based on the username. In the actual implementation, the search may possibly be case
+     * insensitive, or case insensitive depending on how the implementaion instance is configured. In this case, the
+     * <code>UserDetails</code> object that comes back may have a username that is of a different case than what was
+     * actually requested..
      *
-     * @param username the username presented to the {@link
-     *        DaoAuthenticationProvider}
+     * @param username the username presented to the {@link DaoAuthenticationProvider}
      *
      * @return a fully populated user record (never <code>null</code>)
      *
-     * @throws UsernameNotFoundException if the user could not be found or the
-     *         user has no GrantedAuthority
-     * @throws DataAccessException if user could not be found for a
-     *         repository-specific reason
+     * @throws UsernameNotFoundException if the user could not be found or the user has no GrantedAuthority
+     * @throws DataAccessException if user could not be found for a repository-specific reason
      */
     public UserDetails loadUserByUsername(String username)
         throws UsernameNotFoundException, DataAccessException;

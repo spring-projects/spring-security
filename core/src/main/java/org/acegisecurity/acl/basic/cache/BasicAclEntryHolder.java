@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,36 +17,28 @@ package org.acegisecurity.acl.basic.cache;
 
 import org.acegisecurity.acl.basic.BasicAclEntry;
 
-import java.io.Serializable;
-
 import org.springframework.util.Assert;
+
+import java.io.Serializable;
 
 
 /**
- * Used by {@link EhCacheBasedAclEntryCache} to store the array of
- * <code>BasicAclEntry</code>s in the cache.
- * 
- * <P>
- * This is necessary because caches store a single object per key, not an
- * array.
- * </p>
- * 
- * <P>
- * This class uses value object semantics. ie: construction-based
- * initialisation without any setters for the properties.
- * </p>
+ * Used by {@link EhCacheBasedAclEntryCache} to store the array of <code>BasicAclEntry</code>s in the cache.<P>This
+ * is necessary because caches store a single object per key, not an array.</p>
+ *  <P>This class uses value object semantics. ie: construction-based initialisation without any setters for the
+ * properties.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class BasicAclEntryHolder implements Serializable {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private BasicAclEntry[] basicAclEntries;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructs the <code>BasicAclEntryHolder</code>.
      *
      * @param aclEntries to cache (any <code>null</code>s will cause an
@@ -68,7 +60,7 @@ public class BasicAclEntryHolder implements Serializable {
         this.basicAclEntries = aclEntries;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public BasicAclEntry[] getBasicAclEntries() {
         return basicAclEntries;

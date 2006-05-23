@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import java.util.Map;
  * @version $Id$
  */
 public class PortMapperImplTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public PortMapperImplTests() {
         super();
@@ -38,26 +38,22 @@ public class PortMapperImplTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(PortMapperImplTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testDefaultMappingsAreKnown() throws Exception {
         PortMapperImpl portMapper = new PortMapperImpl();
-        assertEquals(new Integer(80),
-            portMapper.lookupHttpPort(new Integer(443)));
-        assertEquals(new Integer(8080),
-            portMapper.lookupHttpPort(new Integer(8443)));
-        assertEquals(new Integer(443),
-            portMapper.lookupHttpsPort(new Integer(80)));
-        assertEquals(new Integer(8443),
-            portMapper.lookupHttpsPort(new Integer(8080)));
+        assertEquals(new Integer(80), portMapper.lookupHttpPort(new Integer(443)));
+        assertEquals(new Integer(8080), portMapper.lookupHttpPort(new Integer(8443)));
+        assertEquals(new Integer(443), portMapper.lookupHttpsPort(new Integer(80)));
+        assertEquals(new Integer(8443), portMapper.lookupHttpsPort(new Integer(8080)));
     }
 
     public void testDetectsEmptyMap() throws Exception {
@@ -112,9 +108,7 @@ public class PortMapperImplTests extends TestCase {
 
         portMapper.setPortMappings(map);
 
-        assertEquals(new Integer(79),
-            portMapper.lookupHttpPort(new Integer(442)));
-        assertEquals(new Integer(442),
-            portMapper.lookupHttpsPort(new Integer(79)));
+        assertEquals(new Integer(79), portMapper.lookupHttpPort(new Integer(442)));
+        assertEquals(new Integer(442), portMapper.lookupHttpsPort(new Integer(79)));
     }
 }

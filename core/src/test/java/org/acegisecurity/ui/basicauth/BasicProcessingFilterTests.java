@@ -59,11 +59,11 @@ import javax.servlet.ServletRequest;
  * @version $Id$
  */
 public class BasicProcessingFilterTests extends MockObjectTestCase {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private BasicProcessingFilter filter;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public BasicProcessingFilterTests() {
         super();
@@ -73,19 +73,17 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    private MockHttpServletResponse executeFilterInContainerSimulator(
-        Filter filter, ServletRequest request, boolean expectChainToProceed)
-        throws ServletException, IOException {
+    private MockHttpServletResponse executeFilterInContainerSimulator(Filter filter, ServletRequest request,
+        boolean expectChainToProceed) throws ServletException, IOException {
         filter.init(new MockFilterConfig());
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         Mock mockChain = mock(FilterChain.class);
         FilterChain chain = (FilterChain) mockChain.proxy();
 
-        mockChain.expects(expectChainToProceed ? once() : never())
-                 .method("doFilter");
+        mockChain.expects(expectChainToProceed ? once() : never()).method("doFilter");
 
         filter.doFilter(request, response, chain);
         filter.destroy();
@@ -130,12 +128,10 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         BasicProcessingFilter filter = new BasicProcessingFilter();
 
         try {
-            filter.doFilter(null, new MockHttpServletResponse(),
-                new MockFilterChain());
+            filter.doFilter(null, new MockHttpServletResponse(), new MockFilterChain());
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("Can only process HttpServletRequest",
-                expected.getMessage());
+            assertEquals("Can only process HttpServletRequest", expected.getMessage());
         }
     }
 
@@ -144,12 +140,10 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         BasicProcessingFilter filter = new BasicProcessingFilter();
 
         try {
-            filter.doFilter(new MockHttpServletRequest(null, null), null,
-                new MockFilterChain());
+            filter.doFilter(new MockHttpServletRequest(null, null), null, new MockFilterChain());
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("Can only process HttpServletResponse",
-                expected.getMessage());
+            assertEquals("Can only process HttpServletResponse", expected.getMessage());
         }
     }
 
@@ -170,8 +164,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         filter.setAuthenticationManager(new MockAuthenticationManager());
         assertTrue(filter.getAuthenticationManager() != null);
 
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
-                "sx"));
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("sx"));
         assertTrue(filter.getAuthenticationEntryPoint() != null);
     }
 
@@ -180,8 +173,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         // Setup our HTTP request
         String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization",
-            "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+        request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
         request.setSession(new MockHttpSession());
 
@@ -195,8 +187,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         // Setup our HTTP request
         String token = "marissa:koala";
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization",
-            "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+        request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
         request.setSession(new MockHttpSession());
 
@@ -206,8 +197,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
 
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("marissa",
-            ((UserDetails) SecurityContextHolder.getContext().getAuthentication()
-                                                .getPrincipal()).getUsername());
+            ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
     }
 
     public void testOtherAuthorizationSchemeIsIgnored()
@@ -231,8 +221,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
             filter.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("An AuthenticationEntryPoint is required",
-                expected.getMessage());
+            assertEquals("An AuthenticationEntryPoint is required", expected.getMessage());
         }
     }
 
@@ -240,13 +229,11 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         throws Exception {
         try {
             BasicProcessingFilter filter = new BasicProcessingFilter();
-            filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
-                    "x"));
+            filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("x"));
             filter.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("An AuthenticationManager is required",
-                expected.getMessage());
+            assertEquals("An AuthenticationManager is required", expected.getMessage());
         }
     }
 
@@ -255,8 +242,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         // Setup our HTTP request
         String token = "marissa:koala";
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization",
-            "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+        request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
         request.setSession(new MockHttpSession());
 
@@ -265,21 +251,18 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
 
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("marissa",
-            ((UserDetails) SecurityContextHolder.getContext().getAuthentication()
-                                                .getPrincipal()).getUsername());
+            ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
 
         // NOW PERFORM FAILED AUTHENTICATION
         // Setup our HTTP request
         token = "otherUser:WRONG_PASSWORD";
         request = new MockHttpServletRequest();
-        request.addHeader("Authorization",
-            "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+        request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
         request.setSession(new MockHttpSession());
 
         // Test - the filter chain will not be invoked, as we get a 403 forbidden response
-        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
-                request, false);
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter, request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
@@ -290,8 +273,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         // Setup our HTTP request
         String token = "marissa:WRONG_PASSWORD";
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization",
-            "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+        request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
         request.setSession(new MockHttpSession());
 
@@ -299,8 +281,7 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         assertTrue(filter.isIgnoreFailure());
 
         // Test - the filter chain will be invoked, as we've set ignoreFailure = true
-        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
-                request, true);
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter, request, true);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
@@ -310,24 +291,21 @@ public class BasicProcessingFilterTests extends MockObjectTestCase {
         // Setup our HTTP request
         String token = "marissa:WRONG_PASSWORD";
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization",
-            "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+        request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
         request.setServletPath("/some_file.html");
         request.setSession(new MockHttpSession());
         assertFalse(filter.isIgnoreFailure());
 
         // Test - the filter chain will not be invoked, as we get a 403 forbidden response
-        MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
-                request, false);
+        MockHttpServletResponse response = executeFilterInContainerSimulator(filter, request, false);
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(401, response.getStatus());
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
-    private class MockApplicationEventPublisher
-        implements ApplicationEventPublisher {
+    private class MockApplicationEventPublisher implements ApplicationEventPublisher {
         public MockApplicationEventPublisher() {}
 
         public void publishEvent(ApplicationEvent event) {}

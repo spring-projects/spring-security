@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 
 package org.acegisecurity.captcha;
 
-
-
 /**
  * Provide a common interface for captcha validation.
  *
@@ -24,7 +22,7 @@ package org.acegisecurity.captcha;
  * @version $Id$
  */
 public interface CaptchaServiceProxy {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * DOCUMENT ME!
@@ -32,8 +30,7 @@ public interface CaptchaServiceProxy {
      * @param id the id token
      * @param captchaResponse the user response
      *
-     * @return true if the response is validated by the back end captcha
-     *         service.
+     * @return true if the response is validated by the back end captcha service.
      */
     boolean validateReponseForId(String id, Object captchaResponse);
 }

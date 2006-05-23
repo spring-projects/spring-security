@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,21 @@ package org.acegisecurity;
 
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 
+
 /**
  * An abstract implementation of the {@link AuthenticationManager}.
  *
  * @author Wesley Hall
  * @version $Id$
  */
-public abstract class AbstractAuthenticationManager
-    implements AuthenticationManager {
-    //~ Methods ================================================================
+public abstract class AbstractAuthenticationManager implements AuthenticationManager {
+    //~ Methods ========================================================================================================
 
     /**
-     * <p>
-     * An implementation of the <code>authenticate</code> method that calls the
-     * abstract method <code>doAuthenticatation</code> to do its work.
-     * </p>
-     * 
-     * <p>
-     * If doAuthenticate throws an <code>AuthenticationException</code> then
-     * the exception is populated with the failed <code>Authentication</code>
-     * object that failed.
-     * </p>
+     * <p>An implementation of the <code>authenticate</code> method that calls the abstract method
+     * <code>doAuthenticatation</code> to do its work.</p>
+     *  <p>If doAuthenticate throws an <code>AuthenticationException</code> then the exception is populated
+     * with the failed <code>Authentication</code> object that failed.</p>
      *
      * @param authRequest the authentication request object
      *
@@ -59,32 +53,24 @@ public abstract class AbstractAuthenticationManager
     }
 
     /**
-     * Copies the authentication details from a source Authentication object
-     * to a destination one, provided the latter does not already have one
-     * set.
+     * Copies the authentication details from a source Authentication object to a destination one, provided the
+     * latter does not already have one set.
      *
      * @param source source authentication
      * @param dest the destination authentication object
      */
     private void copyDetails(Authentication source, Authentication dest) {
-        if((dest instanceof AbstractAuthenticationToken)
-              && dest.getDetails() == null) {
-           AbstractAuthenticationToken token = (AbstractAuthenticationToken)dest;
+        if ((dest instanceof AbstractAuthenticationToken) && (dest.getDetails() == null)) {
+            AbstractAuthenticationToken token = (AbstractAuthenticationToken) dest;
 
-           token.setDetails(source.getDetails());
+            token.setDetails(source.getDetails());
         }
     }
 
     /**
-     * <p>
-     * Concrete implementations of this class override this method to provide
-     * the authentication service.
-     * </p>
-     * 
-     * <p>
-     * The contract for this method is documented in the {@link
-     * AuthenticationManager#authenticate(org.acegisecurity.Authentication)}.
-     * </p>
+     * <p>Concrete implementations of this class override this method to provide the authentication service.</p>
+     *  <p>The contract for this method is documented in the {@link
+     * AuthenticationManager#authenticate(org.acegisecurity.Authentication)}.</p>
      *
      * @param authentication the authentication request object
      *
@@ -92,6 +78,6 @@ public abstract class AbstractAuthenticationManager
      *
      * @throws AuthenticationException if authentication fails
      */
-    protected abstract Authentication doAuthentication(
-        Authentication authentication) throws AuthenticationException;
+    protected abstract Authentication doAuthentication(Authentication authentication)
+        throws AuthenticationException;
 }

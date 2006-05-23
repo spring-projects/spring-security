@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,65 +51,48 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public interface RememberMeServices {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * This method will be called whenever the <code>SecurityContextHolder</code> does
-     * not contain an <code>Authentication</code> and the Acegi Security
-     * system wishes to provide an implementation with an opportunity to
-     * authenticate the request using remember-me capabilities. Acegi Security
-     * makes no attempt whatsoever to determine whether the browser has
-     * requested remember-me services or presented a valid cookie. Such
-     * determinations are left to the implementation. If a browser has
-     * presented an unauthorised cookie for whatever reason, it should be
-     * silently ignored and invalidated using the
-     * <code>HttpServletResponse</code> object.
-     * 
-     * <p>
-     * The returned <code>Authentication</code> must be acceptable to  {@link
-     * org.acegisecurity.AuthenticationManager} or {@link
-     * org.acegisecurity.providers.AuthenticationProvider} defined by the
-     * web application. It is recommended {@link
-     * org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken}
-     * be used in most cases, as it has a corresponding authentication
-     * provider.
-     * </p>
+     * This method will be called whenever the <code>SecurityContextHolder</code> does not contain an
+     * <code>Authentication</code> and the Acegi Security system wishes to provide an implementation with an
+     * opportunity to authenticate the request using remember-me capabilities. Acegi Security makes no attempt
+     * whatsoever to determine whether the browser has requested remember-me services or presented a valid cookie.
+     * Such determinations are left to the implementation. If a browser has presented an unauthorised cookie for
+     * whatever reason, it should be silently ignored and invalidated using the <code>HttpServletResponse</code>
+     * object.<p>The returned <code>Authentication</code> must be acceptable to  {@link
+     * org.acegisecurity.AuthenticationManager} or {@link org.acegisecurity.providers.AuthenticationProvider} defined
+     * by the web application. It is recommended {@link
+     * org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken} be used in most cases, as it has a
+     * corresponding authentication provider.</p>
      *
      * @param request to look for a remember-me token within
      * @param response to change, cancel or modify the remember-me token
      *
-     * @return a valid authentication object, or <code>null</code> if the
-     *         request should not be authenticated
+     * @return a valid authentication object, or <code>null</code> if the request should not be authenticated
      */
-    public Authentication autoLogin(HttpServletRequest request,
-        HttpServletResponse response);
+    public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response);
 
     /**
-     * Called whenever an interactive authentication attempt was made, but the
-     * credentials supplied by the user were missing or otherwise invalid.
-     * Implementations should invalidate any and all remember-me tokens
-     * indicated in the <code>HttpServletRequest</code>.
+     * Called whenever an interactive authentication attempt was made, but the credentials supplied by the user
+     * were missing or otherwise invalid. Implementations should invalidate any and all remember-me tokens indicated
+     * in the <code>HttpServletRequest</code>.
      *
      * @param request that contained an invalid authentication request
      * @param response to change, cancel or modify the remember-me token
      */
-    public void loginFail(HttpServletRequest request,
-        HttpServletResponse response);
+    public void loginFail(HttpServletRequest request, HttpServletResponse response);
 
     /**
-     * Called whenever an interactive authentication attempt is successful. An
-     * implementation may automatically set a remember-me token in the
-     * <code>HttpServletResponse</code>, although this is not recommended.
-     * Instead, implementations should typically look for a request parameter
-     * that indicates the browser has presented an explicit request for
-     * authentication to be remembered, such as the presence of a HTTP POST
-     * parameter.
+     * Called whenever an interactive authentication attempt is successful. An implementation may automatically
+     * set a remember-me token in the <code>HttpServletResponse</code>, although this is not recommended. Instead,
+     * implementations should typically look for a request parameter that indicates the browser has presented an
+     * explicit request for authentication to be remembered, such as the presence of a HTTP POST parameter.
      *
      * @param request that contained the valid authentication request
      * @param response to change, cancel or modify the remember-me token
-     * @param successfulAuthentication representing the successfully
-     *        authenticated principal
+     * @param successfulAuthentication representing the successfully authenticated principal
      */
-    public void loginSuccess(HttpServletRequest request,
-        HttpServletResponse response, Authentication successfulAuthentication);
+    public void loginSuccess(HttpServletRequest request, HttpServletResponse response,
+        Authentication successfulAuthentication);
 }

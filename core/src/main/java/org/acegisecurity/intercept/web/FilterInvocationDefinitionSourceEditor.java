@@ -30,36 +30,24 @@ import java.io.StringReader;
 
 
 /**
- * Property editor to assist with the setup of a {@link
- * FilterInvocationDefinitionSource}.
- * 
- * <p>
- * The class creates and populates a {@link
- * RegExpBasedFilterInvocationDefinitionMap} or {@link
- * PathBasedFilterInvocationDefinitionMap} (depending on the type of patterns
- * presented).
- * </p>
- * 
- * <p>
- * By default the class treats presented patterns as regular expressions. If
- * the keyword <code>PATTERN_TYPE_APACHE_ANT</code> is present (case
- * sensitive), patterns will be treated as Apache Ant paths rather than
- * regular expressions.
- * </p>
+ * Property editor to assist with the setup of a {@link FilterInvocationDefinitionSource}.<p>The class creates and
+ * populates a {@link RegExpBasedFilterInvocationDefinitionMap} or {@link PathBasedFilterInvocationDefinitionMap}
+ * (depending on the type of patterns presented).</p>
+ *  <p>By default the class treats presented patterns as regular expressions. If the keyword
+ * <code>PATTERN_TYPE_APACHE_ANT</code> is present (case sensitive), patterns will be treated as Apache Ant paths
+ * rather than regular expressions.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class FilterInvocationDefinitionSourceEditor
-    extends PropertyEditorSupport {
-    //~ Static fields/initializers =============================================
+public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSupport {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(FilterInvocationDefinitionSourceEditor.class);
-    public static final String DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON =
-        "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON";
+    public static final String DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON = "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON";
     public static final String DIRECTIVE_PATTERN_TYPE_APACHE_ANT = "PATTERN_TYPE_APACHE_ANT";
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void setAsText(String s) throws IllegalArgumentException {
         FilterInvocationDefinitionMap source = new RegExpBasedFilterInvocationDefinitionMap();
@@ -72,17 +60,14 @@ public class FilterInvocationDefinitionSourceEditor
                 source = new PathBasedFilterInvocationDefinitionMap();
 
                 if (logger.isDebugEnabled()) {
-                    logger.debug(("Detected "
-                        + DIRECTIVE_PATTERN_TYPE_APACHE_ANT
+                    logger.debug(("Detected " + DIRECTIVE_PATTERN_TYPE_APACHE_ANT
                         + " directive; using Apache Ant style path expressions"));
                 }
             }
 
-            if (s.lastIndexOf(
-                    DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON) != -1) {
+            if (s.lastIndexOf(DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON) != -1) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Detected "
-                        + DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+                    logger.debug("Detected " + DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
                         + " directive; Instructing mapper to convert URLs to lowercase before comparison");
                 }
 
@@ -117,24 +102,19 @@ public class FilterInvocationDefinitionSourceEditor
                 }
 
                 // Attempt to detect malformed lines (as per SEC-204)
-                if (line.lastIndexOf(
-                        DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON) != -1) {
+                if (line.lastIndexOf(DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON) != -1) {
                     // Directive found; check for second directive or name=value
-                    if ((line.lastIndexOf(DIRECTIVE_PATTERN_TYPE_APACHE_ANT) != -1)
-                        || (line.lastIndexOf("=") != -1)) {
-                        throw new IllegalArgumentException(
-                            "Line appears to be malformed: " + line);
+                    if ((line.lastIndexOf(DIRECTIVE_PATTERN_TYPE_APACHE_ANT) != -1) || (line.lastIndexOf("=") != -1)) {
+                        throw new IllegalArgumentException("Line appears to be malformed: " + line);
                     }
                 }
 
                 // Attempt to detect malformed lines (as per SEC-204)
                 if (line.lastIndexOf(DIRECTIVE_PATTERN_TYPE_APACHE_ANT) != -1) {
                     // Directive found; check for second directive or name=value
-                    if ((line.lastIndexOf(
-                            DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON) != -1)
+                    if ((line.lastIndexOf(DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON) != -1)
                         || (line.lastIndexOf("=") != -1)) {
-                        throw new IllegalArgumentException(
-                            "Line appears to be malformed: " + line);
+                        throw new IllegalArgumentException("Line appears to be malformed: " + line);
                     }
                 }
 
@@ -144,8 +124,7 @@ public class FilterInvocationDefinitionSourceEditor
                 }
 
                 if (line.lastIndexOf("==") != -1) {
-                    throw new IllegalArgumentException(
-                        "Only single equals should be used in line " + line);
+                    throw new IllegalArgumentException("Only single equals should be used in line " + line);
                 }
 
                 // Tokenize the line into its name/value tokens
@@ -154,8 +133,7 @@ public class FilterInvocationDefinitionSourceEditor
                 String value = StringUtils.substringAfterLast(line, "=");
 
                 if (StringUtils.isBlank(name) || StringUtils.isBlank(value)) {
-                    throw new IllegalArgumentException(
-                        "Failed to parse a valid name/value pair from " + line);
+                    throw new IllegalArgumentException("Failed to parse a valid name/value pair from " + line);
                 }
 
                 // Attempt to detect malformed lines (as per SEC-204)
@@ -167,11 +145,10 @@ public class FilterInvocationDefinitionSourceEditor
                         String character = name.substring(i, i + 1);
 
                         if (!character.toLowerCase().equals(character)) {
-                            throw new IllegalArgumentException(
-                                "You are using the "
+                            throw new IllegalArgumentException("You are using the "
                                 + DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-                                + " with Ant Paths, yet you have specified an uppercase character in line: "
-                                + line + " (character '" + character + "')");
+                                + " with Ant Paths, yet you have specified an uppercase character in line: " + line
+                                + " (character '" + character + "')");
                         }
                     }
                 }
@@ -180,8 +157,7 @@ public class FilterInvocationDefinitionSourceEditor
                 ConfigAttributeEditor configAttribEd = new ConfigAttributeEditor();
                 configAttribEd.setAsText(value);
 
-                ConfigAttributeDefinition attr = (ConfigAttributeDefinition) configAttribEd
-                    .getValue();
+                ConfigAttributeDefinition attr = (ConfigAttributeDefinition) configAttribEd.getValue();
 
                 // Register the regular expression and its attribute
                 source.addSecureUrl(name, attr);

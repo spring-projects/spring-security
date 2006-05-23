@@ -25,24 +25,19 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * Base implementation of {@link AuthenticationDetailsSource}.
- * 
- * <P>
- * By default will create an instance of <code>WebAuthenticationDetails</code>.
- * Any object that accepts a <code>HttpServletRequest</code> as its sole
- * constructor can be used instead of this default.
- * </p>
+ * Base implementation of {@link AuthenticationDetailsSource}.<P>By default will create an instance of
+ * <code>WebAuthenticationDetails</code>. Any object that accepts a <code>HttpServletRequest</code> as its sole
+ * constructor can be used instead of this default.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthenticationDetailsSourceImpl
-    implements AuthenticationDetailsSource {
-    //~ Instance fields ========================================================
+public class AuthenticationDetailsSourceImpl implements AuthenticationDetailsSource {
+    //~ Instance fields ================================================================================================
 
     private Class clazz = WebAuthenticationDetails.class;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Object buildDetails(HttpServletRequest request) {
         try {

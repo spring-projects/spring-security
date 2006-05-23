@@ -29,16 +29,15 @@ import javax.servlet.http.HttpSession;
  * @author Ben Alex
  * @version $Id$
  */
-public class WebAuthenticationDetails implements SessionIdentifierAware,
-    Serializable {
-    //~ Instance fields ========================================================
+public class WebAuthenticationDetails implements SessionIdentifierAware, Serializable {
+    //~ Instance fields ================================================================================================
 
     private String remoteAddress;
     private String sessionId;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructor.
      * 
      * <p>
@@ -63,7 +62,7 @@ public class WebAuthenticationDetails implements SessionIdentifierAware,
         throw new IllegalArgumentException("Cannot use default constructor");
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Provided so that subclasses can populate additional information.
@@ -111,8 +110,7 @@ public class WebAuthenticationDetails implements SessionIdentifierAware,
     }
 
     /**
-     * Indicates the TCP/IP address the authentication request was received
-     * from.
+     * Indicates the TCP/IP address the authentication request was received from.
      *
      * @return the address
      */
@@ -121,8 +119,7 @@ public class WebAuthenticationDetails implements SessionIdentifierAware,
     }
 
     /**
-     * Indicates the <code>HttpSession</code> id the authentication request was
-     * received from.
+     * Indicates the <code>HttpSession</code> id the authentication request was received from.
      *
      * @return the session ID
      */

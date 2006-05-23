@@ -34,22 +34,20 @@ import org.acegisecurity.providers.AbstractAuthenticationToken;
  * @see org.acegisecurity.providers.smb.SmbNtlmAuthenticationProvider
  */
 public class NtlmAuthenticationToken extends AbstractAuthenticationToken {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private NtlmPasswordAuthentication ntlmPasswordAuthentication;
     private transient UniAddress domainController;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    public NtlmAuthenticationToken(
-        NtlmPasswordAuthentication ntlmPasswordAuthentication,
-        UniAddress domainController) {
+    public NtlmAuthenticationToken(NtlmPasswordAuthentication ntlmPasswordAuthentication, UniAddress domainController) {
         super(null);
         this.ntlmPasswordAuthentication = ntlmPasswordAuthentication;
         this.domainController = domainController;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Object getCredentials() {
         return ntlmPasswordAuthentication.getPassword();

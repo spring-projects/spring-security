@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
  * @version $Id$
  */
 public class TestCallbackHandler implements JaasAuthenticationCallbackHandler {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void handle(Callback callback, Authentication auth)
         throws IOException, UnsupportedCallbackException {

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import junit.framework.TestCase;
  * @version $Id$
  */
 public class SimpleAclEntryTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public SimpleAclEntryTests() {
         super();
@@ -35,22 +35,20 @@ public class SimpleAclEntryTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SimpleAclEntryTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testCorrectOperation() {
         String recipient = "marissa";
-        AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain",
-                "12");
-        SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity,
-                null, 0);
+        AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain", "12");
+        SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity, null, 0);
 
         assertFalse(acl.isPermitted(SimpleAclEntry.ADMINISTRATION));
         acl.addPermission(SimpleAclEntry.ADMINISTRATION);
@@ -90,8 +88,7 @@ public class SimpleAclEntryTests extends TestCase {
 
     public void testDetectsNullOnMainConstructor() {
         String recipient = "marissa";
-        AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain",
-                "12");
+        AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain", "12");
 
         try {
             new SimpleAclEntry(recipient, null, null, 2);
@@ -111,13 +108,11 @@ public class SimpleAclEntryTests extends TestCase {
     public void testGettersSetters() {
         SimpleAclEntry acl = new SimpleAclEntry();
 
-        AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain",
-                "693");
+        AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain", "693");
         acl.setAclObjectIdentity(objectIdentity);
         assertEquals(objectIdentity, acl.getAclObjectIdentity());
 
-        AclObjectIdentity parentObjectIdentity = new NamedEntityObjectIdentity("domain",
-                "13");
+        AclObjectIdentity parentObjectIdentity = new NamedEntityObjectIdentity("domain", "13");
         acl.setAclObjectParentIdentity(parentObjectIdentity);
         assertEquals(parentObjectIdentity, acl.getAclObjectParentIdentity());
 
@@ -130,10 +125,8 @@ public class SimpleAclEntryTests extends TestCase {
 
     public void testRejectsInvalidMasksInAddMethod() {
         String recipient = "marissa";
-        AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain",
-                "12");
-        SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity,
-                null, 4);
+        AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain", "12");
+        SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity, null, 4);
 
         try {
             acl.addPermission(Integer.MAX_VALUE);
@@ -145,10 +138,8 @@ public class SimpleAclEntryTests extends TestCase {
 
     public void testRejectsInvalidMasksInDeleteMethod() {
         String recipient = "marissa";
-        AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain",
-                "12");
-        SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity,
-                null, 0);
+        AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain", "12");
+        SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity, null, 0);
         acl.addPermissions(new int[] {SimpleAclEntry.READ, SimpleAclEntry.WRITE, SimpleAclEntry.CREATE});
 
         try {
@@ -161,10 +152,8 @@ public class SimpleAclEntryTests extends TestCase {
 
     public void testRejectsInvalidMasksInTogglePermissionMethod() {
         String recipient = "marissa";
-        AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain",
-                "12");
-        SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity,
-                null, 0);
+        AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain", "12");
+        SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity, null, 0);
         acl.addPermissions(new int[] {SimpleAclEntry.READ, SimpleAclEntry.WRITE, SimpleAclEntry.CREATE});
 
         try {
@@ -177,10 +166,8 @@ public class SimpleAclEntryTests extends TestCase {
 
     public void testToString() {
         String recipient = "marissa";
-        AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain",
-                "12");
-        SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity,
-                null, 0);
+        AclObjectIdentity objectIdentity = new NamedEntityObjectIdentity("domain", "12");
+        SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity, null, 0);
         acl.addPermissions(new int[] {SimpleAclEntry.READ, SimpleAclEntry.WRITE, SimpleAclEntry.CREATE});
         assertTrue(acl.toString().endsWith("marissa=-RWC- ............................111. (14)]"));
     }

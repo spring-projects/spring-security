@@ -42,56 +42,48 @@ import javax.sql.DataSource;
 
 
 /**
- * <p>
- * Retrieves ACL details from a JDBC location.
- * </p>
- * 
- * <p>
- * A default database structure is assumed. This may be overridden by setting
- * the default query strings to use. If this does not provide enough
- * flexibility, another strategy would be to subclass this class and override
- * the {@link MappingSqlQuery} instance used, via the {@link
- * #initMappingSqlQueries()} extension point.
- * </p>
+ * <p>Retrieves ACL details from a JDBC location.</p>
+ *  <p>A default database structure is assumed. This may be overridden by setting the default query strings to use.
+ * If this does not provide enough flexibility, another strategy would be to subclass this class and override the
+ * {@link MappingSqlQuery} instance used, via the {@link #initMappingSqlQueries()} extension point.</p>
  */
 public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     public static final String RECIPIENT_USED_FOR_INHERITENCE_MARKER = "___INHERITENCE_MARKER_ONLY___";
     public static final String DEF_ACLS_BY_OBJECT_IDENTITY_QUERY = "SELECT RECIPIENT, MASK FROM acl_permission WHERE acl_object_identity = ?";
     public static final String DEF_OBJECT_PROPERTIES_QUERY = "SELECT CHILD.ID, CHILD.OBJECT_IDENTITY, CHILD.ACL_CLASS, PARENT.OBJECT_IDENTITY as PARENT_OBJECT_IDENTITY FROM acl_object_identity as CHILD LEFT OUTER JOIN acl_object_identity as PARENT ON CHILD.parent_object=PARENT.id WHERE CHILD.object_identity = ?";
     private static final Log logger = LogFactory.getLog(JdbcDaoImpl.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     protected MappingSqlQuery aclsByObjectIdentity;
     protected MappingSqlQuery objectProperties;
     private String aclsByObjectIdentityQuery;
     private String objectPropertiesQuery;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public JdbcDaoImpl() {
         aclsByObjectIdentityQuery = DEF_ACLS_BY_OBJECT_IDENTITY_QUERY;
         objectPropertiesQuery = DEF_OBJECT_PROPERTIES_QUERY;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Responsible for covering a <code>AclObjectIdentity</code> to a
-     * <code>String</code> that can be located in the RDBMS.
+     * Responsible for covering a <code>AclObjectIdentity</code> to a <code>String</code> that can be located
+     * in the RDBMS.
      *
      * @param aclObjectIdentity to locate
      *
      * @return the object identity as a <code>String</code>
      */
-    protected String convertAclObjectIdentityToString(
-        AclObjectIdentity aclObjectIdentity) {
+    protected String convertAclObjectIdentityToString(AclObjectIdentity aclObjectIdentity) {
         // Ensure we can process this type of AclObjectIdentity
         Assert.isInstanceOf(NamedEntityObjectIdentity.class, aclObjectIdentity,
-            "Only aclObjectIdentity of type NamedEntityObjectIdentity supported (was passed: "
-            + aclObjectIdentity + ")");
+            "Only aclObjectIdentity of type NamedEntityObjectIdentity supported (was passed: " + aclObjectIdentity
+            + ")");
 
         NamedEntityObjectIdentity neoi = (NamedEntityObjectIdentity) aclObjectIdentity;
 
@@ -100,37 +92,26 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
     }
 
     /**
-     * Constructs an individual <code>BasicAclEntry</code> from the passed
-     * <code>AclDetailsHolder</code>s.
-     * 
-     * <P>
-     * Guarantees to never return <code>null</code> (exceptions are thrown in
-     * the event of any issues).
-     * </p>
+     * Constructs an individual <code>BasicAclEntry</code> from the passed <code>AclDetailsHolder</code>s.<P>Guarantees
+     * to never return <code>null</code> (exceptions are thrown in the event of any issues).</p>
      *
-     * @param propertiesInformation mandatory information about which instance
-     *        to create, the object identity, and the parent object identity
-     *        (<code>null</code> or empty <code>String</code>s prohibited for
+     * @param propertiesInformation mandatory information about which instance to create, the object identity, and the
+     *        parent object identity (<code>null</code> or empty <code>String</code>s prohibited for
      *        <code>aclClass</code> and <code>aclObjectIdentity</code>
-     * @param aclInformation optional information about the individual ACL
-     *        record (if <code>null</code> only an "inheritence marker"
-     *        instance is returned which will include a recipient of {@link
-     *        #RECIPIENT_USED_FOR_INHERITENCE_MARKER} ; if not
-     *        <code>null</code>, it is prohibited to present <code>null</code>
-     *        or an empty <code>String</code> for <code>recipient</code>)
+     * @param aclInformation optional information about the individual ACL record (if <code>null</code> only an
+     *        "inheritence marker" instance is returned which will include a recipient of {@link
+     *        #RECIPIENT_USED_FOR_INHERITENCE_MARKER} ; if not <code>null</code>, it is prohibited to present
+     *        <code>null</code> or an empty <code>String</code> for <code>recipient</code>)
      *
      * @return a fully populated instance suitable for use by external objects
      *
-     * @throws IllegalArgumentException if the indicated ACL class could not be
-     *         created
+     * @throws IllegalArgumentException if the indicated ACL class could not be created
      */
-    private BasicAclEntry createBasicAclEntry(
-        AclDetailsHolder propertiesInformation, AclDetailsHolder aclInformation) {
+    private BasicAclEntry createBasicAclEntry(AclDetailsHolder propertiesInformation, AclDetailsHolder aclInformation) {
         BasicAclEntry entry;
 
         try {
-            entry = (BasicAclEntry) propertiesInformation.getAclClass()
-                                                         .newInstance();
+            entry = (BasicAclEntry) propertiesInformation.getAclClass().newInstance();
         } catch (InstantiationException ie) {
             throw new IllegalArgumentException(ie.getMessage());
         } catch (IllegalAccessException iae) {
@@ -138,8 +119,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
         }
 
         entry.setAclObjectIdentity(propertiesInformation.getAclObjectIdentity());
-        entry.setAclObjectParentIdentity(propertiesInformation
-            .getAclObjectParentIdentity());
+        entry.setAclObjectParentIdentity(propertiesInformation.getAclObjectParentIdentity());
 
         if (aclInformation == null) {
             // this is an inheritence marker instance only
@@ -155,30 +135,19 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
     }
 
     /**
-     * Returns the ACLs associated with the requested
-     * <code>AclObjectIdentity</code>.
-     * 
-     * <P>
-     * The {@link BasicAclEntry}s returned by this method will have
-     * <code>String</code>-based recipients. This will not be a problem if you
-     * are using the <code>GrantedAuthorityEffectiveAclsResolver</code>, which
-     * is the default configured against <code>BasicAclProvider</code>.
-     * </p>
-     * 
-     * <P>
-     * This method will only return ACLs for requests where the
-     * <code>AclObjectIdentity</code> is of type {@link
-     * NamedEntityObjectIdentity}. Of course, you can subclass or replace this
-     * class and support your own custom <code>AclObjectIdentity</code> types.
-     * </p>
+     * Returns the ACLs associated with the requested <code>AclObjectIdentity</code>.<P>The {@link
+     * BasicAclEntry}s returned by this method will have <code>String</code>-based recipients. This will not be a
+     * problem if you are using the <code>GrantedAuthorityEffectiveAclsResolver</code>, which is the default
+     * configured against <code>BasicAclProvider</code>.</p>
+     *  <P>This method will only return ACLs for requests where the <code>AclObjectIdentity</code> is of type
+     * {@link NamedEntityObjectIdentity}. Of course, you can subclass or replace this class and support your own
+     * custom <code>AclObjectIdentity</code> types.</p>
      *
-     * @param aclObjectIdentity for which ACL information is required (cannot
-     *        be <code>null</code> and must be an instance of
-     *        <code>NamedEntityObjectIdentity</code>)
+     * @param aclObjectIdentity for which ACL information is required (cannot be <code>null</code> and must be an
+     *        instance of <code>NamedEntityObjectIdentity</code>)
      *
-     * @return the ACLs that apply (without any <code>null</code>s inside the
-     *         array), or <code>null</code> if not found or if an incompatible
-     *         <code>AclObjectIdentity</code> was requested
+     * @return the ACLs that apply (without any <code>null</code>s inside the array), or <code>null</code> if not found
+     *         or if an incompatible <code>AclObjectIdentity</code> was requested
      */
     public BasicAclEntry[] getAcls(AclObjectIdentity aclObjectIdentity) {
         String aclObjectIdentityString;
@@ -201,21 +170,18 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
         AclDetailsHolder propertiesInformation = (AclDetailsHolder) objects.get(0);
 
         // Lookup the object's ACLs from RDBMS (guaranteed no nulls)
-        List acls = aclsByObjectIdentity.execute(propertiesInformation
-                .getForeignKeyId());
+        List acls = aclsByObjectIdentity.execute(propertiesInformation.getForeignKeyId());
 
         if (acls.size() == 0) {
             // return merely an inheritence marker (as we know about the object but it has no related ACLs)
-            return new BasicAclEntry[] {createBasicAclEntry(propertiesInformation,
-                    null)};
+            return new BasicAclEntry[] {createBasicAclEntry(propertiesInformation, null)};
         } else {
             // return the individual ACL instances
             AclDetailsHolder[] aclHolders = (AclDetailsHolder[]) acls.toArray(new AclDetailsHolder[] {});
             List toReturnAcls = new Vector();
 
             for (int i = 0; i < aclHolders.length; i++) {
-                toReturnAcls.add(createBasicAclEntry(propertiesInformation,
-                        aclHolders[i]));
+                toReturnAcls.add(createBasicAclEntry(propertiesInformation, aclHolders[i]));
             }
 
             return (BasicAclEntry[]) toReturnAcls.toArray(new BasicAclEntry[] {});
@@ -239,26 +205,22 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
     }
 
     /**
-     * Extension point to allow other MappingSqlQuery objects to be substituted
-     * in a subclass
+     * Extension point to allow other MappingSqlQuery objects to be substituted in a subclass
      */
     protected void initMappingSqlQueries() {
         setAclsByObjectIdentity(new AclsByObjectIdentityMapping(getDataSource()));
         setObjectProperties(new ObjectPropertiesMapping(getDataSource()));
     }
 
-    public void setAclsByObjectIdentity(
-        MappingSqlQuery aclsByObjectIdentityQuery) {
+    public void setAclsByObjectIdentity(MappingSqlQuery aclsByObjectIdentityQuery) {
         this.aclsByObjectIdentity = aclsByObjectIdentityQuery;
     }
 
     /**
-     * Allows the default query string used to retrieve ACLs based on object
-     * identity to be overriden, if default table or column names need to be
-     * changed. The default query is {@link
-     * #DEF_ACLS_BY_OBJECT_IDENTITY_QUERY}; when modifying this query, ensure
-     * that all returned columns are mapped back to the same column names as
-     * in the default query.
+     * Allows the default query string used to retrieve ACLs based on object identity to be overriden, if
+     * default table or column names need to be changed. The default query is {@link
+     * #DEF_ACLS_BY_OBJECT_IDENTITY_QUERY}; when modifying this query, ensure that all returned columns are mapped
+     * back to the same column names as in the default query.
      *
      * @param queryString The query string to set
      */
@@ -274,22 +236,14 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
         objectPropertiesQuery = queryString;
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     /**
-     * Used to hold details of a domain object instance's properties, or an
-     * individual ACL entry.
-     * 
-     * <P>
-     * Not all properties will be set. The actual properties set will depend on
-     * which <code>MappingSqlQuery</code> creates the object.
-     * </p>
-     * 
-     * <P>
-     * Does not enforce <code>null</code>s or empty <code>String</code>s as
-     * this is performed by the <code>MappingSqlQuery</code> objects (or
-     * preferably the backend RDBMS via schema constraints).
-     * </p>
+     * Used to hold details of a domain object instance's properties, or an individual ACL entry.<P>Not all
+     * properties will be set. The actual properties set will depend on which <code>MappingSqlQuery</code> creates the
+     * object.</p>
+     *  <P>Does not enforce <code>null</code>s or empty <code>String</code>s as this is performed by the
+     * <code>MappingSqlQuery</code> objects (or preferably the backend RDBMS via schema constraints).</p>
      */
     protected final class AclDetailsHolder {
         private AclObjectIdentity aclObjectIdentity;
@@ -299,7 +253,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
         private int mask;
         private long foreignKeyId;
 
-        /**
+/**
          * Record details of an individual ACL entry (usually from the
          * ACL_PERMISSION table)
          *
@@ -311,7 +265,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
             this.mask = mask;
         }
 
-        /**
+/**
          * Record details of a domain object instance's properties (usually
          * from the ACL_OBJECT_IDENTITY table)
          *
@@ -326,8 +280,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
          *        created for each individual ACL entry (or an inheritence
          *        "holder" class if there are no ACL entries)
          */
-        public AclDetailsHolder(long foreignKeyId,
-            AclObjectIdentity aclObjectIdentity,
+        public AclDetailsHolder(long foreignKeyId, AclObjectIdentity aclObjectIdentity,
             AclObjectIdentity aclObjectParentIdentity, Class aclClass) {
             this.foreignKeyId = foreignKeyId;
             this.aclObjectIdentity = aclObjectIdentity;
@@ -361,21 +314,11 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
     }
 
     /**
-     * Query object to look up individual ACL entries.
-     * 
-     * <P>
-     * Returns the generic <code>AclDetailsHolder</code> object.
-     * </p>
-     * 
-     * <P>
-     * Guarantees to never return <code>null</code> (exceptions are thrown in
-     * the event of any issues).
-     * </p>
-     * 
-     * <P>
-     * The executed SQL requires the following information be made available
-     * from the indicated placeholders: 1. RECIPIENT, 2. MASK.
-     * </p>
+     * Query object to look up individual ACL entries.<P>Returns the generic <code>AclDetailsHolder</code>
+     * object.</p>
+     *  <P>Guarantees to never return <code>null</code> (exceptions are thrown in the event of any issues).</p>
+     *  <P>The executed SQL requires the following information be made available from the indicated
+     * placeholders: 1. RECIPIENT, 2. MASK.</p>
      */
     protected class AclsByObjectIdentityMapping extends MappingSqlQuery {
         protected AclsByObjectIdentityMapping(DataSource ds) {
@@ -395,22 +338,11 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
     }
 
     /**
-     * Query object to look up properties for an object identity.
-     * 
-     * <P>
-     * Returns the generic <code>AclDetailsHolder</code> object.
-     * </p>
-     * 
-     * <P>
-     * Guarantees to never return <code>null</code> (exceptions are thrown in
-     * the event of any issues).
-     * </p>
-     * 
-     * <P>
-     * The executed SQL requires the following information be made available
-     * from the indicated placeholders: 1. ID, 2. OBJECT_IDENTITY, 3.
-     * ACL_CLASS and 4. PARENT_OBJECT_IDENTITY.
-     * </p>
+     * Query object to look up properties for an object identity.<P>Returns the generic
+     * <code>AclDetailsHolder</code> object.</p>
+     *  <P>Guarantees to never return <code>null</code> (exceptions are thrown in the event of any issues).</p>
+     *  <P>The executed SQL requires the following information be made available from the indicated
+     * placeholders: 1. ID, 2. OBJECT_IDENTITY, 3. ACL_CLASS and 4. PARENT_OBJECT_IDENTITY.</p>
      */
     protected class ObjectPropertiesMapping extends MappingSqlQuery {
         protected ObjectPropertiesMapping(DataSource ds) {
@@ -440,8 +372,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
             String parentObjectIdentity = rs.getString(4); // optional
             Assert.hasText(objectIdentity,
                 "required DEF_OBJECT_PROPERTIES_QUERY value (objectIdentity) returned null or empty");
-            Assert.hasText(aclClass,
-                "required DEF_OBJECT_PROPERTIES_QUERY value (aclClass) returned null or empty");
+            Assert.hasText(aclClass, "required DEF_OBJECT_PROPERTIES_QUERY value (aclClass) returned null or empty");
 
             Class aclClazz;
 
@@ -451,8 +382,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
                 throw new IllegalArgumentException(cnf.getMessage());
             }
 
-            return new AclDetailsHolder(id, buildIdentity(objectIdentity),
-                buildIdentity(parentObjectIdentity), aclClazz);
+            return new AclDetailsHolder(id, buildIdentity(objectIdentity), buildIdentity(parentObjectIdentity), aclClazz);
         }
     }
 }

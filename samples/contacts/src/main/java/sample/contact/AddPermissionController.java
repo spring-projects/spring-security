@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,42 +45,28 @@ import javax.servlet.http.HttpServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class AddPermissionController extends SimpleFormController
-    implements InitializingBean {
-    //~ Instance fields ========================================================
+public class AddPermissionController extends SimpleFormController implements InitializingBean {
+    //~ Instance fields ================================================================================================
 
     private ContactManager contactManager;
 
-    //~ Methods ================================================================
-
-    public void setContactManager(ContactManager contact) {
-        this.contactManager = contact;
-    }
-
-    public ContactManager getContactManager() {
-        return contactManager;
-    }
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(contactManager,
-            "A ContactManager implementation is required");
+        Assert.notNull(contactManager, "A ContactManager implementation is required");
     }
 
-    protected ModelAndView disallowDuplicateFormSubmission(
-        HttpServletRequest request, HttpServletResponse response)
+    protected ModelAndView disallowDuplicateFormSubmission(HttpServletRequest request, HttpServletResponse response)
         throws Exception {
-        BindException errors = new BindException(formBackingObject(request),
-                getCommandName());
-        errors.reject("err.duplicateFormSubmission",
-            "Duplicate form submission.");
+        BindException errors = new BindException(formBackingObject(request), getCommandName());
+        errors.reject("err.duplicateFormSubmission", "Duplicate form submission.");
 
         return showForm(request, response, errors);
     }
 
     protected Object formBackingObject(HttpServletRequest request)
         throws Exception {
-        int contactId = RequestUtils.getRequiredIntParameter(request,
-                "contactId");
+        int contactId = RequestUtils.getRequiredIntParameter(request, "contactId");
 
         Contact contact = contactManager.getById(new Long(contactId));
 
@@ -90,19 +76,53 @@ public class AddPermissionController extends SimpleFormController
         return addPermission;
     }
 
-    protected ModelAndView handleInvalidSubmit(HttpServletRequest request,
-        HttpServletResponse response) throws Exception {
+    public ContactManager getContactManager() {
+        return contactManager;
+    }
+
+    protected ModelAndView handleInvalidSubmit(HttpServletRequest request, HttpServletResponse response)
+        throws Exception {
         return disallowDuplicateFormSubmission(request, response);
     }
 
-    protected ModelAndView onSubmit(HttpServletRequest request,
-        HttpServletResponse response, Object command, BindException errors)
-        throws Exception {
+    private Map listPermissions(HttpServletRequest request) {
+        Map map = new LinkedHashMap();
+        map.put(new Integer(SimpleAclEntry.NOTHING),
+            getApplicationContext().getMessage("select.none", null, "None", request.getLocale()));
+        map.put(new Integer(SimpleAclEntry.ADMINISTRATION),
+            getApplicationContext().getMessage("select.administer", null, "Administer", request.getLocale()));
+        map.put(new Integer(SimpleAclEntry.READ),
+            getApplicationContext().getMessage("select.read", null, "Read", request.getLocale()));
+        map.put(new Integer(SimpleAclEntry.DELETE),
+            getApplicationContext().getMessage("select.delete", null, "Delete", request.getLocale()));
+        map.put(new Integer(SimpleAclEntry.READ_WRITE_DELETE),
+            getApplicationContext().getMessage("select.readWriteDelete", null, "Read+Write+Delete", request.getLocale()));
+
+        return map;
+    }
+
+    private Map listRecipients(HttpServletRequest request) {
+        Map map = new LinkedHashMap();
+        map.put("",
+            getApplicationContext().getMessage("select.pleaseSelect", null, "-- please select --", request.getLocale()));
+
+        Iterator recipientsIter = contactManager.getAllRecipients().iterator();
+
+        while (recipientsIter.hasNext()) {
+            String recipient = (String) recipientsIter.next();
+            map.put(recipient, recipient);
+        }
+
+        return map;
+    }
+
+    protected ModelAndView onSubmit(HttpServletRequest request, HttpServletResponse response, Object command,
+        BindException errors) throws Exception {
         AddPermission addPermission = (AddPermission) command;
 
         try {
-            contactManager.addPermission(addPermission.getContact(),
-                addPermission.getRecipient(), addPermission.getPermission());
+            contactManager.addPermission(addPermission.getContact(), addPermission.getRecipient(),
+                addPermission.getPermission());
         } catch (DataAccessException existingPermission) {
             existingPermission.printStackTrace();
             errors.rejectValue("recipient", "err.recipientExistsForContact",
@@ -123,40 +143,7 @@ public class AddPermissionController extends SimpleFormController
         return model;
     }
 
-    private Map listPermissions(HttpServletRequest request) {
-        Map map = new LinkedHashMap();
-        map.put(new Integer(SimpleAclEntry.NOTHING),
-            getApplicationContext().getMessage("select.none", null, "None",
-                request.getLocale()));
-        map.put(new Integer(SimpleAclEntry.ADMINISTRATION),
-            getApplicationContext().getMessage("select.administer", null,
-                "Administer", request.getLocale()));
-        map.put(new Integer(SimpleAclEntry.READ),
-            getApplicationContext().getMessage("select.read", null, "Read",
-                request.getLocale()));
-        map.put(new Integer(SimpleAclEntry.DELETE),
-            getApplicationContext().getMessage("select.delete", null, "Delete",
-                request.getLocale()));
-        map.put(new Integer(SimpleAclEntry.READ_WRITE_DELETE),
-            getApplicationContext().getMessage("select.readWriteDelete", null,
-                "Read+Write+Delete", request.getLocale()));
-
-        return map;
-    }
-
-    private Map listRecipients(HttpServletRequest request) {
-        Map map = new LinkedHashMap();
-        map.put("",
-            getApplicationContext().getMessage("select.pleaseSelect", null,
-                "-- please select --", request.getLocale()));
-
-        Iterator recipientsIter = contactManager.getAllRecipients().iterator();
-
-        while (recipientsIter.hasNext()) {
-            String recipient = (String) recipientsIter.next();
-            map.put(recipient, recipient);
-        }
-
-        return map;
+    public void setContactManager(ContactManager contact) {
+        this.contactManager = contact;
     }
 }

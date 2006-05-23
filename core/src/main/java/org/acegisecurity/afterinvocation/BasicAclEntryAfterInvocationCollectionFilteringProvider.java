@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthorizationServiceException;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
+
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.acl.AclManager;
 import org.acegisecurity.acl.basic.BasicAclEntry;
@@ -42,125 +43,61 @@ import java.util.Set;
 
 
 /**
- * <p>
- * Given a <code>Collection</code> of domain object instances returned from a
- * secure object invocation, remove any <code>Collection</code> elements the
- * principal does not have appropriate permission to access as defined by the
- * {@link AclManager}.
- * </p>
- * 
- * <p>
- * The <code>AclManager</code> is used to retrieve the access control list
- * (ACL) permissions associated with each <code>Collection</code>  domain
- * object instance element for the current <code>Authentication</code> object.
- * This class is designed to process {@link AclEntry}s that are subclasses of
- * {@link org.acegisecurity.acl.basic.BasicAclEntry} only.
- * Generally these are obtained by using the {@link
- * org.acegisecurity.acl.basic.BasicAclProvider}.
- * </p>
- * 
- * <p>
- * This after invocation provider will fire if any {@link
- * ConfigAttribute#getAttribute()} matches the {@link
- * #processConfigAttribute}. The provider will then lookup the ACLs from the
- * <code>AclManager</code> and ensure the principal is {@link
- * org.acegisecurity.acl.basic.BasicAclEntry#isPermitted(int)} for
- * at least one of the {@link #requirePermission}s for each
- * <code>Collection</code> element. If the principal does not have at least
- * one of the permissions, that element will not be included in the returned
- * <code>Collection</code>.
- * </p>
- * 
- * <p>
- * Often users will setup a <code>BasicAclEntryAfterInvocationProvider</code>
- * with a {@link #processConfigAttribute} of
- * <code>AFTER_ACL_COLLECTION_READ</code> and a {@link #requirePermission} of
- * <code>SimpleAclEntry.READ</code>. These are also the defaults.
- * </p>
- * 
- * <p>
- * The <code>AclManager</code> is allowed to return any implementations of
- * <code>AclEntry</code> it wishes. However, this provider will only be able
- * to validate against <code>BasicAclEntry</code>s, and thus a
- * <code>Collection</code> element will be filtered from the resulting
- * <code>Collection</code> if no <code>AclEntry</code> is of type
- * <code>BasicAclEntry</code>.
- * </p>
- * 
- * <p>
- * If the provided <code>returnObject</code> is <code>null</code>, a
- * <code>null</code><code>Collection</code> will be returned. If the provided
- * <code>returnObject</code> is not a <code>Collection</code>, an {@link
- * AuthorizationServiceException} will be thrown.
- * </p>
- * 
- * <p>
- * All comparisons and prefixes are case sensitive.
- * </p>
+ * <p>Given a <code>Collection</code> of domain object instances returned from a secure object invocation, remove
+ * any <code>Collection</code> elements the principal does not have appropriate permission to access as defined by the
+ * {@link AclManager}.</p>
+ *  <p>The <code>AclManager</code> is used to retrieve the access control list (ACL) permissions associated with
+ * each <code>Collection</code>  domain object instance element for the current <code>Authentication</code> object.
+ * This class is designed to process {@link AclEntry}s that are subclasses of {@link
+ * org.acegisecurity.acl.basic.BasicAclEntry} only. Generally these are obtained by using the {@link
+ * org.acegisecurity.acl.basic.BasicAclProvider}.</p>
+ *  <p>This after invocation provider will fire if any {@link ConfigAttribute#getAttribute()} matches the {@link
+ * #processConfigAttribute}. The provider will then lookup the ACLs from the <code>AclManager</code> and ensure the
+ * principal is {@link org.acegisecurity.acl.basic.BasicAclEntry#isPermitted(int)} for at least one of the {@link
+ * #requirePermission}s for each <code>Collection</code> element. If the principal does not have at least one of the
+ * permissions, that element will not be included in the returned <code>Collection</code>.</p>
+ *  <p>Often users will setup a <code>BasicAclEntryAfterInvocationProvider</code> with a {@link
+ * #processConfigAttribute} of <code>AFTER_ACL_COLLECTION_READ</code> and a {@link #requirePermission} of
+ * <code>SimpleAclEntry.READ</code>. These are also the defaults.</p>
+ *  <p>The <code>AclManager</code> is allowed to return any implementations of <code>AclEntry</code> it wishes.
+ * However, this provider will only be able to validate against <code>BasicAclEntry</code>s, and thus a
+ * <code>Collection</code> element will be filtered from the resulting <code>Collection</code> if no
+ * <code>AclEntry</code> is of type <code>BasicAclEntry</code>.</p>
+ *  <p>If the provided <code>returnObject</code> is <code>null</code>, a <code>null</code><code>Collection</code>
+ * will be returned. If the provided <code>returnObject</code> is not a <code>Collection</code>, an {@link
+ * AuthorizationServiceException} will be thrown.</p>
+ *  <p>All comparisons and prefixes are case sensitive.</p>
  *
  * @author Ben Alex
  * @author Paulo Neves
  * @version $Id$
  */
-public class BasicAclEntryAfterInvocationCollectionFilteringProvider
-    implements AfterInvocationProvider, InitializingBean {
-    //~ Static fields/initializers =============================================
+public class BasicAclEntryAfterInvocationCollectionFilteringProvider implements AfterInvocationProvider,
+    InitializingBean {
+    //~ Static fields/initializers =====================================================================================
 
     protected static final Log logger = LogFactory.getLog(BasicAclEntryAfterInvocationCollectionFilteringProvider.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private AclManager aclManager;
+    private Class processDomainObjectClass = Object.class;
     private String processConfigAttribute = "AFTER_ACL_COLLECTION_READ";
     private int[] requirePermission = {SimpleAclEntry.READ};
-    private Class processDomainObjectClass = Object.class;
 
-    //~ Methods ================================================================
-
-    public void setProcessDomainObjectClass(Class processDomainObjectClass) {
-        Assert.notNull(processDomainObjectClass,
-        "processDomainObjectClass cannot be set to null");
-        this.processDomainObjectClass = processDomainObjectClass;
-	}
-
-    public void setAclManager(AclManager aclManager) {
-        this.aclManager = aclManager;
-    }
-
-    public AclManager getAclManager() {
-        return aclManager;
-    }
-
-    public void setProcessConfigAttribute(String processConfigAttribute) {
-        this.processConfigAttribute = processConfigAttribute;
-    }
-
-    public String getProcessConfigAttribute() {
-        return processConfigAttribute;
-    }
-
-    public void setRequirePermission(int[] requirePermission) {
-        this.requirePermission = requirePermission;
-    }
-
-    public int[] getRequirePermission() {
-        return requirePermission;
-    }
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(processConfigAttribute,
-            "A processConfigAttribute is mandatory");
+        Assert.notNull(processConfigAttribute, "A processConfigAttribute is mandatory");
         Assert.notNull(aclManager, "An aclManager is mandatory");
 
         if ((requirePermission == null) || (requirePermission.length == 0)) {
-            throw new IllegalArgumentException(
-                "One or more requirePermission entries is mandatory");
+            throw new IllegalArgumentException("One or more requirePermission entries is mandatory");
         }
     }
 
-    public Object decide(Authentication authentication, Object object,
-        ConfigAttributeDefinition config, Object returnedObject)
-        throws AccessDeniedException {
+    public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+        Object returnedObject) throws AccessDeniedException {
         Iterator iter = config.getConfigAttributes();
 
         while (iter.hasNext()) {
@@ -203,7 +140,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
                     if (domainObject == null) {
                         hasPermission = true;
                     } else if (!processDomainObjectClass.isAssignableFrom(domainObject.getClass())) {
-                    	hasPermission = true;
+                        hasPermission = true;
                     } else {
                         acls = aclManager.getAcls(domainObject, authentication);
                     }
@@ -212,21 +149,16 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
                         for (int i = 0; i < acls.length; i++) {
                             // Locate processable AclEntrys
                             if (acls[i] instanceof BasicAclEntry) {
-                            	BasicAclEntry processableAcl = (BasicAclEntry) acls[i];
+                                BasicAclEntry processableAcl = (BasicAclEntry) acls[i];
 
                                 // See if principal has any of the required permissions
-                                for (int y = 0; y < requirePermission.length;
-                                    y++) {
-                                    if (processableAcl.isPermitted(
-                                            requirePermission[y])) {
+                                for (int y = 0; y < requirePermission.length; y++) {
+                                    if (processableAcl.isPermitted(requirePermission[y])) {
                                         hasPermission = true;
 
                                         if (logger.isDebugEnabled()) {
-                                            logger.debug(
-                                                "Principal is authorised for element: "
-                                                + domainObject
-                                                + " due to ACL: "
-                                                + processableAcl.toString());
+                                            logger.debug("Principal is authorised for element: " + domainObject
+                                                + " due to ACL: " + processableAcl.toString());
                                         }
                                     }
                                 }
@@ -238,9 +170,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
                         filterer.remove(domainObject);
 
                         if (logger.isDebugEnabled()) {
-                            logger.debug(
-                                "Principal is NOT authorised for element: "
-                                + domainObject);
+                            logger.debug("Principal is NOT authorised for element: " + domainObject);
                         }
                     }
                 }
@@ -252,9 +182,37 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
         return returnedObject;
     }
 
+    public AclManager getAclManager() {
+        return aclManager;
+    }
+
+    public String getProcessConfigAttribute() {
+        return processConfigAttribute;
+    }
+
+    public int[] getRequirePermission() {
+        return requirePermission;
+    }
+
+    public void setAclManager(AclManager aclManager) {
+        this.aclManager = aclManager;
+    }
+
+    public void setProcessConfigAttribute(String processConfigAttribute) {
+        this.processConfigAttribute = processConfigAttribute;
+    }
+
+    public void setProcessDomainObjectClass(Class processDomainObjectClass) {
+        Assert.notNull(processDomainObjectClass, "processDomainObjectClass cannot be set to null");
+        this.processDomainObjectClass = processDomainObjectClass;
+    }
+
+    public void setRequirePermission(int[] requirePermission) {
+        this.requirePermission = requirePermission;
+    }
+
     public boolean supports(ConfigAttribute attribute) {
-        if ((attribute.getAttribute() != null)
-            && attribute.getAttribute().equals(getProcessConfigAttribute())) {
+        if ((attribute.getAttribute() != null) && attribute.getAttribute().equals(getProcessConfigAttribute())) {
             return true;
         } else {
             return false;
@@ -262,8 +220,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
     }
 
     /**
-     * This implementation supports any type of class, because it does not
-     * query the presented secure object.
+     * This implementation supports any type of class, because it does not query the presented secure object.
      *
      * @param clazz the secure object
      *
@@ -279,7 +236,7 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider
  * Filter strategy interface.
  */
 interface Filterer {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Gets the filtered collection or array.
@@ -308,11 +265,11 @@ interface Filterer {
  * A filter used to filter Collections.
  */
 class CollectionFilterer implements Filterer {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     protected static final Log logger = LogFactory.getLog(BasicAclEntryAfterInvocationCollectionFilteringProvider.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Collection collection;
 
@@ -321,7 +278,7 @@ class CollectionFilterer implements Filterer {
     private Iterator collectionIter;
     private Set removeList;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     CollectionFilterer(Collection collection) {
         this.collection = collection;
@@ -336,9 +293,10 @@ class CollectionFilterer implements Filterer {
         removeList = new HashSet();
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
+     * 
      * @see org.acegisecurity.afterinvocation.Filterer#getFilteredObject()
      */
     public Object getFilteredObject() {
@@ -352,14 +310,15 @@ class CollectionFilterer implements Filterer {
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Original collection contained " + originalSize
-                + " elements; now contains " + collection.size() + " elements");
+            logger.debug("Original collection contained " + originalSize + " elements; now contains "
+                + collection.size() + " elements");
         }
 
         return collection;
     }
 
     /**
+     * 
      * @see org.acegisecurity.afterinvocation.Filterer#iterator()
      */
     public Iterator iterator() {
@@ -369,6 +328,7 @@ class CollectionFilterer implements Filterer {
     }
 
     /**
+     * 
      * @see org.acegisecurity.afterinvocation.Filterer#remove(java.lang.Object)
      */
     public void remove(Object object) {
@@ -381,16 +341,16 @@ class CollectionFilterer implements Filterer {
  * A filter used to filter arrays.
  */
 class ArrayFilterer implements Filterer {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     protected static final Log logger = LogFactory.getLog(BasicAclEntryAfterInvocationCollectionFilteringProvider.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Set removeList;
     private Object[] list;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     ArrayFilterer(Object[] list) {
         this.list = list;
@@ -401,18 +361,17 @@ class ArrayFilterer implements Filterer {
         removeList = new HashSet();
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
+     * 
      * @see org.acegisecurity.afterinvocation.Filterer#getFilteredObject()
      */
     public Object getFilteredObject() {
         // Recreate an array of same type and filter the removed objects.
         int originalSize = list.length;
         int sizeOfResultingList = originalSize - removeList.size();
-        Object[] filtered = (Object[]) Array.newInstance(list.getClass()
-                                                             .getComponentType(),
-                sizeOfResultingList);
+        Object[] filtered = (Object[]) Array.newInstance(list.getClass().getComponentType(), sizeOfResultingList);
 
         for (int i = 0, j = 0; i < list.length; i++) {
             Object object = list[i];
@@ -424,8 +383,7 @@ class ArrayFilterer implements Filterer {
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Original array contained " + originalSize
-                + " elements; now contains " + sizeOfResultingList
+            logger.debug("Original array contained " + originalSize + " elements; now contains " + sizeOfResultingList
                 + " elements");
         }
 
@@ -433,6 +391,7 @@ class ArrayFilterer implements Filterer {
     }
 
     /**
+     * 
      * @see org.acegisecurity.afterinvocation.Filterer#iterator()
      */
     public Iterator iterator() {
@@ -440,6 +399,7 @@ class ArrayFilterer implements Filterer {
     }
 
     /**
+     * 
      * @see org.acegisecurity.afterinvocation.Filterer#remove(java.lang.Object)
      */
     public void remove(Object object) {

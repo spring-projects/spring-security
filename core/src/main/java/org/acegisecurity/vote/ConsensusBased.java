@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,51 +15,40 @@
 
 package org.acegisecurity.vote;
 
-import java.util.Iterator;
-
 import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttributeDefinition;
 
+import java.util.Iterator;
+
 
 /**
- * Simple concrete implementation of  {@link
- * org.acegisecurity.AccessDecisionManager} that uses a  consensus-based
+ * Simple concrete implementation of  {@link org.acegisecurity.AccessDecisionManager} that uses a  consensus-based
  * approach.
  */
 public class ConsensusBased extends AbstractAccessDecisionManager {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private boolean allowIfEqualGrantedDeniedDecisions = true;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * This concrete implementation simply polls all configured  {@link
-     * AccessDecisionVoter}s and upon completion determines the consensus of
-     * granted vs denied responses.
-     * 
-     * <p>
-     * If there were an equal number of grant and deny votes, the decision will
-     * be based on the {@link #isAllowIfEqualGrantedDeniedDecisions()}
-     * property (defaults to true).
-     * </p>
-     * 
-     * <p>
-     * If every <code>AccessDecisionVoter</code> abstained from voting, the
-     * decision will be based on the {@link #isAllowIfAllAbstainDecisions()}
-     * property (defaults to false).
-     * </p>
+     * This concrete implementation simply polls all configured  {@link AccessDecisionVoter}s and upon
+     * completion determines the consensus of granted vs denied responses.<p>If there were an equal number of
+     * grant and deny votes, the decision will be based on the {@link #isAllowIfEqualGrantedDeniedDecisions()}
+     * property (defaults to true).</p>
+     *  <p>If every <code>AccessDecisionVoter</code> abstained from voting, the decision will be based on the
+     * {@link #isAllowIfAllAbstainDecisions()} property (defaults to false).</p>
      *
      * @param authentication the caller invoking the method
      * @param object the secured object
-     * @param config the configuration attributes associated with the method
-     *        being invoked
+     * @param config the configuration attributes associated with the method being invoked
      *
      * @throws AccessDeniedException if access is denied
      */
-    public void decide(Authentication authentication, Object object,
-        ConfigAttributeDefinition config) throws AccessDeniedException {
+    public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
+        throws AccessDeniedException {
         Iterator iter = this.getDecisionVoters().iterator();
         int grant = 0;
         int deny = 0;
@@ -92,8 +81,7 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
         }
 
         if (deny > grant) {
-            throw new AccessDeniedException(messages.getMessage(
-                    "AbstractAccessDecisionManager.accessDenied",
+            throw new AccessDeniedException(messages.getMessage("AbstractAccessDecisionManager.accessDenied",
                     "Access is denied"));
         }
 
@@ -101,8 +89,7 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
             if (this.allowIfEqualGrantedDeniedDecisions) {
                 return;
             } else {
-                throw new AccessDeniedException(messages.getMessage(
-                        "AbstractAccessDecisionManager.accessDenied",
+                throw new AccessDeniedException(messages.getMessage("AbstractAccessDecisionManager.accessDenied",
                         "Access is denied"));
             }
         }
@@ -115,8 +102,7 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
         return allowIfEqualGrantedDeniedDecisions;
     }
 
-    public void setAllowIfEqualGrantedDeniedDecisions(
-        boolean allowIfEqualGrantedDeniedDecisions) {
+    public void setAllowIfEqualGrantedDeniedDecisions(boolean allowIfEqualGrantedDeniedDecisions) {
         this.allowIfEqualGrantedDeniedDecisions = allowIfEqualGrantedDeniedDecisions;
     }
 }

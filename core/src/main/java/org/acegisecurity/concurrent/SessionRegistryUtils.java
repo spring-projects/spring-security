@@ -29,12 +29,11 @@ import org.springframework.util.Assert;
  * @version $Id$
  */
 public class SessionRegistryUtils {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static Object obtainPrincipalFromAuthentication(Authentication auth) {
         Assert.notNull(auth, "Authentication required");
-        Assert.notNull(auth.getPrincipal(),
-            "Authentication.getPrincipal() required");
+        Assert.notNull(auth.getPrincipal(), "Authentication.getPrincipal() required");
 
         if (auth.getPrincipal() instanceof UserDetails) {
             return ((UserDetails) auth.getPrincipal()).getUsername();
@@ -48,11 +47,8 @@ public class SessionRegistryUtils {
         Assert.notNull(auth.getDetails(), "Authentication.getDetails() required");
         Assert.isInstanceOf(SessionIdentifierAware.class, auth.getDetails());
 
-        String sessionId = ((SessionIdentifierAware) auth.getDetails())
-            .getSessionId();
-        Assert.hasText(sessionId,
-            "SessionIdentifierAware did not return a Session ID ("
-            + auth.getDetails() + ")");
+        String sessionId = ((SessionIdentifierAware) auth.getDetails()).getSessionId();
+        Assert.hasText(sessionId, "SessionIdentifierAware did not return a Session ID (" + auth.getDetails() + ")");
 
         return sessionId;
     }

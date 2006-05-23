@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,14 @@
 package sample.contact;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.acl.basic.AclObjectIdentity;
 import org.acegisecurity.acl.basic.BasicAclExtendedDao;
 import org.acegisecurity.acl.basic.NamedEntityObjectIdentity;
 import org.acegisecurity.acl.basic.SimpleAclEntry;
+
 import org.acegisecurity.context.SecurityContextHolder;
+
 import org.acegisecurity.userdetails.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -39,15 +42,63 @@ import java.util.Random;
  * @author Ben Alex
  * @version $Id$
  */
-public class ContactManagerBackend extends ApplicationObjectSupport
-    implements ContactManager, InitializingBean {
-    //~ Instance fields ========================================================
+public class ContactManagerBackend extends ApplicationObjectSupport implements ContactManager, InitializingBean {
+    //~ Instance fields ================================================================================================
 
     private BasicAclExtendedDao basicAclExtendedDao;
     private ContactDao contactDao;
     private int counter = 1000;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    public void addPermission(Contact contact, String recipient, Integer permission) {
+        SimpleAclEntry simpleAclEntry = new SimpleAclEntry();
+        simpleAclEntry.setAclObjectIdentity(makeObjectIdentity(contact));
+        simpleAclEntry.setMask(permission.intValue());
+        simpleAclEntry.setRecipient(recipient);
+        basicAclExtendedDao.create(simpleAclEntry);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Added permission " + permission + " for recipient " + recipient + " contact " + contact);
+        }
+    }
+
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(contactDao, "contactDao required");
+        Assert.notNull(basicAclExtendedDao, "basicAclExtendedDao required");
+    }
+
+    public void create(Contact contact) {
+        // Create the Contact itself
+        contact.setId(new Long(counter++));
+        contactDao.create(contact);
+
+        // Grant the current principal access to the contact 
+        addPermission(contact, getUsername(), new Integer(SimpleAclEntry.ADMINISTRATION));
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Created contact " + contact + " and granted admin permission to recipient " + getUsername());
+        }
+    }
+
+    public void delete(Contact contact) {
+        contactDao.delete(contact.getId());
+
+        // Delete the ACL information as well
+        basicAclExtendedDao.delete(makeObjectIdentity(contact));
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Deleted contact " + contact + " including ACL permissions");
+        }
+    }
+
+    public void deletePermission(Contact contact, String recipient) {
+        basicAclExtendedDao.delete(makeObjectIdentity(contact), recipient);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Deleted contact " + contact + " ACL permissions for recipient " + recipient);
+        }
+    }
 
     public List getAll() {
         if (logger.isDebugEnabled()) {
@@ -68,10 +119,6 @@ public class ContactManagerBackend extends ApplicationObjectSupport
         return list;
     }
 
-    public void setBasicAclExtendedDao(BasicAclExtendedDao basicAclExtendedDao) {
-        this.basicAclExtendedDao = basicAclExtendedDao;
-    }
-
     public BasicAclExtendedDao getBasicAclExtendedDao() {
         return basicAclExtendedDao;
     }
@@ -82,10 +129,6 @@ public class ContactManagerBackend extends ApplicationObjectSupport
         }
 
         return contactDao.getById(id);
-    }
-
-    public void setContactDao(ContactDao contactDao) {
-        this.contactDao = contactDao;
     }
 
     public ContactDao getContactDao() {
@@ -109,72 +152,8 @@ public class ContactManagerBackend extends ApplicationObjectSupport
         return (Contact) contacts.get(getNumber);
     }
 
-    public void addPermission(Contact contact, String recipient,
-        Integer permission) {
-        SimpleAclEntry simpleAclEntry = new SimpleAclEntry();
-        simpleAclEntry.setAclObjectIdentity(makeObjectIdentity(contact));
-        simpleAclEntry.setMask(permission.intValue());
-        simpleAclEntry.setRecipient(recipient);
-        basicAclExtendedDao.create(simpleAclEntry);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Added permission " + permission + " for recipient "
-                + recipient + " contact " + contact);
-        }
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(contactDao, "contactDao required");
-        Assert.notNull(basicAclExtendedDao, "basicAclExtendedDao required");
-    }
-
-    public void create(Contact contact) {
-        // Create the Contact itself
-        contact.setId(new Long(counter++));
-        contactDao.create(contact);
-
-        // Grant the current principal access to the contact 
-        addPermission(contact, getUsername(),
-            new Integer(SimpleAclEntry.ADMINISTRATION));
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Created contact " + contact
-                + " and granted admin permission to recipient " + getUsername());
-        }
-    }
-
-    public void delete(Contact contact) {
-        contactDao.delete(contact.getId());
-
-        // Delete the ACL information as well
-        basicAclExtendedDao.delete(makeObjectIdentity(contact));
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Deleted contact " + contact
-                + " including ACL permissions");
-        }
-    }
-
-    public void deletePermission(Contact contact, String recipient) {
-        basicAclExtendedDao.delete(makeObjectIdentity(contact), recipient);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Deleted contact " + contact
-                + " ACL permissions for recipient " + recipient);
-        }
-    }
-
-    public void update(Contact contact) {
-        contactDao.update(contact);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Updated contact " + contact);
-        }
-    }
-
     protected String getUsername() {
-        Authentication auth = SecurityContextHolder.getContext()
-                                                   .getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth.getPrincipal() instanceof UserDetails) {
             return ((UserDetails) auth.getPrincipal()).getUsername();
@@ -184,7 +163,22 @@ public class ContactManagerBackend extends ApplicationObjectSupport
     }
 
     private AclObjectIdentity makeObjectIdentity(Contact contact) {
-        return new NamedEntityObjectIdentity(contact.getClass().getName(),
-            contact.getId().toString());
+        return new NamedEntityObjectIdentity(contact.getClass().getName(), contact.getId().toString());
+    }
+
+    public void setBasicAclExtendedDao(BasicAclExtendedDao basicAclExtendedDao) {
+        this.basicAclExtendedDao = basicAclExtendedDao;
+    }
+
+    public void setContactDao(ContactDao contactDao) {
+        this.contactDao = contactDao;
+    }
+
+    public void update(Contact contact) {
+        contactDao.update(contact);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Updated contact " + contact);
+        }
     }
 }

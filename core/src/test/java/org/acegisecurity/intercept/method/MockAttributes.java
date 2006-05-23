@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,27 +37,28 @@ import java.util.List;
  * @author Ben Alex
  */
 public class MockAttributes implements Attributes {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
-    List classAttributes = Arrays.asList(new SecurityConfig[] {new SecurityConfig(
-                    "MOCK_CLASS")});
-    List classMethodAttributesCountLength = Arrays.asList(new String[] {new String(
-                    "MOCK_CLASS_METHOD_COUNT_LENGTH")});
-    List classMethodAttributesMakeLowerCase = Arrays.asList(new SecurityConfig[] {new SecurityConfig(
-                    "MOCK_CLASS_METHOD_MAKE_LOWER_CASE")});
-    List classMethodAttributesMakeUpperCase = Arrays.asList(new SecurityConfig[] {new SecurityConfig(
-                    "MOCK_CLASS_METHOD_MAKE_UPPER_CASE")});
-    List interfaceAttributes = Arrays.asList(new SecurityConfig[] {new SecurityConfig(
-                    "MOCK_INTERFACE")});
-    List interfaceMethodAttributesCountLength = Arrays.asList(new SecurityConfig[] {new SecurityConfig(
-                    "MOCK_INTERFACE_METHOD_COUNT_LENGTH")});
-    List interfaceMethodAttributesMakeLowerCase = Arrays.asList(new SecurityConfig[] {new SecurityConfig(
-                    "MOCK_INTERFACE_METHOD_MAKE_LOWER_CASE")});
-    List interfaceMethodAttributesMakeUpperCase = Arrays.asList(new SecurityConfig[] {new SecurityConfig(
-                    "MOCK_INTERFACE_METHOD_MAKE_UPPER_CASE"), new SecurityConfig(
-                    "RUN_AS")});
+    List classAttributes = Arrays.asList(new SecurityConfig[] {new SecurityConfig("MOCK_CLASS")});
+    List classMethodAttributesCountLength = Arrays.asList(new String[] {new String("MOCK_CLASS_METHOD_COUNT_LENGTH")});
+    List classMethodAttributesMakeLowerCase = Arrays.asList(new SecurityConfig[] {
+                new SecurityConfig("MOCK_CLASS_METHOD_MAKE_LOWER_CASE")
+            });
+    List classMethodAttributesMakeUpperCase = Arrays.asList(new SecurityConfig[] {
+                new SecurityConfig("MOCK_CLASS_METHOD_MAKE_UPPER_CASE")
+            });
+    List interfaceAttributes = Arrays.asList(new SecurityConfig[] {new SecurityConfig("MOCK_INTERFACE")});
+    List interfaceMethodAttributesCountLength = Arrays.asList(new SecurityConfig[] {
+                new SecurityConfig("MOCK_INTERFACE_METHOD_COUNT_LENGTH")
+            });
+    List interfaceMethodAttributesMakeLowerCase = Arrays.asList(new SecurityConfig[] {
+                new SecurityConfig("MOCK_INTERFACE_METHOD_MAKE_LOWER_CASE")
+            });
+    List interfaceMethodAttributesMakeUpperCase = Arrays.asList(new SecurityConfig[] {
+                new SecurityConfig("MOCK_INTERFACE_METHOD_MAKE_UPPER_CASE"), new SecurityConfig("RUN_AS")
+            });
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Collection getAttributes(Class clazz) {
         // Emphasise we return null for OtherTargetObject
@@ -94,8 +95,7 @@ public class MockAttributes implements Attributes {
             }
 
             if (method.getName().equals("publicMakeLowerCase")) {
-                throw new UnsupportedOperationException(
-                    "mock support not implemented");
+                throw new UnsupportedOperationException("mock support not implemented");
             }
         }
 
@@ -114,8 +114,7 @@ public class MockAttributes implements Attributes {
             }
 
             if (method.getName().equals("publicMakeLowerCase")) {
-                throw new UnsupportedOperationException(
-                    "mock support not implemented");
+                throw new UnsupportedOperationException("mock support not implemented");
             }
         }
 
@@ -134,8 +133,7 @@ public class MockAttributes implements Attributes {
             }
 
             if (method.getName().equals("publicMakeLowerCase")) {
-                throw new UnsupportedOperationException(
-                    "mock support not implemented");
+                throw new UnsupportedOperationException("mock support not implemented");
             }
         }
 

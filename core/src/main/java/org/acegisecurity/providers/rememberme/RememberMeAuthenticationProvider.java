@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,38 +19,38 @@ import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
+
 import org.acegisecurity.providers.AuthenticationProvider;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+
 import org.springframework.util.Assert;
 
 
 /**
  * An {@link AuthenticationProvider} implementation that validates {@link
- * org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken}s.
- * 
- * <p>
- * To be successfully validated, the  {@link{@link
- * org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken#getKeyHash()}
- * must match this class' {@link #getKey()}.
- * </p>
+ * org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken}s.<p>To be successfully validated, the
+ * {@link{@link org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken#getKeyHash()} must match this
+ * class' {@link #getKey()}.</p>
  */
-public class RememberMeAuthenticationProvider implements AuthenticationProvider,
-    InitializingBean, MessageSourceAware {
-    //~ Static fields/initializers =============================================
+public class RememberMeAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(RememberMeAuthenticationProvider.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private String key;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(key);
@@ -63,10 +63,8 @@ public class RememberMeAuthenticationProvider implements AuthenticationProvider,
             return null;
         }
 
-        if (this.key.hashCode() != ((RememberMeAuthenticationToken) authentication)
-            .getKeyHash()) {
-            throw new BadCredentialsException(messages.getMessage(
-                    "RememberMeAuthenticationProvider.incorrectKey",
+        if (this.key.hashCode() != ((RememberMeAuthenticationToken) authentication).getKeyHash()) {
+            throw new BadCredentialsException(messages.getMessage("RememberMeAuthenticationProvider.incorrectKey",
                     "The presented RememberMeAuthenticationToken does not contain the expected key"));
         }
 

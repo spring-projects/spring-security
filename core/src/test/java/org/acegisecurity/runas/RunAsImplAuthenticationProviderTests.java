@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.providers.TestingAuthenticationToken;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
@@ -29,7 +30,7 @@ import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
  * Tests {@link RunAsImplAuthenticationProvider}.
  */
 public class RunAsImplAuthenticationProviderTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public RunAsImplAuthenticationProviderTests() {
         super();
@@ -39,7 +40,7 @@ public class RunAsImplAuthenticationProviderTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(RunAsImplAuthenticationProviderTests.class);
@@ -50,10 +51,9 @@ public class RunAsImplAuthenticationProviderTests extends TestCase {
     }
 
     public void testAuthenticationFailDueToWrongKey() {
-        RunAsUserToken token = new RunAsUserToken("WRONG_PASSWORD", "Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")}, UsernamePasswordAuthenticationToken.class);
+        RunAsUserToken token = new RunAsUserToken("WRONG_PASSWORD", "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
+                UsernamePasswordAuthenticationToken.class);
         RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
         provider.setKey("hello_world");
 
@@ -66,10 +66,9 @@ public class RunAsImplAuthenticationProviderTests extends TestCase {
     }
 
     public void testAuthenticationSuccess() {
-        RunAsUserToken token = new RunAsUserToken("my_password", "Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")}, UsernamePasswordAuthenticationToken.class);
+        RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
+                UsernamePasswordAuthenticationToken.class);
         RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
         provider.setKey("my_password");
 

@@ -20,27 +20,22 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 
 
 /**
- * The default <code>MessageSource</code> used by Acegi Security.
- * 
- * <p>
- * All Acegi Security classes requiring messge localization will by default use
- * this class. However, all such classes will also implement
- * <code>MessageSourceAware</code> so that the application context can inject
- * an alternative message source. Therefore this class is only used when the
- * deployment environment has not specified an alternative message source.
- * </p>
+ * The default <code>MessageSource</code> used by Acegi Security.<p>All Acegi Security classes requiring messge
+ * localization will by default use this class. However, all such classes will also implement
+ * <code>MessageSourceAware</code> so that the application context can inject an alternative message source. Therefore
+ * this class is only used when the deployment environment has not specified an alternative message source.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class AcegiMessageSource extends ResourceBundleMessageSource {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AcegiMessageSource() {
         setBasename("org.acegisecurity.messages");
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static MessageSourceAccessor getAccessor() {
         return new MessageSourceAccessor(new AcegiMessageSource());

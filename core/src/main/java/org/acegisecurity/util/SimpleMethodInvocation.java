@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,12 +28,12 @@ import java.lang.reflect.Method;
  * @version $Id$
  */
 public class SimpleMethodInvocation implements MethodInvocation {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Method method;
     private Object[] arguments;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public SimpleMethodInvocation(Method method, Object[] arguments) {
         this.method = method;
@@ -42,7 +42,7 @@ public class SimpleMethodInvocation implements MethodInvocation {
 
     public SimpleMethodInvocation() {}
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Object[] getArguments() {
         return arguments;

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,49 +15,47 @@
 
 package org.acegisecurity.ldap;
 
-import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
-import org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration;
 import org.apache.directory.server.core.configuration.Configuration;
+import org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
 
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.DirContext;
-import java.util.Properties;
-import java.util.Set;
-import java.util.HashSet;
 import java.io.File;
 
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.naming.Context;
+import javax.naming.NameAlreadyBoundException;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+
+
 /**
- * An embedded LDAP test server, complete with test data for running the
- * unit tests against.
+ * An embedded LDAP test server, complete with test data for running the unit tests against.
  *
  * @author Luke Taylor
  * @version $Id$
  */
 public class LdapTestServer {
-
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private DirContext serverContext;
 
+    // Move the working dir to the temp directory
+    private File workingDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "apacheds-work");
     private MutableStartupConfiguration cfg;
 
-    // Move the working dir to the temp directory
-    private File workingDir = new File( System.getProperty("java.io.tmpdir")
-            + File.separator + "apacheds-work" );
+    //~ Constructors ===================================================================================================
 
-
-    //~ Constructors ================================================================
-
-    /**
+/**
      * Starts up and configures ApacheDS.
      */
     public LdapTestServer() {
@@ -66,125 +64,28 @@ public class LdapTestServer {
         initTestData();
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    private void startLdapServer() {
-
-        cfg = new MutableStartupConfiguration();
-        ((MutableStartupConfiguration)cfg).setWorkingDirectory(workingDir);
-
-        System.out.println("Working directory is " + workingDir.getAbsolutePath());
-
-        Properties env = new Properties();
-
-        env.setProperty( Context.PROVIDER_URL, "dc=acegisecurity,dc=org" );
-        env.setProperty( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName());
-        env.setProperty( Context.SECURITY_AUTHENTICATION, "simple");
-        env.setProperty( Context.SECURITY_PRINCIPAL, DirectoryPartitionNexus.ADMIN_PRINCIPAL);
-        env.setProperty( Context.SECURITY_CREDENTIALS, DirectoryPartitionNexus.ADMIN_PASSWORD);
-
-        try {
-            initConfiguration();
-            env.putAll( cfg.toJndiEnvironment() );
-            serverContext = new InitialDirContext( env );
-        } catch (NamingException e) {
-            System.err.println("Failed to start Apache DS");
-            e.printStackTrace();
-        }
-    }
-
-    private void initTestData() {
-        createOu("people");
-        createOu("groups");
-        createUser("bob","Bob Hamilton", "bobspassword");
-        createUser("ben","Ben Alex", "{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=");
-        String[] developers = new String[]
-                {"uid=ben,ou=people,dc=acegisecurity,dc=org", "uid=bob,ou=people,dc=acegisecurity,dc=org"};
-        createGroup("developers","developer",developers);
-        createGroup("managers","manager", new String[] { developers[0]});
-    }
-
-    private void createManagerUser() {
-        Attributes user = new BasicAttributes( "cn", "manager" , true );
-        user.put( "userPassword", "acegisecurity" );
-        Attribute objectClass = new BasicAttribute("objectClass");
-        user.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "person" );
-        objectClass.add( "organizationalPerson" );
-        objectClass.add( "inetOrgPerson" );
-        user.put( "sn", "Manager" );
-        user.put( "cn", "manager" );
-        try {
-            serverContext.createSubcontext("cn=manager", user );
-        } catch(NameAlreadyBoundException ignore) {
- //           System.out.println("Manager user already exists.");
-        } catch (NamingException ne) {
-            System.err.println("Failed to create manager user.");
-            ne.printStackTrace();
-        }
-    }
-
-    public void createUser( String uid, String cn, String password ) {
-        Attributes user = new BasicAttributes("uid", uid);
-        user.put( "cn", cn);
-        user.put( "userPassword", LdapUtils.getUtf8Bytes(password) );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        user.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "person" );
-        objectClass.add( "organizationalPerson" );
-        objectClass.add( "inetOrgPerson" );
-        user.put( "sn", uid );
-
-        try {
-            serverContext.createSubcontext( "uid="+uid+",ou=people", user );
-        } catch(NameAlreadyBoundException ignore) {
-//            System.out.println(" user " + uid + " already exists.");
-        } catch (NamingException ne) {
-            System.err.println("Failed to create  user.");
-            ne.printStackTrace();
-        }
-    }
-
-    public void createOu(String name) {
-        Attributes ou = new BasicAttributes( "ou", name );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add("top");
-        objectClass.add("organizationalUnit");
-        ou.put(objectClass);
-
-        try {
-            serverContext.createSubcontext( "ou="+name, ou);
-        } catch(NameAlreadyBoundException ignore) {
- //           System.out.println(" ou " + name + " already exists.");
-        } catch (NamingException ne) {
-            System.err.println("Failed to create ou.");
-            ne.printStackTrace();
-        }
-
-    }
-
-    public void createGroup( String cn, String ou, String[] memberDns ) {
+    public void createGroup(String cn, String ou, String[] memberDns) {
         Attributes group = new BasicAttributes("cn", cn);
         Attribute members = new BasicAttribute("member");
         Attribute orgUnit = new BasicAttribute("ou", ou);
 
-        for(int i=0; i < memberDns.length; i++) {
+        for (int i = 0; i < memberDns.length; i++) {
             members.add(memberDns[i]);
         }
 
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( "groupOfNames" );
+        Attribute objectClass = new BasicAttribute("objectClass");
+        objectClass.add("top");
+        objectClass.add("groupOfNames");
 
         group.put(objectClass);
         group.put(members);
         group.put(orgUnit);
 
         try {
-            serverContext.createSubcontext( "cn="+cn+",ou=groups", group );
-        } catch(NameAlreadyBoundException ignore) {
+            serverContext.createSubcontext("cn=" + cn + ",ou=groups", group);
+        } catch (NameAlreadyBoundException ignore) {
 //            System.out.println(" group " + cn + " already exists.");
         } catch (NamingException ne) {
             System.err.println("Failed to create group.");
@@ -192,12 +93,79 @@ public class LdapTestServer {
         }
     }
 
-    private void initConfiguration() throws NamingException {
+    private void createManagerUser() {
+        Attributes user = new BasicAttributes("cn", "manager", true);
+        user.put("userPassword", "acegisecurity");
 
+        Attribute objectClass = new BasicAttribute("objectClass");
+        user.put(objectClass);
+        objectClass.add("top");
+        objectClass.add("person");
+        objectClass.add("organizationalPerson");
+        objectClass.add("inetOrgPerson");
+        user.put("sn", "Manager");
+        user.put("cn", "manager");
+
+        try {
+            serverContext.createSubcontext("cn=manager", user);
+        } catch (NameAlreadyBoundException ignore) {
+            //           System.out.println("Manager user already exists.");
+        } catch (NamingException ne) {
+            System.err.println("Failed to create manager user.");
+            ne.printStackTrace();
+        }
+    }
+
+    public void createOu(String name) {
+        Attributes ou = new BasicAttributes("ou", name);
+        Attribute objectClass = new BasicAttribute("objectClass");
+        objectClass.add("top");
+        objectClass.add("organizationalUnit");
+        ou.put(objectClass);
+
+        try {
+            serverContext.createSubcontext("ou=" + name, ou);
+        } catch (NameAlreadyBoundException ignore) {
+            //           System.out.println(" ou " + name + " already exists.");
+        } catch (NamingException ne) {
+            System.err.println("Failed to create ou.");
+            ne.printStackTrace();
+        }
+    }
+
+    public void createUser(String uid, String cn, String password) {
+        Attributes user = new BasicAttributes("uid", uid);
+        user.put("cn", cn);
+        user.put("userPassword", LdapUtils.getUtf8Bytes(password));
+
+        Attribute objectClass = new BasicAttribute("objectClass");
+        user.put(objectClass);
+        objectClass.add("top");
+        objectClass.add("person");
+        objectClass.add("organizationalPerson");
+        objectClass.add("inetOrgPerson");
+        user.put("sn", uid);
+
+        try {
+            serverContext.createSubcontext("uid=" + uid + ",ou=people", user);
+        } catch (NameAlreadyBoundException ignore) {
+//            System.out.println(" user " + uid + " already exists.");
+        } catch (NamingException ne) {
+            System.err.println("Failed to create  user.");
+            ne.printStackTrace();
+        }
+    }
+
+    public Configuration getConfiguration() {
+        return cfg;
+    }
+
+    private void initConfiguration() throws NamingException {
         // Create the partition for the acegi tests
         MutableDirectoryPartitionConfiguration acegiDit = new MutableDirectoryPartitionConfiguration();
         acegiDit.setName("acegisecurity");
         acegiDit.setSuffix("dc=acegisecurity,dc=org");
+
         BasicAttributes attributes = new BasicAttributes();
         BasicAttribute objectClass = new BasicAttribute("objectClass");
         objectClass.add("top");
@@ -221,12 +189,44 @@ public class LdapTestServer {
         cfg.setContextPartitionConfigurations(partitions);
     }
 
-    public Configuration getConfiguration() {
-        return cfg;
+    private void initTestData() {
+        createOu("people");
+        createOu("groups");
+        createUser("bob", "Bob Hamilton", "bobspassword");
+        createUser("ben", "Ben Alex", "{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=");
+
+        String[] developers = new String[] {
+                "uid=ben,ou=people,dc=acegisecurity,dc=org", "uid=bob,ou=people,dc=acegisecurity,dc=org"
+            };
+        createGroup("developers", "developer", developers);
+        createGroup("managers", "manager", new String[] {developers[0]});
     }
 
     public static void main(String[] args) {
         LdapTestServer server = new LdapTestServer();
     }
 
+    private void startLdapServer() {
+        cfg = new MutableStartupConfiguration();
+        ((MutableStartupConfiguration) cfg).setWorkingDirectory(workingDir);
+
+        System.out.println("Working directory is " + workingDir.getAbsolutePath());
+
+        Properties env = new Properties();
+
+        env.setProperty(Context.PROVIDER_URL, "dc=acegisecurity,dc=org");
+        env.setProperty(Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName());
+        env.setProperty(Context.SECURITY_AUTHENTICATION, "simple");
+        env.setProperty(Context.SECURITY_PRINCIPAL, DirectoryPartitionNexus.ADMIN_PRINCIPAL);
+        env.setProperty(Context.SECURITY_CREDENTIALS, DirectoryPartitionNexus.ADMIN_PASSWORD);
+
+        try {
+            initConfiguration();
+            env.putAll(cfg.toJndiEnvironment());
+            serverContext = new InitialDirContext(env);
+        } catch (NamingException e) {
+            System.err.println("Failed to start Apache DS");
+            e.printStackTrace();
+        }
+    }
 }

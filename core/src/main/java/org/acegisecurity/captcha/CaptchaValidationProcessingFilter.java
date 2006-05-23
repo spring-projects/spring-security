@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,64 +31,39 @@ import javax.servlet.http.HttpSession;
 
 /**
  * Filter for web integration of the {@link CaptchaServiceProxy}. <br>
- * It basically intercept calls containing the specific validation parameter,
- * use the {@link CaptchaServiceProxy} to validate the request, and update the
- * {@link CaptchaSecurityContext} if the request passed the validation. <br>
- * This Filter should be placed after the ContextIntegration filter and before
- * the {@link CaptchaChannelProcessorTemplate} filter in the filter stack in
- * order to update the {@link CaptchaSecurityContext} before the humanity
- * verification routine occurs. <br>
- * This filter should only be used in conjunction with the {@link
- * CaptchaSecurityContext}<br>
+ * It basically intercept calls containing the specific validation parameter, use the {@link CaptchaServiceProxy} to
+ * validate the request, and update the {@link CaptchaSecurityContext} if the request passed the validation. <br>
+ * This Filter should be placed after the ContextIntegration filter and before the {@link
+ * CaptchaChannelProcessorTemplate} filter in the filter stack in order to update the {@link CaptchaSecurityContext}
+ * before the humanity verification routine occurs. <br>
+ * This filter should only be used in conjunction with the {@link CaptchaSecurityContext}<br>
  *
  * @author marc antoine Garrigue
  * @version $Id$
  */
-public class CaptchaValidationProcessingFilter implements InitializingBean,
-    Filter {
-    //~ Static fields/initializers =============================================
+public class CaptchaValidationProcessingFilter implements InitializingBean, Filter {
+    //~ Static fields/initializers =====================================================================================
 
     // ~ Static fields/initializers
     // =============================================
     protected static final Log logger = LogFactory.getLog(CaptchaValidationProcessingFilter.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     // ~ Instance fields
     // ========================================================
     private CaptchaServiceProxy captchaService;
     private String captchaValidationParameter = "_captcha_parameter";
 
-    //~ Methods ================================================================
-
-    public void setCaptchaService(CaptchaServiceProxy captchaService) {
-        this.captchaService = captchaService;
-    }
-
-    // ~ Methods
-    // ================================================================
-    public CaptchaServiceProxy getCaptchaService() {
-        return captchaService;
-    }
-
-    public void setCaptchaValidationParameter(String captchaValidationParameter) {
-        this.captchaValidationParameter = captchaValidationParameter;
-    }
-
-    public String getCaptchaValidationParameter() {
-        return captchaValidationParameter;
-    }
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         if (this.captchaService == null) {
-            throw new IllegalArgumentException(
-                "CaptchaServiceProxy must be defined ");
+            throw new IllegalArgumentException("CaptchaServiceProxy must be defined ");
         }
 
-        if ((this.captchaValidationParameter == null)
-            || "".equals(captchaValidationParameter)) {
-            throw new IllegalArgumentException(
-                "captchaValidationParameter must not be empty or null");
+        if ((this.captchaValidationParameter == null) || "".equals(captchaValidationParameter)) {
+            throw new IllegalArgumentException("captchaValidationParameter must not be empty or null");
         }
     }
 
@@ -97,12 +72,11 @@ public class CaptchaValidationProcessingFilter implements InitializingBean,
      */
     public void destroy() {}
 
-    public void doFilter(ServletRequest request, ServletResponse response,
-        FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
         String captcha_reponse = request.getParameter(captchaValidationParameter);
 
-        if ((request != null) && request instanceof HttpServletRequest
-            && (captcha_reponse != null)) {
+        if ((request != null) && request instanceof HttpServletRequest && (captcha_reponse != null)) {
             logger.debug("captcha validation parameter found");
 
             // validate the request against CaptchaServiceProxy
@@ -115,23 +89,19 @@ public class CaptchaValidationProcessingFilter implements InitializingBean,
 
             if (session != null) {
                 String id = session.getId();
-                valid = this.captchaService.validateReponseForId(id,
-                        captcha_reponse);
-                logger.debug("captchaServiceProxy says : request is valid = "
-                    + valid);
+                valid = this.captchaService.validateReponseForId(id, captcha_reponse);
+                logger.debug("captchaServiceProxy says : request is valid = " + valid);
 
                 if (valid) {
                     logger.debug("update the context");
-                    ((CaptchaSecurityContext) SecurityContextHolder.getContext())
-                    .setHuman();
+                    ((CaptchaSecurityContext) SecurityContextHolder.getContext()).setHuman();
 
                     //logger.debug("retrieve original request from ")
                 } else {
                     logger.debug("captcha test failed");
                 }
             } else {
-                logger.debug(
-                    "no session found, user don't even ask a captcha challenge");
+                logger.debug("no session found, user don't even ask a captcha challenge");
             }
         } else {
             logger.debug("captcha validation parameter not found, do nothing");
@@ -144,6 +114,16 @@ public class CaptchaValidationProcessingFilter implements InitializingBean,
         chain.doFilter(request, response);
     }
 
+    // ~ Methods
+    // ================================================================
+    public CaptchaServiceProxy getCaptchaService() {
+        return captchaService;
+    }
+
+    public String getCaptchaValidationParameter() {
+        return captchaValidationParameter;
+    }
+
     /**
      * Does nothing. We use IoC container lifecycle services instead.
      *
@@ -152,4 +132,12 @@ public class CaptchaValidationProcessingFilter implements InitializingBean,
      * @throws ServletException ignored
      */
     public void init(FilterConfig filterConfig) throws ServletException {}
+
+    public void setCaptchaService(CaptchaServiceProxy captchaService) {
+        this.captchaService = captchaService;
+    }
+
+    public void setCaptchaValidationParameter(String captchaValidationParameter) {
+        this.captchaValidationParameter = captchaValidationParameter;
+    }
 }

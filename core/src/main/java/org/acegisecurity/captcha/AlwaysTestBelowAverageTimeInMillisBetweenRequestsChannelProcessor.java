@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,26 +19,23 @@ import org.springframework.util.Assert;
 
 
 /**
- * <p>
- * return false if thresold is lower than average time millis between any
- * CaptchaChannelProcessorTemplate mapped urls requests and is human;<br>
+ * <p>return false if thresold is lower than average time millis between any CaptchaChannelProcessorTemplate mapped
+ * urls requests and is human;<br>
  * Default keyword : REQUIRES_CAPTCHA_BELOW_AVERAGE_TIME_IN_MILLIS_REQUESTS <br>
- * Note : before first humanity check
- * </p>
+ * Note : before first humanity check</p>
  *
  * @author Marc-Antoine Garrigue
  * @version $Id$
  */
-public class AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor
-    extends CaptchaChannelProcessorTemplate {
-    //~ Static fields/initializers =============================================
+public class AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor extends CaptchaChannelProcessorTemplate {
+    //~ Static fields/initializers =====================================================================================
 
     /** Keyword for this channelProcessor */
     public static final String DEFAULT_KEYWORD = "REQUIRES_CAPTCHA_BELOW_AVERAGE_TIME_IN_MILLIS_REQUESTS";
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructor
      */
     public AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor() {
@@ -46,7 +43,7 @@ public class AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor
         this.setKeyword(DEFAULT_KEYWORD);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Verify if thresold is &gt; 0
@@ -68,8 +65,7 @@ public class AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor
     boolean isContextValidConcerningHumanity(CaptchaSecurityContext context) {
         int req = context.getHumanRestrictedResourcesRequestsCount();
         float thresold = getThresold();
-        float duration = System.currentTimeMillis()
-            - context.getLastPassedCaptchaDateInMillis();
+        float duration = System.currentTimeMillis() - context.getLastPassedCaptchaDateInMillis();
         float average;
 
         if (req == 0) {
@@ -79,13 +75,11 @@ public class AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor
         }
 
         if (context.isHuman() && (average > thresold)) {
-            logger.debug(
-                "context is valid : average time between requests < thresold && is human");
+            logger.debug("context is valid : average time between requests < thresold && is human");
 
             return true;
         } else {
-            logger.debug(
-                "context is not valid : request count > thresold or is not human");
+            logger.debug("context is not valid : request count > thresold or is not human");
 
             return false;
         }

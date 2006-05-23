@@ -26,33 +26,25 @@ import java.util.TimeZone;
 
 
 /**
- * <p>
- * Utility class to generate HTTP dates.
- * </p>
- * 
- * <p>
- * This class is based on code in Apache Tomcat.
- * </p>
+ * <p>Utility class to generate HTTP dates.</p>
+ *  <p>This class is based on code in Apache Tomcat.</p>
  *
  * @author Remy Maucherat
  * @author Andrey Grebnev
  * @version $Id$
  */
 public class FastHttpDateFormat {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     /** HTTP date format. */
-    protected static final SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz",
-            Locale.US);
+    protected static final SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
 
-    /**
-     * The set of SimpleDateFormat formats to use in
-     * <code>getDateHeader()</code>.
-     */
-    protected static final SimpleDateFormat[] formats = {new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz",
-                Locale.US), new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz",
-                Locale.US), new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy",
-                Locale.US)};
+    /** The set of SimpleDateFormat formats to use in <code>getDateHeader()</code>. */
+    protected static final SimpleDateFormat[] formats = {
+            new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US),
+            new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US),
+            new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US)
+        };
 
     /** GMT timezone - all HTTP dates are on GMT */
     protected final static TimeZone gmtZone = TimeZone.getTimeZone("GMT");
@@ -77,20 +69,17 @@ public class FastHttpDateFormat {
     /** Parser cache. */
     protected static final HashMap parseCache = new HashMap();
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Formats a specified date to HTTP format. If local format is not
-     * <code>null</code>, it's used instead.
+     * Formats a specified date to HTTP format. If local format is not <code>null</code>, it's used instead.
      *
      * @param value Date value to format
-     * @param threadLocalformat The format to use (or <code>null</code> -- then
-     *        HTTP format will be used)
+     * @param threadLocalformat The format to use (or <code>null</code> -- then HTTP format will be used)
      *
      * @return Formatted date
      */
-    public static final String formatDate(long value,
-        DateFormat threadLocalformat) {
+    public static final String formatDate(long value, DateFormat threadLocalformat) {
         String cachedDate = null;
         Long longValue = new Long(value);
 
@@ -149,8 +138,7 @@ public class FastHttpDateFormat {
      *
      * @return Parsed date (or <code>null</code> if no formatter mached)
      */
-    private static final Long internalParseDate(String value,
-        DateFormat[] formats) {
+    private static final Long internalParseDate(String value, DateFormat[] formats) {
         Date date = null;
 
         for (int i = 0; (date == null) && (i < formats.length); i++) {
@@ -169,17 +157,15 @@ public class FastHttpDateFormat {
     }
 
     /**
-     * Tries to parse the given date as an HTTP date. If local format list is
-     * not <code>null</code>, it's used instead.
+     * Tries to parse the given date as an HTTP date. If local format list is not <code>null</code>, it's used
+     * instead.
      *
      * @param value The string to parse
-     * @param threadLocalformats Array of formats to use for parsing. If
-     *        <code>null</code>, HTTP formats are used.
+     * @param threadLocalformats Array of formats to use for parsing. If <code>null</code>, HTTP formats are used.
      *
      * @return Parsed date (or -1 if error occured)
      */
-    public static final long parseDate(String value,
-        DateFormat[] threadLocalformats) {
+    public static final long parseDate(String value, DateFormat[] threadLocalformats) {
         Long cachedDate = null;
 
         try {
@@ -219,8 +205,7 @@ public class FastHttpDateFormat {
      * @param key Key to be updated
      * @param value New value
      */
-    private static final void updateCache(HashMap cache, Object key,
-        Object value) {
+    private static final void updateCache(HashMap cache, Object key, Object value) {
         if (value == null) {
             return;
         }

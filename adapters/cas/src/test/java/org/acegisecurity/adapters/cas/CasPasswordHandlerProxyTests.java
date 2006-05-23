@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
  * @version $Id$
  */
 public class CasPasswordHandlerProxyTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public CasPasswordHandlerProxyTests() {
         super();
@@ -42,14 +42,14 @@ public class CasPasswordHandlerProxyTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(CasPasswordHandlerProxyTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testDetectsIfHttpServletRequestNotPassed() {
@@ -60,8 +60,7 @@ public class CasPasswordHandlerProxyTests extends TestCase {
             proxy.authenticate(null, "x", "y");
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("Can only process HttpServletRequest",
-                expected.getMessage());
+            assertEquals("Can only process HttpServletRequest", expected.getMessage());
         }
     }
 
@@ -73,23 +72,19 @@ public class CasPasswordHandlerProxyTests extends TestCase {
             proxy.authenticate(new MockHttpServletRequest(), "x", "y");
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("Bean context must contain at least one bean of type CasPasswordHandler",
-                expected.getMessage());
+            assertEquals("Bean context must contain at least one bean of type CasPasswordHandler", expected.getMessage());
         }
     }
 
     public void testNormalOperation() {
         CasPasswordHandlerProxy proxy = new MockCasPasswordHandlerProxy(
                 "org/acegisecurity/adapters/cas/applicationContext-valid.xml");
-        assertTrue(proxy.authenticate(new MockHttpServletRequest(), "marissa",
-                "koala"));
-        assertFalse(proxy.authenticate(new MockHttpServletRequest(), "marissa",
-                "WRONG_PASSWORD"));
-        assertFalse(proxy.authenticate(new MockHttpServletRequest(),
-                "INVALID_USER_NAME", "WRONG_PASSWORD"));
+        assertTrue(proxy.authenticate(new MockHttpServletRequest(), "marissa", "koala"));
+        assertFalse(proxy.authenticate(new MockHttpServletRequest(), "marissa", "WRONG_PASSWORD"));
+        assertFalse(proxy.authenticate(new MockHttpServletRequest(), "INVALID_USER_NAME", "WRONG_PASSWORD"));
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     /**
      * Mock object so that application context source can be specified.

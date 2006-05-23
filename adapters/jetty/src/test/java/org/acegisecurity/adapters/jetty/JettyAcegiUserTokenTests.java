@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.acegisecurity.GrantedAuthorityImpl;
  * @version $Id$
  */
 public class JettyAcegiUserTokenTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public JettyAcegiUserTokenTests() {
         super();
@@ -38,21 +38,19 @@ public class JettyAcegiUserTokenTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(JettyAcegiUserTokenTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testGetters() throws Exception {
-        JettyAcegiUserToken token = new JettyAcegiUserToken("my_password",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+        JettyAcegiUserToken token = new JettyAcegiUserToken("my_password", "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
         assertEquals("Test", token.getPrincipal());
         assertEquals("Password", token.getCredentials());
         assertEquals("my_password".hashCode(), token.getKeyHash());

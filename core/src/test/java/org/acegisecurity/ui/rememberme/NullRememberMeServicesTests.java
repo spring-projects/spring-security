@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import junit.framework.TestCase;
  * @version $Id$
  */
 public class NullRememberMeServicesTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public NullRememberMeServicesTests() {
         super();
@@ -35,17 +35,17 @@ public class NullRememberMeServicesTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(NullRememberMeServicesTests.class);
     }
 
     public void testAlwaysReturnsNull() {
-    	NullRememberMeServices services = new NullRememberMeServices();
-    	assertNull(services.autoLogin(null,null));
-    	services.loginFail(null,null);
-    	services.loginSuccess(null,null,null);
-    	assertTrue(true);
+        NullRememberMeServices services = new NullRememberMeServices();
+        assertNull(services.autoLogin(null, null));
+        services.loginFail(null, null);
+        services.loginSuccess(null, null, null);
+        assertTrue(true);
     }
 }

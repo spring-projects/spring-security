@@ -25,27 +25,21 @@ import java.io.Serializable;
 
 
 /**
- * Represents a remembered <code>Authentication</code>.
- * 
- * <p>
- * A remembered <code>Authentication</code> must provide a fully valid
- * <code>Authentication</code>, including the <code>GrantedAuthority</code>[]s
- * that apply.
- * </p>
+ * Represents a remembered <code>Authentication</code>.<p>A remembered <code>Authentication</code> must provide a
+ * fully valid <code>Authentication</code>, including the <code>GrantedAuthority</code>[]s that apply.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class RememberMeAuthenticationToken extends AbstractAuthenticationToken
-    implements Serializable {
-    //~ Instance fields ========================================================
+public class RememberMeAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
+    //~ Instance fields ================================================================================================
 
     private Object principal;
     private int keyHash;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructor.
      *
      * @param key to identify if this object made by an authorised client
@@ -54,21 +48,17 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken
      *
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
-    public RememberMeAuthenticationToken(String key, Object principal,
-        GrantedAuthority[] authorities) {
+    public RememberMeAuthenticationToken(String key, Object principal, GrantedAuthority[] authorities) {
         super(authorities);
 
-        if ((key == null) || ("".equals(key)) || (principal == null)
-            || "".equals(principal) || (authorities == null)
+        if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal) || (authorities == null)
             || (authorities.length == 0)) {
-            throw new IllegalArgumentException(
-                "Cannot pass null or empty values to constructor");
+            throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
         }
 
         for (int i = 0; i < authorities.length; i++) {
             Assert.notNull(authorities[i],
-                "Granted authority element " + i
-                + " is null - GrantedAuthority[] cannot contain any null elements");
+                "Granted authority element " + i + " is null - GrantedAuthority[] cannot contain any null elements");
         }
 
         this.keyHash = key.hashCode();
@@ -76,7 +66,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken
         setAuthenticated(true);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {

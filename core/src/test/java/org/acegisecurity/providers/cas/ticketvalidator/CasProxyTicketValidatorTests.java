@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.AuthenticationServiceException;
 import org.acegisecurity.BadCredentialsException;
+
 import org.acegisecurity.providers.cas.TicketResponse;
+
 import org.acegisecurity.ui.cas.ServiceProperties;
 
 import java.util.Vector;
@@ -34,7 +36,7 @@ import java.util.Vector;
  * @version $Id$
  */
 public class CasProxyTicketValidatorTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public CasProxyTicketValidatorTests() {
         super();
@@ -44,21 +46,20 @@ public class CasProxyTicketValidatorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(CasProxyTicketValidatorTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testGetters() {
         CasProxyTicketValidator tv = new CasProxyTicketValidator();
         tv.setProxyCallbackUrl("http://my.com/webapp/casProxy/someValidator");
-        assertEquals("http://my.com/webapp/casProxy/someValidator",
-            tv.getProxyCallbackUrl());
+        assertEquals("http://my.com/webapp/casProxy/someValidator", tv.getProxyCallbackUrl());
     }
 
     public void testNormalOperation() {
@@ -71,8 +72,7 @@ public class CasProxyTicketValidatorTests extends TestCase {
         tv.setServiceProperties(sp);
         tv.setProxyCallbackUrl("http://my.com/webapp/casProxy/someValidator");
 
-        TicketResponse response = tv.confirmTicketValid(
-                "ST-0-ER94xMJmn6pha35CQRoZ");
+        TicketResponse response = tv.confirmTicketValid("ST-0-ER94xMJmn6pha35CQRoZ");
 
         assertEquals("user", response.getUser());
     }
@@ -92,8 +92,7 @@ public class CasProxyTicketValidatorTests extends TestCase {
     }
 
     public void testValidationFailsOkAndOperationWithoutAProxyCallbackUrl() {
-        CasProxyTicketValidator tv = new MockCasProxyTicketValidator(false,
-                false);
+        CasProxyTicketValidator tv = new MockCasProxyTicketValidator(false, false);
         tv.setCasValidate("https://company.com/cas/proxyvalidate");
         tv.setServiceProperties(new ServiceProperties());
 
@@ -105,14 +104,13 @@ public class CasProxyTicketValidatorTests extends TestCase {
         }
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockCasProxyTicketValidator extends CasProxyTicketValidator {
         private boolean returnTicket;
         private boolean throwAuthenticationServiceException;
 
-        public MockCasProxyTicketValidator(boolean returnTicket,
-            boolean throwAuthenticationServiceException) {
+        public MockCasProxyTicketValidator(boolean returnTicket, boolean throwAuthenticationServiceException) {
             this.returnTicket = returnTicket;
             this.throwAuthenticationServiceException = throwAuthenticationServiceException;
         }

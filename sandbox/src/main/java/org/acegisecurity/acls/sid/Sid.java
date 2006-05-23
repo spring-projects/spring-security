@@ -31,22 +31,19 @@ package org.acegisecurity.acls.sid;
  * @version $Id$
  */
 public interface Sid {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Refer to the <code>java.lang.Object</code> documentation for the
-     * interface contract.
+     * Refer to the <code>java.lang.Object</code> documentation for the interface contract.
      *
      * @param obj to be compared
      *
-     * @return <code>true</code> if the objects are equal, <code>false</code>
-     *         otherwise
+     * @return <code>true</code> if the objects are equal, <code>false</code> otherwise
      */
     public boolean equals(Object obj);
 
     /**
-     * Refer to the <code>java.lang.Object</code> documentation for the
-     * interface contract.
+     * Refer to the <code>java.lang.Object</code> documentation for the interface contract.
      *
      * @return a hash code representation of this object
      */

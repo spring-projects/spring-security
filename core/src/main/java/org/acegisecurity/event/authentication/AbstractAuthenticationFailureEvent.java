@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,28 +22,25 @@ import org.springframework.util.Assert;
 
 
 /**
- * Abstract application event which indicates authentication failure for some
- * reason.
+ * Abstract application event which indicates authentication failure for some reason.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public abstract class AbstractAuthenticationFailureEvent
-    extends AbstractAuthenticationEvent {
-    //~ Instance fields ========================================================
+public abstract class AbstractAuthenticationFailureEvent extends AbstractAuthenticationEvent {
+    //~ Instance fields ================================================================================================
 
     private AuthenticationException exception;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    public AbstractAuthenticationFailureEvent(Authentication authentication,
-        AuthenticationException exception) {
+    public AbstractAuthenticationFailureEvent(Authentication authentication, AuthenticationException exception) {
         super(authentication);
         Assert.notNull(exception, "AuthenticationException is required");
         this.exception = exception;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public AuthenticationException getException() {
         return exception;

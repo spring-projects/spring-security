@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,14 @@ import java.util.Date;
  * @version $Id$
  */
 public class SessionInformationTests extends TestCase {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void testObject() throws Exception {
         Object principal = "Some principal object";
         String sessionId = "1234567890";
         Date currentDate = new Date();
 
-        SessionInformation info = new SessionInformation(principal, sessionId,
-                currentDate);
+        SessionInformation info = new SessionInformation(principal, sessionId, currentDate);
         assertEquals(principal, info.getPrincipal());
         assertEquals(sessionId, info.getSessionId());
         assertEquals(currentDate, info.getLastRequest());

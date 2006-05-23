@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,11 +38,11 @@ import java.security.Principal;
  * @version $Id$
  */
 public class CatalinaAcegiUserRealmTests extends TestCase {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private final String ADAPTER_KEY = "my_key";
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public CatalinaAcegiUserRealmTests() {
         super();
@@ -52,21 +52,41 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(CatalinaAcegiUserRealmTests.class);
     }
 
+    private CatalinaAcegiUserRealm makeAdapter(String fileName)
+        throws Exception {
+        CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
+
+        URL url = Thread.currentThread().getContextClassLoader().getResource("org/acegisecurity/adapters/" + fileName);
+
+        if (url == null) {
+            throw new Exception("Could not find " + fileName + " - cannot continue");
+        }
+
+        File file = new File(url.getFile());
+
+        System.setProperty("catalina.base", file.getParentFile().getAbsolutePath());
+        System.out.println("catalina.base set to: " + System.getProperty("catalina.base"));
+        adapter.setAppContextLocation(fileName);
+        adapter.setKey(ADAPTER_KEY);
+        adapter.startForTest();
+
+        return adapter;
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testAdapterAbortsIfAppContextDoesNotContainAnAuthenticationBean()
         throws Exception {
         try {
-            CatalinaAcegiUserRealm adapter = makeAdapter(
-                    "catalinaAdapterTest-invalid.xml");
+            CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-invalid.xml");
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -83,8 +103,7 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
             adapter.startForTest();
             fail("Should have thrown LifecycleException");
         } catch (LifecycleException expected) {
-            assertEquals("appContextLocation must be defined",
-                expected.getMessage());
+            assertEquals("appContextLocation must be defined", expected.getMessage());
         }
 
         adapter.setAppContextLocation("");
@@ -93,8 +112,7 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
             adapter.startForTest();
             fail("Should have thrown LifecycleException");
         } catch (LifecycleException expected) {
-            assertEquals("appContextLocation must be defined",
-                expected.getMessage());
+            assertEquals("appContextLocation must be defined", expected.getMessage());
         }
     }
 
@@ -140,15 +158,13 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
     }
 
     public void testAdapterStartsUpSuccess() throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter(
-                "catalinaAdapterTest-valid.xml");
+        CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
         assertTrue(true);
     }
 
     public void testAuthenticateManyParamsReturnsNull() {
         CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
-        assertEquals(null,
-            adapter.authenticate(null, null, null, null, null, null, null, null));
+        assertEquals(null, adapter.authenticate(null, null, null, null, null, null, null, null));
     }
 
     public void testAuthenticateX509ReturnsNull() {
@@ -158,22 +174,19 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
 
     public void testAuthenticationFailsForIncorrectPassword()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter(
-                "catalinaAdapterTest-valid.xml");
+        CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
         assertEquals(null, adapter.authenticate("marissa", "kangaroo"));
     }
 
     public void testAuthenticationFailsForIncorrectUserName()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter(
-                "catalinaAdapterTest-valid.xml");
+        CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
         assertEquals(null, adapter.authenticate("melissa", "koala"));
     }
 
     public void testAuthenticationUsingByteArrayForCredentials()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter(
-                "catalinaAdapterTest-valid.xml");
+        CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
         byte[] credentials = {'k', 'o', 'a', 'l', 'a'};
         Principal result = adapter.authenticate("marissa", credentials);
 
@@ -184,17 +197,14 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
         PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) result;
         assertEquals("marissa", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
-        assertEquals("ROLE_TELLER",
-            castResult.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_SUPERVISOR",
-            castResult.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[1].getAuthority());
         assertEquals(ADAPTER_KEY.hashCode(), castResult.getKeyHash());
     }
 
     public void testAuthenticationUsingStringForCredentials()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter(
-                "catalinaAdapterTest-valid.xml");
+        CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
         Principal result = adapter.authenticate("marissa", "koala");
 
         if (!(result instanceof PrincipalAcegiUserToken)) {
@@ -204,24 +214,20 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
         PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) result;
         assertEquals("marissa", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
-        assertEquals("ROLE_TELLER",
-            castResult.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_SUPERVISOR",
-            castResult.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[1].getAuthority());
         assertEquals(ADAPTER_KEY.hashCode(), castResult.getKeyHash());
     }
 
     public void testAuthenticationWithNullPasswordHandledGracefully()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter(
-                "catalinaAdapterTest-valid.xml");
+        CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
         assertEquals(null, adapter.authenticate("marissa", (String) null));
     }
 
     public void testAuthenticationWithNullUserNameHandledGracefully()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter(
-                "catalinaAdapterTest-valid.xml");
+        CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
         assertEquals(null, adapter.authenticate(null, "koala"));
     }
 
@@ -258,38 +264,12 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
     }
 
     public void testHasRoleWithPrincipalAcegiUserToken() {
-        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("KEY",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")}, null);
+        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("KEY", "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
+                null);
         CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
         assertTrue(adapter.hasRole(token, "ROLE_ONE"));
         assertTrue(adapter.hasRole(token, "ROLE_TWO"));
         assertTrue(!adapter.hasRole(token, "ROLE_WE_DO_NOT_HAVE"));
-    }
-
-    private CatalinaAcegiUserRealm makeAdapter(String fileName)
-        throws Exception {
-        CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
-
-        URL url = Thread.currentThread().getContextClassLoader().getResource("org/acegisecurity/adapters/"
-                + fileName);
-
-        if (url == null) {
-            throw new Exception("Could not find " + fileName
-                + " - cannot continue");
-        }
-
-        File file = new File(url.getFile());
-
-        System.setProperty("catalina.base",
-            file.getParentFile().getAbsolutePath());
-        System.out.println("catalina.base set to: "
-            + System.getProperty("catalina.base"));
-        adapter.setAppContextLocation(fileName);
-        adapter.setKey(ADAPTER_KEY);
-        adapter.startForTest();
-
-        return adapter;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@ package sample.contact;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import org.springframework.util.Assert;
+
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
-import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -39,26 +40,22 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public class SecureIndexController implements Controller, InitializingBean {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private ContactManager contactManager;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void setContactManager(ContactManager contact) {
-        this.contactManager = contact;
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(contactManager, "A ContactManager implementation is required");
     }
 
     public ContactManager getContactManager() {
         return contactManager;
     }
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(contactManager, "A ContactManager implementation is required");
-    }
-
-    public ModelAndView handleRequest(HttpServletRequest request,
-        HttpServletResponse response) throws ServletException, IOException {
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
         List myContactsList = contactManager.getAll();
         Contact[] myContacts;
 
@@ -72,5 +69,9 @@ public class SecureIndexController implements Controller, InitializingBean {
         model.put("contacts", myContacts);
 
         return new ModelAndView("index", "model", model);
+    }
+
+    public void setContactManager(ContactManager contact) {
+        this.contactManager = contact;
     }
 }

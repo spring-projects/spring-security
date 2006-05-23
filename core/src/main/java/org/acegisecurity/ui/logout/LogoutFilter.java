@@ -37,40 +37,28 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Logs a principal out.
- * 
- * <p>
- * Polls a series of {@link LogoutHandler}s. The handlers should be specified
- * in the order they are required. Generally you will want to call logout
- * handlers <code>TokenBasedRememberMeServices</code> and
- * <code>SecurityContextLogoutHandler</code> (in that order).
- * </p>
- * 
- * <p>
- * After logout, the URL specified by {@link #logoutSuccessUrl} will be shown.
- * </p>
- * 
- * <p>
- * <b>Do not use this class directly.</b> Instead configure
- * <code>web.xml</code> to use the {@link
- * org.acegisecurity.util.FilterToBeanProxy}.
- * </p>
+ * Logs a principal out.<p>Polls a series of {@link LogoutHandler}s. The handlers should be specified in the order
+ * they are required. Generally you will want to call logout handlers <code>TokenBasedRememberMeServices</code> and
+ * <code>SecurityContextLogoutHandler</code> (in that order).</p>
+ *  <p>After logout, the URL specified by {@link #logoutSuccessUrl} will be shown.</p>
+ *  <p><b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the {@link
+ * org.acegisecurity.util.FilterToBeanProxy}.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class LogoutFilter implements Filter {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(LogoutFilter.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private String filterProcessesUrl = "/j_acegi_logout";
     private String logoutSuccessUrl;
     private LogoutHandler[] handlers;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public LogoutFilter(String logoutSuccessUrl, LogoutHandler[] handlers) {
         Assert.hasText(logoutSuccessUrl, "LogoutSuccessUrl required");
@@ -79,15 +67,15 @@ public class LogoutFilter implements Filter {
         this.handlers = handlers;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Not used. Use IoC container lifecycle methods instead.
      */
     public void destroy() {}
 
-    public void doFilter(ServletRequest request, ServletResponse response,
-        FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
         if (!(request instanceof HttpServletRequest)) {
             throw new ServletException("Can only process HttpServletRequest");
         }
@@ -100,12 +88,10 @@ public class LogoutFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         if (requiresLogout(httpRequest, httpResponse)) {
-            Authentication auth = SecurityContextHolder.getContext()
-                                                       .getAuthentication();
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Logging out user '" + auth
-                    + "' and redirecting to logout page");
+                logger.debug("Logging out user '" + auth + "' and redirecting to logout page");
             }
 
             if (auth != null) {
@@ -137,11 +123,9 @@ public class LogoutFilter implements Filter {
      * @param request the request
      * @param response the response
      *
-     * @return <code>true</code> if logout should occur, <code>false</code>
-     *         otherwise
+     * @return <code>true</code> if logout should occur, <code>false</code> otherwise
      */
-    protected boolean requiresLogout(HttpServletRequest request,
-        HttpServletResponse response) {
+    protected boolean requiresLogout(HttpServletRequest request, HttpServletResponse response) {
         String uri = request.getRequestURI();
         int pathParamIndex = uri.indexOf(';');
 
@@ -162,8 +146,8 @@ public class LogoutFilter implements Filter {
      *
      * @throws IOException in the event of any failure
      */
-    protected void sendRedirect(HttpServletRequest request,
-        HttpServletResponse response, String url) throws IOException {
+    protected void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
+        throws IOException {
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             url = request.getContextPath() + url;
         }

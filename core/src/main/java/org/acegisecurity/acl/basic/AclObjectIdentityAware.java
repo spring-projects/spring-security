@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,12 @@ package org.acegisecurity.acl.basic;
  * @version $Id$
  */
 public interface AclObjectIdentityAware {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Retrieves the <code>AclObjectIdentity</code> for this instance.
      *
-     * @return the ACL object identity for this instance (can never be
-     *         <code>null</code>)
+     * @return the ACL object identity for this instance (can never be <code>null</code>)
      */
     public AclObjectIdentity getAclObjectIdentity();
 }

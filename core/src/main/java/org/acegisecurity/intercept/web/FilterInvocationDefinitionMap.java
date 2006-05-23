@@ -26,12 +26,11 @@ import org.acegisecurity.ConfigAttributeDefinition;
  * @version $Id$
  */
 public interface FilterInvocationDefinitionMap {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void addSecureUrl(String expression, ConfigAttributeDefinition attr);
 
     public boolean isConvertUrlToLowercaseBeforeComparison();
 
-    public void setConvertUrlToLowercaseBeforeComparison(
-        boolean convertUrlToLowercaseBeforeComparison);
+    public void setConvertUrlToLowercaseBeforeComparison(boolean convertUrlToLowercaseBeforeComparison);
 }

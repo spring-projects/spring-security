@@ -34,7 +34,7 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 public class FilterInvocationTests extends MockObjectTestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public FilterInvocationTests() {
         super();
@@ -44,7 +44,7 @@ public class FilterInvocationTests extends MockObjectTestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(FilterInvocationTests.class);
@@ -73,10 +73,8 @@ public class FilterInvocationTests extends MockObjectTestCase {
         assertEquals(response, fi.getHttpResponse());
         assertEquals(chain, fi.getChain());
         assertEquals("/HelloWorld/some/more/segments.html", fi.getRequestUrl());
-        assertEquals("FilterInvocation: URL: /HelloWorld/some/more/segments.html",
-            fi.toString());
-        assertEquals("http://www.example.com/mycontext/HelloWorld/some/more/segments.html",
-            fi.getFullRequestUrl());
+        assertEquals("FilterInvocation: URL: /HelloWorld/some/more/segments.html", fi.toString());
+        assertEquals("http://www.example.com/mycontext/HelloWorld/some/more/segments.html", fi.getFullRequestUrl());
     }
 
     public void testNoArgConstructorDoesntExist() {
@@ -135,8 +133,7 @@ public class FilterInvocationTests extends MockObjectTestCase {
             new FilterInvocation(request, response, chain);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("Can only process HttpServletRequest",
-                expected.getMessage());
+            assertEquals("Can only process HttpServletRequest", expected.getMessage());
         }
     }
 
@@ -149,8 +146,7 @@ public class FilterInvocationTests extends MockObjectTestCase {
             new FilterInvocation(request, response, chain);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("Can only process HttpServletResponse",
-                expected.getMessage());
+            assertEquals("Can only process HttpServletResponse", expected.getMessage());
         }
     }
 
@@ -169,8 +165,7 @@ public class FilterInvocationTests extends MockObjectTestCase {
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         assertEquals("/HelloWorld?foo=bar", fi.getRequestUrl());
         assertEquals("FilterInvocation: URL: /HelloWorld?foo=bar", fi.toString());
-        assertEquals("http://www.example.com/mycontext/HelloWorld?foo=bar",
-            fi.getFullRequestUrl());
+        assertEquals("http://www.example.com/mycontext/HelloWorld?foo=bar", fi.getFullRequestUrl());
     }
 
     public void testStringMethodsWithoutAnyQueryString() {
@@ -187,7 +182,6 @@ public class FilterInvocationTests extends MockObjectTestCase {
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         assertEquals("/HelloWorld", fi.getRequestUrl());
         assertEquals("FilterInvocation: URL: /HelloWorld", fi.toString());
-        assertEquals("http://www.example.com/mycontext/HelloWorld",
-            fi.getFullRequestUrl());
+        assertEquals("http://www.example.com/mycontext/HelloWorld", fi.getFullRequestUrl());
     }
 }

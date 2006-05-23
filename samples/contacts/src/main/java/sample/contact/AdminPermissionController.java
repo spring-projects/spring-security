@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,37 +43,28 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public class AdminPermissionController implements Controller, InitializingBean {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private AclManager aclManager;
     private ContactManager contactManager;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void setAclManager(AclManager aclManager) {
-        this.aclManager = aclManager;
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(contactManager, "A ContactManager implementation is required");
+        Assert.notNull(aclManager, "An aclManager implementation is required");
     }
 
     public AclManager getAclManager() {
         return aclManager;
     }
 
-    public void setContactManager(ContactManager contact) {
-        this.contactManager = contact;
-    }
-
     public ContactManager getContactManager() {
         return contactManager;
     }
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(contactManager,
-            "A ContactManager implementation is required");
-        Assert.notNull(aclManager, "An aclManager implementation is required");
-    }
-
-    public ModelAndView handleRequest(HttpServletRequest request,
-        HttpServletResponse response) throws ServletException, IOException {
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
         int id = RequestUtils.getRequiredIntParameter(request, "contactId");
 
         Contact contact = contactManager.getById(new Long(id));
@@ -84,5 +75,13 @@ public class AdminPermissionController implements Controller, InitializingBean {
         model.put("acls", acls);
 
         return new ModelAndView("adminPermission", "model", model);
+    }
+
+    public void setAclManager(AclManager aclManager) {
+        this.aclManager = aclManager;
+    }
+
+    public void setContactManager(ContactManager contact) {
+        this.contactManager = contact;
     }
 }

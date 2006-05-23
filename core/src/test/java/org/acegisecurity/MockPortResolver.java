@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ import javax.servlet.ServletRequest;
  * @version $Id$
  */
 public class MockPortResolver implements PortResolver {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private int http = 80;
     private int https = 443;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public MockPortResolver(int http, int https) {
         this.http = http;
@@ -41,11 +41,10 @@ public class MockPortResolver implements PortResolver {
 
     private MockPortResolver() {}
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public int getServerPort(ServletRequest request) {
-        if ((request.getScheme() != null)
-            && request.getScheme().equals("https")) {
+        if ((request.getScheme() != null) && request.getScheme().equals("https")) {
             return https;
         } else {
             return http;

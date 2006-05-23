@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,16 @@
 package org.acegisecurity;
 
 /**
- * Thrown if an authentication request is rejected because there is no {@link
- * Authentication} object in the  {@link org.acegisecurity.context.SecurityContext SecurityContext}.
+ * Thrown if an authentication request is rejected because there is no {@link Authentication} object in the  {@link
+ * org.acegisecurity.context.SecurityContext SecurityContext}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthenticationCredentialsNotFoundException
-    extends AuthenticationException {
-    //~ Constructors ===========================================================
+public class AuthenticationCredentialsNotFoundException extends AuthenticationException {
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructs an <code>AuthenticationCredentialsNotFoundException</code>
      * with the specified message.
      *
@@ -36,7 +35,7 @@ public class AuthenticationCredentialsNotFoundException
         super(msg);
     }
 
-    /**
+/**
      * Constructs an <code>AuthenticationCredentialsNotFoundException</code>
      * with the specified message and root cause.
      *

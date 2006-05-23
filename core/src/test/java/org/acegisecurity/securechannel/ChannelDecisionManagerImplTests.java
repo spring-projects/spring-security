@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,11 @@ import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.MockFilterChain;
 import org.acegisecurity.SecurityConfig;
+
 import org.acegisecurity.intercept.web.FilterInvocation;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
@@ -31,9 +35,6 @@ import java.util.Vector;
 
 import javax.servlet.ServletException;
 
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-
 
 /**
  * Tests {@link ChannelDecisionManagerImpl}.
@@ -42,14 +43,14 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @version $Id$
  */
 public class ChannelDecisionManagerImplTests extends TestCase {
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ChannelDecisionManagerImplTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testCannotSetEmptyChannelProcessorsList()
@@ -60,8 +61,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
             cdm.setChannelProcessors(new Vector());
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("A list of ChannelProcessors is required",
-                expected.getMessage());
+            assertEquals("A list of ChannelProcessors is required", expected.getMessage());
         }
     }
 
@@ -87,8 +87,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
             cdm.setChannelProcessors(null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("A list of ChannelProcessors is required",
-                expected.getMessage());
+            assertEquals("A list of ChannelProcessors is required", expected.getMessage());
         }
     }
 
@@ -131,8 +130,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
         FilterInvocation fi = new FilterInvocation(request, response, chain);
 
         ConfigAttributeDefinition cad = new ConfigAttributeDefinition();
-        cad.addConfigAttribute(new SecurityConfig(
-                "SOME_ATTRIBUTE_NO_PROCESSORS_SUPPORT"));
+        cad.addConfigAttribute(new SecurityConfig("SOME_ATTRIBUTE_NO_PROCESSORS_SUPPORT"));
 
         cdm.decide(fi, cad);
         assertFalse(fi.getResponse().isCommitted());
@@ -175,12 +173,11 @@ public class ChannelDecisionManagerImplTests extends TestCase {
             cdm.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("A list of ChannelProcessors is required",
-                expected.getMessage());
+            assertEquals("A list of ChannelProcessors is required", expected.getMessage());
         }
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockChannelProcessor implements ChannelProcessor {
         private String configAttribute;
@@ -195,8 +192,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
             super();
         }
 
-        public void decide(FilterInvocation invocation,
-            ConfigAttributeDefinition config)
+        public void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
             throws IOException, ServletException {
             Iterator iter = config.getConfigAttributes();
 

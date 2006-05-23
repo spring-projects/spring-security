@@ -19,33 +19,27 @@ import org.acegisecurity.GrantedAuthority;
 
 
 /**
- * An {@link org.acegisecurity.Authentication} implementation that is designed
- * for use whilst unit testing.
- * 
- * <p>
- * The corresponding authentication provider is  {@link
- * TestingAuthenticationProvider}.
- * </p>
+ * An {@link org.acegisecurity.Authentication} implementation that is designed for use whilst unit testing.<p>The
+ * corresponding authentication provider is  {@link TestingAuthenticationProvider}.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class TestingAuthenticationToken extends AbstractAuthenticationToken {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Object credentials;
     private Object principal;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    public TestingAuthenticationToken(Object principal, Object credentials,
-        GrantedAuthority[] authorities) {
+    public TestingAuthenticationToken(Object principal, Object credentials, GrantedAuthority[] authorities) {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Object getCredentials() {
         return this.credentials;

@@ -25,9 +25,9 @@ import org.acegisecurity.AcegiSecurityException;
  * @version $Id$
  */
 public class IdentityUnavailableException extends AcegiSecurityException {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructs an <code>IdentityUnavailableException</code> with the specified message.
      *
      * @param msg the detail message
@@ -36,7 +36,7 @@ public class IdentityUnavailableException extends AcegiSecurityException {
         super(msg);
     }
 
-    /**
+/**
      * Constructs an <code>IdentityUnavailableException</code> with the specified message
      * and root cause.
      *

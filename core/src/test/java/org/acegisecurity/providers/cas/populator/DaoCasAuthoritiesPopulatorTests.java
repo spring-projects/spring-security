@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,10 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.userdetails.UserDetailsService;
+
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 
 import org.springframework.dao.DataAccessException;
@@ -35,7 +36,7 @@ import org.springframework.dao.DataRetrievalFailureException;
  * @version $Id$
  */
 public class DaoCasAuthoritiesPopulatorTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public DaoCasAuthoritiesPopulatorTests() {
         super();
@@ -45,14 +46,14 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(DaoCasAuthoritiesPopulatorTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testDetectsMissingAuthenticationDao() throws Exception {
@@ -62,8 +63,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
             populator.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("An authenticationDao must be set",
-                expected.getMessage());
+            assertEquals("An authenticationDao must be set", expected.getMessage());
         }
     }
 
@@ -89,10 +89,8 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
 
         UserDetails results = populator.getUserDetails("marissa");
         assertEquals(2, results.getAuthorities().length);
-        assertEquals(new GrantedAuthorityImpl("ROLE_ONE"),
-            results.getAuthorities()[0]);
-        assertEquals(new GrantedAuthorityImpl("ROLE_TWO"),
-            results.getAuthorities()[1]);
+        assertEquals(new GrantedAuthorityImpl("ROLE_ONE"), results.getAuthorities()[0]);
+        assertEquals(new GrantedAuthorityImpl("ROLE_TWO"), results.getAuthorities()[1]);
     }
 
     public void testGetGrantedAuthoritiesWhenDaoThrowsException()
@@ -116,18 +114,16 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
         assertEquals(dao, populator.getUserDetailsService());
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
-    private class MockAuthenticationDaoSimulateBackendError
-        implements UserDetailsService {
+    private class MockAuthenticationDaoSimulateBackendError implements UserDetailsService {
         public long getRefreshDuration() {
             return 0;
         }
 
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
-            throw new DataRetrievalFailureException(
-                "This mock simulator is designed to fail");
+            throw new DataRetrievalFailureException("This mock simulator is designed to fail");
         }
     }
 
@@ -140,11 +136,9 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
             throws UsernameNotFoundException, DataAccessException {
             if ("marissa".equals(username)) {
                 return new User("marissa", "koala", true, true, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                            "ROLE_TWO")});
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
             } else {
-                throw new UsernameNotFoundException("Could not find: "
-                    + username);
+                throw new UsernameNotFoundException("Could not find: " + username);
             }
         }
     }

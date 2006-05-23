@@ -49,77 +49,41 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Processes a HTTP request's BASIC authorization headers, putting the result
- * into the <code>SecurityContextHolder</code>.
- * 
- * <p>
- * For a detailed background on what this filter is designed to process, refer
- * to <A HREF="http://www.faqs.org/rfcs/rfc1945.html">RFC 1945, Section
- * 11.1</A>. Any realm name presented in the HTTP request is ignored.
- * </p>
- * 
- * <p>
- * In summary, this filter is responsible for processing any request that has a
- * HTTP request header of <code>Authorization</code> with an authentication
- * scheme of <code>Basic</code> and a Base64-encoded
- * <code>username:password</code> token. For example, to authenticate user
- * "Aladdin" with password "open sesame" the following header would be
- * presented:
- * </p>
- * 
- * <p>
- * <code>Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==</code>.
- * </p>
- * 
- * <p>
- * This filter can be used to provide BASIC authentication services to both
- * remoting protocol clients (such as Hessian and SOAP) as well as standard
- * user agents (such as Internet Explorer and Netscape).
- * </p>
- * 
- * <P>
- * If authentication is successful, the resulting {@link Authentication} object
- * will be placed into the <code>SecurityContextHolder</code>.
- * </p>
- * 
- * <p>
- * If authentication fails and <code>ignoreFailure</code> is <code>false</code>
- * (the default), an {@link AuthenticationEntryPoint} implementation is
- * called. Usually this should be {@link BasicProcessingFilterEntryPoint},
- * which will prompt the user to authenticate again via BASIC authentication.
- * </p>
- * 
- * <p>
- * Basic authentication is an attractive protocol because it is simple and
- * widely deployed. However, it still transmits a password in clear text and
- * as such is undesirable in many situations. Digest authentication is also
- * provided by Acegi Security and should be used instead of Basic
- * authentication wherever possible. See {@link
- * org.acegisecurity.ui.digestauth.DigestProcessingFilter}.
- * </p>
- * 
- * <p>
- * Note that if a {@link #rememberMeServices} is set, this filter will
- * automatically send back remember-me details to the client. Therefore,
- * subsequent requests will not need to present a BASIC authentication header
- * as they will be authenticated using the remember-me mechanism.
- * </p>
- * 
- * <p>
- * <b>Do not use this class directly.</b> Instead configure
- * <code>web.xml</code> to use the {@link
- * org.acegisecurity.util.FilterToBeanProxy}.
- * </p>
+ * Processes a HTTP request's BASIC authorization headers, putting the result into the
+ * <code>SecurityContextHolder</code>.<p>For a detailed background on what this filter is designed to process,
+ * refer to <A HREF="http://www.faqs.org/rfcs/rfc1945.html">RFC 1945, Section 11.1</A>. Any realm name presented in
+ * the HTTP request is ignored.</p>
+ *  <p>In summary, this filter is responsible for processing any request that has a HTTP request header of
+ * <code>Authorization</code> with an authentication scheme of <code>Basic</code> and a Base64-encoded
+ * <code>username:password</code> token. For example, to authenticate user "Aladdin" with password "open sesame" the
+ * following header would be presented:</p>
+ *  <p><code>Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==</code>.</p>
+ *  <p>This filter can be used to provide BASIC authentication services to both remoting protocol clients (such as
+ * Hessian and SOAP) as well as standard user agents (such as Internet Explorer and Netscape).</p>
+ *  <P>If authentication is successful, the resulting {@link Authentication} object will be placed into the
+ * <code>SecurityContextHolder</code>.</p>
+ *  <p>If authentication fails and <code>ignoreFailure</code> is <code>false</code> (the default), an {@link
+ * AuthenticationEntryPoint} implementation is called. Usually this should be {@link BasicProcessingFilterEntryPoint},
+ * which will prompt the user to authenticate again via BASIC authentication.</p>
+ *  <p>Basic authentication is an attractive protocol because it is simple and widely deployed. However, it still
+ * transmits a password in clear text and as such is undesirable in many situations. Digest authentication is also
+ * provided by Acegi Security and should be used instead of Basic authentication wherever possible. See {@link
+ * org.acegisecurity.ui.digestauth.DigestProcessingFilter}.</p>
+ *  <p>Note that if a {@link #rememberMeServices} is set, this filter will automatically send back remember-me
+ * details to the client. Therefore, subsequent requests will not need to present a BASIC authentication header as
+ * they will be authenticated using the remember-me mechanism.</p>
+ *  <p><b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the {@link
+ * org.acegisecurity.util.FilterToBeanProxy}.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class BasicProcessingFilter implements Filter, InitializingBean {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(BasicProcessingFilter.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
     private AuthenticationEntryPoint authenticationEntryPoint;
@@ -127,19 +91,17 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
     private RememberMeServices rememberMeServices;
     private boolean ignoreFailure = false;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.authenticationManager,
-            "An AuthenticationManager is required");
-        Assert.notNull(this.authenticationEntryPoint,
-            "An AuthenticationEntryPoint is required");
+        Assert.notNull(this.authenticationManager, "An AuthenticationManager is required");
+        Assert.notNull(this.authenticationEntryPoint, "An AuthenticationEntryPoint is required");
     }
 
     public void destroy() {}
 
-    public void doFilter(ServletRequest request, ServletResponse response,
-        FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
         if (!(request instanceof HttpServletRequest)) {
             throw new ServletException("Can only process HttpServletRequest");
         }
@@ -159,8 +121,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
 
         if ((header != null) && header.startsWith("Basic ")) {
             String base64Token = header.substring(6);
-            String token = new String(Base64.decodeBase64(
-                        base64Token.getBytes()));
+            String token = new String(Base64.decodeBase64(base64Token.getBytes()));
 
             String username = "";
             String password = "";
@@ -172,16 +133,12 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
             }
 
             // Only reauthenticate if username doesn't match SecurityContextHolder and user isn't authenticated (see SEC-53)
-            Authentication existingAuth = SecurityContextHolder.getContext()
-                                                               .getAuthentication();
+            Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
 
-            if ((existingAuth == null)
-                || !existingAuth.getName().equals(username)
-                || !existingAuth.isAuthenticated()) {
+            if ((existingAuth == null) || !existingAuth.getName().equals(username) || !existingAuth.isAuthenticated()) {
                 UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username,
                         password);
-                authRequest.setDetails(authenticationDetailsSource.buildDetails(
-                        (HttpServletRequest) request));
+                authRequest.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
 
                 Authentication authResult;
 
@@ -190,8 +147,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                 } catch (AuthenticationException failed) {
                     // Authentication failed
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Authentication request for user: "
-                            + username + " failed: " + failed.toString());
+                        logger.debug("Authentication request for user: " + username + " failed: " + failed.toString());
                     }
 
                     SecurityContextHolder.getContext().setAuthentication(null);
@@ -203,8 +159,7 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                     if (ignoreFailure) {
                         chain.doFilter(request, response);
                     } else {
-                        authenticationEntryPoint.commence(request, response,
-                            failed);
+                        authenticationEntryPoint.commence(request, response, failed);
                     }
 
                     return;
@@ -212,15 +167,13 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
 
                 // Authentication success
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Authentication success: "
-                        + authResult.toString());
+                    logger.debug("Authentication success: " + authResult.toString());
                 }
 
                 SecurityContextHolder.getContext().setAuthentication(authResult);
 
                 if (rememberMeServices != null) {
-                    rememberMeServices.loginSuccess(httpRequest, httpResponse,
-                        authResult);
+                    rememberMeServices.loginSuccess(httpRequest, httpResponse, authResult);
                 }
             }
         }
@@ -242,20 +195,16 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
         return ignoreFailure;
     }
 
-    public void setAuthenticationDetailsSource(
-        AuthenticationDetailsSource authenticationDetailsSource) {
-        Assert.notNull(authenticationDetailsSource,
-            "AuthenticationDetailsSource required");
+    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+        Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
         this.authenticationDetailsSource = authenticationDetailsSource;
     }
 
-    public void setAuthenticationEntryPoint(
-        AuthenticationEntryPoint authenticationEntryPoint) {
+    public void setAuthenticationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint) {
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
-    public void setAuthenticationManager(
-        AuthenticationManager authenticationManager) {
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 

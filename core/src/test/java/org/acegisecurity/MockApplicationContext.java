@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,15 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
 /**
- * Simply returns an <code>ApplicationContext</code> which has a couple of
- * <code>ApplicationEvent</code> listeners.
+ * Simply returns an <code>ApplicationContext</code> which has a couple of <code>ApplicationEvent</code> listeners.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MockApplicationContext {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static ConfigurableApplicationContext getContext() {
-        return new ClassPathXmlApplicationContext(
-            "org/acegisecurity/applicationContext.xml");
+        return new ClassPathXmlApplicationContext("org/acegisecurity/applicationContext.xml");
     }
 }

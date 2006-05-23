@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,6 @@
  */
 
 package org.acegisecurity.intercept.method.aopalliance;
-
-import java.lang.reflect.Method;
-import java.util.Iterator;
 
 import junit.framework.TestCase;
 
@@ -36,13 +33,22 @@ import org.acegisecurity.MockAfterInvocationManager;
 import org.acegisecurity.MockAuthenticationManager;
 import org.acegisecurity.MockRunAsManager;
 import org.acegisecurity.RunAsManager;
+
 import org.acegisecurity.context.SecurityContextHolder;
+
 import org.acegisecurity.intercept.method.AbstractMethodDefinitionSource;
 import org.acegisecurity.intercept.method.MockMethodDefinitionSource;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.acegisecurity.runas.RunAsManagerImpl;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.lang.reflect.Method;
+
+import java.util.Iterator;
 
 
 /**
@@ -52,7 +58,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * @version $Id$
  */
 public class MethodSecurityInterceptorTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public MethodSecurityInterceptorTests() {
         super();
@@ -62,15 +68,43 @@ public class MethodSecurityInterceptorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(MethodSecurityInterceptorTests.class);
+    }
+
+    private ITargetObject makeInterceptedTarget() {
+        ApplicationContext context = new ClassPathXmlApplicationContext(
+                "org/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
+
+        return (ITargetObject) context.getBean("target");
+    }
+
+    private ITargetObject makeInterceptedTargetRejectsAuthentication() {
+        ApplicationContext context = new ClassPathXmlApplicationContext(
+                "org/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
+
+        MockAuthenticationManager authenticationManager = new MockAuthenticationManager(false);
+        MethodSecurityInterceptor si = (MethodSecurityInterceptor) context.getBean("securityInterceptor");
+        si.setAuthenticationManager(authenticationManager);
+
+        return (ITargetObject) context.getBean("target");
+    }
+
+    private ITargetObject makeInterceptedTargetWithoutAnAfterInvocationManager() {
+        ApplicationContext context = new ClassPathXmlApplicationContext(
+                "org/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
+
+        MethodSecurityInterceptor si = (MethodSecurityInterceptor) context.getBean("securityInterceptor");
+        si.setAfterInvocationManager(null);
+
+        return (ITargetObject) context.getBean("target");
+    }
 
     public final void setUp() throws Exception {
         super.setUp();
         SecurityContextHolder.getContext().setAuthentication(null);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(MethodSecurityInterceptorTests.class);
     }
 
     public void testCallingAPublicMethodFacadeWillNotRepeatSecurityChecksWhenPassedToTheSecuredMethodItFronts()
@@ -82,21 +116,18 @@ public class MethodSecurityInterceptorTests extends TestCase {
 
     public void testCallingAPublicMethodWhenPresentingAnAuthenticationObjectWillNotChangeItsIsAuthenticatedProperty()
         throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password");
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password");
         assertTrue(!token.isAuthenticated());
         SecurityContextHolder.getContext().setAuthentication(token);
 
         // The associated MockAuthenticationManager WILL accept the above UsernamePasswordAuthenticationToken
         ITargetObject target = makeInterceptedTarget();
         String result = target.publicMakeLowerCase("HELLO");
-        assertEquals("hello org.acegisecurity.providers.UsernamePasswordAuthenticationToken false",
-            result);
+        assertEquals("hello org.acegisecurity.providers.UsernamePasswordAuthenticationToken false", result);
     }
 
     public void testDeniesWhenAppropriate() throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_NO_BENEFIT_TO_THIS_GRANTED_AUTHORITY")});
         SecurityContextHolder.getContext().setAuthentication(token);
 
@@ -114,8 +145,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
         MockAccessDecisionManager accessDecision = new MockAccessDecisionManager();
         MockRunAsManager runAs = new MockRunAsManager();
         MockAuthenticationManager authManager = new MockAuthenticationManager();
-        MockMethodDefinitionSource methodSource = new MockMethodDefinitionSource(false,
-                true);
+        MockMethodDefinitionSource methodSource = new MockMethodDefinitionSource(false, true);
         MockAfterInvocationManager afterInvocation = new MockAfterInvocationManager();
 
         MethodSecurityInterceptor si = new MethodSecurityInterceptor();
@@ -133,21 +163,18 @@ public class MethodSecurityInterceptorTests extends TestCase {
     }
 
     public void testMethodCallWithRunAsReplacement() throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_UPPER")});
         SecurityContextHolder.getContext().setAuthentication(token);
 
         ITargetObject target = makeInterceptedTarget();
         String result = target.makeUpperCase("hello");
-        assertEquals("HELLO org.acegisecurity.MockRunAsAuthenticationToken true",
-            result);
+        assertEquals("HELLO org.acegisecurity.MockRunAsAuthenticationToken true", result);
     }
 
     public void testMethodCallWithoutRunAsReplacement()
         throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_LOWER")});
         assertTrue(token.isAuthenticated());
         SecurityContextHolder.getContext().setAuthentication(token);
@@ -156,8 +183,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
         String result = target.makeLowerCase("HELLO");
 
         // Note we check the isAuthenticated remained true in following line
-        assertEquals("hello org.acegisecurity.providers.UsernamePasswordAuthenticationToken true",
-            result);
+        assertEquals("hello org.acegisecurity.providers.UsernamePasswordAuthenticationToken true", result);
     }
 
     public void testRejectionOfEmptySecurityContext() throws Exception {
@@ -165,8 +191,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
 
         try {
             target.makeUpperCase("hello");
-            fail(
-                "Should have thrown AuthenticationCredentialsNotFoundException");
+            fail("Should have thrown AuthenticationCredentialsNotFoundException");
         } catch (AuthenticationCredentialsNotFoundException expected) {
             assertTrue(true);
         }
@@ -191,8 +216,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
 
     public void testRejectsCallsWhenAuthenticationIsIncorrect()
         throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password");
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password");
         assertTrue(!token.isAuthenticated());
         SecurityContextHolder.getContext().setAuthentication(token);
 
@@ -266,8 +290,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
             si.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("An AccessDecisionManager is required",
-                expected.getMessage());
+            assertEquals("An AccessDecisionManager is required", expected.getMessage());
         }
     }
 
@@ -284,8 +307,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
             si.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("An AuthenticationManager is required",
-                expected.getMessage());
+            assertEquals("An AuthenticationManager is required", expected.getMessage());
         }
     }
 
@@ -299,8 +321,7 @@ public class MethodSecurityInterceptorTests extends TestCase {
             si.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("An ObjectDefinitionSource is required",
-                expected.getMessage());
+            assertEquals("An ObjectDefinitionSource is required", expected.getMessage());
         }
     }
 
@@ -384,66 +405,12 @@ public class MethodSecurityInterceptorTests extends TestCase {
         assertTrue(true);
     }
 
-    private ITargetObject makeInterceptedTarget() {
-        ApplicationContext context = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
+    //~ Inner Classes ==================================================================================================
 
-        return (ITargetObject) context.getBean("target");
-    }
-
-    private ITargetObject makeInterceptedTargetRejectsAuthentication() {
-        ApplicationContext context = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
-
-        MockAuthenticationManager authenticationManager = new MockAuthenticationManager(false);
-        MethodSecurityInterceptor si = (MethodSecurityInterceptor) context
-            .getBean("securityInterceptor");
-        si.setAuthenticationManager(authenticationManager);
-
-        return (ITargetObject) context.getBean("target");
-    }
-
-    private ITargetObject makeInterceptedTargetWithoutAnAfterInvocationManager() {
-        ApplicationContext context = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
-
-        MethodSecurityInterceptor si = (MethodSecurityInterceptor) context
-            .getBean("securityInterceptor");
-        si.setAfterInvocationManager(null);
-
-        return (ITargetObject) context.getBean("target");
-    }
-
-    //~ Inner Classes ==========================================================
-
-    private class MockAccessDecisionManagerWhichOnlySupportsStrings
-        implements AccessDecisionManager {
-        public void decide(Authentication authentication, Object object,
-            ConfigAttributeDefinition config) throws AccessDeniedException {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
-        public boolean supports(Class clazz) {
-            if (String.class.isAssignableFrom(clazz)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        public boolean supports(ConfigAttribute attribute) {
-            return true;
-        }
-    }
-
-    private class MockAfterInvocationManagerWhichOnlySupportsStrings
-        implements AfterInvocationManager {
-        public Object decide(Authentication authentication, Object object,
-            ConfigAttributeDefinition config, Object returnedObject)
+    private class MockAccessDecisionManagerWhichOnlySupportsStrings implements AccessDecisionManager {
+        public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
             throws AccessDeniedException {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
+            throw new UnsupportedOperationException("mock method not implemented");
         }
 
         public boolean supports(Class clazz) {
@@ -459,12 +426,34 @@ public class MethodSecurityInterceptorTests extends TestCase {
         }
     }
 
-    private class MockObjectDefinitionSourceWhichOnlySupportsStrings
-        extends AbstractMethodDefinitionSource {
+    private class MockAfterInvocationManagerWhichOnlySupportsStrings implements AfterInvocationManager {
+        public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+            Object returnedObject) throws AccessDeniedException {
+            throw new UnsupportedOperationException("mock method not implemented");
+        }
+
+        public boolean supports(Class clazz) {
+            if (String.class.isAssignableFrom(clazz)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public boolean supports(ConfigAttribute attribute) {
+            return true;
+        }
+    }
+
+    private class MockObjectDefinitionSourceWhichOnlySupportsStrings extends AbstractMethodDefinitionSource {
         public Iterator getConfigAttributeDefinitions() {
             return null;
         }
 
+        protected ConfigAttributeDefinition lookupAttributes(Method method) {
+            throw new UnsupportedOperationException("mock method not implemented");
+        }
+
         public boolean supports(Class clazz) {
             if (String.class.isAssignableFrom(clazz)) {
                 return true;
@@ -472,19 +461,11 @@ public class MethodSecurityInterceptorTests extends TestCase {
                 return false;
             }
         }
-
-        protected ConfigAttributeDefinition lookupAttributes(Method method) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
     }
 
-    private class MockRunAsManagerWhichOnlySupportsStrings
-        implements RunAsManager {
-        public Authentication buildRunAs(Authentication authentication,
-            Object object, ConfigAttributeDefinition config) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
+    private class MockRunAsManagerWhichOnlySupportsStrings implements RunAsManager {
+        public Authentication buildRunAs(Authentication authentication, Object object, ConfigAttributeDefinition config) {
+            throw new UnsupportedOperationException("mock method not implemented");
         }
 
         public boolean supports(Class clazz) {

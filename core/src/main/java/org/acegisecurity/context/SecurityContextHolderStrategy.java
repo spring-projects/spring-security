@@ -27,7 +27,7 @@ package org.acegisecurity.context;
  * @version $Id$
  */
 public interface SecurityContextHolderStrategy {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Clears the current context.
@@ -37,18 +37,15 @@ public interface SecurityContextHolderStrategy {
     /**
      * Obtains the current context.
      *
-     * @return a context (never <code>null</code> - create a default
-     *         implementation if necessary)
+     * @return a context (never <code>null</code> - create a default implementation if necessary)
      */
     public SecurityContext getContext();
 
     /**
      * Sets the current context.
      *
-     * @param context to the new argument (should never be <code>null</code>,
-     *        although implementations must check if <code>null</code> has
-     *        been passed and throw an <code>IllegalArgumentException</code>
-     *        in such cases)
+     * @param context to the new argument (should never be <code>null</code>, although implementations must check if
+     *        <code>null</code> has been passed and throw an <code>IllegalArgumentException</code> in such cases)
      */
     public void setContext(SecurityContext context);
 }

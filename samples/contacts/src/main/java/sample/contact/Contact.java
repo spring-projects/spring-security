@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,13 @@ import java.io.Serializable;
  * @version $Id$
  */
 public class Contact implements Serializable {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Long id;
     private String email;
     private String name;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public Contact(String name, String email) {
         this.name = name;
@@ -40,16 +40,7 @@ public class Contact implements Serializable {
 
     public Contact() {}
 
-    //~ Methods ================================================================
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param email The email to set.
-     */
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    //~ Methods ========================================================================================================
 
     /**
      * DOCUMENT ME!
@@ -58,10 +49,6 @@ public class Contact implements Serializable {
      */
     public String getEmail() {
         return email;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     /**
@@ -76,19 +63,32 @@ public class Contact implements Serializable {
     /**
      * DOCUMENT ME!
      *
-     * @param name The name to set.
+     * @return Returns the name.
      */
-    public void setName(String name) {
-        this.name = name;
+    public String getName() {
+        return name;
     }
 
     /**
      * DOCUMENT ME!
      *
-     * @return Returns the name.
+     * @param email The email to set.
      */
-    public String getName() {
-        return name;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param name The name to set.
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String toString() {

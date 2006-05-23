@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,52 +27,37 @@ import java.lang.reflect.Method;
 
 
 /**
- * Advisor driven by a {@link MethodDefinitionSource}, used to exclude a {@link
- * MethodSecurityInterceptor} from public (ie non-secure) methods.
- * 
- * <p>
- * Because the AOP framework caches advice calculations, this is normally
- * faster than just letting the <code>MethodSecurityInterceptor</code> run and
- * find out itself that it has no work to do.
- * </p>
- * 
- * <p>
- * This class also allows the use of Spring's
- * <code>DefaultAdvisorAutoProxyCreator</code>, which makes configuration
- * easier than setup a <code>ProxyFactoryBean</code> for each object requiring
- * security. Note that autoproxying is not supported for BeanFactory
- * implementations, as post-processing is automatic only for application
- * contexts.
- * </p>
- * 
- * <p>
- * Based on Spring's TransactionAttributeSourceAdvisor.
- * </p>
+ * Advisor driven by a {@link MethodDefinitionSource}, used to exclude a {@link MethodSecurityInterceptor} from
+ * public (ie non-secure) methods.<p>Because the AOP framework caches advice calculations, this is normally faster
+ * than just letting the <code>MethodSecurityInterceptor</code> run and find out itself that it has no work to do.</p>
+ *  <p>This class also allows the use of Spring's <code>DefaultAdvisorAutoProxyCreator</code>, which makes
+ * configuration easier than setup a <code>ProxyFactoryBean</code> for each object requiring security. Note that
+ * autoproxying is not supported for BeanFactory implementations, as post-processing is automatic only for application
+ * contexts.</p>
+ *  <p>Based on Spring's TransactionAttributeSourceAdvisor.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class MethodDefinitionSourceAdvisor
-    extends StaticMethodMatcherPointcutAdvisor {
-    //~ Instance fields ========================================================
+public class MethodDefinitionSourceAdvisor extends StaticMethodMatcherPointcutAdvisor {
+    //~ Instance fields ================================================================================================
 
     private MethodDefinitionSource transactionAttributeSource;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public MethodDefinitionSourceAdvisor(MethodSecurityInterceptor advice) {
         super(advice);
 
         if (advice.getObjectDefinitionSource() == null) {
-            throw new AopConfigException(
-                "Cannot construct a MethodDefinitionSourceAdvisor using a "
+            throw new AopConfigException("Cannot construct a MethodDefinitionSourceAdvisor using a "
                 + "MethodSecurityInterceptor that has no ObjectDefinitionSource configured");
         }
 
         this.transactionAttributeSource = advice.getObjectDefinitionSource();
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public boolean matches(Method m, Class targetClass) {
         MethodInvocation methodInvocation = new InternalMethodInvocation(m);
@@ -80,15 +65,11 @@ public class MethodDefinitionSourceAdvisor
         return (this.transactionAttributeSource.getAttributes(methodInvocation) != null);
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     /**
-     * Represents a <code>MethodInvocation</code>.
-     * 
-     * <p>
-     * Required as <code>MethodDefinitionSource</code> only supports lookup of
-     * configuration attributes for <code>MethodInvocation</code>s.
-     * </p>
+     * Represents a <code>MethodInvocation</code>.<p>Required as <code>MethodDefinitionSource</code> only
+     * supports lookup of configuration attributes for <code>MethodInvocation</code>s.</p>
      */
     class InternalMethodInvocation implements MethodInvocation {
         Method method;

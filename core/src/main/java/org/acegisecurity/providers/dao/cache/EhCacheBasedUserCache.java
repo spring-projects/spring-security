@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
 
 package org.acegisecurity.providers.dao.cache;
 
-import org.acegisecurity.providers.dao.UserCache;
-import org.acegisecurity.userdetails.UserDetails;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+
+import org.acegisecurity.providers.dao.UserCache;
+
+import org.acegisecurity.userdetails.UserDetails;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.dao.DataRetrievalFailureException;
+
 import org.springframework.util.Assert;
 
 
@@ -39,18 +41,18 @@ import org.springframework.util.Assert;
  * @version $Id$
  */
 public class EhCacheBasedUserCache implements UserCache, InitializingBean {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(EhCacheBasedUserCache.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Cache cache;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void setCache(Cache cache) {
-        this.cache = cache;
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(cache, "cache mandatory");
     }
 
     public Cache getCache() {
@@ -63,13 +65,11 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
         try {
             element = cache.get(username);
         } catch (CacheException cacheException) {
-            throw new DataRetrievalFailureException("Cache failure: "
-                + cacheException.getMessage());
+            throw new DataRetrievalFailureException("Cache failure: " + cacheException.getMessage());
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Cache hit: " + (element != null) + "; username: "
-                + username);
+            logger.debug("Cache hit: " + (element != null) + "; username: " + username);
         }
 
         if (element == null) {
@@ -77,10 +77,6 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
         } else {
             return (UserDetails) element.getValue();
         }
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(cache, "cache mandatory");
     }
 
     public void putUserInCache(UserDetails user) {
@@ -103,5 +99,9 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
 
     public void removeUserFromCache(String username) {
         cache.remove(username);
+    }
+
+    public void setCache(Cache cache) {
+        this.cache = cache;
     }
 }

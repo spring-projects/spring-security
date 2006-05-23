@@ -20,46 +20,42 @@ import org.acegisecurity.acls.Permission;
 
 
 /**
- * Represents a <code>Permission</code> that is constructed at runtime from
- * other permissions.
- * 
- * <p>
- * Methods return <code>this</code>, in order to facilitate method chaining.
- * </p>
+ * Represents a <code>Permission</code> that is constructed at runtime from other permissions.<p>Methods return
+ * <code>this</code>, in order to facilitate method chaining.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class CumulativePermission implements Permission {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private String pattern = THIRTY_TWO_RESERVED_OFF;
     private int mask = 0;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public CumulativePermission clear(Permission permission) {
         this.mask &= ~permission.getMask();
-        this.pattern = AclFormattingUtils.demergePatterns(this.pattern,
-                permission.getPattern());
+        this.pattern = AclFormattingUtils.demergePatterns(this.pattern, permission.getPattern());
 
         return this;
     }
-    
-	public boolean equals(Object arg0) {
-		if (!(arg0 instanceof CumulativePermission)) {
-			return false;
-		}
-		CumulativePermission rhs = (CumulativePermission) arg0;
-		return (this.mask == rhs.getMask());
-	}
-
 
     public CumulativePermission clear() {
         this.mask = 0;
         this.pattern = THIRTY_TWO_RESERVED_OFF;
 
         return this;
+    }
+
+    public boolean equals(Object arg0) {
+        if (!(arg0 instanceof CumulativePermission)) {
+            return false;
+        }
+
+        CumulativePermission rhs = (CumulativePermission) arg0;
+
+        return (this.mask == rhs.getMask());
     }
 
     public int getMask() {
@@ -72,8 +68,7 @@ public class CumulativePermission implements Permission {
 
     public CumulativePermission set(Permission permission) {
         this.mask |= permission.getMask();
-        this.pattern = AclFormattingUtils.mergePatterns(this.pattern,
-                permission.getPattern());
+        this.pattern = AclFormattingUtils.mergePatterns(this.pattern, permission.getPattern());
 
         return this;
     }

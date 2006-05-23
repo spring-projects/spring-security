@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,12 +30,12 @@ import java.lang.reflect.Method;
  * @version $Id$
  */
 public class MockJoinPoint implements JoinPoint {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Method beingInvoked;
     private Object object;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public MockJoinPoint(Object object, Method beingInvoked) {
         this.object = object;
@@ -44,7 +44,7 @@ public class MockJoinPoint implements JoinPoint {
 
     private MockJoinPoint() {}
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Object[] getArgs() {
         throw new UnsupportedOperationException("mock not implemented");
@@ -82,7 +82,7 @@ public class MockJoinPoint implements JoinPoint {
         throw new UnsupportedOperationException("mock not implemented");
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockCodeSignature implements CodeSignature {
         private Method beingInvoked;

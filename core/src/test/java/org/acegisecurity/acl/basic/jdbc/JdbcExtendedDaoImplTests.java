@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.acegisecurity.acl.basic.jdbc;
 import junit.framework.TestCase;
 
 import org.acegisecurity.PopulatedDatabase;
+
 import org.acegisecurity.acl.basic.AclObjectIdentity;
 import org.acegisecurity.acl.basic.BasicAclEntry;
 import org.acegisecurity.acl.basic.NamedEntityObjectIdentity;
@@ -39,11 +40,11 @@ import java.sql.SQLException;
  * @version $Id$
  */
 public class JdbcExtendedDaoImplTests extends TestCase {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     public static final String OBJECT_IDENTITY = "org.acegisecurity.acl.DomainObject";
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public JdbcExtendedDaoImplTests() {
         super();
@@ -53,31 +54,36 @@ public class JdbcExtendedDaoImplTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(JdbcExtendedDaoImplTests.class);
     }
 
+    private JdbcExtendedDaoImpl makePopulatedJdbcDao()
+        throws Exception {
+        JdbcExtendedDaoImpl dao = new JdbcExtendedDaoImpl();
+        dao.setDataSource(PopulatedDatabase.getDataSource());
+        dao.afterPropertiesSet();
+
+        return dao;
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testChangeMask() throws Exception {
         JdbcExtendedDaoImpl dao = makePopulatedJdbcDao();
-        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "204");
-        AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "1");
+        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "204");
+        AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "1");
 
         // Create a BasicAclEntry for this AclObjectIdentity
-        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("marissa", identity,
-                parentIdentity, SimpleAclEntry.CREATE);
+        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("marissa", identity, parentIdentity, SimpleAclEntry.CREATE);
         dao.create(simpleAcl1);
 
         // Create another BasicAclEntry for this AclObjectIdentity
-        SimpleAclEntry simpleAcl2 = new SimpleAclEntry("scott", identity,
-                parentIdentity, SimpleAclEntry.READ);
+        SimpleAclEntry simpleAcl2 = new SimpleAclEntry("scott", identity, parentIdentity, SimpleAclEntry.READ);
         dao.create(simpleAcl2);
 
         // Check creation was successful
@@ -87,8 +93,7 @@ public class JdbcExtendedDaoImplTests extends TestCase {
         assertEquals(SimpleAclEntry.READ, acls[1].getMask());
 
         // Attempt to change mask
-        dao.changeMask(identity, "marissa",
-            new Integer(SimpleAclEntry.ADMINISTRATION));
+        dao.changeMask(identity, "marissa", new Integer(SimpleAclEntry.ADMINISTRATION));
         dao.changeMask(identity, "scott", new Integer(SimpleAclEntry.NOTHING));
         acls = dao.getAcls(identity);
         assertEquals(2, acls.length);
@@ -101,20 +106,16 @@ public class JdbcExtendedDaoImplTests extends TestCase {
     public void testChangeMaskThrowsExceptionWhenExistingRecordNotFound()
         throws Exception {
         JdbcExtendedDaoImpl dao = makePopulatedJdbcDao();
-        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "205");
-        AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "1");
+        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "205");
+        AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "1");
 
         // Create at least one record for this AclObjectIdentity
-        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("marissa", identity,
-                parentIdentity, SimpleAclEntry.CREATE);
+        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("marissa", identity, parentIdentity, SimpleAclEntry.CREATE);
         dao.create(simpleAcl1);
 
         // Attempt to change mask, but for a recipient we don't have
         try {
-            dao.changeMask(identity, "scott",
-                new Integer(SimpleAclEntry.ADMINISTRATION));
+            dao.changeMask(identity, "scott", new Integer(SimpleAclEntry.ADMINISTRATION));
             fail("Should have thrown DataRetrievalFailureException");
         } catch (DataRetrievalFailureException expected) {
             assertTrue(true);
@@ -137,10 +138,8 @@ public class JdbcExtendedDaoImplTests extends TestCase {
     public void testCreationOfIdentityThenAclInSeparateInvocations()
         throws Exception {
         JdbcExtendedDaoImpl dao = makePopulatedJdbcDao();
-        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "206");
-        AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "1");
+        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "206");
+        AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "1");
 
         // Create just the object identity (NB: recipient and mask is null)
         SimpleAclEntry simpleAcl1 = new SimpleAclEntry();
@@ -154,17 +153,14 @@ public class JdbcExtendedDaoImplTests extends TestCase {
 
     public void testDeletionOfAllRecipients() throws Exception {
         JdbcExtendedDaoImpl dao = makePopulatedJdbcDao();
-        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "203");
+        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "203");
 
         // Create a BasicAclEntry for this AclObjectIdentity
-        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("marissa", identity,
-                null, SimpleAclEntry.CREATE);
+        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("marissa", identity, null, SimpleAclEntry.CREATE);
         dao.create(simpleAcl1);
 
         // Create another BasicAclEntry for this AclObjectIdentity
-        SimpleAclEntry simpleAcl2 = new SimpleAclEntry("scott", identity, null,
-                SimpleAclEntry.READ);
+        SimpleAclEntry simpleAcl2 = new SimpleAclEntry("scott", identity, null, SimpleAclEntry.READ);
         dao.create(simpleAcl2);
 
         // Check creation was successful
@@ -178,19 +174,15 @@ public class JdbcExtendedDaoImplTests extends TestCase {
 
     public void testDeletionOfSpecificRecipient() throws Exception {
         JdbcExtendedDaoImpl dao = makePopulatedJdbcDao();
-        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "202");
-        AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "1");
+        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "202");
+        AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "1");
 
         // Create a BasicAclEntry for this AclObjectIdentity
-        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("marissa", identity,
-                parentIdentity, SimpleAclEntry.CREATE);
+        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("marissa", identity, parentIdentity, SimpleAclEntry.CREATE);
         dao.create(simpleAcl1);
 
         // Create another BasicAclEntry for this AclObjectIdentity
-        SimpleAclEntry simpleAcl2 = new SimpleAclEntry("scott", identity,
-                parentIdentity, SimpleAclEntry.READ);
+        SimpleAclEntry simpleAcl2 = new SimpleAclEntry("scott", identity, parentIdentity, SimpleAclEntry.READ);
         dao.create(simpleAcl2);
 
         // Check creation was successful
@@ -267,19 +259,15 @@ public class JdbcExtendedDaoImplTests extends TestCase {
     public void testNormalCreationAndDuplicateDetection()
         throws Exception {
         JdbcExtendedDaoImpl dao = makePopulatedJdbcDao();
-        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "200");
-        AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "1");
+        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "200");
+        AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "1");
 
         // Create a BasicAclEntry for this AclObjectIdentity
-        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("marissa", identity,
-                parentIdentity, SimpleAclEntry.CREATE);
+        SimpleAclEntry simpleAcl1 = new SimpleAclEntry("marissa", identity, parentIdentity, SimpleAclEntry.CREATE);
         dao.create(simpleAcl1);
 
         // Create another BasicAclEntry for this AclObjectIdentity
-        SimpleAclEntry simpleAcl2 = new SimpleAclEntry("scott", identity,
-                parentIdentity, SimpleAclEntry.READ);
+        SimpleAclEntry simpleAcl2 = new SimpleAclEntry("scott", identity, parentIdentity, SimpleAclEntry.READ);
         dao.create(simpleAcl2);
 
         // Check creation was successful
@@ -301,12 +289,9 @@ public class JdbcExtendedDaoImplTests extends TestCase {
 
     public void testRejectsInvalidParent() throws Exception {
         JdbcExtendedDaoImpl dao = makePopulatedJdbcDao();
-        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "201");
-        AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                "987987987987986");
-        SimpleAclEntry simpleAcl = new SimpleAclEntry("marissa", identity,
-                parentIdentity, SimpleAclEntry.CREATE);
+        AclObjectIdentity identity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "201");
+        AclObjectIdentity parentIdentity = new NamedEntityObjectIdentity(OBJECT_IDENTITY, "987987987987986");
+        SimpleAclEntry simpleAcl = new SimpleAclEntry("marissa", identity, parentIdentity, SimpleAclEntry.CREATE);
 
         try {
             dao.create(simpleAcl);
@@ -316,16 +301,7 @@ public class JdbcExtendedDaoImplTests extends TestCase {
         }
     }
 
-    private JdbcExtendedDaoImpl makePopulatedJdbcDao()
-        throws Exception {
-        JdbcExtendedDaoImpl dao = new JdbcExtendedDaoImpl();
-        dao.setDataSource(PopulatedDatabase.getDataSource());
-        dao.afterPropertiesSet();
-
-        return dao;
-    }
-
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockMappingSqlQuery extends MappingSqlQuery {
         protected Object mapRow(ResultSet arg0, int arg1)

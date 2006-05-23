@@ -52,28 +52,23 @@ import javax.security.auth.login.LoginException;
 
 
 /**
- * Adapter to enable JBoss to authenticate via the Acegi Security System for
- * Spring.
- * 
- * <p>
- * Returns a {@link PrincipalAcegiUserToken} to JBoss' authentication system,
- * which is subsequently available from
- * <code>java:comp/env/security/subject</code>.
- * </p>
+ * Adapter to enable JBoss to authenticate via the Acegi Security System for Spring.<p>Returns a {@link
+ * PrincipalAcegiUserToken} to JBoss' authentication system, which is subsequently available from
+ * <code>java:comp/env/security/subject</code>.</p>
  *
  * @author Ben Alex
  * @author Sergio Bern�
  * @version $Id$
  */
 public class JbossAcegiLoginModule extends AbstractServerLoginModule {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private AuthenticationManager authenticationManager;
     private Principal identity;
     private String key;
     private char[] credential;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     protected Principal getIdentity() {
         return this.identity;
@@ -87,8 +82,7 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
             Authentication user = (Authentication) this.identity;
 
             for (int i = 0; i < user.getAuthorities().length; i++) {
-                roles.addMember(new SimplePrincipal(
-                        user.getAuthorities()[i].getAuthority()));
+                roles.addMember(new SimplePrincipal(user.getAuthorities()[i].getAuthority()));
             }
         }
 
@@ -100,8 +94,7 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
 
         // prompt for a username and password
         if (callbackHandler == null) {
-            throw new LoginException("Error: no CallbackHandler available "
-                + "to collect authentication information");
+            throw new LoginException("Error: no CallbackHandler available " + "to collect authentication information");
         }
 
         NameCallback nc = new NameCallback("User name: ", "guest");
@@ -118,16 +111,14 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
 
             if (tmpPassword != null) {
                 credential = new char[tmpPassword.length];
-                System.arraycopy(tmpPassword, 0, credential, 0,
-                    tmpPassword.length);
+                System.arraycopy(tmpPassword, 0, credential, 0, tmpPassword.length);
                 pc.clearPassword();
                 password = new String(credential);
             }
         } catch (java.io.IOException ioe) {
             throw new LoginException(ioe.toString());
         } catch (UnsupportedCallbackException uce) {
-            throw new LoginException("CallbackHandler does not support: "
-                + uce.getCallback());
+            throw new LoginException("CallbackHandler does not support: " + uce.getCallback());
         }
 
         info[0] = username;
@@ -136,8 +127,7 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
         return info;
     }
 
-    public void initialize(Subject subject, CallbackHandler callbackHandler,
-        Map sharedState, Map options) {
+    public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         super.initialize(subject, callbackHandler, sharedState, options);
 
         if (super.log.isInfoEnabled()) {
@@ -154,24 +144,21 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
 
         String appContextLocation = (String) options.get("appContextLocation");
 
-        if ((((singletonId == null) || "".equals(singletonId))
-            && (appContextLocation == null)) || "".equals(appContextLocation)) {
-            throw new IllegalArgumentException(
-                "appContextLocation must be defined");
+        if ((((singletonId == null) || "".equals(singletonId)) && (appContextLocation == null))
+            || "".equals(appContextLocation)) {
+            throw new IllegalArgumentException("appContextLocation must be defined");
         }
 
         String beanName = (String) options.get("authenticationManager");
 
         // Attempt to find the appContextLocation only if no singletonId was defined
         if ((singletonId == null) || "".equals(singletonId)) {
-            if (Thread.currentThread().getContextClassLoader()
-                      .getResource(appContextLocation) == null) {
+            if (Thread.currentThread().getContextClassLoader().getResource(appContextLocation) == null) {
                 if (super.log.isInfoEnabled()) {
                     super.log.info("cannot locate " + appContextLocation);
                 }
 
-                throw new IllegalArgumentException("Cannot locate "
-                    + appContextLocation);
+                throw new IllegalArgumentException("Cannot locate " + appContextLocation);
             }
         }
 
@@ -182,13 +169,10 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
                 ctx = new ClassPathXmlApplicationContext(appContextLocation);
             } catch (Exception e) {
                 if (super.log.isInfoEnabled()) {
-                    super.log.info("error loading spring context "
-                        + appContextLocation + " " + e);
+                    super.log.info("error loading spring context " + appContextLocation + " " + e);
                 }
 
-                throw new IllegalArgumentException(
-                    "error loading spring context " + appContextLocation + " "
-                    + e);
+                throw new IllegalArgumentException("error loading spring context " + appContextLocation + " " + e);
             }
         } else {
             if (super.log.isInfoEnabled()) {
@@ -204,8 +188,7 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
                     super.log.info("singleton " + beanName + " does not exists");
                 }
 
-                throw new IllegalArgumentException("singleton " + singletonId
-                    + " does not exists");
+                throw new IllegalArgumentException("singleton " + singletonId + " does not exists");
             }
         }
 
@@ -213,15 +196,13 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
             Map beans = null;
 
             try {
-                beans = ctx.getBeansOfType(AuthenticationManager.class, true,
-                        true);
+                beans = ctx.getBeansOfType(AuthenticationManager.class, true, true);
             } catch (Exception e) {
                 if (super.log.isInfoEnabled()) {
                     super.log.info("exception in getBeansOfType " + e);
                 }
 
-                throw new IllegalStateException(
-                    "spring error in get beans by class");
+                throw new IllegalStateException("spring error in get beans by class");
             }
 
             if (beans.size() == 0) {
@@ -248,8 +229,7 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
 
         if ((username == null) && (password == null)) {
             identity = null;
-            super.log.trace("Authenticating as unauthenticatedIdentity="
-                + identity);
+            super.log.trace("Authenticating as unauthenticatedIdentity=" + identity);
         }
 
         if (username == null) {
@@ -267,8 +247,7 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
         if (identity == null) {
             super.log.debug("creating usernamepassword token");
 
-            Authentication request = new UsernamePasswordAuthenticationToken(username,
-                    password);
+            Authentication request = new UsernamePasswordAuthenticationToken(username, password);
             Authentication response = null;
 
             try {
@@ -290,8 +269,7 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
                     "The credential used to identify the user has expired");
             } catch (AccountExpiredException cee) {
                 if (super.log.isDebugEnabled()) {
-                    super.log.debug(
-                        "Account has expired, throwing jaas exception");
+                    super.log.debug("Account has expired, throwing jaas exception");
                 }
 
                 throw new javax.security.auth.login.AccountExpiredException(
@@ -301,14 +279,12 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
                     super.log.debug("Bad password for username=" + username);
                 }
 
-                throw new FailedLoginException(
-                    "Password Incorrect/Password Required");
+                throw new FailedLoginException("Password Incorrect/Password Required");
             }
 
             super.log.debug("user is logged. redirecting to jaas classes");
 
-            identity = new PrincipalAcegiUserToken(this.key,
-                    response.getName(), response.getCredentials().toString(),
+            identity = new PrincipalAcegiUserToken(this.key, response.getName(), response.getCredentials().toString(),
                     response.getAuthorities(), response.getPrincipal());
         }
 
@@ -319,8 +295,7 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
         }
 
         super.loginOk = true;
-        super.log.trace("User '" + identity + "' authenticated, loginOk="
-            + loginOk);
+        super.log.trace("User '" + identity + "' authenticated, loginOk=" + loginOk);
 
         return true;
     }

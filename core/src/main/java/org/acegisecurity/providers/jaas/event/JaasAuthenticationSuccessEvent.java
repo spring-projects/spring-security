@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,15 @@ import org.acegisecurity.Authentication;
 
 
 /**
- * Fired by the {@link
- * org.acegisecurity.providers.jaas.JaasAuthenticationProvider
- * JaasAuthenticationProvider} after successfully logging the user into the
- * LoginContext, handling all callbacks, and calling all AuthorityGranters.
+ * Fired by the {@link org.acegisecurity.providers.jaas.JaasAuthenticationProvider JaasAuthenticationProvider}
+ * after successfully logging the user into the LoginContext, handling all callbacks, and calling all
+ * AuthorityGranters.
  *
  * @author Ray Krueger
  * @version $Id$
  */
 public class JaasAuthenticationSuccessEvent extends JaasAuthenticationEvent {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public JaasAuthenticationSuccessEvent(Authentication auth) {
         super(auth);

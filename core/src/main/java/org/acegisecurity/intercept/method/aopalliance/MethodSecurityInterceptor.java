@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,34 +25,21 @@ import org.aopalliance.intercept.MethodInvocation;
 
 
 /**
- * Provides security interception of AOP Alliance based method invocations.
- * 
- * <p>
- * The <code>ObjectDefinitionSource</code> required by this security
- * interceptor is of type {@link MethodDefinitionSource}. This is shared with
- * the AspectJ based security interceptor
- * (<code>AspectJSecurityInterceptor</code>), since both work with Java
- * <code>Method</code>s.
- * </p>
- * 
- * <P>
- * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.
- * </p>
+ * Provides security interception of AOP Alliance based method invocations.<p>The
+ * <code>ObjectDefinitionSource</code> required by this security interceptor is of type {@link
+ * MethodDefinitionSource}. This is shared with the AspectJ based security interceptor
+ * (<code>AspectJSecurityInterceptor</code>), since both work with Java <code>Method</code>s.</p>
+ *  <P>Refer to {@link AbstractSecurityInterceptor} for details on the workflow.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class MethodSecurityInterceptor extends AbstractSecurityInterceptor
-    implements MethodInterceptor {
-    //~ Instance fields ========================================================
+public class MethodSecurityInterceptor extends AbstractSecurityInterceptor implements MethodInterceptor {
+    //~ Instance fields ================================================================================================
 
     private MethodDefinitionSource objectDefinitionSource;
 
-    //~ Methods ================================================================
-
-    public void setObjectDefinitionSource(MethodDefinitionSource newSource) {
-        this.objectDefinitionSource = newSource;
-    }
+    //~ Methods ========================================================================================================
 
     public MethodDefinitionSource getObjectDefinitionSource() {
         return this.objectDefinitionSource;
@@ -63,8 +50,7 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor
     }
 
     /**
-     * This method should be used to enforce security on a
-     * <code>MethodInvocation</code>.
+     * This method should be used to enforce security on a <code>MethodInvocation</code>.
      *
      * @param mi The method being invoked which requires a security decision
      *
@@ -87,5 +73,9 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor
 
     public ObjectDefinitionSource obtainObjectDefinitionSource() {
         return this.objectDefinitionSource;
+    }
+
+    public void setObjectDefinitionSource(MethodDefinitionSource newSource) {
+        this.objectDefinitionSource = newSource;
     }
 }

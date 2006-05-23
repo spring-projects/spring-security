@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,13 +32,13 @@ import javax.security.auth.spi.LoginModule;
  * @version $Id$
  */
 public class TestLoginModule implements LoginModule {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private String password;
     private String user;
     private Subject subject;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public boolean abort() throws LoginException {
         return true;
@@ -48,15 +48,13 @@ public class TestLoginModule implements LoginModule {
         return true;
     }
 
-    public void initialize(Subject subject, CallbackHandler callbackHandler,
-        Map sharedState, Map options) {
+    public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
 
         try {
             TextInputCallback textCallback = new TextInputCallback("prompt");
             NameCallback nameCallback = new NameCallback("prompt");
-            PasswordCallback passwordCallback = new PasswordCallback("prompt",
-                    false);
+            PasswordCallback passwordCallback = new PasswordCallback("prompt", false);
 
             callbackHandler.handle(new Callback[] {textCallback, nameCallback, passwordCallback});
 

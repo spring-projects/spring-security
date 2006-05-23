@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,13 @@ import org.springframework.dao.DataAccessException;
 
 
 /**
- * <p>
- * TestCase for BasePasswordEncoder.
- * </p>
+ * <p>TestCase for BasePasswordEncoder.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class BasePasswordEncoderTests extends TestCase {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void testDemergeHandlesEmptyAndNullSalts() {
         MockPasswordEncoder pwd = new MockPasswordEncoder();
@@ -54,8 +52,7 @@ public class BasePasswordEncoderTests extends TestCase {
             pwd.nowDemergePasswordAndSalt("");
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("Cannot pass a null or empty String",
-                expected.getMessage());
+            assertEquals("Cannot pass a null or empty String", expected.getMessage());
         }
     }
 
@@ -66,8 +63,7 @@ public class BasePasswordEncoderTests extends TestCase {
             pwd.nowDemergePasswordAndSalt(null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("Cannot pass a null or empty String",
-                expected.getMessage());
+            assertEquals("Cannot pass a null or empty String", expected.getMessage());
         }
     }
 
@@ -112,8 +108,7 @@ public class BasePasswordEncoderTests extends TestCase {
             pwd.nowMergePasswordAndSalt("password", "f{oo", true);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("Cannot use { or } in salt.toString()",
-                expected.getMessage());
+            assertEquals("Cannot use { or } in salt.toString()", expected.getMessage());
         }
     }
 
@@ -124,32 +119,28 @@ public class BasePasswordEncoderTests extends TestCase {
             pwd.nowMergePasswordAndSalt("password", "f}oo", true);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("Cannot use { or } in salt.toString()",
-                expected.getMessage());
+            assertEquals("Cannot use { or } in salt.toString()", expected.getMessage());
         }
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockPasswordEncoder extends BasePasswordEncoder {
-        public boolean isPasswordValid(String encPass, String rawPass,
-            Object salt) throws DataAccessException {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
-        }
-
         public String encodePassword(String rawPass, Object salt)
             throws DataAccessException {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
+            throw new UnsupportedOperationException("mock method not implemented");
+        }
+
+        public boolean isPasswordValid(String encPass, String rawPass, Object salt)
+            throws DataAccessException {
+            throw new UnsupportedOperationException("mock method not implemented");
         }
 
         public String[] nowDemergePasswordAndSalt(String password) {
             return demergePasswordAndSalt(password);
         }
 
-        public String nowMergePasswordAndSalt(String password, Object salt,
-            boolean strict) {
+        public String nowMergePasswordAndSalt(String password, Object salt, boolean strict) {
             return mergePasswordAndSalt(password, salt, strict);
         }
     }

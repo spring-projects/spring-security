@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,15 +23,14 @@ import org.acegisecurity.context.SecurityContextImpl;
  *
  * @author mag
  */
-public class CaptchaSecurityContextImpl extends SecurityContextImpl
-    implements CaptchaSecurityContext {
-    //~ Instance fields ========================================================
+public class CaptchaSecurityContextImpl extends SecurityContextImpl implements CaptchaSecurityContext {
+    //~ Instance fields ================================================================================================
 
     private boolean human;
     private int humanRestrictedResourcesRequestsCount;
     private long lastPassedCaptchaDate;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public CaptchaSecurityContextImpl() {
         super();
@@ -40,19 +39,28 @@ public class CaptchaSecurityContextImpl extends SecurityContextImpl
         humanRestrictedResourcesRequestsCount = 0;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    /**
-     * Reset the lastPassedCaptchaDate and count.
-     */
-    public void setHuman() {
-        this.human = true;
-        this.lastPassedCaptchaDate = System.currentTimeMillis();
-        this.humanRestrictedResourcesRequestsCount = 0;
-    }
+    public boolean equals(Object obj) {
+        if (obj instanceof CaptchaSecurityContextImpl) {
+            CaptchaSecurityContextImpl rhs = (CaptchaSecurityContextImpl) obj;
 
-    public boolean isHuman() {
-        return human;
+            if (this.isHuman() != rhs.isHuman()) {
+                return false;
+            }
+
+            if (this.getHumanRestrictedResourcesRequestsCount() != rhs.getHumanRestrictedResourcesRequestsCount()) {
+                return false;
+            }
+
+            if (this.getLastPassedCaptchaDateInMillis() != rhs.getLastPassedCaptchaDateInMillis()) {
+                return false;
+            }
+
+            return super.equals(obj);
+        }
+
+        return false;
     }
 
     public int getHumanRestrictedResourcesRequestsCount() {
@@ -63,6 +71,18 @@ public class CaptchaSecurityContextImpl extends SecurityContextImpl
         return lastPassedCaptchaDate;
     }
 
+    public int hashCode() {
+        int code = super.hashCode();
+        code ^= this.humanRestrictedResourcesRequestsCount;
+        code ^= this.lastPassedCaptchaDate;
+
+        if (this.isHuman()) {
+            code ^= -37;
+        }
+
+        return code;
+    }
+
     /**
      * Method to increment the human Restricted Resrouces Requests Count;
      */
@@ -70,30 +90,16 @@ public class CaptchaSecurityContextImpl extends SecurityContextImpl
         humanRestrictedResourcesRequestsCount++;
     }
 
-	public boolean equals(Object obj) {
-		if (obj instanceof CaptchaSecurityContextImpl) {
-			CaptchaSecurityContextImpl rhs = (CaptchaSecurityContextImpl) obj;
-			if (this.isHuman() != rhs.isHuman()) {
-				return false;
-			}
-			if (this.getHumanRestrictedResourcesRequestsCount() != rhs.getHumanRestrictedResourcesRequestsCount()) {
-				return false;
-			}
-			if (this.getLastPassedCaptchaDateInMillis() != rhs.getLastPassedCaptchaDateInMillis()) {
-				return false;
-			}
-			return super.equals(obj);
-		}
-		return false;
-	}
+    public boolean isHuman() {
+        return human;
+    }
 
-	public int hashCode() {
-		int code = super.hashCode();
-		code ^= this.humanRestrictedResourcesRequestsCount;
-		code ^= this.lastPassedCaptchaDate;
-		if (this.isHuman()) {
-			code ^= -37;
-		}
-		return code;
-	}
+    /**
+     * Reset the lastPassedCaptchaDate and count.
+     */
+    public void setHuman() {
+        this.human = true;
+        this.lastPassedCaptchaDate = System.currentTimeMillis();
+        this.humanRestrictedResourcesRequestsCount = 0;
+    }
 }

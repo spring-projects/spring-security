@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import junit.framework.TestCase;
  * @version $Id$
  */
 public class NamedEntityObjectIdentityTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public NamedEntityObjectIdentityTests() {
         super();
@@ -35,14 +35,14 @@ public class NamedEntityObjectIdentityTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(NamedEntityObjectIdentityTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testConstructionViaReflection() throws Exception {
@@ -75,26 +75,24 @@ public class NamedEntityObjectIdentityTests extends TestCase {
         }
     }
 
+    public void testEquality() {
+        NamedEntityObjectIdentity original = new NamedEntityObjectIdentity("foo", "12");
+        assertFalse(original.equals(null));
+        assertFalse(original.equals(new Integer(354)));
+        assertFalse(original.equals(new NamedEntityObjectIdentity("foo", "23232")));
+        assertTrue(original.equals(new NamedEntityObjectIdentity("foo", "12")));
+        assertTrue(original.equals(original));
+    }
+
     public void testNoArgConstructorDoesntExist() {
         Class clazz = NamedEntityObjectIdentity.class;
 
         try {
-            clazz.getDeclaredConstructor((Class[])null);
+            clazz.getDeclaredConstructor((Class[]) null);
             fail("Should have thrown NoSuchMethodException");
         } catch (NoSuchMethodException expected) {
             assertTrue(true);
         }
-    }
-
-    public void testEquality() {
-        NamedEntityObjectIdentity original = new NamedEntityObjectIdentity("foo",
-                "12");
-        assertFalse(original.equals(null));
-        assertFalse(original.equals(new Integer(354)));
-        assertFalse(original.equals(
-                new NamedEntityObjectIdentity("foo", "23232")));
-        assertTrue(original.equals(new NamedEntityObjectIdentity("foo", "12")));
-        assertTrue(original.equals(original));
     }
 
     public void testNormalConstructionRejectedIfInvalidArguments()
@@ -129,8 +127,7 @@ public class NamedEntityObjectIdentityTests extends TestCase {
     }
 
     public void testNormalOperation() {
-        NamedEntityObjectIdentity name = new NamedEntityObjectIdentity("domain",
-                "id");
+        NamedEntityObjectIdentity name = new NamedEntityObjectIdentity("domain", "id");
         assertEquals("domain", name.getClassname());
         assertEquals("id", name.getId());
     }

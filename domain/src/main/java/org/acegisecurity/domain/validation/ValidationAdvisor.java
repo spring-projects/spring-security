@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,64 +26,46 @@ import java.lang.reflect.Method;
 
 
 /**
- * Advisor for the {@link ValidationInterceptor}.
- * 
- * <p>
- * Intended to be used with Spring's
- * <code>DefaultAdvisorAutoProxyCreator</code>.
- * </p>
- * 
- * <p>
- * Registers {@link ValidationInterceptor} for every <code>Method</code>
- * against a class that directly or through its superclasses implements {@link
- * #supportsClass} and has a signature match those defined by {@link
- * #methods}.
- * </p>
+ * Advisor for the {@link ValidationInterceptor}.<p>Intended to be used with Spring's
+ * <code>DefaultAdvisorAutoProxyCreator</code>.</p>
+ *  <p>Registers {@link ValidationInterceptor} for every <code>Method</code> against a class that directly or
+ * through its superclasses implements {@link #supportsClass} and has a signature match those defined by {@link
+ * #methods}.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class ValidationAdvisor extends StaticMethodMatcherPointcutAdvisor
-    implements InitializingBean {
-    //~ Instance fields ========================================================
+public class ValidationAdvisor extends StaticMethodMatcherPointcutAdvisor implements InitializingBean {
+    //~ Instance fields ================================================================================================
 
-    private Class<? extends Object> supportsClass;
+    private Class<?extends Object> supportsClass;
     private String[] methods = {"create", "update", "createOrUpdate"};
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public ValidationAdvisor(ValidationInterceptor advice) {
         super(advice);
 
         if (advice == null) {
-            throw new AopConfigException(
-                "Cannot construct a BindAndValidateAdvisor using a "
+            throw new AopConfigException("Cannot construct a BindAndValidateAdvisor using a "
                 + "null BindAndValidateInterceptor");
         }
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void setMethods(String[] methods) {
-        this.methods = methods;
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(supportsClass, "A supportsClass is required");
+        Assert.notNull(methods, "A list of valid methods is required");
+        Assert.notEmpty(methods, "A list of valid methods is required");
     }
 
     public String[] getMethods() {
         return methods;
     }
 
-    public void setSupportsClass(Class<? extends Object> clazz) {
-        this.supportsClass = clazz;
-    }
-
     public Class getSupportsClass() {
         return supportsClass;
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(supportsClass, "A supportsClass is required");
-        Assert.notNull(methods, "A list of valid methods is required");
-        Assert.notEmpty(methods, "A list of valid methods is required");
     }
 
     public boolean matches(Method m, Class targetClass) {
@@ -111,5 +93,13 @@ public class ValidationAdvisor extends StaticMethodMatcherPointcutAdvisor
         }
 
         return false;
+    }
+
+    public void setMethods(String[] methods) {
+        this.methods = methods;
+    }
+
+    public void setSupportsClass(Class<?extends Object> clazz) {
+        this.supportsClass = clazz;
     }
 }

@@ -15,74 +15,66 @@
 
 package org.acegisecurity.providers.ldap.authenticator.controls;
 
-
-import java.io.IOException;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
-import org.acegisecurity.ldap.LdapDataAccessException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import netscape.ldap.ber.stream.BERChoice;
+import netscape.ldap.ber.stream.BERElement;
+import netscape.ldap.ber.stream.BEREnumerated;
+import netscape.ldap.ber.stream.BERInteger;
 
 //import com.novell.ldap.asn1.LBERDecoder;
 //import com.novell.ldap.asn1.ASN1Sequence;
 //import com.novell.ldap.asn1.ASN1Tagged;
 //import com.novell.ldap.asn1.ASN1OctetString;
 import netscape.ldap.ber.stream.BERSequence;
-import netscape.ldap.ber.stream.BERElement;
-import netscape.ldap.ber.stream.BERTagDecoder;
 import netscape.ldap.ber.stream.BERTag;
-import netscape.ldap.ber.stream.BERChoice;
-import netscape.ldap.ber.stream.BERInteger;
-import netscape.ldap.ber.stream.BEREnumerated;
+import netscape.ldap.ber.stream.BERTagDecoder;
+
+import org.acegisecurity.ldap.LdapDataAccessException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 
 /**
- * Represent the response control received when a <tt>PasswordPolicyControl</tt>
- * is used when binding to a directory.
- *
- * Currently tested with the OpenLDAP 2.3.19 implementation of the LDAP Password
- * Policy Draft.
- * 
- * It extends the request control with the control specific data. This is
- * accomplished by the properties timeBeforeExpiration, graceLoginsRemaining and
- * errorCodes. getEncodedValue returns the
- * unchanged value of the response control as a byte array.
- *
- * @see PasswordPolicyControl
- * @see <a href="http://www.ibm.com/developerworks/tivoli/library/t-ldap-controls/">Stefan Zoerner's IBM developerworks article on LDAP controls.</a>
+ * Represent the response control received when a <tt>PasswordPolicyControl</tt> is used when binding to a
+ * directory. Currently tested with the OpenLDAP 2.3.19 implementation of the LDAP Password Policy Draft.  It extends
+ * the request control with the control specific data. This is accomplished by the properties timeBeforeExpiration,
+ * graceLoginsRemaining and errorCodes. getEncodedValue returns the unchanged value of the response control as a byte
+ * array.
  *
  * @author Stefan Zoerner
  * @author Luke Taylor
  * @version $Id$
+ *
+ * @see PasswordPolicyControl
+ * @see <a href="http://www.ibm.com/developerworks/tivoli/library/t-ldap-controls/">Stefan Zoerner's IBM developerworks
+ *      article on LDAP controls.</a>
  */
 public class PasswordPolicyResponseControl extends PasswordPolicyControl {
-
-    //~ Static fields/initializers ============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(PasswordPolicyResponseControl.class);
-
     public static final int ERROR_NONE = -1;
     public static final int ERROR_PASSWORD_EXPIRED = 0;
     public static final int ERROR_ACCOUNT_LOCKED = 1;
     public static final int WARNINGS_DEFAULT = -1;
+    private static final String[] errorText = {
+            "password expired", "account locked", "change after reset", "password mod not allowed",
+            "must supply old password", "invalid password syntax", "password too short", "password too young",
+            "password in history"
+        };
 
-
-    //~ Instance fields =======================================================
+    //~ Instance fields ================================================================================================
 
     private byte[] encodedValue;
-
     private int errorCode = ERROR_NONE;
-
+    private int graceLoginsRemaining = WARNINGS_DEFAULT;
     private int timeBeforeExpiration = WARNINGS_DEFAULT;
 
-    private int graceLoginsRemaining = WARNINGS_DEFAULT;
-
-    private static final String[] errorText = { "password expired", "account locked",
-            "change after reset", "password mod not allowed", "must supply old password",
-            "invalid password syntax", "password too short", "password too young",
-            "password in history" };
-
-    //~ Constructors ==========================================================
+    //~ Constructors ===================================================================================================
 
     public PasswordPolicyResponseControl(byte[] encodedValue) {
         this.encodedValue = encodedValue;
@@ -97,36 +89,43 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
         }
     }
 
-    //~ Methods ================================================================    
+    //~ Methods ========================================================================================================
 
     /**
-     * Decodes the Ber encoded control data.
+     * Returns the unchanged value of the response control.  Returns the unchanged value of the response
+     * control as byte array.
      *
-     * The ASN.1 value of the control data is:
-     *
-     * <pre>
-     *    PasswordPolicyResponseValue ::= SEQUENCE {
-     *        warning [0] CHOICE {
-     *           timeBeforeExpiration [0] INTEGER (0 .. maxInt),
-     *           graceAuthNsRemaining [1] INTEGER (0 .. maxInt) } OPTIONAL,
-     *        error   [1] ENUMERATED {
-     *           passwordExpired             (0),
-     *           accountLocked               (1),
-     *           changeAfterReset            (2),
-     *           passwordModNotAllowed       (3),
-     *           mustSupplyOldPassword       (4),
-     *           insufficientPasswordQuality (5),
-     *           passwordTooShort            (6),
-     *           passwordTooYoung            (7),
-     *           passwordInHistory           (8) } OPTIONAL }
-     * </pre>
-     *
+     * @return DOCUMENT ME!
      */
+    public byte[] getEncodedValue() {
+        return encodedValue;
+    }
 
+    /**
+     * Returns the error code, or ERROR_NONE, if no error is present.
+     *
+     * @return the error code (0-8), or ERROR_NONE
+     */
+    public int getErrorCode() {
+        return errorCode;
+    }
 
+    /**
+     * Decodes the Ber encoded control data. The ASN.1 value of the control data is:<pre>
+     *    PasswordPolicyResponseValue ::= SEQUENCE {       warning [0] CHOICE {
+     *           timeBeforeExpiration [0] INTEGER (0 .. maxInt),
+     *           graceAuthNsRemaining [1] INTEGER (0 .. maxInt) } OPTIONAL,       error   [1] ENUMERATED {
+     *           passwordExpired             (0),          accountLocked               (1),
+     *           changeAfterReset            (2),          passwordModNotAllowed       (3),
+     *           mustSupplyOldPassword       (4),          insufficientPasswordQuality (5),
+     *           passwordTooShort            (6),          passwordTooYoung            (7),
+     *           passwordInHistory           (8) } OPTIONAL }</pre>
+     *
+     * @return DOCUMENT ME!
+     */
     /**
      * Returns the graceLoginsRemaining.
-     * 
+     *
      * @return Returns the graceLoginsRemaining.
      */
     public int getGraceLoginsRemaining() {
@@ -135,7 +134,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 
     /**
      * Returns the timeBeforeExpiration.
-     * 
+     *
      * @return Returns the time before expiration in seconds
      */
     public int getTimeBeforeExpiration() {
@@ -143,26 +142,8 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
     }
 
     /**
-     * Returns the unchanged value of the response control.
-     * 
-     * Returns the unchanged value of the response control as byte array.
-     */
-    public byte[] getEncodedValue() {
-        return encodedValue;
-    }
-
-    /**
-     * Returns the error code, or ERROR_NONE, if no error is present.
-     * 
-     * @return the error code (0-8), or ERROR_NONE
-     */
-    public int getErrorCode() {
-        return errorCode;
-    }
-
-    /**
      * Checks whether an error is present.
-     * 
+     *
      * @return true, if an error is present
      */
     public boolean hasError() {
@@ -171,12 +152,11 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 
     /**
      * Checks whether a warning is present.
-     * 
+     *
      * @return true, if a warning is present
      */
     public boolean hasWarning() {
-        return graceLoginsRemaining != WARNINGS_DEFAULT
-                || timeBeforeExpiration != WARNINGS_DEFAULT;
+        return (graceLoginsRemaining != WARNINGS_DEFAULT) || (timeBeforeExpiration != WARNINGS_DEFAULT);
     }
 
     public boolean isExpired() {
@@ -184,8 +164,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
     }
 
     /**
-     * Determines whether an account locked error has
-     * been returned.
+     * Determines whether an account locked error has been returned.
      *
      * @return true if the account is locked.
      */
@@ -194,24 +173,25 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
     }
 
     /**
-     * Create a textual representation containing error and warning messages, if
-     * any are present.
-     * 
+     * Create a textual representation containing error and warning messages, if any are present.
+     *
      * @return error and warning messages
      */
     public String toString() {
-
         StringBuffer sb = new StringBuffer("PasswordPolicyResponseControl");
 
         if (hasError()) {
             sb.append(", error: ").append(errorText[errorCode]);
         }
+
         if (graceLoginsRemaining != WARNINGS_DEFAULT) {
             sb.append(", warning: ").append(graceLoginsRemaining).append(" grace logins remain");
         }
+
         if (timeBeforeExpiration != WARNINGS_DEFAULT) {
             sb.append(", warning: time before expiration is ").append(timeBeforeExpiration);
         }
+
         if (!hasError() && !hasWarning()) {
             sb.append(" (no error, no warning)");
         }
@@ -219,64 +199,64 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
         return sb.toString();
     }
 
-    //~ Inner Classes =========================================================
+    //~ Inner Interfaces ===============================================================================================
 
     private interface PPolicyDecoder {
         void decode() throws IOException;
     }
 
-    /** Decoder based on Netscape ldapsdk library */
-    private class NetscapeDecoder implements PPolicyDecoder {
+    //~ Inner Classes ==================================================================================================
 
+    /**
+     * Decoder based on Netscape ldapsdk library
+     */
+    private class NetscapeDecoder implements PPolicyDecoder {
         public void decode() throws IOException {
-            int[] bread = { 0 };
-            BERSequence seq = (BERSequence) BERElement.getElement(
-                    new SpecificTagDecoder(), new ByteArrayInputStream(encodedValue), bread);
+            int[] bread = {0};
+            BERSequence seq = (BERSequence) BERElement.getElement(new SpecificTagDecoder(),
+                    new ByteArrayInputStream(encodedValue), bread);
 
             int size = seq.size();
 
-            if(logger.isDebugEnabled()) {
-                logger.debug("PasswordPolicyResponse, ASN.1 sequence has " +
-                        size + " elements");
+            if (logger.isDebugEnabled()) {
+                logger.debug("PasswordPolicyResponse, ASN.1 sequence has " + size + " elements");
             }
 
             for (int i = 0; i < seq.size(); i++) {
-                BERTag elt = (BERTag)seq.elementAt(i);
+                BERTag elt = (BERTag) seq.elementAt(i);
 
                 int tag = elt.getTag() & 0x1F;
 
-                if(tag == 0) {
-                    BERChoice warning = (BERChoice)elt.getValue();
+                if (tag == 0) {
+                    BERChoice warning = (BERChoice) elt.getValue();
 
-                    BERTag content = (BERTag)warning.getValue();
-                    int value = ((BERInteger)content.getValue()).getValue();
+                    BERTag content = (BERTag) warning.getValue();
+                    int value = ((BERInteger) content.getValue()).getValue();
 
-                    if((content.getTag() & 0x1F) == 0) {
+                    if ((content.getTag() & 0x1F) == 0) {
                         timeBeforeExpiration = value;
                     } else {
                         graceLoginsRemaining = value;
                     }
-                } else if(tag == 1) {
-                    BEREnumerated error = (BEREnumerated)elt.getValue();
+                } else if (tag == 1) {
+                    BEREnumerated error = (BEREnumerated) elt.getValue();
                     errorCode = error.getValue();
                 }
             }
-
         }
 
         class SpecificTagDecoder extends BERTagDecoder {
             /** Allows us to remember which of the two options we're decoding */
             private Boolean inChoice = null;
 
-            public BERElement getElement(BERTagDecoder decoder, int tag, InputStream stream,
-                                         int[] bytesRead, boolean[] implicit) throws IOException {
-
+            public BERElement getElement(BERTagDecoder decoder, int tag, InputStream stream, int[] bytesRead,
+                boolean[] implicit) throws IOException {
                 tag &= 0x1F;
                 implicit[0] = false;
 
-                if(tag == 0) {
+                if (tag == 0) {
                     // Either the choice or the time before expiry within it
-                    if(inChoice == null) {
+                    if (inChoice == null) {
                         setInChoice(true);
 
                         // Read the choice length from the stream (ignored)
@@ -292,16 +272,15 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
                         // Must be time before expiry
                         return new BERInteger(stream, bytesRead);
                     }
-                } else if(tag == 1) {
+                } else if (tag == 1) {
                     // Either the graceLogins or the error enumeration.
-                    if(inChoice == null) {
+                    if (inChoice == null) {
                         // The enumeration
                         setInChoice(false);
 
                         return new BEREnumerated(stream, bytesRead);
-
                     } else {
-                        if(inChoice.booleanValue()) {
+                        if (inChoice.booleanValue()) {
                             // graceLogins
                             return new BERInteger(stream, bytesRead);
                         }
@@ -317,7 +296,8 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
         }
     }
 
-    /** Decoder based on the OpenLDAP/Novell JLDAP library */
+/** Decoder based on the OpenLDAP/Novell JLDAP library */
+
 //    private class JLdapDecoder implements PPolicyDecoder {
 //
 //        public void decode() throws IOException {

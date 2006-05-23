@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,11 @@ package org.acegisecurity.vote;
  * @version $Id$
  */
 public class SomeDomainObject {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private String identity;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public SomeDomainObject(String identity) {
         this.identity = identity;
@@ -34,7 +34,7 @@ public class SomeDomainObject {
 
     private SomeDomainObject() {}
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public String getParent() {
         return "parentOf" + identity;

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,44 +29,34 @@ import java.util.Vector;
 
 
 /**
- * <p>
- * JDK1.5 compatible paginated <code>List</code>.
- * </p>
- * 
- * <p>
- * Elements in the internal <code>List</code> (see {@link #getList()} represent
- * only part of a larger resultset.
- * </p>
- * 
- * <p>
- * Note that firstElement starts at zero. Any attempt to access other than the
- * current page will cause an error.
- * </p>
- * 
- * <p>
- * This is a read only implementation and many of the  <code>List</code>
- * methods are not implemented.
- * </p>
+ * <p>JDK1.5 compatible paginated <code>List</code>.</p>
+ *  <p>Elements in the internal <code>List</code> (see {@link #getList()} represent only part of a larger
+ * resultset.</p>
+ *  <p>Note that firstElement starts at zero. Any attempt to access other than the current page will cause an
+ * error.</p>
+ *  <p>This is a read only implementation and many of the  <code>List</code> methods are not implemented.</p>
  *
  * @author Carlos Sanchez
  * @author Ben Alex
  * @version $Id$
+ *
+ * @param <E> DOCUMENT ME!
  */
 public class PaginatedList<E extends PersistableEntity> implements List<E> {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
-    protected final transient Log logger = LogFactory.getLog(getClass());
     private List<E> list;
+    protected final transient Log logger = LogFactory.getLog(getClass());
     private int firstElement;
     private int maxElements;
     private int size;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     // TODO: Consider removing this constructor
     public PaginatedList() {}
 
-    /**
+/**
      * Used to construct a <code>PaginatedList</code> which contains only the
      * given entity.
      *
@@ -96,95 +86,7 @@ public class PaginatedList<E extends PersistableEntity> implements List<E> {
         this.size = size;
     }
 
-    //~ Methods ================================================================
-
-    /**
-     * Unsupported operation
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws UnsupportedOperationException
-     *
-     * @see java.util.Collection#isEmpty()
-     */
-    public boolean isEmpty() {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setFirstElement(int firstElement) {
-        this.firstElement = firstElement;
-    }
-
-    /**
-     * First element of this page, starting at zero.
-     *
-     * @return
-     */
-    public int getFirstElement() {
-        return firstElement;
-    }
-
-    /**
-     * Calculate the last page number, starting at 0
-     *
-     * @return
-     */
-    public int getLastPageNumber() {
-        return (size() - 1) / getMaxElements();
-    }
-
-    public void setList(List<E> list) {
-        this.list = list;
-    }
-
-    /**
-     * Get list with the elements of this page.
-     *
-     * @return this page of the results
-     */
-    public List<E> getList() {
-        return list;
-    }
-
-    public void setMaxElements(int maxElements) {
-        this.maxElements = maxElements;
-    }
-
-    /**
-     * Max number of elements in the page
-     *
-     * @return
-     */
-    public int getMaxElements() {
-        return maxElements;
-    }
-
-    /**
-     * Calculate the page number, starting at 0
-     *
-     * @return
-     */
-    public int getPageNumber() {
-        return getFirstElement() / getMaxElements();
-    }
-
-    /**
-     * Number of elements in this page
-     *
-     * @return
-     */
-    public int getPageSize() {
-        return list.size();
-    }
-
-    /**
-     * Set the number of elements in all the pages
-     *
-     * @param size DOCUMENT ME!
-     */
-    public void setSize(int size) {
-        this.size = size;
-    }
+    //~ Methods ========================================================================================================
 
     /**
      * Unsupported operation
@@ -226,7 +128,7 @@ public class PaginatedList<E extends PersistableEntity> implements List<E> {
      *
      * @see java.util.Collection#addAll(java.util.Collection)
      */
-    public boolean addAll(Collection<? extends E> arg0) {
+    public boolean addAll(Collection<?extends E> arg0) {
         throw new UnsupportedOperationException();
     }
 
@@ -242,7 +144,7 @@ public class PaginatedList<E extends PersistableEntity> implements List<E> {
      *
      * @see java.util.List#addAll(int, java.util.Collection)
      */
-    public boolean addAll(int arg0, Collection<? extends E> arg1) {
+    public boolean addAll(int arg0, Collection<?extends E> arg1) {
         throw new UnsupportedOperationException();
     }
 
@@ -301,6 +203,60 @@ public class PaginatedList<E extends PersistableEntity> implements List<E> {
     }
 
     /**
+     * First element of this page, starting at zero.
+     *
+     * @return
+     */
+    public int getFirstElement() {
+        return firstElement;
+    }
+
+    /**
+     * Calculate the last page number, starting at 0
+     *
+     * @return
+     */
+    public int getLastPageNumber() {
+        return (size() - 1) / getMaxElements();
+    }
+
+    /**
+     * Get list with the elements of this page.
+     *
+     * @return this page of the results
+     */
+    public List<E> getList() {
+        return list;
+    }
+
+    /**
+     * Max number of elements in the page
+     *
+     * @return
+     */
+    public int getMaxElements() {
+        return maxElements;
+    }
+
+    /**
+     * Calculate the page number, starting at 0
+     *
+     * @return
+     */
+    public int getPageNumber() {
+        return getFirstElement() / getMaxElements();
+    }
+
+    /**
+     * Number of elements in this page
+     *
+     * @return
+     */
+    public int getPageSize() {
+        return list.size();
+    }
+
+    /**
      * Unsupported operation
      *
      * @param arg0 DOCUMENT ME!
@@ -312,6 +268,19 @@ public class PaginatedList<E extends PersistableEntity> implements List<E> {
      * @see java.util.List#indexOf(java.lang.Object)
      */
     public int indexOf(Object arg0) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Unsupported operation
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws UnsupportedOperationException
+     *
+     * @see java.util.Collection#isEmpty()
+     */
+    public boolean isEmpty() {
         throw new UnsupportedOperationException();
     }
 
@@ -438,6 +407,27 @@ public class PaginatedList<E extends PersistableEntity> implements List<E> {
         throw new UnsupportedOperationException();
     }
 
+    public void setFirstElement(int firstElement) {
+        this.firstElement = firstElement;
+    }
+
+    public void setList(List<E> list) {
+        this.list = list;
+    }
+
+    public void setMaxElements(int maxElements) {
+        this.maxElements = maxElements;
+    }
+
+    /**
+     * Set the number of elements in all the pages
+     *
+     * @param size DOCUMENT ME!
+     */
+    public void setSize(int size) {
+        this.size = size;
+    }
+
     /**
      * Number of elements in all the pages
      *
@@ -469,67 +459,61 @@ public class PaginatedList<E extends PersistableEntity> implements List<E> {
 
     public <T> T[] toArray(T[] arg0) {
         if (logger.isDebugEnabled()) {
-            logger.debug("List size when convert to array "
-                + list.toArray().length);
+            logger.debug("List size when convert to array " + list.toArray().length);
         }
 
         return list.toArray(arg0);
     }
-	
-	
-	private class PaginatedListIterator implements Iterator<E> {
-	    //~ Instance fields ========================================================
 
-	    private Iterator<E> iterator;
-	    private int i = 0;
+    //~ Inner Classes ==================================================================================================
 
-	    /**
-	     * @see java.util.Iterator#hasNext()
-	     */
-	    public boolean hasNext() {
-	        return i < size();
-	    }
+    private class PaginatedListIterator implements Iterator<E> {
+        private Iterator<E> iterator;
+        private int i = 0;
 
-	    /**
-	     * This method follows the rules of Iterator.next() except that it returns
-	     * null when requesting an element that it's not in the current page.
-	     *
-	     * @see java.util.Iterator#next()
-	     */
-	    public E next() {
-	        if (i == getFirstElement()) {
-	            iterator = getList().iterator();
-	        }
+        /**
+         * 
+         * @see java.util.Iterator#hasNext()
+         */
+        public boolean hasNext() {
+            return i < size();
+        }
 
-	        if ((i >= getFirstElement())
-	            && (i < (getFirstElement() + getMaxElements()))) {
-	            i++;
+        /**
+         * This method follows the rules of Iterator.next() except that it returns null when requesting an
+         * element that it's not in the current page.
+         *
+         * @see java.util.Iterator#next()
+         */
+        public E next() {
+            if (i == getFirstElement()) {
+                iterator = getList().iterator();
+            }
 
-	            return iterator.next();
-	        }
+            if ((i >= getFirstElement()) && (i < (getFirstElement() + getMaxElements()))) {
+                i++;
 
-	        if (hasNext()) {
-	            i++;
+                return iterator.next();
+            }
 
-	            return null;
-	        } else {
-	            throw new NoSuchElementException();
-	        }
-	    }
+            if (hasNext()) {
+                i++;
 
-	    /**
-	     * Unsupported operation
-	     *
-	     * @throws UnsupportedOperationException
-	     *
-	     * @see java.util.Iterator#remove()
-	     */
-	    public void remove() {
-	        throw new UnsupportedOperationException();
-	    }
-	}
-	
-	
-	
-	
+                return null;
+            } else {
+                throw new NoSuchElementException();
+            }
+        }
+
+        /**
+         * Unsupported operation
+         *
+         * @throws UnsupportedOperationException
+         *
+         * @see java.util.Iterator#remove()
+         */
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+    }
 }

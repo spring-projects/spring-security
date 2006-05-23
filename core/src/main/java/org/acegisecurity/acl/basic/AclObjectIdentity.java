@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,22 +44,19 @@ import java.io.Serializable;
  * @version $Id$
  */
 public interface AclObjectIdentity extends Serializable {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Refer to the <code>java.lang.Object</code> documentation for the
-     * interface contract.
+     * Refer to the <code>java.lang.Object</code> documentation for the interface contract.
      *
      * @param obj to be compared
      *
-     * @return <code>true</code> if the objects are equal, <code>false</code>
-     *         otherwise
+     * @return <code>true</code> if the objects are equal, <code>false</code> otherwise
      */
     public boolean equals(Object obj);
 
     /**
-     * Refer to the <code>java.lang.Object</code> documentation for the
-     * interface contract.
+     * Refer to the <code>java.lang.Object</code> documentation for the interface contract.
      *
      * @return a hash code representation of this object
      */

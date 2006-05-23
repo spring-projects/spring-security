@@ -55,7 +55,7 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 public class FilterSecurityInterceptorTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public FilterSecurityInterceptorTests() {
         super();
@@ -65,7 +65,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(FilterSecurityInterceptorTests.class);
@@ -91,11 +91,9 @@ public class FilterSecurityInterceptorTests extends TestCase {
                     return true;
                 }
 
-                public void decide(Authentication authentication,
-                    Object object, ConfigAttributeDefinition config)
+                public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
                     throws AccessDeniedException {
-                    throw new UnsupportedOperationException(
-                        "mock method not implemented");
+                    throw new UnsupportedOperationException("mock method not implemented");
                 }
             });
 
@@ -124,11 +122,9 @@ public class FilterSecurityInterceptorTests extends TestCase {
                     return true;
                 }
 
-                public Authentication buildRunAs(
-                    Authentication authentication, Object object,
+                public Authentication buildRunAs(Authentication authentication, Object object,
                     ConfigAttributeDefinition config) {
-                    throw new UnsupportedOperationException(
-                        "mock method not implemented");
+                    throw new UnsupportedOperationException("mock method not implemented");
                 }
             });
 
@@ -148,15 +144,13 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
         interceptor.setRunAsManager(new MockRunAsManager());
-        interceptor.setApplicationEventPublisher(MockApplicationContext
-            .getContext());
+        interceptor.setApplicationEventPublisher(MockApplicationContext.getContext());
 
         // Setup a mock config attribute definition
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("MOCK_OK"));
 
-        MockFilterInvocationDefinitionMap mockSource = new MockFilterInvocationDefinitionMap("/secure/page.html",
-                def);
+        MockFilterInvocationDefinitionMap mockSource = new MockFilterInvocationDefinitionMap("/secure/page.html", def);
         interceptor.setObjectDefinitionSource(mockSource);
 
         // Setup our expectation that the filter chain will be invoked, as access is granted
@@ -170,8 +164,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         request.setServerPort(443);
 
         // Setup a Context
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_OK")});
         SecurityContextHolder.getContext().setAuthentication(token);
 
@@ -197,9 +190,8 @@ public class FilterSecurityInterceptorTests extends TestCase {
     }
 
     /**
-     * We just test invocation works in a success event. There is no need to
-     * test  access denied events as the abstract parent enforces that logic,
-     * which is extensively tested separately.
+     * We just test invocation works in a success event. There is no need to test  access denied events as the
+     * abstract parent enforces that logic, which is extensively tested separately.
      *
      * @throws Throwable DOCUMENT ME!
      */
@@ -209,15 +201,13 @@ public class FilterSecurityInterceptorTests extends TestCase {
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
         interceptor.setAuthenticationManager(new MockAuthenticationManager());
         interceptor.setRunAsManager(new MockRunAsManager());
-        interceptor.setApplicationEventPublisher(MockApplicationContext
-            .getContext());
+        interceptor.setApplicationEventPublisher(MockApplicationContext.getContext());
 
         // Setup a mock config attribute definition
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("MOCK_OK"));
 
-        MockFilterInvocationDefinitionMap mockSource = new MockFilterInvocationDefinitionMap("/secure/page.html",
-                def);
+        MockFilterInvocationDefinitionMap mockSource = new MockFilterInvocationDefinitionMap("/secure/page.html", def);
         interceptor.setObjectDefinitionSource(mockSource);
 
         // Setup our expectation that the filter chain will be invoked, as access is granted
@@ -229,8 +219,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         request.setServletPath("/secure/page.html");
 
         // Setup a Context
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_OK")});
         SecurityContextHolder.getContext().setAuthentication(token);
 
@@ -242,7 +231,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         SecurityContextHolder.clearContext();
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockFilterChain implements FilterChain {
         private boolean expectToProceed;
@@ -265,13 +254,11 @@ public class FilterSecurityInterceptorTests extends TestCase {
         }
     }
 
-    private class MockFilterInvocationDefinitionMap
-        implements FilterInvocationDefinitionSource {
+    private class MockFilterInvocationDefinitionMap implements FilterInvocationDefinitionSource {
         private ConfigAttributeDefinition toReturn;
         private String servletPath;
 
-        public MockFilterInvocationDefinitionMap(String servletPath,
-            ConfigAttributeDefinition toReturn) {
+        public MockFilterInvocationDefinitionMap(String servletPath, ConfigAttributeDefinition toReturn) {
             this.servletPath = servletPath;
             this.toReturn = toReturn;
         }

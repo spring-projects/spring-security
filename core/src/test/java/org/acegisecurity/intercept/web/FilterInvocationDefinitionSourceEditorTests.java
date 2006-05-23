@@ -28,14 +28,14 @@ import java.util.Iterator;
 
 
 /**
- * Tests {@link FilterInvocationDefinitionSourceEditor} and its associated
- * default {@link RegExpBasedFilterInvocationDefinitionMap}.
+ * Tests {@link FilterInvocationDefinitionSourceEditor} and its associated default {@link
+ * RegExpBasedFilterInvocationDefinitionMap}.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public FilterInvocationDefinitionSourceEditorTests() {
         super();
@@ -45,7 +45,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(FilterInvocationDefinitionSourceEditorTests.class);
@@ -57,8 +57,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
 
     public void testConvertUrlToLowercaseDefaultSettingUnchangedByEditor() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
-        editor.setAsText(
-            "\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
+        editor.setAsText("\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
 
         RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
             .getValue();
@@ -73,8 +72,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
                 "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON\r\nPATTERN_TYPE_APACHE_ANT\r\n\\/secUre/super/**=ROLE_WE_DONT_HAVE");
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertTrue(expected.getMessage()
-                               .lastIndexOf("you have specified an uppercase character in line") != -1);
+            assertTrue(expected.getMessage().lastIndexOf("you have specified an uppercase character in line") != -1);
         }
     }
 
@@ -83,18 +81,15 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         editor.setAsText(
             "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON\r\n\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor.getValue();
         assertTrue(map.isConvertUrlToLowercaseBeforeComparison());
     }
 
     public void testDefaultIsRegularExpression() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
-        editor.setAsText(
-            "\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
+        editor.setAsText("\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        FilterInvocationDefinitionMap map = (FilterInvocationDefinitionMap) editor
-            .getValue();
+        FilterInvocationDefinitionMap map = (FilterInvocationDefinitionMap) editor.getValue();
         assertTrue(map instanceof RegExpBasedFilterInvocationDefinitionMap);
     }
 
@@ -106,8 +101,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
                 "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON PATTERN_TYPE_APACHE_ANT\r\n\\/secure/super/**=ROLE_WE_DONT_HAVE");
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertTrue(expected.getMessage()
-                               .lastIndexOf("Line appears to be malformed") != -1);
+            assertTrue(expected.getMessage().lastIndexOf("Line appears to be malformed") != -1);
         }
     }
 
@@ -119,8 +113,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
                 "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON\r\nPATTERN_TYPE_APACHE_ANT /secure/super/**=ROLE_WE_DONT_HAVE");
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertTrue(expected.getMessage()
-                               .lastIndexOf("Line appears to be malformed") != -1);
+            assertTrue(expected.getMessage().lastIndexOf("Line appears to be malformed") != -1);
         }
     }
 
@@ -132,8 +125,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
                 "PATTERN_TYPE_APACHE_ANT\r\nCONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON /secure/super/**=ROLE_WE_DONT_HAVE");
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertTrue(expected.getMessage()
-                               .lastIndexOf("Line appears to be malformed") != -1);
+            assertTrue(expected.getMessage().lastIndexOf("Line appears to be malformed") != -1);
         }
     }
 
@@ -141,8 +133,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText("");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor.getValue();
         assertEquals(0, map.getMapSize());
     }
 
@@ -153,18 +144,15 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         try {
             editor.setAsText("*=SOME_ROLE");
         } catch (IllegalArgumentException expected) {
-            assertEquals("Malformed regular expression: *",
-                expected.getMessage());
+            assertEquals("Malformed regular expression: *", expected.getMessage());
         }
     }
 
     public void testIterator() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
-        editor.setAsText(
-            "\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
+        editor.setAsText("\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor.getValue();
         Iterator iter = map.getConfigAttributeDefinitions();
         int counter = 0;
 
@@ -180,27 +168,22 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText("\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE,ANOTHER_ROLE");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor.getValue();
 
-        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null,
-                null);
+        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/totally/different/path/index.html");
 
-        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(
-                    httpRequest, new MockHttpServletResponse(),
-                    new MockFilterChain()));
+        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+                    new MockHttpServletResponse(), new MockFilterChain()));
 
         assertEquals(null, returned);
     }
 
     public void testMultiUrlParsing() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
-        editor.setAsText(
-            "\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
+        editor.setAsText("\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor.getValue();
         assertEquals(2, map.getMapSize());
     }
 
@@ -219,8 +202,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText(null);
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor.getValue();
         assertEquals(0, map.getMapSize());
     }
 
@@ -229,17 +211,14 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         editor.setAsText(
             "\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE,ANOTHER_ROLE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor.getValue();
 
         // Test ensures we match the first entry, not the second
-        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null,
-                null);
+        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/secure/super/very_secret.html");
 
-        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(
-                    httpRequest, new MockHttpServletResponse(),
-                    new MockFilterChain()));
+        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+                    new MockHttpServletResponse(), new MockFilterChain()));
 
         ConfigAttributeDefinition expected = new ConfigAttributeDefinition();
         expected.addConfigAttribute(new SecurityConfig("ROLE_WE_DONT_HAVE"));
@@ -253,16 +232,13 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         editor.setAsText(
             "\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER\r\n\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE,ANOTHER_ROLE");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor.getValue();
 
-        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null,
-                null);
+        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/secure/super/very_secret.html");
 
-        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(
-                    httpRequest, new MockHttpServletResponse(),
-                    new MockFilterChain()));
+        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+                    new MockHttpServletResponse(), new MockFilterChain()));
 
         ConfigAttributeDefinition expected = new ConfigAttributeDefinition();
         expected.addConfigAttribute(new SecurityConfig("ROLE_SUPERVISOR"));
@@ -275,16 +251,13 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText("\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE,ANOTHER_ROLE");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor.getValue();
 
-        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null,
-                null);
+        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/secure/super/very_secret.html");
 
-        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(
-                    httpRequest, new MockHttpServletResponse(),
-                    new MockFilterChain()));
+        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+                    new MockHttpServletResponse(), new MockFilterChain()));
 
         ConfigAttributeDefinition expected = new ConfigAttributeDefinition();
         expected.addConfigAttribute(new SecurityConfig("ROLE_WE_DONT_HAVE"));
@@ -298,8 +271,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         editor.setAsText(
             "         \\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE,ANOTHER_ROLE      \r\n   \r\n     \r\n   // comment line  \r\n   \\A/testing.*\\Z=ROLE_TEST   \r\n");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor.getValue();
         assertEquals(2, map.getMapSize());
     }
 }

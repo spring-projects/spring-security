@@ -23,43 +23,36 @@ import org.springframework.util.Assert;
 
 
 /**
- * Represents an <code>Authentication.getPrincipal()</code> as a
- * <code>Sid</code>.
- * 
- * <p>
- * This is a basic implementation that simply uses the
- * <code>String</code>-based principal for <code>Sid</code> comparison. More
- * complex principal objects may wish to provide an alternative
- * <code>Sid</code> implementation that uses some other identifier.
- * </p>
+ * Represents an <code>Authentication.getPrincipal()</code> as a <code>Sid</code>.<p>This is a basic implementation
+ * that simply uses the <code>String</code>-based principal for <code>Sid</code> comparison. More complex principal
+ * objects may wish to provide an alternative <code>Sid</code> implementation that uses some other identifier.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class PrincipalSid implements Sid {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private String principal;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public PrincipalSid(String principal) {
-    	Assert.hasText(principal, "Principal required");
-    	this.principal = principal;
+        Assert.hasText(principal, "Principal required");
+        this.principal = principal;
     }
-    
+
     public PrincipalSid(Authentication authentication) {
         Assert.notNull(authentication, "Authentication required");
         Assert.notNull(authentication.getPrincipal(), "Principal required");
         this.principal = authentication.getPrincipal().toString();
 
         if (authentication.getPrincipal() instanceof UserDetails) {
-            this.principal = ((UserDetails) authentication.getPrincipal())
-                .getUsername();
+            this.principal = ((UserDetails) authentication.getPrincipal()).getUsername();
         }
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public boolean equals(Object object) {
         if ((object == null) || !(object instanceof PrincipalSid)) {
@@ -67,8 +60,7 @@ public class PrincipalSid implements Sid {
         }
 
         // Delegate to getPrincipal() to perform actual comparison (both should be identical) 
-        return ((PrincipalSid) object).getPrincipal()
-                .equals(this.getPrincipal());
+        return ((PrincipalSid) object).getPrincipal().equals(this.getPrincipal());
     }
 
     public String getPrincipal() {

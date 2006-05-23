@@ -41,7 +41,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @version $Id$
  */
 public class FilterChainProxyTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     // ===========================================================
     public FilterChainProxyTests() {
@@ -52,7 +52,7 @@ public class FilterChainProxyTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     // ================================================================
     public static void main(String[] args) {
@@ -63,8 +63,7 @@ public class FilterChainProxyTests extends TestCase {
         throws Exception {
         FilterChainProxy filterChainProxy = new FilterChainProxy();
         filterChainProxy.setApplicationContext(MockApplicationContext.getContext());
-        filterChainProxy.setFilterInvocationDefinitionSource(new MockFilterInvocationDefinitionSource(
-                false, false));
+        filterChainProxy.setFilterInvocationDefinitionSource(new MockFilterInvocationDefinitionSource(false, false));
 
         try {
             filterChainProxy.afterPropertiesSet();
@@ -107,18 +106,14 @@ public class FilterChainProxyTests extends TestCase {
             filterChainProxy.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("filterInvocationDefinitionSource must be specified",
-                expected.getMessage());
+            assertEquals("filterInvocationDefinitionSource must be specified", expected.getMessage());
         }
     }
 
     public void testDoNotFilter() throws Exception {
-        ApplicationContext appCtx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/util/filtertest-valid.xml");
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChain",
-                FilterChainProxy.class);
-        MockFilter filter = (MockFilter) appCtx.getBean("mockFilter",
-                MockFilter.class);
+        ApplicationContext appCtx = new ClassPathXmlApplicationContext("org/acegisecurity/util/filtertest-valid.xml");
+        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChain", FilterChainProxy.class);
+        MockFilter filter = (MockFilter) appCtx.getBean("mockFilter", MockFilter.class);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/do/not/filter/somefile.html");
@@ -134,20 +129,15 @@ public class FilterChainProxyTests extends TestCase {
 
     public void testGettersSetters() {
         FilterChainProxy filterChainProxy = new FilterChainProxy();
-        FilterInvocationDefinitionSource fids = new MockFilterInvocationDefinitionSource(false,
-                false);
+        FilterInvocationDefinitionSource fids = new MockFilterInvocationDefinitionSource(false, false);
         filterChainProxy.setFilterInvocationDefinitionSource(fids);
-        assertEquals(fids,
-            filterChainProxy.getFilterInvocationDefinitionSource());
+        assertEquals(fids, filterChainProxy.getFilterInvocationDefinitionSource());
     }
 
     public void testNormalOperation() throws Exception {
-        ApplicationContext appCtx = new ClassPathXmlApplicationContext(
-                "org/acegisecurity/util/filtertest-valid.xml");
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChain",
-                FilterChainProxy.class);
-        MockFilter filter = (MockFilter) appCtx.getBean("mockFilter",
-                MockFilter.class);
+        ApplicationContext appCtx = new ClassPathXmlApplicationContext("org/acegisecurity/util/filtertest-valid.xml");
+        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChain", FilterChainProxy.class);
+        MockFilter filter = (MockFilter) appCtx.getBean("mockFilter", MockFilter.class);
         assertFalse(filter.isWasInitialized());
         assertFalse(filter.isWasDoFiltered());
         assertFalse(filter.isWasDestroyed());
@@ -177,7 +167,7 @@ public class FilterChainProxyTests extends TestCase {
         assertTrue(filter.isWasDestroyed());
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockConfigAttribute implements ConfigAttribute {
         public String getAttribute() {

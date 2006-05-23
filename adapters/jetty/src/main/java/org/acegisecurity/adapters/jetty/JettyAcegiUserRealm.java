@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.acegisecurity.adapters.jetty;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.apache.commons.logging.Log;
@@ -33,32 +34,27 @@ import java.util.Map;
 
 
 /**
- * Adapter to enable Jetty to authenticate via the Acegi Security System for
- * Spring.
- * 
- * <p>
- * Returns a {@link JettyAcegiUserToken} to Jetty's authentication system,
- * which is subsequently available via
- * <code>HttpServletRequest.getUserPrincipal()</code>.
- * </p>
+ * Adapter to enable Jetty to authenticate via the Acegi Security System for Spring.<p>Returns a {@link
+ * JettyAcegiUserToken} to Jetty's authentication system, which is subsequently available via
+ * <code>HttpServletRequest.getUserPrincipal()</code>.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public final class JettyAcegiUserRealm implements UserRealm {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(JettyAcegiUserRealm.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private AuthenticationManager authenticationManager;
     private String key;
     private String realm;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Construct a <code>SpringUserRealm</code>.
      *
      * @param realm the name of the authentication realm (within Jetty)
@@ -68,8 +64,7 @@ public final class JettyAcegiUserRealm implements UserRealm {
      *
      * @throws IllegalArgumentException DOCUMENT ME!
      */
-    public JettyAcegiUserRealm(String realm, String providerKey,
-        String appContextLocation) {
+    public JettyAcegiUserRealm(String realm, String providerKey, String appContextLocation) {
         this.realm = realm;
         this.key = providerKey;
 
@@ -82,13 +77,11 @@ public final class JettyAcegiUserRealm implements UserRealm {
         }
 
         if ((appContextLocation == null) || "".equals(appContextLocation)) {
-            throw new IllegalArgumentException(
-                "appContextLocation must be specified");
+            throw new IllegalArgumentException("appContextLocation must be specified");
         }
 
         if (Thread.currentThread().getContextClassLoader().getResource(appContextLocation) == null) {
-            throw new IllegalArgumentException("Cannot locate "
-                + appContextLocation);
+            throw new IllegalArgumentException("Cannot locate " + appContextLocation);
         }
 
         ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(appContextLocation);
@@ -107,24 +100,9 @@ public final class JettyAcegiUserRealm implements UserRealm {
         throw new IllegalArgumentException("Cannot use default constructor");
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public AuthenticationManager getAuthenticationManager() {
-        return authenticationManager;
-    }
-
-    /**
-     * Accesses the realm name.
-     *
-     * @return the name of the realm as defined when
-     *         <code>SpringUserRealm</code> was created
-     */
-    public String getName() {
-        return this.realm;
-    }
-
-    public UserPrincipal authenticate(String username, Object password,
-        HttpRequest httpRequest) {
+    public UserPrincipal authenticate(String username, Object password, HttpRequest httpRequest) {
         if (username == null) {
             return null;
         }
@@ -133,28 +111,38 @@ public final class JettyAcegiUserRealm implements UserRealm {
             password = "";
         }
 
-        Authentication request = new UsernamePasswordAuthenticationToken(username
-                .toString(), password.toString());
+        Authentication request = new UsernamePasswordAuthenticationToken(username.toString(), password.toString());
         Authentication response = null;
 
         try {
             response = authenticationManager.authenticate(request);
         } catch (AuthenticationException failed) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Authentication request for user: " + username
-                    + " failed: " + failed.toString());
+                logger.debug("Authentication request for user: " + username + " failed: " + failed.toString());
             }
 
             return null;
         }
 
-        return new JettyAcegiUserToken(this.key,
-            response.getPrincipal().toString(),
+        return new JettyAcegiUserToken(this.key, response.getPrincipal().toString(),
             response.getCredentials().toString(), response.getAuthorities());
     }
 
     public void disassociate(UserPrincipal userPrincipal) {
         // No action required
+    }
+
+    public AuthenticationManager getAuthenticationManager() {
+        return authenticationManager;
+    }
+
+    /**
+     * Accesses the realm name.
+     *
+     * @return the name of the realm as defined when <code>SpringUserRealm</code> was created
+     */
+    public String getName() {
+        return this.realm;
     }
 
     public void logout(UserPrincipal arg0) {

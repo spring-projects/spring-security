@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
@@ -32,7 +33,7 @@ import org.acegisecurity.userdetails.memory.UserMap;
  * @version $Id$
  */
 public class UserMapTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public UserMapTests() {
         super();
@@ -42,27 +43,23 @@ public class UserMapTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(UserMapTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testAddAndRetrieveUser() {
-        UserDetails marissa = new User("marissa", "koala", true, true, true,
-                true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+        UserDetails marissa = new User("marissa", "koala", true, true, true, true,
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
         UserDetails scott = new User("scott", "wombat", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_THREE")});
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_THREE")});
         UserDetails peter = new User("peter", "opal", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_FOUR")});
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_FOUR")});
         UserMap map = new UserMap();
         map.addUser(marissa);
         map.addUser(scott);
@@ -87,10 +84,8 @@ public class UserMapTests extends TestCase {
     }
 
     public void testUnknownUserIsNotRetrieved() {
-        UserDetails marissa = new User("marissa", "koala", true, true, true,
-                true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+        UserDetails marissa = new User("marissa", "koala", true, true, true, true,
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
         UserMap map = new UserMap();
         assertEquals(0, map.getUserCount());
         map.addUser(marissa);

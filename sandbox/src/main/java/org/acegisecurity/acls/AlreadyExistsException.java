@@ -25,9 +25,9 @@ import org.acegisecurity.AcegiSecurityException;
  * @version $Id$
  */
 public class AlreadyExistsException extends AcegiSecurityException {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructs an <code>AlreadyExistsException</code> with the specified message.
      *
      * @param msg the detail message
@@ -36,7 +36,7 @@ public class AlreadyExistsException extends AcegiSecurityException {
         super(msg);
     }
 
-    /**
+/**
      * Constructs an <code>AlreadyExistsException</code> with the specified message
      * and root cause.
      *

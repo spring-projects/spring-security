@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.acegisecurity.adapters;
 
 import org.acegisecurity.GrantedAuthority;
+
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 
@@ -25,19 +26,18 @@ import org.acegisecurity.providers.AbstractAuthenticationToken;
  * @author Ben Alex
  * @version $Id$
  */
-public abstract class AbstractAdapterAuthenticationToken
-    extends AbstractAuthenticationToken implements AuthByAdapter {
-    //~ Instance fields ========================================================
+public abstract class AbstractAdapterAuthenticationToken extends AbstractAuthenticationToken implements AuthByAdapter {
+    //~ Instance fields ================================================================================================
 
     private int keyHash;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     protected AbstractAdapterAuthenticationToken() {
         super(null);
     }
 
-    /**
+/**
      * The only way an <code>AbstractAdapterAuthentication</code> should be
      * constructed.
      *
@@ -45,62 +45,12 @@ public abstract class AbstractAdapterAuthenticationToken
      *        #getKeyHash()}
      * @param authorities the authorities granted to this principal
      */
-    protected AbstractAdapterAuthenticationToken(String key,
-        GrantedAuthority[] authorities) {
+    protected AbstractAdapterAuthenticationToken(String key, GrantedAuthority[] authorities) {
         super(authorities);
         this.keyHash = key.hashCode();
     }
 
-    //~ Methods ================================================================
-
-    /**
-     * Setting is ignored. Always considered authenticated.
-     *
-     * @param ignored DOCUMENT ME!
-     */
-    public void setAuthenticated(boolean ignored) {
-        // ignored
-    }
-
-    /**
-     * Always returns <code>true</code>.
-     *
-     * @return DOCUMENT ME!
-     */
-    public boolean isAuthenticated() {
-        return true;
-    }
-
-    public int getKeyHash() {
-        return this.keyHash;
-    }
-
-    /**
-     * Iterates the granted authorities and indicates whether or not the
-     * specified role is held.
-     * 
-     * <p>
-     * Comparison is based on the <code>String</code> returned by {@link
-     * GrantedAuthority#getAuthority}.
-     * </p>
-     *
-     * @param role the role being searched for in this object's granted
-     *        authorities list
-     *
-     * @return <code>true</code> if the granted authority is held, or
-     *         <code>false</code> otherwise
-     */
-    public boolean isUserInRole(String role) {
-        GrantedAuthority[] authorities = super.getAuthorities();
-
-        for (int i = 0; i < authorities.length; i++) {
-            if (role.equals(authorities[i].getAuthority())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    //~ Methods ========================================================================================================
 
     public boolean equals(Object obj) {
         if (obj instanceof AbstractAdapterAuthenticationToken) {
@@ -114,5 +64,47 @@ public abstract class AbstractAdapterAuthenticationToken
         }
 
         return false;
+    }
+
+    public int getKeyHash() {
+        return this.keyHash;
+    }
+
+    /**
+     * Always returns <code>true</code>.
+     *
+     * @return DOCUMENT ME!
+     */
+    public boolean isAuthenticated() {
+        return true;
+    }
+
+    /**
+     * Iterates the granted authorities and indicates whether or not the specified role is held.<p>Comparison
+     * is based on the <code>String</code> returned by {@link GrantedAuthority#getAuthority}.</p>
+     *
+     * @param role the role being searched for in this object's granted authorities list
+     *
+     * @return <code>true</code> if the granted authority is held, or <code>false</code> otherwise
+     */
+    public boolean isUserInRole(String role) {
+        GrantedAuthority[] authorities = super.getAuthorities();
+
+        for (int i = 0; i < authorities.length; i++) {
+            if (role.equals(authorities[i].getAuthority())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Setting is ignored. Always considered authenticated.
+     *
+     * @param ignored DOCUMENT ME!
+     */
+    public void setAuthenticated(boolean ignored) {
+        // ignored
     }
 }

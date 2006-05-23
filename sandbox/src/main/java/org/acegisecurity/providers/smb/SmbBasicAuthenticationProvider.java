@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,33 +22,24 @@ import jcifs.smb.NtlmPasswordAuthentication;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.BadCredentialsException;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import java.net.UnknownHostException;
 
 
 /**
- * Provides authentication of a basic {@link
- * UsernamePasswordAuthenticationToken } on a ntlm domain via smb/cifs.
+ * Provides authentication of a basic {@link UsernamePasswordAuthenticationToken } on a ntlm domain via smb/cifs.
  *
  * @author Davide Baroncelli
  * @version $Id$
  */
-public class SmbBasicAuthenticationProvider
-    extends AbstractSmbAuthenticationProvider {
-    //~ Instance fields ========================================================
+public class SmbBasicAuthenticationProvider extends AbstractSmbAuthenticationProvider {
+    //~ Instance fields ================================================================================================
 
     String domainController;
 
-    //~ Methods ================================================================
-
-    public void setDomainController(String domainController) {
-        this.domainController = domainController;
-    }
-
-    public boolean supports(Class authentication) {
-        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
-    }
+    //~ Methods ========================================================================================================
 
     protected UniAddress getDomainController(Authentication authentication,
         NtlmPasswordAuthentication ntlmAuthentication) {
@@ -67,14 +58,12 @@ public class SmbBasicAuthenticationProvider
 
             return dc;
         } catch (UnknownHostException uhe) {
-            throw new BadCredentialsException(
-                "no host could be found for the name "
-                + ntlmAuthentication.getDomain(), uhe);
+            throw new BadCredentialsException("no host could be found for the name " + ntlmAuthentication.getDomain(),
+                uhe);
         }
     }
 
-    protected NtlmPasswordAuthentication getNtlmPasswordAuthentication(
-        Authentication authentication) {
+    protected NtlmPasswordAuthentication getNtlmPasswordAuthentication(Authentication authentication) {
         UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) authentication;
         String username = token.getPrincipal().toString();
         String password = (String) token.getCredentials();
@@ -89,9 +78,16 @@ public class SmbBasicAuthenticationProvider
         String domain = (index != -1) ? username.substring(0, index) : null;
         username = (index != -1) ? username.substring(index + 1) : username;
 
-        NtlmPasswordAuthentication ntlm = new NtlmPasswordAuthentication(domain,
-                username, password);
+        NtlmPasswordAuthentication ntlm = new NtlmPasswordAuthentication(domain, username, password);
 
         return ntlm;
+    }
+
+    public void setDomainController(String domainController) {
+        this.domainController = domainController;
+    }
+
+    public boolean supports(Class authentication) {
+        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

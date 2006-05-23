@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,14 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationManager;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.MockAuthenticationManager;
+
 import org.acegisecurity.context.SecurityContextHolder;
+
 import org.acegisecurity.providers.x509.X509AuthenticationToken;
 import org.acegisecurity.providers.x509.X509TestUtils;
+
 import org.acegisecurity.ui.AbstractProcessingFilter;
+
 import org.acegisecurity.util.MockFilterChain;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -43,7 +47,7 @@ import javax.servlet.ServletException;
  * @version $Id$
  */
 public class X509ProcessingFilterTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public X509ProcessingFilterTests() {
         super();
@@ -53,7 +57,7 @@ public class X509ProcessingFilterTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public final void setUp() throws Exception {
         super.setUp();
@@ -77,12 +81,11 @@ public class X509ProcessingFilterTests extends TestCase {
         SecurityContextHolder.getContext().setAuthentication(null);
         filter.doFilter(request, response, chain);
 
-        Object lastException = request.getSession().getAttribute(AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY);
+        Object lastException = request.getSession()
+                                      .getAttribute(AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY);
 
-        assertNull("Authentication should be null",
-            SecurityContextHolder.getContext().getAuthentication());
-        assertTrue("BadCredentialsException should have been thrown",
-            lastException instanceof BadCredentialsException);
+        assertNull("Authentication should be null", SecurityContextHolder.getContext().getAuthentication());
+        assertTrue("BadCredentialsException should have been thrown", lastException instanceof BadCredentialsException);
     }
 
     public void testDoFilterWithNonHttpServletRequestDetected()
@@ -90,12 +93,10 @@ public class X509ProcessingFilterTests extends TestCase {
         X509ProcessingFilter filter = new X509ProcessingFilter();
 
         try {
-            filter.doFilter(null, new MockHttpServletResponse(),
-                new MockFilterChain(false));
+            filter.doFilter(null, new MockHttpServletResponse(), new MockFilterChain(false));
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("Can only process HttpServletRequest",
-                expected.getMessage());
+            assertEquals("Can only process HttpServletRequest", expected.getMessage());
         }
     }
 
@@ -104,12 +105,10 @@ public class X509ProcessingFilterTests extends TestCase {
         X509ProcessingFilter filter = new X509ProcessingFilter();
 
         try {
-            filter.doFilter(new MockHttpServletRequest(null, null), null,
-                new MockFilterChain(false));
+            filter.doFilter(new MockHttpServletRequest(null, null), null, new MockFilterChain(false));
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("Can only process HttpServletResponse",
-                expected.getMessage());
+            assertEquals("Can only process HttpServletResponse", expected.getMessage());
         }
     }
 
@@ -133,8 +132,7 @@ public class X509ProcessingFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
         filter.destroy();
 
-        Authentication result = SecurityContextHolder.getContext()
-                                                     .getAuthentication();
+        Authentication result = SecurityContextHolder.getContext().getAuthentication();
 
         assertNull(result);
     }
@@ -170,25 +168,21 @@ public class X509ProcessingFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
         filter.destroy();
 
-        Authentication result = SecurityContextHolder.getContext()
-                                                     .getAuthentication();
+        Authentication result = SecurityContextHolder.getContext().getAuthentication();
 
         assertNotNull(result);
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
-    private static class MockX509AuthenticationManager
-        implements AuthenticationManager {
+    private static class MockX509AuthenticationManager implements AuthenticationManager {
         public Authentication authenticate(Authentication a) {
             if (!(a instanceof X509AuthenticationToken)) {
-                TestCase.fail("Needed an X509Authentication token but found "
-                    + a);
+                TestCase.fail("Needed an X509Authentication token but found " + a);
             }
 
             if (a.getCredentials() == null) {
-                throw new BadCredentialsException(
-                    "Mock authentication manager rejecting null certificate");
+                throw new BadCredentialsException("Mock authentication manager rejecting null certificate");
             }
 
             return a;

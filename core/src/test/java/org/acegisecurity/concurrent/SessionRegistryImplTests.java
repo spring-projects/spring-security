@@ -31,7 +31,7 @@ import java.util.Date;
  * @version $Id$
  */
 public class SessionRegistryImplTests extends TestCase {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void testEventPublishing() {
         MockHttpSession httpSession = new MockHttpSession();
@@ -45,8 +45,7 @@ public class SessionRegistryImplTests extends TestCase {
         sessionRegistry.registerNewSession(sessionId, principal);
 
         // Deregister session via an ApplicationEvent
-        sessionRegistry.onApplicationEvent(new HttpSessionDestroyedEvent(
-                httpSession));
+        sessionRegistry.onApplicationEvent(new HttpSessionDestroyedEvent(httpSession));
 
         // Check attempts to retrieve cleared session return null
         assertNull(sessionRegistry.getSessionInformation(sessionId));
@@ -78,14 +77,10 @@ public class SessionRegistryImplTests extends TestCase {
         sessionRegistry.registerNewSession(sessionId, principal);
 
         // Retrieve existing session by session ID
-        Date currentDateTime = sessionRegistry.getSessionInformation(sessionId)
-                                              .getLastRequest();
-        assertEquals(principal,
-            sessionRegistry.getSessionInformation(sessionId).getPrincipal());
-        assertEquals(sessionId,
-            sessionRegistry.getSessionInformation(sessionId).getSessionId());
-        assertNotNull(sessionRegistry.getSessionInformation(sessionId)
-                                     .getLastRequest());
+        Date currentDateTime = sessionRegistry.getSessionInformation(sessionId).getLastRequest();
+        assertEquals(principal, sessionRegistry.getSessionInformation(sessionId).getPrincipal());
+        assertEquals(sessionId, sessionRegistry.getSessionInformation(sessionId).getSessionId());
+        assertNotNull(sessionRegistry.getSessionInformation(sessionId).getLastRequest());
 
         // Retrieve existing session by principal
         assertEquals(1, sessionRegistry.getAllSessions(principal, false).length);
@@ -96,13 +91,11 @@ public class SessionRegistryImplTests extends TestCase {
         // Update request date/time
         sessionRegistry.refreshLastRequest(sessionId);
 
-        Date retrieved = sessionRegistry.getSessionInformation(sessionId)
-                                        .getLastRequest();
+        Date retrieved = sessionRegistry.getSessionInformation(sessionId).getLastRequest();
         assertTrue(retrieved.after(currentDateTime));
 
         // Check it retrieves correctly when looked up via principal
-        assertEquals(retrieved,
-            sessionRegistry.getAllSessions(principal, false)[0].getLastRequest());
+        assertEquals(retrieved, sessionRegistry.getAllSessions(principal, false)[0].getLastRequest());
 
         // Clear session information
         sessionRegistry.removeSessionInformation(sessionId);
@@ -121,14 +114,12 @@ public class SessionRegistryImplTests extends TestCase {
         // Register new Session
         sessionRegistry.registerNewSession(sessionId1, principal);
         assertEquals(1, sessionRegistry.getAllSessions(principal, false).length);
-        assertEquals(sessionId1,
-            sessionRegistry.getAllSessions(principal, false)[0].getSessionId());
+        assertEquals(sessionId1, sessionRegistry.getAllSessions(principal, false)[0].getSessionId());
 
         // Register new Session
         sessionRegistry.registerNewSession(sessionId2, principal);
         assertEquals(2, sessionRegistry.getAllSessions(principal, false).length);
-        assertEquals(sessionId2,
-            sessionRegistry.getAllSessions(principal, false)[1].getSessionId());
+        assertEquals(sessionId2, sessionRegistry.getAllSessions(principal, false)[1].getSessionId());
 
         // Expire one session
         SessionInformation session = sessionRegistry.getSessionInformation(sessionId2);
@@ -148,20 +139,17 @@ public class SessionRegistryImplTests extends TestCase {
         // Register new Session
         sessionRegistry.registerNewSession(sessionId1, principal);
         assertEquals(1, sessionRegistry.getAllSessions(principal, false).length);
-        assertEquals(sessionId1,
-            sessionRegistry.getAllSessions(principal, false)[0].getSessionId());
+        assertEquals(sessionId1, sessionRegistry.getAllSessions(principal, false)[0].getSessionId());
 
         // Register new Session
         sessionRegistry.registerNewSession(sessionId2, principal);
         assertEquals(2, sessionRegistry.getAllSessions(principal, false).length);
-        assertEquals(sessionId2,
-            sessionRegistry.getAllSessions(principal, false)[1].getSessionId());
+        assertEquals(sessionId2, sessionRegistry.getAllSessions(principal, false)[1].getSessionId());
 
         // Clear session information
         sessionRegistry.removeSessionInformation(sessionId1);
         assertEquals(1, sessionRegistry.getAllSessions(principal, false).length);
-        assertEquals(sessionId2,
-            sessionRegistry.getAllSessions(principal, false)[0].getSessionId());
+        assertEquals(sessionId2, sessionRegistry.getAllSessions(principal, false)[0].getSessionId());
 
         // Clear final session
         sessionRegistry.removeSessionInformation(sessionId2);

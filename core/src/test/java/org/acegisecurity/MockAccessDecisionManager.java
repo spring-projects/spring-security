@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,27 +19,25 @@ import java.util.Iterator;
 
 
 /**
- * Grants access if the user holds any of the authorities listed in the
- * configuration attributes starting with "MOCK_".
+ * Grants access if the user holds any of the authorities listed in the configuration attributes starting with
+ * "MOCK_".
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MockAccessDecisionManager implements AccessDecisionManager {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void decide(Authentication authentication, Object object,
-        ConfigAttributeDefinition config) throws AccessDeniedException {
+    public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
+        throws AccessDeniedException {
         Iterator iter = config.getConfigAttributes();
 
         while (iter.hasNext()) {
             ConfigAttribute attr = (ConfigAttribute) iter.next();
 
             if (this.supports(attr)) {
-                for (int i = 0; i < authentication.getAuthorities().length;
-                    i++) {
-                    if (attr.getAttribute().equals(authentication
-                            .getAuthorities()[i].getAuthority())) {
+                for (int i = 0; i < authentication.getAuthorities().length; i++) {
+                    if (attr.getAttribute().equals(authentication.getAuthorities()[i].getAuthority())) {
                         return;
                     }
                 }

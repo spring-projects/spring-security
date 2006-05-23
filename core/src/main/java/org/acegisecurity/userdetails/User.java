@@ -21,19 +21,15 @@ import org.springframework.util.Assert;
 
 
 /**
- * Models core user information retieved by an {@link UserDetailsService}.
- * 
- * <p>
- * Implemented with value object semantics (immutable after construction, like
- * a <code>String</code>). Developers may use this class directly, subclass
- * it, or write their own {@link UserDetails} implementation from scratch.
- * </p>
+ * Models core user information retieved by an {@link UserDetailsService}.<p>Implemented with value object
+ * semantics (immutable after construction, like a <code>String</code>). Developers may use this class directly,
+ * subclass it, or write their own {@link UserDetails} implementation from scratch.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class User implements UserDetails {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private String password;
     private String username;
@@ -43,9 +39,9 @@ public class User implements UserDetails {
     private boolean credentialsNonExpired;
     private boolean enabled;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Construct the <code>User</code> with the details required by {@link
      * DaoAuthenticationProvider}.
      *
@@ -65,12 +61,12 @@ public class User implements UserDetails {
      * @deprecated use new constructor with extended properties (this
      *             constructor will be removed from release 1.0.0)
      */
-    public User(String username, String password, boolean enabled,
-        GrantedAuthority[] authorities) throws IllegalArgumentException {
+    public User(String username, String password, boolean enabled, GrantedAuthority[] authorities)
+        throws IllegalArgumentException {
         this(username, password, enabled, true, true, authorities);
     }
 
-    /**
+/**
      * Construct the <code>User</code> with the details required by {@link
      * DaoAuthenticationProvider}.
      *
@@ -94,14 +90,13 @@ public class User implements UserDetails {
      * @deprecated use new constructor with extended properties (this
      *             constructor will be removed from release 1.0.0)
      */
-    public User(String username, String password, boolean enabled,
-        boolean accountNonExpired, boolean credentialsNonExpired,
-        GrantedAuthority[] authorities) throws IllegalArgumentException {
-        this(username, password, enabled, accountNonExpired,
-            credentialsNonExpired, true, authorities);
+    public User(String username, String password, boolean enabled, boolean accountNonExpired,
+        boolean credentialsNonExpired, GrantedAuthority[] authorities)
+        throws IllegalArgumentException {
+        this(username, password, enabled, accountNonExpired, credentialsNonExpired, true, authorities);
     }
 
-    /**
+/**
      * Construct the <code>User</code> with the details required by {@link
      * DaoAuthenticationProvider}.
      *
@@ -124,13 +119,11 @@ public class User implements UserDetails {
      *         either as a parameter or as an element in the
      *         <code>GrantedAuthority[]</code> array
      */
-    public User(String username, String password, boolean enabled,
-        boolean accountNonExpired, boolean credentialsNonExpired,
-        boolean accountNonLocked, GrantedAuthority[] authorities)
+    public User(String username, String password, boolean enabled, boolean accountNonExpired,
+        boolean credentialsNonExpired, boolean accountNonLocked, GrantedAuthority[] authorities)
         throws IllegalArgumentException {
         if (((username == null) || "".equals(username)) || (password == null)) {
-            throw new IllegalArgumentException(
-                "Cannot pass null or empty values to constructor");
+            throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
         }
 
         this.username = username;
@@ -142,7 +135,7 @@ public class User implements UserDetails {
         setAuthorities(authorities);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public boolean equals(Object rhs) {
         if (!(rhs instanceof User) || (rhs == null)) {
@@ -164,12 +157,10 @@ public class User implements UserDetails {
         }
 
         // We rely on constructor to guarantee non-null username and password
-        return (this.getPassword().equals(user.getPassword())
-        && this.getUsername().equals(user.getUsername())
+        return (this.getPassword().equals(user.getPassword()) && this.getUsername().equals(user.getUsername())
         && (this.isAccountNonExpired() == user.isAccountNonExpired())
         && (this.isAccountNonLocked() == user.isAccountNonLocked())
-        && (this.isCredentialsNonExpired() == user.isCredentialsNonExpired())
-        && (this.isEnabled() == user.isEnabled()));
+        && (this.isCredentialsNonExpired() == user.isCredentialsNonExpired()) && (this.isEnabled() == user.isEnabled()));
     }
 
     public GrantedAuthority[] getAuthorities() {
@@ -241,8 +232,7 @@ public class User implements UserDetails {
 
         for (int i = 0; i < authorities.length; i++) {
             Assert.notNull(authorities[i],
-                "Granted authority element " + i
-                + " is null - GrantedAuthority[] cannot contain any null elements");
+                "Granted authority element " + i + " is null - GrantedAuthority[] cannot contain any null elements");
         }
 
         this.authorities = authorities;

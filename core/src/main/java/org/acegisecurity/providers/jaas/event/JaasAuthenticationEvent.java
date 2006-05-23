@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,17 +21,16 @@ import org.springframework.context.ApplicationEvent;
 
 
 /**
- * Parent class for events fired by the {@link
- * org.acegisecurity.providers.jaas.JaasAuthenticationProvider
+ * Parent class for events fired by the {@link org.acegisecurity.providers.jaas.JaasAuthenticationProvider
  * JaasAuthenticationProvider}.
  *
  * @author Ray Krueger
  * @version $Id$
  */
 public abstract class JaasAuthenticationEvent extends ApplicationEvent {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * The Authentication object is stored as the ApplicationEvent 'source'.
      *
      * @param auth
@@ -40,7 +39,7 @@ public abstract class JaasAuthenticationEvent extends ApplicationEvent {
         super(auth);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Pre-casted method that returns the 'source' of the event.

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
 
 package org.acegisecurity.userdetails.memory;
 
+import junit.framework.TestCase;
+
 import org.acegisecurity.userdetails.memory.UserAttribute;
 import org.acegisecurity.userdetails.memory.UserAttributeEditor;
-
-import junit.framework.TestCase;
 
 
 /**
@@ -28,7 +28,7 @@ import junit.framework.TestCase;
  * @version $Id$
  */
 public class UserAttributeEditorTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public UserAttributeEditorTests() {
         super();
@@ -38,14 +38,25 @@ public class UserAttributeEditorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(UserAttributeEditorTests.class);
+    }
 
     public final void setUp() throws Exception {
         super.setUp();
     }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(UserAttributeEditorTests.class);
+    public void testCorrectOperationWithTrailingSpaces() {
+        UserAttributeEditor editor = new UserAttributeEditor();
+        editor.setAsText("password ,ROLE_ONE,ROLE_TWO ");
+
+        UserAttribute user = (UserAttribute) editor.getValue();
+        assertEquals("password", user.getPassword());
+        assertEquals(2, user.getAuthorities().length);
+        assertEquals("ROLE_ONE", user.getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_TWO", user.getAuthorities()[1].getAuthority());
     }
 
     public void testCorrectOperationWithoutEnabledDisabledKeyword() {
@@ -125,16 +136,5 @@ public class UserAttributeEditorTests extends TestCase {
 
         UserAttribute user = (UserAttribute) editor.getValue();
         assertTrue(user == null);
-    }
-
-    public void testCorrectOperationWithTrailingSpaces() {
-        UserAttributeEditor editor = new UserAttributeEditor();
-        editor.setAsText("password ,ROLE_ONE,ROLE_TWO ");
-
-        UserAttribute user = (UserAttribute) editor.getValue();
-        assertEquals("password", user.getPassword());
-        assertEquals(2, user.getAuthorities().length);
-        assertEquals("ROLE_ONE", user.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO", user.getAuthorities()[1].getAuthority());
     }
 }

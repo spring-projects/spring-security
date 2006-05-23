@@ -31,20 +31,20 @@ import javax.servlet.jsp.JspException;
  * DOCUMENT ME!
  */
 public class AuthzImplAttributeTest extends TestCase {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private final Authz authz = new AuthzImpl();
     private TestingAuthenticationToken currentUser;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     protected void setUp() throws Exception {
         super.setUp();
 
         currentUser = new TestingAuthenticationToken("abc", "123",
-                new GrantedAuthority[] {new GrantedAuthorityImpl(
-                        "ROLE_SUPERVISOR"), new GrantedAuthorityImpl(
-                        "ROLE_RESTRICTED"),});
+                new GrantedAuthority[] {
+                    new GrantedAuthorityImpl("ROLE_SUPERVISOR"), new GrantedAuthorityImpl("ROLE_RESTRICTED"),
+                });
 
         SecurityContextHolder.getContext().setAuthentication(currentUser);
     }
@@ -79,14 +79,12 @@ public class AuthzImplAttributeTest extends TestCase {
 
     public void testAssertsIfNotGrantedIgnoresWhitespaceInAttribute() {
         //allows request - principal has ROLE_SUPERVISOR
-        assertTrue(authz.anyGranted(
-                "\tROLE_SUPERVISOR  \t, \r\n\t ROLE_TELLER "));
+        assertTrue(authz.anyGranted("\tROLE_SUPERVISOR  \t, \r\n\t ROLE_TELLER "));
     }
 
     public void testIfAllGrantedIgnoresWhitespaceInAttribute() {
         //allows request - principal has ROLE_RESTRICTED and ROLE_SUPERVISOR
-        assertTrue(authz.allGranted(
-                "\nROLE_SUPERVISOR\t,ROLE_RESTRICTED\t\n\r "));
+        assertTrue(authz.allGranted("\nROLE_SUPERVISOR\t,ROLE_RESTRICTED\t\n\r "));
     }
 
     public void testIfNotGrantedIgnoresWhitespaceInAttribute()

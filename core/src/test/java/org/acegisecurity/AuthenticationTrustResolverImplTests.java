@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
  * @version $Id$
  */
 public class AuthenticationTrustResolverImplTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AuthenticationTrustResolverImplTests() {
         super();
@@ -39,7 +39,7 @@ public class AuthenticationTrustResolverImplTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AuthenticationTrustResolverImplTests.class);
@@ -68,13 +68,11 @@ public class AuthenticationTrustResolverImplTests extends TestCase {
     public void testGettersSetters() {
         AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
 
-        assertEquals(AnonymousAuthenticationToken.class,
-            trustResolver.getAnonymousClass());
+        assertEquals(AnonymousAuthenticationToken.class, trustResolver.getAnonymousClass());
         trustResolver.setAnonymousClass(String.class);
         assertEquals(String.class, trustResolver.getAnonymousClass());
 
-        assertEquals(RememberMeAuthenticationToken.class,
-            trustResolver.getRememberMeClass());
+        assertEquals(RememberMeAuthenticationToken.class, trustResolver.getRememberMeClass());
         trustResolver.setRememberMeClass(String.class);
         assertEquals(String.class, trustResolver.getRememberMeClass());
     }

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,13 +32,27 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 public class MockFilter implements Filter {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private boolean wasDestroyed = false;
     private boolean wasDoFiltered = false;
     private boolean wasInitialized = false;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    public void destroy() {
+        wasDestroyed = true;
+    }
+
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
+        wasDoFiltered = true;
+        chain.doFilter(request, response);
+    }
+
+    public void init(FilterConfig config) throws ServletException {
+        wasInitialized = true;
+    }
 
     public boolean isWasDestroyed() {
         return wasDestroyed;
@@ -50,19 +64,5 @@ public class MockFilter implements Filter {
 
     public boolean isWasInitialized() {
         return wasInitialized;
-    }
-
-    public void destroy() {
-        wasDestroyed = true;
-    }
-
-    public void doFilter(ServletRequest request, ServletResponse response,
-        FilterChain chain) throws IOException, ServletException {
-        wasDoFiltered = true;
-        chain.doFilter(request, response);
-    }
-
-    public void init(FilterConfig config) throws ServletException {
-        wasInitialized = true;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,19 +35,12 @@ import java.util.TreeSet;
  * @version $Id$
  */
 public class CollectionUtils {
-    //~ Methods ================================================================
-
-    public static boolean isCollection(Class theClass) {
-        return Collection.class.isAssignableFrom(theClass);
-    }
-
-    public static boolean isMap(Class theClass) {
-        return Map.class.isAssignableFrom(theClass);
-    }
+    //~ Methods ========================================================================================================
 
     /**
      * Add an object to a <code>Set</code> and return the result.
      *
+     * @param <E> DOCUMENT ME!
      * @param set
      * @param object
      *
@@ -62,6 +55,7 @@ public class CollectionUtils {
     /**
      * Add an object to a <code>List</code> and return the result.
      *
+     * @param <E> DOCUMENT ME!
      * @param list
      * @param object
      *
@@ -74,9 +68,10 @@ public class CollectionUtils {
     }
 
     /**
-     * Clone a Collection copying all its elements to a new one. If map is
-     * <code>null</code> return <code>null</code>.
+     * Clone a Collection copying all its elements to a new one. If map is <code>null</code> return
+     * <code>null</code>.
      *
+     * @param <E> DOCUMENT ME!
      * @param collection
      *
      * @return
@@ -98,37 +93,36 @@ public class CollectionUtils {
         } else if (Set.class.isAssignableFrom(clazz)) {
             clone = new HashSet<E>(collection);
         } else {
-            throw new IllegalArgumentException("Unknown collection class: "
-                + clazz);
+            throw new IllegalArgumentException("Unknown collection class: " + clazz);
         }
 
         return clone;
     }
 
     /**
-     * Clone a <code>Map</code> copying all its elements to a new one. If the
-     * passed argument is <code>null</code>, the method will return
-     * <code>null</code>.
+     * Clone a <code>Map</code> copying all its elements to a new one. If the passed argument is
+     * <code>null</code>, the method will return <code>null</code>.
      *
+     * @param <K> DOCUMENT ME!
+     * @param <V> DOCUMENT ME!
      * @param map to copy
      *
      * @return a copy of the <code>Map</code> passed as an argument
      *
-     * @throws IllegalArgumentException if the <code>Map</code> implementation
-     *         is not supported by this method
+     * @throws IllegalArgumentException if the <code>Map</code> implementation is not supported by this method
      */
-    public static <K,V> Map<K,V> clone(Map<K,V> map) {
+    public static <K, V> Map<K, V> clone(Map<K, V> map) {
         if (map == null) {
             return null;
         }
 
         Class clazz = map.getClass();
-        Map<K,V> clone = null;
+        Map<K, V> clone = null;
 
         if (SortedMap.class.isAssignableFrom(clazz)) {
-            clone = new TreeMap<K,V>(map);
+            clone = new TreeMap<K, V>(map);
         } else if (Map.class.isAssignableFrom(clazz)) {
-            clone = new HashMap<K,V>(map);
+            clone = new HashMap<K, V>(map);
         } else {
             throw new IllegalArgumentException("Unknown map class: " + clazz);
         }
@@ -136,10 +130,18 @@ public class CollectionUtils {
         return clone;
     }
 
+    public static boolean isCollection(Class theClass) {
+        return Collection.class.isAssignableFrom(theClass);
+    }
+
+    public static boolean isMap(Class theClass) {
+        return Map.class.isAssignableFrom(theClass);
+    }
+
     /**
-     * Return a <code>List</code> (actually an {@link ArrayList}) with only
-     * that object.
+     * Return a <code>List</code> (actually an {@link ArrayList}) with only that object.
      *
+     * @param <E> DOCUMENT ME!
      * @param object
      *
      * @return
@@ -149,9 +151,9 @@ public class CollectionUtils {
     }
 
     /**
-     * Return a <code>Set</code> (actually a {@link HashSet}) with only that
-     * object.
+     * Return a <code>Set</code> (actually a {@link HashSet}) with only that object.
      *
+     * @param <E> DOCUMENT ME!
      * @param object
      *
      * @return

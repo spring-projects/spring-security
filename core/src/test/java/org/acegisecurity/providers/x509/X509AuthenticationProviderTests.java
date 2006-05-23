@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 
 package org.acegisecurity.providers.x509;
 
-import java.security.cert.X509Certificate;
-
 import junit.framework.TestCase;
 
 import org.acegisecurity.Authentication;
@@ -24,9 +22,13 @@ import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
+
+import java.security.cert.X509Certificate;
 
 
 /**
@@ -36,7 +38,7 @@ import org.acegisecurity.userdetails.UserDetails;
  * @version $Id$
  */
 public class X509AuthenticationProviderTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public X509AuthenticationProviderTests() {
         super();
@@ -46,7 +48,7 @@ public class X509AuthenticationProviderTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public final void setUp() throws Exception {
         super.setUp();
@@ -54,8 +56,7 @@ public class X509AuthenticationProviderTests extends TestCase {
 
     public void testAuthenticationIsNullWithUnsupportedToken() {
         X509AuthenticationProvider provider = new X509AuthenticationProvider();
-        Authentication request = new UsernamePasswordAuthenticationToken("dummy",
-                "dummy");
+        Authentication request = new UsernamePasswordAuthenticationToken("dummy", "dummy");
         Authentication result = provider.authenticate(request);
         assertNull(result);
     }
@@ -108,10 +109,9 @@ public class X509AuthenticationProviderTests extends TestCase {
         }
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
-    public static class MockAuthoritiesPopulator
-        implements X509AuthoritiesPopulator {
+    public static class MockAuthoritiesPopulator implements X509AuthoritiesPopulator {
         private boolean rejectCertificate;
 
         public MockAuthoritiesPopulator(boolean rejectCertificate) {
@@ -125,8 +125,7 @@ public class X509AuthenticationProviderTests extends TestCase {
             }
 
             return new User("user", "password", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl(
-                        "ROLE_B")});
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B")});
         }
     }
 }

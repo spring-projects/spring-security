@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,16 @@ import org.acegisecurity.AuthenticationException;
 
 
 /**
- * Application event which indicates authentication failure due to the user
- * attempting to login to too many concurrent sessions.
+ * Application event which indicates authentication failure due to the user attempting to login to too many
+ * concurrent sessions.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthenticationFailureConcurrentLoginEvent
-    extends AbstractAuthenticationFailureEvent {
-    //~ Constructors ===========================================================
+public class AuthenticationFailureConcurrentLoginEvent extends AbstractAuthenticationFailureEvent {
+    //~ Constructors ===================================================================================================
 
-    public AuthenticationFailureConcurrentLoginEvent(
-        Authentication authentication, AuthenticationException exception) {
+    public AuthenticationFailureConcurrentLoginEvent(Authentication authentication, AuthenticationException exception) {
         super(authentication, exception);
     }
 }

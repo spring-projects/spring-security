@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,17 @@ import org.acegisecurity.AcegiSecurityException;
 
 
 /**
- * Thrown if a <code>RemoteAuthenticationManager</code> cannot validate the
- * presented authentication request.
- * 
- * <P>
- * This is thrown rather than the normal <code>AuthenticationException</code>
- * because <code>AuthenticationException</code> contains additional properties
- * which may cause issues for the remoting protocol.
- * </p>
+ * Thrown if a <code>RemoteAuthenticationManager</code> cannot validate the presented authentication request.<P>This
+ * is thrown rather than the normal <code>AuthenticationException</code> because <code>AuthenticationException</code>
+ * contains additional properties which may cause issues for the remoting protocol.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class RemoteAuthenticationException extends AcegiSecurityException {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructs a <code>RemoteAuthenticationException</code> with the
      * specified message and no root cause.
      *

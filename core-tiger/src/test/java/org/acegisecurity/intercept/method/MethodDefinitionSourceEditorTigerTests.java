@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
 
 package org.acegisecurity.intercept.method;
 
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Method;
-
 import junit.framework.TestCase;
 
 import org.acegisecurity.ConfigAttributeDefinition;
@@ -28,18 +25,21 @@ import org.acegisecurity.PersonServiceImpl;
 import org.acegisecurity.SecurityConfig;
 import org.acegisecurity.Service;
 import org.acegisecurity.ServiceImpl;
+
 import org.aopalliance.intercept.MethodInvocation;
+
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Method;
 
 
 /**
- * Extra tests to demonstrate generics behaviour with
- * <code>MethodDefinitionMap</code>.
+ * Extra tests to demonstrate generics behaviour with <code>MethodDefinitionMap</code>.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MethodDefinitionSourceEditorTigerTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public MethodDefinitionSourceEditorTigerTests() {
         super();
@@ -49,14 +49,14 @@ public class MethodDefinitionSourceEditorTigerTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(MethodDefinitionSourceEditorTigerTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testConcreteClassInvocationsAlsoReturnDefinitionsAgainstInterface()
@@ -68,21 +68,17 @@ public class MethodDefinitionSourceEditorTigerTests extends TestCase {
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
 
-        ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(
-                    Service.class, "makeLowerCase", new Class[] {Entity.class}));
+        ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(Service.class,
+                    "makeLowerCase", new Class[] {Entity.class}));
         ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition();
-        expectedMakeLower.addConfigAttribute(new SecurityConfig(
-                "ROLE_FROM_INTERFACE"));
+        expectedMakeLower.addConfigAttribute(new SecurityConfig("ROLE_FROM_INTERFACE"));
         assertEquals(expectedMakeLower, returnedMakeLower);
 
-        ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(
-                    ServiceImpl.class, "makeUpperCase",
-                    new Class[] {Entity.class}));
+        ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(ServiceImpl.class,
+                    "makeUpperCase", new Class[] {Entity.class}));
         ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition();
-        expectedMakeUpper.addConfigAttribute(new SecurityConfig(
-                "ROLE_FROM_IMPLEMENTATION"));
-        expectedMakeUpper.addConfigAttribute(new SecurityConfig(
-                "ROLE_FROM_INTERFACE"));
+        expectedMakeUpper.addConfigAttribute(new SecurityConfig("ROLE_FROM_IMPLEMENTATION"));
+        expectedMakeUpper.addConfigAttribute(new SecurityConfig("ROLE_FROM_INTERFACE"));
         assertEquals(expectedMakeUpper, returnedMakeUpper);
     }
 
@@ -95,47 +91,39 @@ public class MethodDefinitionSourceEditorTigerTests extends TestCase {
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
 
-        ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(
-                    PersonService.class, "makeLowerCase",
-                    new Class[] {Entity.class}));
+        ConfigAttributeDefinition returnedMakeLower = map.getAttributes(new MockMethodInvocation(PersonService.class,
+                    "makeLowerCase", new Class[] {Entity.class}));
         ConfigAttributeDefinition expectedMakeLower = new ConfigAttributeDefinition();
-        expectedMakeLower.addConfigAttribute(new SecurityConfig(
-                "ROLE_FROM_INTERFACE"));
+        expectedMakeLower.addConfigAttribute(new SecurityConfig("ROLE_FROM_INTERFACE"));
         assertEquals(expectedMakeLower, returnedMakeLower);
 
         ConfigAttributeDefinition returnedMakeLower2 = map.getAttributes(new MockMethodInvocation(
-                    OrganisationService.class, "makeLowerCase",
-                    new Class[] {Entity.class}));
+                    OrganisationService.class, "makeLowerCase", new Class[] {Entity.class}));
         ConfigAttributeDefinition expectedMakeLower2 = new ConfigAttributeDefinition();
-        expectedMakeLower2.addConfigAttribute(new SecurityConfig(
-                "ROLE_FROM_INTERFACE"));
+        expectedMakeLower2.addConfigAttribute(new SecurityConfig("ROLE_FROM_INTERFACE"));
         assertEquals(expectedMakeLower2, returnedMakeLower2);
 
         ConfigAttributeDefinition returnedMakeUpper = map.getAttributes(new MockMethodInvocation(
-                    PersonServiceImpl.class, "makeUpperCase",
-                    new Class[] {Entity.class}));
+                    PersonServiceImpl.class, "makeUpperCase", new Class[] {Entity.class}));
         ConfigAttributeDefinition expectedMakeUpper = new ConfigAttributeDefinition();
-        expectedMakeUpper.addConfigAttribute(new SecurityConfig(
-                "ROLE_FROM_IMPLEMENTATION"));
-        expectedMakeUpper.addConfigAttribute(new SecurityConfig(
-                "ROLE_FROM_INTERFACE"));
+        expectedMakeUpper.addConfigAttribute(new SecurityConfig("ROLE_FROM_IMPLEMENTATION"));
+        expectedMakeUpper.addConfigAttribute(new SecurityConfig("ROLE_FROM_INTERFACE"));
         assertEquals(expectedMakeUpper, returnedMakeUpper);
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockMethodInvocation implements MethodInvocation {
         Method method;
 
-        public MockMethodInvocation(Class clazz, String methodName,
-            Class[] parameterTypes) throws NoSuchMethodException {
-            System.out.println(clazz + " " + methodName + " "
-                + parameterTypes[0]);
-            method = clazz.getMethod(methodName, parameterTypes);
-        }
-
         private MockMethodInvocation() {
             super();
+        }
+
+        public MockMethodInvocation(Class clazz, String methodName, Class[] parameterTypes)
+            throws NoSuchMethodException {
+            System.out.println(clazz + " " + methodName + " " + parameterTypes[0]);
+            method = clazz.getMethod(methodName, parameterTypes);
         }
 
         public Object[] getArguments() {

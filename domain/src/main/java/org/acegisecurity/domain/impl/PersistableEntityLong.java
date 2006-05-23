@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,25 +25,27 @@ import java.io.Serializable;
  * @version $Id$
  */
 public abstract class PersistableEntityLong extends AbstractPersistableEntity {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Long id;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Obtains the persistence identity of this instance.
+     *
+     * @return DOCUMENT ME!
      */
     public Long getId() {
-    	return this.id;
+        return this.id;
     }
-    
+
     /**
      * Required solely because Hibernate
+     *
+     * @return DOCUMENT ME!
      */
     public Serializable getInternalId() {
-    	return this.id;
+        return this.id;
     }
-
-
 }

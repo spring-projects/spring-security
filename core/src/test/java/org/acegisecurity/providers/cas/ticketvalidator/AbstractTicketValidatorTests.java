@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,9 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
+
 import org.acegisecurity.providers.cas.TicketResponse;
+
 import org.acegisecurity.ui.cas.ServiceProperties;
 
 import java.util.Vector;
@@ -32,7 +34,7 @@ import java.util.Vector;
  * @version $Id$
  */
 public class AbstractTicketValidatorTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AbstractTicketValidatorTests() {
         super();
@@ -42,14 +44,14 @@ public class AbstractTicketValidatorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AbstractTicketValidatorTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testDetectsMissingCasValidate() throws Exception {
@@ -72,16 +74,14 @@ public class AbstractTicketValidatorTests extends TestCase {
             tv.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("serviceProperties must be specified",
-                expected.getMessage());
+            assertEquals("serviceProperties must be specified", expected.getMessage());
         }
     }
 
     public void testGetters() throws Exception {
         AbstractTicketValidator tv = new MockAbstractTicketValidator();
         tv.setCasValidate("https://company.com/cas/proxyvalidate");
-        assertEquals("https://company.com/cas/proxyvalidate",
-            tv.getCasValidate());
+        assertEquals("https://company.com/cas/proxyvalidate", tv.getCasValidate());
 
         tv.setServiceProperties(new ServiceProperties());
         assertTrue(tv.getServiceProperties() != null);
@@ -96,8 +96,7 @@ public class AbstractTicketValidatorTests extends TestCase {
         throws Exception {
         AbstractTicketValidator tv = new MockAbstractTicketValidator();
         tv.setCasValidate("https://company.com/cas/proxyvalidate");
-        assertEquals("https://company.com/cas/proxyvalidate",
-            tv.getCasValidate());
+        assertEquals("https://company.com/cas/proxyvalidate", tv.getCasValidate());
 
         tv.setServiceProperties(new ServiceProperties());
         assertTrue(tv.getServiceProperties() != null);
@@ -107,8 +106,7 @@ public class AbstractTicketValidatorTests extends TestCase {
 
         String before = System.getProperty("javax.net.ssl.trustStore");
         tv.afterPropertiesSet();
-        assertEquals("/some/file/cacerts",
-            System.getProperty("javax.net.ssl.trustStore"));
+        assertEquals("/some/file/cacerts", System.getProperty("javax.net.ssl.trustStore"));
 
         if (before == null) {
             System.setProperty("javax.net.ssl.trustStore", "");
@@ -117,7 +115,7 @@ public class AbstractTicketValidatorTests extends TestCase {
         }
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockAbstractTicketValidator extends AbstractTicketValidator {
         private boolean returnTicket;

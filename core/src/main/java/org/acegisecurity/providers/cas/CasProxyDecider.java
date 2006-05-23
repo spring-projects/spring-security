@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,15 +57,15 @@ import java.util.List;
  * @version $Id$
  */
 public interface CasProxyDecider {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Decides whether the proxy list is trusted.
-     * 
-     * <P>
-     * Must throw any <code>ProxyUntrustedException</code> if the proxy list is
-     * untrusted.
-     * </p>
+     * Decides whether the proxy list is trusted.<P>Must throw any <code>ProxyUntrustedException</code> if the
+     * proxy list is untrusted.</p>
+     *
+     * @param proxyList DOCUMENT ME!
+     *
+     * @throws ProxyUntrustedException DOCUMENT ME!
      */
     public void confirmProxyListTrusted(List proxyList)
         throws ProxyUntrustedException;

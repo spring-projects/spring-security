@@ -29,14 +29,13 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
 /**
- * Tests {@link
- * org.acegisecurity.intercept.web.WebInvocationPrivilegeEvaluator}.
+ * Tests {@link org.acegisecurity.intercept.web.WebInvocationPrivilegeEvaluator}.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class WebInvocationPrivilegeEvaluatorTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public WebInvocationPrivilegeEvaluatorTests() {
         super();
@@ -46,7 +45,7 @@ public class WebInvocationPrivilegeEvaluatorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(WebInvocationPrivilegeEvaluatorTests.class);
@@ -56,13 +55,11 @@ public class WebInvocationPrivilegeEvaluatorTests extends TestCase {
         ApplicationContext context = new ClassPathXmlApplicationContext(
                 "org/acegisecurity/intercept/web/applicationContext.xml");
 
-        return (FilterSecurityInterceptor) context.getBean(
-            "securityInterceptor");
+        return (FilterSecurityInterceptor) context.getBean("securityInterceptor");
     }
 
     public void testAllowsAccess1() throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_INDEX")});
         FilterInvocation fi = FilterInvocationUtils.create("/foo/index.jsp");
         FilterSecurityInterceptor interceptor = makeFilterSecurityInterceptor();
@@ -75,8 +72,7 @@ public class WebInvocationPrivilegeEvaluatorTests extends TestCase {
     }
 
     public void testAllowsAccess2() throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_USER")});
         FilterInvocation fi = FilterInvocationUtils.create("/anything.jsp");
         FilterSecurityInterceptor interceptor = makeFilterSecurityInterceptor();
@@ -89,8 +85,7 @@ public class WebInvocationPrivilegeEvaluatorTests extends TestCase {
     }
 
     public void testDeniesAccess1() throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_NOTHING_USEFUL")});
         FilterInvocation fi = FilterInvocationUtils.create("/anything.jsp");
         FilterSecurityInterceptor interceptor = makeFilterSecurityInterceptor();

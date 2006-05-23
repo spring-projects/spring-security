@@ -28,16 +28,15 @@ import java.io.Serializable;
  * @author Ben Alex
  * @version $Id$
  */
-public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
-    implements Serializable {
-    //~ Instance fields ========================================================
+public class AnonymousAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
+    //~ Instance fields ================================================================================================
 
     private Object principal;
     private int keyHash;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructor.
      *
      * @param key to identify if this object made by an authorised client
@@ -46,15 +45,12 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
      *
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
-    public AnonymousAuthenticationToken(String key, Object principal,
-        GrantedAuthority[] authorities) {
+    public AnonymousAuthenticationToken(String key, Object principal, GrantedAuthority[] authorities) {
         super(authorities);
 
-        if ((key == null) || ("".equals(key)) || (principal == null)
-            || "".equals(principal) || (authorities == null)
+        if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal) || (authorities == null)
             || (authorities.length == 0)) {
-            throw new IllegalArgumentException(
-                "Cannot pass null or empty values to constructor");
+            throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
         }
 
         this.keyHash = key.hashCode();
@@ -62,7 +58,7 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
         setAuthenticated(true);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
@@ -75,7 +71,7 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken
             if (this.getKeyHash() != test.getKeyHash()) {
                 return false;
             }
-            
+
             return true;
         }
 

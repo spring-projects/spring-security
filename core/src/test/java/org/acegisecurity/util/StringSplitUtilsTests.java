@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import java.util.Map;
  * @version $Id$
  */
 public class StringSplitUtilsTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     // ===========================================================
     public StringSplitUtilsTests() {
@@ -40,7 +40,7 @@ public class StringSplitUtilsTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     // ================================================================
     public static void main(String[] args) {
@@ -51,17 +51,14 @@ public class StringSplitUtilsTests extends TestCase {
         // note it ignores malformed entries (ie those without an equals sign)
         String unsplit = "username=\"marissa\", invalidEntryThatHasNoEqualsSign, realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/acegi-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
-        Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries,
-                "=", "\"");
+        Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
         assertEquals("marissa", headerMap.get("username"));
         assertEquals("Contacts Realm", headerMap.get("realm"));
-        assertEquals("MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==",
-            headerMap.get("nonce"));
+        assertEquals("MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==", headerMap.get("nonce"));
         assertEquals("/acegi-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4",
             headerMap.get("uri"));
-        assertEquals("38644211cf9ac3da63ab639807e2baff",
-            headerMap.get("response"));
+        assertEquals("38644211cf9ac3da63ab639807e2baff", headerMap.get("response"));
         assertEquals("auth", headerMap.get("qop"));
         assertEquals("00000004", headerMap.get("nc"));
         assertEquals("2b8d329a8571b99a", headerMap.get("cnonce"));
@@ -71,17 +68,14 @@ public class StringSplitUtilsTests extends TestCase {
     public void testSplitEachArrayElementAndCreateMapRespectsInstructionNotToRemoveCharacters() {
         String unsplit = "username=\"marissa\", realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/acegi-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
-        Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries,
-                "=", null);
+        Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", null);
 
         assertEquals("\"marissa\"", headerMap.get("username"));
         assertEquals("\"Contacts Realm\"", headerMap.get("realm"));
-        assertEquals("\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\"",
-            headerMap.get("nonce"));
+        assertEquals("\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\"", headerMap.get("nonce"));
         assertEquals("\"/acegi-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\"",
             headerMap.get("uri"));
-        assertEquals("\"38644211cf9ac3da63ab639807e2baff\"",
-            headerMap.get("response"));
+        assertEquals("\"38644211cf9ac3da63ab639807e2baff\"", headerMap.get("response"));
         assertEquals("auth", headerMap.get("qop"));
         assertEquals("00000004", headerMap.get("nc"));
         assertEquals("\"2b8d329a8571b99a\"", headerMap.get("cnonce"));
@@ -89,10 +83,8 @@ public class StringSplitUtilsTests extends TestCase {
     }
 
     public void testSplitEachArrayElementAndCreateMapReturnsNullIfArrayEmptyOrNull() {
-        assertNull(StringSplitUtils.splitEachArrayElementAndCreateMap(null,
-                "=", "\""));
-        assertNull(StringSplitUtils.splitEachArrayElementAndCreateMap(
-                new String[] {}, "=", "\""));
+        assertNull(StringSplitUtils.splitEachArrayElementAndCreateMap(null, "=", "\""));
+        assertNull(StringSplitUtils.splitEachArrayElementAndCreateMap(new String[] {}, "=", "\""));
     }
 
     public void testSplitNormalOperation() {

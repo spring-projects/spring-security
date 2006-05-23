@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,20 +31,12 @@ import org.acegisecurity.domain.PersistableEntity;
  * @version $Id$
  */
 public interface EvictionCapable {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Removes the indicated persistent instance from the DAO's internal
-     * map/session.
-     * 
-     * <p>
-     * If the passed object does not exist in the internal map/session, the
-     * invocation has no effect.
-     * </p>
-     * 
-     * <p>
-     * May throw an exception if the implementation so desires.
-     * </p>
+     * Removes the indicated persistent instance from the DAO's internal map/session.<p>If the passed object
+     * does not exist in the internal map/session, the invocation has no effect.</p>
+     *  <p>May throw an exception if the implementation so desires.</p>
      *
      * @param entity to remove from the internal map/session
      */

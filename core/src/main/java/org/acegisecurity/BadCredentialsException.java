@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,20 @@
 package org.acegisecurity;
 
 /**
- * Thrown if an authentication request is rejected because the credentials are
- * invalid. For this exception to be thrown, it means the account is neither
- * locked nor disabled.
+ * Thrown if an authentication request is rejected because the credentials are invalid. For this exception to be
+ * thrown, it means the account is neither locked nor disabled.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class BadCredentialsException extends AuthenticationException {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Object extraInformation;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructs a <code>BadCredentialsException</code> with the specified
      * message.
      *
@@ -45,7 +44,7 @@ public class BadCredentialsException extends AuthenticationException {
         this.extraInformation = extraInformation;
     }
 
-    /**
+/**
      * Constructs a <code>BadCredentialsException</code> with the specified
      * message and root cause.
      *
@@ -56,11 +55,10 @@ public class BadCredentialsException extends AuthenticationException {
         super(msg, t);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Any additional information about the exception. Generally a
-     * <code>UserDetails</code> object.
+     * Any additional information about the exception. Generally a <code>UserDetails</code> object.
      *
      * @return extra information or <code>null</code>
      */

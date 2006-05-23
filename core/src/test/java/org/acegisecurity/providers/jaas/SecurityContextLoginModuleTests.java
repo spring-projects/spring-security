@@ -35,15 +35,14 @@ import javax.security.auth.login.LoginException;
  * @author Ray Krueger
  */
 public class SecurityContextLoginModuleTests extends TestCase {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private SecurityContextLoginModule module = null;
-    private Subject subject = new Subject(false, new HashSet(), new HashSet(),
-            new HashSet());
+    private Subject subject = new Subject(false, new HashSet(), new HashSet(), new HashSet());
     private UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("principal",
             "credentials");
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     protected void setUp() throws Exception {
         module = new SecurityContextLoginModule();
@@ -67,27 +66,22 @@ public class SecurityContextLoginModuleTests extends TestCase {
     public void testLoginException() throws Exception {
         try {
             module.login();
-            fail(
-                "LoginException expected, there is no Authentication in the SecurityContext");
+            fail("LoginException expected, there is no Authentication in the SecurityContext");
         } catch (LoginException e) {}
     }
 
     public void testLoginSuccess() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(auth);
-        assertTrue("Login should succeed, there is an authentication set",
-            module.login());
-        assertTrue("The authentication is not null, this should return true",
-            module.commit());
-        assertTrue("Principals should contain the authentication",
-            subject.getPrincipals().contains(auth));
+        assertTrue("Login should succeed, there is an authentication set", module.login());
+        assertTrue("The authentication is not null, this should return true", module.commit());
+        assertTrue("Principals should contain the authentication", subject.getPrincipals().contains(auth));
     }
 
     public void testLogout() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(auth);
         module.login();
         assertTrue("Should return true as it succeeds", module.logout());
-        assertEquals("Authentication should be null", null,
-            module.getAuthentication());
+        assertEquals("Authentication should be null", null, module.getAuthentication());
 
         assertFalse("Principals should not contain the authentication after logout",
             subject.getPrincipals().contains(auth));
@@ -98,8 +92,7 @@ public class SecurityContextLoginModuleTests extends TestCase {
         try {
             SecurityContextHolder.getContext().setAuthentication(null);
             module.login();
-            fail(
-                "LoginException expected, the authentication is null in the SecurityContext");
+            fail("LoginException expected, the authentication is null in the SecurityContext");
         } catch (Exception e) {}
     }
 

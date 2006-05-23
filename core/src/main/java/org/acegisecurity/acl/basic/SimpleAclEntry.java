@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id$
  */
 public class SimpleAclEntry extends AbstractBasicAclEntry {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(SimpleAclEntry.class);
 
@@ -39,18 +39,20 @@ public class SimpleAclEntry extends AbstractBasicAclEntry {
     public static final int DELETE = (int) Math.pow(2, 4);
 
     // Combinations of base permissions we permit
-    public static final int READ_WRITE_CREATE_DELETE = READ | WRITE | CREATE
-        | DELETE;
+    public static final int READ_WRITE_CREATE_DELETE = READ | WRITE | CREATE | DELETE;
     public static final int READ_WRITE_CREATE = READ | WRITE | CREATE;
     public static final int READ_WRITE = READ | WRITE;
     public static final int READ_WRITE_DELETE = READ | WRITE | DELETE;
 
     // Array required by the abstract superclass via getValidPermissions()
-    private static final int[] validPermissions = {NOTHING, ADMINISTRATION, READ, WRITE, CREATE, DELETE, READ_WRITE_CREATE_DELETE, READ_WRITE_CREATE, READ_WRITE, READ_WRITE_DELETE};
+    private static final int[] validPermissions = {
+            NOTHING, ADMINISTRATION, READ, WRITE, CREATE, DELETE, READ_WRITE_CREATE_DELETE, READ_WRITE_CREATE,
+            READ_WRITE, READ_WRITE_DELETE
+        };
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Allows {@link BasicAclDao} implementations to construct this object
      * using <code>newInstance()</code>.
      * 
@@ -62,13 +64,12 @@ public class SimpleAclEntry extends AbstractBasicAclEntry {
         super();
     }
 
-    public SimpleAclEntry(Object recipient,
-        AclObjectIdentity aclObjectIdentity,
+    public SimpleAclEntry(Object recipient, AclObjectIdentity aclObjectIdentity,
         AclObjectIdentity aclObjectParentIdentity, int mask) {
         super(recipient, aclObjectIdentity, aclObjectParentIdentity, mask);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public int[] getValidPermissions() {
         return validPermissions;

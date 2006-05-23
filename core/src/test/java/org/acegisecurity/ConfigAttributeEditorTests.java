@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,13 @@ import java.util.Iterator;
 
 
 /**
- * Tests {@link ConfigAttributeEditor} and associated {@link
- * ConfigAttributeDefinition}.
+ * Tests {@link ConfigAttributeEditor} and associated {@link ConfigAttributeDefinition}.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class ConfigAttributeEditorTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public ConfigAttributeEditorTests() {
         super();
@@ -39,22 +38,21 @@ public class ConfigAttributeEditorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ConfigAttributeEditorTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testCorrectOperation() {
         ConfigAttributeEditor editor = new ConfigAttributeEditor();
         editor.setAsText("HELLO,DOCTOR,NAME,YESTERDAY,TOMORROW");
 
-        ConfigAttributeDefinition result = (ConfigAttributeDefinition) editor
-            .getValue();
+        ConfigAttributeDefinition result = (ConfigAttributeDefinition) editor.getValue();
         Iterator iter = result.getConfigAttributes();
         int position = 0;
 
@@ -76,8 +74,7 @@ public class ConfigAttributeEditorTests extends TestCase {
         ConfigAttributeEditor editor = new ConfigAttributeEditor();
         editor.setAsText("");
 
-        ConfigAttributeDefinition result = (ConfigAttributeDefinition) editor
-            .getValue();
+        ConfigAttributeDefinition result = (ConfigAttributeDefinition) editor.getValue();
         assertTrue(result == null);
     }
 
@@ -128,8 +125,7 @@ public class ConfigAttributeEditorTests extends TestCase {
         ConfigAttributeEditor editor = new ConfigAttributeEditor();
         editor.setAsText(null);
 
-        ConfigAttributeDefinition result = (ConfigAttributeDefinition) editor
-            .getValue();
+        ConfigAttributeDefinition result = (ConfigAttributeDefinition) editor.getValue();
         assertTrue(result == null);
     }
 
@@ -137,8 +133,7 @@ public class ConfigAttributeEditorTests extends TestCase {
         ConfigAttributeEditor editor = new ConfigAttributeEditor();
         editor.setAsText("  HELLO, DOCTOR,NAME,  YESTERDAY ,TOMORROW ");
 
-        ConfigAttributeDefinition result = (ConfigAttributeDefinition) editor
-            .getValue();
+        ConfigAttributeDefinition result = (ConfigAttributeDefinition) editor.getValue();
         Iterator iter = result.getConfigAttributes();
 
         ArrayList list = new ArrayList();
@@ -158,8 +153,7 @@ public class ConfigAttributeEditorTests extends TestCase {
         ConfigAttributeEditor editor = new ConfigAttributeEditor();
         editor.setAsText("KOALA,KANGAROO,EMU,WOMBAT");
 
-        ConfigAttributeDefinition result = (ConfigAttributeDefinition) editor
-            .getValue();
+        ConfigAttributeDefinition result = (ConfigAttributeDefinition) editor.getValue();
         assertEquals("[KOALA, KANGAROO, EMU, WOMBAT]", result.toString());
     }
 }

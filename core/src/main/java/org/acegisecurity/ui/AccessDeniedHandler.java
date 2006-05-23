@@ -32,7 +32,7 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 public interface AccessDeniedHandler {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Handles an access denied failure.
@@ -44,7 +44,6 @@ public interface AccessDeniedHandler {
      * @throws IOException in the event of an IOException
      * @throws ServletException in the event of a ServletException
      */
-    public void handle(ServletRequest request, ServletResponse response,
-        AccessDeniedException accessDeniedException)
+    public void handle(ServletRequest request, ServletResponse response, AccessDeniedException accessDeniedException)
         throws IOException, ServletException;
 }

@@ -28,48 +28,39 @@ import java.util.Map;
  * @version $Id$
  */
 public interface AclService {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Obtains all the <code>Acl</code>s that apply for the passed
-     * <code>Object</code>s.
-     * 
-     * <p>
-     * The returned map is keyed on the passed objects, with the values being
-     * the <code>Acl</code> instances. Any unknown objects will not have a map
-     * key.
-     * </p>
+     * Obtains all the <code>Acl</code>s that apply for the passed <code>Object</code>s.<p>The returned map is
+     * keyed on the passed objects, with the values being the <code>Acl</code> instances. Any unknown objects will not
+     * have a map key.</p>
      *
      * @param objects the objects to find ACL information for
      *
      * @return a map with zero or more elements (never <code>null</code>)
+     *
+     * @throws NotFoundException DOCUMENT ME!
      */
     public Map readAclsById(ObjectIdentity[] objects) throws NotFoundException;
 
     /**
-     * Obtains all the <code>Acl</code>s that apply for the passed
-     * <code>Object</code>s, but only for the security identifies passed.
-     * 
-     * <p>
-     * Implementations <em>MAY</em> provide a subset of the ACLs via this
-     * method although this is NOT a requirement. This is intended to allow
-     * performance optimisations within implementations. Callers should
-     * therefore use this method in preference to the alternative overloaded
-     * version which does not have performance optimisation opportunities.
-     * </p>
-     * 
-     * <p>
-     * The returned map is keyed on the passed objects, with the values being
-     * the <code>Acl</code> instances. Any unknown objects (or objects for
-     * which the interested <code>Sid</code>s do not have entries) will not
-     * have a map key.
-     * </p>
+     * Obtains all the <code>Acl</code>s that apply for the passed <code>Object</code>s, but only for the
+     * security identifies passed.<p>Implementations <em>MAY</em> provide a subset of the ACLs via this method
+     * although this is NOT a requirement. This is intended to allow performance optimisations within implementations.
+     * Callers should therefore use this method in preference to the alternative overloaded version which does not
+     * have performance optimisation opportunities.</p>
+     *  <p>The returned map is keyed on the passed objects, with the values being the <code>Acl</code>
+     * instances. Any unknown objects (or objects for which the interested <code>Sid</code>s do not have entries) will
+     * not have a map key.</p>
      *
      * @param objects the objects to find ACL information for
-     * @param sids the security identities for which ACL information is
-     *        required (may be <code>null</code> to denote all entries)
+     * @param sids the security identities for which ACL information is required (may be <code>null</code> to denote
+     *        all entries)
      *
      * @return a map with zero or more elements (never <code>null</code>)
+     *
+     * @throws NotFoundException DOCUMENT ME!
      */
-    public Map readAclsById(ObjectIdentity[] objects, Sid[] sids) throws NotFoundException;
+    public Map readAclsById(ObjectIdentity[] objects, Sid[] sids)
+        throws NotFoundException;
 }

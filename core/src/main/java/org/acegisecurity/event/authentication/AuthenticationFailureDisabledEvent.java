@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,15 @@ import org.acegisecurity.AuthenticationException;
 
 
 /**
- * Application event which indicates authentication failure due to the user's
- * account being disabled.
+ * Application event which indicates authentication failure due to the user's account being disabled.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthenticationFailureDisabledEvent
-    extends AbstractAuthenticationFailureEvent {
-    //~ Constructors ===========================================================
+public class AuthenticationFailureDisabledEvent extends AbstractAuthenticationFailureEvent {
+    //~ Constructors ===================================================================================================
 
-    public AuthenticationFailureDisabledEvent(Authentication authentication,
-        AuthenticationException exception) {
+    public AuthenticationFailureDisabledEvent(Authentication authentication, AuthenticationException exception) {
         super(authentication, exception);
     }
 }

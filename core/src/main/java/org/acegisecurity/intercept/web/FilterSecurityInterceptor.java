@@ -30,32 +30,25 @@ import javax.servlet.ServletResponse;
 
 
 /**
- * Performs security handling of HTTP resources via a filter implementation.
- * 
- * <p>
- * The <code>ObjectDefinitionSource</code> required by this security
- * interceptor is of type {@link FilterInvocationDefinitionSource}.
- * </p>
- * 
- * <P>
- * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.
- * </p>
+ * Performs security handling of HTTP resources via a filter implementation.<p>The
+ * <code>ObjectDefinitionSource</code> required by this security interceptor is of type {@link
+ * FilterInvocationDefinitionSource}.</p>
+ *  <P>Refer to {@link AbstractSecurityInterceptor} for details on the workflow.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class FilterSecurityInterceptor extends AbstractSecurityInterceptor
-    implements Filter {
-    //~ Static fields/initializers =============================================
+public class FilterSecurityInterceptor extends AbstractSecurityInterceptor implements Filter {
+    //~ Static fields/initializers =====================================================================================
 
     private static final String FILTER_APPLIED = "__acegi_filterSecurityInterceptor_filterApplied";
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private FilterInvocationDefinitionSource objectDefinitionSource;
     private boolean observeOncePerRequest = true;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Not used (we rely on IoC container lifecycle services instead)
@@ -63,8 +56,8 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor
     public void destroy() {}
 
     /**
-     * Method that is actually called by the filter chain. Simply delegates to
-     * the {@link #invoke(FilterInvocation)} method.
+     * Method that is actually called by the filter chain. Simply delegates to the {@link
+     * #invoke(FilterInvocation)} method.
      *
      * @param request the servlet request
      * @param response the servlet response
@@ -73,8 +66,8 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor
      * @throws IOException if the filter chain fails
      * @throws ServletException if the filter chain fails
      */
-    public void doFilter(ServletRequest request, ServletResponse response,
-        FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         invoke(fi);
     }
@@ -96,10 +89,8 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor
      */
     public void init(FilterConfig arg0) throws ServletException {}
 
-    public void invoke(FilterInvocation fi)
-        throws IOException, ServletException {
-        if ((fi.getRequest() != null)
-            && (fi.getRequest().getAttribute(FILTER_APPLIED) != null)
+    public void invoke(FilterInvocation fi) throws IOException, ServletException {
+        if ((fi.getRequest() != null) && (fi.getRequest().getAttribute(FILTER_APPLIED) != null)
             && observeOncePerRequest) {
             // filter already applied to this request and user wants us to observce
             // once-per-request handling, so don't re-do security checking
@@ -121,17 +112,14 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor
     }
 
     /**
-     * Indicates whether once-per-request handling will be observed. By default
-     * this is <code>true</code>, meaning the
-     * <code>FilterSecurityInterceptor</code> will only execute
-     * once-per-request. Sometimes users may wish it to execute more than once
-     * per request, such as when JSP forwards are being used and filter
-     * security is desired on each included fragment of the HTTP request.
+     * Indicates whether once-per-request handling will be observed. By default this is <code>true</code>,
+     * meaning the <code>FilterSecurityInterceptor</code> will only execute once-per-request. Sometimes users may wish
+     * it to execute more than once per request, such as when JSP forwards are being used and filter security is
+     * desired on each included fragment of the HTTP request.
      *
-     * @return <code>true</code> (the default) if once-per-request is honoured,
-     *         otherwise <code>false</code> if
-     *         <code>FilterSecurityInterceptor</code> will enforce
-     *         authorizations for each and every fragment of the HTTP request.
+     * @return <code>true</code> (the default) if once-per-request is honoured, otherwise <code>false</code> if
+     *         <code>FilterSecurityInterceptor</code> will enforce authorizations for each and every fragment of the
+     *         HTTP request.
      */
     public boolean isObserveOncePerRequest() {
         return observeOncePerRequest;
@@ -141,8 +129,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor
         return this.objectDefinitionSource;
     }
 
-    public void setObjectDefinitionSource(
-        FilterInvocationDefinitionSource newSource) {
+    public void setObjectDefinitionSource(FilterInvocationDefinitionSource newSource) {
         this.objectDefinitionSource = newSource;
     }
 

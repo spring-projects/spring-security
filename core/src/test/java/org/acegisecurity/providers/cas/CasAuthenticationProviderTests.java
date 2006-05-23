@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,6 @@
 
 package org.acegisecurity.providers.cas;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
 import junit.framework.TestCase;
 
 import org.acegisecurity.Authentication;
@@ -27,12 +22,20 @@ import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.providers.TestingAuthenticationToken;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.cas.ticketvalidator.AbstractTicketValidator;
+
 import org.acegisecurity.ui.cas.CasProcessingFilter;
+
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 
 /**
@@ -42,7 +45,7 @@ import org.acegisecurity.userdetails.UserDetails;
  * @version $Id$
  */
 public class CasAuthenticationProviderTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public CasAuthenticationProviderTests() {
         super();
@@ -52,14 +55,24 @@ public class CasAuthenticationProviderTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(CasAuthenticationProviderTests.class);
+    }
+
+    private UserDetails makeUserDetails() {
+        return new User("user", "password", true, true, true, true,
+            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+    }
+
+    private UserDetails makeUserDetailsFromAuthoritiesPopulator() {
+        return new User("user", "password", true, true, true, true,
+            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B")});
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testAuthenticateStateful() throws Exception {
@@ -89,13 +102,10 @@ public class CasAuthenticationProviderTests extends TestCase {
         assertEquals(makeUserDetailsFromAuthoritiesPopulator(), casResult.getPrincipal());
         assertEquals("PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt",
             casResult.getProxyGrantingTicketIou());
-        assertEquals("https://localhost/portal/j_acegi_cas_security_check",
-            casResult.getProxyList().get(0));
+        assertEquals("https://localhost/portal/j_acegi_cas_security_check", casResult.getProxyList().get(0));
         assertEquals("ST-123", casResult.getCredentials());
-        assertEquals(new GrantedAuthorityImpl("ROLE_A"),
-            casResult.getAuthorities()[0]);
-        assertEquals(new GrantedAuthorityImpl("ROLE_B"),
-            casResult.getAuthorities()[1]);
+        assertEquals(new GrantedAuthorityImpl("ROLE_A"), casResult.getAuthorities()[0]);
+        assertEquals(new GrantedAuthorityImpl("ROLE_B"), casResult.getAuthorities()[1]);
         assertEquals(cap.getKey().hashCode(), casResult.getKeyHash());
 
         // Now confirm the CasAuthenticationToken is automatically re-accepted.
@@ -160,8 +170,7 @@ public class CasAuthenticationProviderTests extends TestCase {
             Authentication result = cap.authenticate(token);
             fail("Should have thrown BadCredentialsException");
         } catch (BadCredentialsException expected) {
-            assertEquals("Failed to provide a CAS service ticket to validate",
-                expected.getMessage());
+            assertEquals("Failed to provide a CAS service ticket to validate", expected.getMessage());
         }
     }
 
@@ -176,17 +185,14 @@ public class CasAuthenticationProviderTests extends TestCase {
         cap.setTicketValidator(new MockTicketValidator(true));
         cap.afterPropertiesSet();
 
-        CasAuthenticationToken token = new CasAuthenticationToken("WRONG_KEY",
-               makeUserDetails(), "credentials",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("XX")},
-                makeUserDetails(), new Vector(), "IOU-xxx");
+        CasAuthenticationToken token = new CasAuthenticationToken("WRONG_KEY", makeUserDetails(), "credentials",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("XX")}, makeUserDetails(), new Vector(), "IOU-xxx");
 
         try {
             Authentication result = cap.authenticate(token);
             fail("Should have thrown BadCredentialsException");
         } catch (BadCredentialsException expected) {
-            assertEquals("The presented CasAuthenticationToken does not contain the expected key",
-                expected.getMessage());
+            assertEquals("The presented CasAuthenticationToken does not contain the expected key", expected.getMessage());
         }
     }
 
@@ -202,8 +208,7 @@ public class CasAuthenticationProviderTests extends TestCase {
             cap.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("A casAuthoritiesPopulator must be set",
-                expected.getMessage());
+            assertEquals("A casAuthoritiesPopulator must be set", expected.getMessage());
         }
     }
 
@@ -250,8 +255,7 @@ public class CasAuthenticationProviderTests extends TestCase {
             cap.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("A statelessTicketCache must be set",
-                expected.getMessage());
+            assertEquals("A statelessTicketCache must be set", expected.getMessage());
         }
     }
 
@@ -295,8 +299,7 @@ public class CasAuthenticationProviderTests extends TestCase {
         cap.setTicketValidator(new MockTicketValidator(true));
         cap.afterPropertiesSet();
 
-        TestingAuthenticationToken token = new TestingAuthenticationToken("user",
-                "password",
+        TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
         assertFalse(cap.supports(TestingAuthenticationToken.class));
 
@@ -315,8 +318,7 @@ public class CasAuthenticationProviderTests extends TestCase {
         cap.afterPropertiesSet();
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("some_normal_user",
-                "password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
+                "password", new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
         assertEquals(null, cap.authenticate(token));
     }
 
@@ -326,19 +328,7 @@ public class CasAuthenticationProviderTests extends TestCase {
         assertTrue(cap.supports(CasAuthenticationToken.class));
     }
 
-    private UserDetails makeUserDetails() {
-        return new User("user", "password", true, true, true, true,
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                    "ROLE_TWO")});
-    }
-    
-    private UserDetails makeUserDetailsFromAuthoritiesPopulator() {
-    	return new User("user", "password", true, true, true, true,
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl(
-                "ROLE_B")});
-    }
-
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockAuthoritiesPopulator implements CasAuthoritiesPopulator {
         public UserDetails getUserDetails(String casUserId)
@@ -380,13 +370,11 @@ public class CasAuthenticationProviderTests extends TestCase {
         }
 
         public void removeTicketFromCache(CasAuthenticationToken token) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
+            throw new UnsupportedOperationException("mock method not implemented");
         }
 
         public void removeTicketFromCache(String serviceTicket) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
+            throw new UnsupportedOperationException("mock method not implemented");
         }
     }
 
@@ -407,8 +395,7 @@ public class CasAuthenticationProviderTests extends TestCase {
                 List list = new Vector();
                 list.add("https://localhost/portal/j_acegi_cas_security_check");
 
-                return new TicketResponse("marissa", list,
-                    "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
+                return new TicketResponse("marissa", list, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
             }
 
             throw new BadCredentialsException("As requested from mock");

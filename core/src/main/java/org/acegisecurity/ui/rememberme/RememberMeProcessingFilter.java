@@ -46,57 +46,36 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Detects if there is no <code>Authentication</code> object in the
- * <code>SecurityContext</code>, and populates it with a remember-me
- * authentication token if a {@link
- * org.acegisecurity.ui.rememberme.RememberMeServices} implementation so
- * requests.
- * 
- * <p>
- * Concrete <code>RememberMeServices</code> implementations will have their
- * {@link
- * org.acegisecurity.ui.rememberme.RememberMeServices#autoLogin(HttpServletRequest,
- * HttpServletResponse)} method called by this filter. The
- * <code>Authentication</code> or <code>null</code> returned by that method
- * will be placed into the <code>SecurityContext</code>. The
- * <code>AuthenticationManager</code> will be used, so that any concurrent
- * session management or other authentication-specific behaviour can be
- * achieved. This is the same pattern as with other authentication mechanisms,
- * which call the <code>AuthenticationManager</code> as part of their
- * contract.
- * </p>
- * 
- * <p>
- * If authentication is successful, an {@link
- * org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent}
- * will be published to the application context. No events will be published
- * if authentication was unsuccessful, because this would generally be
- * recorded via an <code>AuthenticationManager</code>-specific application
- * event.
- * </p>
- * 
- * <p>
- * <b>Do not use this class directly.</b> Instead configure
- * <code>web.xml</code> to use the {@link
- * org.acegisecurity.util.FilterToBeanProxy}.
- * </p>
+ * Detects if there is no <code>Authentication</code> object in the <code>SecurityContext</code>, and populates it
+ * with a remember-me authentication token if a {@link org.acegisecurity.ui.rememberme.RememberMeServices}
+ * implementation so requests.<p>Concrete <code>RememberMeServices</code> implementations will have their {@link
+ * org.acegisecurity.ui.rememberme.RememberMeServices#autoLogin(HttpServletRequest, HttpServletResponse)} method
+ * called by this filter. The <code>Authentication</code> or <code>null</code> returned by that method will be placed
+ * into the <code>SecurityContext</code>. The <code>AuthenticationManager</code> will be used, so that any concurrent
+ * session management or other authentication-specific behaviour can be achieved. This is the same pattern as with
+ * other authentication mechanisms, which call the <code>AuthenticationManager</code> as part of their contract.</p>
+ *  <p>If authentication is successful, an {@link
+ * org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent} will be published to the application
+ * context. No events will be published if authentication was unsuccessful, because this would generally be recorded
+ * via an <code>AuthenticationManager</code>-specific application event.</p>
+ *  <p><b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the {@link
+ * org.acegisecurity.util.FilterToBeanProxy}.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class RememberMeProcessingFilter implements Filter, InitializingBean,
-    ApplicationEventPublisherAware {
-    //~ Static fields/initializers =============================================
+public class RememberMeProcessingFilter implements Filter, InitializingBean, ApplicationEventPublisherAware {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(RememberMeProcessingFilter.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private ApplicationEventPublisher eventPublisher;
     private AuthenticationManager authenticationManager;
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(rememberMeServices, "RememberMeServices required");
@@ -108,8 +87,8 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean,
      */
     public void destroy() {}
 
-    public void doFilter(ServletRequest request, ServletResponse response,
-        FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
         if (!(request instanceof HttpServletRequest)) {
             throw new ServletException("Can only process HttpServletRequest");
         }
@@ -122,53 +101,42 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean,
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            Authentication rememberMeAuth = rememberMeServices.autoLogin(httpRequest,
-                    httpResponse);
+            Authentication rememberMeAuth = rememberMeServices.autoLogin(httpRequest, httpResponse);
 
             if (rememberMeAuth != null) {
                 // Attempt authenticaton via AuthenticationManager
                 try {
                     authenticationManager.authenticate(rememberMeAuth);
-                    
+
                     // Store to SecurityContextHolder
-                    SecurityContextHolder.getContext()
-                                         .setAuthentication(rememberMeAuth);
+                    SecurityContextHolder.getContext().setAuthentication(rememberMeAuth);
 
                     if (logger.isDebugEnabled()) {
-                        logger.debug(
-                            "SecurityContextHolder populated with remember-me token: '"
-                            + SecurityContextHolder.getContext().getAuthentication()
-                            + "'");
+                        logger.debug("SecurityContextHolder populated with remember-me token: '"
+                            + SecurityContextHolder.getContext().getAuthentication() + "'");
                     }
 
                     // Fire event
                     if (this.eventPublisher != null) {
                         eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(
-                                SecurityContextHolder.getContext()
-                                                     .getAuthentication(),
-                                this.getClass()));
+                                SecurityContextHolder.getContext().getAuthentication(), this.getClass()));
                     }
                 } catch (AuthenticationException authenticationException) {
                     if (logger.isDebugEnabled()) {
                         logger.debug(
                             "SecurityContextHolder not populated with remember-me token, as AuthenticationManager rejected Authentication returned by RememberMeServices: '"
-                            + rememberMeAuth
-                            + "'; invalidating remember-me token",
-                            authenticationException);
+                            + rememberMeAuth + "'; invalidating remember-me token", authenticationException);
                     }
 
                     rememberMeServices.loginFail(httpRequest, httpResponse);
                 }
-
             }
 
             chain.doFilter(request, response);
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "SecurityContextHolder not populated with remember-me token, as it already contained: '"
-                    + SecurityContextHolder.getContext().getAuthentication()
-                    + "'");
+                logger.debug("SecurityContextHolder not populated with remember-me token, as it already contained: '"
+                    + SecurityContextHolder.getContext().getAuthentication() + "'");
             }
 
             chain.doFilter(request, response);
@@ -188,13 +156,11 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean,
      */
     public void init(FilterConfig ignored) throws ServletException {}
 
-    public void setApplicationEventPublisher(
-        ApplicationEventPublisher eventPublisher) {
+    public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
 
-    public void setAuthenticationManager(
-        AuthenticationManager authenticationManager) {
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.springframework.validation.Validator;
  * @version $Id$
  */
 public class AddPermissionValidator implements Validator {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public boolean supports(Class clazz) {
         return clazz.equals(AddPermission.class);
@@ -38,21 +38,16 @@ public class AddPermissionValidator implements Validator {
     public void validate(Object obj, Errors errors) {
         AddPermission addPermission = (AddPermission) obj;
 
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "permission",
-            "err.permission", "Permission is required");
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "recipient",
-            "err.recipient", "Recipient is required");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "permission", "err.permission", "Permission is required");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "recipient", "err.recipient", "Recipient is required");
 
         if (addPermission.getPermission() != null) {
             int permission = addPermission.getPermission().intValue();
 
-            if ((permission != SimpleAclEntry.NOTHING)
-                && (permission != SimpleAclEntry.ADMINISTRATION)
-                && (permission != SimpleAclEntry.READ)
-                && (permission != SimpleAclEntry.DELETE)
+            if ((permission != SimpleAclEntry.NOTHING) && (permission != SimpleAclEntry.ADMINISTRATION)
+                && (permission != SimpleAclEntry.READ) && (permission != SimpleAclEntry.DELETE)
                 && (permission != SimpleAclEntry.READ_WRITE_DELETE)) {
-                errors.rejectValue("permission", "err.permission.invalid",
-                    "The indicated permission is invalid.");
+                errors.rejectValue("permission", "err.permission.invalid", "The indicated permission is invalid.");
             }
         }
 

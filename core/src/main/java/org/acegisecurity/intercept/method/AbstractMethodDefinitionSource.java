@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.CodeSignature;
+
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
@@ -35,13 +36,12 @@ import java.lang.reflect.Method;
  * @author Ben Alex
  * @version $Id$
  */
-public abstract class AbstractMethodDefinitionSource
-    implements MethodDefinitionSource {
-    //~ Static fields/initializers =============================================
+public abstract class AbstractMethodDefinitionSource implements MethodDefinitionSource {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(AbstractMethodDefinitionSource.class);
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public ConfigAttributeDefinition getAttributes(Object object)
         throws IllegalArgumentException {
@@ -55,8 +55,7 @@ public abstract class AbstractMethodDefinitionSource
             JoinPoint jp = (JoinPoint) object;
             Class targetClazz = jp.getTarget().getClass();
             String targetMethodName = jp.getStaticPart().getSignature().getName();
-            Class[] types = ((CodeSignature) jp.getStaticPart().getSignature())
-                    .getParameterTypes();
+            Class[] types = ((CodeSignature) jp.getStaticPart().getSignature()).getParameterTypes();
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Target Class: " + targetClazz);
@@ -64,8 +63,7 @@ public abstract class AbstractMethodDefinitionSource
 
                 for (int i = 0; i < types.length; i++) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Target Method Arg #" + i + ": "
-                                + types[i]);
+                        logger.debug("Target Method Arg #" + i + ": " + types[i]);
                     }
                 }
             }
@@ -80,31 +78,19 @@ public abstract class AbstractMethodDefinitionSource
         throw new IllegalArgumentException("Object must be a MethodInvocation or JoinPoint");
     }
 
-    public boolean supports(Class clazz) {
-        return (MethodInvocation.class.isAssignableFrom(clazz)
-        || JoinPoint.class.isAssignableFrom(clazz));
-    }
-
     /**
-     * Performs the actual lookup of the relevant
-     * <code>ConfigAttributeDefinition</code> for the specified
-     * <code>Method</code> which is subject of the method invocation.
-     * 
-     * <P>
-     * Provided so subclasses need only to provide one basic method to properly
-     * interface with the <code>MethodDefinitionSource</code>.
-     * </p>
-     * 
-     * <p>
-     * Returns <code>null</code> if there are no matching attributes for the
-     * method.
-     * </p>
+     * Performs the actual lookup of the relevant <code>ConfigAttributeDefinition</code> for the specified
+     * <code>Method</code> which is subject of the method invocation.<P>Provided so subclasses need only to
+     * provide one basic method to properly interface with the <code>MethodDefinitionSource</code>.</p>
+     *  <p>Returns <code>null</code> if there are no matching attributes for the method.</p>
      *
-     * @param method the method being invoked for which configuration
-     *        attributes should be looked up
+     * @param method the method being invoked for which configuration attributes should be looked up
      *
-     * @return the <code>ConfigAttributeDefinition</code> that applies to the
-     *         specified <code>Method</code>
+     * @return the <code>ConfigAttributeDefinition</code> that applies to the specified <code>Method</code>
      */
     protected abstract ConfigAttributeDefinition lookupAttributes(Method method);
+
+    public boolean supports(Class clazz) {
+        return (MethodInvocation.class.isAssignableFrom(clazz) || JoinPoint.class.isAssignableFrom(clazz));
+    }
 }

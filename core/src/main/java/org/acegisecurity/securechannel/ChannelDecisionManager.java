@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.acegisecurity.securechannel;
 
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
+
 import org.acegisecurity.intercept.web.FilterInvocation;
 
 import java.io.IOException;
@@ -37,31 +38,30 @@ import javax.servlet.ServletException;
  * @version $Id$
  */
 public interface ChannelDecisionManager {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Decided whether the presented {@link FilterInvocation} provides the
-     * appropriate level of channel security based on the requested {@link
-     * ConfigAttributeDefinition}.
+     * Decided whether the presented {@link FilterInvocation} provides the appropriate level of channel
+     * security based on the requested {@link ConfigAttributeDefinition}.
+     *
+     * @param invocation DOCUMENT ME!
+     * @param config DOCUMENT ME!
+     *
+     * @throws IOException DOCUMENT ME!
+     * @throws ServletException DOCUMENT ME!
      */
-    public void decide(FilterInvocation invocation,
-        ConfigAttributeDefinition config) throws IOException, ServletException;
+    public void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
+        throws IOException, ServletException;
 
     /**
-     * Indicates whether this <code>ChannelDecisionManager</code> is able to
-     * process the passed <code>ConfigAttribute</code>.
-     * 
-     * <p>
-     * This allows the <code>ChannelProcessingFilter</code> to check every
-     * configuration attribute can be consumed by the configured
-     * <code>ChannelDecisionManager</code>.
-     * </p>
+     * Indicates whether this <code>ChannelDecisionManager</code> is able to process the passed
+     * <code>ConfigAttribute</code>.<p>This allows the <code>ChannelProcessingFilter</code> to check every
+     * configuration attribute can be consumed by the configured <code>ChannelDecisionManager</code>.</p>
      *
-     * @param attribute a configuration attribute that has been configured
-     *        against the <code>ChannelProcessingFilter</code>
+     * @param attribute a configuration attribute that has been configured against the
+     *        <code>ChannelProcessingFilter</code>
      *
-     * @return true if this <code>ChannelDecisionManager</code> can support the
-     *         passed configuration attribute
+     * @return true if this <code>ChannelDecisionManager</code> can support the passed configuration attribute
      */
     public boolean supports(ConfigAttribute attribute);
 }

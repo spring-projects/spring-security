@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.acegisecurity.adapters.cas;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.apache.commons.logging.Log;
@@ -29,51 +30,32 @@ import javax.servlet.ServletRequest;
 
 
 /**
- * Provides actual CAS authentication by delegation to an
- * <code>AuthenticationManager</code>.
- * 
- * <P>
- * Do not use this class directly. Instead configure CAS to use the {@link
- * CasPasswordHandlerProxy}.
- * </p>
+ * Provides actual CAS authentication by delegation to an <code>AuthenticationManager</code>.<P>Do not use this
+ * class directly. Instead configure CAS to use the {@link CasPasswordHandlerProxy}.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public final class CasPasswordHandler implements InitializingBean {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(CasPasswordHandler.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private AuthenticationManager authenticationManager;
 
-    //~ Methods ================================================================
-
-    public void setAuthenticationManager(
-        AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-    }
-
-    public AuthenticationManager getAuthenticationManager() {
-        return authenticationManager;
-    }
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         if (this.authenticationManager == null) {
-            throw new IllegalArgumentException(
-                "An AuthenticationManager is required");
+            throw new IllegalArgumentException("An AuthenticationManager is required");
         }
     }
 
     /**
-     * Called by <code>CasPasswordHandlerProxy</code> for individual
-     * authentication requests.
-     * 
-     * <P>
-     * Delegates to the configured <code>AuthenticationManager</code>.
-     * </p>
+     * Called by <code>CasPasswordHandlerProxy</code> for individual authentication requests.<P>Delegates to
+     * the configured <code>AuthenticationManager</code>.</p>
      *
      * @param servletRequest as provided by CAS
      * @param username provided to CAS
@@ -81,8 +63,7 @@ public final class CasPasswordHandler implements InitializingBean {
      *
      * @return whether authentication was successful or not
      */
-    public boolean authenticate(ServletRequest servletRequest, String username,
-        String password) {
+    public boolean authenticate(ServletRequest servletRequest, String username, String password) {
         if ((username == null) || "".equals(username)) {
             return false;
         }
@@ -91,26 +72,31 @@ public final class CasPasswordHandler implements InitializingBean {
             password = "";
         }
 
-        Authentication request = new UsernamePasswordAuthenticationToken(username
-                .toString(), password.toString());
+        Authentication request = new UsernamePasswordAuthenticationToken(username.toString(), password.toString());
         Authentication response = null;
 
         try {
             response = authenticationManager.authenticate(request);
         } catch (AuthenticationException failed) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Authentication request for user: " + username
-                    + " failed: " + failed.toString());
+                logger.debug("Authentication request for user: " + username + " failed: " + failed.toString());
             }
 
             return false;
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Authentication request for user: " + username
-                + " successful");
+            logger.debug("Authentication request for user: " + username + " successful");
         }
 
         return true;
+    }
+
+    public AuthenticationManager getAuthenticationManager() {
+        return authenticationManager;
+    }
+
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
     }
 }

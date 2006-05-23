@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,18 @@ import javax.naming.NamingException;
 
 
 /**
- * Provides mock of <code>JbossIntegrationFilter</code>, using a lookup
- * <code>Context</code> provided in the constructor.
+ * Provides mock of <code>JbossIntegrationFilter</code>, using a lookup <code>Context</code> provided in the
+ * constructor.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MockJbossIntegrationFilter extends JbossIntegrationFilter {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Context context;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public MockJbossIntegrationFilter(Context context) {
         this.context = context;
@@ -41,7 +41,7 @@ public class MockJbossIntegrationFilter extends JbossIntegrationFilter {
         super();
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     protected Context getLookupContext() throws NamingException {
         return this.context;

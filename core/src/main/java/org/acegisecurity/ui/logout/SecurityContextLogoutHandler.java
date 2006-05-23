@@ -24,14 +24,13 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Performs a logout by modifying the {@link
- * org.acegisecurity.context.SecurityContextHolder}.
+ * Performs a logout by modifying the {@link org.acegisecurity.context.SecurityContextHolder}.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class SecurityContextLogoutHandler implements LogoutHandler {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Does not use any arguments. They can all be <code>null</code>.
@@ -40,8 +39,7 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
      * @param response not used (can be <code>null</code>)
      * @param authentication not used (can be <code>null</code>)
      */
-    public void logout(HttpServletRequest request,
-        HttpServletResponse response, Authentication authentication) {
+    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         SecurityContextHolder.clearContext();
     }
 }

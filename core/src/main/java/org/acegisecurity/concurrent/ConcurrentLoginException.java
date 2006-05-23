@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,20 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.acegisecurity.concurrent;
 
 import org.acegisecurity.AuthenticationException;
 
 
 /**
- * Thrown by <code>ConcurrentSessionControllerImpl</code> if
- * an attempt is made to login and the user has already exceeded
- * their maxmimum allowed sessions.
+ * Thrown by <code>ConcurrentSessionControllerImpl</code> if an attempt is made to login and the user has already
+ * exceeded their maxmimum allowed sessions.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class ConcurrentLoginException extends AuthenticationException {
+    //~ Constructors ===================================================================================================
+
     public ConcurrentLoginException(String msg) {
         super(msg);
     }

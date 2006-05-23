@@ -36,20 +36,15 @@ import org.springframework.context.ApplicationContext;
  * @version $Id$
  */
 public class EhCacheBasedAclEntryCacheTests extends TestCase {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
-    private static final AclObjectIdentity OBJECT_100 = new NamedEntityObjectIdentity("OBJECT",
-            "100");
-    private static final AclObjectIdentity OBJECT_200 = new NamedEntityObjectIdentity("OBJECT",
-            "200");
-    private static final BasicAclEntry OBJECT_100_MARISSA = new SimpleAclEntry("marissa",
-            OBJECT_100, null, 2);
-    private static final BasicAclEntry OBJECT_100_SCOTT = new SimpleAclEntry("scott",
-            OBJECT_100, null, 4);
-    private static final BasicAclEntry OBJECT_200_PETER = new SimpleAclEntry("peter",
-            OBJECT_200, null, 4);
+    private static final AclObjectIdentity OBJECT_100 = new NamedEntityObjectIdentity("OBJECT", "100");
+    private static final AclObjectIdentity OBJECT_200 = new NamedEntityObjectIdentity("OBJECT", "200");
+    private static final BasicAclEntry OBJECT_100_MARISSA = new SimpleAclEntry("marissa", OBJECT_100, null, 2);
+    private static final BasicAclEntry OBJECT_100_SCOTT = new SimpleAclEntry("scott", OBJECT_100, null, 4);
+    private static final BasicAclEntry OBJECT_200_PETER = new SimpleAclEntry("peter", OBJECT_200, null, 4);
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public EhCacheBasedAclEntryCacheTests() {
         super();
@@ -59,7 +54,7 @@ public class EhCacheBasedAclEntryCacheTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     private Cache getCache() {
         ApplicationContext ctx = MockApplicationContext.getContext();
@@ -84,23 +79,14 @@ public class EhCacheBasedAclEntryCacheTests extends TestCase {
         cache.putEntriesInCache(new BasicAclEntry[] {OBJECT_200_PETER});
 
         // Check we can get them from cache again
-        assertEquals(OBJECT_100_SCOTT,
-            cache.getEntriesFromCache(
-                new NamedEntityObjectIdentity("OBJECT", "100"))[0]);
-        assertEquals(OBJECT_100_MARISSA,
-            cache.getEntriesFromCache(
-                new NamedEntityObjectIdentity("OBJECT", "100"))[1]);
-        assertEquals(OBJECT_200_PETER,
-            cache.getEntriesFromCache(
-                new NamedEntityObjectIdentity("OBJECT", "200"))[0]);
-        assertNull(cache.getEntriesFromCache(
-                new NamedEntityObjectIdentity("OBJECT", "NOT_IN_CACHE")));
+        assertEquals(OBJECT_100_SCOTT, cache.getEntriesFromCache(new NamedEntityObjectIdentity("OBJECT", "100"))[0]);
+        assertEquals(OBJECT_100_MARISSA, cache.getEntriesFromCache(new NamedEntityObjectIdentity("OBJECT", "100"))[1]);
+        assertEquals(OBJECT_200_PETER, cache.getEntriesFromCache(new NamedEntityObjectIdentity("OBJECT", "200"))[0]);
+        assertNull(cache.getEntriesFromCache(new NamedEntityObjectIdentity("OBJECT", "NOT_IN_CACHE")));
 
         // Check after eviction we cannot get them from cache
-        cache.removeEntriesFromCache(new NamedEntityObjectIdentity("OBJECT",
-                "100"));
-        assertNull(cache.getEntriesFromCache(
-                new NamedEntityObjectIdentity("OBJECT", "100")));
+        cache.removeEntriesFromCache(new NamedEntityObjectIdentity("OBJECT", "100"));
+        assertNull(cache.getEntriesFromCache(new NamedEntityObjectIdentity("OBJECT", "100")));
     }
 
     public void testStartupDetectsMissingCache() throws Exception {

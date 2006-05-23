@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,28 +20,25 @@ import org.acegisecurity.providers.cas.ProxyUntrustedException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.util.Assert;
 
 import java.util.List;
 
 
 /**
- * Accepts a proxied request from any other service.
- * 
- * <P>
- * Also accepts the request if there was no proxy (ie the user directly
- * authenticated against this service).
- * </p>
+ * Accepts a proxied request from any other service.<P>Also accepts the request if there was no proxy (ie the user
+ * directly authenticated against this service).</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class AcceptAnyCasProxy implements CasProxyDecider {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(AcceptAnyCasProxy.class);
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void confirmProxyListTrusted(List proxyList)
         throws ProxyUntrustedException {

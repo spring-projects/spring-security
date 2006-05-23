@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,12 @@ import javax.servlet.http.HttpSession;
 
 
 /**
- * Published by the {@link HttpSessionEventPublisher} when a HttpSession is
- * created in the container
+ * Published by the {@link HttpSessionEventPublisher} when a HttpSession is created in the container
  *
  * @author Ray Krueger
  */
 public class HttpSessionDestroyedEvent extends HttpSessionApplicationEvent {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public HttpSessionDestroyedEvent(HttpSession o) {
         super(o);

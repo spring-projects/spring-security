@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,64 +15,35 @@
 
 package org.acegisecurity.userdetails.memory;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.util.Assert;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
- * Used by {@link InMemoryDaoImpl} to store a list of users and their
- * corresponding granted authorities.
+ * Used by {@link InMemoryDaoImpl} to store a list of users and their corresponding granted authorities.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class UserMap {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(UserMap.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Map userMap = new HashMap();
 
-    //~ Methods ================================================================
-
-    /**
-     * Locates the specified user by performing a case insensitive search by
-     * username.
-     *
-     * @param username to find
-     *
-     * @return the located user
-     *
-     * @throws UsernameNotFoundException if the user could not be found
-     */
-    public User getUser(String username) throws UsernameNotFoundException {
-        User result = (User) this.userMap.get(username.toLowerCase());
-
-        if (result == null) {
-            throw new UsernameNotFoundException("Could not find user: "
-                + username);
-        }
-
-        return result;
-    }
-
-    /**
-     * Indicates the size of the user map.
-     *
-     * @return the number of users in the map
-     */
-    public int getUserCount() {
-        return this.userMap.size();
-    }
+    //~ Methods ========================================================================================================
 
     /**
      * Adds a user to the in-memory map.
@@ -86,5 +57,33 @@ public class UserMap {
 
         logger.info("Adding user [" + user + "]");
         this.userMap.put(user.getUsername().toLowerCase(), user);
+    }
+
+    /**
+     * Locates the specified user by performing a case insensitive search by username.
+     *
+     * @param username to find
+     *
+     * @return the located user
+     *
+     * @throws UsernameNotFoundException if the user could not be found
+     */
+    public User getUser(String username) throws UsernameNotFoundException {
+        User result = (User) this.userMap.get(username.toLowerCase());
+
+        if (result == null) {
+            throw new UsernameNotFoundException("Could not find user: " + username);
+        }
+
+        return result;
+    }
+
+    /**
+     * Indicates the size of the user map.
+     *
+     * @return the number of users in the map
+     */
+    public int getUserCount() {
+        return this.userMap.size();
     }
 }

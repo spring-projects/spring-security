@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,33 +23,26 @@ import org.springframework.context.ApplicationListener;
 
 
 /**
- * Outputs interceptor-related application events to Commons Logging.
- * 
- * <P>
- * All failures are logged at the warning level, with success events logged at
- * the information level, and public invocation events logged at the debug
- * level.
- * </p>
+ * Outputs interceptor-related application events to Commons Logging.<P>All failures are logged at the warning
+ * level, with success events logged at the information level, and public invocation events logged at the debug level.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class LoggerListener implements ApplicationListener {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(LoggerListener.class);
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof AuthenticationCredentialsNotFoundEvent) {
             AuthenticationCredentialsNotFoundEvent authEvent = (AuthenticationCredentialsNotFoundEvent) event;
 
             if (logger.isWarnEnabled()) {
-                logger.warn("Security interception failed due to: "
-                    + authEvent.getCredentialsNotFoundException()
-                    + "; secure object: " + authEvent.getSource()
-                    + "; configuration attributes: "
+                logger.warn("Security interception failed due to: " + authEvent.getCredentialsNotFoundException()
+                    + "; secure object: " + authEvent.getSource() + "; configuration attributes: "
                     + authEvent.getConfigAttributeDefinition());
             }
         }
@@ -58,12 +51,9 @@ public class LoggerListener implements ApplicationListener {
             AuthorizationFailureEvent authEvent = (AuthorizationFailureEvent) event;
 
             if (logger.isWarnEnabled()) {
-                logger.warn("Security authorization failed due to: "
-                    + authEvent.getAccessDeniedException()
-                    + "; authenticated principal: "
-                    + authEvent.getAuthentication() + "; secure object: "
-                    + authEvent.getSource() + "; configuration attributes: "
-                    + authEvent.getConfigAttributeDefinition());
+                logger.warn("Security authorization failed due to: " + authEvent.getAccessDeniedException()
+                    + "; authenticated principal: " + authEvent.getAuthentication() + "; secure object: "
+                    + authEvent.getSource() + "; configuration attributes: " + authEvent.getConfigAttributeDefinition());
             }
         }
 
@@ -71,9 +61,8 @@ public class LoggerListener implements ApplicationListener {
             AuthorizedEvent authEvent = (AuthorizedEvent) event;
 
             if (logger.isInfoEnabled()) {
-                logger.info("Security authorized for authenticated principal: "
-                    + authEvent.getAuthentication() + "; secure object: "
-                    + authEvent.getSource() + "; configuration attributes: "
+                logger.info("Security authorized for authenticated principal: " + authEvent.getAuthentication()
+                    + "; secure object: " + authEvent.getSource() + "; configuration attributes: "
                     + authEvent.getConfigAttributeDefinition());
             }
         }
@@ -82,9 +71,7 @@ public class LoggerListener implements ApplicationListener {
             PublicInvocationEvent authEvent = (PublicInvocationEvent) event;
 
             if (logger.isInfoEnabled()) {
-                logger.info(
-                    "Security interception not required for public secure object: "
-                    + authEvent.getSource());
+                logger.info("Security interception not required for public secure object: " + authEvent.getSource());
             }
         }
     }

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.acegisecurity.GrantedAuthorityImpl;
  * @version $Id$
  */
 public class TestingAuthenticationProviderTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public TestingAuthenticationProviderTests() {
         super();
@@ -39,22 +39,20 @@ public class TestingAuthenticationProviderTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(TestingAuthenticationProviderTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testAuthenticates() {
         TestingAuthenticationProvider provider = new TestingAuthenticationProvider();
-        TestingAuthenticationToken token = new TestingAuthenticationToken("Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+        TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
         Authentication result = provider.authenticate(token);
 
         if (!(result instanceof TestingAuthenticationToken)) {

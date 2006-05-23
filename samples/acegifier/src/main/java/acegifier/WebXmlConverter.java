@@ -24,6 +24,7 @@ import org.springframework.util.Assert;
 /**
  * A utility to translate a web.xml file into a set of acegi security spring beans.
  *
+ * <p>
  * Also produces a new "acegified" web.xml file with the necessary filters installed
  * and the security elements defined by the servlet DTD removed.
  *

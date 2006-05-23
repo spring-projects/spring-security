@@ -1,19 +1,41 @@
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.acegisecurity.providers.ldap.populator;
+
+import org.acegisecurity.GrantedAuthority;
+
+import org.acegisecurity.ldap.AbstractLdapServerTestCase;
+
+import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.naming.directory.BasicAttributes;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
-import org.acegisecurity.ldap.AbstractLdapServerTestCase;
-
-import java.util.Set;
-import java.util.HashSet;
 
 /**
+ * 
+DOCUMENT ME!
+ *
  * @author Luke Taylor
  * @version $Id$
  */
 public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTestCase {
+    //~ Methods ========================================================================================================
 
     public void onSetUp() {
         getInitialCtxFactory().setManagerDn(MANAGER_USER);
@@ -42,24 +64,24 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
 //                populator.getGrantedAuthorities(user.createUserDetails());
 //        assertEquals("User should have three roles", 3, authorities.length);
 //    }
-
     public void testDefaultRoleIsAssignedWhenSet() {
-        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(), "ou=groups");
+        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(),
+                "ou=groups");
         populator.setDefaultRole("ROLE_USER");
+
         LdapUserDetailsImpl.Essence user = new LdapUserDetailsImpl.Essence();
         user.setDn("cn=notfound");
         user.setUsername("notfound");
         user.setAttributes(new BasicAttributes());
 
-        GrantedAuthority[] authorities =
-                populator.getGrantedAuthorities(user.createUserDetails());
+        GrantedAuthority[] authorities = populator.getGrantedAuthorities(user.createUserDetails());
         assertEquals(1, authorities.length);
         assertEquals("ROLE_USER", authorities[0].getAuthority());
     }
 
     public void testGroupSearchReturnsExpectedRoles() {
-        DefaultLdapAuthoritiesPopulator populator =
-                new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(), "ou=groups");
+        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(),
+                "ou=groups");
         populator.setRolePrefix("ROLE_");
         populator.setGroupRoleAttribute("ou");
         populator.setSearchSubtree(true);
@@ -72,10 +94,10 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
         user.setDn("uid=ben,ou=people,dc=acegisecurity,dc=org");
         user.setAttributes(new BasicAttributes());
 
-        GrantedAuthority[] authorities =
-                populator.getGrantedAuthorities(user.createUserDetails());
+        GrantedAuthority[] authorities = populator.getGrantedAuthorities(user.createUserDetails());
 
         assertEquals("Should have 2 roles", 2, authorities.length);
+
         Set roles = new HashSet();
         roles.add(authorities[0].toString());
         roles.add(authorities[1].toString());
@@ -84,8 +106,8 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
     }
 
     public void testUseOfUsernameParameterReturnsExpectedRoles() {
-        DefaultLdapAuthoritiesPopulator populator =
-                new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(), "ou=groups");
+        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(),
+                "ou=groups");
         populator.setGroupRoleAttribute("ou");
         populator.setConvertToUpperCase(true);
         populator.setGroupSearchFilter("(ou={1})");
@@ -94,8 +116,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
         user.setUsername("manager");
         user.setDn("uid=ben,ou=people,dc=acegisecurity,dc=org");
 
-        GrantedAuthority[] authorities =
-                populator.getGrantedAuthorities(user.createUserDetails());
+        GrantedAuthority[] authorities = populator.getGrantedAuthorities(user.createUserDetails());
         assertEquals("Should have 1 role", 1, authorities.length);
         assertTrue(authorities[0].equals("ROLE_MANAGER"));
     }

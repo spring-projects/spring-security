@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,41 +22,33 @@ import org.springframework.context.ApplicationContext;
 
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
 
 /**
- * Declared in web.xml as <br>
- * <pre>
- * &lt;listener&gt;
- * &lt;listener-class&gt;org.acegisecurity.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;
- * &lt;/listener&gt;
- * </pre>
- * Publishes <code>HttpSessionApplicationEvent</code>s to the Spring
- * Root WebApplicationContext.
- * Maps javax.servlet.http.HttpSessionListener.sessionCreated() to {@link
- * HttpSessionCreatedEvent}.
- * Maps javax.servlet.http.HttpSessionListener.sessionDestroyed() to {@link
- * HttpSessionDestroyedEvent}.
+ * Declared in web.xml as <br><pre>&lt;listener&gt;
+ * &lt;listener-class&gt;org.acegisecurity.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;&lt;/listener&gt;
+ * </pre>Publishes <code>HttpSessionApplicationEvent</code>s to the Spring Root WebApplicationContext. Maps
+ * javax.servlet.http.HttpSessionListener.sessionCreated() to {@link HttpSessionCreatedEvent}. Maps
+ * javax.servlet.http.HttpSessionListener.sessionDestroyed() to {@link HttpSessionDestroyedEvent}.
  *
  * @author Ray Krueger
  */
-public class HttpSessionEventPublisher implements HttpSessionListener,
-    ServletContextListener {
-    //~ Static fields/initializers =============================================
+public class HttpSessionEventPublisher implements HttpSessionListener, ServletContextListener {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log log = LogFactory.getLog(HttpSessionEventPublisher.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private ApplicationContext appContext;
     private ServletContext servletContext = null;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Not implemented
@@ -69,58 +61,59 @@ public class HttpSessionEventPublisher implements HttpSessionListener,
      * Handled internally by a call to {@link
      * org.springframework.web.appContext.support.WebApplicationContextUtils#getRequiredWebApplicationContext(javax.servlet.ServletContext)}
      *
-     * @param event the ServletContextEvent passed in by the container,
-     *        event.getServletContext() will be used to get the
-     *        WebApplicationContext
+     * @param event the ServletContextEvent passed in by the container, event.getServletContext() will be used to get
+     *        the WebApplicationContext
      */
     public void contextInitialized(ServletContextEvent event) {
-        log.debug("Received ServletContextEvent: " + event);
+        if (log.isDebugEnabled()) {
+            log.debug("Received ServletContextEvent: " + event);
+        }
 
-        appContext = WebApplicationContextUtils.getWebApplicationContext(
-                event.getServletContext());
+        appContext = WebApplicationContextUtils.getWebApplicationContext(event.getServletContext());
 
-        if(appContext == null) {
+        if (appContext == null) {
             log.warn("Web application context is null. Will delay initialization until it's first used.");
             servletContext = event.getServletContext();
         }
-
-    }
-
-    /**
-     * Handles the HttpSessionEvent by publishing a {@link
-     * HttpSessionCreatedEvent} to the application appContext.
-     *
-     * @param event HttpSessionEvent passed in by the container
-     */
-    public void sessionCreated(HttpSessionEvent event) {
-        HttpSessionCreatedEvent e = new HttpSessionCreatedEvent(event
-                .getSession());
-
-        log.debug("Publishing event: " + e);
-
-        getContext().publishEvent(e);
-    }
-
-    /**
-     * Handles the HttpSessionEvent by publishing a {@link
-     * HttpSessionDestroyedEvent} to the application appContext.
-     *
-     * @param event The HttpSessionEvent pass in by the container
-     */
-    public void sessionDestroyed(HttpSessionEvent event) {
-        HttpSessionDestroyedEvent e = new HttpSessionDestroyedEvent(event
-                .getSession());
-
-        log.debug("Publishing event: " + e);
-
-        getContext().publishEvent(e);
     }
 
     ApplicationContext getContext() {
-        if(appContext == null) {
+        if (appContext == null) {
             appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
         }
 
         return appContext;
+    }
+
+    /**
+     * Handles the HttpSessionEvent by publishing a {@link HttpSessionCreatedEvent} to the application
+     * appContext.
+     *
+     * @param event HttpSessionEvent passed in by the container
+     */
+    public void sessionCreated(HttpSessionEvent event) {
+        HttpSessionCreatedEvent e = new HttpSessionCreatedEvent(event.getSession());
+
+        if (log.isDebugEnabled()) {
+            log.debug("Publishing event: " + e);
+        }
+
+        getContext().publishEvent(e);
+    }
+
+    /**
+     * Handles the HttpSessionEvent by publishing a {@link HttpSessionDestroyedEvent} to the application
+     * appContext.
+     *
+     * @param event The HttpSessionEvent pass in by the container
+     */
+    public void sessionDestroyed(HttpSessionEvent event) {
+        HttpSessionDestroyedEvent e = new HttpSessionDestroyedEvent(event.getSession());
+
+        if (log.isDebugEnabled()) {
+            log.debug("Publishing event: " + e);
+        }
+
+        getContext().publishEvent(e);
     }
 }

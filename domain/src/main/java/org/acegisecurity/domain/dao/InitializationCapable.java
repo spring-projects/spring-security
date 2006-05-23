@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,25 +60,22 @@ package org.acegisecurity.domain.dao;
  * @version $Id$
  */
 public interface InitializationCapable {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Initializes the indicated object.
-     * 
-     * <p>
-     * May throw an exception if the implementation so desires.
-     * </p>
+     * Initializes the indicated object.<p>May throw an exception if the implementation so desires.</p>
      *
      * @param entity to initialize
      */
     public void initialize(Object entity);
-	
-	/**
-	 * Indicaets whether the passed object is initialized or not.
-	 * 
-	 * @param entity to determine if initialized
-	 * @return <code>true</code> if initialized, <code>false</code> is uninitialized or
-	 * 		   the initialization status is unknown
-	 */
-	public boolean isInitialized(Object entity);
+
+    /**
+     * Indicaets whether the passed object is initialized or not.
+     *
+     * @param entity to determine if initialized
+     *
+     * @return <code>true</code> if initialized, <code>false</code> is uninitialized or the initialization status is
+     *         unknown
+     */
+    public boolean isInitialized(Object entity);
 }

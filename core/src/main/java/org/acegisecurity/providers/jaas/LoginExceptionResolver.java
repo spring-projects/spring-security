@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,15 +32,14 @@ import javax.security.auth.login.LoginException;
  * @version $Revision$
  */
 public interface LoginExceptionResolver {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Translates a Jaas LoginException to an AcegiSecurityException.
      *
      * @param e The LoginException thrown by the configured LoginModule.
      *
-     * @return The AcegiSecurityException that the JaasAuthenticationProvider
-     *         should throw.
+     * @return The AcegiSecurityException that the JaasAuthenticationProvider should throw.
      */
     public AcegiSecurityException resolveException(LoginException e);
 }

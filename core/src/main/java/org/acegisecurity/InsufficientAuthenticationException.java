@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,19 @@
 package org.acegisecurity;
 
 /**
- * Thrown if an authentication request is rejected because the credentials are
- * not sufficiently trusted.
- * 
- * <p>
- * {@link org.acegisecurity.vote.AccessDecisionVoter}s will typically throw
- * this exception if they are dissatisfied with the level of the
- * authentication, such as if performed using a remember-me mechanism or
- * anonymously. The commonly used {@link
- * org.acegisecurity.ui.ExceptionTranslationFilter} will thus
- * cause the <code>AuthenticationEntryPoint</code> to be called, allowing the
- * principal to authenticate with a stronger level of authentication.
- * </p>
+ * Thrown if an authentication request is rejected because the credentials are not sufficiently trusted.<p>{{@link
+ * org.acegisecurity.vote.AccessDecisionVoter}s will typically throw this exception if they are dissatisfied with the
+ * level of the authentication, such as if performed using a remember-me mechanism or anonymously. The commonly used
+ * {@link org.acegisecurity.ui.ExceptionTranslationFilter} will thus cause the <code>AuthenticationEntryPoint</code>
+ * to be called, allowing the principal to authenticate with a stronger level of authentication.}</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class InsufficientAuthenticationException extends AuthenticationException {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructs an <code>InsufficientAuthenticationException</code> with the
      * specified message.
      *
@@ -45,7 +38,7 @@ public class InsufficientAuthenticationException extends AuthenticationException
         super(msg);
     }
 
-    /**
+/**
      * Constructs an <code>InsufficientAuthenticationException</code> with the
      * specified message and root cause.
      *

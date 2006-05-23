@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package org.acegisecurity.intercept.web;
 
 import junit.framework.TestCase;
 
-
-
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
@@ -26,10 +26,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-
 
 
 /**
@@ -39,7 +35,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @version $Id$
  */
 public class AbstractFilterInvocationDefinitionSourceTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AbstractFilterInvocationDefinitionSourceTests() {
         super();
@@ -49,25 +45,23 @@ public class AbstractFilterInvocationDefinitionSourceTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AbstractFilterInvocationDefinitionSourceTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testDoesNotSupportAnotherObject() {
-        MockFilterInvocationDefinitionSource mfis = new MockFilterInvocationDefinitionSource(false,
-                true);
+        MockFilterInvocationDefinitionSource mfis = new MockFilterInvocationDefinitionSource(false, true);
         assertFalse(mfis.supports(String.class));
     }
 
     public void testGetAttributesForANonFilterInvocation() {
-        MockFilterInvocationDefinitionSource mfis = new MockFilterInvocationDefinitionSource(false,
-                true);
+        MockFilterInvocationDefinitionSource mfis = new MockFilterInvocationDefinitionSource(false, true);
 
         try {
             mfis.getAttributes(new String());
@@ -78,8 +72,7 @@ public class AbstractFilterInvocationDefinitionSourceTests extends TestCase {
     }
 
     public void testGetAttributesForANullObject() {
-        MockFilterInvocationDefinitionSource mfis = new MockFilterInvocationDefinitionSource(false,
-                true);
+        MockFilterInvocationDefinitionSource mfis = new MockFilterInvocationDefinitionSource(false, true);
 
         try {
             mfis.getAttributes(null);
@@ -90,12 +83,10 @@ public class AbstractFilterInvocationDefinitionSourceTests extends TestCase {
     }
 
     public void testGetAttributesForFilterInvocationSuccess() {
-        MockFilterInvocationDefinitionSource mfis = new MockFilterInvocationDefinitionSource(false,
-                true);
+        MockFilterInvocationDefinitionSource mfis = new MockFilterInvocationDefinitionSource(false, true);
 
         try {
-            mfis.getAttributes(new FilterInvocation(
-                    new MockHttpServletRequest(null, null),
+            mfis.getAttributes(new FilterInvocation(new MockHttpServletRequest(null, null),
                     new MockHttpServletResponse(), new MockFilterChain()));
             fail("Should have thrown UnsupportedOperationException");
         } catch (UnsupportedOperationException expected) {
@@ -104,18 +95,16 @@ public class AbstractFilterInvocationDefinitionSourceTests extends TestCase {
     }
 
     public void testSupportsFilterInvocation() {
-        MockFilterInvocationDefinitionSource mfis = new MockFilterInvocationDefinitionSource(false,
-                true);
+        MockFilterInvocationDefinitionSource mfis = new MockFilterInvocationDefinitionSource(false, true);
         assertTrue(mfis.supports(FilterInvocation.class));
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockFilterChain implements FilterChain {
         public void doFilter(ServletRequest arg0, ServletResponse arg1)
             throws IOException, ServletException {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
+            throw new UnsupportedOperationException("mock method not implemented");
         }
     }
 }

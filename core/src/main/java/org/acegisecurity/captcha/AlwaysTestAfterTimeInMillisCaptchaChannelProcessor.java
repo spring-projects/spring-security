@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,27 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.acegisecurity.captcha;
 
 /**
- * <p>
- * return false if thresold is greater than millis since last captcha test has occured;<br>
- * Default keyword : REQUIRES_CAPTCHA_AFTER_THRESOLD_IN_MILLIS
- * </p>
+ * <p>return false if thresold is greater than millis since last captcha test has occured;<br>
+ * Default keyword : REQUIRES_CAPTCHA_AFTER_THRESOLD_IN_MILLIS</p>
  *
  * @author Marc-Antoine Garrigue
  * @version $Id$
  */
-public class AlwaysTestAfterTimeInMillisCaptchaChannelProcessor
-    extends CaptchaChannelProcessorTemplate {
-    //~ Static fields/initializers =============================================
+public class AlwaysTestAfterTimeInMillisCaptchaChannelProcessor extends CaptchaChannelProcessorTemplate {
+    //~ Static fields/initializers =====================================================================================
 
     /** Keyword for this channelProcessor */
     public static final String DEFAULT_KEYWORD = "REQUIRES_CAPTCHA_AFTER_THRESOLD_IN_MILLIS";
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructor
      */
     public AlwaysTestAfterTimeInMillisCaptchaChannelProcessor() {
@@ -40,7 +38,7 @@ public class AlwaysTestAfterTimeInMillisCaptchaChannelProcessor
         this.setKeyword(DEFAULT_KEYWORD);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Verify wheter the context is valid concerning humanity
@@ -50,15 +48,12 @@ public class AlwaysTestAfterTimeInMillisCaptchaChannelProcessor
      * @return true if valid, false otherwise
      */
     boolean isContextValidConcerningHumanity(CaptchaSecurityContext context) {
-        if ((System.currentTimeMillis()
-            - context.getLastPassedCaptchaDateInMillis()) < getThresold()) {
-            logger.debug(
-                "context is valid : last passed captcha date - current time < thresold");
+        if ((System.currentTimeMillis() - context.getLastPassedCaptchaDateInMillis()) < getThresold()) {
+            logger.debug("context is valid : last passed captcha date - current time < thresold");
 
             return true;
         } else {
-            logger.debug(
-                "context is not valid : last passed captcha date - current time > thresold");
+            logger.debug("context is not valid : last passed captcha date - current time > thresold");
 
             return false;
         }

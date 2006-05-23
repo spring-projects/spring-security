@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,17 +22,17 @@ package org.acegisecurity.acl.basic;
  * @version $Id$
  */
 public class SomeDomain {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private int id;
 
-    //~ Methods ================================================================
-
-    public void setId(int id) {
-        this.id = id;
-    }
+    //~ Methods ========================================================================================================
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

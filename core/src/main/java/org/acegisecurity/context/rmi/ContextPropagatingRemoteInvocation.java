@@ -29,39 +29,32 @@ import java.lang.reflect.InvocationTargetException;
 
 
 /**
- * The actual <code>RemoteInvocation</code> that is passed from the client to
- * the server, which contains the contents of {@link SecurityContextHolder},
- * being a {@link SecurityContext} object.
- * 
- * <p>
- * When constructed on the client via {@link
- * org.acegisecurity.context.rmi.ContextPropagatingRemoteInvocationFactory},
- * the contents of the <code>SecurityContext</code> are stored inside the
- * object. The object is then passed to the server that is processing the
- * remote invocation. Upon the server invoking the remote invocation, it will
- * retrieve the passed contents of the <code>SecurityContextHolder</code> and
- * set them to the server-side <code>SecurityContextHolder</code> whilst the
- * target object is invoked. When the target invocation has been completed,
- * the server-side <code>SecurityContextHolder</code> will be reset to a new
- * instance of <code>SecurityContextImpl</code>.
- * </p>
+ * The actual <code>RemoteInvocation</code> that is passed from the client to the server, which contains the
+ * contents of {@link SecurityContextHolder}, being a {@link SecurityContext} object.<p>When constructed on the
+ * client via {@link org.acegisecurity.context.rmi.ContextPropagatingRemoteInvocationFactory}, the contents of the
+ * <code>SecurityContext</code> are stored inside the object. The object is then passed to the server that is
+ * processing the remote invocation. Upon the server invoking the remote invocation, it will retrieve the passed
+ * contents of the <code>SecurityContextHolder</code> and set them to the server-side
+ * <code>SecurityContextHolder</code> whilst the target object is invoked. When the target invocation has been
+ * completed, the server-side <code>SecurityContextHolder</code> will be reset to a new instance of
+ * <code>SecurityContextImpl</code>.</p>
  *
  * @author James Monaghan
  * @author Ben Alex
  * @version $Id$
  */
 public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(ContextPropagatingRemoteInvocation.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private SecurityContext securityContext;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructs the object, storing the value of the client-side
      * <code>SecurityContextHolder</code> inside the object.
      *
@@ -72,24 +65,18 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
         securityContext = SecurityContextHolder.getContext();
 
         if (logger.isDebugEnabled()) {
-            logger.debug("RemoteInvocation now has SecurityContext: "
-                + securityContext);
+            logger.debug("RemoteInvocation now has SecurityContext: " + securityContext);
         }
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Invoked on the server-side as described in the class JavaDocs.
-     * 
-     * <p>
-     * Invocations will always have their {@link
-     * org.acegisecurity.Authentication#setAuthenticated(boolean)} set to
-     * <code>false</code>, which is guaranteed to always be accepted by
-     * <code>Authentication</code> implementations. This ensures that even
-     * remotely authenticated <code>Authentication</code>s will be untrusted
-     * by the server-side, which is an appropriate security measure.
-     * </p>
+     * Invoked on the server-side as described in the class JavaDocs.<p>Invocations will always have their
+     * {@link org.acegisecurity.Authentication#setAuthenticated(boolean)} set to <code>false</code>, which is
+     * guaranteed to always be accepted by <code>Authentication</code> implementations. This ensures that even
+     * remotely authenticated <code>Authentication</code>s will be untrusted by the server-side, which is an
+     * appropriate security measure.</p>
      *
      * @param targetObject the target object to apply the invocation to
      *
@@ -97,23 +84,19 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
      *
      * @throws NoSuchMethodException if the method name could not be resolved
      * @throws IllegalAccessException if the method could not be accessed
-     * @throws InvocationTargetException if the method invocation resulted in
-     *         an exception
+     * @throws InvocationTargetException if the method invocation resulted in an exception
      */
     public Object invoke(Object targetObject)
-        throws NoSuchMethodException, IllegalAccessException, 
-            InvocationTargetException {
+        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         SecurityContextHolder.setContext(securityContext);
 
         if ((SecurityContextHolder.getContext() != null)
             && (SecurityContextHolder.getContext().getAuthentication() != null)) {
-            SecurityContextHolder.getContext().getAuthentication()
-                                 .setAuthenticated(false);
+            SecurityContextHolder.getContext().getAuthentication().setAuthenticated(false);
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Set SecurityContextHolder to contain: "
-                + securityContext);
+            logger.debug("Set SecurityContextHolder to contain: " + securityContext);
         }
 
         try {
@@ -122,8 +105,7 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
             SecurityContextHolder.clearContext();
 
             if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "Set SecurityContext to new instance of SecurityContextImpl");
+                logger.debug("Set SecurityContext to new instance of SecurityContextImpl");
             }
         }
     }

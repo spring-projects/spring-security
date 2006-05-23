@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
 
 package org.acegisecurity.vote;
 
-import java.util.List;
-import java.util.Vector;
-
 import junit.framework.TestCase;
 
 import org.acegisecurity.AccessDeniedException;
@@ -25,7 +22,11 @@ import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.SecurityConfig;
+
 import org.acegisecurity.providers.TestingAuthenticationToken;
+
+import java.util.List;
+import java.util.Vector;
 
 
 /**
@@ -35,7 +36,7 @@ import org.acegisecurity.providers.TestingAuthenticationToken;
  * @version $Id$
  */
 public class UnanimousBasedTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public UnanimousBasedTests() {
         super();
@@ -45,14 +46,54 @@ public class UnanimousBasedTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(UnanimousBasedTests.class);
+    }
+
+    private UnanimousBased makeDecisionManager() {
+        UnanimousBased decisionManager = new UnanimousBased();
+        RoleVoter roleVoter = new RoleVoter();
+        DenyVoter denyForSureVoter = new DenyVoter();
+        DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
+        List voters = new Vector();
+        voters.add(roleVoter);
+        voters.add(denyForSureVoter);
+        voters.add(denyAgainForSureVoter);
+        decisionManager.setDecisionVoters(voters);
+
+        return decisionManager;
+    }
+
+    private UnanimousBased makeDecisionManagerWithFooBarPrefix() {
+        UnanimousBased decisionManager = new UnanimousBased();
+        RoleVoter roleVoter = new RoleVoter();
+        roleVoter.setRolePrefix("FOOBAR_");
+
+        DenyVoter denyForSureVoter = new DenyVoter();
+        DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
+        List voters = new Vector();
+        voters.add(roleVoter);
+        voters.add(denyForSureVoter);
+        voters.add(denyAgainForSureVoter);
+        decisionManager.setDecisionVoters(voters);
+
+        return decisionManager;
+    }
+
+    private TestingAuthenticationToken makeTestToken() {
+        return new TestingAuthenticationToken("somebody", "password",
+            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_1"), new GrantedAuthorityImpl("ROLE_2")});
+    }
+
+    private TestingAuthenticationToken makeTestTokenWithFooBarPrefix() {
+        return new TestingAuthenticationToken("somebody", "password",
+            new GrantedAuthority[] {new GrantedAuthorityImpl("FOOBAR_1"), new GrantedAuthorityImpl("FOOBAR_2")});
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteDeniesAccess()
@@ -155,47 +196,5 @@ public class UnanimousBasedTests extends TestCase {
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);
-    }
-
-    private UnanimousBased makeDecisionManager() {
-        UnanimousBased decisionManager = new UnanimousBased();
-        RoleVoter roleVoter = new RoleVoter();
-        DenyVoter denyForSureVoter = new DenyVoter();
-        DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
-        List voters = new Vector();
-        voters.add(roleVoter);
-        voters.add(denyForSureVoter);
-        voters.add(denyAgainForSureVoter);
-        decisionManager.setDecisionVoters(voters);
-
-        return decisionManager;
-    }
-
-    private UnanimousBased makeDecisionManagerWithFooBarPrefix() {
-        UnanimousBased decisionManager = new UnanimousBased();
-        RoleVoter roleVoter = new RoleVoter();
-        roleVoter.setRolePrefix("FOOBAR_");
-
-        DenyVoter denyForSureVoter = new DenyVoter();
-        DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
-        List voters = new Vector();
-        voters.add(roleVoter);
-        voters.add(denyForSureVoter);
-        voters.add(denyAgainForSureVoter);
-        decisionManager.setDecisionVoters(voters);
-
-        return decisionManager;
-    }
-
-    private TestingAuthenticationToken makeTestToken() {
-        return new TestingAuthenticationToken("somebody", "password",
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_1"), new GrantedAuthorityImpl(
-                    "ROLE_2")});
-    }
-
-    private TestingAuthenticationToken makeTestTokenWithFooBarPrefix() {
-        return new TestingAuthenticationToken("somebody", "password",
-            new GrantedAuthority[] {new GrantedAuthorityImpl("FOOBAR_1"), new GrantedAuthorityImpl(
-                    "FOOBAR_2")});
     }
 }

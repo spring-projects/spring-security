@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,11 @@
 package org.acegisecurity.providers.ldap;
 
 import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.userdetails.ldap.LdapUserDetails;
+
 import org.acegisecurity.ldap.LdapDataAccessException;
+
+import org.acegisecurity.userdetails.ldap.LdapUserDetails;
+
 
 /**
  * Obtains a list of granted authorities for an Ldap user.
@@ -30,15 +33,17 @@ import org.acegisecurity.ldap.LdapDataAccessException;
  * @version $Id$
  */
 public interface LdapAuthoritiesPopulator {
+    //~ Methods ========================================================================================================
 
     /**
      * Get the list of authorities for the user.
      *
      * @param userDetails the user details object which was returned by the LDAP authenticator.
+     *
      * @return the granted authorities for the given user.
-     * @throws org.acegisecurity.ldap.LdapDataAccessException if there is a problem accessing the directory.
+     *
+     * @throws LdapDataAccessException if there is a problem accessing the directory.
      */
     GrantedAuthority[] getGrantedAuthorities(LdapUserDetails userDetails)
-            throws LdapDataAccessException;
-
+        throws LdapDataAccessException;
 }

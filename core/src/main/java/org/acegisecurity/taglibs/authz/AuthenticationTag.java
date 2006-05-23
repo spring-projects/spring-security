@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import org.acegisecurity.Authentication;
 
 import org.acegisecurity.context.SecurityContext;
 import org.acegisecurity.context.SecurityContextHolder;
+
 import org.acegisecurity.userdetails.UserDetails;
 
 import java.io.IOException;
@@ -35,21 +36,17 @@ import javax.servlet.jsp.tagext.TagSupport;
 
 
 /**
- * An {@link javax.servlet.jsp.tagext.Tag} implementation that allows
- * convenient access to the current <code>Authentication</code> object.
- * 
- * <p>
- * Whilst JSPs can access the <code>SecurityContext</code> directly, this tag
- * avoids handling <code>null</code> conditions. The tag also properly
- * accommodates <code>Authentication.getPrincipal()</code>, which can either
- * be a <code>String</code> or a <code>UserDetails</code>.
- * </p>
+ * An {@link javax.servlet.jsp.tagext.Tag} implementation that allows convenient access to the current
+ * <code>Authentication</code> object.<p>Whilst JSPs can access the <code>SecurityContext</code> directly, this tag
+ * avoids handling <code>null</code> conditions. The tag also properly accommodates
+ * <code>Authentication.getPrincipal()</code>, which can either be a <code>String</code> or a
+ * <code>UserDetails</code>.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class AuthenticationTag extends TagSupport {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private final static Set methodPrefixValidOptions = new HashSet();
 
@@ -58,28 +55,12 @@ public class AuthenticationTag extends TagSupport {
         methodPrefixValidOptions.add("is");
     }
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private String methodPrefix = "get";
     private String operation = "";
 
-    //~ Methods ================================================================
-
-    public void setMethodPrefix(String methodPrefix) {
-        this.methodPrefix = methodPrefix;
-    }
-
-    public String getMethodPrefix() {
-        return methodPrefix;
-    }
-
-    public void setOperation(String operation) {
-        this.operation = operation;
-    }
-
-    public String getOperation() {
-        return operation;
-    }
+    //~ Methods ========================================================================================================
 
     public int doStartTag() throws JspException {
         if ((null == operation) || "".equals(operation)) {
@@ -90,13 +71,11 @@ public class AuthenticationTag extends TagSupport {
 
         if ((SecurityContextHolder.getContext() == null)
             || !(SecurityContextHolder.getContext() instanceof SecurityContext)
-            || (((SecurityContext) SecurityContextHolder.getContext())
-            .getAuthentication() == null)) {
+            || (((SecurityContext) SecurityContextHolder.getContext()).getAuthentication() == null)) {
             return Tag.SKIP_BODY;
         }
 
-        Authentication auth = SecurityContextHolder.getContext()
-                                                   .getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth.getPrincipal() == null) {
             return Tag.SKIP_BODY;
@@ -109,6 +88,14 @@ public class AuthenticationTag extends TagSupport {
 
             return Tag.SKIP_BODY;
         }
+    }
+
+    public String getMethodPrefix() {
+        return methodPrefix;
+    }
+
+    public String getOperation() {
+        return operation;
     }
 
     protected String invokeOperation(Object obj) throws JspException {
@@ -148,15 +135,21 @@ public class AuthenticationTag extends TagSupport {
         return retVal.toString();
     }
 
+    public void setMethodPrefix(String methodPrefix) {
+        this.methodPrefix = methodPrefix;
+    }
+
+    public void setOperation(String operation) {
+        this.operation = operation;
+    }
+
     protected void validateArguments() throws JspException {
         if ((getMethodPrefix() != null) && !getMethodPrefix().equals("")) {
             if (!methodPrefixValidOptions.contains(getMethodPrefix())) {
-                throw new JspException(
-                    "Authorization tag : no valid method prefix available");
+                throw new JspException("Authorization tag : no valid method prefix available");
             }
         } else {
-            throw new JspException(
-                "Authorization tag : no method prefix available");
+            throw new JspException("Authorization tag : no method prefix available");
         }
     }
 

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.DisabledException;
 
-
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -32,7 +30,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @version $Id$
  */
 public class BasicProcessingFilterEntryPointTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public BasicProcessingFilterEntryPointTests() {
         super();
@@ -42,14 +40,14 @@ public class BasicProcessingFilterEntryPointTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(BasicProcessingFilterEntryPointTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testDetectsMissingRealmName() throws Exception {
@@ -75,6 +73,7 @@ public class BasicProcessingFilterEntryPointTests extends TestCase {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/some_path");
+
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         ep.afterPropertiesSet();
@@ -85,7 +84,6 @@ public class BasicProcessingFilterEntryPointTests extends TestCase {
         assertEquals(401, response.getStatus());
         assertEquals(msg, response.getErrorMessage());
 
-        assertEquals("Basic realm=\"hello\"",
-            response.getHeader("WWW-Authenticate"));
+        assertEquals("Basic realm=\"hello\"", response.getHeader("WWW-Authenticate"));
     }
 }

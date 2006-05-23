@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,15 @@ import org.acegisecurity.AuthenticationException;
 
 
 /**
- * Application event which indicates authentication failure due to invalid
- * credentials being presented.
+ * Application event which indicates authentication failure due to invalid credentials being presented.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthenticationFailureBadCredentialsEvent
-    extends AbstractAuthenticationFailureEvent {
-    //~ Constructors ===========================================================
+public class AuthenticationFailureBadCredentialsEvent extends AbstractAuthenticationFailureEvent {
+    //~ Constructors ===================================================================================================
 
-    public AuthenticationFailureBadCredentialsEvent(
-        Authentication authentication, AuthenticationException exception) {
+    public AuthenticationFailureBadCredentialsEvent(Authentication authentication, AuthenticationException exception) {
         super(authentication, exception);
     }
 }

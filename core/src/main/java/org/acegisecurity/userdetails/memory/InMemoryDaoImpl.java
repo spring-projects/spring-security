@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,17 @@
 
 package org.acegisecurity.userdetails.memory;
 
-import java.util.Properties;
-
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
+
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.dao.DataAccessException;
+
 import org.springframework.util.Assert;
+
+import java.util.Properties;
 
 
 /**
@@ -32,40 +35,38 @@ import org.springframework.util.Assert;
  * @version $Id$
  */
 public class InMemoryDaoImpl implements UserDetailsService, InitializingBean {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private UserMap userMap;
 
-    //~ Methods ================================================================
-
-    public void setUserMap(UserMap userMap) {
-        this.userMap = userMap;
-    }
-
-    public UserMap getUserMap() {
-        return userMap;
-    }
-
-    /**
-     * Modifies the internal <code>UserMap</code> to reflect the
-     * <code>Properties</code> instance passed. This helps externalise user
-     * information to another file etc.
-     *
-     * @param props the account information in a <code>Properties</code> object
-     *        format
-     */
-    public void setUserProperties(Properties props) {
-        UserMap userMap = new UserMap();
-        this.userMap = UserMapEditor.addUsersFromProperties(userMap, props);
-    }
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(this.userMap,
             "A list of users, passwords, enabled/disabled status and their granted authorities must be set");
     }
 
+    public UserMap getUserMap() {
+        return userMap;
+    }
+
     public UserDetails loadUserByUsername(String username)
         throws UsernameNotFoundException, DataAccessException {
         return userMap.getUser(username);
+    }
+
+    public void setUserMap(UserMap userMap) {
+        this.userMap = userMap;
+    }
+
+    /**
+     * Modifies the internal <code>UserMap</code> to reflect the <code>Properties</code> instance passed. This
+     * helps externalise user information to another file etc.
+     *
+     * @param props the account information in a <code>Properties</code> object format
+     */
+    public void setUserProperties(Properties props) {
+        UserMap userMap = new UserMap();
+        this.userMap = UserMapEditor.addUsersFromProperties(userMap, props);
     }
 }

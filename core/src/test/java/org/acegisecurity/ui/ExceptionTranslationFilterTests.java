@@ -46,7 +46,7 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 public class ExceptionTranslationFilterTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public ExceptionTranslationFilterTests() {
         super();
@@ -56,7 +56,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ExceptionTranslationFilterTests.class);
@@ -86,14 +86,12 @@ public class ExceptionTranslationFilterTests extends TestCase {
 
         // Setup SecurityContextHolder, as filter needs to check if user is anonymous
         SecurityContextHolder.getContext()
-                             .setAuthentication(new AnonymousAuthenticationToken(
-                "ignored", "ignored",
+                             .setAuthentication(new AnonymousAuthenticationToken("ignored", "ignored",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("IGNORED")}));
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
-                "/login.jsp"));
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
@@ -119,17 +117,14 @@ public class ExceptionTranslationFilterTests extends TestCase {
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
-                "/login.jsp"));
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
         filter.setAccessDeniedHandler(adh);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
         assertEquals(403, response.getStatus());
         assertEquals(AccessDeniedException.class,
-            request.getAttribute(
-                AccessDeniedHandlerImpl.ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY)
-                   .getClass());
+            request.getAttribute(AccessDeniedHandlerImpl.ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY).getClass());
     }
 
     public void testDoFilterWithNonHttpServletRequestDetected()
@@ -137,8 +132,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
         try {
-            filter.doFilter(null, new MockHttpServletResponse(),
-                new MockFilterChain(false, false, false, false));
+            filter.doFilter(null, new MockHttpServletResponse(), new MockFilterChain(false, false, false, false));
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
             assertEquals("HttpServletRequest required", expected.getMessage());
@@ -161,8 +155,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
     public void testGettersSetters() {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
-                "/login.jsp"));
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
         assertTrue(filter.getAuthenticationEntryPoint() != null);
 
         filter.setPortResolver(new MockPortResolver(80, 443));
@@ -185,8 +178,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
-                "/login.jsp"));
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
         filter.setPortResolver(new MockPortResolver(80, 443));
         filter.afterPropertiesSet();
 
@@ -213,8 +205,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
-                "/login.jsp"));
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
         filter.setPortResolver(new MockPortResolver(8080, 8443));
         filter.afterPropertiesSet();
 
@@ -233,16 +224,14 @@ public class ExceptionTranslationFilterTests extends TestCase {
             filter.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("authenticationEntryPoint must be specified",
-                expected.getMessage());
+            assertEquals("authenticationEntryPoint must be specified", expected.getMessage());
         }
     }
 
     public void testStartupDetectsMissingPortResolver()
         throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
-                "/login.jsp"));
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
         filter.setPortResolver(null);
 
         try {
@@ -263,8 +252,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint(
-                "/login.jsp"));
+        filter.setAuthenticationEntryPoint(new MockAuthenticationEntryPoint("/login.jsp"));
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, chain);
@@ -287,13 +275,11 @@ public class ExceptionTranslationFilterTests extends TestCase {
         filter.afterPropertiesSet();
 
         try {
-            filter.doFilter(new MockHttpServletRequest(),
-                new MockHttpServletResponse(),
+            filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(),
                 new MockFilterChain(false, false, false, true));
             fail("Should have thrown IOException");
         } catch (IOException e) {
-            assertNull("The IOException thrown should not have been wrapped",
-                e.getCause());
+            assertNull("The IOException thrown should not have been wrapped", e.getCause());
         }
     }
 
@@ -305,17 +291,15 @@ public class ExceptionTranslationFilterTests extends TestCase {
         filter.afterPropertiesSet();
 
         try {
-            filter.doFilter(new MockHttpServletRequest(),
-                new MockHttpServletResponse(),
+            filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(),
                 new MockFilterChain(false, false, true, false));
             fail("Should have thrown ServletException");
         } catch (ServletException e) {
-            assertNull("The ServletException thrown should not have been wrapped",
-                e.getCause());
+            assertNull("The ServletException thrown should not have been wrapped", e.getCause());
         }
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockFilterChain implements FilterChain {
         private boolean throwAccessDenied;
@@ -323,9 +307,8 @@ public class ExceptionTranslationFilterTests extends TestCase {
         private boolean throwIOException;
         private boolean throwServletException;
 
-        public MockFilterChain(boolean throwAccessDenied,
-            boolean throwAuthenticationFailure, boolean throwServletException,
-            boolean throwIOException) {
+        public MockFilterChain(boolean throwAccessDenied, boolean throwAuthenticationFailure,
+            boolean throwServletException, boolean throwIOException) {
             this.throwAccessDenied = throwAccessDenied;
             this.throwAuthenticationFailure = throwAuthenticationFailure;
             this.throwServletException = throwServletException;

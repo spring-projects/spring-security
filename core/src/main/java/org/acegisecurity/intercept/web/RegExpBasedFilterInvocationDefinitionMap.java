@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,42 +34,46 @@ import java.util.Vector;
 
 
 /**
- * Maintains a <code>List</code> of <code>ConfigAttributeDefinition</code>s
- * associated with different HTTP request URL regular expression patterns.
- * 
- * <p>
- * Regular expressions are used to match a HTTP request URL against a
- * <code>ConfigAttributeDefinition</code>.
- * </p>
- * 
- * <p>
- * The order of registering the regular expressions using the {@link
- * #addSecureUrl(String, ConfigAttributeDefinition)} is very important. The
- * system will identify the <b>first</b>  matching regular expression for a
- * given HTTP URL. It will not proceed to evaluate later regular expressions
- * if a match has already been found. Accordingly, the most specific regular
- * expressions should be registered first, with the most general regular
- * expressions registered last.
- * </p>
- * 
- * <p>
- * If no registered regular expressions match the HTTP URL, <code>null</code>
- * is returned.
- * </p>
+ * Maintains a <code>List</code> of <code>ConfigAttributeDefinition</code>s associated with different HTTP request
+ * URL regular expression patterns.<p>Regular expressions are used to match a HTTP request URL against a
+ * <code>ConfigAttributeDefinition</code>.</p>
+ *  <p>The order of registering the regular expressions using the {@link #addSecureUrl(String,
+ * ConfigAttributeDefinition)} is very important. The system will identify the <b>first</b>  matching regular
+ * expression for a given HTTP URL. It will not proceed to evaluate later regular expressions if a match has already
+ * been found. Accordingly, the most specific regular expressions should be registered first, with the most general
+ * regular expressions registered last.</p>
+ *  <p>If no registered regular expressions match the HTTP URL, <code>null</code> is returned.</p>
  */
-public class RegExpBasedFilterInvocationDefinitionMap
-    extends AbstractFilterInvocationDefinitionSource
+public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvocationDefinitionSource
     implements FilterInvocationDefinitionMap {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(RegExpBasedFilterInvocationDefinitionMap.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private List requestMap = new Vector();
     private boolean convertUrlToLowercaseBeforeComparison = false;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    public void addSecureUrl(String perl5RegExp, ConfigAttributeDefinition attr) {
+        Pattern compiledPattern;
+        Perl5Compiler compiler = new Perl5Compiler();
+
+        try {
+            compiledPattern = compiler.compile(perl5RegExp, Perl5Compiler.READ_ONLY_MASK);
+        } catch (MalformedPatternException mpe) {
+            throw new IllegalArgumentException("Malformed regular expression: " + perl5RegExp);
+        }
+
+        requestMap.add(new EntryHolder(compiledPattern, attr));
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Added regular expression: " + compiledPattern.getPattern().toString() + "; attributes: "
+                + attr);
+        }
+    }
 
     public Iterator getConfigAttributeDefinitions() {
         Set set = new HashSet();
@@ -83,38 +87,12 @@ public class RegExpBasedFilterInvocationDefinitionMap
         return set.iterator();
     }
 
-    public void setConvertUrlToLowercaseBeforeComparison(
-        boolean convertUrlToLowercaseBeforeComparison) {
-        this.convertUrlToLowercaseBeforeComparison = convertUrlToLowercaseBeforeComparison;
-    }
-
-    public boolean isConvertUrlToLowercaseBeforeComparison() {
-        return convertUrlToLowercaseBeforeComparison;
-    }
-
     public int getMapSize() {
         return this.requestMap.size();
     }
 
-    public void addSecureUrl(String perl5RegExp, ConfigAttributeDefinition attr) {
-        Pattern compiledPattern;
-        Perl5Compiler compiler = new Perl5Compiler();
-
-        try {
-            compiledPattern = compiler.compile(perl5RegExp,
-                    Perl5Compiler.READ_ONLY_MASK);
-        } catch (MalformedPatternException mpe) {
-            throw new IllegalArgumentException("Malformed regular expression: "
-                + perl5RegExp);
-        }
-
-        requestMap.add(new EntryHolder(compiledPattern, attr));
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Added regular expression: "
-                + compiledPattern.getPattern().toString() + "; attributes: "
-                + attr);
-        }
+    public boolean isConvertUrlToLowercaseBeforeComparison() {
+        return convertUrlToLowercaseBeforeComparison;
     }
 
     public ConfigAttributeDefinition lookupAttributes(String url) {
@@ -126,20 +104,17 @@ public class RegExpBasedFilterInvocationDefinitionMap
             url = url.toLowerCase();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Converted URL to lowercase, from: '" + url
-                    + "'; to: '" + url + "'");
+                logger.debug("Converted URL to lowercase, from: '" + url + "'; to: '" + url + "'");
             }
         }
 
         while (iter.hasNext()) {
             EntryHolder entryHolder = (EntryHolder) iter.next();
 
-            boolean matched = matcher.matches(url,
-                    entryHolder.getCompiledPattern());
+            boolean matched = matcher.matches(url, entryHolder.getCompiledPattern());
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Candidate is: '" + url + "'; pattern is "
-                    + entryHolder.getCompiledPattern().getPattern()
+                logger.debug("Candidate is: '" + url + "'; pattern is " + entryHolder.getCompiledPattern().getPattern()
                     + "; matched=" + matched);
             }
 
@@ -151,14 +126,17 @@ public class RegExpBasedFilterInvocationDefinitionMap
         return null;
     }
 
-    //~ Inner Classes ==========================================================
+    public void setConvertUrlToLowercaseBeforeComparison(boolean convertUrlToLowercaseBeforeComparison) {
+        this.convertUrlToLowercaseBeforeComparison = convertUrlToLowercaseBeforeComparison;
+    }
+
+    //~ Inner Classes ==================================================================================================
 
     protected class EntryHolder {
         private ConfigAttributeDefinition configAttributeDefinition;
         private Pattern compiledPattern;
 
-        public EntryHolder(Pattern compiledPattern,
-            ConfigAttributeDefinition attr) {
+        public EntryHolder(Pattern compiledPattern, ConfigAttributeDefinition attr) {
             this.compiledPattern = compiledPattern;
             this.configAttributeDefinition = attr;
         }

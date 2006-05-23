@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,14 @@ import junit.framework.TestCase;
 
 
 /**
- * <p>
- * TestCase for PlaintextPasswordEncoder.
- * </p>
+ * <p>TestCase for PlaintextPasswordEncoder.</p>
  *
  * @author colin sampaleanu
  * @author Ben Alex
  * @version $Id$
  */
 public class Md5PasswordEncoderTests extends TestCase {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void testBasicFunctionality() {
         Md5PasswordEncoder pe = new Md5PasswordEncoder();

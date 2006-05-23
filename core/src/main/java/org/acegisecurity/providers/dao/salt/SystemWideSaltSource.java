@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,46 +16,42 @@
 package org.acegisecurity.providers.dao.salt;
 
 import org.acegisecurity.providers.dao.SaltSource;
+
 import org.acegisecurity.userdetails.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
 
 
 /**
- * Uses a static system-wide <code>String</code> as the salt.
- * 
- * <P>
- * Does not supply a different salt for each {@link User}. This means users
- * sharing the same password will still have the same digested password. Of
- * benefit is the digested passwords will at least be more protected than if
- * stored without any salt.
- * </p>
+ * Uses a static system-wide <code>String</code> as the salt.<P>Does not supply a different salt for each {@link
+ * User}. This means users sharing the same password will still have the same digested password. Of benefit is the
+ * digested passwords will at least be more protected than if stored without any salt.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class SystemWideSaltSource implements SaltSource, InitializingBean {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private String systemWideSalt;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    public void afterPropertiesSet() throws Exception {
+        if ((this.systemWideSalt == null) || "".equals(this.systemWideSalt)) {
+            throw new IllegalArgumentException("A systemWideSalt must be set");
+        }
+    }
 
     public Object getSalt(UserDetails user) {
         return this.systemWideSalt;
-    }
-
-    public void setSystemWideSalt(String systemWideSalt) {
-        this.systemWideSalt = systemWideSalt;
     }
 
     public String getSystemWideSalt() {
         return this.systemWideSalt;
     }
 
-    public void afterPropertiesSet() throws Exception {
-        if ((this.systemWideSalt == null) || "".equals(this.systemWideSalt)) {
-            throw new IllegalArgumentException("A systemWideSalt must be set");
-        }
+    public void setSystemWideSalt(String systemWideSalt) {
+        this.systemWideSalt = systemWideSalt;
     }
 }

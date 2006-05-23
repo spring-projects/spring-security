@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.AuthenticationCredentialsNotFoundException;
 import org.acegisecurity.ConfigAttributeDefinition;
+
 import org.acegisecurity.util.SimpleMethodInvocation;
 
 
@@ -29,7 +30,7 @@ import org.acegisecurity.util.SimpleMethodInvocation;
  * @version $Id$
  */
 public class AuthenticationCredentialsNotFoundEventTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AuthenticationCredentialsNotFoundEventTests() {
         super();
@@ -39,7 +40,7 @@ public class AuthenticationCredentialsNotFoundEventTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AuthenticationCredentialsNotFoundEventTests.class);
@@ -47,8 +48,7 @@ public class AuthenticationCredentialsNotFoundEventTests extends TestCase {
 
     public void testRejectsNulls() {
         try {
-            new AuthenticationCredentialsNotFoundEvent(null,
-                new ConfigAttributeDefinition(),
+            new AuthenticationCredentialsNotFoundEvent(null, new ConfigAttributeDefinition(),
                 new AuthenticationCredentialsNotFoundException("test"));
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
@@ -56,16 +56,16 @@ public class AuthenticationCredentialsNotFoundEventTests extends TestCase {
         }
 
         try {
-            new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(),
-                null, new AuthenticationCredentialsNotFoundException("test"));
+            new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(), null,
+                new AuthenticationCredentialsNotFoundException("test"));
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
 
         try {
-            new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(),
-                new ConfigAttributeDefinition(), null);
+            new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(), new ConfigAttributeDefinition(),
+                null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);

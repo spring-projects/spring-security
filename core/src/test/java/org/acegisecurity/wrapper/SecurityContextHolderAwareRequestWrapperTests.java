@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,13 @@ import junit.framework.TestCase;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.context.SecurityContextHolder;
+
 import org.acegisecurity.providers.TestingAuthenticationToken;
+
 import org.acegisecurity.userdetails.User;
+
 import org.acegisecurity.wrapper.SecurityContextHolderAwareRequestWrapper;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -35,7 +39,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * @version $Id$
  */
 public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public SecurityContextHolderAwareRequestWrapperTests() {
         super();
@@ -45,20 +49,19 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SecurityContextHolderAwareRequestWrapperTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testCorrectOperationWithStringBasedPrincipal()
         throws Exception {
-        Authentication auth = new TestingAuthenticationToken("marissa",
-                "koala",
+        Authentication auth = new TestingAuthenticationToken("marissa", "koala",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FOO")});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -77,11 +80,9 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 
     public void testCorrectOperationWithUserDetailsBasedPrincipal()
         throws Exception {
-        Authentication auth = new TestingAuthenticationToken(new User(
-                    "marissaAsUserDetails", "koala", true, true, true, true,
-                    new GrantedAuthority[] {}), "koala",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_HELLO"), new GrantedAuthorityImpl(
-                        "ROLE_FOOBAR")});
+        Authentication auth = new TestingAuthenticationToken(new User("marissaAsUserDetails", "koala", true, true,
+                    true, true, new GrantedAuthority[] {}), "koala",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_HELLO"), new GrantedAuthorityImpl("ROLE_FOOBAR")});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -115,8 +116,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 
     public void testNullPrincipalHandling() throws Exception {
         Authentication auth = new TestingAuthenticationToken(null, "koala",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_HELLO"), new GrantedAuthorityImpl(
-                        "ROLE_FOOBAR")});
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_HELLO"), new GrantedAuthorityImpl("ROLE_FOOBAR")});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = new MockHttpServletRequest();

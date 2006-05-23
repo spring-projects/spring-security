@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,41 +15,40 @@
 
 package org.acegisecurity.providers.cas.proxy;
 
-import java.util.List;
-
 import org.acegisecurity.AcegiMessageSource;
+
 import org.acegisecurity.providers.cas.CasProxyDecider;
 import org.acegisecurity.providers.cas.ProxyUntrustedException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+
 import org.springframework.util.Assert;
+
+import java.util.List;
 
 
 /**
- * Accepts proxied requests if the closest proxy is named in the
- * <code>validProxies</code> list.
- * 
- * <P>
- * Also accepts the request if there was no proxy (ie the user directly
- * authenticated against this service).
- * </p>
+ * Accepts proxied requests if the closest proxy is named in the <code>validProxies</code> list.<P>Also accepts the
+ * request if there was no proxy (ie the user directly authenticated against this service).</p>
  */
-public class NamedCasProxyDecider implements CasProxyDecider, InitializingBean,
-    MessageSourceAware {
-    //~ Static fields/initializers =============================================
+public class NamedCasProxyDecider implements CasProxyDecider, InitializingBean, MessageSourceAware {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(NamedCasProxyDecider.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private List validProxies;
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(this.validProxies, "A validProxies list must be set");
@@ -70,10 +69,8 @@ public class NamedCasProxyDecider implements CasProxyDecider, InitializingBean,
         }
 
         if (!validProxies.contains(proxyList.get(0))) {
-            throw new ProxyUntrustedException(messages.getMessage(
-                    "NamedCasProxyDecider.untrusted",
-                    new Object[] {proxyList.get(0)},
-                    "Nearest proxy {0} is untrusted"));
+            throw new ProxyUntrustedException(messages.getMessage("NamedCasProxyDecider.untrusted",
+                    new Object[] {proxyList.get(0)}, "Nearest proxy {0} is untrusted"));
         }
     }
 

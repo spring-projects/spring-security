@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,33 +20,17 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 
 /**
- * <p>
- * MD5 implementation of PasswordEncoder.
- * </p>
- * 
- * <p>
- * If a <code>null</code> password is presented, it will be treated as an empty
- * <code>String</code> ("") password.
- * </p>
- * 
- * <P>
- * As MD5 is a one-way hash, the salt can contain any characters.
- * </p>
+ * <p>MD5 implementation of PasswordEncoder.</p>
+ *  <p>If a <code>null</code> password is presented, it will be treated as an empty <code>String</code> ("")
+ * password.</p>
+ *  <P>As MD5 is a one-way hash, the salt can contain any characters.</p>
  *
  * @author colin sampaleanu
  * @author Ben Alex
  * @version $Id$
  */
-public class Md5PasswordEncoder extends BaseDigestPasswordEncoder
-    implements PasswordEncoder {
-    //~ Methods ================================================================
-
-    public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-        String pass1 = "" + encPass;
-        String pass2 = encodePassword(rawPass, salt);
-
-        return pass1.equals(pass2);
-    }
+public class Md5PasswordEncoder extends BaseDigestPasswordEncoder implements PasswordEncoder {
+    //~ Methods ========================================================================================================
 
     public String encodePassword(String rawPass, Object salt) {
         String saltedPass = mergePasswordAndSalt(rawPass, salt, false);
@@ -58,5 +42,12 @@ public class Md5PasswordEncoder extends BaseDigestPasswordEncoder
         byte[] encoded = Base64.encodeBase64(DigestUtils.md5(saltedPass));
 
         return new String(encoded);
+    }
+
+    public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
+        String pass1 = "" + encPass;
+        String pass2 = encodePassword(rawPass, salt);
+
+        return pass1.equals(pass2);
     }
 }

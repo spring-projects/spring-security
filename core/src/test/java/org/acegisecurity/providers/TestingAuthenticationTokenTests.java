@@ -28,7 +28,7 @@ import org.acegisecurity.GrantedAuthorityImpl;
  * @version $Id$
  */
 public class TestingAuthenticationTokenTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public TestingAuthenticationTokenTests() {
         super();
@@ -38,7 +38,7 @@ public class TestingAuthenticationTokenTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(TestingAuthenticationTokenTests.class);
@@ -49,18 +49,15 @@ public class TestingAuthenticationTokenTests extends TestCase {
     }
 
     public void testAuthenticated() {
-        TestingAuthenticationToken token = new TestingAuthenticationToken("Test",
-                "Password", null);
+        TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password", null);
         assertTrue(!token.isAuthenticated());
         token.setAuthenticated(true);
         assertTrue(token.isAuthenticated());
     }
 
     public void testGetters() {
-        TestingAuthenticationToken token = new TestingAuthenticationToken("Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+        TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
         assertEquals("Test", token.getPrincipal());
         assertEquals("Password", token.getCredentials());
         assertEquals("ROLE_ONE", token.getAuthorities()[0].getAuthority());

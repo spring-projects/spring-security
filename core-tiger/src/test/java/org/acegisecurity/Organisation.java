@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,23 +22,23 @@ package org.acegisecurity;
  * @version $Id$
  */
 public class Organisation extends Entity {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private boolean active = true;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public Organisation(String name) {
         super(name);
     }
 
-    //~ Methods ================================================================
-
-    public boolean isActive() {
-        return this.active;
-    }
+    //~ Methods ========================================================================================================
 
     void deactive() {
         this.active = true;
+    }
+
+    public boolean isActive() {
+        return this.active;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,32 +25,23 @@ import org.acegisecurity.GrantedAuthority;
  * @version $Id$
  */
 public interface RemoteAuthenticationManager {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Attempts to authenticate the remote client using the presented username
-     * and password. If authentication is successful, an array of
-     * <code>GrantedAuthority[]</code> objects will be returned.
-     * 
-     * <p>
-     * In order to maximise remoting protocol compatibility, a design decision
-     * was taken to operate with minimal arguments and return only the minimal
-     * amount of information required for remote clients to enable/disable
-     * relevant user interface commands etc. There is nothing preventing users
-     * from implementing their own equivalent package that works with more
-     * complex object types.
-     * </p>
+     * Attempts to authenticate the remote client using the presented username and password. If authentication
+     * is successful, an array of <code>GrantedAuthority[]</code> objects will be returned.<p>In order to
+     * maximise remoting protocol compatibility, a design decision was taken to operate with minimal arguments and
+     * return only the minimal amount of information required for remote clients to enable/disable relevant user
+     * interface commands etc. There is nothing preventing users from implementing their own equivalent package that
+     * works with more complex object types.</p>
      *
-     * @param username the username the remote client wishes to authenticate
-     *        with.
-     * @param password the password the remote client wishes to authenticate
-     *        with.
+     * @param username the username the remote client wishes to authenticate with.
+     * @param password the password the remote client wishes to authenticate with.
      *
-     * @return all of the granted authorities the specified username and
-     *         password have access to.
+     * @return all of the granted authorities the specified username and password have access to.
      *
      * @throws RemoteAuthenticationException if the authentication failed.
      */
-    public GrantedAuthority[] attemptAuthentication(String username,
-        String password) throws RemoteAuthenticationException;
+    public GrantedAuthority[] attemptAuthentication(String username, String password)
+        throws RemoteAuthenticationException;
 }

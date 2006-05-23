@@ -40,58 +40,44 @@ import java.security.cert.X509Certificate;
 
 
 /**
- * Processes an X.509 authentication request.
- * 
- * <p>
- * The request will typically originate from {@link
- * org.acegisecurity.ui.x509.X509ProcessingFilter}).
- * </p>
+ * Processes an X.509 authentication request.<p>The request will typically originate from {@link
+ * org.acegisecurity.ui.x509.X509ProcessingFilter}).</p>
  *
  * @author Luke Taylor
  * @version $Id$
  */
-public class X509AuthenticationProvider implements AuthenticationProvider,
-    InitializingBean, MessageSourceAware {
-    //~ Static fields/initializers =============================================
+public class X509AuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(X509AuthenticationProvider.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private X509AuthoritiesPopulator x509AuthoritiesPopulator;
     private X509UserCache userCache = new NullX509UserCache();
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(userCache, "An x509UserCache must be set");
-        Assert.notNull(x509AuthoritiesPopulator,
-            "An X509AuthoritiesPopulator must be set");
+        Assert.notNull(x509AuthoritiesPopulator, "An X509AuthoritiesPopulator must be set");
         Assert.notNull(this.messages, "A message source must be set");
     }
 
     /**
-     * If the supplied authentication token contains a certificate then this
-     * will be passed to the configured {@link X509AuthoritiesPopulator} to
-     * obtain the user details and authorities for the user identified by the
-     * certificate.
-     * 
-     * <p>
-     * If no certificate is present (for example, if the filter is applied to
-     * an HttpRequest for which client authentication hasn't been configured
-     * in the container) then a BadCredentialsException will be raised.
-     * </p>
+     * If the supplied authentication token contains a certificate then this will be passed to the configured
+     * {@link X509AuthoritiesPopulator} to obtain the user details and authorities for the user identified by the
+     * certificate.<p>If no certificate is present (for example, if the filter is applied to an HttpRequest for
+     * which client authentication hasn't been configured in the container) then a BadCredentialsException will be
+     * raised.</p>
      *
      * @param authentication the authentication request.
      *
-     * @return an X509AuthenticationToken containing the authorities of the
-     *         principal represented by the certificate.
+     * @return an X509AuthenticationToken containing the authorities of the principal represented by the certificate.
      *
-     * @throws AuthenticationException if the {@link X509AuthoritiesPopulator}
-     *         rejects the certficate.
-     * @throws BadCredentialsException if no certificate was presented in the
-     *         authentication request.
+     * @throws AuthenticationException if the {@link X509AuthoritiesPopulator} rejects the certficate.
+     * @throws BadCredentialsException if no certificate was presented in the authentication request.
      */
     public Authentication authenticate(Authentication authentication)
         throws AuthenticationException {
@@ -103,12 +89,10 @@ public class X509AuthenticationProvider implements AuthenticationProvider,
             logger.debug("X509 authentication request: " + authentication);
         }
 
-        X509Certificate clientCertificate = (X509Certificate) authentication
-            .getCredentials();
+        X509Certificate clientCertificate = (X509Certificate) authentication.getCredentials();
 
         if (clientCertificate == null) {
-            throw new BadCredentialsException(messages.getMessage(
-                    "X509AuthenticationProvider.certificateNull",
+            throw new BadCredentialsException(messages.getMessage("X509AuthenticationProvider.certificateNull",
                     "Certificate is null"));
         }
 
@@ -120,8 +104,7 @@ public class X509AuthenticationProvider implements AuthenticationProvider,
             userCache.putUserInCache(clientCertificate, user);
         }
 
-        X509AuthenticationToken result = new X509AuthenticationToken(user,
-                clientCertificate, user.getAuthorities());
+        X509AuthenticationToken result = new X509AuthenticationToken(user, clientCertificate, user.getAuthorities());
 
         result.setDetails(authentication.getDetails());
 
@@ -132,8 +115,7 @@ public class X509AuthenticationProvider implements AuthenticationProvider,
         this.messages = new MessageSourceAccessor(messageSource);
     }
 
-    public void setX509AuthoritiesPopulator(
-        X509AuthoritiesPopulator x509AuthoritiesPopulator) {
+    public void setX509AuthoritiesPopulator(X509AuthoritiesPopulator x509AuthoritiesPopulator) {
         this.x509AuthoritiesPopulator = x509AuthoritiesPopulator;
     }
 

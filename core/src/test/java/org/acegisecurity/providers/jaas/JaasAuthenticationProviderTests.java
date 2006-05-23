@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,31 @@
 package org.acegisecurity.providers.jaas;
 
 import junit.framework.TestCase;
+
 import org.acegisecurity.*;
+
 import org.acegisecurity.context.HttpSessionContextIntegrationFilter;
 import org.acegisecurity.context.SecurityContextImpl;
-import org.acegisecurity.ui.session.HttpSessionDestroyedEvent;
+
 import org.acegisecurity.providers.TestingAuthenticationToken;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
+import org.acegisecurity.ui.session.HttpSessionDestroyedEvent;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import org.springframework.mock.web.MockHttpSession;
 
-import javax.security.auth.login.LoginException;
-import javax.security.auth.login.LoginContext;
 import java.net.URL;
+
 import java.security.Security;
+
 import java.util.Arrays;
 import java.util.List;
+
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
 
 /**
@@ -41,24 +50,29 @@ import java.util.List;
  * @version $Id$
  */
 public class JaasAuthenticationProviderTests extends TestCase {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private ApplicationContext context;
     private JaasAuthenticationProvider jaasProvider;
     private JaasEventCheck eventCheck;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    protected void setUp() throws Exception {
+        String resName = "/" + getClass().getName().replace('.', '/') + ".xml";
+        context = new ClassPathXmlApplicationContext(resName);
+        eventCheck = (JaasEventCheck) context.getBean("eventCheck");
+        jaasProvider = (JaasAuthenticationProvider) context.getBean("jaasAuthenticationProvider");
+    }
 
     public void testBadPassword() {
         try {
             jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user", "asdf"));
             fail("LoginException should have been thrown for the bad password");
-        } catch (AuthenticationException e) {
-        }
+        } catch (AuthenticationException e) {}
 
         assertNotNull("Failure event not fired", eventCheck.failedEvent);
-        assertNotNull("Failure event exception was null",
-                eventCheck.failedEvent.getException());
+        assertNotNull("Failure event exception was null", eventCheck.failedEvent.getException());
         assertNull("Success event was fired", eventCheck.successEvent);
     }
 
@@ -66,12 +80,10 @@ public class JaasAuthenticationProviderTests extends TestCase {
         try {
             jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("asdf", "password"));
             fail("LoginException should have been thrown for the bad user");
-        } catch (AuthenticationException e) {
-        }
+        } catch (AuthenticationException e) {}
 
         assertNotNull("Failure event not fired", eventCheck.failedEvent);
-        assertNotNull("Failure event exception was null",
-                eventCheck.failedEvent.getException());
+        assertNotNull("Failure event exception was null", eventCheck.failedEvent.getException());
         assertNull("Success event was fired", eventCheck.successEvent);
     }
 
@@ -129,10 +141,10 @@ public class JaasAuthenticationProviderTests extends TestCase {
         GrantedAuthorityImpl role1 = new GrantedAuthorityImpl("ROLE_1");
         GrantedAuthorityImpl role2 = new GrantedAuthorityImpl("ROLE_2");
 
-        GrantedAuthority[] defaultAuths = new GrantedAuthority[]{role1, role2, };
+        GrantedAuthority[] defaultAuths = new GrantedAuthority[] {role1, role2,};
 
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user",
-                "password", defaultAuths);
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password",
+                defaultAuths);
 
         assertTrue(jaasProvider.supports(UsernamePasswordAuthenticationToken.class));
 
@@ -145,17 +157,13 @@ public class JaasAuthenticationProviderTests extends TestCase {
 
         List list = Arrays.asList(auth.getAuthorities());
 
-        assertTrue("GrantedAuthorities should contain ROLE_TEST1",
-                list.contains(new GrantedAuthorityImpl("ROLE_TEST1")));
+        assertTrue("GrantedAuthorities should contain ROLE_TEST1", list.contains(new GrantedAuthorityImpl("ROLE_TEST1")));
 
-        assertTrue("GrantedAuthorities should contain ROLE_TEST2",
-                list.contains(new GrantedAuthorityImpl("ROLE_TEST2")));
+        assertTrue("GrantedAuthorities should contain ROLE_TEST2", list.contains(new GrantedAuthorityImpl("ROLE_TEST2")));
 
-        assertTrue("GrantedAuthorities should contain ROLE_1",
-                list.contains(role1));
+        assertTrue("GrantedAuthorities should contain ROLE_1", list.contains(role1));
 
-        assertTrue("GrantedAuthorities should contain ROLE_2",
-                list.contains(role2));
+        assertTrue("GrantedAuthorities should contain ROLE_2", list.contains(role2));
 
         boolean foundit = false;
 
@@ -164,8 +172,7 @@ public class JaasAuthenticationProviderTests extends TestCase {
 
             if (obj instanceof JaasGrantedAuthority) {
                 JaasGrantedAuthority grant = (JaasGrantedAuthority) obj;
-                assertNotNull("Principal was null on JaasGrantedAuthority",
-                        grant.getPrincipal());
+                assertNotNull("Principal was null on JaasGrantedAuthority", grant.getPrincipal());
                 foundit = true;
             }
         }
@@ -173,50 +180,32 @@ public class JaasAuthenticationProviderTests extends TestCase {
         assertTrue("Could not find a JaasGrantedAuthority", foundit);
 
         assertNotNull("Success event not fired", eventCheck.successEvent);
-        assertEquals("Auth objects are not equal", auth,
-                eventCheck.successEvent.getAuthentication());
+        assertEquals("Auth objects are not equal", auth, eventCheck.successEvent.getAuthentication());
 
         assertNull("Failure event was fired", eventCheck.failedEvent);
-    }
-
-    public void testLoginExceptionResolver() {
-        assertNotNull(jaasProvider.getLoginExceptionResolver());
-        jaasProvider.setLoginExceptionResolver(new LoginExceptionResolver() {
-            public AcegiSecurityException resolveException(LoginException e) {
-                return new LockedException("This is just a test!");
-            }
-        });
-
-        try {
-            jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-        } catch (LockedException e) {
-        } catch (Exception e) {
-            fail("LockedException should have been thrown and caught");
-        }
-    }
-
-    public void testNullDefaultAuthorities() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user",
-                "password", null);
-
-        assertTrue(jaasProvider.supports(UsernamePasswordAuthenticationToken.class));
-
-        Authentication auth = jaasProvider.authenticate(token);
-        assertTrue("Only ROLE_TEST1 and ROLE_TEST2 should have been returned",
-                auth.getAuthorities().length == 2);
     }
 
     public void testGetApplicationContext() throws Exception {
         assertNotNull(jaasProvider.getApplicationContext());
     }
 
-    public void testUnsupportedAuthenticationObjectReturnsNull() {
-        assertNull(jaasProvider.authenticate(new TestingAuthenticationToken("foo", "bar",
-                new GrantedAuthority[]{})));
+    public void testLoginExceptionResolver() {
+        assertNotNull(jaasProvider.getLoginExceptionResolver());
+        jaasProvider.setLoginExceptionResolver(new LoginExceptionResolver() {
+                public AcegiSecurityException resolveException(LoginException e) {
+                    return new LockedException("This is just a test!");
+                }
+            });
+
+        try {
+            jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
+        } catch (LockedException e) {}
+        catch (Exception e) {
+            fail("LockedException should have been thrown and caught");
+        }
     }
 
     public void testLogout() throws Exception {
-
         MockLoginContext loginContext = new MockLoginContext(jaasProvider.getLoginContextName());
 
         JaasAuthenticationToken token = new JaasAuthenticationToken(null, null, loginContext);
@@ -232,15 +221,22 @@ public class JaasAuthenticationProviderTests extends TestCase {
         assertTrue(loginContext.loggedOut);
     }
 
-    protected void setUp() throws Exception {
-        String resName = "/" + getClass().getName().replace('.', '/') + ".xml";
-        context = new ClassPathXmlApplicationContext(resName);
-        eventCheck = (JaasEventCheck) context.getBean("eventCheck");
-        jaasProvider = (JaasAuthenticationProvider) context.getBean("jaasAuthenticationProvider");
+    public void testNullDefaultAuthorities() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password", null);
+
+        assertTrue(jaasProvider.supports(UsernamePasswordAuthenticationToken.class));
+
+        Authentication auth = jaasProvider.authenticate(token);
+        assertTrue("Only ROLE_TEST1 and ROLE_TEST2 should have been returned", auth.getAuthorities().length == 2);
     }
 
-    private static class MockLoginContext extends LoginContext {
+    public void testUnsupportedAuthenticationObjectReturnsNull() {
+        assertNull(jaasProvider.authenticate(new TestingAuthenticationToken("foo", "bar", new GrantedAuthority[] {})));
+    }
 
+    //~ Inner Classes ==================================================================================================
+
+    private static class MockLoginContext extends LoginContext {
         boolean loggedOut = false;
 
         public MockLoginContext(String loginModule) throws LoginException {

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,24 +35,18 @@ package org.acegisecurity.acl.basic;
  * @version $Id$
  */
 public interface BasicAclDao {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Obtains the ACLs that apply to the specified domain instance.
-     * 
-     * <P>
-     * Does <b>not</b> perform caching, include ACLs from any inheritance
-     * hierarchy or filter returned objects based on effective permissions.
-     * Implementations are solely responsible for returning ACLs found in the
-     * ACL repository for the specified object identity.
-     * </p>
+     * Obtains the ACLs that apply to the specified domain instance.<P>Does <b>not</b> perform caching, include
+     * ACLs from any inheritance hierarchy or filter returned objects based on effective permissions. Implementations
+     * are solely responsible for returning ACLs found in the ACL repository for the specified object identity.</p>
      *
-     * @param aclObjectIdentity the domain object instance that ACL information
-     *        is being requested for (never <code>null</code>)
+     * @param aclObjectIdentity the domain object instance that ACL information is being requested for (never
+     *        <code>null</code>)
      *
-     * @return the ACLs that apply (no <code>null</code>s are permitted in the
-     *         array), or <code>null</code> if no ACLs could be found for the
-     *         specified ACL object identity
+     * @return the ACLs that apply (no <code>null</code>s are permitted in the array), or <code>null</code> if no ACLs
+     *         could be found for the specified ACL object identity
      */
     public BasicAclEntry[] getAcls(AclObjectIdentity aclObjectIdentity);
 }

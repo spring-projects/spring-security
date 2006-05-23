@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,18 @@
 package org.acegisecurity;
 
 /**
- * Simply extends {@link TargetObject} so we have a different object to put
- * configuration attributes against.
- * 
- * <P>
- * There is no different behaviour. We have to define each method so that
- * <code>Class.getMethod(methodName, args)</code> returns a
- * <code>Method</code> referencing this class rather than the parent class.
- * </p>
- * 
- * <P>
- * We need to implement <code>ITargetObject</code> again because the
- * <code>MethodDefinitionAttributes</code> only locates attributes on
- * interfaces explicitly defined by the intercepted class (not the interfaces
- * defined by its parent class or classes).
- * </p>
+ * Simply extends {@link TargetObject} so we have a different object to put configuration attributes against.<P>There
+ * is no different behaviour. We have to define each method so that <code>Class.getMethod(methodName, args)</code>
+ * returns a <code>Method</code> referencing this class rather than the parent class.</p>
+ *  <P>We need to implement <code>ITargetObject</code> again because the <code>MethodDefinitionAttributes</code>
+ * only locates attributes on interfaces explicitly defined by the intercepted class (not the interfaces defined by
+ * its parent class or classes).</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class OtherTargetObject extends TargetObject implements ITargetObject {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public int countLength(String input) {
         return super.countLength(input);

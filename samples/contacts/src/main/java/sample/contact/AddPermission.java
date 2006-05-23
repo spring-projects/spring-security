@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,35 +25,35 @@ import org.acegisecurity.acl.basic.SimpleAclEntry;
  * @version $Id$
  */
 public class AddPermission {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     public Contact contact;
     public Integer permission = new Integer(SimpleAclEntry.NOTHING);
     public String recipient;
 
-    //~ Methods ================================================================
-
-    public void setContact(Contact contact) {
-        this.contact = contact;
-    }
+    //~ Methods ========================================================================================================
 
     public Contact getContact() {
         return contact;
-    }
-
-    public void setPermission(Integer permission) {
-        this.permission = permission;
     }
 
     public Integer getPermission() {
         return permission;
     }
 
-    public void setRecipient(String recipient) {
-        this.recipient = recipient;
-    }
-
     public String getRecipient() {
         return recipient;
+    }
+
+    public void setContact(Contact contact) {
+        this.contact = contact;
+    }
+
+    public void setPermission(Integer permission) {
+        this.permission = permission;
+    }
+
+    public void setRecipient(String recipient) {
+        this.recipient = recipient;
     }
 }

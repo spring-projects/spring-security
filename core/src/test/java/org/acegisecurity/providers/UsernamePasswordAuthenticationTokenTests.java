@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.acegisecurity.GrantedAuthorityImpl;
  * @version $Id$
  */
 public class UsernamePasswordAuthenticationTokenTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public UsernamePasswordAuthenticationTokenTests() {
         super();
@@ -38,19 +38,18 @@ public class UsernamePasswordAuthenticationTokenTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(UsernamePasswordAuthenticationTokenTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testAuthenticated() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password", null);
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password", null);
 
         // check default given we passed some GrantedAuthorty[]s (well, we passed null)
         assertTrue(token.isAuthenticated());
@@ -78,10 +77,8 @@ public class UsernamePasswordAuthenticationTokenTests extends TestCase {
     }
 
     public void testGetters() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
         assertEquals("Test", token.getPrincipal());
         assertEquals("Password", token.getCredentials());
         assertEquals("ROLE_ONE", token.getAuthorities()[0].getAuthority());
@@ -92,7 +89,7 @@ public class UsernamePasswordAuthenticationTokenTests extends TestCase {
         Class clazz = UsernamePasswordAuthenticationToken.class;
 
         try {
-            clazz.getDeclaredConstructor((Class[])null);
+            clazz.getDeclaredConstructor((Class[]) null);
             fail("Should have thrown NoSuchMethodException");
         } catch (NoSuchMethodException expected) {
             assertTrue(true);

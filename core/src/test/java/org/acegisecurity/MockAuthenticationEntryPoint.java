@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,11 +33,11 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public class MockAuthenticationEntryPoint implements AuthenticationEntryPoint {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private String url;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public MockAuthenticationEntryPoint(String url) {
         this.url = url;
@@ -47,12 +47,11 @@ public class MockAuthenticationEntryPoint implements AuthenticationEntryPoint {
         super();
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void commence(ServletRequest request, ServletResponse response,
         AuthenticationException authenticationException)
         throws IOException, ServletException {
-        ((HttpServletResponse) response).sendRedirect(((HttpServletRequest) request)
-            .getContextPath() + url);
+        ((HttpServletResponse) response).sendRedirect(((HttpServletRequest) request).getContextPath() + url);
     }
 }

@@ -32,24 +32,21 @@ import java.net.HttpURLConnection;
 
 
 /**
- * Adds BASIC authentication support to
- * <code>SimpleHttpInvokerRequestExecutor</code>.
+ * Adds BASIC authentication support to <code>SimpleHttpInvokerRequestExecutor</code>.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthenticationSimpleHttpInvokerRequestExecutor
-    extends SimpleHttpInvokerRequestExecutor {
-    //~ Static fields/initializers =============================================
+public class AuthenticationSimpleHttpInvokerRequestExecutor extends SimpleHttpInvokerRequestExecutor {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(AuthenticationSimpleHttpInvokerRequestExecutor.class);
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Provided so subclasses can perform additional configuration if required
-     * (eg set additional request headers for non-security related information
-     * etc).
+     * Provided so subclasses can perform additional configuration if required (eg set additional request
+     * headers for non-security related information etc).
      *
      * @param con the HTTP connection to prepare
      * @param contentLength the length of the content to send
@@ -60,46 +57,30 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor
         throws IOException {}
 
     /**
-     * Called every time a HTTP invocation is made.
-     * 
-     * <p>
-     * Simply allows the parent to setup the connection, and then adds an
-     * <code>Authorization</code> HTTP header property that will be used for
-     * BASIC authentication.
-     * </p>
-     * 
-     * <p>
-     * The <code>SecurityContextHolder</code> is used to obtain the relevant
-     * principal and credentials.
-     * </p>
+     * Called every time a HTTP invocation is made.<p>Simply allows the parent to setup the connection, and
+     * then adds an <code>Authorization</code> HTTP header property that will be used for BASIC authentication.</p>
+     *  <p>The <code>SecurityContextHolder</code> is used to obtain the relevant principal and credentials.</p>
      *
      * @param con the HTTP connection to prepare
      * @param contentLength the length of the content to send
      *
      * @throws IOException if thrown by HttpURLConnection methods
-     * @throws AuthenticationCredentialsNotFoundException if the
-     *         <code>SecurityContextHolder</code> does not contain a valid
-     *         <code>Authentication</code> with both its
-     *         <code>principal</code> and <code>credentials</code> not
+     * @throws AuthenticationCredentialsNotFoundException if the <code>SecurityContextHolder</code> does not contain a
+     *         valid <code>Authentication</code> with both its <code>principal</code> and <code>credentials</code> not
      *         <code>null</code>
      */
     protected void prepareConnection(HttpURLConnection con, int contentLength)
         throws IOException, AuthenticationCredentialsNotFoundException {
         super.prepareConnection(con, contentLength);
 
-        Authentication auth = SecurityContextHolder.getContext()
-                                                   .getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if ((auth != null) && (auth.getName() != null)
-            && (auth.getCredentials() != null)) {
-            String base64 = auth.getName() + ":"
-                + auth.getCredentials().toString();
-            con.setRequestProperty("Authorization",
-                "Basic " + new String(Base64.encodeBase64(base64.getBytes())));
+        if ((auth != null) && (auth.getName() != null) && (auth.getCredentials() != null)) {
+            String base64 = auth.getName() + ":" + auth.getCredentials().toString();
+            con.setRequestProperty("Authorization", "Basic " + new String(Base64.encodeBase64(base64.getBytes())));
 
             if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "HttpInvocation now presenting via BASIC authentication SecurityContextHolder-derived: "
+                logger.debug("HttpInvocation now presenting via BASIC authentication SecurityContextHolder-derived: "
                     + auth.toString());
             }
         } else {

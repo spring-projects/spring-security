@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.acegisecurity.providers.ldap;
 
 import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 
+
 /**
  * The strategy interface for locating and authenticating an Ldap user.
  * <p>
@@ -29,12 +30,14 @@ import org.acegisecurity.userdetails.ldap.LdapUserDetails;
  * @version $Id$
  */
 public interface LdapAuthenticator {
+    //~ Methods ========================================================================================================
+
     /**
-     * Authenticates as a user and obtains additional user information
-     * from the directory.
+     * Authenticates as a user and obtains additional user information from the directory.
      *
      * @param username the user's login name (<em>not</em> their DN).
      * @param password the user's password supplied at login.
+     *
      * @return the details of the successfully authenticated user.
      */
     LdapUserDetails authenticate(String username, String password);

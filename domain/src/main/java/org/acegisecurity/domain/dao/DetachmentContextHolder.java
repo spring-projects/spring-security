@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,11 @@
 
 package org.acegisecurity.domain.dao;
 
-
 /**
- * <code>InheritableThreadLocal</code> which indicates whether a {@link Dao}
- * implementation should be forced to return a detached instance.
- * 
- * <p>A detached instance is one which is no longer associated with the ORM
- * mapper and changes will therefore not be transparently persisted to the database.
- * 
- * <p>Not all <code>Dao</code> implementations support the concept of detached
- * instances.
+ * <code>InheritableThreadLocal</code> which indicates whether a {@link Dao} implementation should be forced to
+ * return a detached instance.<p>A detached instance is one which is no longer associated with the ORM mapper and
+ * changes will therefore not be transparently persisted to the database.</p>
+ *  <p>Not all <code>Dao</code> implementations support the concept of detached instances.</p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -32,26 +27,17 @@ package org.acegisecurity.domain.dao;
  * @see java.lang.InheritableThreadLocal
  */
 public class DetachmentContextHolder {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static InheritableThreadLocal<Boolean> contextHolder = new InheritableThreadLocal<Boolean>();
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Sets whether or not detached domain object instances should be returned
-     * within the current thread of execution.
+     * Returns the boolean value detachment policy which has been set for the current thread (defaults to
+     * false).
      *
-     * @param alwaysReturnDetached if true then detached instances should be returned.
-     */
-    public static void setForceReturnOfDetachedInstances(boolean alwaysReturnDetached) {
-        contextHolder.set(new Boolean(alwaysReturnDetached));
-    }
-
-    /**
-     * Returns the boolean value detachment policy which has been set for the current
-     * thread (defaults to false).
-     *
+     * @return DOCUMENT ME!
      */
     public static boolean isForceReturnOfDetachedInstances() {
         if (contextHolder.get() == null) {
@@ -59,5 +45,15 @@ public class DetachmentContextHolder {
         }
 
         return contextHolder.get().booleanValue();
+    }
+
+    /**
+     * Sets whether or not detached domain object instances should be returned within the current thread of
+     * execution.
+     *
+     * @param alwaysReturnDetached if true then detached instances should be returned.
+     */
+    public static void setForceReturnOfDetachedInstances(boolean alwaysReturnDetached) {
+        contextHolder.set(new Boolean(alwaysReturnDetached));
     }
 }

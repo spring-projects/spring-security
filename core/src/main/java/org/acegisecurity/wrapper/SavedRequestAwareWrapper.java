@@ -41,28 +41,18 @@ import javax.servlet.http.HttpSession;
 
 
 /**
- * Provides request parameters, headers and cookies from either an original
- * request or a saved request.
- * 
- * <p>
- * Note that not all request parameters in the original request are emulated by
- * this wrapper. Nevertheless, the important data from the original request is
- * emulated and this should prove adequate for most purposes (in particular
- * standard HTTP GET and POST operations).
- * </p>
- * 
- * <p>
- * Added into a request by {@link
- * org.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter}.
- * </p>
+ * Provides request parameters, headers and cookies from either an original request or a saved request.<p>Note that
+ * not all request parameters in the original request are emulated by this wrapper. Nevertheless, the important data
+ * from the original request is emulated and this should prove adequate for most purposes (in particular standard HTTP
+ * GET and POST operations).</p>
+ *  <p>Added into a request by {@link org.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter}.</p>
  *
  * @author Andrey Grebnev
  * @author Ben Alex
  * @version $Id$
  */
-public class SavedRequestAwareWrapper
-    extends SecurityContextHolderAwareRequestWrapper {
-    //~ Static fields/initializers =============================================
+public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestWrapper {
+    //~ Static fields/initializers =====================================================================================
 
     protected static final Log logger = LogFactory.getLog(SavedRequestAwareWrapper.class);
     protected static final TimeZone GMT_ZONE = TimeZone.getTimeZone("GMT");
@@ -70,29 +60,26 @@ public class SavedRequestAwareWrapper
     /** The default Locale if none are specified. */
     protected static Locale defaultLocale = Locale.getDefault();
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     protected SavedRequest savedRequest = null;
 
     /**
-     * The set of SimpleDateFormat formats to use in getDateHeader(). Notice
-     * that because SimpleDateFormat is not thread-safe, we can't declare
-     * formats[] as a static variable.
+     * The set of SimpleDateFormat formats to use in getDateHeader(). Notice that because SimpleDateFormat is
+     * not thread-safe, we can't declare formats[] as a static variable.
      */
     protected SimpleDateFormat[] formats = new SimpleDateFormat[3];
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    public SavedRequestAwareWrapper(HttpServletRequest request,
-        PortResolver portResolver) {
+    public SavedRequestAwareWrapper(HttpServletRequest request, PortResolver portResolver) {
         super(request);
 
         HttpSession session = request.getSession(false);
 
         if (session == null) {
             if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "Wrapper not replaced; no session available for SavedRequest extraction");
+                logger.debug("Wrapper not replaced; no session available for SavedRequest extraction");
             }
 
             return;
@@ -108,12 +95,9 @@ public class SavedRequestAwareWrapper
             savedRequest = saved;
             session.removeAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY);
 
-            formats[0] = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz",
-                    Locale.US);
-            formats[1] = new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz",
-                    Locale.US);
-            formats[2] = new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy",
-                    Locale.US);
+            formats[0] = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+            formats[1] = new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US);
+            formats[2] = new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US);
 
             formats[0].setTimeZone(GMT_ZONE);
             formats[1].setTimeZone(GMT_ZONE);
@@ -125,11 +109,10 @@ public class SavedRequestAwareWrapper
         }
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * The default behavior of this method is to return getCookies() on the
-     * wrapped request object.
+     * The default behavior of this method is to return getCookies() on the wrapped request object.
      *
      * @return DOCUMENT ME!
      */
@@ -144,8 +127,8 @@ public class SavedRequestAwareWrapper
     }
 
     /**
-     * The default behavior of this method is to return getDateHeader(String
-     * name) on the wrapped request object.
+     * The default behavior of this method is to return getDateHeader(String name) on the wrapped request
+     * object.
      *
      * @param name DOCUMENT ME!
      *
@@ -175,8 +158,7 @@ public class SavedRequestAwareWrapper
     }
 
     /**
-     * The default behavior of this method is to return getHeader(String name)
-     * on the wrapped request object.
+     * The default behavior of this method is to return getHeader(String name) on the wrapped request object.
      *
      * @param name DOCUMENT ME!
      *
@@ -200,8 +182,7 @@ public class SavedRequestAwareWrapper
     }
 
     /**
-     * The default behavior of this method is to return getHeaderNames() on the
-     * wrapped request object.
+     * The default behavior of this method is to return getHeaderNames() on the wrapped request object.
      *
      * @return DOCUMENT ME!
      */
@@ -214,8 +195,7 @@ public class SavedRequestAwareWrapper
     }
 
     /**
-     * The default behavior of this method is to return getHeaders(String name)
-     * on the wrapped request object.
+     * The default behavior of this method is to return getHeaders(String name) on the wrapped request object.
      *
      * @param name DOCUMENT ME!
      *
@@ -230,8 +210,8 @@ public class SavedRequestAwareWrapper
     }
 
     /**
-     * The default behavior of this method is to return getIntHeader(String
-     * name) on the wrapped request object.
+     * The default behavior of this method is to return getIntHeader(String name) on the wrapped request
+     * object.
      *
      * @param name DOCUMENT ME!
      *
@@ -252,8 +232,7 @@ public class SavedRequestAwareWrapper
     }
 
     /**
-     * The default behavior of this method is to return getLocale() on the
-     * wrapped request object.
+     * The default behavior of this method is to return getLocale() on the wrapped request object.
      *
      * @return DOCUMENT ME!
      */
@@ -279,8 +258,7 @@ public class SavedRequestAwareWrapper
     }
 
     /**
-     * The default behavior of this method is to return getLocales() on the
-     * wrapped request object.
+     * The default behavior of this method is to return getLocales() on the wrapped request object.
      *
      * @return DOCUMENT ME!
      */
@@ -302,8 +280,7 @@ public class SavedRequestAwareWrapper
     }
 
     /**
-     * The default behavior of this method is to return getMethod() on the
-     * wrapped request object.
+     * The default behavior of this method is to return getMethod() on the wrapped request object.
      *
      * @return DOCUMENT ME!
      */
@@ -316,8 +293,8 @@ public class SavedRequestAwareWrapper
     }
 
     /**
-     * The default behavior of this method is to return getParameter(String
-     * name) on the wrapped request object.
+     * The default behavior of this method is to return getParameter(String name) on the wrapped request
+     * object.
      *
      * @param name DOCUMENT ME!
      *
@@ -364,8 +341,7 @@ public class SavedRequestAwareWrapper
     }
 
     /**
-     * The default behavior of this method is to return getParameterMap() on
-     * the wrapped request object.
+     * The default behavior of this method is to return getParameterMap() on the wrapped request object.
      *
      * @return DOCUMENT ME!
      */
@@ -378,8 +354,7 @@ public class SavedRequestAwareWrapper
     }
 
     /**
-     * The default behavior of this method is to return getParameterNames() on
-     * the wrapped request object.
+     * The default behavior of this method is to return getParameterNames() on the wrapped request object.
      *
      * @return DOCUMENT ME!
      */
@@ -392,8 +367,8 @@ public class SavedRequestAwareWrapper
     }
 
     /**
-     * The default behavior of this method is to return
-     * getParameterValues(String name) on the wrapped request object.
+     * The default behavior of this method is to return getParameterValues(String name) on the wrapped request
+     * object.
      *
      * @param name DOCUMENT ME!
      *

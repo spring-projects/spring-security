@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,31 +21,29 @@ import java.security.Principal;
 
 
 /**
- * A {@link Principal} compatible  {@link org.acegisecurity.Authentication}
- * object.
+ * A {@link Principal} compatible  {@link org.acegisecurity.Authentication} object.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class PrincipalAcegiUserToken extends AbstractAdapterAuthenticationToken
-    implements Principal {
-    //~ Instance fields ========================================================
+public class PrincipalAcegiUserToken extends AbstractAdapterAuthenticationToken implements Principal {
+    //~ Instance fields ================================================================================================
 
     private Object principal;
     private String password;
     private String username;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    public PrincipalAcegiUserToken(String key, String username,
-        String password, GrantedAuthority[] authorities, Object principal) {
+    public PrincipalAcegiUserToken(String key, String username, String password, GrantedAuthority[] authorities,
+        Object principal) {
         super(key, authorities);
         this.username = username;
         this.password = password;
         this.principal = principal;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Object getCredentials() {
         return this.password;

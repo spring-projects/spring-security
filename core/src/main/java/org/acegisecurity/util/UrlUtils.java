@@ -16,32 +16,25 @@
 package org.acegisecurity.util;
 
 import org.acegisecurity.intercept.web.FilterInvocation;
+
 import org.acegisecurity.ui.savedrequest.SavedRequest;
 
 import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * Provides static methods for composing URLs.
- * 
- * <p>
- * Placed into a separate class for visibility, so that changes to URL
- * formatting conventions will affect all users.
- * </p>
+ * Provides static methods for composing URLs.<p>Placed into a separate class for visibility, so that changes to
+ * URL formatting conventions will affect all users.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class UrlUtils {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Obtains the full URL the client used to make the request.
-     * 
-     * <p>
-     * Note that the server port will not be shown if it is the default server
-     * port for HTTP or HTTPS (ie 80 and 443 respectively).
-     * </p>
+     * Obtains the full URL the client used to make the request.<p>Note that the server port will not be shown
+     * if it is the default server port for HTTP or HTTPS (ie 80 and 443 respectively).</p>
      *
      * @param scheme DOCUMENT ME!
      * @param serverName DOCUMENT ME!
@@ -55,10 +48,8 @@ public class UrlUtils {
      *
      * @return the full URL
      */
-    private static String buildFullRequestUrl(String scheme, String serverName,
-        int serverPort, String contextPath, String requestUrl,
-        String servletPath, String requestURI, String pathInfo,
-        String queryString) {
+    private static String buildFullRequestUrl(String scheme, String serverName, int serverPort, String contextPath,
+        String requestUrl, String servletPath, String requestURI, String pathInfo, String queryString) {
         boolean includePort = true;
 
         if ("http".equals(scheme.toLowerCase()) && (serverPort == 80)) {
@@ -69,10 +60,8 @@ public class UrlUtils {
             includePort = false;
         }
 
-        return scheme + "://" + serverName
-        + ((includePort) ? (":" + serverPort) : "") + contextPath
-        + buildRequestUrl(servletPath, requestURI, contextPath, pathInfo,
-            queryString);
+        return scheme + "://" + serverName + ((includePort) ? (":" + serverPort) : "") + contextPath
+        + buildRequestUrl(servletPath, requestURI, contextPath, pathInfo, queryString);
     }
 
     /**
@@ -86,8 +75,7 @@ public class UrlUtils {
      *
      * @return the URL, excluding any server name, context path or servlet path
      */
-    private static String buildRequestUrl(String servletPath,
-        String requestURI, String contextPath, String pathInfo,
+    private static String buildRequestUrl(String servletPath, String requestURI, String contextPath, String pathInfo,
         String queryString) {
         String uri = servletPath;
 
@@ -96,35 +84,30 @@ public class UrlUtils {
             uri = uri.substring(contextPath.length());
         }
 
-        return uri + ((pathInfo == null) ? "" : pathInfo)
-        + ((queryString == null) ? "" : ("?" + queryString));
+        return uri + ((pathInfo == null) ? "" : pathInfo) + ((queryString == null) ? "" : ("?" + queryString));
     }
 
     public static String getFullRequestUrl(FilterInvocation fi) {
         HttpServletRequest r = fi.getHttpRequest();
 
-        return buildFullRequestUrl(r.getScheme(), r.getServerName(),
-            r.getServerPort(), r.getContextPath(),
-            r.getRequestURL().toString(), r.getServletPath(),
-            r.getRequestURI(), r.getPathInfo(), r.getQueryString());
+        return buildFullRequestUrl(r.getScheme(), r.getServerName(), r.getServerPort(), r.getContextPath(),
+            r.getRequestURL().toString(), r.getServletPath(), r.getRequestURI(), r.getPathInfo(), r.getQueryString());
     }
 
     public static String getFullRequestUrl(SavedRequest sr) {
-        return buildFullRequestUrl(sr.getScheme(), sr.getServerName(),
-            sr.getServerPort(), sr.getContextPath(), sr.getRequestURL(),
-            sr.getServletPath(), sr.getRequestURI(), sr.getPathInfo(),
-            sr.getQueryString());
+        return buildFullRequestUrl(sr.getScheme(), sr.getServerName(), sr.getServerPort(), sr.getContextPath(),
+            sr.getRequestURL(), sr.getServletPath(), sr.getRequestURI(), sr.getPathInfo(), sr.getQueryString());
     }
 
     public static String getRequestUrl(FilterInvocation fi) {
         HttpServletRequest r = fi.getHttpRequest();
 
-        return buildRequestUrl(r.getServletPath(), r.getRequestURI(),
-            r.getContextPath(), r.getPathInfo(), r.getQueryString());
+        return buildRequestUrl(r.getServletPath(), r.getRequestURI(), r.getContextPath(), r.getPathInfo(),
+            r.getQueryString());
     }
 
     public static String getRequestUrl(SavedRequest sr) {
-        return buildRequestUrl(sr.getServletPath(), sr.getRequestURI(),
-            sr.getContextPath(), sr.getPathInfo(), sr.getQueryString());
+        return buildRequestUrl(sr.getServletPath(), sr.getRequestURI(), sr.getContextPath(), sr.getPathInfo(),
+            sr.getQueryString());
     }
 }

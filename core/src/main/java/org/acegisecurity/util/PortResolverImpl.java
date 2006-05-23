@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.acegisecurity.util;
 
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.util.Assert;
 
 import javax.servlet.ServletRequest;
@@ -23,31 +24,25 @@ import javax.servlet.ServletRequest;
 
 /**
  * Concrete implementation of {@link PortResolver} that obtains the port from
- * <code>ServletRequest.getServerPort()</code>.
- * 
- * <P>
- * This class is capable of handling the IE bug which results in an incorrect
- * URL being presented in the header subsequent to a redirect to a different
- * scheme and port where the port is not a well-known number (ie 80 or 443).
- * Handling involves detecting an incorrect response from
- * <code>ServletRequest.getServerPort()</code> for the scheme (eg a HTTP
- * request on 8443) and then determining the real server port (eg HTTP request
- * is really on 8080). The map of valid ports is obtained from the configured
- * {@link PortMapper}.
- * </p>
+ * <code>ServletRequest.getServerPort()</code>.<P>This class is capable of handling the IE bug which results in an
+ * incorrect URL being presented in the header subsequent to a redirect to a different scheme and port where the port
+ * is not a well-known number (ie 80 or 443). Handling involves detecting an incorrect response from
+ * <code>ServletRequest.getServerPort()</code> for the scheme (eg a HTTP request on 8443) and then determining the
+ * real server port (eg HTTP request is really on 8080). The map of valid ports is obtained from the configured {@link
+ * PortMapper}.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class PortResolverImpl implements InitializingBean, PortResolver {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private PortMapper portMapper = new PortMapperImpl();
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void setPortMapper(PortMapper portMapper) {
-        this.portMapper = portMapper;
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(portMapper, "portMapper required");
     }
 
     public PortMapper getPortMapper() {
@@ -78,7 +73,7 @@ public class PortResolverImpl implements InitializingBean, PortResolver {
         return result;
     }
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(portMapper, "portMapper required");
+    public void setPortMapper(PortMapper portMapper) {
+        this.portMapper = portMapper;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,42 +21,35 @@ import org.acegisecurity.captcha.AlwaysTestAfterTimeInMillisCaptchaChannelProces
 
 
 /**
- * WARNING! This test class make some assumptions concerning the compute speed!
- * For example the two following instructions should be computed in the same
- * millis or the test is not valid.
- * <pre><code>
- * context.setHuman();
+ * WARNING! This test class make some assumptions concerning the compute speed! For example the two following
+ * instructions should be computed in the same millis or the test is not valid.<pre><code>context.setHuman();
  * assertFalse(alwaysTestAfterTimeInMillisCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
- * </code></pre>
- * This should be the case for most environements unless
- * 
- * <ul>
- * <li>
- * you run it on a good old TRS-80
- * </li>
- * <li>
- * you start M$office during this test ;)
- * </li>
- * </ul>
+ * </code></pre>This should be the case for most environements unless
+ *  <ul>
+ *      <li>you run it on a good old TRS-80</li>
+ *      <li>you start M$office during this test ;)</li>
+ *  </ul>
  */
-public class AlwaysTestAfterTimeInMillisCaptchaChannelProcessorTests
-    extends TestCase {
-    //~ Instance fields ========================================================
+public class AlwaysTestAfterTimeInMillisCaptchaChannelProcessorTests extends TestCase {
+    //~ Instance fields ================================================================================================
 
     AlwaysTestAfterTimeInMillisCaptchaChannelProcessor alwaysTestAfterTimeInMillisCaptchaChannelProcessor;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    protected void setUp() throws Exception {
+        super.setUp();
+        alwaysTestAfterTimeInMillisCaptchaChannelProcessor = new AlwaysTestAfterTimeInMillisCaptchaChannelProcessor();
+    }
 
     public void testEqualsThresold() {
         CaptchaSecurityContext context = new CaptchaSecurityContextImpl();
-        assertFalse(alwaysTestAfterTimeInMillisCaptchaChannelProcessor
-            .isContextValidConcerningHumanity(context));
+        assertFalse(alwaysTestAfterTimeInMillisCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
 
         //the two following instructions should be computed or the test is not valid (never fails). This should be the case
         // for most environements unless if you run it on a good old TRS-80 (thanks mom).
         context.setHuman();
-        assertFalse(alwaysTestAfterTimeInMillisCaptchaChannelProcessor
-            .isContextValidConcerningHumanity(context));
+        assertFalse(alwaysTestAfterTimeInMillisCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
     }
 
     public void testIsContextValidConcerningHumanity()
@@ -65,11 +58,9 @@ public class AlwaysTestAfterTimeInMillisCaptchaChannelProcessorTests
         alwaysTestAfterTimeInMillisCaptchaChannelProcessor.setThresold(100);
         context.setHuman();
 
-        while ((System.currentTimeMillis()
-            - context.getLastPassedCaptchaDateInMillis()) < alwaysTestAfterTimeInMillisCaptchaChannelProcessor
+        while ((System.currentTimeMillis() - context.getLastPassedCaptchaDateInMillis()) < alwaysTestAfterTimeInMillisCaptchaChannelProcessor
             .getThresold()) {
-            assertTrue(alwaysTestAfterTimeInMillisCaptchaChannelProcessor
-                .isContextValidConcerningHumanity(context));
+            assertTrue(alwaysTestAfterTimeInMillisCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
             context.incrementHumanRestrictedRessoucesRequestsCount();
 
             long now = System.currentTimeMillis();
@@ -79,20 +70,13 @@ public class AlwaysTestAfterTimeInMillisCaptchaChannelProcessorTests
             ;
         }
 
-        assertFalse(alwaysTestAfterTimeInMillisCaptchaChannelProcessor
-            .isContextValidConcerningHumanity(context));
+        assertFalse(alwaysTestAfterTimeInMillisCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
     }
 
     public void testNewContext() {
         CaptchaSecurityContext context = new CaptchaSecurityContextImpl();
 
         //alwaysTestAfterTimeInMillisCaptchaChannelProcessor.setThresold(10);
-        assertFalse(alwaysTestAfterTimeInMillisCaptchaChannelProcessor
-            .isContextValidConcerningHumanity(context));
-    }
-
-    protected void setUp() throws Exception {
-        super.setUp();
-        alwaysTestAfterTimeInMillisCaptchaChannelProcessor = new AlwaysTestAfterTimeInMillisCaptchaChannelProcessor();
+        assertFalse(alwaysTestAfterTimeInMillisCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
     }
 }

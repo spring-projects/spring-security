@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.acegisecurity.providers.jaas;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.userdetails.UserDetails;
 
 import java.io.IOException;
@@ -26,27 +27,23 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 
 
 /**
- * The most basic Callbacks to be handled when using a LoginContext from JAAS,
- * are the NameCallback and PasswordCallback. The acegi security framework
- * provides the JaasNameCallbackHandler specifically tailored to handling the
- * NameCallback. <br>
+ * The most basic Callbacks to be handled when using a LoginContext from JAAS, are the NameCallback and
+ * PasswordCallback. The acegi security framework provides the JaasNameCallbackHandler specifically tailored to
+ * handling the NameCallback. <br>
  *
  * @author Ray Krueger
  * @version $Id$
  *
- * @see <a
- *      href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>
+ * @see <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>
  * @see <a
  *      href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/NameCallback.html">NameCallback</a>
  */
-public class JaasNameCallbackHandler
-    implements JaasAuthenticationCallbackHandler {
-    //~ Methods ================================================================
+public class JaasNameCallbackHandler implements JaasAuthenticationCallbackHandler {
+    //~ Methods ========================================================================================================
 
     /**
-     * If the callback passed to the 'handle' method is an instance of
-     * NameCallback, the JaasNameCallbackHandler will call,
-     * callback.setName(authentication.getPrincipal().toString()).
+     * If the callback passed to the 'handle' method is an instance of NameCallback, the
+     * JaasNameCallbackHandler will call, callback.setName(authentication.getPrincipal().toString()).
      *
      * @param callback
      * @param authentication
@@ -55,14 +52,13 @@ public class JaasNameCallbackHandler
      * @throws UnsupportedCallbackException
      */
     public void handle(Callback callback, Authentication authentication)
-            throws IOException, UnsupportedCallbackException {
-
+        throws IOException, UnsupportedCallbackException {
         if (callback instanceof NameCallback) {
-
             NameCallback ncb = (NameCallback) callback;
             String username = "";
 
             Object principal = authentication.getPrincipal();
+
             if (principal instanceof UserDetails) {
                 username = ((UserDetails) principal).getUsername();
             } else {

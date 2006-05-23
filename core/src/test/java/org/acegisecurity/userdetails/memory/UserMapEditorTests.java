@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
 
 package org.acegisecurity.userdetails.memory;
 
+import junit.framework.TestCase;
+
 import org.acegisecurity.userdetails.memory.UserMap;
 import org.acegisecurity.userdetails.memory.UserMapEditor;
-
-import junit.framework.TestCase;
 
 
 /**
@@ -28,7 +28,7 @@ import junit.framework.TestCase;
  * @version $Id$
  */
 public class UserMapEditorTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public UserMapEditorTests() {
         super();
@@ -38,14 +38,14 @@ public class UserMapEditorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(UserMapEditorTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testConvertedIntoUserSuccessfullyWhenDisabled() {
@@ -63,10 +63,8 @@ public class UserMapEditorTests extends TestCase {
         UserMap map = (UserMap) editor.getValue();
         assertEquals("marissa", map.getUser("marissa").getUsername());
         assertEquals("koala", map.getUser("marissa").getPassword());
-        assertEquals("ROLE_ONE",
-            map.getUser("marissa").getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_TWO",
-            map.getUser("marissa").getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_ONE", map.getUser("marissa").getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_TWO", map.getUser("marissa").getAuthorities()[1].getAuthority());
         assertTrue(map.getUser("marissa").isEnabled());
     }
 
@@ -88,8 +86,7 @@ public class UserMapEditorTests extends TestCase {
 
     public void testMultiUserParsing() {
         UserMapEditor editor = new UserMapEditor();
-        editor.setAsText(
-            "marissa=koala,ROLE_ONE,ROLE_TWO,enabled\r\nscott=wombat,ROLE_ONE,ROLE_TWO,enabled");
+        editor.setAsText("marissa=koala,ROLE_ONE,ROLE_TWO,enabled\r\nscott=wombat,ROLE_ONE,ROLE_TWO,enabled");
 
         UserMap map = (UserMap) editor.getValue();
         assertEquals("marissa", map.getUser("marissa").getUsername());

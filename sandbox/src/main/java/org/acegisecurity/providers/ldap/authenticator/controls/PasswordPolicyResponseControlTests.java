@@ -25,7 +25,7 @@ import junit.framework.TestCase;
  * @version $Id$
  */
 public class PasswordPolicyResponseControlTests extends TestCase {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Useful method for obtaining data from a server for use in tests

@@ -69,60 +69,36 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Switch User processing filter responsible for user context switching.
- * 
- * <p>
- * This filter is similar to Unix 'su' however for Acegi-managed web
- * applications.  A common use-case for this feature is the ability to allow
- * higher-authority users (i.e. ROLE_ADMIN) to switch to a regular user (i.e.
- * ROLE_USER).
- * </p>
- * 
- * <p>
- * This filter assumes that the user performing the switch will be required to
- * be logged in as normal (i.e. ROLE_ADMIN user). The user will then access a
- * page/controller that enables the administrator to specify who they wish to
- * become (see <code>switchUserUrl</code>). <br>
- * <b>Note: This URL will be required to have to appropriate security
- * contraints configured so that  only users of that role can access (i.e.
- * ROLE_ADMIN).</b>
- * </p>
- * 
- * <p>
- * On successful switch, the user's  <code>SecurityContextHolder</code> will be
- * updated to reflect the specified user and will also contain an additinal
- * {@link org.acegisecurity.ui.switchuser.SwitchUserGrantedAuthority } which
- * contains the original user.
- * </p>
- * 
- * <p>
- * To 'exit' from a user context, the user will then need to access a URL (see
- * <code>exitUserUrl</code>)  that will switch back to the original user as
- * identified by the <code>SWITCH_USER_GRANTED_AUTHORITY</code>.
- * </p>
- * 
- * <p>
- * To configure the Switch User Processing Filter, create a bean definition for
- * the Switch User processing filter and add to the filterChainProxy. <br>
- * Example:
- * <pre>
+ * Switch User processing filter responsible for user context switching.<p>This filter is similar to Unix 'su'
+ * however for Acegi-managed web applications.  A common use-case for this feature is the ability to allow
+ * higher-authority users (i.e. ROLE_ADMIN) to switch to a regular user (i.e. ROLE_USER).</p>
+ *  <p>This filter assumes that the user performing the switch will be required to be logged in as normal (i.e.
+ * ROLE_ADMIN user). The user will then access a page/controller that enables the administrator to specify who they
+ * wish to become (see <code>switchUserUrl</code>). <br>
+ * <b>Note: This URL will be required to have to appropriate security contraints configured so that  only users of that
+ * role can access (i.e. ROLE_ADMIN).</b></p>
+ *  <p>On successful switch, the user's  <code>SecurityContextHolder</code> will be updated to reflect the
+ * specified user and will also contain an additinal {@link org.acegisecurity.ui.switchuser.SwitchUserGrantedAuthority
+ * } which contains the original user.</p>
+ *  <p>To 'exit' from a user context, the user will then need to access a URL (see <code>exitUserUrl</code>)  that
+ * will switch back to the original user as identified by the <code>SWITCH_USER_GRANTED_AUTHORITY</code>.</p>
+ *  <p>To configure the Switch User Processing Filter, create a bean definition for the Switch User processing
+ * filter and add to the filterChainProxy. <br>
+ * Example:<pre>
  * &lt;bean id="switchUserProcessingFilter" class="org.acegisecurity.ui.switchuser.SwitchUserProcessingFilter">
  *    &lt;property name="authenticationDao" ref="jdbcDaoImpl" />
  *    &lt;property name="switchUserUrl">&lt;value>/j_acegi_switch_user&lt;/value>&lt;/property>
  *    &lt;property name="exitUserUrl">&lt;value>/j_acegi_exit_user&lt;/value>&lt;/property>
- *    &lt;property name="targetUrl">&lt;value>/index.jsp&lt;/value>&lt;/property>
- * &lt;/bean>
- * </pre>
- * </p>
+ *    &lt;property name="targetUrl">&lt;value>/index.jsp&lt;/value>&lt;/property>&lt;/bean></pre></p>
  *
  * @author Mark St.Godard
  * @version $Id$
  *
  * @see org.acegisecurity.ui.switchuser.SwitchUserGrantedAuthority
  */
-public class SwitchUserProcessingFilter implements Filter, InitializingBean,
-    ApplicationEventPublisherAware, MessageSourceAware {
-    //~ Static fields/initializers =============================================
+public class SwitchUserProcessingFilter implements Filter, InitializingBean, ApplicationEventPublisherAware,
+    MessageSourceAware {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(SwitchUserProcessingFilter.class);
 
@@ -131,7 +107,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
     public static final String ACEGI_SECURITY_SWITCH_USERNAME_KEY = "j_username";
     public static final String ROLE_PREVIOUS_ADMINISTRATOR = "ROLE_PREVIOUS_ADMINISTRATOR";
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private ApplicationEventPublisher eventPublisher;
     private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
@@ -144,7 +120,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
     // ========================================================
     private UserDetailsService userDetailsService;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(switchUserUrl, "switchUserUrl must be specified");
@@ -159,22 +135,19 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
      *
      * @param request The http servlet request
      *
-     * @return The original <code>Authentication</code> object or
-     *         <code>null</code> otherwise.
+     * @return The original <code>Authentication</code> object or <code>null</code> otherwise.
      *
-     * @throws AuthenticationCredentialsNotFoundException If no
-     *         <code>Authentication</code> associated with this request.
+     * @throws AuthenticationCredentialsNotFoundException If no <code>Authentication</code> associated with this
+     *         request.
      */
     protected Authentication attemptExitUser(HttpServletRequest request)
         throws AuthenticationCredentialsNotFoundException {
         // need to check to see if the current user has a SwitchUserGrantedAuthority
-        Authentication current = SecurityContextHolder.getContext()
-                                                      .getAuthentication();
+        Authentication current = SecurityContextHolder.getContext().getAuthentication();
 
         if (null == current) {
-            throw new AuthenticationCredentialsNotFoundException(messages
-                .getMessage("SwitchUserProcessingFilter.noCurrentUser",
-                    "No current user associated with this request"));
+            throw new AuthenticationCredentialsNotFoundException(messages.getMessage(
+                    "SwitchUserProcessingFilter.noCurrentUser", "No current user associated with this request"));
         }
 
         // check to see if the current user did actual switch to another user
@@ -183,8 +156,8 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
 
         if (original == null) {
             logger.error("Could not find original user Authentication object!");
-            throw new AuthenticationCredentialsNotFoundException(messages
-                .getMessage("SwitchUserProcessingFilter.noOriginalAuthentication",
+            throw new AuthenticationCredentialsNotFoundException(messages.getMessage(
+                    "SwitchUserProcessingFilter.noOriginalAuthentication",
                     "Could not find original Authentication object"));
         }
 
@@ -198,29 +171,26 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
 
         // publish event
         if (this.eventPublisher != null) {
-            eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(
-                    current, originalUser));
+            eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(current, originalUser));
         }
 
         return original;
     }
 
     /**
-     * Attempt to switch to another user. If the user does not exist or is not
-     * active, return null.
+     * Attempt to switch to another user. If the user does not exist or is not active, return null.
      *
      * @param request The http request
      *
-     * @return The new <code>Authentication</code> request if successfully
-     *         switched to another user, <code>null</code> otherwise.
+     * @return The new <code>Authentication</code> request if successfully switched to another user, <code>null</code>
+     *         otherwise.
      *
      * @throws AuthenticationException
      * @throws UsernameNotFoundException If the target user is not found.
      * @throws LockedException DOCUMENT ME!
      * @throws DisabledException If the target user is disabled.
      * @throws AccountExpiredException If the target user account is expired.
-     * @throws CredentialsExpiredException If the target user credentials are
-     *         expired.
+     * @throws CredentialsExpiredException If the target user credentials are expired.
      */
     protected Authentication attemptSwitchUser(HttpServletRequest request)
         throws AuthenticationException {
@@ -241,35 +211,29 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
 
         // user not found
         if (targetUser == null) {
-            throw new UsernameNotFoundException(messages.getMessage(
-                    "SwitchUserProcessingFilter.usernameNotFound",
+            throw new UsernameNotFoundException(messages.getMessage("SwitchUserProcessingFilter.usernameNotFound",
                     new Object[] {username}, "Username {0} not found"));
         }
 
         // account is expired
         if (!targetUser.isAccountNonLocked()) {
-            throw new LockedException(messages.getMessage(
-                    "SwitchUserProcessingFilter.locked",
-                    "User account is locked"));
+            throw new LockedException(messages.getMessage("SwitchUserProcessingFilter.locked", "User account is locked"));
         }
 
         // user is disabled
         if (!targetUser.isEnabled()) {
-            throw new DisabledException(messages.getMessage(
-                    "SwitchUserProcessingFilter.disabled", "User is disabled"));
+            throw new DisabledException(messages.getMessage("SwitchUserProcessingFilter.disabled", "User is disabled"));
         }
 
         // account is expired
         if (!targetUser.isAccountNonExpired()) {
-            throw new AccountExpiredException(messages.getMessage(
-                    "SwitchUserProcessingFilter.expired",
+            throw new AccountExpiredException(messages.getMessage("SwitchUserProcessingFilter.expired",
                     "User account has expired"));
         }
 
         // credentials expired
         if (!targetUser.isCredentialsNonExpired()) {
-            throw new CredentialsExpiredException(messages.getMessage(
-                    "SwitchUserProcessingFilter.credentialsExpired",
+            throw new CredentialsExpiredException(messages.getMessage("SwitchUserProcessingFilter.credentialsExpired",
                     "User credentials have expired"));
         }
 
@@ -283,17 +247,15 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
         // publish event
         if (this.eventPublisher != null) {
             eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(
-                    SecurityContextHolder.getContext().getAuthentication(),
-                    targetUser));
+                    SecurityContextHolder.getContext().getAuthentication(), targetUser));
         }
 
         return targetUserRequest;
     }
 
     /**
-     * Create a switch user token that contains an additional
-     * <tt>GrantedAuthority</tt> that contains the original
-     * <code>Authentication</code> object.
+     * Create a switch user token that contains an additional <tt>GrantedAuthority</tt> that contains the
+     * original <code>Authentication</code> object.
      *
      * @param request The http servlet request.
      * @param username The username of target user
@@ -303,16 +265,14 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
      *
      * @see SwitchUserGrantedAuthority
      */
-    private UsernamePasswordAuthenticationToken createSwitchUserToken(
-        HttpServletRequest request, String username, UserDetails targetUser) {
+    private UsernamePasswordAuthenticationToken createSwitchUserToken(HttpServletRequest request, String username,
+        UserDetails targetUser) {
         UsernamePasswordAuthenticationToken targetUserRequest;
 
         // grant an additional authority that contains the original Authentication object
         // which will be used to 'exit' from the current switched user.
-        Authentication currentAuth = SecurityContextHolder.getContext()
-                                                          .getAuthentication();
-        GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(ROLE_PREVIOUS_ADMINISTRATOR,
-                currentAuth);
+        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(ROLE_PREVIOUS_ADMINISTRATOR, currentAuth);
 
         // get the original authorities
         List orig = Arrays.asList(targetUser.getAuthorities());
@@ -325,12 +285,10 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
         authorities = (GrantedAuthority[]) newAuths.toArray(authorities);
 
         // create the new authentication token
-        targetUserRequest = new UsernamePasswordAuthenticationToken(targetUser,
-                targetUser.getPassword(), authorities);
+        targetUserRequest = new UsernamePasswordAuthenticationToken(targetUser, targetUser.getPassword(), authorities);
 
         // set details
-        targetUserRequest.setDetails(authenticationDetailsSource.buildDetails(
-                (HttpServletRequest) request));
+        targetUserRequest.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
 
         return targetUserRequest;
     }
@@ -338,10 +296,11 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
     public void destroy() {}
 
     /**
+     * 
      * @see javax.servlet.Filter#doFilter
      */
-    public void doFilter(ServletRequest request, ServletResponse response,
-        FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
         Assert.isInstanceOf(HttpServletRequest.class, request);
         Assert.isInstanceOf(HttpServletResponse.class, response);
 
@@ -357,8 +316,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
             SecurityContextHolder.getContext().setAuthentication(targetUser);
 
             // redirect to target url
-            httpResponse.sendRedirect(httpResponse.encodeRedirectURL(httpRequest
-                    .getContextPath() + targetUrl));
+            httpResponse.sendRedirect(httpResponse.encodeRedirectURL(httpRequest.getContextPath() + targetUrl));
 
             return;
         } else if (requiresExitUser(httpRequest)) {
@@ -369,8 +327,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
             SecurityContextHolder.getContext().setAuthentication(originalUser);
 
             // redirect to target url
-            httpResponse.sendRedirect(httpResponse.encodeRedirectURL(httpRequest
-                    .getContextPath() + targetUrl));
+            httpResponse.sendRedirect(httpResponse.encodeRedirectURL(httpRequest.getContextPath() + targetUrl));
 
             return;
         }
@@ -379,15 +336,13 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
     }
 
     /**
-     * Find the original <code>Authentication</code> object from the current
-     * user's granted authorities. A successfully switched user should have a
-     * <code>SwitchUserGrantedAuthority</code> that contains the original
+     * Find the original <code>Authentication</code> object from the current user's granted authorities. A
+     * successfully switched user should have a <code>SwitchUserGrantedAuthority</code> that contains the original
      * source user <code>Authentication</code> object.
      *
      * @param current The current  <code>Authentication</code> object
      *
-     * @return The source user <code>Authentication</code> object or
-     *         <code>null</code> otherwise.
+     * @return The source user <code>Authentication</code> object or <code>null</code> otherwise.
      */
     private Authentication getSourceAuthentication(Authentication current) {
         Authentication original = null;
@@ -398,10 +353,8 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
         for (int i = 0; i < authorities.length; i++) {
             // check for switch user type of authority
             if (authorities[i] instanceof SwitchUserGrantedAuthority) {
-                original = ((SwitchUserGrantedAuthority) authorities[i])
-                    .getSource();
-                logger.debug("Found original switch user granted authority ["
-                    + original + "]");
+                original = ((SwitchUserGrantedAuthority) authorities[i]).getSource();
+                logger.debug("Found original switch user granted authority [" + original + "]");
             }
         }
 
@@ -415,8 +368,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
      *
      * @param request The http servlet request
      *
-     * @return <code>true</code> if the request requires a exit user,
-     *         <code>false</code> otherwise.
+     * @return <code>true</code> if the request requires a exit user, <code>false</code> otherwise.
      *
      * @see SwitchUserProcessingFilter#exitUserUrl
      */
@@ -431,8 +383,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
      *
      * @param request The http servlet request
      *
-     * @return <code>true</code> if the request requires a switch,
-     *         <code>false</code> otherwise.
+     * @return <code>true</code> if the request requires a switch, <code>false</code> otherwise.
      *
      * @see SwitchUserProcessingFilter#switchUserUrl
      */
@@ -442,15 +393,13 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean,
         return uri.endsWith(request.getContextPath() + switchUserUrl);
     }
 
-    public void setApplicationEventPublisher(
-        ApplicationEventPublisher eventPublisher) throws BeansException {
+    public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher)
+        throws BeansException {
         this.eventPublisher = eventPublisher;
     }
 
-    public void setAuthenticationDetailsSource(
-        AuthenticationDetailsSource authenticationDetailsSource) {
-        Assert.notNull(authenticationDetailsSource,
-            "AuthenticationDetailsSource required");
+    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+        Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
         this.authenticationDetailsSource = authenticationDetailsSource;
     }
 

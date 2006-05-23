@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * @version $Id$
  */
 public class CasPasswordHandlerTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public CasPasswordHandlerTests() {
         super();
@@ -39,14 +39,14 @@ public class CasPasswordHandlerTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(CasPasswordHandlerTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testDeniesAccessWhenAuthenticationManagerThrowsException()
@@ -55,8 +55,7 @@ public class CasPasswordHandlerTests extends TestCase {
         handler.setAuthenticationManager(new MockAuthenticationManager(false));
         handler.afterPropertiesSet();
 
-        assertFalse(handler.authenticate(new MockHttpServletRequest(),
-                "username", "password"));
+        assertFalse(handler.authenticate(new MockHttpServletRequest(), "username", "password"));
     }
 
     public void testDetectsEmptyAuthenticationManager()
@@ -67,8 +66,7 @@ public class CasPasswordHandlerTests extends TestCase {
             handler.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("An AuthenticationManager is required",
-                expected.getMessage());
+            assertEquals("An AuthenticationManager is required", expected.getMessage());
         }
     }
 
@@ -85,14 +83,11 @@ public class CasPasswordHandlerTests extends TestCase {
         handler.afterPropertiesSet();
 
         // If empty or null username we return false
-        assertFalse(handler.authenticate(new MockHttpServletRequest(), "",
-                "password"));
-        assertFalse(handler.authenticate(new MockHttpServletRequest(), null,
-                "password"));
+        assertFalse(handler.authenticate(new MockHttpServletRequest(), "", "password"));
+        assertFalse(handler.authenticate(new MockHttpServletRequest(), null, "password"));
 
         // We authenticate with null passwords (they might not have one)
-        assertTrue(handler.authenticate(new MockHttpServletRequest(), "user",
-                null));
+        assertTrue(handler.authenticate(new MockHttpServletRequest(), "user", null));
         assertTrue(handler.authenticate(new MockHttpServletRequest(), "user", ""));
     }
 
@@ -101,7 +96,6 @@ public class CasPasswordHandlerTests extends TestCase {
         handler.setAuthenticationManager(new MockAuthenticationManager(true));
         handler.afterPropertiesSet();
 
-        assertTrue(handler.authenticate(new MockHttpServletRequest(),
-                "username", "password"));
+        assertTrue(handler.authenticate(new MockHttpServletRequest(), "username", "password"));
     }
 }

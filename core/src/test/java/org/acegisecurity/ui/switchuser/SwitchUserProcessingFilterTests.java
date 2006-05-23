@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,20 @@ import org.acegisecurity.CredentialsExpiredException;
 import org.acegisecurity.DisabledException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.context.SecurityContextHolder;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
+
 import org.acegisecurity.util.MockFilterChain;
+
 import org.springframework.dao.DataAccessException;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -43,7 +49,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @version $Id$
  */
 public class SwitchUserProcessingFilterTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public SwitchUserProcessingFilterTests() {
         super();
@@ -53,25 +59,32 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
+    private MockHttpServletRequest createMockSwitchRequest() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setScheme("http");
+        request.setServerName("localhost");
+        request.setRequestURI("/j_acegi_switch_user");
+
+        return request;
     }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SwitchUserProcessingFilterTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testAttemptSwitchToUnknownUser() throws Exception {
         // set current user 
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano",
-                "hawaii50");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY,
-            "user-that-doesnt-exist");
+        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, "user-that-doesnt-exist");
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
@@ -86,15 +99,13 @@ public class SwitchUserProcessingFilterTests extends TestCase {
     public void testAttemptSwitchToUserThatIsDisabled()
         throws Exception {
         // set current user 
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano",
-                "hawaii50");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
 
         // this user is disabled
-        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY,
-            "mcgarrett");
+        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, "mcgarrett");
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
@@ -111,15 +122,13 @@ public class SwitchUserProcessingFilterTests extends TestCase {
     public void testAttemptSwitchToUserWithAccountExpired()
         throws Exception {
         // set current user 
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano",
-                "hawaii50");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
 
         // this user is disabled
-        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY,
-            "wofat");
+        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, "wofat");
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
@@ -136,15 +145,13 @@ public class SwitchUserProcessingFilterTests extends TestCase {
     public void testAttemptSwitchToUserWithExpiredCredentials()
         throws Exception {
         // set current user 
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano",
-                "hawaii50");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
 
         // this user is disabled
-        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY,
-            "steve");
+        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, "steve");
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
@@ -160,13 +167,11 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
     public void testAttemptSwitchUser() throws Exception {
         // set current user 
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano",
-                "hawaii50");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY,
-            "jacklord");
+        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
@@ -208,24 +213,22 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setSwitchUserUrl("/j_acegi_switch_user");
 
-        request.setRequestURI(
-            "/webapp/j_acegi_switch_user;jsessionid=8JHDUD723J8");
+        request.setRequestURI("/webapp/j_acegi_switch_user;jsessionid=8JHDUD723J8");
         assertTrue(filter.requiresSwitchUser(request));
     }
 
     public void testExitRequestUserJackLordToDano() throws Exception {
         // original user	
-        GrantedAuthority[] auths = {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                    "ROLE_TWO")};
-        UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("dano",
-                "hawaii50", auths);
+        GrantedAuthority[] auths = {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")};
+        UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("dano", "hawaii50", auths);
 
         // set current user (Admin)
-        GrantedAuthority[] adminAuths = {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                    "ROLE_TWO"), new SwitchUserGrantedAuthority("PREVIOUS_ADMINISTRATOR",
-                    source)};
-        UsernamePasswordAuthenticationToken admin = new UsernamePasswordAuthenticationToken("jacklord",
-                "hawaii50", adminAuths);
+        GrantedAuthority[] adminAuths = {
+                new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO"),
+                new SwitchUserGrantedAuthority("PREVIOUS_ADMINISTRATOR", source)
+            };
+        UsernamePasswordAuthenticationToken admin = new UsernamePasswordAuthenticationToken("jacklord", "hawaii50",
+                adminAuths);
 
         SecurityContextHolder.getContext().setAuthentication(admin);
 
@@ -247,8 +250,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
 
         // check current user, should be back to original user (dano) 
-        Authentication targetAuth = SecurityContextHolder.getContext()
-                                                         .getAuthentication();
+        Authentication targetAuth = SecurityContextHolder.getContext().getAuthentication();
         assertNotNull(targetAuth);
         assertEquals("dano", targetAuth.getPrincipal());
     }
@@ -281,13 +283,11 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
     public void testRedirectToTargetUrl() throws Exception {
         // set current user 
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano",
-                "hawaii50");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = createMockSwitchRequest();
-        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY,
-            "jacklord");
+        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
         request.setRequestURI("/webapp/j_acegi_switch_user");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -328,15 +328,13 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
     public void testSwitchRequestFromDanoToJackLord() throws Exception {
         // set current user 
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano",
-                "hawaii50");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         // http request
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/webapp/j_acegi_switch_user");
-        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY,
-            "jacklord");
+        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
 
         // http response
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -352,30 +350,16 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
 
         // check current user
-        Authentication targetAuth = SecurityContextHolder.getContext()
-                                                         .getAuthentication();
+        Authentication targetAuth = SecurityContextHolder.getContext().getAuthentication();
         assertNotNull(targetAuth);
         assertTrue(targetAuth.getPrincipal() instanceof UserDetails);
-        assertEquals("jacklord", ((User)targetAuth.getPrincipal()).getUsername());        
+        assertEquals("jacklord", ((User) targetAuth.getPrincipal()).getUsername());
     }
 
-    private MockHttpServletRequest createMockSwitchRequest() {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setScheme("http");
-        request.setServerName("localhost");
-        request.setRequestURI("/j_acegi_switch_user");
-
-        return request;
-    }
-
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockAuthenticationDaoUserJackLord implements UserDetailsService {
         private String password = "hawaii50";
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
 
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
@@ -385,24 +369,23 @@ public class SwitchUserProcessingFilterTests extends TestCase {
             // steve (credentials expired)
             if ("jacklord".equals(username) || "dano".equals(username)) {
                 return new User(username, password, true, true, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                            "ROLE_TWO")});
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
             } else if ("mcgarrett".equals(username)) {
                 return new User(username, password, false, true, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                            "ROLE_TWO")});
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
             } else if ("wofat".equals(username)) {
                 return new User(username, password, true, false, true, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                            "ROLE_TWO")});
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
             } else if ("steve".equals(username)) {
                 return new User(username, password, true, true, false, true,
-                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                            "ROLE_TWO")});
+                    new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
             } else {
-                throw new UsernameNotFoundException("Could not find: "
-                    + username);
+                throw new UsernameNotFoundException("Could not find: " + username);
             }
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
         }
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.acegisecurity.adapters.jboss;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.context.SecurityContextHolder;
 
 import org.apache.commons.logging.Log;
@@ -42,74 +43,43 @@ import javax.servlet.ServletResponse;
 
 
 /**
- * Populates a {@link org.acegisecurity.context.security.SecureContext} from
- * JBoss' <code>java:comp/env/security/subject</code>.
- * 
- * <p>
- * This filter <b>never</b> preserves the <code>Authentication</code> on the
- * <code>ContextHolder</code> - it is replaced every request.
- * </p>
- * 
- * <p>
- * See {@link HttpSessionContextIntegrationFilter} for further information.
- * </p>
+ * Populates a {@link org.acegisecurity.context.security.SecureContext} from JBoss'
+ * <code>java:comp/env/security/subject</code>.<p>This filter <b>never</b> preserves the
+ * <code>Authentication</code> on the <code>ContextHolder</code> - it is replaced every request.</p>
+ *  <p>See {@link HttpSessionContextIntegrationFilter} for further information.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class JbossIntegrationFilter implements Filter {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(JbossIntegrationFilter.class);
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Does nothing. We use IoC container lifecycle services instead.
      */
     public void destroy() {}
 
-    public void doFilter(ServletRequest request, ServletResponse response,
-        FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
         Object principal = extractFromContainer(request);
 
         if ((principal != null) && principal instanceof Authentication) {
             SecurityContextHolder.getContext().setAuthentication((Authentication) principal);
 
             if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "ContextHolder updated with Authentication from container: '"
-                    + principal + "'");
+                logger.debug("ContextHolder updated with Authentication from container: '" + principal + "'");
             }
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "ContextHolder not set with new Authentication as Principal was: '"
-                    + principal + "'");
+                logger.debug("ContextHolder not set with new Authentication as Principal was: '" + principal + "'");
             }
         }
 
         chain.doFilter(request, response);
-    }
-
-    /**
-     * Does nothing. We use IoC container lifecycle services instead.
-     *
-     * @param arg0 ignored
-     *
-     * @throws ServletException ignored
-     */
-    public void init(FilterConfig arg0) throws ServletException {}
-
-    /**
-     * Provided so that unit tests can override.
-     *
-     * @return a <code>Context</code> that can be used for lookup
-     *
-     * @throws NamingException DOCUMENT ME!
-     */
-    protected Context getLookupContext() throws NamingException {
-        return new InitialContext();
     }
 
     private Object extractFromContainer(ServletRequest request) {
@@ -133,8 +103,7 @@ public class JbossIntegrationFilter implements Filter {
             }
         } catch (NamingException ne) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Lookup on Subject failed "
-                    + ne.getLocalizedMessage());
+                logger.warn("Lookup on Subject failed " + ne.getLocalizedMessage());
             }
         }
 
@@ -152,4 +121,24 @@ public class JbossIntegrationFilter implements Filter {
 
         return null;
     }
+
+    /**
+     * Provided so that unit tests can override.
+     *
+     * @return a <code>Context</code> that can be used for lookup
+     *
+     * @throws NamingException DOCUMENT ME!
+     */
+    protected Context getLookupContext() throws NamingException {
+        return new InitialContext();
+    }
+
+    /**
+     * Does nothing. We use IoC container lifecycle services instead.
+     *
+     * @param arg0 ignored
+     *
+     * @throws ServletException ignored
+     */
+    public void init(FilterConfig arg0) throws ServletException {}
 }

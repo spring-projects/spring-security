@@ -24,26 +24,22 @@ import org.springframework.util.Assert;
 
 
 /**
- * Base class for <code>Authentication</code> objects.
- * 
- * <p>
- * Implementations which use this class should be immutable.
- * </p>
+ * Base class for <code>Authentication</code> objects.<p>Implementations which use this class should be immutable.</p>
  *
  * @author Ben Alex
  * @author Luke Taylor
  * @version $Id$
  */
 public abstract class AbstractAuthenticationToken implements Authentication {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Object details;
     private GrantedAuthority[] authorities;
     private boolean authenticated = false;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Retained for compatibility with subclasses written before the
      * <tt>AbstractAuthenticationToken(GrantedAuthority[])</tt> constructor
      * was introduced.
@@ -53,7 +49,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
      */
     public AbstractAuthenticationToken() {}
 
-    /**
+/**
      * Creates a token with the supplied array of authorities.
      *
      * @param authorities the list of <tt>GrantedAuthority</tt>s for the
@@ -67,24 +63,21 @@ public abstract class AbstractAuthenticationToken implements Authentication {
         if (authorities != null) {
             for (int i = 0; i < authorities.length; i++) {
                 Assert.notNull(authorities[i],
-                    "Granted authority element " + i
-                    + " is null - GrantedAuthority[] cannot contain any null elements");
+                    "Granted authority element " + i + " is null - GrantedAuthority[] cannot contain any null elements");
             }
         }
 
         this.authorities = authorities;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public boolean equals(Object obj) {
         if (obj instanceof AbstractAuthenticationToken) {
             AbstractAuthenticationToken test = (AbstractAuthenticationToken) obj;
 
-            if (!((this.getAuthorities() == null)
-                && (test.getAuthorities() == null))) {
-                if ((this.getAuthorities() == null)
-                    || (test.getAuthorities() == null)) {
+            if (!((this.getAuthorities() == null) && (test.getAuthorities() == null))) {
+                if ((this.getAuthorities() == null) || (test.getAuthorities() == null)) {
                     return false;
                 }
 
@@ -93,8 +86,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
                 }
 
                 for (int i = 0; i < this.getAuthorities().length; i++) {
-                    if (!this.getAuthorities()[i].equals(
-                            test.getAuthorities()[i])) {
+                    if (!this.getAuthorities()[i].equals(test.getAuthorities()[i])) {
                         return false;
                     }
                 }
@@ -108,8 +100,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
                 return false;
             }
 
-            if ((this.details != null)
-                && (!this.details.equals(test.getDetails()))) {
+            if ((this.details != null) && (!this.details.equals(test.getDetails()))) {
                 return false;
             }
 
@@ -141,8 +132,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
             return ((UserDetails) this.getPrincipal()).getUsername();
         }
 
-        return (this.getPrincipal() == null) ? "" : this.getPrincipal()
-                                                        .toString();
+        return (this.getPrincipal() == null) ? "" : this.getPrincipal().toString();
     }
 
     public int hashCode() {

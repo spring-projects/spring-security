@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,38 +28,28 @@ import org.acegisecurity.AuthenticationException;
  * @version $Id$
  */
 public interface ConcurrentSessionController {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Called by any class that wishes to know whether the current
-     * authentication request should be permitted. Generally callers will be
-     * <code>AuthenticationManager</code>s before they authenticate, but could
-     * equally include <code>Filter</code>s or other interceptors that wish to
-     * confirm the ongoing validity of a previously authenticated
-     * <code>Authentication</code>.
-     * 
-     * <p>
-     * The implementation should throw a suitable exception if the user has
-     * exceeded their maximum allowed concurrent sessions.
-     * </p>
+     * Called by any class that wishes to know whether the current authentication request should be permitted.
+     * Generally callers will be <code>AuthenticationManager</code>s before they authenticate, but could equally
+     * include <code>Filter</code>s or other interceptors that wish to confirm the ongoing validity of a previously
+     * authenticated <code>Authentication</code>.<p>The implementation should throw a suitable exception if the
+     * user has exceeded their maximum allowed concurrent sessions.</p>
      *
      * @param request the authentication request (never <code>null</code>)
      *
-     * @throws AuthenticationException if the user has exceeded their maximum
-     *         allowed current sessions
+     * @throws AuthenticationException if the user has exceeded their maximum allowed current sessions
      */
     public void checkAuthenticationAllowed(Authentication request)
         throws AuthenticationException;
 
     /**
-     * Called by an <code>AuthenticationManager</code> when the authentication
-     * was successful. An implementation is expected to register the
-     * authenticated user in some sort of registry, for future concurrent
-     * tracking via the {@link #checkConcurrentAuthentication(Authentication)}
-     * method.
+     * Called by an <code>AuthenticationManager</code> when the authentication was successful. An
+     * implementation is expected to register the authenticated user in some sort of registry, for future concurrent
+     * tracking via the {@link #checkConcurrentAuthentication(Authentication)} method.
      *
-     * @param authentication the successfully authenticated user (never
-     *        <code>null</code>)
+     * @param authentication the successfully authenticated user (never <code>null</code>)
      */
     public void registerSuccessfulAuthentication(Authentication authentication);
 }

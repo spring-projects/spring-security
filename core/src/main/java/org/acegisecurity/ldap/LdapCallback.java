@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,10 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.acegisecurity.ldap;
 
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
+
 
 /**
  * Callback object for use with LdapTemplate.
@@ -23,5 +25,8 @@ import javax.naming.directory.DirContext;
  * @author Ben Alex
  */
 public interface LdapCallback {
-	public Object doInDirContext(DirContext dirContext) throws NamingException;
+    //~ Methods ========================================================================================================
+
+    public Object doInDirContext(DirContext dirContext)
+        throws NamingException;
 }

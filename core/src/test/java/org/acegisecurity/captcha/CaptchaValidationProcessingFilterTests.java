@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.acegisecurity.captcha;
 import junit.framework.TestCase;
 
 import org.acegisecurity.context.SecurityContextHolder;
+
 import org.acegisecurity.util.MockFilterChain;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -30,7 +31,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * @version $Id$
  */
 public class CaptchaValidationProcessingFilterTests extends TestCase {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /*
      */

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,26 +20,21 @@ import jcifs.UniAddress;
 import jcifs.smb.NtlmPasswordAuthentication;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.ui.ntlm.NtlmProcessingFilter;
 
 
 /**
- * This class provides authentication through smb of {@link
- * NtlmAuthenticationToken } (i.e. tokens obtained through the NTLM
- * Authorization method by {@link NtlmProcessingFilter } ).
+ * This class provides authentication through smb of {@link NtlmAuthenticationToken } (i.e. tokens obtained through
+ * the NTLM Authorization method by {@link NtlmProcessingFilter } ).
  *
  * @author Davide Baroncelli
  * @version $Id$
  *
  * @see org.acegisecurity.ui.ntlm.NtlmProcessingFilter
  */
-public class SmbNtlmAuthenticationProvider
-    extends AbstractSmbAuthenticationProvider {
-    //~ Methods ================================================================
-
-    public boolean supports(Class authentication) {
-        return NtlmAuthenticationToken.class.isAssignableFrom(authentication);
-    }
+public class SmbNtlmAuthenticationProvider extends AbstractSmbAuthenticationProvider {
+    //~ Methods ========================================================================================================
 
     protected UniAddress getDomainController(Authentication authentication,
         NtlmPasswordAuthentication ntlmAuthentication) {
@@ -49,12 +44,14 @@ public class SmbNtlmAuthenticationProvider
         return dc;
     }
 
-    protected NtlmPasswordAuthentication getNtlmPasswordAuthentication(
-        Authentication authentication) {
+    protected NtlmPasswordAuthentication getNtlmPasswordAuthentication(Authentication authentication) {
         NtlmAuthenticationToken ntlmToken = (NtlmAuthenticationToken) authentication;
-        NtlmPasswordAuthentication ntlm = ntlmToken
-            .getNtlmPasswordAuthentication();
+        NtlmPasswordAuthentication ntlm = ntlmToken.getNtlmPasswordAuthentication();
 
         return ntlm;
+    }
+
+    public boolean supports(Class authentication) {
+        return NtlmAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

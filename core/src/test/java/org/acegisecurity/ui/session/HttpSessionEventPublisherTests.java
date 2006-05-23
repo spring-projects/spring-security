@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@ package org.acegisecurity.ui.session;
 
 import junit.framework.TestCase;
 
-import org.springframework.mock.web.MockServletContext;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockServletContext;
+
 import org.springframework.web.context.support.StaticWebApplicationContext;
 
 import javax.servlet.ServletContextEvent;
@@ -32,7 +33,28 @@ import javax.servlet.http.HttpSessionEvent;
  * @version $Id$
  */
 public class HttpSessionEventPublisherTests extends TestCase {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    public void testDelayedContextInitializationSucceeds() {
+        HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
+        MockServletContext servletContext = new MockServletContext();
+
+        // shouldn't fail, even with null context
+        publisher.contextInitialized(new ServletContextEvent(servletContext));
+
+        StaticWebApplicationContext context = new StaticWebApplicationContext();
+        context.setServletContext(servletContext);
+    }
+
+    public void testGetContextThrowsExceptionIfContextNotSet() {
+        HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
+        publisher.contextInitialized(new ServletContextEvent(new MockServletContext()));
+
+        try {
+            publisher.getContext();
+            fail("IllegalStateException expected when no context set");
+        } catch (IllegalStateException expected) {}
+    }
 
     /**
      * It's not that complicated so we'll just run it straight through here.
@@ -43,8 +65,7 @@ public class HttpSessionEventPublisherTests extends TestCase {
         StaticWebApplicationContext context = new StaticWebApplicationContext();
 
         MockServletContext servletContext = new MockServletContext();
-        servletContext.setAttribute(StaticWebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
-            context);
+        servletContext.setAttribute(StaticWebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
 
         context.setServletContext(servletContext);
         context.registerSingleton("listener", TestListener.class, null);
@@ -71,31 +92,5 @@ public class HttpSessionEventPublisherTests extends TestCase {
         assertEquals(session, listener.getDestroyedEvent().getSession());
 
         publisher.contextDestroyed(new ServletContextEvent(servletContext));
-    }
-
-
-    public void testDelayedContextInitializationSucceeds() {
-        HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
-        MockServletContext servletContext = new MockServletContext();
-
-        // shouldn't fail, even with null context
-        publisher.contextInitialized(new ServletContextEvent(servletContext));
-
-
-        StaticWebApplicationContext context = new StaticWebApplicationContext();
-        context.setServletContext(servletContext);
-
-
-    }
-
-    public void testGetContextThrowsExceptionIfContextNotSet() {
-        HttpSessionEventPublisher publisher  = new HttpSessionEventPublisher();
-        publisher.contextInitialized(new ServletContextEvent(new MockServletContext()));
-
-        try {
-            publisher.getContext();
-            fail("IllegalStateException expected when no context set");
-        } catch (IllegalStateException expected) {
-        }
     }
 }

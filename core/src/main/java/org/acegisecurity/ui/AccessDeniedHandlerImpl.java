@@ -31,36 +31,29 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Base implementation of {@link AccessDeniedHandler}.
- * 
- * <p>
- * This implementation sends a 403 (SC_FORBIDDEN) HTTP error code. In addition,
- * if a {@link #errorPage} is defined, the implementation will perform a
- * request dispatcher "forward" to the specified error page view. Being a
- * "forward", the <code>SecurityContextHolder</code> will remain populated.
- * This is of benefit if the view (or a tag library or macro) wishes to access
- * the <code>SecurityContextHolder</code>. The request scope will also be
- * populated with the exception itself, available from the key {@link
- * #ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY}.
- * </p>
+ * Base implementation of {@link AccessDeniedHandler}.<p>This implementation sends a 403 (SC_FORBIDDEN) HTTP error
+ * code. In addition, if a {@link #errorPage} is defined, the implementation will perform a request dispatcher
+ * "forward" to the specified error page view. Being a "forward", the <code>SecurityContextHolder</code> will remain
+ * populated. This is of benefit if the view (or a tag library or macro) wishes to access the
+ * <code>SecurityContextHolder</code>. The request scope will also be populated with the exception itself, available
+ * from the key {@link #ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY}.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     public static final String ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY = "ACEGI_SECURITY_403_EXCEPTION";
     protected final static Log logger = LogFactory.getLog(AccessDeniedHandlerImpl.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private String errorPage;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void handle(ServletRequest request, ServletResponse response,
-        AccessDeniedException accessDeniedException)
+    public void handle(ServletRequest request, ServletResponse response, AccessDeniedException accessDeniedException)
         throws IOException, ServletException {
         if (errorPage != null) {
             // Put exception into request scope (perhaps of use to a view)
@@ -72,29 +65,26 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 
             try {
                 rd.forward(request, response);
-                ((HttpServletResponse)response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+                ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+
                 return;
             } catch (Exception responseCommitted) {
                 if (logger.isErrorEnabled()) {
-                    logger.error("Error processing " + request.toString(),
-                        responseCommitted);
+                    logger.error("Error processing " + request.toString(), responseCommitted);
                 }
             }
         }
 
         // Send 403 (we do this after response has been written)
-        ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN,
-            accessDeniedException.getMessage());
+        ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN, accessDeniedException.getMessage());
     }
 
     /**
-     * The error page to use. Must begin with a "/" and is interpreted relative
-     * to the current context root.
+     * The error page to use. Must begin with a "/" and is interpreted relative to the current context root.
      *
      * @param errorPage the dispatcher path to display
      *
-     * @throws IllegalArgumentException if the argument doesn't comply with the
-     *         above limitations
+     * @throws IllegalArgumentException if the argument doesn't comply with the above limitations
      */
     public void setErrorPage(String errorPage) {
         if ((errorPage != null) && !errorPage.startsWith("/")) {

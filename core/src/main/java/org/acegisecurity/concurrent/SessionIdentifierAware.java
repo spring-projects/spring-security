@@ -33,7 +33,7 @@ package org.acegisecurity.concurrent;
  * @version $Id$
  */
 public interface SessionIdentifierAware {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Obtains the session ID.

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 package org.acegisecurity.providers.x509;
 
 import org.acegisecurity.AuthenticationException;
+
 import org.acegisecurity.userdetails.UserDetails;
 
 import java.security.cert.X509Certificate;
+
 
 /**
  * Populates the <code>UserDetails</code> associated with the X.509
@@ -34,23 +36,19 @@ import java.security.cert.X509Certificate;
  * @version $Id$
  */
 public interface X509AuthoritiesPopulator {
+    //~ Methods ========================================================================================================
+
     /**
-     * Obtains the granted authorities for the specified user.
-     *
-     * <p>
-     * May throw any <code>AuthenticationException</code> or return
-     * <code>null</code> if the authorities are unavailable.
-     * </p>
+     * Obtains the granted authorities for the specified user.<p>May throw any
+     * <code>AuthenticationException</code> or return <code>null</code> if the authorities are unavailable.</p>
      *
      * @param userCertificate the X.509 certificate supplied
      *
-     * @return the details of the indicated user (at minimum the granted
-     *         authorities and the username)
+     * @return the details of the indicated user (at minimum the granted authorities and the username)
      *
-     * @throws org.acegisecurity.AuthenticationException if the user details are not available
-     *  or the certificate isn't valid for the application's purpose.
+     * @throws AuthenticationException if the user details are not available or the certificate isn't valid for the
+     *         application's purpose.
      */
     UserDetails getUserDetails(X509Certificate userCertificate)
         throws AuthenticationException;
-
 }

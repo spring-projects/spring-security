@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,17 +36,17 @@ import org.acegisecurity.AuthenticationException;
  * @version $Id$
  */
 public interface TicketValidator {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Returns information about the ticket, if it is valid for this service.
-     * 
-     * <P>
-     * Must throw an <code>AuthenticationException</code> if the ticket is not
-     * valid for this service.
-     * </p>
+     * Returns information about the ticket, if it is valid for this service.<P>Must throw an
+     * <code>AuthenticationException</code> if the ticket is not valid for this service.</p>
+     *
+     * @param serviceTicket DOCUMENT ME!
      *
      * @return details of the CAS service ticket
+     *
+     * @throws AuthenticationException DOCUMENT ME!
      */
     public TicketResponse confirmTicketValid(String serviceTicket)
         throws AuthenticationException;

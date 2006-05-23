@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,25 +30,16 @@ import java.io.Serializable;
  * @version $Id$
  */
 public interface PersistableEntity {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Provides a common getter for the persistence layer to obtain an
-     * identity, irrespective of the actual type of identity used.
-     * 
-     * <p>
-     * Typically a subclass will delegate to a <code>public
-     * SomePrimitiveWrapper getId()</code> method. The necessity for the
-     * <code>getInternalId()</code> abstract method is solely  because the
-     * persistence layer needs a way of obtaining the identity irrespective of
-     * the actual identity implementation choice.
-     * </p>
-     * 
-     * <p>
-     * Returning <code>null</code> from this method will indicate the object
-     * has never been saved. This will likely be relied on by some
-     * <code>Dao</code> implementations.
-     * </p>
+     * Provides a common getter for the persistence layer to obtain an identity, irrespective of the actual
+     * type of identity used.<p>Typically a subclass will delegate to a <code>public SomePrimitiveWrapper
+     * getId()</code> method. The necessity for the <code>getInternalId()</code> abstract method is solely  because
+     * the persistence layer needs a way of obtaining the identity irrespective of the actual identity implementation
+     * choice.</p>
+     *  <p>Returning <code>null</code> from this method will indicate the object has never been saved. This
+     * will likely be relied on by some <code>Dao</code> implementations.</p>
      *
      * @return the persistence identity of this instance
      */

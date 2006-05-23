@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.MockAuthenticationManager;
+
 import org.acegisecurity.ui.WebAuthenticationDetails;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -31,7 +32,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * @version $Id$
  */
 public class AuthenticationProcessingFilterTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AuthenticationProcessingFilterTests() {
         super();
@@ -41,28 +42,25 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AuthenticationProcessingFilterTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testGetters() {
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
-        assertEquals("/j_acegi_security_check",
-            filter.getDefaultFilterProcessesUrl());
+        assertEquals("/j_acegi_security_check", filter.getDefaultFilterProcessesUrl());
     }
 
     public void testNormalOperation() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY,
-            "marissa");
-        request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY,
-            "koala");
+        request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY, "marissa");
+        request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY, "koala");
 
         MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
 
@@ -72,14 +70,12 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
         Authentication result = filter.attemptAuthentication(request);
         assertTrue(result != null);
-        assertEquals("127.0.0.1",
-            ((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
+        assertEquals("127.0.0.1", ((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
     }
 
     public void testNullPasswordHandledGracefully() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY,
-            "marissa");
+        request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY, "marissa");
 
         MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
 
@@ -93,8 +89,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
     public void testNullUsernameHandledGracefully() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY,
-            "koala");
+        request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY, "koala");
 
         MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
 

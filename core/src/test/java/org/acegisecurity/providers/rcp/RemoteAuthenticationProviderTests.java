@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 
@@ -30,24 +31,22 @@ import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
  * @version $Id$
  */
 public class RemoteAuthenticationProviderTests extends TestCase {
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(RemoteAuthenticationProviderTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testExceptionsGetPassedBackToCaller() {
         RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
-        provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(
-                false));
+        provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(false));
 
         try {
-            provider.authenticate(new UsernamePasswordAuthenticationToken(
-                    "marissa", "password"));
+            provider.authenticate(new UsernamePasswordAuthenticationToken("marissa", "password"));
             fail("Should have thrown RemoteAuthenticationException");
         } catch (RemoteAuthenticationException expected) {
             assertTrue(true);
@@ -56,8 +55,7 @@ public class RemoteAuthenticationProviderTests extends TestCase {
 
     public void testGettersSetters() {
         RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
-        provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(
-                true));
+        provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
         assertNotNull(provider.getRemoteAuthenticationManager());
     }
 
@@ -72,19 +70,16 @@ public class RemoteAuthenticationProviderTests extends TestCase {
             assertTrue(true);
         }
 
-        provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(
-                true));
+        provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
         provider.afterPropertiesSet();
         assertTrue(true);
     }
 
     public void testSuccessfulAuthenticationCreatesObject() {
         RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
-        provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(
-                true));
+        provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
 
-        Authentication result = provider.authenticate(new UsernamePasswordAuthenticationToken(
-                    "marissa", "password"));
+        Authentication result = provider.authenticate(new UsernamePasswordAuthenticationToken("marissa", "password"));
         assertEquals("marissa", result.getPrincipal());
         assertEquals("password", result.getCredentials());
         assertEquals("foo", result.getAuthorities()[0].getAuthority());
@@ -95,18 +90,17 @@ public class RemoteAuthenticationProviderTests extends TestCase {
         assertTrue(provider.supports(UsernamePasswordAuthenticationToken.class));
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
-    private class MockRemoteAuthenticationManager
-        implements RemoteAuthenticationManager {
+    private class MockRemoteAuthenticationManager implements RemoteAuthenticationManager {
         private boolean grantAccess;
 
         public MockRemoteAuthenticationManager(boolean grantAccess) {
             this.grantAccess = grantAccess;
         }
 
-        public GrantedAuthority[] attemptAuthentication(String username,
-            String password) throws RemoteAuthenticationException {
+        public GrantedAuthority[] attemptAuthentication(String username, String password)
+            throws RemoteAuthenticationException {
             if (grantAccess) {
                 return new GrantedAuthority[] {new GrantedAuthorityImpl("foo")};
             } else {

@@ -25,7 +25,7 @@ import org.springframework.util.Assert;
  * @version $Id$
  */
 public class AclFormattingUtils {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static String demergePatterns(String original, String removeBits) {
         Assert.notNull(original, "Original string required");
@@ -74,13 +74,8 @@ public class AclFormattingUtils {
     }
 
     /**
-     * Returns a representation of the active bits in the presented mask, with
-     * each active bit being denoted by character "".
-     * 
-     * <p>
-     * Inactive bits will be denoted by character {@link
-     * Permission#RESERVED_OFF}.
-     * </p>
+     * Returns a representation of the active bits in the presented mask, with each active bit being denoted by
+     * character "".<p>Inactive bits will be denoted by character {@link Permission#RESERVED_OFF}.</p>
      *
      * @param i the integer bit mask to print the active bits for
      *
@@ -91,13 +86,8 @@ public class AclFormattingUtils {
     }
 
     /**
-     * Returns a representation of the active bits in the presented mask, with
-     * each active bit being denoted by the passed character.
-     * 
-     * <p>
-     * Inactive bits will be denoted by character {@link
-     * Permission#RESERVED_OFF}.
-     * </p>
+     * Returns a representation of the active bits in the presented mask, with each active bit being denoted by
+     * the passed character.<p>Inactive bits will be denoted by character {@link Permission#RESERVED_OFF}.</p>
      *
      * @param mask the integer bit mask to print the active bits for
      * @param code the character to print when an active bit is detected
@@ -105,14 +95,12 @@ public class AclFormattingUtils {
      * @return a 32-character representation of the bit mask
      */
     public static String printBinary(int mask, char code) {
-        Assert.doesNotContain(new Character(code).toString(),
-            new Character(Permission.RESERVED_ON).toString(),
+        Assert.doesNotContain(new Character(code).toString(), new Character(Permission.RESERVED_ON).toString(),
             Permission.RESERVED_ON + " is a reserved character code");
-        Assert.doesNotContain(new Character(code).toString(),
-            new Character(Permission.RESERVED_OFF).toString(),
+        Assert.doesNotContain(new Character(code).toString(), new Character(Permission.RESERVED_OFF).toString(),
             Permission.RESERVED_OFF + " is a reserved character code");
 
-        return AclFormattingUtils.printBinary(mask, Permission.RESERVED_ON,
-            Permission.RESERVED_OFF).replace(Permission.RESERVED_ON, code);
+        return AclFormattingUtils.printBinary(mask, Permission.RESERVED_ON, Permission.RESERVED_OFF)
+                                 .replace(Permission.RESERVED_ON, code);
     }
 }

@@ -35,20 +35,20 @@ import javax.servlet.jsp.tagext.Tag;
  * @version $Id$
  */
 public class AuthorizeTagAttributeTests extends TestCase {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private final AuthorizeTag authorizeTag = new AuthorizeTag();
     private TestingAuthenticationToken currentUser;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     protected void setUp() throws Exception {
         super.setUp();
 
         currentUser = new TestingAuthenticationToken("abc", "123",
-                new GrantedAuthority[] {new GrantedAuthorityImpl(
-                        "ROLE_SUPERVISOR"), new GrantedAuthorityImpl(
-                        "ROLE_RESTRICTED"),});
+                new GrantedAuthority[] {
+                    new GrantedAuthorityImpl("ROLE_SUPERVISOR"), new GrantedAuthorityImpl("ROLE_RESTRICTED"),
+                });
 
         SecurityContextHolder.getContext().setAuthentication(currentUser);
     }
@@ -60,45 +60,39 @@ public class AuthorizeTagAttributeTests extends TestCase {
     public void testAssertsIfAllGrantedSecond() throws JspException {
         authorizeTag.setIfAllGranted("ROLE_SUPERVISOR,ROLE_SUPERTELLER");
         authorizeTag.setIfAnyGranted("ROLE_RESTRICTED");
-        assertEquals("prevents request - principal is missing ROLE_SUPERTELLER",
-            Tag.SKIP_BODY, authorizeTag.doStartTag());
+        assertEquals("prevents request - principal is missing ROLE_SUPERTELLER", Tag.SKIP_BODY,
+            authorizeTag.doStartTag());
     }
 
     public void testAssertsIfAnyGrantedLast() throws JspException {
         authorizeTag.setIfAnyGranted("ROLE_BANKER");
-        assertEquals("prevents request - principal is missing ROLE_BANKER",
-            Tag.SKIP_BODY, authorizeTag.doStartTag());
+        assertEquals("prevents request - principal is missing ROLE_BANKER", Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 
     public void testAssertsIfNotGrantedFirst() throws JspException {
         authorizeTag.setIfNotGranted("ROLE_RESTRICTED");
         authorizeTag.setIfAllGranted("ROLE_SUPERVISOR,ROLE_RESTRICTED");
         authorizeTag.setIfAnyGranted("ROLE_SUPERVISOR");
-        assertEquals("prevents request - principal has ROLE_RESTRICTED",
-            Tag.SKIP_BODY, authorizeTag.doStartTag());
+        assertEquals("prevents request - principal has ROLE_RESTRICTED", Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 
     public void testAssertsIfNotGrantedIgnoresWhitespaceInAttribute()
         throws JspException {
-        authorizeTag.setIfAnyGranted(
-            "\tROLE_SUPERVISOR  \t, \r\n\t ROLE_TELLER ");
-        assertEquals("allows request - principal has ROLE_SUPERVISOR",
-            Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+        authorizeTag.setIfAnyGranted("\tROLE_SUPERVISOR  \t, \r\n\t ROLE_TELLER ");
+        assertEquals("allows request - principal has ROLE_SUPERVISOR", Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
     }
 
     public void testIfAllGrantedIgnoresWhitespaceInAttribute()
         throws JspException {
-        authorizeTag.setIfAllGranted(
-            "\nROLE_SUPERVISOR\t,ROLE_RESTRICTED\t\n\r ");
-        assertEquals("allows request - principal has ROLE_RESTRICTED "
-            + "and ROLE_SUPERVISOR", Tag.EVAL_BODY_INCLUDE,
+        authorizeTag.setIfAllGranted("\nROLE_SUPERVISOR\t,ROLE_RESTRICTED\t\n\r ");
+        assertEquals("allows request - principal has ROLE_RESTRICTED " + "and ROLE_SUPERVISOR", Tag.EVAL_BODY_INCLUDE,
             authorizeTag.doStartTag());
     }
 
     public void testIfNotGrantedIgnoresWhitespaceInAttribute()
         throws JspException {
         authorizeTag.setIfNotGranted(" \t  ROLE_TELLER \r");
-        assertEquals("allows request - principal does not have ROLE_TELLER",
-            Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+        assertEquals("allows request - principal does not have ROLE_TELLER", Tag.EVAL_BODY_INCLUDE,
+            authorizeTag.doStartTag());
     }
 }

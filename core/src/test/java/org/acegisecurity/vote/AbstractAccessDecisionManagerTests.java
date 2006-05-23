@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import java.util.Vector;
  * @version $Id$
  */
 public class AbstractAccessDecisionManagerTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AbstractAccessDecisionManagerTests() {
         super();
@@ -44,14 +44,14 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AbstractAccessDecisionManagerTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testAllowIfAccessDecisionManagerDefaults()
@@ -159,11 +159,11 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
         }
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockDecisionManagerImpl extends AbstractAccessDecisionManager {
-        public void decide(Authentication authentication, Object object,
-            ConfigAttributeDefinition config) throws AccessDeniedException {
+        public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
+            throws AccessDeniedException {
             return;
         }
     }
@@ -178,14 +178,11 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
         }
 
         public boolean supports(ConfigAttribute attribute) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
+            throw new UnsupportedOperationException("mock method not implemented");
         }
 
-        public int vote(Authentication authentication, Object object,
-            ConfigAttributeDefinition config) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
+        public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config) {
+            throw new UnsupportedOperationException("mock method not implemented");
         }
     }
 }

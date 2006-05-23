@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 public class ConcurrentSessionFilterTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public ConcurrentSessionFilterTests() {
         super();
@@ -51,7 +51,15 @@ public class ConcurrentSessionFilterTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    private void executeFilterInContainerSimulator(FilterConfig filterConfig, Filter filter, ServletRequest request,
+        ServletResponse response, FilterChain filterChain)
+        throws ServletException, IOException {
+        filter.init(filterConfig);
+        filter.doFilter(request, response, filterChain);
+        filter.destroy();
+    }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ConcurrentSessionFilterTests.class);
@@ -78,8 +86,7 @@ public class ConcurrentSessionFilterTests extends TestCase {
         filter.setExpiredUrl("/expired.jsp");
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
 
         assertEquals("/expired.jsp", response.getRedirectedUrl());
     }
@@ -125,30 +132,19 @@ public class ConcurrentSessionFilterTests extends TestCase {
         SessionRegistry registry = new SessionRegistryImpl();
         registry.registerNewSession(session.getId(), "principal");
 
-        Date lastRequest = registry.getSessionInformation(session.getId())
-                                   .getLastRequest();
+        Date lastRequest = registry.getSessionInformation(session.getId()).getLastRequest();
         filter.setSessionRegistry(registry);
         filter.setExpiredUrl("/expired.jsp");
 
         Thread.sleep(1000);
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
 
-        assertTrue(registry.getSessionInformation(session.getId())
-                           .getLastRequest().after(lastRequest));
+        assertTrue(registry.getSessionInformation(session.getId()).getLastRequest().after(lastRequest));
     }
 
-    private void executeFilterInContainerSimulator(FilterConfig filterConfig,
-        Filter filter, ServletRequest request, ServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
-        filter.init(filterConfig);
-        filter.doFilter(request, response, filterChain);
-        filter.destroy();
-    }
-
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockFilterChain implements FilterChain {
         private boolean expectToProceed;

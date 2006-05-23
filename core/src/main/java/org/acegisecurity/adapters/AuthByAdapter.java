@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,13 +32,12 @@ import org.acegisecurity.Authentication;
  * @version $Id$
  */
 public interface AuthByAdapter extends Authentication {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Returns the hash code of the key that was passed to the constructor of
-     * the <code>AuthByAdapter</code> implementation. The implementation
-     * should convert the value to a hash code at construction time, rather
-     * than storing the key itself.
+     * Returns the hash code of the key that was passed to the constructor of the <code>AuthByAdapter</code>
+     * implementation. The implementation should convert the value to a hash code at construction time, rather than
+     * storing the key itself.
      *
      * @return the hash code of the key used when the object was created.
      */

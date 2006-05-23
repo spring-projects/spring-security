@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 
@@ -29,7 +30,7 @@ import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
  * @version $Id$
  */
 public class RunAsUserTokenTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public RunAsUserTokenTests() {
         super();
@@ -39,44 +40,40 @@ public class RunAsUserTokenTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(RunAsUserTokenTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testAuthenticationSetting() {
-        RunAsUserToken token = new RunAsUserToken("my_password", "Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")}, UsernamePasswordAuthenticationToken.class);
+        RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
+                UsernamePasswordAuthenticationToken.class);
         assertTrue(token.isAuthenticated());
         token.setAuthenticated(false);
         assertTrue(!token.isAuthenticated());
     }
 
     public void testGetters() {
-        RunAsUserToken token = new RunAsUserToken("my_password", "Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")}, UsernamePasswordAuthenticationToken.class);
+        RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
+                UsernamePasswordAuthenticationToken.class);
         assertEquals("Test", token.getPrincipal());
         assertEquals("Password", token.getCredentials());
         assertEquals("my_password".hashCode(), token.getKeyHash());
-        assertEquals(UsernamePasswordAuthenticationToken.class,
-            token.getOriginalAuthentication());
+        assertEquals(UsernamePasswordAuthenticationToken.class, token.getOriginalAuthentication());
     }
-
 
     public void testNoArgConstructorDoesntExist() {
         Class clazz = RunAsUserToken.class;
 
         try {
-            clazz.getDeclaredConstructor((Class[])null);
+            clazz.getDeclaredConstructor((Class[]) null);
             fail("Should have thrown NoSuchMethodException");
         } catch (NoSuchMethodException expected) {
             assertTrue(true);
@@ -84,10 +81,9 @@ public class RunAsUserTokenTests extends TestCase {
     }
 
     public void testToString() {
-        RunAsUserToken token = new RunAsUserToken("my_password", "Test",
-                "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")}, UsernamePasswordAuthenticationToken.class);
+        RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
+                UsernamePasswordAuthenticationToken.class);
         assertTrue(token.toString().lastIndexOf("Original Class:") != -1);
     }
 }

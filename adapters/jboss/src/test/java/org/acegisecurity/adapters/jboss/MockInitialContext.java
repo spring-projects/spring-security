@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,18 +25,18 @@ import javax.naming.NamingException;
 
 
 /**
- * Mocks a <code>javax.naming.Context</code> and returns an <code>Object</code>
- * when queried for address <code>java:comp/env/security/subject</code>.
+ * Mocks a <code>javax.naming.Context</code> and returns an <code>Object</code> when queried for address
+ * <code>java:comp/env/security/subject</code>.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MockInitialContext implements Context {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Object object;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public MockInitialContext(Object object) {
         this.object = object;
@@ -46,23 +46,7 @@ public class MockInitialContext implements Context {
         super();
     }
 
-    //~ Methods ================================================================
-
-    public Hashtable getEnvironment() throws NamingException {
-        throw new UnsupportedOperationException("mock method not implemented");
-    }
-
-    public String getNameInNamespace() throws NamingException {
-        throw new UnsupportedOperationException("mock method not implemented");
-    }
-
-    public NameParser getNameParser(String name) throws NamingException {
-        throw new UnsupportedOperationException("mock method not implemented");
-    }
-
-    public NameParser getNameParser(Name name) throws NamingException {
-        throw new UnsupportedOperationException("mock method not implemented");
-    }
+    //~ Methods ========================================================================================================
 
     public Object addToEnvironment(String propName, Object propVal)
         throws NamingException {
@@ -103,6 +87,22 @@ public class MockInitialContext implements Context {
     }
 
     public void destroySubcontext(Name name) throws NamingException {
+        throw new UnsupportedOperationException("mock method not implemented");
+    }
+
+    public Hashtable getEnvironment() throws NamingException {
+        throw new UnsupportedOperationException("mock method not implemented");
+    }
+
+    public String getNameInNamespace() throws NamingException {
+        throw new UnsupportedOperationException("mock method not implemented");
+    }
+
+    public NameParser getNameParser(String name) throws NamingException {
+        throw new UnsupportedOperationException("mock method not implemented");
+    }
+
+    public NameParser getNameParser(Name name) throws NamingException {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 

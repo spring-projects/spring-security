@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,11 +34,11 @@ import javax.servlet.ServletException;
  * @version $Id$
  */
 public class ResinAcegiAuthenticatorTests extends TestCase {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private final String ADAPTER_KEY = "my_key";
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public ResinAcegiAuthenticatorTests() {
         super();
@@ -48,21 +48,20 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ResinAcegiAuthenticatorTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testAdapterAbortsIfAppContextDoesNotContainAnAuthenticationBean()
         throws Exception {
         ResinAcegiAuthenticator adapter = new ResinAcegiAuthenticator();
-        adapter.setAppContextLocation(
-            "org/acegisecurity/adapters/adaptertest-invalid.xml");
+        adapter.setAppContextLocation("org/acegisecurity/adapters/adaptertest-invalid.xml");
         adapter.setKey(ADAPTER_KEY);
 
         try {
@@ -83,8 +82,7 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
             adapter.init();
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("appContextLocation must be defined",
-                expected.getMessage());
+            assertEquals("appContextLocation must be defined", expected.getMessage());
         }
 
         adapter.setAppContextLocation("");
@@ -93,15 +91,13 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
             adapter.init();
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("appContextLocation must be defined",
-                expected.getMessage());
+            assertEquals("appContextLocation must be defined", expected.getMessage());
         }
     }
 
     public void testAdapterAbortsIfNoKeySpecified() throws Exception {
         ResinAcegiAuthenticator adapter = new ResinAcegiAuthenticator();
-        adapter.setAppContextLocation(
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        adapter.setAppContextLocation("org/acegisecurity/adapters/adaptertest-valid.xml");
 
         try {
             adapter.init();
@@ -136,8 +132,7 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
 
     public void testAdapterStartsUpSuccess() throws Exception {
         ResinAcegiAuthenticator adapter = new ResinAcegiAuthenticator();
-        adapter.setAppContextLocation(
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        adapter.setAppContextLocation("org/acegisecurity/adapters/adaptertest-valid.xml");
         adapter.setKey(ADAPTER_KEY);
         adapter.init();
         assertTrue(true);
@@ -146,8 +141,7 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
     public void testAuthenticationFailsForIncorrectPassword()
         throws Exception {
         ResinAcegiAuthenticator adapter = new ResinAcegiAuthenticator();
-        adapter.setAppContextLocation(
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        adapter.setAppContextLocation("org/acegisecurity/adapters/adaptertest-valid.xml");
         adapter.setKey(ADAPTER_KEY);
         adapter.init();
         assertEquals(null, adapter.loginImpl("marissa", "kangaroo"));
@@ -156,8 +150,7 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
     public void testAuthenticationFailsForIncorrectUserName()
         throws Exception {
         ResinAcegiAuthenticator adapter = new ResinAcegiAuthenticator();
-        adapter.setAppContextLocation(
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        adapter.setAppContextLocation("org/acegisecurity/adapters/adaptertest-valid.xml");
         adapter.setKey(ADAPTER_KEY);
         adapter.init();
         assertEquals(null, adapter.loginImpl("melissa", "koala"));
@@ -165,8 +158,7 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
 
     public void testAuthenticationSuccess() throws Exception {
         ResinAcegiAuthenticator adapter = new ResinAcegiAuthenticator();
-        adapter.setAppContextLocation(
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        adapter.setAppContextLocation("org/acegisecurity/adapters/adaptertest-valid.xml");
         adapter.setKey(ADAPTER_KEY);
         adapter.init();
 
@@ -179,23 +171,19 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
         PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) result;
         assertEquals("marissa", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
-        assertEquals("ROLE_TELLER",
-            castResult.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_SUPERVISOR",
-            castResult.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[1].getAuthority());
         assertEquals(ADAPTER_KEY.hashCode(), castResult.getKeyHash());
     }
 
     public void testAuthenticationSuccessUsingAlternateMethod()
         throws Exception {
         ResinAcegiAuthenticator adapter = new ResinAcegiAuthenticator();
-        adapter.setAppContextLocation(
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        adapter.setAppContextLocation("org/acegisecurity/adapters/adaptertest-valid.xml");
         adapter.setKey(ADAPTER_KEY);
         adapter.init();
 
-        Principal result = adapter.loginImpl(null, null, null, "marissa",
-                "koala");
+        Principal result = adapter.loginImpl(null, null, null, "marissa", "koala");
 
         if (!(result instanceof PrincipalAcegiUserToken)) {
             fail("Should have returned PrincipalAcegiUserToken");
@@ -204,18 +192,15 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
         PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) result;
         assertEquals("marissa", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
-        assertEquals("ROLE_TELLER",
-            castResult.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_SUPERVISOR",
-            castResult.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[1].getAuthority());
         assertEquals(ADAPTER_KEY.hashCode(), castResult.getKeyHash());
     }
 
     public void testAuthenticationWithNullPasswordHandledGracefully()
         throws Exception {
         ResinAcegiAuthenticator adapter = new ResinAcegiAuthenticator();
-        adapter.setAppContextLocation(
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        adapter.setAppContextLocation("org/acegisecurity/adapters/adaptertest-valid.xml");
         adapter.setKey(ADAPTER_KEY);
         adapter.init();
         assertEquals(null, adapter.loginImpl("marissa", null));
@@ -224,8 +209,7 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
     public void testAuthenticationWithNullUserNameHandledGracefully()
         throws Exception {
         ResinAcegiAuthenticator adapter = new ResinAcegiAuthenticator();
-        adapter.setAppContextLocation(
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        adapter.setAppContextLocation("org/acegisecurity/adapters/adaptertest-valid.xml");
         adapter.setKey(ADAPTER_KEY);
         adapter.init();
         assertEquals(null, adapter.loginImpl(null, "koala"));
@@ -233,18 +217,15 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
 
     public void testGetters() throws Exception {
         ResinAcegiAuthenticator adapter = new ResinAcegiAuthenticator();
-        adapter.setAppContextLocation(
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        adapter.setAppContextLocation("org/acegisecurity/adapters/adaptertest-valid.xml");
         adapter.setKey(ADAPTER_KEY);
         assertEquals(ADAPTER_KEY, adapter.getKey());
-        assertEquals("org/acegisecurity/adapters/adaptertest-valid.xml",
-            adapter.getAppContextLocation());
+        assertEquals("org/acegisecurity/adapters/adaptertest-valid.xml", adapter.getAppContextLocation());
     }
 
     public void testHasRoleWithANullPrincipalFails() throws Exception {
         ResinAcegiAuthenticator adapter = new ResinAcegiAuthenticator();
-        adapter.setAppContextLocation(
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        adapter.setAppContextLocation("org/acegisecurity/adapters/adaptertest-valid.xml");
         adapter.setKey(ADAPTER_KEY);
         adapter.init();
         assertTrue(!adapter.isUserInRole(null, null, null, null, "ROLE_ONE"));
@@ -253,8 +234,7 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
     public void testHasRoleWithAPrincipalTheAdapterDidNotCreateFails()
         throws Exception {
         ResinAcegiAuthenticator adapter = new ResinAcegiAuthenticator();
-        adapter.setAppContextLocation(
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        adapter.setAppContextLocation("org/acegisecurity/adapters/adaptertest-valid.xml");
         adapter.setKey(ADAPTER_KEY);
         adapter.init();
         assertTrue(!adapter.isUserInRole(null, null, null,
@@ -267,18 +247,15 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
 
     public void testHasRoleWithPrincipalAcegiUserToken()
         throws Exception {
-        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("KEY",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")}, null);
+        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("KEY", "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
+                null);
         ResinAcegiAuthenticator adapter = new ResinAcegiAuthenticator();
-        adapter.setAppContextLocation(
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        adapter.setAppContextLocation("org/acegisecurity/adapters/adaptertest-valid.xml");
         adapter.setKey(ADAPTER_KEY);
         adapter.init();
         assertTrue(adapter.isUserInRole(null, null, null, token, "ROLE_ONE"));
         assertTrue(adapter.isUserInRole(null, null, null, token, "ROLE_ONE"));
-        assertTrue(!adapter.isUserInRole(null, null, null, token,
-                "ROLE_WE_DO_NOT_HAVE"));
+        assertTrue(!adapter.isUserInRole(null, null, null, token, "ROLE_WE_DO_NOT_HAVE"));
     }
 }

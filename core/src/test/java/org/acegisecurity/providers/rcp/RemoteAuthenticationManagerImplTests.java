@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,14 +28,14 @@ import org.acegisecurity.MockAuthenticationManager;
  * @version $Id$
  */
 public class RemoteAuthenticationManagerImplTests extends TestCase {
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(RemoteAuthenticationManagerImplTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testFailedAuthenticationReturnsRemoteAuthenticationException() {
@@ -76,8 +76,7 @@ public class RemoteAuthenticationManagerImplTests extends TestCase {
         RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
         manager.setAuthenticationManager(new MockAuthenticationManager(true));
 
-        GrantedAuthority[] result = manager.attemptAuthentication("marissa",
-                "password");
+        GrantedAuthority[] result = manager.attemptAuthentication("marissa", "password");
         assertTrue(true);
     }
 }

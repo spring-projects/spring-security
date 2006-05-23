@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,32 +29,26 @@ import java.util.Map;
  * @version $Id$
  */
 public class StringSplitUtils {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Splits a <code>String</code> at the first instance of the delimiter.
-     * 
-     * <p>
-     * Does not include the delimiter in the response.
-     * </p>
+     * Splits a <code>String</code> at the first instance of the delimiter.<p>Does not include the delimiter in
+     * the response.</p>
      *
      * @param toSplit the string to split
      * @param delimiter to split the string up with
      *
-     * @return a two element array with index 0 being before the delimiter, and
-     *         index 1 being after the delimiter (neither element includes the
-     *         delimiter)
+     * @return a two element array with index 0 being before the delimiter, and index 1 being after the delimiter
+     *         (neither element includes the delimiter)
      *
      * @throws IllegalArgumentException if an argument was invalid
      */
     public static String[] split(String toSplit, String delimiter) {
         Assert.hasLength(toSplit, "Cannot split a null or empty string");
-        Assert.hasLength(delimiter,
-            "Cannot use a null or empty delimiter to split a string");
+        Assert.hasLength(delimiter, "Cannot use a null or empty delimiter to split a string");
 
         if (delimiter.length() != 1) {
-            throw new IllegalArgumentException(
-                "Delimiter can only be one character in length");
+            throw new IllegalArgumentException("Delimiter can only be one character in length");
         }
 
         int offset = toSplit.indexOf(delimiter);
@@ -70,29 +64,20 @@ public class StringSplitUtils {
     }
 
     /**
-     * Takes an array of <code>String</code>s, and for each element removes any
-     * instances of <code>removeCharacter</code>, and splits the element based
-     * on the <code>delimiter</code>. A <code>Map</code> is then generated,
-     * with the left of the delimiter providing the key, and the right of the
-     * delimiter providing the value.
-     * 
-     * <p>
-     * Will trim both the key and value before adding to the <code>Map</code>.
-     * </p>
+     * Takes an array of <code>String</code>s, and for each element removes any instances of
+     * <code>removeCharacter</code>, and splits the element based on the <code>delimiter</code>. A <code>Map</code> is
+     * then generated, with the left of the delimiter providing the key, and the right of the delimiter providing the
+     * value.<p>Will trim both the key and value before adding to the <code>Map</code>.</p>
      *
      * @param array the array to process
-     * @param delimiter to split each element using (typically the equals
-     *        symbol)
-     * @param removeCharacters one or more characters to remove from each
-     *        element prior to attempting the split operation (typically the
-     *        quotation mark symbol) or <code>null</code> if no removal should
-     *        occur
+     * @param delimiter to split each element using (typically the equals symbol)
+     * @param removeCharacters one or more characters to remove from each element prior to attempting the split
+     *        operation (typically the quotation mark symbol) or <code>null</code> if no removal should occur
      *
-     * @return a <code>Map</code> representing the array contents, or
-     *         <code>null</code> if the array to process was null or empty
+     * @return a <code>Map</code> representing the array contents, or <code>null</code> if the array to process was
+     *         null or empty
      */
-    public static Map splitEachArrayElementAndCreateMap(String[] array,
-        String delimiter, String removeCharacters) {
+    public static Map splitEachArrayElementAndCreateMap(String[] array, String delimiter, String removeCharacters) {
         if ((array == null) || (array.length == 0)) {
             return null;
         }
@@ -114,8 +99,7 @@ public class StringSplitUtils {
                 continue;
             }
 
-            map.put(splitThisArrayElement[0].trim(),
-                splitThisArrayElement[1].trim());
+            map.put(splitThisArrayElement[0].trim(), splitThisArrayElement[1].trim());
         }
 
         return map;

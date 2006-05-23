@@ -23,21 +23,16 @@ import java.lang.reflect.Method;
 
 
 /**
- * Simple implementation of {@link AclObjectIdentity}.
- * 
- * <P>
- * Uses <code>String</code>s to store the identity of the domain object
- * instance. Also offers a constructor that uses reflection to build the
- * identity information.
- * </p>
+ * Simple implementation of {@link AclObjectIdentity}.<P>Uses <code>String</code>s to store the identity of the
+ * domain object instance. Also offers a constructor that uses reflection to build the identity information.</p>
  */
 public class NamedEntityObjectIdentity implements AclObjectIdentity {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private String classname;
     private String id;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public NamedEntityObjectIdentity(String classname, String id) {
         Assert.hasText(classname, "classname required");
@@ -46,7 +41,7 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
         this.id = id;
     }
 
-    /**
+/**
      * Creates the <code>NamedEntityObjectIdentity</code> based on the passed
      * object instance. The passed object must provide a <code>getId()</code>
      * method, otherwise an exception will be thrown.
@@ -57,15 +52,13 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
      * @throws InvocationTargetException
      * @throws IllegalArgumentException
      */
-    public NamedEntityObjectIdentity(Object object)
-        throws IllegalAccessException, InvocationTargetException {
+    public NamedEntityObjectIdentity(Object object) throws IllegalAccessException, InvocationTargetException {
         Assert.notNull(object, "object cannot be null");
 
         this.classname = (getPackageName(object.getClass().getName()) == null)
-	        ? ClassUtils.getShortName(object.getClass())
-	        : getPackageName(object.getClass().getName()) + "."
-	            + ClassUtils.getShortName(object.getClass());
-        
+            ? ClassUtils.getShortName(object.getClass())
+            : (getPackageName(object.getClass().getName()) + "." + ClassUtils.getShortName(object.getClass()));
+
         Class clazz = object.getClass();
 
         try {
@@ -78,15 +71,11 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
         }
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Important so caching operates properly.
-     * 
-     * <P>
-     * Considers an object of the same class equal if it has the same
-     * <code>classname</code> and <code>id</code> properties.
-     * </p>
+     * Important so caching operates properly.<P>Considers an object of the same class equal if it has the same
+     * <code>classname</code> and <code>id</code> properties.</p>
      *
      * @param arg0 object to compare
      *
@@ -103,8 +92,7 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
 
         NamedEntityObjectIdentity other = (NamedEntityObjectIdentity) arg0;
 
-        if (this.getId().equals(other.getId())
-            && this.getClassname().equals(other.getClassname())) {
+        if (this.getId().equals(other.getId()) && this.getClassname().equals(other.getClassname())) {
             return true;
         }
 

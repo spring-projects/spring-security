@@ -25,7 +25,7 @@ import junit.framework.TestCase;
  * @version $Id$
  */
 public class GrantedAuthorityImplTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public GrantedAuthorityImplTests() {
         super();
@@ -35,7 +35,7 @@ public class GrantedAuthorityImplTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(GrantedAuthorityImplTests.class);
@@ -62,8 +62,7 @@ public class GrantedAuthorityImplTests extends TestCase {
         MockGrantedAuthorityImpl mock1 = new MockGrantedAuthorityImpl("TEST");
         assertEquals(auth1, mock1);
 
-        MockGrantedAuthorityImpl mock2 = new MockGrantedAuthorityImpl(
-                "NOT_EQUAL");
+        MockGrantedAuthorityImpl mock2 = new MockGrantedAuthorityImpl("NOT_EQUAL");
         assertTrue(!auth1.equals(mock2));
 
         Integer int1 = new Integer(222);
@@ -75,7 +74,7 @@ public class GrantedAuthorityImplTests extends TestCase {
         assertEquals("TEST", auth.toString());
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockGrantedAuthorityImpl implements GrantedAuthority {
         private String role;

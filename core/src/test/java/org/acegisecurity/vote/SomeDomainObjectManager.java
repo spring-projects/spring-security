@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 package org.acegisecurity.vote;
 
 /**
- * Used by {@link BasicAclEntryVoterTests} so it can create a
- * <code>MethodInvocation</code> contining <code>SomeDomainObject</code>.
+ * Used by {@link BasicAclEntryVoterTests} so it can create a <code>MethodInvocation</code> contining
+ * <code>SomeDomainObject</code>.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class SomeDomainObjectManager {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void someServiceMethod(SomeDomainObject someDomainObject) {}
 }

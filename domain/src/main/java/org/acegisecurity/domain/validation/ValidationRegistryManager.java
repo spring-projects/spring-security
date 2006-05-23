@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,16 +34,14 @@ import org.springframework.validation.Validator;
  * @version $Id$
  */
 public interface ValidationRegistryManager {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Obtains the <code>Validator</code> that applies for a given domain
-     * object class.
+     * Obtains the <code>Validator</code> that applies for a given domain object class.
      *
      * @param domainClass that a <code>Validator</code> is required for
      *
-     * @return the <code>Validator</code>, or <code>null</code> if no
-     *         <code>Validator</code> is known for the indicated
+     * @return the <code>Validator</code>, or <code>null</code> if no <code>Validator</code> is known for the indicated
      *         <code>domainClass</code>
      */
     public Validator findValidator(Class domainClass);

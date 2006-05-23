@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationServiceException;
 import org.acegisecurity.BadCredentialsException;
+
 import org.acegisecurity.providers.AuthenticationProvider;
 
 import org.apache.commons.logging.Log;
@@ -33,42 +34,24 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * An {@link AuthenticationProvider} implementation that relies on <a
- * href="http://www.jcifs.org">jcifs</a> in order to provide an authentication
- * service on a Windows network. This implementation relies on a {@link
- * #setAuthorizationProvider(AuthenticationProvider) delegate provider} in
- * order for authorization information to be filled into the authorized {@link
- * Authentication token}. Subclasses must implement the logic that {@link
- * #getNtlmPasswordAuthentication(Authentication) extracts the jcifs }{@link
- * NtlmPasswordAuthentication } object from the particular {@link
- * Authentication } token implementation and the one that {@link
- * #getDomainController(Authentication, NtlmPasswordAuthentication) extracts
- * the domain controller address }.
+ * An {@link AuthenticationProvider} implementation that relies on <a href="http://www.jcifs.org">jcifs</a> in
+ * order to provide an authentication service on a Windows network. This implementation relies on a {@link
+ * #setAuthorizationProvider(AuthenticationProvider) delegate provider} in order for authorization information to be
+ * filled into the authorized {@link Authentication token}. Subclasses must implement the logic that {@link
+ * #getNtlmPasswordAuthentication(Authentication) extracts the jcifs }{@link NtlmPasswordAuthentication } object from
+ * the particular {@link Authentication } token implementation and the one that {@link
+ * #getDomainController(Authentication, NtlmPasswordAuthentication) extracts the domain controller address }.
  *
  * @author Davide Baroncelli
  * @version $Id$
  */
-public abstract class AbstractSmbAuthenticationProvider
-    implements AuthenticationProvider {
-    //~ Instance fields ========================================================
+public abstract class AbstractSmbAuthenticationProvider implements AuthenticationProvider {
+    //~ Instance fields ================================================================================================
 
     private AuthenticationProvider authorizationProvider;
     private Log log = LogFactory.getLog(this.getClass());
 
-    //~ Methods ================================================================
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param authorizationProvider The {@link AuthenticationProvider } which
-     *        will be contacted in order for it to fill authorization info in
-     *        the (already authenticated) {@link Authentication } object that
-     *        they will be passed.
-     */
-    public void setAuthorizationProvider(
-        AuthenticationProvider authorizationProvider) {
-        this.authorizationProvider = authorizationProvider;
-    }
+    //~ Methods ========================================================================================================
 
     public Authentication authenticate(Authentication authentication)
         throws AuthenticationException {
@@ -78,15 +61,13 @@ public abstract class AbstractSmbAuthenticationProvider
         return performAuthentication(dc, ntlm, authentication);
     }
 
-    protected abstract UniAddress getDomainController(
-        Authentication authentication,
+    protected abstract UniAddress getDomainController(Authentication authentication,
         NtlmPasswordAuthentication ntlmAuthentication);
 
-    protected abstract NtlmPasswordAuthentication getNtlmPasswordAuthentication(
-        Authentication authentication);
+    protected abstract NtlmPasswordAuthentication getNtlmPasswordAuthentication(Authentication authentication);
 
-    protected Authentication performAuthentication(UniAddress dc,
-        NtlmPasswordAuthentication ntlm, Authentication authentication) {
+    protected Authentication performAuthentication(UniAddress dc, NtlmPasswordAuthentication ntlm,
+        Authentication authentication) {
         try {
             // this performs authentication...
             SmbSession.logon(dc, ntlm);
@@ -96,14 +77,11 @@ public abstract class AbstractSmbAuthenticationProvider
             }
 
             // ...and this performs authorization.
-            Authentication authorizedResult = authorizationProvider
-                .authenticate(authentication);
+            Authentication authorizedResult = authorizationProvider.authenticate(authentication);
 
             return authorizedResult;
         } catch (SmbException se) {
-            log.error(ntlm.getName() + ": 0x"
-                + jcifs.util.Hexdump.toHexString(se.getNtStatus(), 8) + ": "
-                + se);
+            log.error(ntlm.getName() + ": 0x" + jcifs.util.Hexdump.toHexString(se.getNtStatus(), 8) + ": " + se);
 
             if (se instanceof SmbAuthException) {
                 SmbAuthException sae = (SmbAuthException) se;
@@ -117,5 +95,16 @@ public abstract class AbstractSmbAuthenticationProvider
                 throw new AuthenticationServiceException(se.getMessage(), se);
             }
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param authorizationProvider The {@link AuthenticationProvider } which will be contacted in order for it to fill
+     *        authorization info in the (already authenticated) {@link Authentication } object that they will be
+     *        passed.
+     */
+    public void setAuthorizationProvider(AuthenticationProvider authorizationProvider) {
+        this.authorizationProvider = authorizationProvider;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,48 +30,33 @@ import org.springframework.util.Assert;
 
 
 /**
- * Calls {@link ValidationManager} for method invocations.
- * 
- * <p>
- * For each method invocation, any argument that is assignable from {@link
- * #argumentClasses} <b>and</b> is non-<code>null</code> will be passed to the
- * {@link org.acegisecurity.domain.validation.ValidationManager} for
- * processing.
- * </p>
+ * Calls {@link ValidationManager} for method invocations.<p>For each method invocation, any argument that is
+ * assignable from {@link #argumentClasses}<b>and</b> is non-<code>null</code> will be passed to the {@link
+ * org.acegisecurity.domain.validation.ValidationManager} for processing.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class ValidationInterceptor implements MethodInterceptor,
-    InitializingBean {
-    //~ Instance fields ========================================================
+public class ValidationInterceptor implements MethodInterceptor, InitializingBean {
+    //~ Instance fields ================================================================================================
 
     protected final Log logger = LogFactory.getLog(getClass());
     private ValidationManager validationManager;
     private Class<?>[] argumentClasses = {BusinessObject.class, PersistableEntity.class};
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void setArgumentClasses(Class[] argumentClasses) {
-        this.argumentClasses = argumentClasses;
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(validationManager, "A ValidationManager is required");
+        Assert.notEmpty(argumentClasses, "A list of business object classes to validate is required");
     }
 
     public Class[] getArgumentClasses() {
         return argumentClasses;
     }
 
-    public void setValidationManager(ValidationManager validationManager) {
-        this.validationManager = validationManager;
-    }
-
     public ValidationManager getValidationManager() {
         return validationManager;
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(validationManager, "A ValidationManager is required");
-        Assert.notEmpty(argumentClasses,
-            "A list of business object classes to validate is required");
     }
 
     public Object invoke(MethodInvocation mi) throws Throwable {
@@ -80,8 +65,7 @@ public class ValidationInterceptor implements MethodInterceptor,
         for (int i = 0; i < args.length; i++) {
             if (shouldValidate(args[i])) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("ValidationInterceptor calling for: '"
-                        + args[i] + "'");
+                    logger.debug("ValidationInterceptor calling for: '" + args[i] + "'");
                 }
 
                 validationManager.validate(args[i]);
@@ -89,6 +73,14 @@ public class ValidationInterceptor implements MethodInterceptor,
         }
 
         return mi.proceed();
+    }
+
+    public void setArgumentClasses(Class[] argumentClasses) {
+        this.argumentClasses = argumentClasses;
+    }
+
+    public void setValidationManager(ValidationManager validationManager) {
+        this.validationManager = validationManager;
     }
 
     private boolean shouldValidate(Object argument) {

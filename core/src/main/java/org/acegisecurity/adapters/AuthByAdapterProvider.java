@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,32 +32,22 @@ import org.springframework.util.Assert;
 
 
 /**
- * An {@link AuthenticationProvider} implementation that can authenticate an
- * {@link AuthByAdapter}.
- * 
- * <P>
- * Configured in the bean context with a key that should match the key used by
- * adapters to generate <code>AuthByAdapter</code> instances. It treats as
- * valid any such instance presenting a hash code that matches the
- * <code>AuthByAdapterProvider</code>-configured key.
- * </p>
- * 
- * <P>
- * If the key does not match, a <code>BadCredentialsException</code> is thrown.
- * </p>
+ * An {@link AuthenticationProvider} implementation that can authenticate an {@link AuthByAdapter}.<P>Configured in
+ * the bean context with a key that should match the key used by adapters to generate <code>AuthByAdapter</code>
+ * instances. It treats as valid any such instance presenting a hash code that matches the
+ * <code>AuthByAdapterProvider</code>-configured key.</p>
+ *  <P>If the key does not match, a <code>BadCredentialsException</code> is thrown.</p>
  */
-public class AuthByAdapterProvider implements InitializingBean,
-    AuthenticationProvider, MessageSourceAware {
-    //~ Instance fields ========================================================
+public class AuthByAdapterProvider implements InitializingBean, AuthenticationProvider, MessageSourceAware {
+    //~ Instance fields ================================================================================================
 
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private String key;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(key,
-            "A Key is required and should match that configured for the adapters");
+        Assert.notNull(key, "A Key is required and should match that configured for the adapters");
         Assert.notNull(messages, "A message source must be set");
     }
 
@@ -68,8 +58,7 @@ public class AuthByAdapterProvider implements InitializingBean,
         if (token.getKeyHash() == key.hashCode()) {
             return authentication;
         } else {
-            throw new BadCredentialsException(messages.getMessage(
-                    "AuthByAdapterProvider.incorrectKey",
+            throw new BadCredentialsException(messages.getMessage("AuthByAdapterProvider.incorrectKey",
                     "The presented AuthByAdapter implementation does not contain the expected key"));
         }
     }

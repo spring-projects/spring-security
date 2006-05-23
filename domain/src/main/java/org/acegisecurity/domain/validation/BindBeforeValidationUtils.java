@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,18 +21,17 @@ import org.springframework.validation.BindException;
 
 
 /**
- * Convenience class that invokes the {@link BindBeforeValidation} interface if
- * the passed domain object has requested it.
+ * Convenience class that invokes the {@link BindBeforeValidation} interface if the passed domain object has
+ * requested it.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class BindBeforeValidationUtils {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Call {@link BindBeforeValidation#bindSupport()} if the domain object
-     * requests it.
+     * Call {@link BindBeforeValidation#bindSupport()} if the domain object requests it.
      *
      * @param domainObject to attempt to bind (never <code>null</code>)
      *

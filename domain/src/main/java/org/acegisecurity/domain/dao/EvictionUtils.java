@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,83 +20,45 @@ import org.acegisecurity.domain.PersistableEntity;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
+
 import java.util.Collection;
 import java.util.Iterator;
 
 
 /**
- * Convenience methods that support eviction of <code>PersistableEntity</code>s
- * from  those objects that implement {@link EvictionCapable}.
+ * Convenience methods that support eviction of <code>PersistableEntity</code>s from  those objects that implement
+ * {@link EvictionCapable}.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class EvictionUtils {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Evicts the <code>PersistableEntity</code> using the passed
-     * <code>Object</code> (provided that the passed <code>Object</code>
-     * implements <code>EvictionCapable</code>).
+     * Evicts the <code>PersistableEntity</code> using the passed <code>Object</code> (provided that the passed
+     * <code>Object</code> implements <code>EvictionCapable</code>).
      *
-     * @param daoOrServices the potential source for
-     *        <code>EvictionCapable</code> services (never <code>null</code>)
+     * @param daoOrServices the potential source for <code>EvictionCapable</code> services (never <code>null</code>)
      * @param entity to evict (can be <code>null</code>)
      */
-    public static void evictIfRequired(Object daoOrServices,
-        PersistableEntity entity) {
+    public static void evictIfRequired(Object daoOrServices, PersistableEntity entity) {
         EvictionCapable evictor = getEvictionCapable(daoOrServices);
 
-        if (evictor != null && entity != null) {
+        if ((evictor != null) && (entity != null)) {
             evictor.evict(entity);
         }
     }
 
     /**
-     * Evicts the <code>PersistableEntity</code> using the passed
-     * <code>Object</code> (provided that the passed <code>Object</code>
-     * implements <code>EvictionCapable</code>), along with expressly
-     * evicting every <code>PersistableEntity</code> returned by the
-     * <code>PersistableEntity</code>'s getters.
-     *
-     * @param daoOrServices the potential source for
-     *        <code>EvictionCapable</code> services (never <code>null</code>)
-     * @param entity to evict includnig its getter results (can be <code>null</code>)
-     */
-    public static void evictPopulatedIfRequired(Object daoOrServices,
-        PersistableEntity entity) {
-        EvictionCapable evictor = getEvictionCapable(daoOrServices);
-
-        if (evictor != null && entity != null) {
-            evictor.evict(entity);
-			
-			Method[] methods = entity.getClass().getMethods();
-			for (int i = 0; i < methods.length; i++) {
-				if (methods[i].getName().startsWith("get") && methods[i].getParameterTypes().length == 0) {
-					try {
-						Object result = methods[i].invoke(entity, new Object[] {});
-						if (result instanceof PersistableEntity) {
-							evictor.evict((PersistableEntity) result);
-						}
-					} catch (Exception ignored) {}
-				}
-			}
-			
-        }
-    }
-
-	/**
-     * Evicts each <code>PersistableEntity</code> element of the passed
-     * <code>Collection</code> using the passed <code>Object</code> (provided
-     * that the passed <code>Object</code> implements
+     * Evicts each <code>PersistableEntity</code> element of the passed <code>Collection</code> using the
+     * passed <code>Object</code> (provided that the passed <code>Object</code> implements
      * <code>EvictionCapable</code>).
      *
-     * @param daoOrServices the potential source for
-     *        <code>EvictionCapable</code> services (never <code>null</code>)
+     * @param daoOrServices the potential source for <code>EvictionCapable</code> services (never <code>null</code>)
      * @param collection whose members to evict (never <code>null</code>)
      */
-    public static void evictIfRequired(Object daoOrServices,
-        Collection<? extends Object> collection) {
+    public static void evictIfRequired(Object daoOrServices, Collection<?extends Object> collection) {
         Assert.notNull(collection, "Cannot evict a null Collection");
 
         if (getEvictionCapable(daoOrServices) == null) {
@@ -104,7 +66,7 @@ public class EvictionUtils {
             return;
         }
 
-        Iterator<? extends Object> iter = collection.iterator();
+        Iterator<?extends Object> iter = collection.iterator();
 
         while (iter.hasNext()) {
             Object obj = iter.next();
@@ -116,17 +78,45 @@ public class EvictionUtils {
     }
 
     /**
-     * Obtain the <code>EvictionCapable</code> from the passed argument, or
-     * <code>null</code>.
+     * Evicts the <code>PersistableEntity</code> using the passed <code>Object</code> (provided that the passed
+     * <code>Object</code> implements <code>EvictionCapable</code>), along with expressly evicting every
+     * <code>PersistableEntity</code> returned by the <code>PersistableEntity</code>'s getters.
+     *
+     * @param daoOrServices the potential source for <code>EvictionCapable</code> services (never <code>null</code>)
+     * @param entity to evict includnig its getter results (can be <code>null</code>)
+     */
+    public static void evictPopulatedIfRequired(Object daoOrServices, PersistableEntity entity) {
+        EvictionCapable evictor = getEvictionCapable(daoOrServices);
+
+        if ((evictor != null) && (entity != null)) {
+            evictor.evict(entity);
+
+            Method[] methods = entity.getClass().getMethods();
+
+            for (int i = 0; i < methods.length; i++) {
+                if (methods[i].getName().startsWith("get") && (methods[i].getParameterTypes().length == 0)) {
+                    try {
+                        Object result = methods[i].invoke(entity, new Object[] {});
+
+                        if (result instanceof PersistableEntity) {
+                            evictor.evict((PersistableEntity) result);
+                        }
+                    } catch (Exception ignored) {}
+                }
+            }
+        }
+    }
+
+    /**
+     * Obtain the <code>EvictionCapable</code> from the passed argument, or <code>null</code>.
      *
      * @param daoOrServices to check if provides eviction services
      *
-     * @return the <code>EvictionCapable</code> object or <code>null</code> if
-     *         the object does not provide eviction services
+     * @return the <code>EvictionCapable</code> object or <code>null</code> if the object does not provide eviction
+     *         services
      */
     private static EvictionCapable getEvictionCapable(Object daoOrServices) {
-        Assert.notNull(daoOrServices,
-            "Cannot evict if the object that may provide EvictionCapable is null");
+        Assert.notNull(daoOrServices, "Cannot evict if the object that may provide EvictionCapable is null");
 
         if (daoOrServices instanceof EvictionCapable) {
             return (EvictionCapable) daoOrServices;

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,25 @@
 
 package org.acegisecurity.ldap;
 
-import javax.naming.directory.DirContext;
-import javax.naming.NamingException;
 import java.util.Set;
 
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+
+
 /**
+ * 
+DOCUMENT ME!
  *
  * @author Luke Taylor
  * @version $Id$
  */
 public class LdapTemplateTests extends AbstractLdapServerTestCase {
+    //~ Instance fields ================================================================================================
+
     private LdapTemplate template;
+
+    //~ Methods ========================================================================================================
 
     protected void onSetUp() {
         getInitialCtxFactory().setManagerDn(MANAGER_USER);
@@ -33,25 +41,42 @@ public class LdapTemplateTests extends AbstractLdapServerTestCase {
         template = new LdapTemplate(getInitialCtxFactory());
     }
 
+    public void testCompareOfCorrectByteValueSucceeds() {
+// Doesn't work with embedded server due to bugs in apacheds
+//        assertTrue(template.compare("uid=bob,ou=people,dc=acegisecurity,dc=org", "userPassword", LdapUtils.getUtf8Bytes("bobspassword")));
+    }
 
     public void testCompareOfCorrectValueSucceeds() {
         assertTrue(template.compare("uid=bob,ou=people,dc=acegisecurity,dc=org", "uid", "bob"));
+    }
+
+    public void testCompareOfWrongByteValueFails() {
+// Doesn't work with embedded server due to bugs in apacheds
+//        assertFalse(template.compare("uid=bob,ou=people,dc=acegisecurity,dc=org", "userPassword", LdapUtils.getUtf8Bytes("wrongvalue")));
     }
 
     public void testCompareOfWrongValueFails() {
         assertFalse(template.compare("uid=bob,ou=people,dc=acegisecurity,dc=org", "uid", "wrongvalue"));
     }
 
-    public void testCompareOfCorrectByteValueSucceeds() {
-
-// Doesn't work with embedded server due to bugs in apacheds
-//        assertTrue(template.compare("uid=bob,ou=people,dc=acegisecurity,dc=org", "userPassword", LdapUtils.getUtf8Bytes("bobspassword")));
+    public void testNameExistsForInValidNameFails() {
+        assertFalse(template.nameExists("ou=doesntexist,dc=acegisecurity,dc=org"));
     }
 
-    public void testCompareOfWrongByteValueFails() {
+    public void testNameExistsForValidNameSucceeds() {
+        assertTrue(template.nameExists("ou=groups,dc=acegisecurity,dc=org"));
+    }
 
-// Doesn't work with embedded server due to bugs in apacheds
-//        assertFalse(template.compare("uid=bob,ou=people,dc=acegisecurity,dc=org", "userPassword", LdapUtils.getUtf8Bytes("wrongvalue")));
+    public void testNamingExceptionIsTranslatedCorrectly() {
+        try {
+            template.execute(new LdapCallback() {
+                    public Object doInDirContext(DirContext dirContext)
+                        throws NamingException {
+                        throw new NamingException();
+                    }
+                });
+            fail("Expected LdapDataAccessException on NamingException");
+        } catch (LdapDataAccessException expected) {}
     }
 
     public void testSearchForSingleAttributeValues() {
@@ -62,27 +87,5 @@ public class LdapTemplateTests extends AbstractLdapServerTestCase {
         assertEquals("Expected 2 results from search", 2, values.size());
         assertTrue(values.contains("developer"));
         assertTrue(values.contains("manager"));
-    }
-
-    public void testNameExistsForValidNameSucceeds() {
-        assertTrue(template.nameExists("ou=groups,dc=acegisecurity,dc=org"));
-    }
-
-    public void testNameExistsForInValidNameFails() {
-        assertFalse(template.nameExists("ou=doesntexist,dc=acegisecurity,dc=org"));
-    }
-
-    public void testNamingExceptionIsTranslatedCorrectly() {
-        try {
-            template.execute(new LdapCallback() {
-
-                public Object doInDirContext(DirContext dirContext) throws NamingException {
-                    throw new NamingException();
-                }
-            });
-            fail("Expected LdapDataAccessException on NamingException");
-        }
-        catch(LdapDataAccessException expected) {
-        }
     }
 }

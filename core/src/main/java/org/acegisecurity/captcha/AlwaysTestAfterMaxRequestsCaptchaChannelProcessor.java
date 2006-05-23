@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,21 @@
 package org.acegisecurity.captcha;
 
 /**
- * <p>
- * return false if ny CaptchaChannelProcessorTemplate of mapped urls has been
- * requested more than thresold; <br>
- * Default keyword : REQUIRES_CAPTCHA_ABOVE_THRESOLD_REQUESTS
- * </p>
+ * <p>return false if ny CaptchaChannelProcessorTemplate of mapped urls has been requested more than thresold; <br>
+ * Default keyword : REQUIRES_CAPTCHA_ABOVE_THRESOLD_REQUESTS</p>
  *
  * @author Marc-Antoine Garrigue
  * @version $Id$
  */
-public class AlwaysTestAfterMaxRequestsCaptchaChannelProcessor
-    extends CaptchaChannelProcessorTemplate {
-    //~ Static fields/initializers =============================================
+public class AlwaysTestAfterMaxRequestsCaptchaChannelProcessor extends CaptchaChannelProcessorTemplate {
+    //~ Static fields/initializers =====================================================================================
 
     /** Keyword for this channelProcessor */
     public static final String DEFAULT_KEYWORD = "REQUIRES_CAPTCHA_ABOVE_THRESOLD_REQUESTS";
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructor
      */
     public AlwaysTestAfterMaxRequestsCaptchaChannelProcessor() {
@@ -45,7 +41,7 @@ public class AlwaysTestAfterMaxRequestsCaptchaChannelProcessor
         this.setKeyword(DEFAULT_KEYWORD);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Verify wheter the context is valid concerning humanity

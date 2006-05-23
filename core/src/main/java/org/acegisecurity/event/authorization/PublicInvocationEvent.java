@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,18 @@
 package org.acegisecurity.event.authorization;
 
 /**
- * Event that is generated whenever a public secure object is invoked.
- * 
- * <p>
- * A public secure object is a secure object that has no
- * <code>ConfigAttributeDefinition</code> defined. A public secure object will
- * not cause the <code>SecurityContextHolder</code> to be inspected or authenticated,
- * and no authorization will take place.
- * </p>
- * 
- * <p>
- * Published just before the secure object attempts to proceed.
- * </p>
+ * Event that is generated whenever a public secure object is invoked.<p>A public secure object is a secure object
+ * that has no <code>ConfigAttributeDefinition</code> defined. A public secure object will not cause the
+ * <code>SecurityContextHolder</code> to be inspected or authenticated, and no authorization will take place.</p>
+ *  <p>Published just before the secure object attempts to proceed.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class PublicInvocationEvent extends AbstractAuthorizationEvent {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Construct the event, passing in the public secure object.
      *
      * @param secureObject the public secure object

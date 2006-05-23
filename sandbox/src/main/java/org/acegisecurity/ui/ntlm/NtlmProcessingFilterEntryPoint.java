@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.acegisecurity.ui.ntlm;
 
 import org.acegisecurity.AuthenticationException;
+
 import org.acegisecurity.ui.AuthenticationEntryPoint;
 
 import java.io.IOException;
@@ -33,15 +34,13 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public class NtlmProcessingFilterEntryPoint implements AuthenticationEntryPoint {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void commence(ServletRequest request, ServletResponse response,
-        AuthenticationException authException)
+    public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
         throws IOException, ServletException {
         HttpServletResponse resp = (HttpServletResponse) response;
         resp.setHeader("WWW-Authenticate", "NTLM");
         resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        resp.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-            (authException != null) ? authException.getMessage() : "");
+        resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, (authException != null) ? authException.getMessage() : "");
     }
 }

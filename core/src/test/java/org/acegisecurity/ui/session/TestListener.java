@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,23 +25,15 @@ import org.springframework.context.ApplicationListener;
  * @author Ray Krueger
  */
 public class TestListener implements ApplicationListener {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private HttpSessionCreatedEvent createdEvent;
     private HttpSessionDestroyedEvent destroyedEvent;
 
-    //~ Methods ================================================================
-
-    public void setCreatedEvent(HttpSessionCreatedEvent createdEvent) {
-        this.createdEvent = createdEvent;
-    }
+    //~ Methods ========================================================================================================
 
     public HttpSessionCreatedEvent getCreatedEvent() {
         return createdEvent;
-    }
-
-    public void setDestroyedEvent(HttpSessionDestroyedEvent destroyedEvent) {
-        this.destroyedEvent = destroyedEvent;
     }
 
     public HttpSessionDestroyedEvent getDestroyedEvent() {
@@ -54,5 +46,13 @@ public class TestListener implements ApplicationListener {
         } else if (event instanceof HttpSessionDestroyedEvent) {
             destroyedEvent = (HttpSessionDestroyedEvent) event;
         }
+    }
+
+    public void setCreatedEvent(HttpSessionCreatedEvent createdEvent) {
+        this.createdEvent = createdEvent;
+    }
+
+    public void setDestroyedEvent(HttpSessionDestroyedEvent destroyedEvent) {
+        this.destroyedEvent = destroyedEvent;
     }
 }

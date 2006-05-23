@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,22 @@
 
 package org.acegisecurity.providers.x509.populator;
 
-import java.security.cert.X509Certificate;
-
 import junit.framework.TestCase;
 
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.providers.x509.X509TestUtils;
+
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
+
 import org.springframework.dao.DataAccessException;
+
+import java.security.cert.X509Certificate;
 
 
 /**
@@ -37,7 +40,7 @@ import org.springframework.dao.DataAccessException;
  * @version $Id$
  */
 public class DaoX509AuthoritiesPopulatorTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public DaoX509AuthoritiesPopulatorTests() {
         super();
@@ -47,7 +50,7 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public final void setUp() throws Exception {
         super.setUp();
@@ -111,8 +114,7 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
 
         try {
             populator.getUserDetails(cert);
-            fail(
-                "Should have thrown IllegalArgumentException for regexp without group");
+            fail("Should have thrown IllegalArgumentException for regexp without group");
         } catch (IllegalArgumentException e) {
             // ignored
         }
@@ -129,19 +131,16 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
         }
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
-    private class MockAuthenticationDaoMatchesNameOrEmail
-        implements UserDetailsService {
+    private class MockAuthenticationDaoMatchesNameOrEmail implements UserDetailsService {
         public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException, DataAccessException {
-            if ("Luke Taylor".equals(username)
-                || "luke@monkeymachine".equals(username)) {
+            if ("Luke Taylor".equals(username) || "luke@monkeymachine".equals(username)) {
                 return new User("luke", "monkey", true, true, true, true,
                     new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE")});
             } else {
-                throw new UsernameNotFoundException("Could not find: "
-                    + username);
+                throw new UsernameNotFoundException("Could not find: " + username);
             }
         }
     }

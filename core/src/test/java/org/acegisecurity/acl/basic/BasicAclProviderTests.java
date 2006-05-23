@@ -38,11 +38,11 @@ import java.util.Map;
  * @version $Id$
  */
 public class BasicAclProviderTests extends TestCase {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     public static final String OBJECT_IDENTITY = "org.acegisecurity.acl.DomainObject";
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public BasicAclProviderTests() {
         super();
@@ -52,7 +52,7 @@ public class BasicAclProviderTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(BasicAclProviderTests.class);
@@ -175,16 +175,14 @@ public class BasicAclProviderTests extends TestCase {
         assertEquals(14, ((BasicAclEntry) acls[0]).getMask());
         assertEquals("ROLE_SUPERVISOR", ((BasicAclEntry) acls[1]).getRecipient());
         assertEquals(1, ((BasicAclEntry) acls[1]).getMask());
-        assertEquals(JdbcDaoImpl.RECIPIENT_USED_FOR_INHERITENCE_MARKER,
-            ((BasicAclEntry) acls[2]).getRecipient());
+        assertEquals(JdbcDaoImpl.RECIPIENT_USED_FOR_INHERITENCE_MARKER, ((BasicAclEntry) acls[2]).getRecipient());
     }
 
     public void testGetAclsWithAuthentication() throws Exception {
         BasicAclProvider provider = new BasicAclProvider();
         provider.setBasicAclDao(makePopulatedJdbcDao());
 
-        Authentication scott = new UsernamePasswordAuthenticationToken("scott",
-                "unused");
+        Authentication scott = new UsernamePasswordAuthenticationToken("scott", "unused");
 
         Object object = new MockDomain(6);
         AclEntry[] acls = provider.getAcls(object, scott);
@@ -195,12 +193,9 @@ public class BasicAclProviderTests extends TestCase {
 
     public void testGettersSetters() {
         BasicAclProvider provider = new BasicAclProvider();
-        assertEquals(NullAclEntryCache.class,
-            provider.getBasicAclEntryCache().getClass());
-        assertEquals(NamedEntityObjectIdentity.class,
-            provider.getDefaultAclObjectIdentityClass());
-        assertEquals(GrantedAuthorityEffectiveAclsResolver.class,
-            provider.getEffectiveAclsResolver().getClass());
+        assertEquals(NullAclEntryCache.class, provider.getBasicAclEntryCache().getClass());
+        assertEquals(NamedEntityObjectIdentity.class, provider.getDefaultAclObjectIdentityClass());
+        assertEquals(GrantedAuthorityEffectiveAclsResolver.class, provider.getEffectiveAclsResolver().getClass());
 
         provider.setBasicAclEntryCache(null);
         assertNull(provider.getBasicAclEntryCache());
@@ -326,7 +321,7 @@ public class BasicAclProviderTests extends TestCase {
         assertFalse(provider.supports(new Integer(34)));
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockCache implements BasicAclEntryCache {
         private Map map = new HashMap();
@@ -338,8 +333,7 @@ public class BasicAclProviderTests extends TestCase {
             return map;
         }
 
-        public BasicAclEntry[] getEntriesFromCache(
-            AclObjectIdentity aclObjectIdentity) {
+        public BasicAclEntry[] getEntriesFromCache(AclObjectIdentity aclObjectIdentity) {
             gets++;
 
             Object result = map.get(aclObjectIdentity);
@@ -391,8 +385,7 @@ public class BasicAclProviderTests extends TestCase {
         }
 
         public AclObjectIdentity getAclObjectIdentity() {
-            return new NamedEntityObjectIdentity(OBJECT_IDENTITY,
-                new Integer(id).toString());
+            return new NamedEntityObjectIdentity(OBJECT_IDENTITY, new Integer(id).toString());
         }
     }
 }

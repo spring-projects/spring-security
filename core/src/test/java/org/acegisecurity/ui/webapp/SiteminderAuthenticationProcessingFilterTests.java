@@ -1,233 +1,230 @@
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.acegisecurity.ui.webapp;
 
 import junit.framework.TestCase;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.MockAuthenticationManager;
+
 import org.acegisecurity.ui.WebAuthenticationDetails;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+
 /**
  * Tests SiteminderAuthenticationProcessingFilter.
- * 
+ *
  * @author Ben Alex
  * @author <a href="mailto:scott@mccrory.us">Scott McCrory</a>
- * @version CVS $Id: SiteminderAuthenticationProcessingFilterTests.java,v 1.1
- *          2005/09/25 22:48:33 smccrory Exp $
+ * @version CVS $Id$
  */
 public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
+    //~ Constructors ===================================================================================================
 
-	/**
-	 * Basic constructor.
-	 */
-	public SiteminderAuthenticationProcessingFilterTests() {
-		super();
-	}
+/**
+         * Basic constructor.
+         */
+    public SiteminderAuthenticationProcessingFilterTests() {
+        super();
+    }
 
-	/**
-	 * Argument constructor.
-	 * 
-	 * @param arg0
-	 */
-	public SiteminderAuthenticationProcessingFilterTests(String arg0) {
-		super(arg0);
-	}
+/**
+         * Argument constructor.
+         * 
+         * @param arg0
+         */
+    public SiteminderAuthenticationProcessingFilterTests(String arg0) {
+        super(arg0);
+    }
 
-	/**
-	 * @see junit.framework.TestCase#setUp()
-	 */
-	public final void setUp() throws Exception {
-		super.setUp();
-	}
+    //~ Methods ========================================================================================================
 
-	/**
-	 * Runs the tests as a command-line program.
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		junit.textui.TestRunner
-				.run(SiteminderAuthenticationProcessingFilterTests.class);
-	}
+    /**
+     * Runs the tests as a command-line program.
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(SiteminderAuthenticationProcessingFilterTests.class);
+    }
 
-	/**
-	 * Tests the class' getters.
-	 */
-	public void testAccessors() {
+    /**
+     * 
+     * @see junit.framework.TestCase#setUp()
+     */
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
 
-		SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
-		
-		filter.setAlwaysUseDefaultTargetUrl(true);
-		assertTrue(filter.isAlwaysUseDefaultTargetUrl());
-		
-		filter.setAuthenticationFailureUrl("foo");
-		assertEquals("foo", filter.getAuthenticationFailureUrl());
-		
-		filter.setContinueChainBeforeSuccessfulAuthentication(true);
-		assertTrue(filter.isContinueChainBeforeSuccessfulAuthentication());
-		
-		filter.setDefaultTargetUrl("bar");
-		assertEquals("bar", filter.getDefaultTargetUrl());
-		
-		filter.setFilterProcessesUrl("foobar");
-		assertEquals("foobar", filter.getFilterProcessesUrl());
-		
-		filter.setFormPasswordParameterKey("passwordParamKey");
-		assertEquals("passwordParamKey", filter.getFormPasswordParameterKey());
-		
-		filter.setFormUsernameParameterKey("usernameParamKey");
-		assertEquals("usernameParamKey", filter.getFormUsernameParameterKey());
-		
-		filter.setSiteminderPasswordHeaderKey("passwordHeaderKey");
-		assertEquals("passwordHeaderKey", filter.getSiteminderPasswordHeaderKey());
-		
-		filter.setSiteminderUsernameHeaderKey("usernameHeaderKey");
-		assertEquals("usernameHeaderKey", filter.getSiteminderUsernameHeaderKey());
+    /**
+     * Tests the class' getters.
+     */
+    public void testAccessors() {
+        SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
 
-	}
+        filter.setAlwaysUseDefaultTargetUrl(true);
+        assertTrue(filter.isAlwaysUseDefaultTargetUrl());
 
-	/**
-	 * Tests normal form processing.
-	 * 
-	 * @throws Exception
-	 */
-	public void testFormNormalOperation() throws Exception {
+        filter.setAuthenticationFailureUrl("foo");
+        assertEquals("foo", filter.getAuthenticationFailureUrl());
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request
-				.addParameter(
-						SiteminderAuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY,
-						"marissa");
-		request
-				.addParameter(
-						SiteminderAuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY,
-						"koala");
+        filter.setContinueChainBeforeSuccessfulAuthentication(true);
+        assertTrue(filter.isContinueChainBeforeSuccessfulAuthentication());
 
-		MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
+        filter.setDefaultTargetUrl("bar");
+        assertEquals("bar", filter.getDefaultTargetUrl());
 
-		SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
-		filter.setAuthenticationManager(authMgr);
-		filter.init(null);
+        filter.setFilterProcessesUrl("foobar");
+        assertEquals("foobar", filter.getFilterProcessesUrl());
 
-		Authentication result = filter.attemptAuthentication(request);
-		assertTrue(result != null);
-		assertEquals("127.0.0.1", ((WebAuthenticationDetails) result
-				.getDetails()).getRemoteAddress());
+        filter.setFormPasswordParameterKey("passwordParamKey");
+        assertEquals("passwordParamKey", filter.getFormPasswordParameterKey());
 
-	}
+        filter.setFormUsernameParameterKey("usernameParamKey");
+        assertEquals("usernameParamKey", filter.getFormUsernameParameterKey());
 
-	/**
-	 * Tests form null password handling.
-	 * 
-	 * @throws Exception
-	 */
-	public void testFormNullPasswordHandledGracefully() throws Exception {
+        filter.setSiteminderPasswordHeaderKey("passwordHeaderKey");
+        assertEquals("passwordHeaderKey", filter.getSiteminderPasswordHeaderKey());
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request
-				.addParameter(
-						SiteminderAuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY,
-						"marissa");
+        filter.setSiteminderUsernameHeaderKey("usernameHeaderKey");
+        assertEquals("usernameHeaderKey", filter.getSiteminderUsernameHeaderKey());
+    }
 
-		MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
+    /**
+     * Tests normal form processing.
+     *
+     * @throws Exception
+     */
+    public void testFormNormalOperation() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addParameter(SiteminderAuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY, "marissa");
+        request.addParameter(SiteminderAuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY, "koala");
 
-		SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
-		filter.setAuthenticationManager(authMgr);
-		filter.init(null);
+        MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
 
-		Authentication result = filter.attemptAuthentication(request);
-		assertTrue(result != null);
+        SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
+        filter.setAuthenticationManager(authMgr);
+        filter.init(null);
 
-	}
+        Authentication result = filter.attemptAuthentication(request);
+        assertTrue(result != null);
+        assertEquals("127.0.0.1", ((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
+    }
 
-	/**
-	 * Tests the overridden testRequiresAuthentication method.
-	 * 
-	 * @throws Exception
-	 */
-	public void testRequiresAuthentication() throws Exception {
-		
-		// Create a Siteminder-style request from an unauthenticated user for a strange URI
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		
-		request.addHeader("SM_USER", "A123456");
+    /**
+     * Tests form null password handling.
+     *
+     * @throws Exception
+     */
+    public void testFormNullPasswordHandledGracefully()
+        throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addParameter(SiteminderAuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY, "marissa");
 
-		// Create the Siteminder filter, set a mock authentication manager to automatically grant access
-		SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
-		filter.setDefaultTargetUrl("/defaultTargetUri");
-		MockAuthenticationManager authMgrThatGrantsAccess = new MockAuthenticationManager(true);
-		filter.setAuthenticationManager(authMgrThatGrantsAccess);
+        MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
 
-		filter.setSiteminderUsernameHeaderKey("SM_USER");
-		filter.setSiteminderPasswordHeaderKey("SM_USER");
-		filter.init(null);
-		
-		// Requests for an unknown URL should NOT require (re)authentication
-		request.setRequestURI("http://an.unknown.url");
-		boolean requiresAuthentication = filter.requiresAuthentication(request, response);
-		assertFalse(requiresAuthentication);
+        SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
+        filter.setAuthenticationManager(authMgr);
+        filter.init(null);
 
-		// Requests for the filter processing URI SHOULD require (re)authentication
-		request.setRequestURI(request.getContextPath() + filter.getFilterProcessesUrl());
-		requiresAuthentication = filter.requiresAuthentication(request, response);
-		assertTrue(requiresAuthentication);
+        Authentication result = filter.attemptAuthentication(request);
+        assertTrue(result != null);
+    }
 
-		// Requests for the default target URI SHOULD require (re)authentication
-		request.setRequestURI(request.getContextPath() + filter.getDefaultTargetUrl());
-		requiresAuthentication = filter.requiresAuthentication(request, response);
-		assertTrue(requiresAuthentication);
+    /**
+     * Tests form null username handling.
+     *
+     * @throws Exception
+     */
+    public void testFormNullUsernameHandledGracefully()
+        throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addParameter(SiteminderAuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY, "koala");
 
-	}
+        MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
 
-	/**
-	 * Tests form null username handling.
-	 * 
-	 * @throws Exception
-	 */
-	public void testFormNullUsernameHandledGracefully() throws Exception {
+        SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
+        filter.setAuthenticationManager(authMgr);
+        filter.init(null);
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request
-				.addParameter(
-						SiteminderAuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY,
-						"koala");
+        Authentication result = filter.attemptAuthentication(request);
+        assertTrue(result != null);
+    }
 
-		MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
+    /**
+     * Tests the overridden testRequiresAuthentication method.
+     *
+     * @throws Exception
+     */
+    public void testRequiresAuthentication() throws Exception {
+        // Create a Siteminder-style request from an unauthenticated user for a strange URI
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
 
-		SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
-		filter.setAuthenticationManager(authMgr);
-		filter.init(null);
+        request.addHeader("SM_USER", "A123456");
 
-		Authentication result = filter.attemptAuthentication(request);
-		assertTrue(result != null);
+        // Create the Siteminder filter, set a mock authentication manager to automatically grant access
+        SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
+        filter.setDefaultTargetUrl("/defaultTargetUri");
 
-	}
+        MockAuthenticationManager authMgrThatGrantsAccess = new MockAuthenticationManager(true);
+        filter.setAuthenticationManager(authMgrThatGrantsAccess);
 
-	/**
-	 * Tests normal Siteminder header processing.
-	 * 
-	 * @throws Exception
-	 */
-	public void testSiteminderNormalOperation() throws Exception {
+        filter.setSiteminderUsernameHeaderKey("SM_USER");
+        filter.setSiteminderPasswordHeaderKey("SM_USER");
+        filter.init(null);
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("SM_USER", "A123456");
+        // Requests for an unknown URL should NOT require (re)authentication
+        request.setRequestURI("http://an.unknown.url");
 
-		MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
+        boolean requiresAuthentication = filter.requiresAuthentication(request, response);
+        assertFalse(requiresAuthentication);
 
-		SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
-		filter.setAuthenticationManager(authMgr);
-		filter.setSiteminderUsernameHeaderKey("SM_USER");
-		filter.setSiteminderPasswordHeaderKey("SM_USER");
-		filter.init(null);
+        // Requests for the filter processing URI SHOULD require (re)authentication
+        request.setRequestURI(request.getContextPath() + filter.getFilterProcessesUrl());
+        requiresAuthentication = filter.requiresAuthentication(request, response);
+        assertTrue(requiresAuthentication);
 
-		Authentication result = filter.attemptAuthentication(request);
-		assertTrue(result != null);
-		assertEquals("127.0.0.1", ((WebAuthenticationDetails) result
-				.getDetails()).getRemoteAddress());
+        // Requests for the default target URI SHOULD require (re)authentication
+        request.setRequestURI(request.getContextPath() + filter.getDefaultTargetUrl());
+        requiresAuthentication = filter.requiresAuthentication(request, response);
+        assertTrue(requiresAuthentication);
+    }
 
-	}
+    /**
+     * Tests normal Siteminder header processing.
+     *
+     * @throws Exception
+     */
+    public void testSiteminderNormalOperation() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("SM_USER", "A123456");
 
+        MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
+
+        SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
+        filter.setAuthenticationManager(authMgr);
+        filter.setSiteminderUsernameHeaderKey("SM_USER");
+        filter.setSiteminderPasswordHeaderKey("SM_USER");
+        filter.init(null);
+
+        Authentication result = filter.attemptAuthentication(request);
+        assertTrue(result != null);
+        assertEquals("127.0.0.1", ((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
+    }
 }

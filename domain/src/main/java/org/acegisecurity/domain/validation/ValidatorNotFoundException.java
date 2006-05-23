@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,15 @@ import org.acegisecurity.domain.DomainException;
 
 
 /**
- * Thrown if no <code>Validator</code> could be found that supports a domain
- * object presented for validation.
+ * Thrown if no <code>Validator</code> could be found that supports a domain object presented for validation.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class ValidatorNotFoundException extends DomainException {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructs a <code>ValidatorNotFoundException</code> with the specified
      * message and root cause.
      *
@@ -39,7 +38,7 @@ public class ValidatorNotFoundException extends DomainException {
         super(msg, t);
     }
 
-    /**
+/**
      * Constructs a <code>DomainException</code> with the specified message and
      * no root cause.
      *

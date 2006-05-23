@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,16 @@ import java.util.Iterator;
 
 
 /**
- * Returns a new run-as identity if configuration attribute RUN_AS is found.
- * The new identity is simply an empty {@link MockRunAsAuthenticationToken}.
+ * Returns a new run-as identity if configuration attribute RUN_AS is found. The new identity is simply an empty
+ * {@link MockRunAsAuthenticationToken}.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MockRunAsManager implements RunAsManager {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public Authentication buildRunAs(Authentication authentication,
-        Object object, ConfigAttributeDefinition config) {
+    public Authentication buildRunAs(Authentication authentication, Object object, ConfigAttributeDefinition config) {
         Iterator iter = config.getConfigAttributes();
 
         while (iter.hasNext()) {

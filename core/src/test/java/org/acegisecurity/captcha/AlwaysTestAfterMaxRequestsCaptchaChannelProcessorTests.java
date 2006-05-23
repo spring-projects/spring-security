@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,51 +26,43 @@ import org.acegisecurity.captcha.AlwaysTestAfterMaxRequestsCaptchaChannelProcess
  * @author $author$
  * @version $Revision$
  */
-public class AlwaysTestAfterMaxRequestsCaptchaChannelProcessorTests
-    extends TestCase {
-    //~ Instance fields ========================================================
+public class AlwaysTestAfterMaxRequestsCaptchaChannelProcessorTests extends TestCase {
+    //~ Instance fields ================================================================================================
 
     AlwaysTestAfterMaxRequestsCaptchaChannelProcessor alwaysTestAfterMaxRequestsCaptchaChannelProcessor;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    protected void setUp() throws Exception {
+        super.setUp();
+        alwaysTestAfterMaxRequestsCaptchaChannelProcessor = new AlwaysTestAfterMaxRequestsCaptchaChannelProcessor();
+    }
 
     public void testIsContextValidConcerningHumanity()
         throws Exception {
         alwaysTestAfterMaxRequestsCaptchaChannelProcessor.setThresold(1);
 
         CaptchaSecurityContextImpl context = new CaptchaSecurityContextImpl();
-        assertTrue(alwaysTestAfterMaxRequestsCaptchaChannelProcessor
-            .isContextValidConcerningHumanity(context));
+        assertTrue(alwaysTestAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
 
         context.incrementHumanRestrictedRessoucesRequestsCount();
 
         alwaysTestAfterMaxRequestsCaptchaChannelProcessor.setThresold(-1);
-        assertFalse(alwaysTestAfterMaxRequestsCaptchaChannelProcessor
-            .isContextValidConcerningHumanity(context));
+        assertFalse(alwaysTestAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
 
         alwaysTestAfterMaxRequestsCaptchaChannelProcessor.setThresold(3);
-        assertTrue(alwaysTestAfterMaxRequestsCaptchaChannelProcessor
-            .isContextValidConcerningHumanity(context));
+        assertTrue(alwaysTestAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
         context.incrementHumanRestrictedRessoucesRequestsCount();
-        assertTrue(alwaysTestAfterMaxRequestsCaptchaChannelProcessor
-            .isContextValidConcerningHumanity(context));
+        assertTrue(alwaysTestAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
         context.incrementHumanRestrictedRessoucesRequestsCount();
-        assertFalse(alwaysTestAfterMaxRequestsCaptchaChannelProcessor
-            .isContextValidConcerningHumanity(context));
+        assertFalse(alwaysTestAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
     }
 
     public void testNewContext() {
         CaptchaSecurityContextImpl context = new CaptchaSecurityContextImpl();
 
-        assertFalse(alwaysTestAfterMaxRequestsCaptchaChannelProcessor
-            .isContextValidConcerningHumanity(context));
+        assertFalse(alwaysTestAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
         alwaysTestAfterMaxRequestsCaptchaChannelProcessor.setThresold(1);
-        assertTrue(alwaysTestAfterMaxRequestsCaptchaChannelProcessor
-            .isContextValidConcerningHumanity(context));
-    }
-
-    protected void setUp() throws Exception {
-        super.setUp();
-        alwaysTestAfterMaxRequestsCaptchaChannelProcessor = new AlwaysTestAfterMaxRequestsCaptchaChannelProcessor();
+        assertTrue(alwaysTestAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
     }
 }

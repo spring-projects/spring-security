@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,15 @@ import org.acegisecurity.AuthenticationException;
 
 
 /**
- * Application event which indicates authentication failure due to the user's
- * account having been locked.
+ * Application event which indicates authentication failure due to the user's account having been locked.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthenticationFailureLockedEvent
-    extends AbstractAuthenticationFailureEvent {
-    //~ Constructors ===========================================================
+public class AuthenticationFailureLockedEvent extends AbstractAuthenticationFailureEvent {
+    //~ Constructors ===================================================================================================
 
-    public AuthenticationFailureLockedEvent(Authentication authentication,
-        AuthenticationException exception) {
+    public AuthenticationFailureLockedEvent(Authentication authentication, AuthenticationException exception) {
         super(authentication, exception);
     }
 }

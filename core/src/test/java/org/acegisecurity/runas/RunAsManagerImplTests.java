@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.RunAsManager;
 import org.acegisecurity.SecurityConfig;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 
@@ -33,7 +34,7 @@ import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
  * @version $Id$
  */
 public class RunAsManagerImplTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public RunAsManagerImplTests() {
         super();
@@ -43,14 +44,14 @@ public class RunAsManagerImplTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(RunAsManagerImplTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testAlwaysSupportsClass() {
@@ -63,15 +64,13 @@ public class RunAsManagerImplTests extends TestCase {
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("SOMETHING_WE_IGNORE"));
 
-        UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
+        UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
 
         RunAsManagerImpl runAs = new RunAsManagerImpl();
         runAs.setKey("my_password");
 
-        Authentication resultingToken = runAs.buildRunAs(inputToken,
-                new Object(), def);
+        Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(), def);
         assertEquals(null, resultingToken);
     }
 
@@ -79,26 +78,22 @@ public class RunAsManagerImplTests extends TestCase {
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("RUN_AS_SOMETHING"));
 
-        UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
+        UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ONE"), new GrantedAuthorityImpl("TWO")});
 
         RunAsManagerImpl runAs = new RunAsManagerImpl();
         runAs.setKey("my_password");
         runAs.setRolePrefix("FOOBAR_");
 
-        Authentication resultingToken = runAs.buildRunAs(inputToken,
-                new Object(), def);
+        Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(), def);
 
         if (!(resultingToken instanceof RunAsUserToken)) {
             fail("Should have returned a RunAsUserToken");
         }
 
         assertEquals(inputToken.getPrincipal(), resultingToken.getPrincipal());
-        assertEquals(inputToken.getCredentials(),
-            resultingToken.getCredentials());
-        assertEquals("FOOBAR_RUN_AS_SOMETHING",
-            resultingToken.getAuthorities()[0].getAuthority());
+        assertEquals(inputToken.getCredentials(), resultingToken.getCredentials());
+        assertEquals("FOOBAR_RUN_AS_SOMETHING", resultingToken.getAuthorities()[0].getAuthority());
         assertEquals("ONE", resultingToken.getAuthorities()[1].getAuthority());
         assertEquals("TWO", resultingToken.getAuthorities()[2].getAuthority());
 
@@ -111,29 +106,23 @@ public class RunAsManagerImplTests extends TestCase {
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("RUN_AS_SOMETHING"));
 
-        UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
+        UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
 
         RunAsManagerImpl runAs = new RunAsManagerImpl();
         runAs.setKey("my_password");
 
-        Authentication resultingToken = runAs.buildRunAs(inputToken,
-                new Object(), def);
+        Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(), def);
 
         if (!(resultingToken instanceof RunAsUserToken)) {
             fail("Should have returned a RunAsUserToken");
         }
 
         assertEquals(inputToken.getPrincipal(), resultingToken.getPrincipal());
-        assertEquals(inputToken.getCredentials(),
-            resultingToken.getCredentials());
-        assertEquals("ROLE_RUN_AS_SOMETHING",
-            resultingToken.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_ONE",
-            resultingToken.getAuthorities()[1].getAuthority());
-        assertEquals("ROLE_TWO",
-            resultingToken.getAuthorities()[2].getAuthority());
+        assertEquals(inputToken.getCredentials(), resultingToken.getCredentials());
+        assertEquals("ROLE_RUN_AS_SOMETHING", resultingToken.getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_ONE", resultingToken.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_TWO", resultingToken.getAuthorities()[2].getAuthority());
 
         RunAsUserToken resultCast = (RunAsUserToken) resultingToken;
         assertEquals("my_password".hashCode(), resultCast.getKeyHash());

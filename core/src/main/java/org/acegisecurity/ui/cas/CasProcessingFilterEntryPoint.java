@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 package org.acegisecurity.ui.cas;
 
 import org.acegisecurity.AuthenticationException;
+
 import org.acegisecurity.ui.AuthenticationEntryPoint;
 
 import org.springframework.beans.factory.InitializingBean;
+
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 
@@ -34,33 +35,46 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Used by the <code>SecurityEnforcementFilter</code> to commence
- * authentication via the JA-SIG Central Authentication Service (CAS).
- * 
- * <P>
- * The user's browser will be redirected to the JA-SIG CAS enterprise-wide login
- * page. This page is specified by the <code>loginUrl</code> property. Once
- * login is complete, the CAS login page will redirect to the page indicated
- * by the <code>service</code> property. The <code>service</code> is a HTTP
- * URL belonging to the current application. The <code>service</code> URL is
- * monitored by the {@link CasProcessingFilter}, which will validate the CAS
- * login was successful.
- * </p>
+ * Used by the <code>SecurityEnforcementFilter</code> to commence authentication via the JA-SIG Central
+ * Authentication Service (CAS).<P>The user's browser will be redirected to the JA-SIG CAS enterprise-wide login
+ * page. This page is specified by the <code>loginUrl</code> property. Once login is complete, the CAS login page will
+ * redirect to the page indicated by the <code>service</code> property. The <code>service</code> is a HTTP URL
+ * belonging to the current application. The <code>service</code> URL is monitored by the {@link CasProcessingFilter},
+ * which will validate the CAS login was successful.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint,
-    InitializingBean {
-    //~ Instance fields ========================================================
+public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
+    //~ Instance fields ================================================================================================
 
     private ServiceProperties serviceProperties;
     private String loginUrl;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void setLoginUrl(final String loginUrl) {
-        this.loginUrl = loginUrl;
+    public void afterPropertiesSet() throws Exception {
+        Assert.hasLength(this.loginUrl, "loginUrl must be specified");
+        Assert.notNull(this.serviceProperties, "serviceProperties must be specified");
+    }
+
+    public void commence(final ServletRequest servletRequest, final ServletResponse servletResponse,
+        final AuthenticationException authenticationException)
+        throws IOException, ServletException {
+        final HttpServletRequest request = (HttpServletRequest) servletRequest;
+        final HttpServletResponse response = (HttpServletResponse) servletResponse;
+        final String urlEncodedService = response.encodeURL(this.serviceProperties.getService());
+
+        final StringBuffer buffer = new StringBuffer(255);
+
+        synchronized (buffer) {
+            buffer.append(this.loginUrl);
+            buffer.append("?service=");
+            buffer.append(URLEncoder.encode(urlEncodedService, "UTF-8"));
+            buffer.append(this.serviceProperties.isSendRenew() ? "&renew=true" : "");
+        }
+
+        response.sendRedirect(buffer.toString());
     }
 
     /**
@@ -73,35 +87,15 @@ public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint,
         return this.loginUrl;
     }
 
-    public void setServiceProperties(final ServiceProperties serviceProperties) {
-        this.serviceProperties = serviceProperties;
-    }
-
     public ServiceProperties getServiceProperties() {
         return this.serviceProperties;
     }
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.hasLength(this.loginUrl, "loginUrl must be specified");
-        Assert.notNull(this.serviceProperties, "serviceProperties must be specified");
+    public void setLoginUrl(final String loginUrl) {
+        this.loginUrl = loginUrl;
     }
 
-    public void commence(final ServletRequest servletRequest, final ServletResponse servletResponse,
-    		final AuthenticationException authenticationException)
-        throws IOException, ServletException {
-    	final HttpServletRequest request = (HttpServletRequest) servletRequest;
-    	final HttpServletResponse response = (HttpServletResponse) servletResponse;
-    	final String urlEncodedService = response.encodeURL(this.serviceProperties.getService());
-
-    	final StringBuffer buffer = new StringBuffer(255);
-    	
-    	synchronized (buffer) {
-			buffer.append(this.loginUrl);
-			buffer.append("?service=");
-			buffer.append(URLEncoder.encode(urlEncodedService, "UTF-8"));
-			buffer.append(this.serviceProperties.isSendRenew() ? "&renew=true" : "");
-		}
-                
-        response.sendRedirect(buffer.toString());
+    public void setServiceProperties(final ServiceProperties serviceProperties) {
+        this.serviceProperties = serviceProperties;
     }
 }

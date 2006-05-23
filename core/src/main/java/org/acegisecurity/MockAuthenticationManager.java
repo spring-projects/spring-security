@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,18 @@
 package org.acegisecurity;
 
 /**
- * Simply accepts as valid whatever is passed to it, if
- * <code>grantAccess</code> is set to <code>true</code>.
+ * Simply accepts as valid whatever is passed to it, if <code>grantAccess</code> is set to <code>true</code>.
  *
  * @author Ben Alex
  * @author Wesley Hall
  * @version $Id$
  */
 public class MockAuthenticationManager extends AbstractAuthenticationManager {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private boolean grantAccess = true;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public MockAuthenticationManager(boolean grantAccess) {
         this.grantAccess = grantAccess;
@@ -38,15 +37,14 @@ public class MockAuthenticationManager extends AbstractAuthenticationManager {
         super();
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Authentication doAuthentication(Authentication authentication)
         throws AuthenticationException {
         if (grantAccess) {
             return authentication;
         } else {
-            throw new BadCredentialsException(
-                "MockAuthenticationManager instructed to deny access");
+            throw new BadCredentialsException("MockAuthenticationManager instructed to deny access");
         }
     }
 }

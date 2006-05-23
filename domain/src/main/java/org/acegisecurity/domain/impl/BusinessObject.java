@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,15 +25,9 @@ import java.io.Serializable;
 
 
 /**
- * A business domain object.
- * 
- * <p>
- * Only minimal convenience methods are provided by
- * <code>BusinessObject</code>. Whilst many other methods could easily be
- * offered (and overridden on an as-required basis) it is felt the default
- * behaviour of {@link java.lang.Object} is widely understood and an
- * appropriate default.
- * </p>
+ * A business domain object.<p>Only minimal convenience methods are provided by <code>BusinessObject</code>. Whilst
+ * many other methods could easily be offered (and overridden on an as-required basis) it is felt the default
+ * behaviour of {@link java.lang.Object} is widely understood and an appropriate default.</p>
  *
  * @author Carlos Sanchez
  * @author Ben Alex
@@ -41,27 +35,20 @@ import java.io.Serializable;
  * @version $Id$
  */
 public abstract class BusinessObject implements Serializable, Cloneable {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     protected final transient Log logger = LogFactory.getLog(getClass());
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Swallow cloning.
-     * 
-     * <p>
-     * This method delegates to BeanUtils.cloneBean(). Please note that
-     * this class uses serialization to achieve a clone, so this may
-     * represent a performance issue in certain applications. In
-     * such circumstances you should override this method and provide
-     * alternative cloning logic.
-     * </p>
+     * Swallow cloning.<p>This method delegates to BeanUtils.cloneBean(). Please note that this class uses
+     * serialization to achieve a clone, so this may represent a performance issue in certain applications. In such
+     * circumstances you should override this method and provide alternative cloning logic.</p>
      *
      * @return a clone of the current instance
      *
-     * @throws IllegalStateException if there are any problems with swallow
-     *         cloning
+     * @throws CloneNotSupportedException if there are any problems with swallow cloning
      *
      * @see java.lang.Object#clone()
      * @see BeanUtils#cloneBean(Object)

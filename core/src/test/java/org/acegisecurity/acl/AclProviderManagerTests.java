@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,10 @@ import junit.framework.TestCase;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.acl.basic.NamedEntityObjectIdentity;
 import org.acegisecurity.acl.basic.SimpleAclEntry;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import java.util.List;
@@ -35,7 +37,7 @@ import java.util.Vector;
  * @version $Id$
  */
 public class AclProviderManagerTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AclProviderManagerTests() {
         super();
@@ -45,14 +47,25 @@ public class AclProviderManagerTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AclProviderManagerTests.class);
+    }
+
+    private AclProviderManager makeProviderManager() {
+        MockProvider provider1 = new MockProvider();
+        List providers = new Vector();
+        providers.add(provider1);
+
+        AclProviderManager mgr = new AclProviderManager();
+        mgr.setProviders(providers);
+
+        return mgr;
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testAclLookupFails() {
@@ -62,8 +75,7 @@ public class AclProviderManagerTests extends TestCase {
 
     public void testAclLookupForGivenAuthenticationSuccess() {
         AclProviderManager mgr = makeProviderManager();
-        assertNotNull(mgr.getAcls("STRING",
-                new UsernamePasswordAuthenticationToken("marissa", "not used")));
+        assertNotNull(mgr.getAcls("STRING", new UsernamePasswordAuthenticationToken("marissa", "not used")));
     }
 
     public void testAclLookupSuccess() {
@@ -82,8 +94,7 @@ public class AclProviderManagerTests extends TestCase {
         }
 
         try {
-            mgr.getAcls(null,
-                new UsernamePasswordAuthenticationToken("marissa", "not used"));
+            mgr.getAcls(null, new UsernamePasswordAuthenticationToken("marissa", "not used"));
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -99,8 +110,7 @@ public class AclProviderManagerTests extends TestCase {
 
     public void testReturnsNullIfNoSupportingProvider() {
         AclProviderManager mgr = makeProviderManager();
-        assertNull(mgr.getAcls(new Integer(4),
-                new UsernamePasswordAuthenticationToken("marissa", "not used")));
+        assertNull(mgr.getAcls(new Integer(4), new UsernamePasswordAuthenticationToken("marissa", "not used")));
         assertNull(mgr.getAcls(new Integer(4)));
     }
 
@@ -149,35 +159,21 @@ public class AclProviderManagerTests extends TestCase {
         assertEquals(1, mgr.getProviders().size());
     }
 
-    private AclProviderManager makeProviderManager() {
-        MockProvider provider1 = new MockProvider();
-        List providers = new Vector();
-        providers.add(provider1);
-
-        AclProviderManager mgr = new AclProviderManager();
-        mgr.setProviders(providers);
-
-        return mgr;
-    }
-
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockProvider implements AclProvider {
         private UsernamePasswordAuthenticationToken marissa = new UsernamePasswordAuthenticationToken("marissa",
                 "not used",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FOO"), new GrantedAuthorityImpl("ROLE_BAR")});
-        private SimpleAclEntry entry100Marissa = new SimpleAclEntry(marissa
-                .getPrincipal(),
+        private SimpleAclEntry entry100Marissa = new SimpleAclEntry(marissa.getPrincipal(),
                 new NamedEntityObjectIdentity("OBJECT", "100"), null, 2);
         private UsernamePasswordAuthenticationToken scott = new UsernamePasswordAuthenticationToken("scott",
                 "not used",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FOO"), new GrantedAuthorityImpl("ROLE_MANAGER")});
-        private SimpleAclEntry entry100Scott = new SimpleAclEntry(scott
-                .getPrincipal(),
+        private SimpleAclEntry entry100Scott = new SimpleAclEntry(scott.getPrincipal(),
                 new NamedEntityObjectIdentity("OBJECT", "100"), null, 4);
 
-        public AclEntry[] getAcls(Object domainInstance,
-            Authentication authentication) {
+        public AclEntry[] getAcls(Object domainInstance, Authentication authentication) {
             if (authentication.getPrincipal().equals(scott.getPrincipal())) {
                 return new AclEntry[] {entry100Scott};
             }

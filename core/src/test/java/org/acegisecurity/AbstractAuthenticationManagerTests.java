@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 package org.acegisecurity;
 
 import junit.framework.TestCase;
+
 import org.acegisecurity.providers.TestingAuthenticationToken;
+
 
 /**
  * Tests {@link AbstractAuthenticationManager}.
@@ -25,7 +27,7 @@ import org.acegisecurity.providers.TestingAuthenticationToken;
  * @version $Id$
  */
 public class AbstractAuthenticationManagerTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AbstractAuthenticationManagerTests() {
         super();
@@ -35,17 +37,29 @@ public class AbstractAuthenticationManagerTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void testDetailsAreSetOnAuthenticationTokenIfNotAlreadySetByProvider() {
-        AuthenticationManager authMgr = createAuthenticationManager(null);
-        Object details = new Object();
+    /**
+     * Creates an AuthenticationManager which will return a token with the given details object set on it.
+     *
+     * @param resultDetails DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
+    private AuthenticationManager createAuthenticationManager(final Object resultDetails) {
+        return new AbstractAuthenticationManager() {
+                protected Authentication doAuthentication(Authentication authentication)
+                    throws AuthenticationException {
+                    TestingAuthenticationToken token = createAuthenticationToken();
+                    token.setDetails(resultDetails);
 
-        TestingAuthenticationToken request = createAuthenticationToken();
-        request.setDetails(details);
+                    return token;
+                }
+            };
+    }
 
-        Authentication result = authMgr.authenticate(request);
-        assertEquals(details, result.getDetails());
+    private TestingAuthenticationToken createAuthenticationToken() {
+        return new TestingAuthenticationToken("name", "password", new GrantedAuthorityImpl[0]);
     }
 
     public void testDetailsAreNotSetOnAuthenticationTokenIfAlreadySetByProvider() {
@@ -60,23 +74,14 @@ public class AbstractAuthenticationManagerTests extends TestCase {
         assertEquals(resultDetails, result.getDetails());
     }
 
-    private TestingAuthenticationToken createAuthenticationToken() {
-        return new TestingAuthenticationToken("name","password", new GrantedAuthorityImpl[0]);
-    }
+    public void testDetailsAreSetOnAuthenticationTokenIfNotAlreadySetByProvider() {
+        AuthenticationManager authMgr = createAuthenticationManager(null);
+        Object details = new Object();
 
-    /**
-     * Creates an AuthenticationManager which will return a token with the given
-     * details object set on it.
-     */
-    private AuthenticationManager createAuthenticationManager(final Object resultDetails) {
-        return new AbstractAuthenticationManager() {
-            protected Authentication doAuthentication(Authentication authentication)
-                    throws AuthenticationException {
-                TestingAuthenticationToken token = createAuthenticationToken();
-                token.setDetails(resultDetails);
+        TestingAuthenticationToken request = createAuthenticationToken();
+        request.setDetails(details);
 
-                return token;
-            }
-        };
+        Authentication result = authMgr.authenticate(request);
+        assertEquals(details, result.getDetails());
     }
 }

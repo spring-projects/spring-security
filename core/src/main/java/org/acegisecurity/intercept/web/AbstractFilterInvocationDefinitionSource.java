@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,19 +27,17 @@ import org.apache.commons.logging.LogFactory;
  * @author Ben Alex
  * @version $Id$
  */
-public abstract class AbstractFilterInvocationDefinitionSource
-    implements FilterInvocationDefinitionSource {
-    //~ Static fields/initializers =============================================
+public abstract class AbstractFilterInvocationDefinitionSource implements FilterInvocationDefinitionSource {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(AbstractFilterInvocationDefinitionSource.class);
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public ConfigAttributeDefinition getAttributes(Object object)
         throws IllegalArgumentException {
         if ((object == null) || !this.supports(object.getClass())) {
-            throw new IllegalArgumentException(
-                "Object must be a FilterInvocation");
+            throw new IllegalArgumentException("Object must be a FilterInvocation");
         }
 
         String url = ((FilterInvocation) object).getRequestUrl();
@@ -48,27 +46,16 @@ public abstract class AbstractFilterInvocationDefinitionSource
     }
 
     /**
-     * Performs the actual lookup of the relevant
-     * <code>ConfigAttributeDefinition</code> for the specified
-     * <code>FilterInvocation</code>.
-     * 
-     * <P>
-     * Provided so subclasses need only to provide one basic method to properly
-     * interface with the <code>FilterInvocationDefinitionSource</code>.
-     * </p>
-     * 
-     * <P>
-     * Public visiblity so that tablibs or other view helper classes can access
-     * the <code>ConfigAttributeDefinition</code> applying to a given URI
-     * pattern without needing to construct a mock
-     * <code>FilterInvocation</code> and retrieving the attibutes via the
-     * {@link #getAttributes(Object)} method.
-     * </p>
+     * Performs the actual lookup of the relevant <code>ConfigAttributeDefinition</code> for the specified
+     * <code>FilterInvocation</code>.<P>Provided so subclasses need only to provide one basic method to
+     * properly interface with the <code>FilterInvocationDefinitionSource</code>.</p>
+     *  <P>Public visiblity so that tablibs or other view helper classes can access the
+     * <code>ConfigAttributeDefinition</code> applying to a given URI pattern without needing to construct a mock
+     * <code>FilterInvocation</code> and retrieving the attibutes via the {@link #getAttributes(Object)} method.</p>
      *
      * @param url the URI to retrieve configuration attributes for
      *
-     * @return the <code>ConfigAttributeDefinition</code> that applies to the
-     *         specified <code>FilterInvocation</code>
+     * @return the <code>ConfigAttributeDefinition</code> that applies to the specified <code>FilterInvocation</code>
      */
     public abstract ConfigAttributeDefinition lookupAttributes(String url);
 

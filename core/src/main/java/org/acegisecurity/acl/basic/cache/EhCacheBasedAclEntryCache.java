@@ -40,17 +40,16 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class EhCacheBasedAclEntryCache implements BasicAclEntryCache,
-    InitializingBean {
-    //~ Static fields/initializers =============================================
+public class EhCacheBasedAclEntryCache implements BasicAclEntryCache, InitializingBean {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(EhCacheBasedAclEntryCache.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Cache cache;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(cache, "cache mandatory");
@@ -60,15 +59,13 @@ public class EhCacheBasedAclEntryCache implements BasicAclEntryCache,
         return cache;
     }
 
-    public BasicAclEntry[] getEntriesFromCache(
-        AclObjectIdentity aclObjectIdentity) {
+    public BasicAclEntry[] getEntriesFromCache(AclObjectIdentity aclObjectIdentity) {
         Element element = null;
 
         try {
             element = cache.get(aclObjectIdentity);
         } catch (CacheException cacheException) {
-            throw new DataRetrievalFailureException("Cache failure: "
-                + cacheException.getMessage());
+            throw new DataRetrievalFailureException("Cache failure: " + cacheException.getMessage());
         }
 
         // Return null if cache element has expired or not found
@@ -81,8 +78,7 @@ public class EhCacheBasedAclEntryCache implements BasicAclEntryCache,
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Cache hit: " + (element != null) + "; object: "
-                + aclObjectIdentity);
+            logger.debug("Cache hit: " + (element != null) + "; object: " + aclObjectIdentity);
         }
 
         BasicAclEntryHolder holder = (BasicAclEntryHolder) element.getValue();
@@ -92,8 +88,7 @@ public class EhCacheBasedAclEntryCache implements BasicAclEntryCache,
 
     public void putEntriesInCache(BasicAclEntry[] basicAclEntry) {
         BasicAclEntryHolder holder = new BasicAclEntryHolder(basicAclEntry);
-        Element element = new Element(basicAclEntry[0].getAclObjectIdentity(),
-                holder);
+        Element element = new Element(basicAclEntry[0].getAclObjectIdentity(), holder);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Cache put: " + element.getKey());

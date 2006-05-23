@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,36 +29,28 @@ import org.acegisecurity.ConfigAttributeDefinition;
  * @version $Id$
  */
 public interface AfterInvocationProvider {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public Object decide(Authentication authentication, Object object,
-        ConfigAttributeDefinition config, Object returnedObject)
-        throws AccessDeniedException;
+    public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+        Object returnedObject) throws AccessDeniedException;
 
     /**
-     * Indicates whether this <code>AfterInvocationProvider</code> is able to
-     * participate in a decision involving the passed
-     * <code>ConfigAttribute</code>.
-     * 
-     * <p>
-     * This allows the <code>AbstractSecurityInterceptor</code> to check every
-     * configuration attribute can be consumed by the configured
-     * <code>AccessDecisionManager</code> and/or <code>RunAsManager</code>
-     * and/or <code>AccessDecisionManager</code>.
-     * </p>
+     * Indicates whether this <code>AfterInvocationProvider</code> is able to participate in a decision
+     * involving the passed <code>ConfigAttribute</code>.<p>This allows the
+     * <code>AbstractSecurityInterceptor</code> to check every configuration attribute can be consumed by the
+     * configured <code>AccessDecisionManager</code> and/or <code>RunAsManager</code> and/or
+     * <code>AccessDecisionManager</code>.</p>
      *
-     * @param attribute a configuration attribute that has been configured
-     *        against the <code>AbstractSecurityInterceptor</code>
+     * @param attribute a configuration attribute that has been configured against the
+     *        <code>AbstractSecurityInterceptor</code>
      *
-     * @return true if this <code>AfterInvocationProvider</code> can support
-     *         the passed configuration attribute
+     * @return true if this <code>AfterInvocationProvider</code> can support the passed configuration attribute
      */
     public boolean supports(ConfigAttribute attribute);
 
     /**
-     * Indicates whether the <code>AfterInvocationProvider</code> is able to
-     * provide "after invocation" processing for the indicated secured object
-     * type.
+     * Indicates whether the <code>AfterInvocationProvider</code> is able to provide "after invocation"
+     * processing for the indicated secured object type.
      *
      * @param clazz the class of secure object that is being queried
      *

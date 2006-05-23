@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,11 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.ConfigAttributeDefinition;
+
 import org.acegisecurity.event.authorization.AuthorizationFailureEvent;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.acegisecurity.util.SimpleMethodInvocation;
 
 
@@ -31,7 +34,7 @@ import org.acegisecurity.util.SimpleMethodInvocation;
  * @version $Id$
  */
 public class AuthorizationFailureEventTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AuthorizationFailureEventTests() {
         super();
@@ -41,7 +44,7 @@ public class AuthorizationFailureEventTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AuthorizationFailureEventTests.class);
@@ -49,10 +52,8 @@ public class AuthorizationFailureEventTests extends TestCase {
 
     public void testRejectsNulls() {
         try {
-            new AuthorizationFailureEvent(null,
-                new ConfigAttributeDefinition(),
-                new UsernamePasswordAuthenticationToken("foo", "bar"),
-                new AccessDeniedException("error"));
+            new AuthorizationFailureEvent(null, new ConfigAttributeDefinition(),
+                new UsernamePasswordAuthenticationToken("foo", "bar"), new AccessDeniedException("error"));
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -60,7 +61,14 @@ public class AuthorizationFailureEventTests extends TestCase {
 
         try {
             new AuthorizationFailureEvent(new SimpleMethodInvocation(), null,
-                new UsernamePasswordAuthenticationToken("foo", "bar"),
+                new UsernamePasswordAuthenticationToken("foo", "bar"), new AccessDeniedException("error"));
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+
+        try {
+            new AuthorizationFailureEvent(new SimpleMethodInvocation(), new ConfigAttributeDefinition(), null,
                 new AccessDeniedException("error"));
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
@@ -68,17 +76,7 @@ public class AuthorizationFailureEventTests extends TestCase {
         }
 
         try {
-            new AuthorizationFailureEvent(new SimpleMethodInvocation(),
-                new ConfigAttributeDefinition(), null,
-                new AccessDeniedException("error"));
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-
-        try {
-            new AuthorizationFailureEvent(new SimpleMethodInvocation(),
-                new ConfigAttributeDefinition(),
+            new AuthorizationFailureEvent(new SimpleMethodInvocation(), new ConfigAttributeDefinition(),
                 new UsernamePasswordAuthenticationToken("foo", "bar"), null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {

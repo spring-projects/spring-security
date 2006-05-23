@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,42 +33,25 @@ import javax.servlet.http.HttpSession;
 
 
 /**
- * Filter required by concurrent session handling package.
- * 
- * <p>
- * This filter performs two functions. First, it calls {@link
- * org.acegisecurity.concurrent.SessionRegistry#refreshLastRequest(String)}
- * for each request. That way, registered sessions always have a correct "last
- * update" date/time. Second, it retrieves {@link
- * org.acegisecurity.concurrent.SessionInformation} from the
- * <code>SessionRegistry</code> for each request and checks if the session has
- * been marked as expired. If it has been marked as expired, the session is
- * invalidated. The invalidation of the session will also cause the request to
- * redirect to the URL specified, and a {@link
- * org.acegisecurity.ui.session.HttpSessionDestroyedEvent} to be published
- * via the {@link org.acegisecurity.ui.session.HttpSessionEventPublisher}
- * registered in <code>web.xml</code>.
- * </p>
+ * Filter required by concurrent session handling package.<p>This filter performs two functions. First, it calls
+ * {@link org.acegisecurity.concurrent.SessionRegistry#refreshLastRequest(String)} for each request. That way,
+ * registered sessions always have a correct "last update" date/time. Second, it retrieves {@link
+ * org.acegisecurity.concurrent.SessionInformation} from the <code>SessionRegistry</code> for each request and checks
+ * if the session has been marked as expired. If it has been marked as expired, the session is invalidated. The
+ * invalidation of the session will also cause the request to redirect to the URL specified, and a {@link
+ * org.acegisecurity.ui.session.HttpSessionDestroyedEvent} to be published via the {@link
+ * org.acegisecurity.ui.session.HttpSessionEventPublisher} registered in <code>web.xml</code>.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class ConcurrentSessionFilter implements Filter,
-    InitializingBean {
-    //~ Instance fields ========================================================
+public class ConcurrentSessionFilter implements Filter, InitializingBean {
+    //~ Instance fields ================================================================================================
 
     private SessionRegistry sessionRegistry;
     private String expiredUrl;
 
-    //~ Methods ================================================================
-
-    public void setExpiredUrl(String expiredUrl) {
-        this.expiredUrl = expiredUrl;
-    }
-
-    public void setSessionRegistry(SessionRegistry sessionRegistry) {
-        this.sessionRegistry = sessionRegistry;
-    }
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(sessionRegistry, "SessionRegistry required");
@@ -80,12 +63,10 @@ public class ConcurrentSessionFilter implements Filter,
      */
     public void destroy() {}
 
-    public void doFilter(ServletRequest request, ServletResponse response,
-        FilterChain chain) throws IOException, ServletException {
-        Assert.isInstanceOf(HttpServletRequest.class, request,
-            "Can only process HttpServletRequest");
-        Assert.isInstanceOf(HttpServletResponse.class, response,
-            "Can only process HttpServletResponse");
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
+        Assert.isInstanceOf(HttpServletRequest.class, request, "Can only process HttpServletRequest");
+        Assert.isInstanceOf(HttpServletResponse.class, response, "Can only process HttpServletResponse");
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -93,18 +74,15 @@ public class ConcurrentSessionFilter implements Filter,
         HttpSession session = httpRequest.getSession(false);
 
         if (session != null) {
-            SessionInformation info = sessionRegistry.getSessionInformation(session
-                    .getId());
+            SessionInformation info = sessionRegistry.getSessionInformation(session.getId());
 
             if (info != null) {
                 if (info.isExpired()) {
                     // Expired - abort processing
                     session.invalidate();
 
-                    String targetUrl = httpRequest.getContextPath()
-                        + expiredUrl;
-                    httpResponse.sendRedirect(httpResponse.encodeRedirectURL(
-                            targetUrl));
+                    String targetUrl = httpRequest.getContextPath() + expiredUrl;
+                    httpResponse.sendRedirect(httpResponse.encodeRedirectURL(targetUrl));
 
                     return;
                 } else {
@@ -125,4 +103,12 @@ public class ConcurrentSessionFilter implements Filter,
      * @throws ServletException ignored
      */
     public void init(FilterConfig arg0) throws ServletException {}
+
+    public void setExpiredUrl(String expiredUrl) {
+        this.expiredUrl = expiredUrl;
+    }
+
+    public void setSessionRegistry(SessionRegistry sessionRegistry) {
+        this.sessionRegistry = sessionRegistry;
+    }
 }

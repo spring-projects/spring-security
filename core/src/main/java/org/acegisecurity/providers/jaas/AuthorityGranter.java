@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,22 +34,19 @@ import java.util.Set;
  * @version $Id$
  */
 public interface AuthorityGranter {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * The grant method is called for each principal returned from the
-     * LoginContext subject. If the AuthorityGranter wishes to grant any
-     * authorities, it should return a java.util.Set containing the role names
-     * it wishes to grant, such as ROLE_USER. If the AuthrityGranter does not
-     * wish to grant any authorities it should return null. <br>
-     * The set may contain any object as all objects in the returned set will be
-     * passed to the JaasGrantedAuthority constructor using toString().
+     * The grant method is called for each principal returned from the LoginContext subject. If the
+     * AuthorityGranter wishes to grant any authorities, it should return a java.util.Set containing the role names it
+     * wishes to grant, such as ROLE_USER. If the AuthrityGranter does not wish to grant any authorities it should
+     * return null. <br>
+     * The set may contain any object as all objects in the returned set will be passed to the JaasGrantedAuthority
+     * constructor using toString().
      *
-     * @param principal One of the principals from the
-     *        LoginContext.getSubect().getPrincipals() method.
+     * @param principal One of the principals from the LoginContext.getSubect().getPrincipals() method.
      *
-     * @return A java.util.Set of role names to grant, or null meaning no
-     *         roles should be granted for the principal.
+     * @return A java.util.Set of role names to grant, or null meaning no roles should be granted for the principal.
      */
     public Set grant(Principal principal);
 }

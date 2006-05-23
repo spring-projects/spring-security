@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,22 +21,21 @@ import org.acegisecurity.ConfigAttributeDefinition;
 
 
 /**
- * Indicates a secure object invocation failed because the principal could not
- * be authorized for the request.
+ * Indicates a secure object invocation failed because the principal could not be authorized for the request.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private AccessDeniedException accessDeniedException;
     private Authentication authentication;
     private ConfigAttributeDefinition configAttributeDefinition;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Construct the event.
      *
      * @param secureObject the secure object
@@ -47,15 +46,12 @@ public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
      *
      * @throws IllegalArgumentException if any null arguments are presented.
      */
-    public AuthorizationFailureEvent(Object secureObject,
-        ConfigAttributeDefinition configAttribs, Authentication authentication,
-        AccessDeniedException accessDeniedException) {
+    public AuthorizationFailureEvent(Object secureObject, ConfigAttributeDefinition configAttribs,
+        Authentication authentication, AccessDeniedException accessDeniedException) {
         super(secureObject);
 
-        if ((configAttribs == null) || (authentication == null)
-            || (accessDeniedException == null)) {
-            throw new IllegalArgumentException(
-                "All parameters are required and cannot be null");
+        if ((configAttribs == null) || (authentication == null) || (accessDeniedException == null)) {
+            throw new IllegalArgumentException("All parameters are required and cannot be null");
         }
 
         this.configAttributeDefinition = configAttribs;
@@ -63,7 +59,7 @@ public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
         this.accessDeniedException = accessDeniedException;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public AccessDeniedException getAccessDeniedException() {
         return accessDeniedException;

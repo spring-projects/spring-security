@@ -31,44 +31,31 @@ import java.util.Vector;
 
 
 /**
- * Maintains a <code>List</code> of <code>ConfigAttributeDefinition</code>s
- * associated with different HTTP request URL Apache Ant path-based patterns.
- * 
- * <p>
- * Apache Ant path expressions are used to match a HTTP request URL against a
- * <code>ConfigAttributeDefinition</code>.
- * </p>
- * 
- * <p>
- * The order of registering the Ant paths using the {@link
- * #addSecureUrl(String, ConfigAttributeDefinition)} is very important. The
- * system will identify the <b>first</b>  matching path for a given HTTP URL.
- * It will not proceed to evaluate later paths if a match has already been
- * found. Accordingly, the most specific paths should be registered first,
- * with the most general paths registered last.
- * </p>
- * 
- * <p>
- * If no registered paths match the HTTP URL, <code>null</code> is returned.
- * </p>
+ * Maintains a <code>List</code> of <code>ConfigAttributeDefinition</code>s associated with different HTTP request
+ * URL Apache Ant path-based patterns.<p>Apache Ant path expressions are used to match a HTTP request URL against a
+ * <code>ConfigAttributeDefinition</code>.</p>
+ *  <p>The order of registering the Ant paths using the {@link #addSecureUrl(String, ConfigAttributeDefinition)} is
+ * very important. The system will identify the <b>first</b>  matching path for a given HTTP URL. It will not proceed
+ * to evaluate later paths if a match has already been found. Accordingly, the most specific paths should be
+ * registered first, with the most general paths registered last.</p>
+ *  <p>If no registered paths match the HTTP URL, <code>null</code> is returned.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class PathBasedFilterInvocationDefinitionMap
-    extends AbstractFilterInvocationDefinitionSource
+public class PathBasedFilterInvocationDefinitionMap extends AbstractFilterInvocationDefinitionSource
     implements FilterInvocationDefinitionMap {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(PathBasedFilterInvocationDefinitionMap.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private List requestMap = new Vector();
     private PathMatcher pathMatcher = new AntPathMatcher();
     private boolean convertUrlToLowercaseBeforeComparison = false;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void addSecureUrl(String antPath, ConfigAttributeDefinition attr) {
         requestMap.add(new EntryHolder(antPath, attr));
@@ -110,8 +97,7 @@ public class PathBasedFilterInvocationDefinitionMap
             url = url.toLowerCase();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Converted URL to lowercase, from: '" + url
-                    + "'; to: '" + url + "'");
+                logger.debug("Converted URL to lowercase, from: '" + url + "'; to: '" + url + "'");
             }
         }
 
@@ -123,8 +109,8 @@ public class PathBasedFilterInvocationDefinitionMap
             boolean matched = pathMatcher.match(entryHolder.getAntPath(), url);
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Candidate is: '" + url + "'; pattern is "
-                    + entryHolder.getAntPath() + "; matched=" + matched);
+                logger.debug("Candidate is: '" + url + "'; pattern is " + entryHolder.getAntPath() + "; matched="
+                    + matched);
             }
 
             if (matched) {
@@ -135,12 +121,11 @@ public class PathBasedFilterInvocationDefinitionMap
         return null;
     }
 
-    public void setConvertUrlToLowercaseBeforeComparison(
-        boolean convertUrlToLowercaseBeforeComparison) {
+    public void setConvertUrlToLowercaseBeforeComparison(boolean convertUrlToLowercaseBeforeComparison) {
         this.convertUrlToLowercaseBeforeComparison = convertUrlToLowercaseBeforeComparison;
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     protected class EntryHolder {
         private ConfigAttributeDefinition configAttributeDefinition;

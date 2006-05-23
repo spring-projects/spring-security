@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,21 +22,16 @@ import org.acegisecurity.RunAsManager;
 
 
 /**
- * Implementation of a {@link RunAsManager} that does nothing.
- * 
- * <p>
- * This class should be used if you do not require run-as authenticaiton
- * replacement functionality.
- * </p>
+ * Implementation of a {@link RunAsManager} that does nothing.<p>This class should be used if you do not require
+ * run-as authenticaiton replacement functionality.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class NullRunAsManager implements RunAsManager {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public Authentication buildRunAs(Authentication authentication,
-        Object object, ConfigAttributeDefinition config) {
+    public Authentication buildRunAs(Authentication authentication, Object object, ConfigAttributeDefinition config) {
         return null;
     }
 

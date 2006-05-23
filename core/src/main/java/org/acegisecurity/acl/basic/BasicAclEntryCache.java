@@ -31,37 +31,29 @@ package org.acegisecurity.acl.basic;
  * @version $Id$
  */
 public interface BasicAclEntryCache {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Obtains an array of {@link BasicAclEntry}s from the cache.
      *
      * @param aclObjectIdentity which should be obtained from the cache
      *
-     * @return any applicable <code>BasicAclEntry</code>s (no
-     *         <code>null</code>s are permitted in the returned array) or
-     *         <code>null</code> if the object identity could not be found or
-     *         if the cache entry has expired
+     * @return any applicable <code>BasicAclEntry</code>s (no <code>null</code>s are permitted in the returned array)
+     *         or <code>null</code> if the object identity could not be found or if the cache entry has expired
      */
-    public BasicAclEntry[] getEntriesFromCache(
-        AclObjectIdentity aclObjectIdentity);
+    public BasicAclEntry[] getEntriesFromCache(AclObjectIdentity aclObjectIdentity);
 
     /**
-     * Places an array of {@link BasicAclEntry}s in the cache.
-     * 
-     * <P>
-     * No <code>null</code>s are allowed in the passed array. If any
-     * <code>null</code> is passed, the implementation may throw an exception.
-     * </p>
+     * Places an array of {@link BasicAclEntry}s in the cache.<P>No <code>null</code>s are allowed in the
+     * passed array. If any <code>null</code> is passed, the implementation may throw an exception.</p>
      *
-     * @param basicAclEntry the ACL entries to cache (the key will be extracted
-     *        from the {@link BasicAclEntry#getAclObjectIdentity()} method
+     * @param basicAclEntry the ACL entries to cache (the key will be extracted from the {@link
+     *        BasicAclEntry#getAclObjectIdentity()} method
      */
     public void putEntriesInCache(BasicAclEntry[] basicAclEntry);
 
     /**
-     * Removes all ACL entries related to an {@link AclObjectIdentity} from the
-     * cache.
+     * Removes all ACL entries related to an {@link AclObjectIdentity} from the cache.
      *
      * @param aclObjectIdentity which should be removed from the cache
      */

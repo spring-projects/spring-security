@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import java.util.Arrays;
 
+
 /**
  * Tests {@link AuthByAdapterProvider}
  *
@@ -33,7 +34,7 @@ import java.util.Arrays;
  * @version $Id$
  */
 public class AuthByAdapterTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AuthByAdapterTests() {
         super();
@@ -43,14 +44,14 @@ public class AuthByAdapterTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AuthByAdapterTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testAuthByAdapterProviderCorrectAuthenticationOperation()
@@ -58,10 +59,9 @@ public class AuthByAdapterTests extends TestCase {
         AuthByAdapterProvider provider = new AuthByAdapterProvider();
         provider.setKey("my_password");
 
-        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("my_password",
-                "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")}, null);
+        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("my_password", "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
+                null);
         assertTrue(provider.supports(token.getClass()));
 
         Authentication response = provider.authenticate(token);
@@ -103,15 +103,13 @@ public class AuthByAdapterTests extends TestCase {
         provider.setKey("my_password");
 
         // Should fail as UsernamePassword is not interface of AuthByAdapter
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password");
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password");
 
         assertTrue(!provider.supports(token.getClass()));
 
         try {
             provider.authenticate(token);
-            fail(
-                "Should have thrown ClassCastException (supports() false response was ignored)");
+            fail("Should have thrown ClassCastException (supports() false response was ignored)");
         } catch (ClassCastException expected) {
             assertTrue(true);
         }
@@ -123,8 +121,7 @@ public class AuthByAdapterTests extends TestCase {
         provider.setKey("my_password");
 
         // Should fail as PrincipalAcegiUserToken has different key
-        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("wrong_password",
-                "Test", "Password", null, null);
+        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("wrong_password", "Test", "Password", null, null);
 
         try {
             provider.authenticate(token);

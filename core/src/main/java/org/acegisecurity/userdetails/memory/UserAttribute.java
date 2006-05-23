@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,34 +15,37 @@
 
 package org.acegisecurity.userdetails.memory;
 
-import java.util.List;
-import java.util.Vector;
-
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 
+import java.util.List;
+import java.util.Vector;
+
 
 /**
- * Used by {@link InMemoryDaoImpl} to temporarily store the attributes
- * associated with a user.
+ * Used by {@link InMemoryDaoImpl} to temporarily store the attributes associated with a user.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class UserAttribute {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private List authorities = new Vector();
     private String password;
     private boolean enabled = true;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public UserAttribute() {
         super();
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    public void addAuthority(GrantedAuthority newAuthority) {
+        this.authorities.add(newAuthority);
+    }
 
     public GrantedAuthority[] getAuthorities() {
         GrantedAuthority[] toReturn = {new GrantedAuthorityImpl("demo")};
@@ -50,20 +53,12 @@ public class UserAttribute {
         return (GrantedAuthority[]) this.authorities.toArray(toReturn);
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public String getPassword() {
+        return password;
     }
 
     public boolean isEnabled() {
         return enabled;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public boolean isValid() {
@@ -74,7 +69,11 @@ public class UserAttribute {
         }
     }
 
-    public void addAuthority(GrantedAuthority newAuthority) {
-        this.authorities.add(newAuthority);
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

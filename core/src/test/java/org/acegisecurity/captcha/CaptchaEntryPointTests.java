@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.acegisecurity.captcha;
 import junit.framework.TestCase;
 
 import org.acegisecurity.MockPortResolver;
+
 import org.acegisecurity.util.PortMapperImpl;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -36,16 +37,16 @@ import java.util.Map;
  * @version $Id$
  */
 public class CaptchaEntryPointTests extends TestCase {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(CaptchaEntryPointTests.class);
+    }
 
     // ~ Methods
     // ================================================================
     public final void setUp() throws Exception {
         super.setUp();
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CaptchaEntryPointTests.class);
     }
 
     public void testDetectsMissingCaptchaFormUrl() throws Exception {
@@ -57,8 +58,7 @@ public class CaptchaEntryPointTests extends TestCase {
             ep.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("captchaFormUrl must be specified",
-                expected.getMessage());
+            assertEquals("captchaFormUrl must be specified", expected.getMessage());
         }
     }
 
@@ -97,8 +97,7 @@ public class CaptchaEntryPointTests extends TestCase {
         assertTrue(ep.getPortMapper() != null);
         assertTrue(ep.getPortResolver() != null);
 
-        assertEquals("original_requestUrl",
-            ep.getOriginalRequestUrlParameterName());
+        assertEquals("original_requestUrl", ep.getOriginalRequestUrlParameterName());
         ep.setOriginalRequestUrlParameterName("Z");
         assertEquals("Z", ep.getOriginalRequestUrlParameterName());
 
@@ -138,22 +137,19 @@ public class CaptchaEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
 
         ep.commence(request, response);
-        assertEquals("https://www.example.com/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("https://www.example.com/bigWebApp/hello", response.getRedirectedUrl());
 
         request.setServerPort(8080);
         response = new MockHttpServletResponse();
         ep.setPortResolver(new MockPortResolver(8080, 8443));
         ep.commence(request, response);
-        assertEquals("https://www.example.com:8443/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("https://www.example.com:8443/bigWebApp/hello", response.getRedirectedUrl());
 
         // Now test an unusual custom HTTP:HTTPS is handled properly
         request.setServerPort(8888);
         response = new MockHttpServletResponse();
         ep.commence(request, response);
-        assertEquals("https://www.example.com:8443/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("https://www.example.com:8443/bigWebApp/hello", response.getRedirectedUrl());
 
         PortMapperImpl portMapper = new PortMapperImpl();
         Map map = new HashMap();
@@ -172,8 +168,7 @@ public class CaptchaEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
 
         ep.commence(request, response);
-        assertEquals("https://www.example.com:9999/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("https://www.example.com:9999/bigWebApp/hello", response.getRedirectedUrl());
     }
 
     public void testHttpsOperationFromOriginalHttpsUrl()
@@ -198,15 +193,13 @@ public class CaptchaEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
 
         ep.commence(request, response);
-        assertEquals("https://www.example.com/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("https://www.example.com/bigWebApp/hello", response.getRedirectedUrl());
 
         request.setServerPort(8443);
         response = new MockHttpServletResponse();
         ep.setPortResolver(new MockPortResolver(8080, 8443));
         ep.commence(request, response);
-        assertEquals("https://www.example.com:8443/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("https://www.example.com:8443/bigWebApp/hello", response.getRedirectedUrl());
     }
 
     public void testNormalOperation() throws Exception {
@@ -229,8 +222,7 @@ public class CaptchaEntryPointTests extends TestCase {
 
         ep.afterPropertiesSet();
         ep.commence(request, response);
-        assertEquals("http://www.example.com/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("http://www.example.com/bigWebApp/hello", response.getRedirectedUrl());
     }
 
     public void testOperationWhenHttpsRequestsButHttpsPortUnknown()
@@ -259,8 +251,7 @@ public class CaptchaEntryPointTests extends TestCase {
 
         // Response doesn't switch to HTTPS, as we didn't know HTTP port 8888 to
         // HTTP port mapping
-        assertEquals("http://www.example.com:8888/bigWebApp/hello",
-            response.getRedirectedUrl());
+        assertEquals("http://www.example.com:8888/bigWebApp/hello", response.getRedirectedUrl());
     }
 
     public void testOperationWithOriginalRequestIncludes()
@@ -269,8 +260,7 @@ public class CaptchaEntryPointTests extends TestCase {
         ep.setCaptchaFormUrl("/hello");
 
         PortMapperImpl mapper = new PortMapperImpl();
-        mapper.getTranslatedPortMappings().put(new Integer(8888),
-            new Integer(1234));
+        mapper.getTranslatedPortMappings().put(new Integer(8888), new Integer(1234));
         ep.setPortMapper(mapper);
 
         ep.setPortResolver(new MockPortResolver(8888, 1234));
@@ -292,16 +282,16 @@ public class CaptchaEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
         ep.commence(request, response);
         assertEquals("http://www.example.com:8888/hello?original_requestUrl="
-            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8")
-            + "&original_request_method=post", response.getRedirectedUrl());
+            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8") + "&original_request_method=post",
+            response.getRedirectedUrl());
 
         // test the query params
         request.addParameter("name", "value");
         response = new MockHttpServletResponse();
         ep.commence(request, response);
         assertEquals("http://www.example.com:8888/hello?original_requestUrl="
-            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8")
-            + "&original_request_method=post", response.getRedirectedUrl());
+            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8") + "&original_request_method=post",
+            response.getRedirectedUrl());
 
         // test the multiple query params
         ep.setIncludeOriginalParameters(true);
@@ -311,31 +301,26 @@ public class CaptchaEntryPointTests extends TestCase {
         response = new MockHttpServletResponse();
         ep.commence(request, response);
         assertEquals("http://www.example.com:8888/hello?original_requestUrl="
-            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8")
-            + "&original_request_method=post" + "&original_request_parameters="
-            + URLEncoder.encode("name__value;;name1__value2", "UTF-8"),
+            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8") + "&original_request_method=post"
+            + "&original_request_parameters=" + URLEncoder.encode("name__value;;name1__value2", "UTF-8"),
             response.getRedirectedUrl());
 
         // test add parameter to captcha form url??
         ep.setCaptchaFormUrl("/hello?toto=titi");
         response = new MockHttpServletResponse();
         ep.commence(request, response);
-        assertEquals(
-            "http://www.example.com:8888/hello?toto=titi&original_requestUrl="
-            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8")
-            + "&original_request_method=post" + "&original_request_parameters="
-            + URLEncoder.encode("name__value;;name1__value2", "UTF-8"),
+        assertEquals("http://www.example.com:8888/hello?toto=titi&original_requestUrl="
+            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8") + "&original_request_method=post"
+            + "&original_request_parameters=" + URLEncoder.encode("name__value;;name1__value2", "UTF-8"),
             response.getRedirectedUrl());
 
         // with forcing!!!
         ep.setForceHttps(true);
         response = new MockHttpServletResponse();
         ep.commence(request, response);
-        assertEquals(
-            "https://www.example.com:1234/hello?toto=titi&original_requestUrl="
-            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8")
-            + "&original_request_method=post" + "&original_request_parameters="
-            + URLEncoder.encode("name__value;;name1__value2", "UTF-8"),
+        assertEquals("https://www.example.com:1234/hello?toto=titi&original_requestUrl="
+            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8") + "&original_request_method=post"
+            + "&original_request_parameters=" + URLEncoder.encode("name__value;;name1__value2", "UTF-8"),
             response.getRedirectedUrl());
     }
 
@@ -344,8 +329,7 @@ public class CaptchaEntryPointTests extends TestCase {
         ep.setCaptchaFormUrl("https://www.jcaptcha.net/dotest/");
 
         PortMapperImpl mapper = new PortMapperImpl();
-        mapper.getTranslatedPortMappings().put(new Integer(8888),
-            new Integer(1234));
+        mapper.getTranslatedPortMappings().put(new Integer(8888), new Integer(1234));
         ep.setPortMapper(mapper);
 
         ep.setPortResolver(new MockPortResolver(8888, 1234));
@@ -369,16 +353,16 @@ public class CaptchaEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
         ep.commence(request, response);
         assertEquals("https://www.jcaptcha.net/dotest/?original_requestUrl="
-            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8")
-            + "&original_request_method=post", response.getRedirectedUrl());
+            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8") + "&original_request_method=post",
+            response.getRedirectedUrl());
 
         // test the query params
         request.addParameter("name", "value");
         response = new MockHttpServletResponse();
         ep.commence(request, response);
         assertEquals("https://www.jcaptcha.net/dotest/?original_requestUrl="
-            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8")
-            + "&original_request_method=post", response.getRedirectedUrl());
+            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8") + "&original_request_method=post",
+            response.getRedirectedUrl());
 
         // test the multiple query params
         ep.setIncludeOriginalParameters(true);
@@ -387,31 +371,26 @@ public class CaptchaEntryPointTests extends TestCase {
         response = new MockHttpServletResponse();
         ep.commence(request, response);
         assertEquals("https://www.jcaptcha.net/dotest/?original_requestUrl="
-            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8")
-            + "&original_request_method=post" + "&original_request_parameters="
-            + URLEncoder.encode("name__value;;name1__value2", "UTF-8"),
+            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8") + "&original_request_method=post"
+            + "&original_request_parameters=" + URLEncoder.encode("name__value;;name1__value2", "UTF-8"),
             response.getRedirectedUrl());
 
         // test add parameter to captcha form url??
         ep.setCaptchaFormUrl("https://www.jcaptcha.net/dotest/?toto=titi");
         response = new MockHttpServletResponse();
         ep.commence(request, response);
-        assertEquals(
-            "https://www.jcaptcha.net/dotest/?toto=titi&original_requestUrl="
-            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8")
-            + "&original_request_method=post" + "&original_request_parameters="
-            + URLEncoder.encode("name__value;;name1__value2", "UTF-8"),
+        assertEquals("https://www.jcaptcha.net/dotest/?toto=titi&original_requestUrl="
+            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8") + "&original_request_method=post"
+            + "&original_request_parameters=" + URLEncoder.encode("name__value;;name1__value2", "UTF-8"),
             response.getRedirectedUrl());
 
         // with forcing!!!
         ep.setForceHttps(true);
         response = new MockHttpServletResponse();
         ep.commence(request, response);
-        assertEquals(
-            "https://www.jcaptcha.net/dotest/?toto=titi&original_requestUrl="
-            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8")
-            + "&original_request_method=post" + "&original_request_parameters="
-            + URLEncoder.encode("name__value;;name1__value2", "UTF-8"),
+        assertEquals("https://www.jcaptcha.net/dotest/?toto=titi&original_requestUrl="
+            + URLEncoder.encode("http://www.example.com:8888/some_path", "UTF-8") + "&original_request_method=post"
+            + "&original_request_parameters=" + URLEncoder.encode("name__value;;name1__value2", "UTF-8"),
             response.getRedirectedUrl());
     }
 }

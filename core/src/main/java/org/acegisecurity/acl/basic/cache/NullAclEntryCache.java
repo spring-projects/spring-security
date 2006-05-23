@@ -21,29 +21,23 @@ import org.acegisecurity.acl.basic.BasicAclEntryCache;
 
 
 /**
- * Does not perform any caching.
- * 
- * <P>
- * <B>Do not use in production settings</B>, as ACL queries are likely to be
- * extensive.
- * </p>
+ * Does not perform any caching.<P><B>Do not use in production settings</B>, as ACL queries are likely to be
+ * extensive.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class NullAclEntryCache implements BasicAclEntryCache {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * As nothing ever stored in the cache, will always return
-     * <code>null</code>.
+     * As nothing ever stored in the cache, will always return <code>null</code>.
      *
      * @param aclObjectIdentity ignored
      *
      * @return always <code>null</code>
      */
-    public BasicAclEntry[] getEntriesFromCache(
-        AclObjectIdentity aclObjectIdentity) {
+    public BasicAclEntry[] getEntriesFromCache(AclObjectIdentity aclObjectIdentity) {
         return null;
     }
 

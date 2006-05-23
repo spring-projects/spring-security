@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,49 +12,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.acegisecurity.context;
 
 import org.acegisecurity.Authentication;
 
 
 /**
- * Base implementation of {@link SecurityContext}.
- *
- * <p>
- * Used by default by {@link SecurityContextHolder} and {@link HttpSessionContextIntegrationFilter}.
- * </p>
+ * Base implementation of {@link SecurityContext}.<p>Used by default by {@link SecurityContextHolder} and {@link
+ * HttpSessionContextIntegrationFilter}.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class SecurityContextImpl implements SecurityContext {
+    //~ Instance fields ================================================================================================
+
     private Authentication authentication;
 
-    public void setAuthentication(Authentication authentication) {
-        this.authentication = authentication;
+    //~ Methods ========================================================================================================
+
+    public boolean equals(Object obj) {
+        if (obj instanceof SecurityContextImpl) {
+            SecurityContextImpl test = (SecurityContextImpl) obj;
+
+            if ((this.getAuthentication() == null) && (test.getAuthentication() == null)) {
+                return true;
+            }
+
+            if ((this.getAuthentication() != null) && (test.getAuthentication() != null)
+                && this.getAuthentication().equals(test.getAuthentication())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public Authentication getAuthentication() {
         return authentication;
     }
 
-    public boolean equals(Object obj) {
-        if (obj instanceof SecurityContextImpl) {
-            SecurityContextImpl test = (SecurityContextImpl) obj;
-
-            if ((this.getAuthentication() == null) &&
-                    (test.getAuthentication() == null)) {
-                return true;
-            }
-
-            if ((this.getAuthentication() != null) &&
-                    (test.getAuthentication() != null) &&
-                    this.getAuthentication().equals(test.getAuthentication())) {
-                return true;
-            }
+    public int hashCode() {
+        if (this.authentication == null) {
+            return -1;
+        } else {
+            return this.authentication.hashCode();
         }
+    }
 
-        return false;
+    public void setAuthentication(Authentication authentication) {
+        this.authentication = authentication;
     }
 
     public String toString() {
@@ -68,13 +76,5 @@ public class SecurityContextImpl implements SecurityContext {
         }
 
         return sb.toString();
-    }
-
-    public int hashCode() {
-        if (this.authentication == null) {
-            return -1;
-        } else {
-            return this.authentication.hashCode();
-        }
     }
 }

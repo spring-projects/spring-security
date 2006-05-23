@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.acegisecurity.event.authentication;
 
 import org.acegisecurity.Authentication;
+
 import org.acegisecurity.userdetails.UserDetails;
 
 
@@ -26,25 +27,24 @@ import org.acegisecurity.userdetails.UserDetails;
  * @version $Id$
  */
 public class AuthenticationSwitchUserEvent extends AbstractAuthenticationEvent {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private UserDetails targetUser;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Switch user context event constructor
      *
      * @param authentication The current <code>Authentication</code> object
      * @param targetUser The target user
      */
-    public AuthenticationSwitchUserEvent(Authentication authentication,
-        UserDetails targetUser) {
+    public AuthenticationSwitchUserEvent(Authentication authentication, UserDetails targetUser) {
         super(authentication);
         this.targetUser = targetUser;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public UserDetails getTargetUser() {
         return targetUser;

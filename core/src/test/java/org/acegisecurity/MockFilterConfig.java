@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,11 @@ import javax.servlet.ServletContext;
  * @version $Id$
  */
 public class MockFilterConfig implements FilterConfig {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Map map = new HashMap();
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public String getFilterName() {
         throw new UnsupportedOperationException("mock method not implemented");
@@ -54,11 +54,11 @@ public class MockFilterConfig implements FilterConfig {
         throw new UnsupportedOperationException("mock method not implemented");
     }
 
-    public void setInitParmeter(String parameter, String value) {
-        map.put(parameter, value);
-    }
-
     public ServletContext getServletContext() {
         throw new UnsupportedOperationException("mock method not implemented");
+    }
+
+    public void setInitParmeter(String parameter, String value) {
+        map.put(parameter, value);
     }
 }

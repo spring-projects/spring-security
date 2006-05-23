@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,14 +48,13 @@ import javax.security.auth.callback.UnsupportedCallbackException;
  *      href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/CallbackHandler.html">CallbackHandler</a>
  */
 public interface JaasAuthenticationCallbackHandler {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Handle the <a
-     * href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>.
-     * The handle method will be called for every callback instance sent from
-     * the LoginContext. Meaning that The handle method may be called multiple
-     * times for a given JaasAuthenticationCallbackHandler.
+     * href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>. The
+     * handle method will be called for every callback instance sent from the LoginContext. Meaning that The handle
+     * method may be called multiple times for a given JaasAuthenticationCallbackHandler.
      *
      * @param callback
      * @param auth The Authentication object currently being authenticated.

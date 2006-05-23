@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,16 @@ package org.acegisecurity.providers.x509.cache;
 
 import junit.framework.TestCase;
 
+import net.sf.ehcache.Cache;
+
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.MockApplicationContext;
+
 import org.acegisecurity.providers.x509.X509TestUtils;
+
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
-
-import net.sf.ehcache.Cache;
 
 import org.springframework.context.ApplicationContext;
 
@@ -36,7 +38,7 @@ import org.springframework.context.ApplicationContext;
  * @version $Id$
  */
 public class EhCacheBasedX509UserCacheTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public EhCacheBasedX509UserCacheTests() {
         super();
@@ -46,7 +48,18 @@ public class EhCacheBasedX509UserCacheTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    private Cache getCache() {
+        ApplicationContext ctx = MockApplicationContext.getContext();
+
+        return (Cache) ctx.getBean("eHCacheBackend");
+    }
+
+    private UserDetails getUser() {
+        return new User("marissa", "password", true, true, true, true,
+            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
+    }
 
     public final void setUp() throws Exception {
         super.setUp();
@@ -59,9 +72,7 @@ public class EhCacheBasedX509UserCacheTests extends TestCase {
 
         // Check it gets stored in the cache
         cache.putUserInCache(X509TestUtils.buildTestCertificate(), getUser());
-        assertEquals(getUser().getPassword(),
-            cache.getUserFromCache(X509TestUtils.buildTestCertificate())
-                 .getPassword());
+        assertEquals(getUser().getPassword(), cache.getUserFromCache(X509TestUtils.buildTestCertificate()).getPassword());
 
         // Check it gets removed from the cache
         cache.removeUserFromCache(X509TestUtils.buildTestCertificate());
@@ -69,17 +80,5 @@ public class EhCacheBasedX509UserCacheTests extends TestCase {
 
         // Check it doesn't return values for null user
         assertNull(cache.getUserFromCache(null));
-    }
-
-    private Cache getCache() {
-        ApplicationContext ctx = MockApplicationContext.getContext();
-
-        return (Cache) ctx.getBean("eHCacheBackend");
-    }
-
-    private UserDetails getUser() {
-        return new User("marissa", "password", true, true, true, true,
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                    "ROLE_TWO")});
     }
 }

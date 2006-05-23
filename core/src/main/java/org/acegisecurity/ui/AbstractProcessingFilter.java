@@ -56,59 +56,32 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Abstract processor of browser-based HTTP-based authentication requests.
- * 
- * <p>
- * This filter is responsible for processing authentication requests. If
- * authentication is successful, the resulting {@link Authentication} object
- * will be placed into the <code>SecurityContext</code>, which is guaranteed
- * to have already been created by an earlier filter.
- * </p>
- * 
- * <p>
- * If authentication fails, the <code>AuthenticationException</code> will be
- * placed into the <code>HttpSession</code> with the attribute defined by
- * {@link #ACEGI_SECURITY_LAST_EXCEPTION_KEY}.
- * </p>
- * 
- * <p>
- * To use this filter, it is necessary to specify the following properties:
- * </p>
- * 
- * <ul>
- * <li>
- * <code>defaultTargetUrl</code> indicates the URL that should be used for
- * redirection if the <code>HttpSession</code> attribute named {@link
- * #ACEGI_SAVED_REQUEST_KEY} does not indicate the target URL once
- * authentication is completed successfully. eg: <code>/</code>. The
- * <code>defaultTargetUrl</code> will be treated as relative to the web-app's
- * context path, and should include the leading <code>/</code>. Alternatively,
- * inclusion of a scheme name (eg http:// or https://) as the prefix will
- * denote a fully-qualified URL and this is also supported.
- * </li>
- * <li>
- * <code>authenticationFailureUrl</code> indicates the URL that should be used
- * for redirection if the authentication request fails. eg:
- * <code>/login.jsp?login_error=1</code>.
- * </li>
- * <li>
- * <code>filterProcessesUrl</code> indicates the URL that this filter will
- * respond to. This parameter varies by subclass.
- * </li>
- * <li>
- * <code>alwaysUseDefaultTargetUrl</code> causes successful authentication to
- * always redirect to the <code>defaultTargetUrl</code>, even if the
- * <code>HttpSession</code> attribute named {@link #ACEGI_SAVED_REQUEST_KEY}
- * defines the intended target URL.
- * </li>
- * </ul>
- * 
- * <p>
- * To configure this filter to redirect to specific pages as the result of
- * specific {@link AuthenticationException}s you can do the following.
- * Configure the <code>exceptionMappings</code> property in your application
- * xml. This property is a java.util.Properties object that maps a
- * fully-qualified exception class name to a redirection url target.<br>
+ * Abstract processor of browser-based HTTP-based authentication requests.<p>This filter is responsible for
+ * processing authentication requests. If authentication is successful, the resulting {@link Authentication} object
+ * will be placed into the <code>SecurityContext</code>, which is guaranteed to have already been created by an
+ * earlier filter.</p>
+ *  <p>If authentication fails, the <code>AuthenticationException</code> will be placed into the
+ * <code>HttpSession</code> with the attribute defined by {@link #ACEGI_SECURITY_LAST_EXCEPTION_KEY}.</p>
+ *  <p>To use this filter, it is necessary to specify the following properties:</p>
+ *  <ul>
+ *      <li><code>defaultTargetUrl</code> indicates the URL that should be used for redirection if the
+ *      <code>HttpSession</code> attribute named {@link #ACEGI_SAVED_REQUEST_KEY} does not indicate the target URL once
+ *      authentication is completed successfully. eg: <code>/</code>. The <code>defaultTargetUrl</code> will be treated
+ *      as relative to the web-app's context path, and should include the leading <code>/</code>. Alternatively,
+ *      inclusion of a scheme name (eg http:// or https://) as the prefix will denote a fully-qualified URL and this is
+ *      also supported.</li>
+ *      <li><code>authenticationFailureUrl</code> indicates the URL that should be used for redirection if the
+ *      authentication request fails. eg: <code>/login.jsp?login_error=1</code>.</li>
+ *      <li><code>filterProcessesUrl</code> indicates the URL that this filter will respond to. This parameter
+ *      varies by subclass.</li>
+ *      <li><code>alwaysUseDefaultTargetUrl</code> causes successful authentication to always redirect to the
+ *      <code>defaultTargetUrl</code>, even if the <code>HttpSession</code> attribute named {@link
+ *      #ACEGI_SAVED_REQUEST_KEY} defines the intended target URL.</li>
+ *  </ul>
+ *  <p>To configure this filter to redirect to specific pages as the result of specific {@link
+ * AuthenticationException}s you can do the following. Configure the <code>exceptionMappings</code> property in your
+ * application xml. This property is a java.util.Properties object that maps a fully-qualified exception class name to
+ * a redirection url target.<br>
  * For example:<br>
  * <code> &lt;property name="exceptionMappings"&gt;<br>
  * *  &nbsp;&nbsp;&lt;props&gt;<br>
@@ -116,37 +89,26 @@ import javax.servlet.http.HttpServletResponse;
  * *  &nbsp;&nbsp;&lt;/props&gt;<br>
  * *  &lt;/property&gt;<br>
  * * </code><br>
- * The example above would redirect all {@link
- * org.acegisecurity.BadCredentialsException}s thrown, to a page in the
- * web-application called /bad_credentials.jsp.
- * </p>
- * 
- * <p>
- * Any {@link AuthenticationException} thrown that cannot be matched in the
- * <code>exceptionMappings</code> will be redirected to the
- * <code>authenticationFailureUrl</code>
- * </p>
- * 
- * <p>
- * If authentication is successful, an {@link
- * org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent}
- * will be published to the application context. No events will be published
- * if authentication was unsuccessful, because this would generally be
- * recorded via an <code>AuthenticationManager</code>-specific application
- * event.
- * </p>
+ * The example above would redirect all {@link org.acegisecurity.BadCredentialsException}s thrown, to a page in the
+ * web-application called /bad_credentials.jsp.</p>
+ *  <p>Any {@link AuthenticationException} thrown that cannot be matched in the <code>exceptionMappings</code> will
+ * be redirected to the <code>authenticationFailureUrl</code></p>
+ *  <p>If authentication is successful, an {@link
+ * org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent} will be published to the application
+ * context. No events will be published if authentication was unsuccessful, because this would generally be recorded
+ * via an <code>AuthenticationManager</code>-specific application event.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public abstract class AbstractProcessingFilter implements Filter,
-    InitializingBean, ApplicationEventPublisherAware, MessageSourceAware {
-    //~ Static fields/initializers =============================================
+public abstract class AbstractProcessingFilter implements Filter, InitializingBean, ApplicationEventPublisherAware,
+    MessageSourceAware {
+    //~ Static fields/initializers =====================================================================================
 
     public static final String ACEGI_SAVED_REQUEST_KEY = "ACEGI_SAVED_REQUEST_KEY";
     public static final String ACEGI_SECURITY_LAST_EXCEPTION_KEY = "ACEGI_SECURITY_LAST_EXCEPTION";
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     protected ApplicationEventPublisher eventPublisher;
     protected AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
@@ -160,65 +122,59 @@ public abstract class AbstractProcessingFilter implements Filter,
     private String authenticationFailureUrl;
 
     /**
-     * Where to redirect the browser to if authentication is successful but
-     * ACEGI_SECURITY_TARGET_URL_KEY is <code>null</code>
+     * Where to redirect the browser to if authentication is successful but ACEGI_SECURITY_TARGET_URL_KEY is
+     * <code>null</code>
      */
     private String defaultTargetUrl;
 
     /**
-     * The URL destination that this filter intercepts and processes (usually
-     * something like <code>/j_acegi_security_check</code>)
+     * The URL destination that this filter intercepts and processes (usually something like
+     * <code>/j_acegi_security_check</code>)
      */
     private String filterProcessesUrl = getDefaultFilterProcessesUrl();
 
     /**
-     * If <code>true</code>, will always redirect to {@link #defaultTargetUrl}
-     * upon successful authentication, irrespective of the page that caused
-     * the authentication request (defaults to <code>false</code>).
+     * If <code>true</code>, will always redirect to {@link #defaultTargetUrl} upon successful authentication,
+     * irrespective of the page that caused the authentication request (defaults to <code>false</code>).
      */
     private boolean alwaysUseDefaultTargetUrl = false;
 
     /**
-     * Indicates if the filter chain should be continued prior to delegation to
-     * {@link #successfulAuthentication(HttpServletRequest,
-     * HttpServletResponse, Authentication)}, which may be useful in certain
-     * environment (eg Tapestry). Defaults to <code>false</code>.
+     * Indicates if the filter chain should be continued prior to delegation to {@link
+     * #successfulAuthentication(HttpServletRequest, HttpServletResponse, Authentication)}, which may be useful in
+     * certain environment (eg Tapestry). Defaults to <code>false</code>.
      */
     private boolean continueChainBeforeSuccessfulAuthentication = false;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.hasLength(filterProcessesUrl,
-            "filterProcessesUrl must be specified");
+        Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
         Assert.hasLength(defaultTargetUrl, "defaultTargetUrl must be specified");
-        Assert.hasLength(authenticationFailureUrl,
-            "authenticationFailureUrl must be specified");
-        Assert.notNull(authenticationManager,
-            "authenticationManager must be specified");
+        Assert.hasLength(authenticationFailureUrl, "authenticationFailureUrl must be specified");
+        Assert.notNull(authenticationManager, "authenticationManager must be specified");
         Assert.notNull(this.rememberMeServices);
     }
 
     /**
      * Performs actual authentication.
      *
-     * @param request from which to extract parameters and perform the
-     *        authentication
+     * @param request from which to extract parameters and perform the authentication
      *
      * @return the authenticated user
      *
      * @throws AuthenticationException if authentication fails
      */
-    public abstract Authentication attemptAuthentication(
-        HttpServletRequest request) throws AuthenticationException;
+    public abstract Authentication attemptAuthentication(HttpServletRequest request)
+        throws AuthenticationException;
 
     /**
      * Does nothing. We use IoC container lifecycle services instead.
      */
     public void destroy() {}
 
-    public void doFilter(ServletRequest request, ServletResponse response,
-        FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
         if (!(request instanceof HttpServletRequest)) {
             throw new ServletException("Can only process HttpServletRequest");
         }
@@ -269,8 +225,7 @@ public abstract class AbstractProcessingFilter implements Filter,
     }
 
     /**
-     * Specifies the default <code>filterProcessesUrl</code> for the
-     * implementation.
+     * Specifies the default <code>filterProcessesUrl</code> for the implementation.
      *
      * @return the default <code>filterProcessesUrl</code>
      */
@@ -316,44 +271,28 @@ public abstract class AbstractProcessingFilter implements Filter,
         return (savedRequest == null) ? null : savedRequest.getFullRequestUrl();
     }
 
-    protected void onPreAuthentication(HttpServletRequest request,
-        HttpServletResponse response)
+    protected void onPreAuthentication(HttpServletRequest request, HttpServletResponse response)
         throws AuthenticationException, IOException {}
 
-    protected void onSuccessfulAuthentication(HttpServletRequest request,
-        HttpServletResponse response, Authentication authResult)
-        throws IOException {}
+    protected void onSuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+        Authentication authResult) throws IOException {}
 
-    protected void onUnsuccessfulAuthentication(HttpServletRequest request,
-        HttpServletResponse response, AuthenticationException failed)
-        throws IOException {}
+    protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+        AuthenticationException failed) throws IOException {}
 
     /**
-     * <p>
-     * Indicates whether this filter should attempt to process a login request
-     * for the current invocation.
-     * </p>
-     * 
-     * <p>
-     * It strips any parameters from the "path" section of the request URL
-     * (such as the jsessionid parameter in
-     * <em>http://host/myapp/index.html;jsessionid=blah</em>) before matching
-     * against the <code>filterProcessesUrl</code> property.
-     * </p>
-     * 
-     * <p>
-     * Subclasses may override for special requirements, such as Tapestry
-     * integration.
-     * </p>
+     * <p>Indicates whether this filter should attempt to process a login request for the current invocation.</p>
+     *  <p>It strips any parameters from the "path" section of the request URL (such as the jsessionid
+     * parameter in <em>http://host/myapp/index.html;jsessionid=blah</em>) before matching against the
+     * <code>filterProcessesUrl</code> property.</p>
+     *  <p>Subclasses may override for special requirements, such as Tapestry integration.</p>
      *
      * @param request as received from the filter chain
      * @param response as received from the filter chain
      *
-     * @return <code>true</code> if the filter should attempt authentication,
-     *         <code>false</code> otherwise
+     * @return <code>true</code> if the filter should attempt authentication, <code>false</code> otherwise
      */
-    protected boolean requiresAuthentication(HttpServletRequest request,
-        HttpServletResponse response) {
+    protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
         String uri = request.getRequestURI();
         int pathParamIndex = uri.indexOf(';');
 
@@ -365,11 +304,9 @@ public abstract class AbstractProcessingFilter implements Filter,
         return uri.endsWith(request.getContextPath() + filterProcessesUrl);
     }
 
-    protected void sendRedirect(HttpServletRequest request,
-        HttpServletResponse response, String failureUrl)
+    protected void sendRedirect(HttpServletRequest request, HttpServletResponse response, String failureUrl)
         throws IOException {
-        if (!failureUrl.startsWith("http://")
-            && !failureUrl.startsWith("https://")) {
+        if (!failureUrl.startsWith("http://") && !failureUrl.startsWith("https://")) {
             failureUrl = request.getContextPath() + failureUrl;
         }
 
@@ -380,15 +317,12 @@ public abstract class AbstractProcessingFilter implements Filter,
         this.alwaysUseDefaultTargetUrl = alwaysUseDefaultTargetUrl;
     }
 
-    public void setApplicationEventPublisher(
-        ApplicationEventPublisher eventPublisher) {
+    public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
 
-    public void setAuthenticationDetailsSource(
-        AuthenticationDetailsSource authenticationDetailsSource) {
-        Assert.notNull(authenticationDetailsSource,
-            "AuthenticationDetailsSource required");
+    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+        Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
         this.authenticationDetailsSource = authenticationDetailsSource;
     }
 
@@ -396,13 +330,11 @@ public abstract class AbstractProcessingFilter implements Filter,
         this.authenticationFailureUrl = authenticationFailureUrl;
     }
 
-    public void setAuthenticationManager(
-        AuthenticationManager authenticationManager) {
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 
-    public void setContinueChainBeforeSuccessfulAuthentication(
-        boolean continueChainBeforeSuccessfulAuthentication) {
+    public void setContinueChainBeforeSuccessfulAuthentication(boolean continueChainBeforeSuccessfulAuthentication) {
         this.continueChainBeforeSuccessfulAuthentication = continueChainBeforeSuccessfulAuthentication;
     }
 
@@ -426,9 +358,8 @@ public abstract class AbstractProcessingFilter implements Filter,
         this.rememberMeServices = rememberMeServices;
     }
 
-    protected void successfulAuthentication(HttpServletRequest request,
-        HttpServletResponse response, Authentication authResult)
-        throws IOException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+        Authentication authResult) throws IOException {
         if (logger.isDebugEnabled()) {
             logger.debug("Authentication success: " + authResult.toString());
         }
@@ -436,9 +367,7 @@ public abstract class AbstractProcessingFilter implements Filter,
         SecurityContextHolder.getContext().setAuthentication(authResult);
 
         if (logger.isDebugEnabled()) {
-            logger.debug(
-                "Updated SecurityContextHolder to contain the following Authentication: '"
-                + authResult + "'");
+            logger.debug("Updated SecurityContextHolder to contain the following Authentication: '" + authResult + "'");
         }
 
         String targetUrl = obtainFullRequestUrl(request);
@@ -452,9 +381,7 @@ public abstract class AbstractProcessingFilter implements Filter,
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug(
-                "Redirecting to target URL from HTTP Session (or default): "
-                + targetUrl);
+            logger.debug("Redirecting to target URL from HTTP Session (or default): " + targetUrl);
         }
 
         onSuccessfulAuthentication(request, response, authResult);
@@ -463,34 +390,28 @@ public abstract class AbstractProcessingFilter implements Filter,
 
         // Fire event
         if (this.eventPublisher != null) {
-            eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(
-                    authResult, this.getClass()));
+            eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
         }
 
         response.sendRedirect(response.encodeRedirectURL(targetUrl));
     }
 
-    protected void unsuccessfulAuthentication(HttpServletRequest request,
-        HttpServletResponse response, AuthenticationException failed)
-        throws IOException {
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+        AuthenticationException failed) throws IOException {
         SecurityContextHolder.getContext().setAuthentication(null);
 
         if (logger.isDebugEnabled()) {
-            logger.debug(
-                "Updated SecurityContextHolder to contain null Authentication");
+            logger.debug("Updated SecurityContextHolder to contain null Authentication");
         }
 
-        String failureUrl = exceptionMappings.getProperty(failed.getClass()
-                                                                .getName(),
-                authenticationFailureUrl);
+        String failureUrl = exceptionMappings.getProperty(failed.getClass().getName(), authenticationFailureUrl);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Authentication request failed: " + failed.toString());
         }
 
         try {
-            request.getSession()
-                   .setAttribute(ACEGI_SECURITY_LAST_EXCEPTION_KEY, failed);
+            request.getSession().setAttribute(ACEGI_SECURITY_LAST_EXCEPTION_KEY, failed);
         } catch (Exception ignored) {}
 
         onUnsuccessfulAuthentication(request, response, failed);

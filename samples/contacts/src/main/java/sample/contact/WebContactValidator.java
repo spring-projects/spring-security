@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.springframework.validation.Validator;
  * @version $Id$
  */
 public class WebContactValidator implements Validator {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public boolean supports(Class clazz) {
         return clazz.equals(WebContact.class);
@@ -35,16 +35,12 @@ public class WebContactValidator implements Validator {
     public void validate(Object obj, Errors errors) {
         WebContact wc = (WebContact) obj;
 
-        if ((wc.getName() == null) || (wc.getName().length() < 3)
-            || (wc.getName().length() > 50)) {
-            errors.rejectValue("name", "err.name",
-                "Name 3-50 characters is required.");
+        if ((wc.getName() == null) || (wc.getName().length() < 3) || (wc.getName().length() > 50)) {
+            errors.rejectValue("name", "err.name", "Name 3-50 characters is required.");
         }
 
-        if ((wc.getEmail() == null) || (wc.getEmail().length() < 3)
-            || (wc.getEmail().length() > 50)) {
-            errors.rejectValue("email", "err.email",
-                "Email 3-50 characters is required.");
+        if ((wc.getEmail() == null) || (wc.getEmail().length() < 3) || (wc.getEmail().length() > 50)) {
+            errors.rejectValue("email", "err.email", "Email 3-50 characters is required.");
         }
     }
 }

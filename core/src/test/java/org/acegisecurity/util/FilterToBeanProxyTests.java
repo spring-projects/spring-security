@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,9 @@ import org.acegisecurity.MockFilterConfig;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.mock.web.MockHttpServletResponse;
+
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
@@ -41,7 +42,7 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 public class FilterToBeanProxyTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public FilterToBeanProxyTests() {
         super();
@@ -51,14 +52,22 @@ public class FilterToBeanProxyTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
+    private void executeFilterInContainerSimulator(FilterConfig filterConfig, Filter filter, ServletRequest request,
+        ServletResponse response, FilterChain filterChain)
+        throws ServletException, IOException {
+        filter.init(filterConfig);
+        filter.doFilter(request, response, filterChain);
+        filter.destroy();
     }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(FilterToBeanProxyTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testDetectsClassNotInClassLoader() throws Exception {
@@ -66,15 +75,13 @@ public class FilterToBeanProxyTests extends TestCase {
         MockFilterConfig config = new MockFilterConfig();
         config.setInitParmeter("targetClass", "net.sf.DOES.NOT.EXIST");
 
-        FilterToBeanProxy filter = new MockFilterToBeanProxy(
-                "org/acegisecurity/util/filtertest-valid.xml");
+        FilterToBeanProxy filter = new MockFilterToBeanProxy("org/acegisecurity/util/filtertest-valid.xml");
 
         try {
             filter.init(config);
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("Class of type net.sf.DOES.NOT.EXIST not found in classloader",
-                expected.getMessage());
+            assertEquals("Class of type net.sf.DOES.NOT.EXIST not found in classloader", expected.getMessage());
         }
     }
 
@@ -82,33 +89,28 @@ public class FilterToBeanProxyTests extends TestCase {
         // Setup our filter
         MockFilterConfig config = new MockFilterConfig();
 
-        FilterToBeanProxy filter = new MockFilterToBeanProxy(
-                "org/acegisecurity/util/filtertest-valid.xml");
+        FilterToBeanProxy filter = new MockFilterToBeanProxy("org/acegisecurity/util/filtertest-valid.xml");
 
         try {
             filter.init(config);
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("targetClass or targetBean must be specified",
-                expected.getMessage());
+            assertEquals("targetClass or targetBean must be specified", expected.getMessage());
         }
     }
 
     public void testDetectsTargetBeanIsNotAFilter() throws Exception {
         // Setup our filter
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("targetClass",
-            "org.acegisecurity.util.MockNotAFilter");
+        config.setInitParmeter("targetClass", "org.acegisecurity.util.MockNotAFilter");
 
-        FilterToBeanProxy filter = new MockFilterToBeanProxy(
-                "org/acegisecurity/util/filtertest-valid.xml");
+        FilterToBeanProxy filter = new MockFilterToBeanProxy("org/acegisecurity/util/filtertest-valid.xml");
 
         try {
             filter.init(config);
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("Bean 'mockNotAFilter' does not implement javax.servlet.Filter",
-                expected.getMessage());
+            assertEquals("Bean 'mockNotAFilter' does not implement javax.servlet.Filter", expected.getMessage());
         }
     }
 
@@ -118,15 +120,13 @@ public class FilterToBeanProxyTests extends TestCase {
         MockFilterConfig config = new MockFilterConfig();
         config.setInitParmeter("targetBean", "WRONG_NAME");
 
-        FilterToBeanProxy filter = new MockFilterToBeanProxy(
-                "org/acegisecurity/util/filtertest-valid.xml");
+        FilterToBeanProxy filter = new MockFilterToBeanProxy("org/acegisecurity/util/filtertest-valid.xml");
 
         try {
             filter.init(config);
             fail("Should have thrown ServletException");
         } catch (ServletException expected) {
-            assertEquals("targetBean 'WRONG_NAME' not found in context",
-                expected.getMessage());
+            assertEquals("targetBean 'WRONG_NAME' not found in context", expected.getMessage());
         }
     }
 
@@ -134,11 +134,9 @@ public class FilterToBeanProxyTests extends TestCase {
         throws Exception {
         // Setup our filter
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("targetClass",
-            "org.acegisecurity.util.FilterToBeanProxyTests");
+        config.setInitParmeter("targetClass", "org.acegisecurity.util.FilterToBeanProxyTests");
 
-        FilterToBeanProxy filter = new MockFilterToBeanProxy(
-                "org/acegisecurity/util/filtertest-valid.xml");
+        FilterToBeanProxy filter = new MockFilterToBeanProxy("org/acegisecurity/util/filtertest-valid.xml");
 
         try {
             filter.init(config);
@@ -152,8 +150,7 @@ public class FilterToBeanProxyTests extends TestCase {
     public void testIgnoresEmptyTargetBean() throws Exception {
         // Setup our filter
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("targetClass",
-            "org.acegisecurity.util.MockFilter");
+        config.setInitParmeter("targetClass", "org.acegisecurity.util.MockFilter");
         config.setInitParmeter("targetBean", "");
 
         // Setup our expectation that the filter chain will be invoked
@@ -162,11 +159,9 @@ public class FilterToBeanProxyTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockHttpServletRequest request = new MockHttpServletRequest();
 
-        FilterToBeanProxy filter = new MockFilterToBeanProxy(
-                "org/acegisecurity/util/filtertest-valid.xml");
+        FilterToBeanProxy filter = new MockFilterToBeanProxy("org/acegisecurity/util/filtertest-valid.xml");
 
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
     }
 
     public void testNormalOperationWithLazyTrue() throws Exception {
@@ -181,11 +176,9 @@ public class FilterToBeanProxyTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockHttpServletRequest request = new MockHttpServletRequest();
 
-        FilterToBeanProxy filter = new MockFilterToBeanProxy(
-                "org/acegisecurity/util/filtertest-valid.xml");
+        FilterToBeanProxy filter = new MockFilterToBeanProxy("org/acegisecurity/util/filtertest-valid.xml");
 
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
     }
 
     public void testNormalOperationWithSpecificBeanName()
@@ -200,18 +193,15 @@ public class FilterToBeanProxyTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockHttpServletRequest request = new MockHttpServletRequest();
 
-        FilterToBeanProxy filter = new MockFilterToBeanProxy(
-                "org/acegisecurity/util/filtertest-valid.xml");
+        FilterToBeanProxy filter = new MockFilterToBeanProxy("org/acegisecurity/util/filtertest-valid.xml");
 
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
     }
 
     public void testNormalOperationWithTargetClass() throws Exception {
         // Setup our filter
         MockFilterConfig config = new MockFilterConfig();
-        config.setInitParmeter("targetClass",
-            "org.acegisecurity.util.MockFilter");
+        config.setInitParmeter("targetClass", "org.acegisecurity.util.MockFilter");
 
         // Setup our expectation that the filter chain will be invoked
         MockFilterChain chain = new MockFilterChain(true);
@@ -219,11 +209,9 @@ public class FilterToBeanProxyTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockHttpServletRequest request = new MockHttpServletRequest();
 
-        FilterToBeanProxy filter = new MockFilterToBeanProxy(
-                "org/acegisecurity/util/filtertest-valid.xml");
+        FilterToBeanProxy filter = new MockFilterToBeanProxy("org/acegisecurity/util/filtertest-valid.xml");
 
-        executeFilterInContainerSimulator(config, filter, request, response,
-            chain);
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
     }
 
     public void testNullDelegateDoesNotCauseNullPointerException()
@@ -239,22 +227,13 @@ public class FilterToBeanProxyTests extends TestCase {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockHttpServletRequest request = new MockHttpServletRequest();
 
-        FilterToBeanProxy filter = new MockFilterToBeanProxy(
-                "org/acegisecurity/util/filtertest-valid.xml");
+        FilterToBeanProxy filter = new MockFilterToBeanProxy("org/acegisecurity/util/filtertest-valid.xml");
 
         // do not init (which would hapen if called .doFilter)
         filter.destroy();
     }
 
-    private void executeFilterInContainerSimulator(FilterConfig filterConfig,
-        Filter filter, ServletRequest request, ServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
-        filter.init(filterConfig);
-        filter.doFilter(request, response, filterChain);
-        filter.destroy();
-    }
-
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockFilterToBeanProxy extends FilterToBeanProxy {
         private String appContextLocation;

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.acegisecurity.providers.cas;
 
 import org.acegisecurity.AuthenticationException;
+
 import org.acegisecurity.userdetails.UserDetails;
 
 
@@ -52,20 +53,15 @@ import org.acegisecurity.userdetails.UserDetails;
  * @version $Id$
  */
 public interface CasAuthoritiesPopulator {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Obtains the granted authorities for the specified user.
-     * 
-     * <P>
-     * May throw any <code>AuthenticationException</code> or return
-     * <code>null</code> if the authorities are unavailable.
-     * </p>
+     * Obtains the granted authorities for the specified user.<P>May throw any
+     * <code>AuthenticationException</code> or return <code>null</code> if the authorities are unavailable.</p>
      *
      * @param casUserId as obtained from the CAS validation service
      *
-     * @return the details of the indicated user (at minimum the granted
-     *         authorities and the username)
+     * @return the details of the indicated user (at minimum the granted authorities and the username)
      *
      * @throws AuthenticationException DOCUMENT ME!
      */

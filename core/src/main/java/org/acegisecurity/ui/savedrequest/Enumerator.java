@@ -25,35 +25,23 @@ import java.util.NoSuchElementException;
 
 
 /**
- * <p>
- * Adapter that wraps an <code>Enumeration</code> around a Java 2 collection
- * <code>Iterator</code>.
- * </p>
- * 
- * <p>
- * Constructors are provided to easily create such wrappers.
- * </p>
- * 
- * <p>
- * This class is based on code in Apache Tomcat.
- * </p>
+ * <p>Adapter that wraps an <code>Enumeration</code> around a Java 2 collection <code>Iterator</code>.</p>
+ *  <p>Constructors are provided to easily create such wrappers.</p>
+ *  <p>This class is based on code in Apache Tomcat.</p>
  *
  * @author Craig McClanahan
  * @author Andrey Grebnev
  * @version $Id$
  */
 public class Enumerator implements Enumeration {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
-    /**
-     * The <code>Iterator</code> over which the <code>Enumeration</code>
-     * represented by this class actually operates.
-     */
+    /** The <code>Iterator</code> over which the <code>Enumeration</code> represented by this class actually operates. */
     private Iterator iterator = null;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Return an Enumeration over the values of the specified Collection.
      *
      * @param collection Collection whose values should be enumerated
@@ -62,7 +50,7 @@ public class Enumerator implements Enumeration {
         this(collection.iterator());
     }
 
-    /**
+/**
      * Return an Enumeration over the values of the specified Collection.
      *
      * @param collection Collection whose values should be enumerated
@@ -72,7 +60,7 @@ public class Enumerator implements Enumeration {
         this(collection.iterator(), clone);
     }
 
-    /**
+/**
      * Return an Enumeration over the values returned by the specified
      * Iterator.
      *
@@ -83,7 +71,7 @@ public class Enumerator implements Enumeration {
         this.iterator = iterator;
     }
 
-    /**
+/**
      * Return an Enumeration over the values returned by the specified
      * Iterator.
      *
@@ -106,7 +94,7 @@ public class Enumerator implements Enumeration {
         }
     }
 
-    /**
+/**
      * Return an Enumeration over the values of the specified Map.
      *
      * @param map Map whose values should be enumerated
@@ -115,7 +103,7 @@ public class Enumerator implements Enumeration {
         this(map.values().iterator());
     }
 
-    /**
+/**
      * Return an Enumeration over the values of the specified Map.
      *
      * @param map Map whose values should be enumerated
@@ -125,13 +113,12 @@ public class Enumerator implements Enumeration {
         this(map.values().iterator(), clone);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Tests if this enumeration contains more elements.
      *
-     * @return <code>true</code> if and only if this enumeration object
-     *         contains at least one more element to provide,
+     * @return <code>true</code> if and only if this enumeration object contains at least one more element to provide,
      *         <code>false</code> otherwise
      */
     public boolean hasMoreElements() {
@@ -139,8 +126,8 @@ public class Enumerator implements Enumeration {
     }
 
     /**
-     * Returns the next element of this enumeration if this enumeration has at
-     * least one more element to provide.
+     * Returns the next element of this enumeration if this enumeration has at least one more element to
+     * provide.
      *
      * @return the next element of this enumeration
      *

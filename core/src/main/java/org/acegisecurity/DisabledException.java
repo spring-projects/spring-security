@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,16 @@
 package org.acegisecurity;
 
 /**
- * Thrown if an authentication request is rejected because the account is
- * disabled. Makes no assertion as to whether or not the credentials were
- * valid.
+ * Thrown if an authentication request is rejected because the account is disabled. Makes no assertion as to
+ * whether or not the credentials were valid.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class DisabledException extends AuthenticationException {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructs a <code>DisabledException</code> with the specified message.
      *
      * @param msg the detail message
@@ -35,7 +34,7 @@ public class DisabledException extends AuthenticationException {
         super(msg);
     }
 
-    /**
+/**
      * Constructs a <code>DisabledException</code> with the specified message
      * and root cause.
      *

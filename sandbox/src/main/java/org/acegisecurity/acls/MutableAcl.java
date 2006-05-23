@@ -15,9 +15,9 @@
 
 package org.acegisecurity.acls;
 
-import java.io.Serializable;
-
 import org.acegisecurity.acls.sid.Sid;
+
+import java.io.Serializable;
 
 
 /**
@@ -32,8 +32,9 @@ import org.acegisecurity.acls.sid.Sid;
  * @version $Id$
  */
 public interface MutableAcl extends Acl {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
+    public void deleteAce(Long aceId) throws NotFoundException;
 
     /**
      * Obtains an identifier that represents this <code>MutableAcl</code>.
@@ -42,11 +43,10 @@ public interface MutableAcl extends Acl {
      */
     public Serializable getId();
 
-	
-    public void deleteAce(Long aceId) throws NotFoundException ;
+    public void insertAce(Long afterAceId, Permission permission, Sid sid, boolean granting)
+        throws NotFoundException;
 
-    public void insertAce(Long afterAceId, Permission permission, Sid sid,
-        boolean granting) throws NotFoundException;
+    public void setEntriesInheriting(boolean entriesInheriting);
 
     /**
      * Changes the parent of this ACL.
@@ -54,8 +54,7 @@ public interface MutableAcl extends Acl {
      * @param newParent the new parent
      */
     public void setParent(MutableAcl newParent);
-    
-    public void updateAce(Long aceId, Permission permission) throws NotFoundException;
-    
-    public void setEntriesInheriting(boolean entriesInheriting);
+
+    public void updateAce(Long aceId, Permission permission)
+        throws NotFoundException;
 }

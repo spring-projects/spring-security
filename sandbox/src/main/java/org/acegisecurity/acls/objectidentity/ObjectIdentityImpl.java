@@ -28,33 +28,30 @@ import java.lang.reflect.Method;
 
 
 /**
- * Simple implementation of {@link AclObjectIdentity}.
- * 
- * <P>
- * Uses <code>String</code>s to store the identity of the domain object
- * instance. Also offers a constructor that uses reflection to build the
- * identity information.
- * </p>
+ * Simple implementation of {@link AclObjectIdentity}.<P>Uses <code>String</code>s to store the identity of the
+ * domain object instance. Also offers a constructor that uses reflection to build the identity information.</p>
  */
 public class ObjectIdentityImpl implements ObjectIdentity {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Class javaType;
     private Serializable identifier;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public ObjectIdentityImpl(String javaType, Serializable identifier) {
         Assert.hasText(javaType, "Java Type required");
         Assert.notNull(identifier, "identifier required");
-    	try {
-    		this.javaType = Class.forName(javaType);
-    	} catch (Exception ex) {
-    		ReflectionUtils.handleReflectionException(ex);
-    	}
-    	this.identifier = identifier;
+
+        try {
+            this.javaType = Class.forName(javaType);
+        } catch (Exception ex) {
+            ReflectionUtils.handleReflectionException(ex);
+        }
+
+        this.identifier = identifier;
     }
-    
+
     public ObjectIdentityImpl(Class javaType, Serializable identifier) {
         Assert.notNull(javaType, "Java Type required");
         Assert.notNull(identifier, "identifier required");
@@ -62,7 +59,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
         this.identifier = identifier;
     }
 
-    /**
+/**
      * Creates the <code>NamedEntityObjectIdentity</code> based on the passed
      * object instance. The passed object must provide a <code>getId()</code>
      * method, otherwise an exception will be thrown.
@@ -71,8 +68,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
      *
      * @throws IdentityUnavailableException if identity could not be extracted
      */
-    public ObjectIdentityImpl(Object object)
-        throws IdentityUnavailableException {
+    public ObjectIdentityImpl(Object object) throws IdentityUnavailableException {
         Assert.notNull(object, "object cannot be null");
 
         this.javaType = object.getClass();
@@ -83,24 +79,18 @@ public class ObjectIdentityImpl implements ObjectIdentity {
             Method method = this.javaType.getMethod("getId", new Class[] {});
             result = method.invoke(object, new Object[] {});
         } catch (Exception e) {
-            throw new IdentityUnavailableException(
-                "Could not extract identity from object " + object, e);
+            throw new IdentityUnavailableException("Could not extract identity from object " + object, e);
         }
 
-        Assert.isInstanceOf(Serializable.class, result,
-            "Getter must provide a return value of type Serializable");
+        Assert.isInstanceOf(Serializable.class, result, "Getter must provide a return value of type Serializable");
         this.identifier = (Serializable) result;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Important so caching operates properly.
-     * 
-     * <P>
-     * Considers an object of the same class equal if it has the same
-     * <code>classname</code> and <code>id</code> properties.
-     * </p>
+     * Important so caching operates properly.<P>Considers an object of the same class equal if it has the same
+     * <code>classname</code> and <code>id</code> properties.</p>
      *
      * @param arg0 object to compare
      *
@@ -117,8 +107,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 
         ObjectIdentityImpl other = (ObjectIdentityImpl) arg0;
 
-        if (this.getIdentifier().equals(other.getIdentifier())
-            && this.getJavaType().equals(other.getJavaType())) {
+        if (this.getIdentifier().equals(other.getIdentifier()) && this.getJavaType().equals(other.getJavaType())) {
             return true;
         }
 

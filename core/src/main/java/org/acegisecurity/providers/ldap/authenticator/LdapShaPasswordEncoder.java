@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,51 +15,82 @@
 
 package org.acegisecurity.providers.ldap.authenticator;
 
-import org.acegisecurity.providers.encoding.ShaPasswordEncoder;
-import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.acegisecurity.ldap.LdapDataAccessException;
+
+import org.acegisecurity.providers.encoding.PasswordEncoder;
+import org.acegisecurity.providers.encoding.ShaPasswordEncoder;
+
 import org.apache.commons.codec.binary.Base64;
+
 import org.springframework.util.Assert;
 
 import java.security.MessageDigest;
 
+
 /**
- * A version of {@link ShaPasswordEncoder} which supports Ldap SHA
- * and SSHA (salted-SHA) encodings. The values are base-64 encoded
- * and have the label "{SHA}" (or "{SSHA}") prepended to the encoded hash.
+ * A version of {@link ShaPasswordEncoder} which supports Ldap SHA and SSHA (salted-SHA) encodings. The values are
+ * base-64 encoded and have the label "{SHA}" (or "{SSHA}") prepended to the encoded hash.
  *
  * @author Luke Taylor
  * @version $Id$
  */
 public class LdapShaPasswordEncoder implements PasswordEncoder {
+    //~ Static fields/initializers =====================================================================================
+
     /** The number of bytes in a SHA hash */
     private static final int SHA_LENGTH = 20;
-
     private static final String SSHA_PREFIX = "{SSHA}";
-
     private static final String SHA_PREFIX = "{SHA}";
 
-    public LdapShaPasswordEncoder() {
+    //~ Constructors ===================================================================================================
+
+    public LdapShaPasswordEncoder() {}
+
+    //~ Methods ========================================================================================================
+
+    private byte[] combineHashAndSalt(byte[] hash, byte[] salt) {
+        if (salt == null) {
+            return hash;
+        }
+
+        byte[] hashAndSalt = new byte[hash.length + salt.length];
+        System.arraycopy(hash, 0, hashAndSalt, 0, hash.length);
+        System.arraycopy(salt, 0, hashAndSalt, hash.length, salt.length);
+
+        return hashAndSalt;
     }
 
     /**
-     * Checks the validity of an unencoded password against an encoded one in the form
-     * "{SSHA}sQuQF8vj8Eg2Y1hPdh3bkQhCKQBgjhQI".
+     * 
+    DOCUMENT ME!
      *
-     * @param encPass the SSHA or SHA encoded password
-     * @param rawPass unencoded password to be verified.
-     * @param salt ignored. If the format is SSHA the salt
-     *        bytes will be extracted from the encoded password.
-     * @return true if they match.
+     * @param rawPass the password to be encoded.
+     * @param salt the salt. Must be a byte array or null.
+     *
+     * @return base64 encoded concatenation of password hash and salt, prefixed with {SHA} or {SSHA} depending on
+     *         whether salt bytes were supplied.
+     *
+     * @throws LdapDataAccessException DOCUMENT ME!
      */
-    public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-        if(encPass.startsWith(SSHA_PREFIX)) {
-            salt = extractSalt(encPass);
-        } else {
-            salt = null;
+    public String encodePassword(String rawPass, Object salt) {
+        MessageDigest sha;
+
+        try {
+            sha = MessageDigest.getInstance("SHA");
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new LdapDataAccessException("No SHA implementation available!");
         }
 
-        return encPass.equals(encodePassword(rawPass, salt));
+        sha.update(rawPass.getBytes());
+
+        if (salt != null) {
+            Assert.isInstanceOf(byte[].class, salt, "Salt value must be a byte array");
+            sha.update((byte[]) salt);
+        }
+
+        byte[] hash = combineHashAndSalt(sha.digest(), (byte[]) salt);
+
+        return ((salt == null) ? SHA_PREFIX : SSHA_PREFIX) + new String(Base64.encodeBase64(hash));
     }
 
     private byte[] extractSalt(String encPass) {
@@ -74,45 +105,22 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
     }
 
     /**
+     * Checks the validity of an unencoded password against an encoded one in the form
+     * "{SSHA}sQuQF8vj8Eg2Y1hPdh3bkQhCKQBgjhQI".
      *
-     * @param rawPass the password to be encoded.
-     * @param salt the salt. Must be a byte array or null.
+     * @param encPass the SSHA or SHA encoded password
+     * @param rawPass unencoded password to be verified.
+     * @param salt ignored. If the format is SSHA the salt bytes will be extracted from the encoded password.
      *
-     * @return base64 encoded concatenation of password hash and salt,
-     *         prefixed with {SHA} or {SSHA} depending on whether salt
-     *         bytes were supplied.
+     * @return true if they match.
      */
-    public String encodePassword(String rawPass, Object salt) {
-        MessageDigest sha;
-
-        try {
-            sha = MessageDigest.getInstance("SHA");
-        } catch (java.security.NoSuchAlgorithmException e) {
-            throw new LdapDataAccessException("No SHA implementation available!");
+    public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
+        if (encPass.startsWith(SSHA_PREFIX)) {
+            salt = extractSalt(encPass);
+        } else {
+            salt = null;
         }
 
-        sha.update(rawPass.getBytes());
-
-        if(salt != null) {
-            Assert.isInstanceOf(byte[].class, salt, "Salt value must be a byte array");            
-            sha.update((byte[])salt);
-        }
-
-        byte[] hash = combineHashAndSalt(sha.digest(), (byte[])salt);
-
-        return (salt == null ? SHA_PREFIX : SSHA_PREFIX) +
-                    new String(Base64.encodeBase64(hash));
-    }
-
-    private byte[] combineHashAndSalt(byte[] hash, byte[] salt) {
-        if(salt == null) {
-            return hash;
-        }
-
-        byte[] hashAndSalt = new byte[hash.length + salt.length];
-        System.arraycopy(hash, 0, hashAndSalt, 0, hash.length);
-        System.arraycopy(salt, 0, hashAndSalt, hash.length, salt.length);
-
-        return hashAndSalt;
+        return encPass.equals(encodePassword(rawPass, salt));
     }
 }

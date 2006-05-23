@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,26 +19,23 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.MockFilterChain;
-
-
 import org.acegisecurity.SecurityConfig;
-
-import java.util.Iterator;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+import java.util.Iterator;
+
 
 /**
- * Tests {@link FilterInvocationDefinitionSourceEditor} and its associated
- * {@link PathBasedFilterInvocationDefinitionMap}.
+ * Tests {@link FilterInvocationDefinitionSourceEditor} and its associated {@link
+ * PathBasedFilterInvocationDefinitionMap}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class FilterInvocationDefinitionSourceEditorWithPathsTests
-    extends TestCase {
-    //~ Constructors ===========================================================
+public class FilterInvocationDefinitionSourceEditorWithPathsTests extends TestCase {
+    //~ Constructors ===================================================================================================
 
     public FilterInvocationDefinitionSourceEditorWithPathsTests() {
         super();
@@ -48,14 +45,14 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(FilterInvocationDefinitionSourceEditorWithPathsTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testAntPathDirectiveIsDetected() {
@@ -63,8 +60,7 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests
         editor.setAsText(
             "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        FilterInvocationDefinitionMap map = (FilterInvocationDefinitionMap) editor
-            .getValue();
+        FilterInvocationDefinitionMap map = (FilterInvocationDefinitionMap) editor.getValue();
         assertTrue(map instanceof PathBasedFilterInvocationDefinitionMap);
     }
 
@@ -73,8 +69,7 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests
         editor.setAsText(
             "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
         assertFalse(map.isConvertUrlToLowercaseBeforeComparison());
     }
 
@@ -83,9 +78,18 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests
         editor.setAsText(
             "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON\r\nPATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
         assertTrue(map.isConvertUrlToLowercaseBeforeComparison());
+    }
+
+    public void testInvalidNameValueFailsToParse() {
+        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
+
+        try {
+            // Use a "==" instead of an "="
+            editor.setAsText("         PATTERN_TYPE_APACHE_ANT\r\n    /secure/*==ROLE_SUPERVISOR,ROLE_TELLER      \r\n");
+            fail("Shouldn't be able to use '==' for config attribute.");
+        } catch (IllegalArgumentException expected) {}
     }
 
     public void testIterator() {
@@ -93,8 +97,7 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests
         editor.setAsText(
             "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
         Iterator iter = map.getConfigAttributeDefinitions();
         int counter = 0;
 
@@ -108,19 +111,15 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests
 
     public void testMapReturnsNullWhenNoMatchFound() throws Exception {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
-        editor.setAsText(
-            "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE");
+        editor.setAsText("PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
 
-        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null,
-                null);
+        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/totally/different/path/index.html");
 
-        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(
-                    httpRequest, new MockHttpServletResponse(),
-                    new MockFilterChain()));
+        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+                    new MockHttpServletResponse(), new MockFilterChain()));
 
         assertEquals(null, returned);
     }
@@ -130,8 +129,7 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests
         editor.setAsText(
             "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE\r\n/secure/*=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
         assertEquals(2, map.getMapSize());
     }
 
@@ -139,7 +137,7 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests
         Class clazz = PathBasedFilterInvocationDefinitionMap.EntryHolder.class;
 
         try {
-            clazz.getDeclaredConstructor((Class[])null);
+            clazz.getDeclaredConstructor((Class[]) null);
             fail("Should have thrown NoSuchMethodException");
         } catch (NoSuchMethodException expected) {
             assertTrue(true);
@@ -151,17 +149,14 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests
         editor.setAsText(
             "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/**=ROLE_WE_DONT_HAVE,ANOTHER_ROLE\r\n/secure/**=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
 
         // Test ensures we match the first entry, not the second
-        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null,
-                null);
+        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/secure/super/very_secret.html");
 
-        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(
-                    httpRequest, new MockHttpServletResponse(),
-                    new MockFilterChain()));
+        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+                    new MockHttpServletResponse(), new MockFilterChain()));
 
         ConfigAttributeDefinition expected = new ConfigAttributeDefinition();
         expected.addConfigAttribute(new SecurityConfig("ROLE_WE_DONT_HAVE"));
@@ -175,16 +170,13 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests
         editor.setAsText(
             "PATTERN_TYPE_APACHE_ANT\r\n/secure/**=ROLE_SUPERVISOR,ROLE_TELLER\r\n/secure/super/**=ROLE_WE_DONT_HAVE");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
 
-        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null,
-                null);
+        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/secure/super/very_secret.html");
 
-        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(
-                    httpRequest, new MockHttpServletResponse(),
-                    new MockFilterChain()));
+        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+                    new MockHttpServletResponse(), new MockFilterChain()));
 
         ConfigAttributeDefinition expected = new ConfigAttributeDefinition();
         expected.addConfigAttribute(new SecurityConfig("ROLE_SUPERVISOR"));
@@ -195,19 +187,15 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests
 
     public void testSingleUrlParsing() throws Exception {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
-        editor.setAsText(
-            "PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE,ANOTHER_ROLE");
+        editor.setAsText("PATTERN_TYPE_APACHE_ANT\r\n/secure/super/*=ROLE_WE_DONT_HAVE,ANOTHER_ROLE");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
 
-        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null,
-                null);
+        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
         httpRequest.setServletPath("/secure/super/very_secret.html");
 
-        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(
-                    httpRequest, new MockHttpServletResponse(),
-                    new MockFilterChain()));
+        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+                    new MockHttpServletResponse(), new MockFilterChain()));
 
         ConfigAttributeDefinition expected = new ConfigAttributeDefinition();
         expected.addConfigAttribute(new SecurityConfig("ROLE_WE_DONT_HAVE"));
@@ -221,18 +209,7 @@ public class FilterInvocationDefinitionSourceEditorWithPathsTests
         editor.setAsText(
             "         PATTERN_TYPE_APACHE_ANT\r\n    /secure/super/*=ROLE_WE_DONT_HAVE\r\n    /secure/*=ROLE_SUPERVISOR,ROLE_TELLER      \r\n   \r\n     \r\n   // comment line  \r\n    \r\n");
 
-        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
         assertEquals(2, map.getMapSize());
-    }
-
-    public void testInvalidNameValueFailsToParse() {
-        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
-        try {
-        // Use a "==" instead of an "="
-            editor.setAsText("         PATTERN_TYPE_APACHE_ANT\r\n    /secure/*==ROLE_SUPERVISOR,ROLE_TELLER      \r\n");
-            fail("Shouldn't be able to use '==' for config attribute.");
-        } catch(IllegalArgumentException expected) {
-        }
     }
 }

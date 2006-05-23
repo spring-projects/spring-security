@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package sample.annotations;
 
 import org.acegisecurity.annotation.Secured;
 
+
 /**
  * <code>BankService</code> sample using Java 5 Annotations.
  *
@@ -25,10 +26,9 @@ import org.acegisecurity.annotation.Secured;
  * 
  * @see org.acegisecurity.annotation.Secured
  */
-
-@Secured({"ROLE_TELLER" })
+@Secured({"ROLE_TELLER"})
 public interface BankService {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Get the account balance.
@@ -37,8 +37,7 @@ public interface BankService {
      *
      * @return The balance
      */
-
-    @Secured({"ROLE_PERMISSION_BALANCE" })
+    @Secured({"ROLE_PERMISSION_BALANCE"})
     public float balance(String accountNumber);
 
     /**
@@ -46,7 +45,6 @@ public interface BankService {
      *
      * @return The list of accounts
      */
-
-    @Secured({"ROLE_PERMISSION_LIST" })
+    @Secured({"ROLE_PERMISSION_LIST"})
     public String[] listAccounts();
 }

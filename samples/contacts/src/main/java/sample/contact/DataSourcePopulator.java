@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,31 +33,23 @@ import javax.sql.DataSource;
  * @version $Id$
  */
 public class DataSourcePopulator implements InitializingBean {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
-    Random rnd = new Random();
-    String[] firstNames = {"Bob", "Mary", "James", "Jane", "Kristy", "Kirsty", "Kate", "Jeni", "Angela", "Melanie", "Kent", "William", "Geoff", "Jeff", "Adrian", "Amanda", "Lisa", "Elizabeth", "Prue", "Richard", "Darin", "Phillip", "Michael", "Belinda", "Samantha", "Brian", "Greg", "Matthew"};
-    String[] lastNames = {"Smith", "Williams", "Jackson", "Rictor", "Nelson", "Fitzgerald", "McAlpine", "Sutherland", "Abbott", "Hall", "Edwards", "Gates", "Black", "Brown", "Gray", "Marwell", "Booch", "Johnson", "McTaggart", "Parklin", "Findlay", "Robinson", "Giugni", "Lang", "Chi", "Carmichael"};
     private DataSource dataSource;
+    Random rnd = new Random();
+    String[] firstNames = {
+            "Bob", "Mary", "James", "Jane", "Kristy", "Kirsty", "Kate", "Jeni", "Angela", "Melanie", "Kent", "William",
+            "Geoff", "Jeff", "Adrian", "Amanda", "Lisa", "Elizabeth", "Prue", "Richard", "Darin", "Phillip", "Michael",
+            "Belinda", "Samantha", "Brian", "Greg", "Matthew"
+        };
+    String[] lastNames = {
+            "Smith", "Williams", "Jackson", "Rictor", "Nelson", "Fitzgerald", "McAlpine", "Sutherland", "Abbott", "Hall",
+            "Edwards", "Gates", "Black", "Brown", "Gray", "Marwell", "Booch", "Johnson", "McTaggart", "Parklin",
+            "Findlay", "Robinson", "Giugni", "Lang", "Chi", "Carmichael"
+        };
     private int createEntities = 1000;
 
-    //~ Methods ================================================================
-
-    public void setCreateEntities(int createEntities) {
-        this.createEntities = createEntities;
-    }
-
-    public int getCreateEntities() {
-        return createEntities;
-    }
-
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    public DataSource getDataSource() {
-        return dataSource;
-    }
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(dataSource, "dataSource required");
@@ -66,30 +58,20 @@ public class DataSourcePopulator implements InitializingBean {
 
         template.execute(
             "CREATE TABLE CONTACTS(ID BIGINT NOT NULL PRIMARY KEY, CONTACT_NAME VARCHAR_IGNORECASE(50) NOT NULL, EMAIL VARCHAR_IGNORECASE(50) NOT NULL)");
-        template.execute(
-            "INSERT INTO contacts VALUES (1, 'John Smith', 'john@somewhere.com');"); // marissa
-        template.execute(
-            "INSERT INTO contacts VALUES (2, 'Michael Citizen', 'michael@xyz.com');"); // marissa
-        template.execute(
-            "INSERT INTO contacts VALUES (3, 'Joe Bloggs', 'joe@demo.com');"); // marissa
-        template.execute(
-            "INSERT INTO contacts VALUES (4, 'Karen Sutherland', 'karen@sutherland.com');"); // marissa + dianne + scott
-        template.execute(
-            "INSERT INTO contacts VALUES (5, 'Mitchell Howard', 'mitchell@abcdef.com');"); // dianne
-        template.execute(
-            "INSERT INTO contacts VALUES (6, 'Rose Costas', 'rose@xyz.com');"); // dianne + scott
-        template.execute(
-            "INSERT INTO contacts VALUES (7, 'Amanda Smith', 'amanda@abcdef.com');"); // scott
-        template.execute(
-            "INSERT INTO contacts VALUES (8, 'Cindy Smith', 'cindy@smith.com');"); // dianne + scott
-        template.execute(
-            "INSERT INTO contacts VALUES (9, 'Jonathan Citizen', 'jonathan@xyz.com');"); // scott
+        template.execute("INSERT INTO contacts VALUES (1, 'John Smith', 'john@somewhere.com');"); // marissa
+        template.execute("INSERT INTO contacts VALUES (2, 'Michael Citizen', 'michael@xyz.com');"); // marissa
+        template.execute("INSERT INTO contacts VALUES (3, 'Joe Bloggs', 'joe@demo.com');"); // marissa
+        template.execute("INSERT INTO contacts VALUES (4, 'Karen Sutherland', 'karen@sutherland.com');"); // marissa + dianne + scott
+        template.execute("INSERT INTO contacts VALUES (5, 'Mitchell Howard', 'mitchell@abcdef.com');"); // dianne
+        template.execute("INSERT INTO contacts VALUES (6, 'Rose Costas', 'rose@xyz.com');"); // dianne + scott
+        template.execute("INSERT INTO contacts VALUES (7, 'Amanda Smith', 'amanda@abcdef.com');"); // scott
+        template.execute("INSERT INTO contacts VALUES (8, 'Cindy Smith', 'cindy@smith.com');"); // dianne + scott
+        template.execute("INSERT INTO contacts VALUES (9, 'Jonathan Citizen', 'jonathan@xyz.com');"); // scott
 
         for (int i = 10; i < createEntities; i++) {
             String[] person = selectPerson();
-            template.execute("INSERT INTO contacts VALUES (" + i + ", '"
-                + person[2] + "', '" + person[0].toLowerCase() + "@"
-                + person[1].toLowerCase() + ".com');");
+            template.execute("INSERT INTO contacts VALUES (" + i + ", '" + person[2] + "', '" + person[0].toLowerCase()
+                + "@" + person[1].toLowerCase() + ".com');");
         }
 
         template.execute(
@@ -114,39 +96,25 @@ public class DataSourcePopulator implements InitializingBean {
             "INSERT INTO acl_object_identity VALUES (9, 'sample.contact.Contact:9', null, 'org.acegisecurity.acl.basic.SimpleAclEntry');");
 
         for (int i = 10; i < createEntities; i++) {
-            template.execute("INSERT INTO acl_object_identity VALUES (" + i
-                + ", 'sample.contact.Contact:" + i
+            template.execute("INSERT INTO acl_object_identity VALUES (" + i + ", 'sample.contact.Contact:" + i
                 + "', null, 'org.acegisecurity.acl.basic.SimpleAclEntry');");
         }
 
         template.execute(
             "CREATE TABLE ACL_PERMISSION(ID BIGINT GENERATED BY DEFAULT AS IDENTITY(START WITH 100)  NOT NULL PRIMARY KEY,ACL_OBJECT_IDENTITY BIGINT NOT NULL,RECIPIENT VARCHAR_IGNORECASE(100) NOT NULL,MASK INTEGER NOT NULL,CONSTRAINT UNIQUE_RECIPIENT UNIQUE(ACL_OBJECT_IDENTITY,RECIPIENT),CONSTRAINT SYS_FK_7 FOREIGN KEY(ACL_OBJECT_IDENTITY) REFERENCES ACL_OBJECT_IDENTITY(ID))");
-        template.execute(
-            "INSERT INTO acl_permission VALUES (null, 1, 'marissa', 1);"); // administer
-        template.execute(
-            "INSERT INTO acl_permission VALUES (null, 2, 'marissa', 2);"); // read
-        template.execute(
-            "INSERT INTO acl_permission VALUES (null, 3, 'marissa', 22);"); // read+write+delete
-        template.execute(
-            "INSERT INTO acl_permission VALUES (null, 4, 'marissa', 1);"); // administer
-        template.execute(
-            "INSERT INTO acl_permission VALUES (null, 4, 'dianne', 1);"); // administer
-        template.execute(
-            "INSERT INTO acl_permission VALUES (null, 4, 'scott', 2);"); // read
-        template.execute(
-            "INSERT INTO acl_permission VALUES (null, 5, 'dianne', 2);"); // read
-        template.execute(
-            "INSERT INTO acl_permission VALUES (null, 6, 'dianne', 22);"); // read+write+delete
-        template.execute(
-            "INSERT INTO acl_permission VALUES (null, 6, 'scott', 2);"); // read
-        template.execute(
-            "INSERT INTO acl_permission VALUES (null, 7, 'scott', 1);"); // administer
-        template.execute(
-            "INSERT INTO acl_permission VALUES (null, 8, 'dianne', 2);"); // read
-        template.execute(
-            "INSERT INTO acl_permission VALUES (null, 8, 'scott', 2);"); // read
-        template.execute(
-            "INSERT INTO acl_permission VALUES (null, 9, 'scott', 22);"); // read+write+delete
+        template.execute("INSERT INTO acl_permission VALUES (null, 1, 'marissa', 1);"); // administer
+        template.execute("INSERT INTO acl_permission VALUES (null, 2, 'marissa', 2);"); // read
+        template.execute("INSERT INTO acl_permission VALUES (null, 3, 'marissa', 22);"); // read+write+delete
+        template.execute("INSERT INTO acl_permission VALUES (null, 4, 'marissa', 1);"); // administer
+        template.execute("INSERT INTO acl_permission VALUES (null, 4, 'dianne', 1);"); // administer
+        template.execute("INSERT INTO acl_permission VALUES (null, 4, 'scott', 2);"); // read
+        template.execute("INSERT INTO acl_permission VALUES (null, 5, 'dianne', 2);"); // read
+        template.execute("INSERT INTO acl_permission VALUES (null, 6, 'dianne', 22);"); // read+write+delete
+        template.execute("INSERT INTO acl_permission VALUES (null, 6, 'scott', 2);"); // read
+        template.execute("INSERT INTO acl_permission VALUES (null, 7, 'scott', 1);"); // administer
+        template.execute("INSERT INTO acl_permission VALUES (null, 8, 'dianne', 2);"); // read
+        template.execute("INSERT INTO acl_permission VALUES (null, 8, 'scott', 2);"); // read
+        template.execute("INSERT INTO acl_permission VALUES (null, 9, 'scott', 22);"); // read+write+delete
 
         String[] users = {"bill", "bob", "jane"}; // don't want to mess around with consistent sample data
         int[] permissions = {1, 2, 22};
@@ -154,15 +122,14 @@ public class DataSourcePopulator implements InitializingBean {
         for (int i = 10; i < createEntities; i++) {
             String user = users[rnd.nextInt(users.length)];
             int permission = permissions[rnd.nextInt(permissions.length)];
-            template.execute("INSERT INTO acl_permission VALUES (null, " + i
-                + ", '" + user + "', " + permission + ");");
+            template.execute("INSERT INTO acl_permission VALUES (null, " + i + ", '" + user + "', " + permission + ");");
 
             String user2 = users[rnd.nextInt(users.length)];
             int permission2 = permissions[rnd.nextInt(permissions.length)];
 
             if (!user2.equals(user)) {
-                template.execute("INSERT INTO acl_permission VALUES (null, "
-                    + i + ", '" + user2 + "', " + permission2 + ");");
+                template.execute("INSERT INTO acl_permission VALUES (null, " + i + ", '" + user2 + "', " + permission2
+                    + ");");
             }
         }
 
@@ -170,8 +137,7 @@ public class DataSourcePopulator implements InitializingBean {
             "CREATE TABLE USERS(USERNAME VARCHAR_IGNORECASE(50) NOT NULL PRIMARY KEY,PASSWORD VARCHAR_IGNORECASE(50) NOT NULL,ENABLED BOOLEAN NOT NULL);");
         template.execute(
             "CREATE TABLE AUTHORITIES(USERNAME VARCHAR_IGNORECASE(50) NOT NULL,AUTHORITY VARCHAR_IGNORECASE(50) NOT NULL,CONSTRAINT FK_AUTHORITIES_USERS FOREIGN KEY(USERNAME) REFERENCES USERS(USERNAME));");
-        template.execute(
-            "CREATE UNIQUE INDEX IX_AUTH_USERNAME ON AUTHORITIES(USERNAME,AUTHORITY);");
+        template.execute("CREATE UNIQUE INDEX IX_AUTH_USERNAME ON AUTHORITIES(USERNAME,AUTHORITY);");
 
         /*
            Passwords encoded using MD5, NOT in Base64 format, with null as salt
@@ -184,26 +150,16 @@ public class DataSourcePopulator implements InitializingBean {
            Encoded password for jane is "wombat"
         
          */
-        template.execute(
-            "INSERT INTO USERS VALUES('marissa','a564de63c2d0da68cf47586ee05984d7',TRUE);");
-        template.execute(
-            "INSERT INTO USERS VALUES('dianne','65d15fe9156f9c4bbffd98085992a44e',TRUE);");
-        template.execute(
-            "INSERT INTO USERS VALUES('scott','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
-        template.execute(
-            "INSERT INTO USERS VALUES('peter','22b5c9accc6e1ba628cedc63a72d57f8',FALSE);");
-        template.execute(
-            "INSERT INTO USERS VALUES('bill','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
-        template.execute(
-            "INSERT INTO USERS VALUES('bob','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
-        template.execute(
-            "INSERT INTO USERS VALUES('jane','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
-        template.execute(
-            "INSERT INTO AUTHORITIES VALUES('marissa','ROLE_USER');");
-        template.execute(
-            "INSERT INTO AUTHORITIES VALUES('marissa','ROLE_SUPERVISOR');");
-        template.execute(
-            "INSERT INTO AUTHORITIES VALUES('dianne','ROLE_USER');");
+        template.execute("INSERT INTO USERS VALUES('marissa','a564de63c2d0da68cf47586ee05984d7',TRUE);");
+        template.execute("INSERT INTO USERS VALUES('dianne','65d15fe9156f9c4bbffd98085992a44e',TRUE);");
+        template.execute("INSERT INTO USERS VALUES('scott','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
+        template.execute("INSERT INTO USERS VALUES('peter','22b5c9accc6e1ba628cedc63a72d57f8',FALSE);");
+        template.execute("INSERT INTO USERS VALUES('bill','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
+        template.execute("INSERT INTO USERS VALUES('bob','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
+        template.execute("INSERT INTO USERS VALUES('jane','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
+        template.execute("INSERT INTO AUTHORITIES VALUES('marissa','ROLE_USER');");
+        template.execute("INSERT INTO AUTHORITIES VALUES('marissa','ROLE_SUPERVISOR');");
+        template.execute("INSERT INTO AUTHORITIES VALUES('dianne','ROLE_USER');");
         template.execute("INSERT INTO AUTHORITIES VALUES('scott','ROLE_USER');");
         template.execute("INSERT INTO AUTHORITIES VALUES('peter','ROLE_USER');");
         template.execute("INSERT INTO AUTHORITIES VALUES('bill','ROLE_USER');");
@@ -211,10 +167,26 @@ public class DataSourcePopulator implements InitializingBean {
         template.execute("INSERT INTO AUTHORITIES VALUES('jane','ROLE_USER');");
     }
 
+    public int getCreateEntities() {
+        return createEntities;
+    }
+
+    public DataSource getDataSource() {
+        return dataSource;
+    }
+
     private String[] selectPerson() {
         String firstName = firstNames[rnd.nextInt(firstNames.length)];
         String lastName = lastNames[rnd.nextInt(lastNames.length)];
 
         return new String[] {firstName, lastName, firstName + " " + lastName};
+    }
+
+    public void setCreateEntities(int createEntities) {
+        this.createEntities = createEntities;
+    }
+
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 }

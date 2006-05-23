@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,41 +24,23 @@ import org.aspectj.lang.JoinPoint;
 
 
 /**
- * Provides security interception of AspectJ method invocations.
- * 
- * <p>
- * The <code>ObjectDefinitionSource</code> required by this security
- * interceptor is of type {@link MethodDefinitionSource}. This is shared with
- * the AOP Alliance based security interceptor
- * (<code>MethodSecurityInterceptor</code>),  since both work with Java
- * <code>Method</code>s.
- * </p>
- * 
- * <p>
- * The secure object type is <code>org.aspectj.lang.JoinPoint</code>, which is
- * passed from the relevant <code>around()</code> advice. The
- * <code>around()</code> advice also passes an anonymous implementation of
- * {@link AspectJCallback} which contains the call for AspectJ to continue
- * processing:  <code>return proceed();</code>.
- * </p>
- * 
- * <P>
- * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.
- * </p>
+ * Provides security interception of AspectJ method invocations.<p>The <code>ObjectDefinitionSource</code> required
+ * by this security interceptor is of type {@link MethodDefinitionSource}. This is shared with the AOP Alliance based
+ * security interceptor (<code>MethodSecurityInterceptor</code>),  since both work with Java <code>Method</code>s.</p>
+ *  <p>The secure object type is <code>org.aspectj.lang.JoinPoint</code>, which is passed from the relevant
+ * <code>around()</code> advice. The <code>around()</code> advice also passes an anonymous implementation of {@link
+ * AspectJCallback} which contains the call for AspectJ to continue processing:  <code>return proceed();</code>.</p>
+ *  <P>Refer to {@link AbstractSecurityInterceptor} for details on the workflow.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class AspectJSecurityInterceptor extends AbstractSecurityInterceptor {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private MethodDefinitionSource objectDefinitionSource;
 
-    //~ Methods ================================================================
-
-    public void setObjectDefinitionSource(MethodDefinitionSource newSource) {
-        this.objectDefinitionSource = newSource;
-    }
+    //~ Methods ========================================================================================================
 
     public MethodDefinitionSource getObjectDefinitionSource() {
         return this.objectDefinitionSource;
@@ -69,14 +51,11 @@ public class AspectJSecurityInterceptor extends AbstractSecurityInterceptor {
     }
 
     /**
-     * This method should be used to enforce security on a
-     * <code>JoinPoint</code>.
+     * This method should be used to enforce security on a <code>JoinPoint</code>.
      *
-     * @param jp The AspectJ joint point being invoked which requires a
-     *        security decision
-     * @param advisorProceed the advice-defined anonymous class that implements
-     *        <code>AspectJCallback</code> containing a simple <code>return
-     *        proceed();</code> statement
+     * @param jp The AspectJ joint point being invoked which requires a security decision
+     * @param advisorProceed the advice-defined anonymous class that implements <code>AspectJCallback</code> containing
+     *        a simple <code>return proceed();</code> statement
      *
      * @return The returned value from the method invocation
      */
@@ -95,5 +74,9 @@ public class AspectJSecurityInterceptor extends AbstractSecurityInterceptor {
 
     public ObjectDefinitionSource obtainObjectDefinitionSource() {
         return this.objectDefinitionSource;
+    }
+
+    public void setObjectDefinitionSource(MethodDefinitionSource newSource) {
+        this.objectDefinitionSource = newSource;
     }
 }

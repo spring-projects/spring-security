@@ -41,42 +41,33 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * <p>
- * Used by the <code>SecurityEnforcementFilter</code> to commence
- * authentication via the {@link AuthenticationProcessingFilter}. This object
- * holds the location of the login form, relative to the web app context path,
- * and is used to commence a redirect to that form.
- * </p>
- * 
- * <p>
- * By setting the <em>forceHttps</em> property to true, you may configure the
- * class to force the protocol used for the login form to be
- * <code>HTTPS</code>, even if the original intercepted request for a resource
- * used the <code>HTTP</code> protocol. When this happens, after a successful
- * login (via HTTPS), the original resource will still be accessed as HTTP,
- * via the original request URL. For the forced HTTPS feature to work, the
- * {@link PortMapper} is consulted to determine the HTTP:HTTPS pairs.
- * </p>
+ * <p>Used by the <code>SecurityEnforcementFilter</code> to commence authentication via the {@link
+ * AuthenticationProcessingFilter}. This object holds the location of the login form, relative to the web app context
+ * path, and is used to commence a redirect to that form.</p>
+ *  <p>By setting the <em>forceHttps</em> property to true, you may configure the class to force the protocol used
+ * for the login form to be <code>HTTPS</code>, even if the original intercepted request for a resource used the
+ * <code>HTTP</code> protocol. When this happens, after a successful login (via HTTPS), the original resource will
+ * still be accessed as HTTP, via the original request URL. For the forced HTTPS feature to work, the {@link
+ * PortMapper} is consulted to determine the HTTP:HTTPS pairs.</p>
  *
  * @author Ben Alex
  * @author colin sampaleanu
  * @author Omri Spector
  * @version $Id$
  */
-public class AuthenticationProcessingFilterEntryPoint
-    implements AuthenticationEntryPoint, InitializingBean {
-    //~ Static fields/initializers =============================================
+public class AuthenticationProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(AuthenticationProcessingFilterEntryPoint.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private PortMapper portMapper = new PortMapperImpl();
     private PortResolver portResolver = new PortResolverImpl();
     private String loginFormUrl;
     private boolean forceHttps = false;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(loginFormUrl, "loginFormUrl must be specified");
@@ -84,8 +75,7 @@ public class AuthenticationProcessingFilterEntryPoint
         Assert.notNull(portResolver, "portResolver must be specified");
     }
 
-    public void commence(ServletRequest request, ServletResponse response,
-        AuthenticationException authException)
+    public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
         throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         String scheme = request.getScheme();
@@ -104,13 +94,11 @@ public class AuthenticationProcessingFilterEntryPoint
             includePort = false;
         }
 
-        String redirectUrl = scheme + "://" + serverName
-            + ((includePort) ? (":" + serverPort) : "") + contextPath
+        String redirectUrl = scheme + "://" + serverName + ((includePort) ? (":" + serverPort) : "") + contextPath
             + loginFormUrl;
 
         if (forceHttps && inHttp) {
-            Integer httpsPort = (Integer) portMapper.lookupHttpsPort(new Integer(
-                        serverPort));
+            Integer httpsPort = (Integer) portMapper.lookupHttpsPort(new Integer(serverPort));
 
             if (httpsPort != null) {
                 if (httpsPort.intValue() == 443) {
@@ -119,8 +107,7 @@ public class AuthenticationProcessingFilterEntryPoint
                     includePort = true;
                 }
 
-                redirectUrl = "https://" + serverName
-                    + ((includePort) ? (":" + httpsPort) : "") + contextPath
+                redirectUrl = "https://" + serverName + ((includePort) ? (":" + httpsPort) : "") + contextPath
                     + loginFormUrl;
             }
         }
@@ -129,8 +116,7 @@ public class AuthenticationProcessingFilterEntryPoint
             logger.debug("Redirecting to: " + redirectUrl);
         }
 
-        ((HttpServletResponse) response).sendRedirect(((HttpServletResponse) response)
-            .encodeRedirectURL(redirectUrl));
+        ((HttpServletResponse) response).sendRedirect(((HttpServletResponse) response).encodeRedirectURL(redirectUrl));
     }
 
     public boolean getForceHttps() {
@@ -150,9 +136,8 @@ public class AuthenticationProcessingFilterEntryPoint
     }
 
     /**
-     * Set to true to force login form access to be via https. If this value is
-     * ture (the default is false), and the incoming request for the protected
-     * resource which triggered the interceptor was not already
+     * Set to true to force login form access to be via https. If this value is ture (the default is false),
+     * and the incoming request for the protected resource which triggered the interceptor was not already
      * <code>https</code>, then
      *
      * @param forceHttps
@@ -162,9 +147,8 @@ public class AuthenticationProcessingFilterEntryPoint
     }
 
     /**
-     * The URL where the <code>AuthenticationProcessingFilter</code> login page
-     * can be found. Should be relative to the web-app context path, and
-     * include a leading <code>/</code>
+     * The URL where the <code>AuthenticationProcessingFilter</code> login page can be found. Should be
+     * relative to the web-app context path, and include a leading <code>/</code>
      *
      * @param loginFormUrl
      */

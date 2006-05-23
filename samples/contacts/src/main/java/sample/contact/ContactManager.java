@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,15 @@ import java.util.List;
  * @version $Id$
  */
 public interface ContactManager {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    public void addPermission(Contact contact, String recipient, Integer permission);
+
+    public void create(Contact contact);
+
+    public void delete(Contact contact);
+
+    public void deletePermission(Contact contact, String recipient);
 
     public List getAll();
 
@@ -34,13 +42,4 @@ public interface ContactManager {
     public Contact getById(Long id);
 
     public Contact getRandomContact();
-
-    public void addPermission(Contact contact, String recipient,
-        Integer permission);
-
-    public void create(Contact contact);
-
-    public void delete(Contact contact);
-
-    public void deletePermission(Contact contact, String recipient);
 }

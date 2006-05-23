@@ -34,14 +34,13 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
 /**
- * Tests {@link
- * org.acegisecurity.intercept.method.MethodInvocationPrivilegeEvaluator}.
+ * Tests {@link org.acegisecurity.intercept.method.MethodInvocationPrivilegeEvaluator}.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MethodInvocationPrivilegeEvaluatorTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public MethodInvocationPrivilegeEvaluatorTests() {
         super();
@@ -51,7 +50,7 @@ public class MethodInvocationPrivilegeEvaluatorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     private Object lookupTargetObject() {
         ApplicationContext context = new ClassPathXmlApplicationContext(
@@ -68,17 +67,14 @@ public class MethodInvocationPrivilegeEvaluatorTests extends TestCase {
         ApplicationContext context = new ClassPathXmlApplicationContext(
                 "org/acegisecurity/intercept/method/aopalliance/applicationContext.xml");
 
-        return (MethodSecurityInterceptor) context.getBean(
-            "securityInterceptor");
+        return (MethodSecurityInterceptor) context.getBean("securityInterceptor");
     }
 
     public void testAllowsAccessUsingCreate() throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_LOWER")});
         Object object = lookupTargetObject();
-        MethodInvocation mi = MethodInvocationUtils.create(object,
-                "makeLowerCase", new Object[] {"foobar"});
+        MethodInvocation mi = MethodInvocationUtils.create(object, "makeLowerCase", new Object[] {"foobar"});
         MethodSecurityInterceptor interceptor = makeSecurityInterceptor();
 
         MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
@@ -90,11 +86,10 @@ public class MethodInvocationPrivilegeEvaluatorTests extends TestCase {
 
     public void testAllowsAccessUsingCreateFromClass()
         throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_LOWER")});
-        MethodInvocation mi = MethodInvocationUtils.createFromClass(ITargetObject.class,
-                "makeLowerCase", new Class[] {String.class});
+        MethodInvocation mi = MethodInvocationUtils.createFromClass(ITargetObject.class, "makeLowerCase",
+                new Class[] {String.class});
         MethodSecurityInterceptor interceptor = makeSecurityInterceptor();
 
         MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
@@ -105,12 +100,10 @@ public class MethodInvocationPrivilegeEvaluatorTests extends TestCase {
     }
 
     public void testDeclinesAccessUsingCreate() throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_NOT_HELD")});
         Object object = lookupTargetObject();
-        MethodInvocation mi = MethodInvocationUtils.create(object,
-                "makeLowerCase", new Object[] {"foobar"});
+        MethodInvocation mi = MethodInvocationUtils.create(object, "makeLowerCase", new Object[] {"foobar"});
         MethodSecurityInterceptor interceptor = makeSecurityInterceptor();
 
         MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
@@ -122,11 +115,10 @@ public class MethodInvocationPrivilegeEvaluatorTests extends TestCase {
 
     public void testDeclinesAccessUsingCreateFromClass()
         throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test",
-                "Password",
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_NOT_HELD")});
-        MethodInvocation mi = MethodInvocationUtils.createFromClass(ITargetObject.class,
-                "makeLowerCase", new Class[] {String.class});
+        MethodInvocation mi = MethodInvocationUtils.createFromClass(ITargetObject.class, "makeLowerCase",
+                new Class[] {String.class});
         MethodSecurityInterceptor interceptor = makeSecurityInterceptor();
 
         MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();

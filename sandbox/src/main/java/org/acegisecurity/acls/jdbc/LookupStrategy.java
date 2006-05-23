@@ -28,20 +28,17 @@ import java.util.Map;
  * @version $Id$
  */
 public interface LookupStrategy {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Perform database-specific optimized lookup.
      *
      * @param objects the identities to lookup (required)
-     * @param sids the SIDs for which identities are required (may be
-     *        <code>null</code> - implementations may elect not to provide SID
-     *        optimisations)
+     * @param sids the SIDs for which identities are required (may be <code>null</code> - implementations may elect not
+     *        to provide SID optimisations)
      *
-     * @return the <code>Map</code> pursuant to the interface contract for
-     *         {@link
-     *         org.acegisecurity.acls.AclService#readAclsById(ObjectIdentity[],
-     *         Sid[])}
+     * @return the <code>Map</code> pursuant to the interface contract for {@link
+     *         org.acegisecurity.acls.AclService#readAclsById(ObjectIdentity[], Sid[])}
      */
     public Map readAclsById(ObjectIdentity[] objects, Sid[] sids);
 }

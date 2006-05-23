@@ -20,24 +20,18 @@ import org.springframework.util.Assert;
 
 /**
  * A <code>static</code> field-based implementation of {@link
- * org.acegisecurity.context.SecurityContextHolderStrategy}.
- * 
- * <p>
- * This means that all instances in the JVM share the same
- * <code>SecurityContext</code>. This is generally useful with rich clients,
- * such as Swing.
- * </p>
+ * org.acegisecurity.context.SecurityContextHolderStrategy}.<p>This means that all instances in the JVM share the
+ * same <code>SecurityContext</code>. This is generally useful with rich clients, such as Swing.</p>
  *
  * @author Ben Alex
  * @version $Id: SecurityContextHolder.java 1324 2006-02-12 06:29:53Z benalex $
  */
-public class GlobalSecurityContextHolderStrategy
-    implements SecurityContextHolderStrategy {
-    //~ Static fields/initializers =============================================
+public class GlobalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
+    //~ Static fields/initializers =====================================================================================
 
     private static SecurityContext contextHolder;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void clearContext() {
         contextHolder = null;
@@ -52,8 +46,7 @@ public class GlobalSecurityContextHolderStrategy
     }
 
     public void setContext(SecurityContext context) {
-        Assert.notNull(context,
-            "Only non-null SecurityContext instances are permitted");
+        Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
         contextHolder = context;
     }
 }

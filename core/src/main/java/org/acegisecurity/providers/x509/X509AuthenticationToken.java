@@ -23,21 +23,20 @@ import java.security.cert.X509Certificate;
 
 
 /**
- * <code>Authentication</code> implementation for X.509 client-certificate
- * authentication.
+ * <code>Authentication</code> implementation for X.509 client-certificate authentication.
  *
  * @author Luke Taylor
  * @version $Id$
  */
 public class X509AuthenticationToken extends AbstractAuthenticationToken {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Object principal;
     private X509Certificate credentials;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Used for an authentication request.  The {@link
      * Authentication#isAuthenticated()} will return <code>false</code>.
      *
@@ -48,7 +47,7 @@ public class X509AuthenticationToken extends AbstractAuthenticationToken {
         this.credentials = credentials;
     }
 
-    /**
+/**
      * Used for an authentication response object. The {@link
      * Authentication#isAuthenticated()} will return <code>true</code>.
      *
@@ -57,15 +56,14 @@ public class X509AuthenticationToken extends AbstractAuthenticationToken {
      * @param credentials the certificate
      * @param authorities the authorities
      */
-    public X509AuthenticationToken(Object principal,
-        X509Certificate credentials, GrantedAuthority[] authorities) {
+    public X509AuthenticationToken(Object principal, X509Certificate credentials, GrantedAuthority[] authorities) {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;
         setAuthenticated(true);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Object getCredentials() {
         return credentials;

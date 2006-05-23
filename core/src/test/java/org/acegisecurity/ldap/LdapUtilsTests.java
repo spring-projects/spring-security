@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,14 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.acegisecurity.ldap;
 
-import org.jmock.MockObjectTestCase;
 import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
 
-import javax.naming.directory.DirContext;
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+
 
 /**
  * Tests {@link LdapUtils}
@@ -28,35 +30,11 @@ import javax.naming.NamingException;
  * @version $Id$
  */
 public class LdapUtilsTests extends MockObjectTestCase {
+    //~ Instance fields ================================================================================================
 
     private final LdapDataAccessException tempCoverageBoost = new LdapDataAccessException("");
 
-    public void testRootDnsAreParsedFromUrlsCorrectly() {
-        assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine"));
-        assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/"));
-        assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/"));
-        assertEquals("dc=acegisecurity,dc=org", LdapUtils.parseRootDnFromUrl("ldaps://monkeymachine.co.uk/dc=acegisecurity,dc=org"));
-        assertEquals("dc=acegisecurity,dc=org", LdapUtils.parseRootDnFromUrl("ldap:///dc=acegisecurity,dc=org"));
-        assertEquals("dc=acegisecurity,dc=org", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/dc=acegisecurity,dc=org"));
-        assertEquals("dc=acegisecurity,dc=org/ou=blah", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/dc=acegisecurity,dc=org/ou=blah"));
-    }
-
-    public void testGetRelativeNameReturnsFullDnWithEmptyBaseName() throws Exception {
-        Mock mockCtx = mock(DirContext.class);
-
-        mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue(""));
-
-        assertEquals("cn=jane,dc=acegisecurity,dc=org",
-                LdapUtils.getRelativeName("cn=jane,dc=acegisecurity,dc=org", (Context) mockCtx.proxy()));
-    }
-
-    public void testGetRelativeNameReturnsEmptyStringForDnEqualToBaseName() throws Exception {
-        Mock mockCtx = mock(DirContext.class);
-
-        mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=acegisecurity,dc=org"));
-
-        assertEquals("", LdapUtils.getRelativeName("dc=acegisecurity,dc=org", (Context) mockCtx.proxy()));
-    }
+    //~ Methods ========================================================================================================
 
     public void testCloseContextSwallowsNamingException() {
         Mock mockCtx = mock(DirContext.class);
@@ -64,5 +42,37 @@ public class LdapUtilsTests extends MockObjectTestCase {
         mockCtx.expects(once()).method("close").will(throwException(new NamingException()));
 
         LdapUtils.closeContext((Context) mockCtx.proxy());
+    }
+
+    public void testGetRelativeNameReturnsEmptyStringForDnEqualToBaseName()
+        throws Exception {
+        Mock mockCtx = mock(DirContext.class);
+
+        mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=acegisecurity,dc=org"));
+
+        assertEquals("", LdapUtils.getRelativeName("dc=acegisecurity,dc=org", (Context) mockCtx.proxy()));
+    }
+
+    public void testGetRelativeNameReturnsFullDnWithEmptyBaseName()
+        throws Exception {
+        Mock mockCtx = mock(DirContext.class);
+
+        mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue(""));
+
+        assertEquals("cn=jane,dc=acegisecurity,dc=org",
+            LdapUtils.getRelativeName("cn=jane,dc=acegisecurity,dc=org", (Context) mockCtx.proxy()));
+    }
+
+    public void testRootDnsAreParsedFromUrlsCorrectly() {
+        assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine"));
+        assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/"));
+        assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/"));
+        assertEquals("dc=acegisecurity,dc=org",
+            LdapUtils.parseRootDnFromUrl("ldaps://monkeymachine.co.uk/dc=acegisecurity,dc=org"));
+        assertEquals("dc=acegisecurity,dc=org", LdapUtils.parseRootDnFromUrl("ldap:///dc=acegisecurity,dc=org"));
+        assertEquals("dc=acegisecurity,dc=org",
+            LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/dc=acegisecurity,dc=org"));
+        assertEquals("dc=acegisecurity,dc=org/ou=blah",
+            LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/dc=acegisecurity,dc=org/ou=blah"));
     }
 }

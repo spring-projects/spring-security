@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,16 @@
 package org.acegisecurity;
 
 /**
- * Thrown if an authorization request could not be processed due to a system
- * problem.
- * 
- * <p>
- * This might be thrown if an <code>AccessDecisionManager</code> implementation
- * could not locate a required method argument, for example.
- * </p>
+ * Thrown if an authorization request could not be processed due to a system problem.<p>This might be thrown if an
+ * <code>AccessDecisionManager</code> implementation could not locate a required method argument, for example.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class AuthorizationServiceException extends AccessDeniedException {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructs an <code>AuthorizationServiceException</code> with the
      * specified message.
      *
@@ -40,7 +35,7 @@ public class AuthorizationServiceException extends AccessDeniedException {
         super(msg);
     }
 
-    /**
+/**
      * Constructs an <code>AuthorizationServiceException</code> with the
      * specified message and root cause.
      *

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,9 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.SecurityConfig;
+
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+
 import org.acegisecurity.util.SimpleMethodInvocation;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -32,7 +34,7 @@ import org.aopalliance.intercept.MethodInvocation;
  * @version $Id$
  */
 public class InterceptorStatusTokenTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public InterceptorStatusTokenTests() {
         super();
@@ -42,7 +44,7 @@ public class InterceptorStatusTokenTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(InterceptorStatusTokenTests.class);
@@ -52,7 +54,7 @@ public class InterceptorStatusTokenTests extends TestCase {
         Class clazz = InterceptorStatusToken.class;
 
         try {
-            clazz.getDeclaredConstructor((Class[])null);
+            clazz.getDeclaredConstructor((Class[]) null);
             fail("Should have thrown NoSuchMethodException");
         } catch (NoSuchMethodException expected) {
             assertTrue(true);
@@ -65,8 +67,8 @@ public class InterceptorStatusTokenTests extends TestCase {
 
         MethodInvocation mi = new SimpleMethodInvocation();
 
-        InterceptorStatusToken token = new InterceptorStatusToken(new UsernamePasswordAuthenticationToken(
-                    "marissa", "koala"), true, attr, mi);
+        InterceptorStatusToken token = new InterceptorStatusToken(new UsernamePasswordAuthenticationToken("marissa",
+                    "koala"), true, attr, mi);
 
         assertTrue(token.isContextHolderRefreshRequired());
         assertEquals(attr, token.getAttr());

@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,29 @@
 
 package org.acegisecurity.providers.ldap.authenticator;
 
-import org.acegisecurity.providers.ldap.LdapAuthenticator;
-import org.acegisecurity.ldap.InitialDirContextFactory;
-import org.acegisecurity.ldap.LdapUserSearch;
-import org.acegisecurity.ldap.LdapEntryMapper;
 import org.acegisecurity.AcegiMessageSource;
+
+import org.acegisecurity.ldap.InitialDirContextFactory;
+import org.acegisecurity.ldap.LdapEntryMapper;
+import org.acegisecurity.ldap.LdapUserSearch;
+
+import org.acegisecurity.providers.ldap.LdapAuthenticator;
+
 import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
-import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.context.MessageSourceAware;
+
 import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+
+import org.springframework.util.Assert;
 
 import java.text.MessageFormat;
-import java.util.List;
+
 import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Base class for the authenticator implementations.
@@ -38,34 +45,30 @@ import java.util.ArrayList;
  * @author Luke Taylor
  * @version $Id$
  */
-public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
-    InitializingBean, MessageSourceAware {
+public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, InitializingBean, MessageSourceAware {
+    //~ Instance fields ================================================================================================
 
-    //~ Instance fields ========================================================
-
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private InitialDirContextFactory initialDirContextFactory;
-
-    //private String[] userDnPattern = null;
-
-    /** Stores the patterns which are used as potential DN matches */
-    private MessageFormat[] userDnFormat = null;
+    private LdapUserDetailsMapper userDetailsMapper = new LdapUserDetailsMapper();
 
     /** Optional search object which can be used to locate a user when a simple DN match isn't sufficient */
     private LdapUserSearch userSearch;
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+
+    /**
+     * The suffix to be added to the DN patterns, worked out internally from the root DN of the configured
+     * InitialDirContextFactory.
+     */
+    private String dnSuffix = "";
 
     /** The attributes which will be retrieved from the directory. Null means all attributes */
     private String[] userAttributes = null;
 
-    private LdapUserDetailsMapper userDetailsMapper = new LdapUserDetailsMapper();
+    //private String[] userDnPattern = null;
+    /** Stores the patterns which are used as potential DN matches */
+    private MessageFormat[] userDnFormat = null;
 
-    /**
-     * The suffix to be added to the DN patterns, worked out internally from the root DN of the
-     * configured InitialDirContextFactory.
-     */
-    private String dnSuffix = "";
-
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     protected AbstractLdapAuthenticator(InitialDirContextFactory initialDirContextFactory) {
         Assert.notNull(initialDirContextFactory, "initialDirContextFactory must not be null.");
@@ -78,16 +81,33 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
         }
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    public void afterPropertiesSet() throws Exception {
+        Assert.isTrue((userDnFormat != null) || (userSearch != null),
+            "Either an LdapUserSearch or DN pattern (or both) must be supplied.");
+    }
+
+    protected InitialDirContextFactory getInitialDirContextFactory() {
+        return initialDirContextFactory;
+    }
+
+    public String[] getUserAttributes() {
+        return userAttributes;
+    }
+
+    protected LdapEntryMapper getUserDetailsMapper() {
+        return userDetailsMapper;
+    }
 
     /**
-     * Builds list of possible DNs for the user, worked out from the
-     * <tt>userDnPatterns</tt> property. The returned value includes the root DN of
-     * the provider URL used to configure the <tt>InitialDirContextfactory</tt>.
+     * Builds list of possible DNs for the user, worked out from the <tt>userDnPatterns</tt> property. The
+     * returned value includes the root DN of the provider URL used to configure the
+     * <tt>InitialDirContextfactory</tt>.
      *
      * @param username the user's login name
-     * @return the list of possible DN matches, empty if <tt>userDnPatterns</tt> wasn't
-     * set.
+     *
+     * @return the list of possible DN matches, empty if <tt>userDnPatterns</tt> wasn't set.
      */
     protected List getUserDns(String username) {
         if (userDnFormat == null) {
@@ -97,29 +117,22 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
         List userDns = new ArrayList(userDnFormat.length);
         String[] args = new String[] {username};
 
-        synchronized( userDnFormat ) {
-            for(int i=0; i < userDnFormat.length; i++) {
-                userDns.add( userDnFormat[i].format(args) + dnSuffix );
+        synchronized (userDnFormat) {
+            for (int i = 0; i < userDnFormat.length; i++) {
+                userDns.add(userDnFormat[i].format(args) + dnSuffix);
             }
         }
 
         return userDns;
     }
 
-    /**
-     * Sets the pattern which will be used to supply a DN for the user.
-     * The pattern should be the name relative to the root DN.
-     * The pattern argument {0} will contain the username.
-     * An example would be "cn={0},ou=people".
-     */
-    public void setUserDnPatterns(String[] dnPattern) {
-        Assert.notNull(dnPattern, "The array of DN patterns cannot be set to null");
-//        this.userDnPattern = dnPattern;
-        userDnFormat = new MessageFormat[dnPattern.length];
+    protected LdapUserSearch getUserSearch() {
+        return userSearch;
+    }
 
-        for (int i=0; i < dnPattern.length; i++) {
-            userDnFormat[i] = new MessageFormat(dnPattern[i]);
-        }
+    public void setMessageSource(MessageSource messageSource) {
+        Assert.notNull("Message source must not be null");
+        this.messages = new MessageSourceAccessor(messageSource);
     }
 
     /**
@@ -132,39 +145,29 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
         this.userAttributes = userAttributes;
     }
 
-    public String[] getUserAttributes() {
-        return userAttributes;
-    }
-
-    public void setUserSearch(LdapUserSearch userSearch) {
-        Assert.notNull(userSearch, "The userSearch cannot be set to null");
-        this.userSearch = userSearch;
-    }
-
     public void setUserDetailsMapper(LdapUserDetailsMapper userDetailsMapper) {
         Assert.notNull("userDetailsMapper must not be null");
         this.userDetailsMapper = userDetailsMapper;
     }
 
-    protected LdapEntryMapper getUserDetailsMapper() {
-        return userDetailsMapper;
+    /**
+     * Sets the pattern which will be used to supply a DN for the user. The pattern should be the name relative
+     * to the root DN. The pattern argument {0} will contain the username. An example would be "cn={0},ou=people".
+     *
+     * @param dnPattern DOCUMENT ME!
+     */
+    public void setUserDnPatterns(String[] dnPattern) {
+        Assert.notNull(dnPattern, "The array of DN patterns cannot be set to null");
+//        this.userDnPattern = dnPattern;
+        userDnFormat = new MessageFormat[dnPattern.length];
+
+        for (int i = 0; i < dnPattern.length; i++) {
+            userDnFormat[i] = new MessageFormat(dnPattern[i]);
+        }
     }
 
-    protected LdapUserSearch getUserSearch() {
-        return userSearch;
-    }
-
-    protected InitialDirContextFactory getInitialDirContextFactory() {
-        return initialDirContextFactory;
-    }
-
-    public void setMessageSource(MessageSource messageSource) {
-        Assert.notNull("Message source must not be null");
-        this.messages = new MessageSourceAccessor(messageSource);
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.isTrue(userDnFormat != null || userSearch != null,
-                "Either an LdapUserSearch or DN pattern (or both) must be supplied.");
+    public void setUserSearch(LdapUserSearch userSearch) {
+        Assert.notNull(userSearch, "The userSearch cannot be set to null");
+        this.userSearch = userSearch;
     }
 }

@@ -17,6 +17,7 @@ package org.acegisecurity.acls;
 
 import org.acegisecurity.acls.sid.Sid;
 
+
 /**
  * A mutable ACL that provides ownership capabilities.
  * 
@@ -29,7 +30,7 @@ import org.acegisecurity.acls.sid.Sid;
  * @version $Id$
  */
 public interface OwnershipAcl extends MutableAcl {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Sid getOwner();
 

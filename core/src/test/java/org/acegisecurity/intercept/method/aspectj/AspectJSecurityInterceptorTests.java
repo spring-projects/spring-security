@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 
 package org.acegisecurity.intercept.method.aspectj;
 
-import java.lang.reflect.Method;
-
 import junit.framework.TestCase;
 
 import org.acegisecurity.AccessDeniedException;
@@ -28,10 +26,15 @@ import org.acegisecurity.MockAuthenticationManager;
 import org.acegisecurity.MockJoinPoint;
 import org.acegisecurity.MockRunAsManager;
 import org.acegisecurity.TargetObject;
+
 import org.acegisecurity.context.SecurityContextHolder;
+
 import org.acegisecurity.intercept.method.MethodDefinitionMap;
 import org.acegisecurity.intercept.method.MethodDefinitionSourceEditor;
+
 import org.acegisecurity.providers.TestingAuthenticationToken;
+
+import java.lang.reflect.Method;
 
 
 /**
@@ -41,7 +44,7 @@ import org.acegisecurity.providers.TestingAuthenticationToken;
  * @version $Id$
  */
 public class AspectJSecurityInterceptorTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AspectJSecurityInterceptorTests() {
         super();
@@ -51,14 +54,14 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AspectJSecurityInterceptorTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testCallbackIsInvokedWhenPermissionGranted()
@@ -70,8 +73,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         si.setRunAsManager(new MockRunAsManager());
 
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
-        editor.setAsText(
-            "org.acegisecurity.TargetObject.countLength=MOCK_ONE,MOCK_TWO");
+        editor.setAsText("org.acegisecurity.TargetObject.countLength=MOCK_ONE,MOCK_TWO");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         si.setObjectDefinitionSource(map);
@@ -80,14 +82,13 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         si.afterPropertiesSet();
 
         Class clazz = TargetObject.class;
-        Method method = clazz.getMethod("countLength",
-                new Class[] {String.class});
+        Method method = clazz.getMethod("countLength", new Class[] {String.class});
         MockJoinPoint joinPoint = new MockJoinPoint(new TargetObject(), method);
 
         MockAspectJCallback aspectJCallback = new MockAspectJCallback();
 
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(
-                "marissa", "koala",
+        SecurityContextHolder.getContext()
+                             .setAuthentication(new TestingAuthenticationToken("marissa", "koala",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_ONE")}));
 
         Object result = si.invoke(joinPoint, aspectJCallback);
@@ -106,8 +107,7 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         si.setRunAsManager(new MockRunAsManager());
 
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
-        editor.setAsText(
-            "org.acegisecurity.TargetObject.countLength=MOCK_ONE,MOCK_TWO");
+        editor.setAsText("org.acegisecurity.TargetObject.countLength=MOCK_ONE,MOCK_TWO");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         si.setObjectDefinitionSource(map);
@@ -115,15 +115,15 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         si.afterPropertiesSet();
 
         Class clazz = TargetObject.class;
-        Method method = clazz.getMethod("countLength",
-                new Class[] {String.class});
+        Method method = clazz.getMethod("countLength", new Class[] {String.class});
         MockJoinPoint joinPoint = new MockJoinPoint(new TargetObject(), method);
 
         MockAspectJCallback aspectJCallback = new MockAspectJCallback();
         aspectJCallback.setThrowExceptionIfInvoked(true);
 
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(
-                "marissa", "koala", new GrantedAuthority[] {}));
+        SecurityContextHolder.getContext()
+                             .setAuthentication(new TestingAuthenticationToken("marissa", "koala",
+                new GrantedAuthority[] {}));
 
         try {
             si.invoke(joinPoint, aspectJCallback);
@@ -135,16 +135,12 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         SecurityContextHolder.getContext().setAuthentication(null);
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockAspectJCallback implements AspectJCallback {
         private boolean throwExceptionIfInvoked = false;
 
         private MockAspectJCallback() {}
-
-        public void setThrowExceptionIfInvoked(boolean throwExceptionIfInvoked) {
-            this.throwExceptionIfInvoked = throwExceptionIfInvoked;
-        }
 
         public Object proceedWithObject() {
             if (throwExceptionIfInvoked) {
@@ -152,6 +148,10 @@ public class AspectJSecurityInterceptorTests extends TestCase {
             }
 
             return "object proceeded";
+        }
+
+        public void setThrowExceptionIfInvoked(boolean throwExceptionIfInvoked) {
+            this.throwExceptionIfInvoked = throwExceptionIfInvoked;
         }
     }
 }

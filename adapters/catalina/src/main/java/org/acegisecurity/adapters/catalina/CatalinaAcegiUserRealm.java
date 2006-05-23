@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,48 +41,27 @@ import java.util.Map;
 
 
 /**
- * Adapter to enable Catalina (Tomcat) to authenticate via the Acegi Security
- * System for Spring.
- * 
- * <p>
- * Returns a {@link PrincipalAcegiUserToken} to Catalina's authentication
- * system, which is subsequently available via
- * <code>HttpServletRequest.getUserPrincipal()</code>.
- * </p>
+ * Adapter to enable Catalina (Tomcat) to authenticate via the Acegi Security System for Spring.<p>Returns a {@link
+ * PrincipalAcegiUserToken} to Catalina's authentication system, which is subsequently available via
+ * <code>HttpServletRequest.getUserPrincipal()</code>.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class CatalinaAcegiUserRealm extends RealmBase {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(CatalinaAcegiUserRealm.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
-    protected final String name = "CatalinaSpringUserRealm / $Id$";
     private AuthenticationManager authenticationManager;
     private Container container;
     private String appContextLocation;
     private String key;
+    protected final String name = "CatalinaSpringUserRealm / $Id$";
 
-    //~ Methods ================================================================
-
-    public void setAppContextLocation(String appContextLocation) {
-        this.appContextLocation = appContextLocation;
-    }
-
-    public String getAppContextLocation() {
-        return appContextLocation;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getKey() {
-        return key;
-    }
+    //~ Methods ========================================================================================================
 
     public Principal authenticate(String username, String credentials) {
         if (username == null) {
@@ -93,25 +72,21 @@ public class CatalinaAcegiUserRealm extends RealmBase {
             credentials = "";
         }
 
-        Authentication request = new UsernamePasswordAuthenticationToken(username,
-                credentials);
+        Authentication request = new UsernamePasswordAuthenticationToken(username, credentials);
         Authentication response = null;
 
         try {
             response = authenticationManager.authenticate(request);
         } catch (AuthenticationException failed) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Authentication request for user: " + username
-                    + " failed: " + failed.toString());
+                logger.debug("Authentication request for user: " + username + " failed: " + failed.toString());
             }
 
             return null;
         }
 
-        return new PrincipalAcegiUserToken(this.key,
-            response.getPrincipal().toString(),
-            response.getCredentials().toString(), response.getAuthorities(),
-            response.getPrincipal());
+        return new PrincipalAcegiUserToken(this.key, response.getPrincipal().toString(),
+            response.getCredentials().toString(), response.getAuthorities(), response.getPrincipal());
     }
 
     public Principal authenticate(String username, byte[] credentials) {
@@ -132,10 +107,9 @@ public class CatalinaAcegiUserRealm extends RealmBase {
      *
      * @return DOCUMENT ME!
      */
-    public java.security.Principal authenticate(java.lang.String username,
-        java.lang.String digest, java.lang.String nonce, java.lang.String nc,
-        java.lang.String cnonce, java.lang.String qop, java.lang.String realm,
-        java.lang.String md5a2) {
+    public java.security.Principal authenticate(java.lang.String username, java.lang.String digest,
+        java.lang.String nonce, java.lang.String nc, java.lang.String cnonce, java.lang.String qop,
+        java.lang.String realm, java.lang.String md5a2) {
         return null;
     }
 
@@ -150,31 +124,12 @@ public class CatalinaAcegiUserRealm extends RealmBase {
         return null;
     }
 
-    public boolean hasRole(Principal principal, String role) {
-        if ((principal == null) || (role == null)) {
-            return false;
-        }
-
-        if (!(principal instanceof PrincipalAcegiUserToken)) {
-            logger.warn(
-                "Expected passed principal to be of type PrincipalAcegiUserToken but was "
-                + principal.getClass().getName());
-
-            return false;
-        }
-
-        PrincipalAcegiUserToken test = (PrincipalAcegiUserToken) principal;
-
-        return test.isUserInRole(role);
+    public String getAppContextLocation() {
+        return appContextLocation;
     }
 
-    /**
-     * Provides the method that Catalina will use to start the container.
-     *
-     * @throws LifecycleException if a problem is detected
-     */
-    public void start() throws LifecycleException {
-        this.start(true);
+    public String getKey() {
+        return key;
     }
 
     protected String getName() {
@@ -203,14 +158,38 @@ public class CatalinaAcegiUserRealm extends RealmBase {
         return null;
     }
 
+    public boolean hasRole(Principal principal, String role) {
+        if ((principal == null) || (role == null)) {
+            return false;
+        }
+
+        if (!(principal instanceof PrincipalAcegiUserToken)) {
+            logger.warn("Expected passed principal to be of type PrincipalAcegiUserToken but was "
+                + principal.getClass().getName());
+
+            return false;
+        }
+
+        PrincipalAcegiUserToken test = (PrincipalAcegiUserToken) principal;
+
+        return test.isUserInRole(role);
+    }
+
+    public void setAppContextLocation(String appContextLocation) {
+        this.appContextLocation = appContextLocation;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
     /**
-     * Provides a method to load the container adapter without delegating to
-     * the superclass, which cannot operate outside the Catalina container.
+     * Provides the method that Catalina will use to start the container.
      *
      * @throws LifecycleException if a problem is detected
      */
-    protected void startForTest() throws LifecycleException {
-        this.start(false);
+    public void start() throws LifecycleException {
+        this.start(true);
     }
 
     private void start(boolean startParent) throws LifecycleException {
@@ -226,17 +205,13 @@ public class CatalinaAcegiUserRealm extends RealmBase {
             throw new LifecycleException("key must be defined");
         }
 
-        File xml = new File(System.getProperty("catalina.base"),
-                appContextLocation);
+        File xml = new File(System.getProperty("catalina.base"), appContextLocation);
 
         if (!xml.exists()) {
-            throw new LifecycleException(
-                "appContextLocation does not seem to exist in "
-                + xml.toString());
+            throw new LifecycleException("appContextLocation does not seem to exist in " + xml.toString());
         }
 
-        FileSystemXmlApplicationContext ctx = new FileSystemXmlApplicationContext(
-                "file:" + xml.getAbsolutePath());
+        FileSystemXmlApplicationContext ctx = new FileSystemXmlApplicationContext("file:" + xml.getAbsolutePath());
         Map beans = ctx.getBeansOfType(AuthenticationManager.class, true, true);
 
         if (beans.size() == 0) {
@@ -247,5 +222,15 @@ public class CatalinaAcegiUserRealm extends RealmBase {
         String beanName = (String) beans.keySet().iterator().next();
         authenticationManager = (AuthenticationManager) beans.get(beanName);
         logger.info("CatalinaAcegiUserRealm Started");
+    }
+
+    /**
+     * Provides a method to load the container adapter without delegating to the superclass, which cannot
+     * operate outside the Catalina container.
+     *
+     * @throws LifecycleException if a problem is detected
+     */
+    protected void startForTest() throws LifecycleException {
+        this.start(false);
     }
 }

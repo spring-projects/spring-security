@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,39 +16,23 @@
 package org.acegisecurity.providers.encoding;
 
 /**
- * <p>
- * Plaintext implementation of PasswordEncoder.
- * </p>
- * 
- * <P>
- * As callers may wish to extract the password and salts separately from the
- * encoded password, the salt must not contain reserved characters
- * (specifically '{' and '}').
- * </p>
+ * <p>Plaintext implementation of PasswordEncoder.</p>
+ *  <P>As callers may wish to extract the password and salts separately from the encoded password, the salt must
+ * not contain reserved characters (specifically '{' and '}').</p>
  *
  * @author colin sampaleanu
  * @author Ben Alex
  * @version $Id$
  */
 public class PlaintextPasswordEncoder extends BasePasswordEncoder {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private boolean ignorePasswordCase = false;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    /**
-     * Indicates whether the password comparison is case sensitive.
-     * 
-     * <P>
-     * Defaults to <code>false</code>, meaning an exact case match is required.
-     * </p>
-     *
-     * @param ignorePasswordCase set to <code>true</code> for less stringent
-     *        comparison
-     */
-    public void setIgnorePasswordCase(boolean ignorePasswordCase) {
-        this.ignorePasswordCase = ignorePasswordCase;
+    public String encodePassword(String rawPass, Object salt) {
+        return mergePasswordAndSalt(rawPass, salt, true);
     }
 
     public boolean isIgnorePasswordCase() {
@@ -70,23 +54,10 @@ public class PlaintextPasswordEncoder extends BasePasswordEncoder {
         }
     }
 
-    public String encodePassword(String rawPass, Object salt) {
-        return mergePasswordAndSalt(rawPass, salt, true);
-    }
-
     /**
-     * Demerges the previously {@link #encodePassword(String,
-     * Object)}<code>String</code>.
-     * 
-     * <P>
-     * The resulting array is guaranteed to always contain two elements. The
-     * first is the password, and the second is the salt.
-     * </p>
-     * 
-     * <P>
-     * Throws an exception if <code>null</code> or an empty <code>String</code>
-     * is passed to the method.
-     * </p>
+     * Demerges the previously {@link #encodePassword(String, Object)}<code>String</code>.<P>The resulting
+     * array is guaranteed to always contain two elements. The first is the password, and the second is the salt.</p>
+     *  <P>Throws an exception if <code>null</code> or an empty <code>String</code> is passed to the method.</p>
      *
      * @param password from {@link #encodePassword(String, Object)}
      *
@@ -94,5 +65,15 @@ public class PlaintextPasswordEncoder extends BasePasswordEncoder {
      */
     public String[] obtainPasswordAndSalt(String password) {
         return demergePasswordAndSalt(password);
+    }
+
+    /**
+     * Indicates whether the password comparison is case sensitive.<P>Defaults to <code>false</code>, meaning
+     * an exact case match is required.</p>
+     *
+     * @param ignorePasswordCase set to <code>true</code> for less stringent comparison
+     */
+    public void setIgnorePasswordCase(boolean ignorePasswordCase) {
+        this.ignorePasswordCase = ignorePasswordCase;
     }
 }

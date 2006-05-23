@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,51 +17,41 @@ package org.acegisecurity.domain.impl;
 
 import org.acegisecurity.domain.PersistableEntity;
 
+
 /**
- * An abstract implementation of {@link
- * org.acegisecurity.domain.PersistableEntity}.
+ * An abstract implementation of {@link org.acegisecurity.domain.PersistableEntity}.
  *
  * @author Ben Alex
  * @version $Id$
- *
- * 
  */
-public abstract class AbstractPersistableEntity extends BusinessObject
-    implements PersistableEntity {
-    //~ Static fields/initializers =============================================
+public abstract class AbstractPersistableEntity extends BusinessObject implements PersistableEntity {
+    //~ Static fields/initializers =====================================================================================
 
     public static final int STARTING_VERSION = 0;
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private int version = STARTING_VERSION;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Indicates whether this persistable entity has been persisted yet.
-     * Determine based on whether the {@link #getInternalId()} returns
-     * <code>null</code> or a non-<code>null</code> value.
-     *
-     * @return <code>true</code> if the instance has not been persisted,
-     *         <code>false</code> otherwise
-     */
-    public boolean isNew() {
-        return (getInternalId() == null);
-    }
-
-    /**
-     * Returns the version number, which should be managed by the persistence
-     * layer.
-     * 
-     * <p>
-     * Initially all <code>PersistableEntity</code>s will commence with the
-     * version number defined by {@link #STARTING_VERSION}.
-     * </p>
+     * Returns the version number, which should be managed by the persistence layer.<p>Initially all
+     * <code>PersistableEntity</code>s will commence with the version number defined by {@link #STARTING_VERSION}.</p>
      *
      * @return the version
      */
     public int getVersion() {
         return version;
+    }
+
+    /**
+     * Indicates whether this persistable entity has been persisted yet. Determine based on whether the {@link
+     * #getInternalId()} returns <code>null</code> or a non-<code>null</code> value.
+     *
+     * @return <code>true</code> if the instance has not been persisted, <code>false</code> otherwise
+     */
+    public boolean isNew() {
+        return (getInternalId() == null);
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,29 +32,23 @@ import javax.servlet.ServletResponse;
  * @version $Id$
  */
 public interface AuthenticationEntryPoint {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Commences an authentication scheme.
-     * 
-     * <P>
-     * <code>SecurityEnforcementFilter</code> will populate the
+     * Commences an authentication scheme.<P><code>SecurityEnforcementFilter</code> will populate the
      * <code>HttpSession</code> attribute named
-     * <code>AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY</code>
-     * with the requested target URL before calling this method.
-     * </p>
-     * 
-     * <P>
-     * Implementations should modify the headers on the
-     * <code>ServletResponse</code> as necessary to commence the
-     * authentication process.
-     * </p>
+     * <code>AuthenticationProcessingFilter.ACEGI_SECURITY_TARGET_URL_KEY</code> with the requested target URL before
+     * calling this method.</p>
+     *  <P>Implementations should modify the headers on the <code>ServletResponse</code> as necessary to
+     * commence the authentication process.</p>
      *
      * @param request that resulted in an <code>AuthenticationException</code>
      * @param response so that the user agent can begin authentication
      * @param authException that caused the invocation
+     *
+     * @throws IOException DOCUMENT ME!
+     * @throws ServletException DOCUMENT ME!
      */
-    public void commence(ServletRequest request, ServletResponse response,
-        AuthenticationException authException)
+    public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
         throws IOException, ServletException;
 }

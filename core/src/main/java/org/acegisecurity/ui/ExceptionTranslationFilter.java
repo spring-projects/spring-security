@@ -49,64 +49,36 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Handles any <code>AccessDeniedException</code> and
- * <code>AuthenticationException</code> thrown within the filter chain.
- * 
- * <p>
- * This filter is necessary because it provides the bridge between Java
- * exceptions and HTTP responses. It is solely concerned with maintaining the
- * user interface. This filter does not do any actual security enforcement.
- * </p>
- * 
- * <p>
- * If an {@link AuthenticationException} is detected, the filter will launch
- * the <code>authenticationEntryPoint</code>. This allows common handling of
- * authentication failures originating from any subclass of {@link
- * org.acegisecurity.intercept.AbstractSecurityInterceptor}.
- * </p>
- * 
- * <p>
- * If an {@link AccessDeniedException} is detected, the filter will determine
- * whether or not the user is an anonymous user. If they are an anonymous
- * user, the <code>authenticationEntryPoint</code> will be launched. If they
- * are not an anonymous user, the filter will delegate to the {@link
- * org.acegisecurity.ui.AccessDeniedHandler}. By default the filter will use
- * {@link org.acegisecurity.ui.AccessDeniedHandlerImpl}.
- * </p>
- * 
- * <p>
- * To use this filter, it is necessary to specify the following properties:
- * </p>
- * 
- * <ul>
- * <li>
- * <code>authenticationEntryPoint</code> indicates the handler that should
- * commence the authentication process if an
- * <code>AuthenticationException</code> is detected. Note that this may also
- * switch the current protocol from http to https for an SSL login.
- * </li>
- * <li>
- * <code>portResolver</code> is used to determine the "real" port that a
- * request was received on.
- * </li>
- * </ul>
- * 
- * <P>
- * <B>Do not use this class directly.</B> Instead configure
- * <code>web.xml</code> to use the {@link
- * org.acegisecurity.util.FilterToBeanProxy}.
- * </p>
+ * Handles any <code>AccessDeniedException</code> and <code>AuthenticationException</code> thrown within the filter
+ * chain.<p>This filter is necessary because it provides the bridge between Java exceptions and HTTP responses. It
+ * is solely concerned with maintaining the user interface. This filter does not do any actual security enforcement.</p>
+ *  <p>If an {@link AuthenticationException} is detected, the filter will launch the
+ * <code>authenticationEntryPoint</code>. This allows common handling of authentication failures originating from any
+ * subclass of {@link org.acegisecurity.intercept.AbstractSecurityInterceptor}.</p>
+ *  <p>If an {@link AccessDeniedException} is detected, the filter will determine whether or not the user is an
+ * anonymous user. If they are an anonymous user, the <code>authenticationEntryPoint</code> will be launched. If they
+ * are not an anonymous user, the filter will delegate to the {@link org.acegisecurity.ui.AccessDeniedHandler}. By
+ * default the filter will use {@link org.acegisecurity.ui.AccessDeniedHandlerImpl}.</p>
+ *  <p>To use this filter, it is necessary to specify the following properties:</p>
+ *  <ul>
+ *      <li><code>authenticationEntryPoint</code> indicates the handler that should commence the authentication
+ *      process if an <code>AuthenticationException</code> is detected. Note that this may also switch the current
+ *      protocol from http to https for an SSL login.</li>
+ *      <li><code>portResolver</code> is used to determine the "real" port that a request was received on.</li>
+ *  </ul>
+ *  <P><B>Do not use this class directly.</B> Instead configure <code>web.xml</code> to use the {@link
+ * org.acegisecurity.util.FilterToBeanProxy}.</p>
  *
  * @author Ben Alex
  * @author colin sampaleanu
  * @version $Id$
  */
 public class ExceptionTranslationFilter implements Filter, InitializingBean {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(ExceptionTranslationFilter.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
     private AuthenticationEntryPoint authenticationEntryPoint;
@@ -114,20 +86,18 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
     private PortResolver portResolver = new PortResolverImpl();
     private boolean createSessionAllowed = true;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(authenticationEntryPoint,
-            "authenticationEntryPoint must be specified");
+        Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint must be specified");
         Assert.notNull(portResolver, "portResolver must be specified");
-        Assert.notNull(authenticationTrustResolver,
-            "authenticationTrustResolver must be specified");
+        Assert.notNull(authenticationTrustResolver, "authenticationTrustResolver must be specified");
     }
 
     public void destroy() {}
 
-    public void doFilter(ServletRequest request, ServletResponse response,
-        FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
         if (!(request instanceof HttpServletRequest)) {
             throw new ServletException("HttpServletRequest required");
         }
@@ -149,8 +119,7 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
         } catch (ServletException ex) {
             if (ex.getRootCause() instanceof AuthenticationException
                 || ex.getRootCause() instanceof AccessDeniedException) {
-                handleException(request, response, chain,
-                    (AcegiSecurityException) ex.getRootCause());
+                handleException(request, response, chain, (AcegiSecurityException) ex.getRootCause());
             } else {
                 throw ex;
             }
@@ -171,36 +140,30 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
         return portResolver;
     }
 
-    private void handleException(ServletRequest request,
-        ServletResponse response, FilterChain chain,
+    private void handleException(ServletRequest request, ServletResponse response, FilterChain chain,
         AcegiSecurityException exception) throws IOException, ServletException {
         if (exception instanceof AuthenticationException) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Authentication exception occurred; redirecting to authentication entry point",
-                    exception);
+                logger.debug("Authentication exception occurred; redirecting to authentication entry point", exception);
             }
 
-            sendStartAuthentication(request, response, chain,
-                (AuthenticationException) exception);
+            sendStartAuthentication(request, response, chain, (AuthenticationException) exception);
         } else if (exception instanceof AccessDeniedException) {
-            if (authenticationTrustResolver.isAnonymous(
-                    SecurityContextHolder.getContext().getAuthentication())) {
+            if (authenticationTrustResolver.isAnonymous(SecurityContextHolder.getContext().getAuthentication())) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Access is denied (user is anonymous); redirecting to authentication entry point",
                         exception);
                 }
 
                 sendStartAuthentication(request, response, chain,
-                    new InsufficientAuthenticationException(
-                        "Full authentication is required to access this resource"));
+                    new InsufficientAuthenticationException("Full authentication is required to access this resource"));
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Access is denied (user is not anonymous); delegating to AccessDeniedHandler",
                         exception);
                 }
 
-                accessDeniedHandler.handle(request, response,
-                    (AccessDeniedException) exception);
+                accessDeniedHandler.handle(request, response, (AccessDeniedException) exception);
             }
         }
     }
@@ -208,52 +171,41 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
     public void init(FilterConfig filterConfig) throws ServletException {}
 
     /**
-     * If <code>true</code>, indicates that
-     * <code>SecurityEnforcementFilter</code> is permitted to store the target
-     * URL and exception information in the <code>HttpSession</code> (the
-     * default). In situations where you do not wish to unnecessarily create
-     * <code>HttpSession</code>s - because the user agent will know the failed
-     * URL, such as with BASIC or Digest authentication - you may wish to set
-     * this property to <code>false</code>. Remember to also set the {@link
-     * org.acegisecurity.context.HttpSessionContextIntegrationFilter#allowSessionCreation}
-     * to <code>false</code> if you set this property to <code>false</code>.
+     * If <code>true</code>, indicates that <code>SecurityEnforcementFilter</code> is permitted to store the
+     * target URL and exception information in the <code>HttpSession</code> (the default). In situations where you do
+     * not wish to unnecessarily create <code>HttpSession</code>s - because the user agent will know the failed URL,
+     * such as with BASIC or Digest authentication - you may wish to set this property to <code>false</code>. Remember
+     * to also set the {@link org.acegisecurity.context.HttpSessionContextIntegrationFilter#allowSessionCreation} to
+     * <code>false</code> if you set this property to <code>false</code>.
      *
-     * @return <code>true</code> if the <code>HttpSession</code> will be used
-     *         to store information about the failed request,
-     *         <code>false</code> if the <code>HttpSession</code> will not be
-     *         used
+     * @return <code>true</code> if the <code>HttpSession</code> will be used to store information about the failed
+     *         request, <code>false</code> if the <code>HttpSession</code> will not be used
      */
     public boolean isCreateSessionAllowed() {
         return createSessionAllowed;
     }
 
-    protected void sendStartAuthentication(ServletRequest request,
-        ServletResponse response, FilterChain chain,
+    protected void sendStartAuthentication(ServletRequest request, ServletResponse response, FilterChain chain,
         AuthenticationException reason) throws ServletException, IOException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
 
         SavedRequest savedRequest = new SavedRequest(httpRequest, portResolver);
 
         if (logger.isDebugEnabled()) {
-            logger.debug(
-                "Authentication entry point being called; SavedRequest added to Session: "
-                + savedRequest);
+            logger.debug("Authentication entry point being called; SavedRequest added to Session: " + savedRequest);
         }
 
         if (createSessionAllowed) {
             // Store the HTTP request itself. Used by AbstractProcessingFilter
             // for redirection after successful authentication (SEC-29)
-            httpRequest.getSession()
-                       .setAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY,
-                savedRequest);
+            httpRequest.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY, savedRequest);
         }
 
         // SEC-112: Clear the SecurityContextHolder's Authentication, as the
         // existing Authentication is no longer considered valid
         SecurityContextHolder.getContext().setAuthentication(null);
 
-        authenticationEntryPoint.commence(httpRequest,
-            (HttpServletResponse) response, reason);
+        authenticationEntryPoint.commence(httpRequest, (HttpServletResponse) response, reason);
     }
 
     public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
@@ -261,13 +213,11 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
         this.accessDeniedHandler = accessDeniedHandler;
     }
 
-    public void setAuthenticationEntryPoint(
-        AuthenticationEntryPoint authenticationEntryPoint) {
+    public void setAuthenticationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint) {
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
-    public void setAuthenticationTrustResolver(
-        AuthenticationTrustResolver authenticationTrustResolver) {
+    public void setAuthenticationTrustResolver(AuthenticationTrustResolver authenticationTrustResolver) {
         this.authenticationTrustResolver = authenticationTrustResolver;
     }
 

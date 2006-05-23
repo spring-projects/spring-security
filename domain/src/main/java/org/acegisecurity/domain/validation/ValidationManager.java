@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,25 +25,18 @@ import org.springframework.validation.BindException;
  * @version $Id$
  */
 public interface ValidationManager {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Validates the passed domain object, along with any children,
-     * grandchildren, great-grandchildren etc.
-     * 
-     * <p>
-     * Before performing validation, implementations must execute {@link
-     * BindBeforeValidation} for any domain objects requesting it.
-     * </p>
+     * Validates the passed domain object, along with any children, grandchildren, great-grandchildren etc.<p>Before
+     * performing validation, implementations must execute {@link BindBeforeValidation} for any domain objects
+     * requesting it.</p>
      *
      * @param domainObject to validate (cannot be <code>null</code>)
      *
      * @throws BindException if a validation problem occurs
-     * @throws ValidatorNotFoundException if no matching <code>Validator</code>
-     *         could be found (and the implementation wishes to treat this as
-     *         an exception condition as opposed to logging it and
-     *         continuing).
+     * @throws ValidatorNotFoundException if no matching <code>Validator</code> could be found (and the implementation
+     *         wishes to treat this as an exception condition as opposed to logging it and continuing).
      */
-    public void validate(Object domainObject)
-        throws BindException, ValidatorNotFoundException;
+    public void validate(Object domainObject) throws BindException, ValidatorNotFoundException;
 }

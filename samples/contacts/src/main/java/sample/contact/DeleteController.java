@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,31 +37,30 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id$
  */
 public class DeleteController implements Controller, InitializingBean {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private ContactManager contactManager;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void setContactManager(ContactManager contact) {
-        this.contactManager = contact;
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(contactManager, "A ContactManager implementation is required");
     }
 
     public ContactManager getContactManager() {
         return contactManager;
     }
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(contactManager,
-            "A ContactManager implementation is required");
-    }
-
-    public ModelAndView handleRequest(HttpServletRequest request,
-        HttpServletResponse response) throws ServletException, IOException {
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
         int id = RequestUtils.getRequiredIntParameter(request, "contactId");
         Contact contact = contactManager.getById(new Long(id));
         contactManager.delete(contact);
 
         return new ModelAndView("deleted", "contact", contact);
+    }
+
+    public void setContactManager(ContactManager contact) {
+        this.contactManager = contact;
     }
 }

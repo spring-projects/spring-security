@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.SecurityConfig;
+
 import org.acegisecurity.intercept.web.FilterInvocation;
+
 import org.acegisecurity.util.SimpleMethodInvocation;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -38,7 +40,7 @@ import java.util.Vector;
  * @version $Id$
  */
 public class AfterInvocationProviderManagerTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AfterInvocationProviderManagerTests() {
         super();
@@ -48,25 +50,22 @@ public class AfterInvocationProviderManagerTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AfterInvocationProviderManagerTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testCorrectOperation() throws Exception {
         AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
         List list = new Vector();
-        list.add(new MockAfterInvocationProvider("swap1",
-                MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP1")));
-        list.add(new MockAfterInvocationProvider("swap2",
-                MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP2")));
-        list.add(new MockAfterInvocationProvider("swap3",
-                MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP3")));
+        list.add(new MockAfterInvocationProvider("swap1", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP1")));
+        list.add(new MockAfterInvocationProvider("swap2", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP2")));
+        list.add(new MockAfterInvocationProvider("swap3", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP3")));
         manager.setProviders(list);
         assertEquals(list, manager.getProviders());
         manager.afterPropertiesSet();
@@ -87,25 +86,16 @@ public class AfterInvocationProviderManagerTests extends TestCase {
         ConfigAttributeDefinition attr4 = new ConfigAttributeDefinition();
         attr4.addConfigAttribute(new SecurityConfig("NEVER_CAUSES_SWAP"));
 
-        assertEquals("swap1",
-            manager.decide(null, new SimpleMethodInvocation(), attr1,
-                "content-before-swapping"));
+        assertEquals("swap1", manager.decide(null, new SimpleMethodInvocation(), attr1, "content-before-swapping"));
 
-        assertEquals("swap2",
-            manager.decide(null, new SimpleMethodInvocation(), attr2,
-                "content-before-swapping"));
+        assertEquals("swap2", manager.decide(null, new SimpleMethodInvocation(), attr2, "content-before-swapping"));
 
-        assertEquals("swap3",
-            manager.decide(null, new SimpleMethodInvocation(), attr3,
-                "content-before-swapping"));
+        assertEquals("swap3", manager.decide(null, new SimpleMethodInvocation(), attr3, "content-before-swapping"));
 
         assertEquals("content-before-swapping",
-            manager.decide(null, new SimpleMethodInvocation(), attr4,
-                "content-before-swapping"));
+            manager.decide(null, new SimpleMethodInvocation(), attr4, "content-before-swapping"));
 
-        assertEquals("swap3",
-            manager.decide(null, new SimpleMethodInvocation(), attr2and3,
-                "content-before-swapping"));
+        assertEquals("swap3", manager.decide(null, new SimpleMethodInvocation(), attr2and3, "content-before-swapping"));
     }
 
     public void testRejectsEmptyProvidersList() {
@@ -123,11 +113,9 @@ public class AfterInvocationProviderManagerTests extends TestCase {
     public void testRejectsNonAfterInvocationProviders() {
         AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
         List list = new Vector();
-        list.add(new MockAfterInvocationProvider("swap1",
-                MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP1")));
+        list.add(new MockAfterInvocationProvider("swap1", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP1")));
         list.add(new Integer(45));
-        list.add(new MockAfterInvocationProvider("swap3",
-                MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP3")));
+        list.add(new MockAfterInvocationProvider("swap3", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP3")));
 
         try {
             manager.setProviders(list);
@@ -152,12 +140,9 @@ public class AfterInvocationProviderManagerTests extends TestCase {
         throws Exception {
         AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
         List list = new Vector();
-        list.add(new MockAfterInvocationProvider("swap1",
-                MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP1")));
-        list.add(new MockAfterInvocationProvider("swap2",
-                MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP2")));
-        list.add(new MockAfterInvocationProvider("swap3",
-                MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP3")));
+        list.add(new MockAfterInvocationProvider("swap1", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP1")));
+        list.add(new MockAfterInvocationProvider("swap2", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP2")));
+        list.add(new MockAfterInvocationProvider("swap3", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP3")));
         manager.setProviders(list);
         manager.afterPropertiesSet();
 
@@ -168,12 +153,9 @@ public class AfterInvocationProviderManagerTests extends TestCase {
     public void testSupportsSecureObjectIteration() throws Exception {
         AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
         List list = new Vector();
-        list.add(new MockAfterInvocationProvider("swap1",
-                MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP1")));
-        list.add(new MockAfterInvocationProvider("swap2",
-                MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP2")));
-        list.add(new MockAfterInvocationProvider("swap3",
-                MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP3")));
+        list.add(new MockAfterInvocationProvider("swap1", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP1")));
+        list.add(new MockAfterInvocationProvider("swap2", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP2")));
+        list.add(new MockAfterInvocationProvider("swap3", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP3")));
         manager.setProviders(list);
         manager.afterPropertiesSet();
 
@@ -181,20 +163,18 @@ public class AfterInvocationProviderManagerTests extends TestCase {
         assertTrue(manager.supports(MethodInvocation.class));
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     /**
-     * Always returns the constructor-defined <code>forceReturnObject</code>,
-     * provided the same configuration attribute was provided. Also stores the
-     * secure object it supports.
+     * Always returns the constructor-defined <code>forceReturnObject</code>, provided the same configuration
+     * attribute was provided. Also stores the secure object it supports.
      */
     private class MockAfterInvocationProvider implements AfterInvocationProvider {
         private Class secureObject;
         private ConfigAttribute configAttribute;
         private Object forceReturnObject;
 
-        public MockAfterInvocationProvider(Object forceReturnObject,
-            Class secureObject, ConfigAttribute configAttribute) {
+        public MockAfterInvocationProvider(Object forceReturnObject, Class secureObject, ConfigAttribute configAttribute) {
             this.forceReturnObject = forceReturnObject;
             this.secureObject = secureObject;
             this.configAttribute = configAttribute;
@@ -202,9 +182,8 @@ public class AfterInvocationProviderManagerTests extends TestCase {
 
         private MockAfterInvocationProvider() {}
 
-        public Object decide(Authentication authentication, Object object,
-            ConfigAttributeDefinition config, Object returnedObject)
-            throws AccessDeniedException {
+        public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+            Object returnedObject) throws AccessDeniedException {
             if (config.contains(configAttribute)) {
                 return forceReturnObject;
             }

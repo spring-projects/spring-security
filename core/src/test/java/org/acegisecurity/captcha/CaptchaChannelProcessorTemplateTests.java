@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.acegisecurity.captcha;
 
 import junit.framework.TestCase;
@@ -19,7 +20,9 @@ import junit.framework.TestCase;
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.MockFilterChain;
 import org.acegisecurity.SecurityConfig;
+
 import org.acegisecurity.context.SecurityContextHolder;
+
 import org.acegisecurity.intercept.web.FilterInvocation;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -37,7 +40,21 @@ import javax.servlet.ServletException;
  * @version $Id$
  */
 public class CaptchaChannelProcessorTemplateTests extends TestCase {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    private MockHttpServletResponse decideWithNewResponse(ConfigAttributeDefinition cad,
+        CaptchaChannelProcessorTemplate processor, MockHttpServletRequest request)
+        throws IOException, ServletException {
+        MockHttpServletResponse response;
+        MockFilterChain chain;
+        FilterInvocation fi;
+        response = new MockHttpServletResponse();
+        chain = new MockFilterChain();
+        fi = new FilterInvocation(request, response, chain);
+        processor.decide(fi, cad);
+
+        return response;
+    }
 
     public void setUp() {
         SecurityContextHolder.clearContext();
@@ -46,7 +63,6 @@ public class CaptchaChannelProcessorTemplateTests extends TestCase {
     public void tearDown() {
         SecurityContextHolder.clearContext();
     }
-
 
     public void testContextRedirect() throws Exception {
         CaptchaChannelProcessorTemplate processor = new TestHumanityCaptchaChannelProcessor();
@@ -80,8 +96,7 @@ public class CaptchaChannelProcessorTemplateTests extends TestCase {
         assertEquals(null, response.getRedirectedUrl());
         processor.setKeyword("Y");
         response = decideWithNewResponse(cad, processor, request);
-        assertEquals("http://localhost:8000/demo/jcaptcha.do",
-            response.getRedirectedUrl());
+        assertEquals("http://localhost:8000/demo/jcaptcha.do", response.getRedirectedUrl());
         context.setHuman();
         response = decideWithNewResponse(cad, processor, request);
         assertEquals(null, response.getRedirectedUrl());
@@ -189,8 +204,7 @@ public class CaptchaChannelProcessorTemplateTests extends TestCase {
     public void testSupports() {
         CaptchaChannelProcessorTemplate processor = new TestHumanityCaptchaChannelProcessor();
         processor.setKeyword("X");
-        assertTrue(processor.supports(
-                new SecurityConfig(processor.getKeyword())));
+        assertTrue(processor.supports(new SecurityConfig(processor.getKeyword())));
 
         assertTrue(processor.supports(new SecurityConfig("X")));
 
@@ -199,25 +213,9 @@ public class CaptchaChannelProcessorTemplateTests extends TestCase {
         assertFalse(processor.supports(new SecurityConfig("NOT_SUPPORTED")));
     }
 
-    private MockHttpServletResponse decideWithNewResponse(
-        ConfigAttributeDefinition cad,
-        CaptchaChannelProcessorTemplate processor,
-        MockHttpServletRequest request) throws IOException, ServletException {
-        MockHttpServletResponse response;
-        MockFilterChain chain;
-        FilterInvocation fi;
-        response = new MockHttpServletResponse();
-        chain = new MockFilterChain();
-        fi = new FilterInvocation(request, response, chain);
-        processor.decide(fi, cad);
+    //~ Inner Classes ==================================================================================================
 
-        return response;
-    }
-
-    //~ Inner Classes ==========================================================
-
-    private class TestHumanityCaptchaChannelProcessor
-        extends CaptchaChannelProcessorTemplate {
+    private class TestHumanityCaptchaChannelProcessor extends CaptchaChannelProcessorTemplate {
         boolean isContextValidConcerningHumanity(CaptchaSecurityContext context) {
             return context.isHuman();
         }

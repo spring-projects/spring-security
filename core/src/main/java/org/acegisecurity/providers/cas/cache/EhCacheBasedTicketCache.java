@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
 
 package org.acegisecurity.providers.cas.cache;
 
-import org.acegisecurity.providers.cas.CasAuthenticationToken;
-import org.acegisecurity.providers.cas.StatelessTicketCache;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+
+import org.acegisecurity.providers.cas.CasAuthenticationToken;
+import org.acegisecurity.providers.cas.StatelessTicketCache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,27 +28,30 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.dao.DataRetrievalFailureException;
+
 import org.springframework.util.Assert;
 
 
 /**
- * Caches tickets using a Spring IoC defined <A
- * HREF="http://ehcache.sourceforge.net">EHCACHE</a>.
+ * Caches tickets using a Spring IoC defined <A HREF="http://ehcache.sourceforge.net">EHCACHE</a>.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class EhCacheBasedTicketCache implements StatelessTicketCache,
-    InitializingBean {
-    //~ Static fields/initializers =============================================
+public class EhCacheBasedTicketCache implements StatelessTicketCache, InitializingBean {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(EhCacheBasedTicketCache.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Cache cache;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
+
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(cache, "cache mandatory");
+    }
 
     public CasAuthenticationToken getByTicketId(String serviceTicket) {
         Element element = null;
@@ -56,13 +59,11 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache,
         try {
             element = cache.get(serviceTicket);
         } catch (CacheException cacheException) {
-            throw new DataRetrievalFailureException("Cache failure: "
-                + cacheException.getMessage());
+            throw new DataRetrievalFailureException("Cache failure: " + cacheException.getMessage());
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Cache hit: " + (element != null)
-                + "; service ticket: " + serviceTicket);
+            logger.debug("Cache hit: " + (element != null) + "; service ticket: " + serviceTicket);
         }
 
         if (element == null) {
@@ -72,16 +73,8 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache,
         }
     }
 
-    public void setCache(Cache cache) {
-        this.cache = cache;
-    }
-
     public Cache getCache() {
         return cache;
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(cache, "cache mandatory");
     }
 
     public void putTicketInCache(CasAuthenticationToken token) {
@@ -104,5 +97,9 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache,
 
     public void removeTicketFromCache(String serviceTicket) {
         cache.remove(serviceTicket);
+    }
+
+    public void setCache(Cache cache) {
+        this.cache = cache;
     }
 }

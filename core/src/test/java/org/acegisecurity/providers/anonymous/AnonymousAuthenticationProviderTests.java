@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.providers.TestingAuthenticationToken;
 
 
@@ -31,7 +32,7 @@ import org.acegisecurity.providers.TestingAuthenticationToken;
  * @version $Id$
  */
 public class AnonymousAuthenticationProviderTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public AnonymousAuthenticationProviderTests() {
         super();
@@ -41,24 +42,22 @@ public class AnonymousAuthenticationProviderTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AnonymousAuthenticationProviderTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testDetectsAnInvalidKey() throws Exception {
         AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
         aap.setKey("qwerty");
 
-        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("WRONG_KEY",
-                "Test",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("WRONG_KEY", "Test",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
 
         try {
             Authentication result = aap.authenticate(token);
@@ -91,8 +90,7 @@ public class AnonymousAuthenticationProviderTests extends TestCase {
         AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
         aap.setKey("qwerty");
 
-        TestingAuthenticationToken token = new TestingAuthenticationToken("user",
-                "password",
+        TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
         assertFalse(aap.supports(TestingAuthenticationToken.class));
 
@@ -104,10 +102,8 @@ public class AnonymousAuthenticationProviderTests extends TestCase {
         AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
         aap.setKey("qwerty");
 
-        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("qwerty",
-                "Test",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl(
-                        "ROLE_TWO")});
+        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("qwerty", "Test",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
 
         Authentication result = aap.authenticate(token);
 

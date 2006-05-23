@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,23 +29,22 @@ import javax.servlet.jsp.tagext.Tag;
 
 
 /**
- * I decided to wrap several JSP tag in one class, so I have to using inner
- * class to wrap these JSP tag.  To using this class, you need to inject
- * Spring Context via SetAppCtx() method. AclTag need Spring Context to get
- * AclManger bean.
+ * I decided to wrap several JSP tag in one class, so I have to using inner class to wrap these JSP tag.  To using
+ * this class, you need to inject Spring Context via SetAppCtx() method. AclTag need Spring Context to get AclManger
+ * bean.
  */
 public class AuthzImpl implements Authz {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     static final int ALL_GRANTED = 1;
     static final int ANY_GRANTED = 2;
     static final int NONE_GRANTED = 3;
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private ApplicationContext appCtx;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public boolean allGranted(String roles) {
         return ifGranted(roles, ALL_GRANTED);
@@ -146,8 +145,7 @@ public class AuthzImpl implements Authz {
                 break;
 
             default:
-                throw new IllegalArgumentException("invalid granted type : "
-                    + grantType + " role=" + roles);
+                throw new IllegalArgumentException("invalid granted type : " + grantType + " role=" + roles);
             }
 
             result = authorizeTag.doStartTag();
@@ -167,8 +165,7 @@ public class AuthzImpl implements Authz {
     }
 
     /**
-     * test case can use this class to mock application context with aclManager
-     * bean in it.
+     * test case can use this class to mock application context with aclManager bean in it.
      *
      * @param appCtx DOCUMENT ME!
      */
@@ -176,13 +173,12 @@ public class AuthzImpl implements Authz {
         this.appCtx = appCtx;
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     /**
-     * AclTag need to access the application context via the <code>
-     * WebApplicationContextUtils</code> and locate an {@link AclManager}.
-     * WebApplicationContextUtils get application context via ServletContext.
-     * I decided to let the Authz provide the Spring application context.
+     * AclTag need to access the application context via the <code> WebApplicationContextUtils</code> and
+     * locate an {@link AclManager}. WebApplicationContextUtils get application context via ServletContext. I decided
+     * to let the Authz provide the Spring application context.
      */
     private class MyAclTag extends AclTag {
         private static final long serialVersionUID = 6752340622125924108L;
@@ -198,9 +194,8 @@ public class AuthzImpl implements Authz {
     }
 
     /**
-     * it must output somthing to JSP page, so have to override the
-     * writeMessage method to avoid JSP related operation. Get Idea from Acegi
-     * Test class.
+     * it must output somthing to JSP page, so have to override the writeMessage method to avoid JSP related
+     * operation. Get Idea from Acegi Test class.
      */
     private class MyAuthenticationTag extends AuthenticationTag {
         private static final long serialVersionUID = -1094246833893599161L;

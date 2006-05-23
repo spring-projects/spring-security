@@ -36,33 +36,27 @@ import java.util.Map;
 
 
 /**
- * Demonstrates accessing the {@link ContactManager} via remoting protocols.
- * 
- * <P>
- * Based on Spring's JPetStore sample, written by Juergen Hoeller.
- * </p>
+ * Demonstrates accessing the {@link ContactManager} via remoting protocols.<P>Based on Spring's JPetStore sample,
+ * written by Juergen Hoeller.</p>
  *
  * @author Ben Alex
  */
 public class ClientApplication {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private final ListableBeanFactory beanFactory;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public ClientApplication(ListableBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void invokeContactManager(Authentication authentication,
-        int nrOfCalls) {
-        StopWatch stopWatch = new StopWatch(nrOfCalls
-                + " ContactManager call(s)");
-        Map contactServices = this.beanFactory.getBeansOfType(ContactManager.class,
-                true, true);
+    public void invokeContactManager(Authentication authentication, int nrOfCalls) {
+        StopWatch stopWatch = new StopWatch(nrOfCalls + " ContactManager call(s)");
+        Map contactServices = this.beanFactory.getBeansOfType(ContactManager.class, true, true);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -72,20 +66,13 @@ public class ClientApplication {
             Object object = this.beanFactory.getBean("&" + beanName);
 
             try {
-                System.out.println(
-                    "Trying to find setUsername(String) method on: "
-                    + object.getClass().getName());
+                System.out.println("Trying to find setUsername(String) method on: " + object.getClass().getName());
 
-                Method method = object.getClass()
-                                      .getMethod("setUsername",
-                        new Class[] {String.class});
-                System.out.println("Found; Trying to setUsername(String) to "
-                    + authentication.getPrincipal());
-                method.invoke(object,
-                    new Object[] {authentication.getPrincipal()});
+                Method method = object.getClass().getMethod("setUsername", new Class[] {String.class});
+                System.out.println("Found; Trying to setUsername(String) to " + authentication.getPrincipal());
+                method.invoke(object, new Object[] {authentication.getPrincipal()});
             } catch (NoSuchMethodException ignored) {
-                System.out.println(
-                    "This client proxy factory does not have a setUsername(String) method");
+                System.out.println("This client proxy factory does not have a setUsername(String) method");
             } catch (IllegalAccessException ignored) {
                 ignored.printStackTrace();
             } catch (InvocationTargetException ignored) {
@@ -93,25 +80,17 @@ public class ClientApplication {
             }
 
             try {
-                System.out.println(
-                    "Trying to find setPassword(String) method on: "
-                    + object.getClass().getName());
+                System.out.println("Trying to find setPassword(String) method on: " + object.getClass().getName());
 
-                Method method = object.getClass()
-                                      .getMethod("setPassword",
-                        new Class[] {String.class});
-                method.invoke(object,
-                    new Object[] {authentication.getCredentials()});
-                System.out.println("Found; Trying to setPassword(String) to "
-                    + authentication.getCredentials());
+                Method method = object.getClass().getMethod("setPassword", new Class[] {String.class});
+                method.invoke(object, new Object[] {authentication.getCredentials()});
+                System.out.println("Found; Trying to setPassword(String) to " + authentication.getCredentials());
             } catch (NoSuchMethodException ignored) {
-                System.out.println(
-                    "This client proxy factory does not have a setPassword(String) method");
+                System.out.println("This client proxy factory does not have a setPassword(String) method");
             } catch (IllegalAccessException ignored) {}
             catch (InvocationTargetException ignored) {}
 
-            ContactManager remoteContactManager = (ContactManager) contactServices
-                .get(beanName);
+            ContactManager remoteContactManager = (ContactManager) contactServices.get(beanName);
             System.out.println("Calling ContactManager '" + beanName + "'");
 
             stopWatch.start(beanName);
@@ -132,8 +111,7 @@ public class ClientApplication {
                     System.out.println("Contact: " + contact.toString());
                 }
             } else {
-                System.out.println(
-                    "No contacts found which this user has permission to");
+                System.out.println("No contacts found which this user has permission to");
             }
 
             System.out.println();
@@ -162,12 +140,10 @@ public class ClientApplication {
                 nrOfCalls = Integer.parseInt(nrOfCallsString);
             }
 
-            ListableBeanFactory beanFactory = new FileSystemXmlApplicationContext(
-                    "clientContext.xml");
+            ListableBeanFactory beanFactory = new FileSystemXmlApplicationContext("clientContext.xml");
             ClientApplication client = new ClientApplication(beanFactory);
 
-            client.invokeContactManager(new UsernamePasswordAuthenticationToken(
-                    username, password), nrOfCalls);
+            client.invokeContactManager(new UsernamePasswordAuthenticationToken(username, password), nrOfCalls);
             System.exit(0);
         }
     }

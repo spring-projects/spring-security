@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,18 +25,18 @@ import org.springframework.util.Assert;
  * @version $Id$
  */
 public class Entity {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     String info;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public Entity(String info) {
         Assert.hasText(info, "Some information must be given!");
         this.info = info;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public String getInfo() {
         return info;

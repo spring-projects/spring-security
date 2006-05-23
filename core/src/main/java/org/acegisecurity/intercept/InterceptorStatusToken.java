@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,38 +20,33 @@ import org.acegisecurity.ConfigAttributeDefinition;
 
 
 /**
- * A return object received by {@link AbstractSecurityInterceptor} subclasses.
- * 
- * <P>
- * This class reflects the status of the security interception, so that the
- * final call to {@link
- * org.acegisecurity.intercept.AbstractSecurityInterceptor#afterInvocation(InterceptorStatusToken,
- * Object)} can tidy up correctly.
- * </p>
+ * A return object received by {@link AbstractSecurityInterceptor} subclasses.<P>This class reflects the status of
+ * the security interception, so that the final call to {@link
+ * org.acegisecurity.intercept.AbstractSecurityInterceptor#afterInvocation(InterceptorStatusToken, Object)} can tidy
+ * up correctly.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class InterceptorStatusToken {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Authentication authentication;
     private ConfigAttributeDefinition attr;
     private Object secureObject;
     private boolean contextHolderRefreshRequired;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    public InterceptorStatusToken(Authentication authentication,
-        boolean contextHolderRefreshRequired, ConfigAttributeDefinition attr,
-        Object secureObject) {
+    public InterceptorStatusToken(Authentication authentication, boolean contextHolderRefreshRequired,
+        ConfigAttributeDefinition attr, Object secureObject) {
         this.authentication = authentication;
         this.contextHolderRefreshRequired = contextHolderRefreshRequired;
         this.attr = attr;
         this.secureObject = secureObject;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public ConfigAttributeDefinition getAttr() {
         return attr;
@@ -61,11 +56,11 @@ public class InterceptorStatusToken {
         return authentication;
     }
 
-    public boolean isContextHolderRefreshRequired() {
-        return contextHolderRefreshRequired;
-    }
-
     public Object getSecureObject() {
         return secureObject;
+    }
+
+    public boolean isContextHolderRefreshRequired() {
+        return contextHolderRefreshRequired;
     }
 }

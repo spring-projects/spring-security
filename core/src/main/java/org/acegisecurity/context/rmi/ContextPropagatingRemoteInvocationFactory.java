@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,25 +22,18 @@ import org.springframework.remoting.support.RemoteInvocationFactory;
 
 
 /**
- * Called by a client-side instance of
- * <code>org.springframework.remoting.rmi.RmiProxyFactoryBean</code> when it
- * wishes to create a remote invocation.
- * 
- * <P>
- * Set an instance of this bean against the above class'
- * <code>remoteInvocationFactory</code> property.
- * </p>
+ * Called by a client-side instance of <code>org.springframework.remoting.rmi.RmiProxyFactoryBean</code> when it
+ * wishes to create a remote invocation.<P>Set an instance of this bean against the above class'
+ * <code>remoteInvocationFactory</code> property.</p>
  *
  * @author James Monaghan
  * @author Ben Alex
  * @version $Id$
  */
-public class ContextPropagatingRemoteInvocationFactory
-    implements RemoteInvocationFactory {
-    //~ Methods ================================================================
+public class ContextPropagatingRemoteInvocationFactory implements RemoteInvocationFactory {
+    //~ Methods ========================================================================================================
 
-    public RemoteInvocation createRemoteInvocation(
-        MethodInvocation methodInvocation) {
+    public RemoteInvocation createRemoteInvocation(MethodInvocation methodInvocation) {
         return new ContextPropagatingRemoteInvocation(methodInvocation);
     }
 }

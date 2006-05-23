@@ -29,11 +29,11 @@ import org.springframework.util.Assert;
  * @see org.acegisecurity.context.HttpSessionContextIntegrationFilter
  */
 public class ThreadLocalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static ThreadLocal contextHolder = new ThreadLocal();
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void clearContext() {
         contextHolder.set(null);
@@ -48,8 +48,7 @@ public class ThreadLocalSecurityContextHolderStrategy implements SecurityContext
     }
 
     public void setContext(SecurityContext context) {
-        Assert.notNull(context,
-            "Only non-null SecurityContext instances are permitted");
+        Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
         contextHolder.set(context);
     }
 }

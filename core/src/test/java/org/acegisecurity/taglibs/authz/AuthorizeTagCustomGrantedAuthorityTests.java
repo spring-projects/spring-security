@@ -34,19 +34,18 @@ import javax.servlet.jsp.tagext.Tag;
  * @version $Id$
  */
 public class AuthorizeTagCustomGrantedAuthorityTests extends TestCase {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private final AuthorizeTag authorizeTag = new AuthorizeTag();
     private TestingAuthenticationToken currentUser;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     protected void setUp() throws Exception {
         super.setUp();
 
         currentUser = new TestingAuthenticationToken("abc", "123",
-                new GrantedAuthority[] {new CustomGrantedAuthority(
-                        "ROLE_TELLER")});
+                new GrantedAuthority[] {new CustomGrantedAuthority("ROLE_TELLER")});
 
         SecurityContextHolder.getContext().setAuthentication(currentUser);
     }
@@ -58,16 +57,14 @@ public class AuthorizeTagCustomGrantedAuthorityTests extends TestCase {
     public void testAllowsRequestWhenCustomAuthorityPresentsCorrectRole()
         throws JspException {
         authorizeTag.setIfAnyGranted("ROLE_TELLER");
-        assertEquals("authorized - ROLE_TELLER in both sets",
-            Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+        assertEquals("authorized - ROLE_TELLER in both sets", Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
     }
 
     public void testRejectsRequestWhenCustomAuthorityReturnsNull()
         throws JspException {
         authorizeTag.setIfAnyGranted("ROLE_TELLER");
         SecurityContextHolder.getContext()
-                             .setAuthentication(new TestingAuthenticationToken(
-                "abc", "123",
+                             .setAuthentication(new TestingAuthenticationToken("abc", "123",
                 new GrantedAuthority[] {new CustomGrantedAuthority(null)}));
 
         try {
@@ -78,7 +75,7 @@ public class AuthorizeTagCustomGrantedAuthorityTests extends TestCase {
         }
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private static class CustomGrantedAuthority implements GrantedAuthority {
         private final String authority;

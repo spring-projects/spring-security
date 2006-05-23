@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@ package org.acegisecurity.acl.basic;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
+
 import org.acegisecurity.acl.AclEntry;
+
 import org.acegisecurity.userdetails.UserDetails;
 
 import org.apache.commons.logging.Log;
@@ -28,45 +30,29 @@ import java.util.Vector;
 
 
 /**
- * Simple implementation of {@link EffectiveAclsResolver}.
- * 
- * <P>
- * This implementation does not need to understand the "recipient" types
- * presented in a <code>BasicAclEntry</code> because it merely delegates to
- * the detected {@link Authentication#getPrincipal()} or {@link
- * Authentication#getAuthorities()}. The principal object or granted
- * authorities object has its <code>Object.equals(recipient)</code> method
- * called to make the decision as to whether the recipient in the
- * <code>BasicAclEntry</code> is the same as the principal or granted
- * authority.
- * </p>
- * 
- * <P>
- * This class should prove an adequate ACLs resolver if you're using standard
- * Acegi Security classes. This is because the typical
- * <code>Authentication</code> token is
- * <code>UsernamePasswordAuthenticationToken</code>, which for its
- * <code>principal</code> is usually a <code>String</code>. The
- * <code>GrantedAuthorityImpl</code> is typically used for granted
- * authorities, which tests for equality based on a <code>String</code>. This
- * means <code>BasicAclDao</code>s simply need to return a <code>String</code>
- * to represent the recipient. If you use non-<code>String</code> objects, you
- * will probably require an alternative <code>EffectiveAclsResolver</code>.
- * </p>
+ * Simple implementation of {@link EffectiveAclsResolver}.<P>This implementation does not need to understand the
+ * "recipient" types presented in a <code>BasicAclEntry</code> because it merely delegates to the detected {@link
+ * Authentication#getPrincipal()} or {@link Authentication#getAuthorities()}. The principal object or granted
+ * authorities object has its <code>Object.equals(recipient)</code> method called to make the decision as to whether
+ * the recipient in the <code>BasicAclEntry</code> is the same as the principal or granted authority.</p>
+ *  <P>This class should prove an adequate ACLs resolver if you're using standard Acegi Security classes. This is
+ * because the typical <code>Authentication</code> token is <code>UsernamePasswordAuthenticationToken</code>, which
+ * for its <code>principal</code> is usually a <code>String</code>. The <code>GrantedAuthorityImpl</code> is typically
+ * used for granted authorities, which tests for equality based on a <code>String</code>. This means
+ * <code>BasicAclDao</code>s simply need to return a <code>String</code> to represent the recipient. If you use
+ * non-<code>String</code> objects, you will probably require an alternative <code>EffectiveAclsResolver</code>.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class GrantedAuthorityEffectiveAclsResolver
-    implements EffectiveAclsResolver {
-    //~ Static fields/initializers =============================================
+public class GrantedAuthorityEffectiveAclsResolver implements EffectiveAclsResolver {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(GrantedAuthorityEffectiveAclsResolver.class);
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public AclEntry[] resolveEffectiveAcls(AclEntry[] allAcls,
-        Authentication filteredBy) {
+    public AclEntry[] resolveEffectiveAcls(AclEntry[] allAcls, Authentication filteredBy) {
         if ((allAcls == null) || (allAcls.length == 0)) {
             return null;
         }
@@ -74,8 +60,7 @@ public class GrantedAuthorityEffectiveAclsResolver
         List list = new Vector();
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Locating AclEntry[]s (from set of "
-                + ((allAcls == null) ? 0 : allAcls.length)
+            logger.debug("Locating AclEntry[]s (from set of " + ((allAcls == null) ? 0 : allAcls.length)
                 + ") that apply to Authentication: " + filteredBy);
         }
 
@@ -84,26 +69,21 @@ public class GrantedAuthorityEffectiveAclsResolver
                 continue;
             }
 
-            Object recipient = ((BasicAclEntry) allAcls[i])
-                .getRecipient();
+            Object recipient = ((BasicAclEntry) allAcls[i]).getRecipient();
 
             // Allow the Authentication's getPrincipal to decide whether
             // the presented recipient is "equal" (allows BasicAclDaos to
             // return Strings rather than proper objects in simple cases)
             if (filteredBy.getPrincipal().equals(recipient)) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Principal matches AclEntry recipient: "
-                        + recipient);
+                    logger.debug("Principal matches AclEntry recipient: " + recipient);
                 }
 
                 list.add(allAcls[i]);
             } else if (filteredBy.getPrincipal() instanceof UserDetails
-                && ((UserDetails) filteredBy.getPrincipal()).getUsername()
-                    .equals(recipient)) {
+                && ((UserDetails) filteredBy.getPrincipal()).getUsername().equals(recipient)) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug(
-                        "Principal (from UserDetails) matches AclEntry recipient: "
-                        + recipient);
+                    logger.debug("Principal (from UserDetails) matches AclEntry recipient: " + recipient);
                 }
 
                 list.add(allAcls[i]);
@@ -127,8 +107,7 @@ public class GrantedAuthorityEffectiveAclsResolver
                 for (int k = 0; k < authorities.length; k++) {
                     if (authorities[k].equals(recipient)) {
                         if (logger.isDebugEnabled()) {
-                            logger.debug("GrantedAuthority: " + authorities[k]
-                                + " matches recipient: " + recipient);
+                            logger.debug("GrantedAuthority: " + authorities[k] + " matches recipient: " + recipient);
                         }
 
                         list.add(allAcls[i]);
@@ -140,15 +119,13 @@ public class GrantedAuthorityEffectiveAclsResolver
         // return null if appropriate (as per interface contract)
         if (list.size() > 0) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Returning effective AclEntry array with "
-                    + list.size() + " elements");
+                logger.debug("Returning effective AclEntry array with " + list.size() + " elements");
             }
 
             return (BasicAclEntry[]) list.toArray(new BasicAclEntry[] {});
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "Returning null AclEntry array as zero effective AclEntrys found");
+                logger.debug("Returning null AclEntry array as zero effective AclEntrys found");
             }
 
             return null;

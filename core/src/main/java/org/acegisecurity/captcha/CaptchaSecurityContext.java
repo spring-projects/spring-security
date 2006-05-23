@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,26 @@ import org.acegisecurity.context.SecurityContext;
  * @author marc antoine garrigue
  */
 public interface CaptchaSecurityContext extends SecurityContext {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * set human attribute, should called after captcha validation.
+     * DOCUMENT ME!
+     *
+     * @return number of human restricted resources requests since the last passed captcha.
      */
-    void setHuman();
+    int getHumanRestrictedResourcesRequestsCount();
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return the date of the last passed Captcha in millis, 0 if the user never passed captcha.
+     */
+    long getLastPassedCaptchaDateInMillis();
+
+    /**
+     * Method to increment the human Restricted Resrouces Requests Count;
+     */
+    void incrementHumanRestrictedRessoucesRequestsCount();
 
     /**
      * DOCUMENT ME!
@@ -39,23 +53,7 @@ public interface CaptchaSecurityContext extends SecurityContext {
     boolean isHuman();
 
     /**
-     * DOCUMENT ME!
-     *
-     * @return number of human restricted resources requests since the last
-     *         passed captcha.
+     * set human attribute, should called after captcha validation.
      */
-    int getHumanRestrictedResourcesRequestsCount();
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return the date of the last passed Captcha in millis, 0 if the user
-     *         never passed captcha.
-     */
-    long getLastPassedCaptchaDateInMillis();
-
-    /**
-     * Method to increment the human Restricted Resrouces Requests Count;
-     */
-    void incrementHumanRestrictedRessoucesRequestsCount();
+    void setHuman();
 }

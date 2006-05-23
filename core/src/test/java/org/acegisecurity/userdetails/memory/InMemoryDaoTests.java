@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import java.util.Properties;
  * @version $Id$
  */
 public class InMemoryDaoTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public InMemoryDaoTests() {
         super();
@@ -42,14 +42,21 @@ public class InMemoryDaoTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(InMemoryDaoTests.class);
+    }
+
+    private UserMap makeUserMap() {
+        UserMapEditor editor = new UserMapEditor();
+        editor.setAsText("marissa=koala,ROLE_ONE,ROLE_TWO,enabled\r\nscott=wombat,ROLE_ONE,ROLE_TWO,enabled");
+
+        return (UserMap) editor.getValue();
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testLookupFails() throws Exception {
@@ -119,13 +126,5 @@ public class InMemoryDaoTests extends TestCase {
         dao.setUserProperties(props);
         assertEquals("koala", dao.loadUserByUsername("marissa").getPassword());
         assertEquals("wombat", dao.loadUserByUsername("scott").getPassword());
-    }
-
-    private UserMap makeUserMap() {
-        UserMapEditor editor = new UserMapEditor();
-        editor.setAsText(
-            "marissa=koala,ROLE_ONE,ROLE_TWO,enabled\r\nscott=wombat,ROLE_ONE,ROLE_TWO,enabled");
-
-        return (UserMap) editor.getValue();
     }
 }

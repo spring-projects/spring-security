@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,11 +45,11 @@ import javax.security.auth.login.LoginException;
  * @version $Id$
  */
 public class JbossAcegiLoginModuleTests extends TestCase {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private final String ADAPTER_KEY = "my_key";
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public JbossAcegiLoginModuleTests() {
         super();
@@ -59,14 +59,14 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(JbossAcegiLoginModuleTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testAdapterAbortsIfAppContextDoesNotContainAnAuthenticationBean()
@@ -74,8 +74,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
-        props.put("appContextLocation",
-            "org/acegisecurity/adapters/adaptertest-invalid.xml");
+        props.put("appContextLocation", "org/acegisecurity/adapters/adaptertest-invalid.xml");
 
         try {
             adapter.initialize(null, null, null, props);
@@ -96,8 +95,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
             adapter.initialize(null, null, null, props);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("appContextLocation must be defined",
-                expected.getMessage());
+            assertEquals("appContextLocation must be defined", expected.getMessage());
         }
 
         props = new Properties();
@@ -108,8 +106,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
             adapter.initialize(null, null, null, props);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("appContextLocation must be defined",
-                expected.getMessage());
+            assertEquals("appContextLocation must be defined", expected.getMessage());
         }
     }
 
@@ -117,8 +114,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
 
         Properties props = new Properties();
-        props.put("appContextLocation",
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        props.put("appContextLocation", "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         try {
             adapter.initialize(null, null, null, props);
@@ -129,8 +125,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
 
         props = new Properties();
         props.put("key", "");
-        props.put("appContextLocation",
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        props.put("appContextLocation", "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         try {
             adapter.initialize(null, null, null, props);
@@ -152,8 +147,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
             adapter.initialize(null, null, null, props);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertTrue("Cannot locate INVALID_PATH".equals(
-                    expected.getMessage()));
+            assertTrue("Cannot locate INVALID_PATH".equals(expected.getMessage()));
         }
     }
 
@@ -162,8 +156,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
-        props.put("appContextLocation",
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        props.put("appContextLocation", "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
 
@@ -181,8 +174,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
-        props.put("appContextLocation",
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        props.put("appContextLocation", "org/acegisecurity/adapters/adaptertest-valid.xml");
         adapter.initialize(null, null, null, props);
         assertTrue(true);
     }
@@ -192,8 +184,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
-        props.put("appContextLocation",
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        props.put("appContextLocation", "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
         CallbackHandler callback = new MockCallbackHandler("marissa", "kangaroo");
@@ -213,8 +204,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
-        props.put("appContextLocation",
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        props.put("appContextLocation", "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
         CallbackHandler callback = new MockCallbackHandler("melissa", "koala");
@@ -233,8 +223,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
-        props.put("appContextLocation",
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        props.put("appContextLocation", "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
         CallbackHandler callback = new MockCallbackHandler("marissa", "koala");
@@ -251,10 +240,8 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) result;
         assertEquals("marissa", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
-        assertEquals("ROLE_TELLER",
-            castResult.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_SUPERVISOR",
-            castResult.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[1].getAuthority());
         assertEquals(ADAPTER_KEY.hashCode(), castResult.getKeyHash());
     }
 
@@ -263,8 +250,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
-        props.put("appContextLocation",
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        props.put("appContextLocation", "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
         CallbackHandler callback = new MockCallbackHandler("marissa", null);
@@ -284,8 +270,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
-        props.put("appContextLocation",
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        props.put("appContextLocation", "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
         CallbackHandler callback = new MockCallbackHandler(null, null);
@@ -305,8 +290,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
-        props.put("appContextLocation",
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        props.put("appContextLocation", "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
         CallbackHandler callback = new MockCallbackHandler(null, "kangaroo");
@@ -325,8 +309,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
-        props.put("appContextLocation",
-            "org/acegisecurity/adapters/adaptertest-valid.xml");
+        props.put("appContextLocation", "org/acegisecurity/adapters/adaptertest-valid.xml");
 
         Subject subject = new Subject();
         CallbackHandler callback = new MockCallbackHandler("marissa", "koala");
@@ -342,7 +325,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         assertTrue(roles.isMember(new SimplePrincipal("ROLE_SUPERVISOR")));
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockCallbackHandler implements CallbackHandler {
         private String password;
@@ -357,8 +340,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
             super();
         }
 
-        public void handle(Callback[] callbacks)
-            throws IOException, UnsupportedCallbackException {
+        public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
             for (int i = 0; i < callbacks.length; i++) {
                 if (callbacks[i] instanceof NameCallback) {
                     ((NameCallback) callbacks[i]).setName(username);
@@ -366,8 +348,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
                     if (this.password == null) {
                         ((PasswordCallback) callbacks[i]).setPassword(null);
                     } else {
-                        ((PasswordCallback) callbacks[i]).setPassword(password
-                            .toCharArray());
+                        ((PasswordCallback) callbacks[i]).setPassword(password.toCharArray());
                     }
                 } else {
                     throw new UnsupportedCallbackException(callbacks[i]);

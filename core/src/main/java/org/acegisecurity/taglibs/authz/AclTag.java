@@ -45,54 +45,40 @@ import javax.servlet.jsp.tagext.TagSupport;
 
 
 /**
- * An implementation of {@link javax.servlet.jsp.tagext.Tag} that allows its
- * body through if some authorizations are granted to the request's principal.
- * 
- * <P>
- * Only works with permissions that are subclasses of {@link
- * org.acegisecurity.acl.basic.BasicAclEntry}.
- * </p>
- * 
- * <p>
- * One or more comma separate integer permissions are specified via the
- * <code>hasPermission</code> attribute. The tag will include its body if
- * <b>any</b> of the integer permissions have been granted to the current
- * <code>Authentication</code> (obtained from the
- * <code>SecurityContextHolder</code>).
- * </p>
- * 
- * <p>
- * For this class to operate it must be able to access the application context
- * via the <code>WebApplicationContextUtils</code> and locate an {@link
- * AclManager}. Application contexts have no need to have more than one
- * <code>AclManager</code> (as a provider-based implementation can be used so
- * that it locates a provider that is authoritative for the given domain
- * object instance), so the first <code>AclManager</code> located will be
- * used.
- * </p>
+ * An implementation of {@link javax.servlet.jsp.tagext.Tag} that allows its body through if some authorizations
+ * are granted to the request's principal.<P>Only works with permissions that are subclasses of {@link
+ * org.acegisecurity.acl.basic.BasicAclEntry}.</p>
+ *  <p>One or more comma separate integer permissions are specified via the <code>hasPermission</code> attribute.
+ * The tag will include its body if <b>any</b> of the integer permissions have been granted to the current
+ * <code>Authentication</code> (obtained from the <code>SecurityContextHolder</code>).</p>
+ *  <p>For this class to operate it must be able to access the application context via the
+ * <code>WebApplicationContextUtils</code> and locate an {@link AclManager}. Application contexts have no need to have
+ * more than one <code>AclManager</code> (as a provider-based implementation can be used so that it locates a provider
+ * that is authoritative for the given domain object instance), so the first <code>AclManager</code> located will be
+ * used.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class AclTag extends TagSupport {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     protected static final Log logger = LogFactory.getLog(AclTag.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Object domainObject;
     private String hasPermission = "";
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public int doStartTag() throws JspException {
         if ((null == hasPermission) || "".equals(hasPermission)) {
             return Tag.SKIP_BODY;
         }
 
-        final String evaledPermissionsString = ExpressionEvaluationUtils
-            .evaluateString("hasPermission", hasPermission, pageContext);
+        final String evaledPermissionsString = ExpressionEvaluationUtils.evaluateString("hasPermission", hasPermission,
+                pageContext);
 
         Integer[] requiredIntegers = null;
 
@@ -105,16 +91,15 @@ public class AclTag extends TagSupport {
         Object resolvedDomainObject = null;
 
         if (domainObject instanceof String) {
-            resolvedDomainObject = ExpressionEvaluationUtils.evaluate("domainObject",
-                    (String) domainObject, Object.class, pageContext);
+            resolvedDomainObject = ExpressionEvaluationUtils.evaluate("domainObject", (String) domainObject,
+                    Object.class, pageContext);
         } else {
             resolvedDomainObject = domainObject;
         }
 
         if (resolvedDomainObject == null) {
             if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "domainObject resolved to null, so including tag body");
+                logger.debug("domainObject resolved to null, so including tag body");
             }
 
             // Of course they have access to a null object!
@@ -130,17 +115,13 @@ public class AclTag extends TagSupport {
             return Tag.SKIP_BODY;
         }
 
-        Authentication auth = SecurityContextHolder.getContext()
-                                                   .getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         ApplicationContext context = getContext(pageContext);
-        String[] beans = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context,
-                AclManager.class, false, false);
+        String[] beans = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context, AclManager.class, false, false);
 
         if (beans.length == 0) {
-            throw new JspException(
-                "No AclManager would found the application context: "
-                + context.toString());
+            throw new JspException("No AclManager would found the application context: " + context.toString());
         }
 
         AclManager aclManager = (AclManager) context.getBean(beans[0]);
@@ -149,10 +130,9 @@ public class AclTag extends TagSupport {
         AclEntry[] acls = aclManager.getAcls(resolvedDomainObject, auth);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Authentication: '" + auth + "' has: "
-                + ((acls == null) ? 0 : acls.length)
-                + " AclEntrys for domain object: '" + resolvedDomainObject
-                + "' from AclManager: '" + aclManager.toString() + "'");
+            logger.debug("Authentication: '" + auth + "' has: " + ((acls == null) ? 0 : acls.length)
+                + " AclEntrys for domain object: '" + resolvedDomainObject + "' from AclManager: '"
+                + aclManager.toString() + "'");
         }
 
         if ((acls == null) || (acls.length == 0)) {
@@ -166,13 +146,10 @@ public class AclTag extends TagSupport {
 
                 // See if principal has any of the required permissions
                 for (int y = 0; y < requiredIntegers.length; y++) {
-                    if (processableAcl.isPermitted(
-                            requiredIntegers[y].intValue())) {
+                    if (processableAcl.isPermitted(requiredIntegers[y].intValue())) {
                         if (logger.isDebugEnabled()) {
-                            logger.debug(
-                                "Including tag body as found permission: "
-                                + requiredIntegers[y] + " due to AclEntry: '"
-                                + processableAcl + "'");
+                            logger.debug("Including tag body as found permission: " + requiredIntegers[y]
+                                + " due to AclEntry: '" + processableAcl + "'");
                         }
 
                         return Tag.EVAL_BODY_INCLUDE;
@@ -191,8 +168,8 @@ public class AclTag extends TagSupport {
     /**
      * Allows test cases to override where application context obtained from.
      *
-     * @param pageContext so the <code>ServletContext</code> can be accessed as
-     *        required by Spring's <code>WebApplicationContextUtils</code>
+     * @param pageContext so the <code>ServletContext</code> can be accessed as required by Spring's
+     *        <code>WebApplicationContextUtils</code>
      *
      * @return the Spring application context (never <code>null</code>)
      */

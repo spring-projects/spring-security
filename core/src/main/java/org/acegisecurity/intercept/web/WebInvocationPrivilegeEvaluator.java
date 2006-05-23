@@ -36,15 +36,15 @@ import org.springframework.util.Assert;
  * @version $Id$
  */
 public class WebInvocationPrivilegeEvaluator implements InitializingBean {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     protected static final Log logger = LogFactory.getLog(WebInvocationPrivilegeEvaluator.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private AbstractSecurityInterceptor securityInterceptor;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(securityInterceptor, "SecurityInterceptor required");
@@ -53,8 +53,7 @@ public class WebInvocationPrivilegeEvaluator implements InitializingBean {
     public boolean isAllowed(FilterInvocation fi, Authentication authentication) {
         Assert.notNull(fi, "FilterInvocation required");
 
-        ConfigAttributeDefinition attrs = securityInterceptor.obtainObjectDefinitionSource()
-                                                             .getAttributes(fi);
+        ConfigAttributeDefinition attrs = securityInterceptor.obtainObjectDefinitionSource().getAttributes(fi);
 
         if (attrs == null) {
             if (securityInterceptor.isRejectPublicInvocations()) {
@@ -64,19 +63,16 @@ public class WebInvocationPrivilegeEvaluator implements InitializingBean {
             return true;
         }
 
-        if ((authentication == null)
-            || (authentication.getAuthorities() == null)
+        if ((authentication == null) || (authentication.getAuthorities() == null)
             || (authentication.getAuthorities().length == 0)) {
             return false;
         }
 
         try {
-            securityInterceptor.getAccessDecisionManager()
-                               .decide(authentication, fi, attrs);
+            securityInterceptor.getAccessDecisionManager().decide(authentication, fi, attrs);
         } catch (AccessDeniedException unauthorized) {
             if (logger.isDebugEnabled()) {
-                logger.debug(fi.toString() + " denied for "
-                    + authentication.toString(), unauthorized);
+                logger.debug(fi.toString() + " denied for " + authentication.toString(), unauthorized);
             }
 
             return false;
@@ -85,12 +81,9 @@ public class WebInvocationPrivilegeEvaluator implements InitializingBean {
         return true;
     }
 
-    public void setSecurityInterceptor(
-        AbstractSecurityInterceptor securityInterceptor) {
-        Assert.notNull(securityInterceptor,
-            "AbstractSecurityInterceptor cannot be null");
-        Assert.isTrue(FilterInvocation.class.equals(
-                securityInterceptor.getSecureObjectClass()),
+    public void setSecurityInterceptor(AbstractSecurityInterceptor securityInterceptor) {
+        Assert.notNull(securityInterceptor, "AbstractSecurityInterceptor cannot be null");
+        Assert.isTrue(FilterInvocation.class.equals(securityInterceptor.getSecureObjectClass()),
             "AbstractSecurityInterceptor does not support FilterInvocations");
         Assert.notNull(securityInterceptor.getAccessDecisionManager(),
             "AbstractSecurityInterceptor must provide a non-null AccessDecisionManager");

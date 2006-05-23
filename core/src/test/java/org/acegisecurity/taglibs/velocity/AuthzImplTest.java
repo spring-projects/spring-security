@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,12 +40,12 @@ import org.springframework.context.support.StaticApplicationContext;
  * DOCUMENT ME!
  */
 public class AuthzImplTest extends TestCase {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private Authz authz = new AuthzImpl();
     private ConfigurableApplicationContext ctx;
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -56,19 +56,18 @@ public class AuthzImplTest extends TestCase {
 
         // Create an AclManager
         AclManager aclManager = new MockAclManager("object1", "marissa",
-                new AclEntry[] {new MockAclEntry(), new SimpleAclEntry(
-                        "marissa", new MockAclObjectIdentity(), null,
-                        SimpleAclEntry.ADMINISTRATION), new SimpleAclEntry(
-                        "marissa", new MockAclObjectIdentity(), null,
-                        SimpleAclEntry.READ)});
+                new AclEntry[] {
+                    new MockAclEntry(),
+                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.ADMINISTRATION),
+                    new SimpleAclEntry("marissa", new MockAclObjectIdentity(), null, SimpleAclEntry.READ)
+                });
 
         // Register the AclManager into our ApplicationContext
         ctx.getBeanFactory().registerSingleton("aclManager", aclManager);
     }
 
     public void testIllegalArgumentExceptionThrownIfHasPermissionNotValidFormat() {
-        Authentication auth = new TestingAuthenticationToken("john", "crow",
-                new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("john", "crow", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         authz.setAppCtx(ctx);
@@ -85,14 +84,12 @@ public class AuthzImplTest extends TestCase {
     }
 
     public void testInclusionDeniedWhenAclManagerUnawareOfObject() {
-        Authentication auth = new TestingAuthenticationToken("marissa",
-                "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         authz.setAppCtx(ctx);
 
-        boolean result = authz.hasPermission(new Integer(54),
-                new Long(SimpleAclEntry.ADMINISTRATION).toString());
+        boolean result = authz.hasPermission(new Integer(54), new Long(SimpleAclEntry.ADMINISTRATION).toString());
 
         assertFalse(result);
 
@@ -100,8 +97,7 @@ public class AuthzImplTest extends TestCase {
     }
 
     public void testInclusionDeniedWhenNoListOfPermissionsGiven() {
-        Authentication auth = new TestingAuthenticationToken("marissa",
-                "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
         authz.setAppCtx(ctx);
 
@@ -113,14 +109,12 @@ public class AuthzImplTest extends TestCase {
     }
 
     public void testInclusionDeniedWhenPrincipalDoesNotHoldAnyPermissions() {
-        Authentication auth = new TestingAuthenticationToken("john", "crow",
-                new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("john", "crow", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         authz.setAppCtx(ctx);
 
-        String permissions = new Integer(SimpleAclEntry.ADMINISTRATION) + ","
-            + new Integer(SimpleAclEntry.READ);
+        String permissions = new Integer(SimpleAclEntry.ADMINISTRATION) + "," + new Integer(SimpleAclEntry.READ);
 
         boolean result = authz.hasPermission("object1", permissions);
 
@@ -130,8 +124,7 @@ public class AuthzImplTest extends TestCase {
     }
 
     public void testInclusionDeniedWhenPrincipalDoesNotHoldRequiredPermissions() {
-        Authentication auth = new TestingAuthenticationToken("marissa",
-                "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
         authz.setAppCtx(ctx);
 
@@ -169,14 +162,12 @@ public class AuthzImplTest extends TestCase {
     }
 
     public void testOperationWhenPrincipalHoldsPermissionOfMultipleList() {
-        Authentication auth = new TestingAuthenticationToken("marissa",
-                "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         authz.setAppCtx(ctx);
 
-        String permissions = new Integer(SimpleAclEntry.ADMINISTRATION) + ","
-            + new Integer(SimpleAclEntry.READ);
+        String permissions = new Integer(SimpleAclEntry.ADMINISTRATION) + "," + new Integer(SimpleAclEntry.READ);
 
         boolean result = authz.hasPermission("object1", permissions);
 
@@ -186,8 +177,7 @@ public class AuthzImplTest extends TestCase {
     }
 
     public void testOperationWhenPrincipalHoldsPermissionOfSingleList() {
-        Authentication auth = new TestingAuthenticationToken("marissa",
-                "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         authz.setAppCtx(ctx);
@@ -204,26 +194,22 @@ public class AuthzImplTest extends TestCase {
      * Test method for 'com.alibaba.exodus2.web.common.security.pulltool.AuthzImpl.getPrincipal()'
      */
     public void testOperationWhenPrincipalIsAString() {
-        Authentication auth = new TestingAuthenticationToken("marissaAsString",
-                "koala", new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken("marissaAsString", "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         assertEquals("marissaAsString", authz.getPrincipal());
     }
 
     public void testOperationWhenPrincipalIsAUserDetailsInstance() {
-        Authentication auth = new TestingAuthenticationToken(new User(
-                    "marissaUserDetails", "koala", true, true, true, true,
-                    new GrantedAuthority[] {}), "koala",
-                new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken(new User("marissaUserDetails", "koala", true, true, true,
+                    true, new GrantedAuthority[] {}), "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         assertEquals("marissaUserDetails", authz.getPrincipal());
     }
 
     public void testOperationWhenPrincipalIsNull() {
-        Authentication auth = new TestingAuthenticationToken(null, "koala",
-                new GrantedAuthority[] {});
+        Authentication auth = new TestingAuthenticationToken(null, "koala", new GrantedAuthority[] {});
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         assertNull(authz.getPrincipal());
@@ -237,7 +223,7 @@ public class AuthzImplTest extends TestCase {
         SecurityContextHolder.getContext().setAuthentication(null);
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockAclEntry implements AclEntry {
         private static final long serialVersionUID = 1L;

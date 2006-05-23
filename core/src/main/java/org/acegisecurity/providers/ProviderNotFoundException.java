@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,16 @@ import org.acegisecurity.AuthenticationException;
 
 
 /**
- * Thrown by {@link ProviderManager} if no  {@link AuthenticationProvider}
- * could be found that supports the presented {@link
- * org.acegisecurity.Authentication} object.
+ * Thrown by {@link ProviderManager} if no  {@link AuthenticationProvider} could be found that supports the
+ * presented {@link org.acegisecurity.Authentication} object.
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class ProviderNotFoundException extends AuthenticationException {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructs a <code>ProviderNotFoundException</code> with the specified
      * message.
      *
@@ -39,7 +38,7 @@ public class ProviderNotFoundException extends AuthenticationException {
         super(msg);
     }
 
-    /**
+/**
      * Constructs a <code>ProviderNotFoundException</code> with the specified
      * message and root cause.
      *

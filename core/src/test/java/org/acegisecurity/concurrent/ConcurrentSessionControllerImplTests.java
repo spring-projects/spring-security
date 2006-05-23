@@ -34,11 +34,10 @@ import org.springframework.mock.web.MockHttpSession;
  * @version $Id$
  */
 public class ConcurrentSessionControllerImplTests extends TestCase {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     private Authentication createAuthentication(String user, String password) {
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user,
-                password);
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, password);
         auth.setDetails(createWebDetails(auth));
 
         return auth;
@@ -64,8 +63,7 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         sc.checkAuthenticationAllowed(auth);
         sc.registerSuccessfulAuthentication(auth);
 
-        String sessionId1 = ((WebAuthenticationDetails) auth.getDetails())
-            .getSessionId();
+        String sessionId1 = ((WebAuthenticationDetails) auth.getDetails()).getSessionId();
         assertFalse(registry.getSessionInformation(sessionId1).isExpired());
 
         // Attempt to authenticate again - it should still be successful
@@ -92,8 +90,7 @@ public class ConcurrentSessionControllerImplTests extends TestCase {
         sc.checkAuthenticationAllowed(auth3);
         sc.registerSuccessfulAuthentication(auth3);
 
-        String sessionId3 = ((WebAuthenticationDetails) auth3.getDetails())
-            .getSessionId();
+        String sessionId3 = ((WebAuthenticationDetails) auth3.getDetails()).getSessionId();
         assertTrue(registry.getSessionInformation(sessionId1).isExpired());
         assertFalse(registry.getSessionInformation(sessionId3).isExpired());
     }

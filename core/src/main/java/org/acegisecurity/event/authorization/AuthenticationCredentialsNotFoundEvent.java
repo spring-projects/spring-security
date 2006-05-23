@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,23 +20,21 @@ import org.acegisecurity.ConfigAttributeDefinition;
 
 
 /**
- * Indicates a secure object invocation failed because the
- * <code>Authentication</code> could not be obtained from the
- * <code>SecurityContextHolder</code>.
+ * Indicates a secure object invocation failed because the <code>Authentication</code> could not be obtained from
+ * the <code>SecurityContextHolder</code>.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthenticationCredentialsNotFoundEvent
-    extends AbstractAuthorizationEvent {
-    //~ Instance fields ========================================================
+public class AuthenticationCredentialsNotFoundEvent extends AbstractAuthorizationEvent {
+    //~ Instance fields ================================================================================================
 
     private AuthenticationCredentialsNotFoundException credentialsNotFoundException;
     private ConfigAttributeDefinition configAttributeDefinition;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Construct the event.
      *
      * @param secureObject the secure object
@@ -46,21 +44,19 @@ public class AuthenticationCredentialsNotFoundEvent
      *
      * @throws IllegalArgumentException DOCUMENT ME!
      */
-    public AuthenticationCredentialsNotFoundEvent(Object secureObject,
-        ConfigAttributeDefinition configAttribs,
+    public AuthenticationCredentialsNotFoundEvent(Object secureObject, ConfigAttributeDefinition configAttribs,
         AuthenticationCredentialsNotFoundException credentialsNotFoundException) {
         super(secureObject);
 
         if ((configAttribs == null) || (credentialsNotFoundException == null)) {
-            throw new IllegalArgumentException(
-                "All parameters are required and cannot be null");
+            throw new IllegalArgumentException("All parameters are required and cannot be null");
         }
 
         this.configAttributeDefinition = configAttribs;
         this.credentialsNotFoundException = credentialsNotFoundException;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public ConfigAttributeDefinition getConfigAttributeDefinition() {
         return configAttributeDefinition;

@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ import org.mortbay.http.UserPrincipal;
  * @version $Id$
  */
 public class JettyAcegiUserRealmTests extends TestCase {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private final String ADAPTER_KEY = "my_key";
     private final String REALM_NAME = "Acegi Powered Realm";
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public JettyAcegiUserRealmTests() {
         super();
@@ -42,14 +42,21 @@ public class JettyAcegiUserRealmTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(JettyAcegiUserRealmTests.class);
+    }
+
+    private JettyAcegiUserRealm makeAdapter(String fileName)
+        throws Exception {
+        String useFile = "org/acegisecurity/adapters/" + fileName;
+
+        return new JettyAcegiUserRealm(REALM_NAME, ADAPTER_KEY, useFile);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testAdapterAbortsIfAppContextDoesNotContainAnAuthenticationBean()
@@ -69,16 +76,14 @@ public class JettyAcegiUserRealmTests extends TestCase {
             new JettyAcegiUserRealm(REALM_NAME, ADAPTER_KEY, null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("appContextLocation must be specified",
-                expected.getMessage());
+            assertEquals("appContextLocation must be specified", expected.getMessage());
         }
 
         try {
             new JettyAcegiUserRealm(REALM_NAME, ADAPTER_KEY, "");
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("appContextLocation must be specified",
-                expected.getMessage());
+            assertEquals("appContextLocation must be specified", expected.getMessage());
         }
     }
 
@@ -118,8 +123,7 @@ public class JettyAcegiUserRealmTests extends TestCase {
     public void testAdapterAbortsWithIncorrectApplicationContextLocation()
         throws Exception {
         try {
-            new JettyAcegiUserRealm(REALM_NAME, ADAPTER_KEY,
-                "SOME_INVALID_LOCATION");
+            new JettyAcegiUserRealm(REALM_NAME, ADAPTER_KEY, "SOME_INVALID_LOCATION");
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(expected.getMessage().startsWith("Cannot locate"));
@@ -160,10 +164,8 @@ public class JettyAcegiUserRealmTests extends TestCase {
         JettyAcegiUserToken castResult = (JettyAcegiUserToken) result;
         assertEquals("marissa", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
-        assertEquals("ROLE_TELLER",
-            castResult.getAuthorities()[0].getAuthority());
-        assertEquals("ROLE_SUPERVISOR",
-            castResult.getAuthorities()[1].getAuthority());
+        assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
+        assertEquals("ROLE_SUPERVISOR", castResult.getAuthorities()[1].getAuthority());
         assertEquals(ADAPTER_KEY.hashCode(), castResult.getKeyHash());
     }
 
@@ -217,29 +219,19 @@ public class JettyAcegiUserRealmTests extends TestCase {
         assertEquals(user, adapter.pushRole(user, "SOME_ROLE"));
     }
 
-    private JettyAcegiUserRealm makeAdapter(String fileName)
-        throws Exception {
-        String useFile = "org/acegisecurity/adapters/" + fileName;
-
-        return new JettyAcegiUserRealm(REALM_NAME, ADAPTER_KEY, useFile);
-    }
-
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockUserPrincipal implements UserPrincipal {
-        public boolean isAuthenticated() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
+        public String getName() {
+            throw new UnsupportedOperationException("mock method not implemented");
         }
 
-        public String getName() {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
+        public boolean isAuthenticated() {
+            throw new UnsupportedOperationException("mock method not implemented");
         }
 
         public boolean isUserInRole(String arg0) {
-            throw new UnsupportedOperationException(
-                "mock method not implemented");
+            throw new UnsupportedOperationException("mock method not implemented");
         }
     }
 }

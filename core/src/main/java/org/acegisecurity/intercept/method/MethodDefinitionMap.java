@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,44 +31,29 @@ import java.util.Map;
 
 
 /**
- * Stores a {@link ConfigAttributeDefinition} for each method signature defined
- * in a bean context.
- * 
- * <p>
- * For consistency with {@link MethodDefinitionAttributes} as well as support
- * for <code>MethodDefinitionSourceAdvisor</code>, this implementation will
- * return a <code>ConfigAttributeDefinition</code> containing all
- * configuration attributes defined against:
- * 
- * <ul>
- * <li>
- * The method-specific attributes defined for the intercepted method of the
- * intercepted class.
- * </li>
- * <li>
- * The method-specific attributes defined by any explicitly implemented
- * interface if that interface contains a method signature matching that of
- * the intercepted method.
- * </li>
- * </ul>
- * </p>
- * 
- * <p>
- * In general you should therefore define the <b>interface method</b>s of your
- * secure objects, not the implementations. For example, define
- * <code>com.company.Foo.findAll=ROLE_TEST</code> but not
- * <code>com.company.FooImpl.findAll=ROLE_TEST</code>.
- * </p>
+ * Stores a {@link ConfigAttributeDefinition} for each method signature defined in a bean context.<p>For
+ * consistency with {@link MethodDefinitionAttributes} as well as support for
+ * <code>MethodDefinitionSourceAdvisor</code>, this implementation will return a
+ * <code>ConfigAttributeDefinition</code> containing all configuration attributes defined against:
+ *  <ul>
+ *      <li>The method-specific attributes defined for the intercepted method of the intercepted class.</li>
+ *      <li>The method-specific attributes defined by any explicitly implemented interface if that interface
+ *      contains a method signature matching that of the intercepted method.</li>
+ *  </ul>
+ *  </p>
+ *  <p>In general you should therefore define the <b>interface method</b>s of your secure objects, not the
+ * implementations. For example, define <code>com.company.Foo.findAll=ROLE_TEST</code> but not
+ * <code>com.company.FooImpl.findAll=ROLE_TEST</code>.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(MethodDefinitionMap.class);
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     /** Map from Method to ApplicationDefinition */
     protected Map methodMap = new HashMap();
@@ -76,49 +61,23 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
     /** Map from Method to name pattern used for registration */
     private Map nameMap = new HashMap();
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * Obtains the configuration attributes explicitly defined against this
-     * bean. This method will not return implicit configuration attributes
-     * that may be returned by {@link #lookupAttributes(Method)} as it does
-     * not have access to a method invocation at this time.
-     *
-     * @return the attributes explicitly defined against this bean
-     */
-    public Iterator getConfigAttributeDefinitions() {
-        return methodMap.values().iterator();
-    }
-
-    /**
-     * Obtains the number of configuration attributes explicitly defined
-     * against this bean. This method will not return implicit configuration
-     * attributes that may be returned by {@link #lookupAttributes(Method)} as
-     * it does not have access to a method invocation at this time.
-     *
-     * @return the number of configuration attributes explicitly defined
-     *         against this bean
-     */
-    public int getMethodMapSize() {
-        return this.methodMap.size();
-    }
-
-    /**
-     * Add configuration attributes for a secure method. Method names can end
-     * or start with <code>&#42</code> for matching multiple methods.
+     * Add configuration attributes for a secure method. Method names can end or start with <code>&#42</code>
+     * for matching multiple methods.
      *
      * @param method the method to be secured
      * @param attr required authorities associated with the method
      */
     public void addSecureMethod(Method method, ConfigAttributeDefinition attr) {
-        logger.info("Adding secure method [" + method + "] with attributes ["
-            + attr + "]");
+        logger.info("Adding secure method [" + method + "] with attributes [" + attr + "]");
         this.methodMap.put(method, attr);
     }
 
     /**
-     * Add configuration attributes for a secure method. Method names can end
-     * or start with <code>&#42</code> for matching multiple methods.
+     * Add configuration attributes for a secure method. Method names can end or start with <code>&#42</code>
+     * for matching multiple methods.
      *
      * @param name class and method name, separated by a dot
      * @param attr required authorities associated with the method
@@ -129,26 +88,23 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
         int lastDotIndex = name.lastIndexOf(".");
 
         if (lastDotIndex == -1) {
-            throw new IllegalArgumentException("'" + name
-                + "' is not a valid method name: format is FQN.methodName");
+            throw new IllegalArgumentException("'" + name + "' is not a valid method name: format is FQN.methodName");
         }
 
         String className = name.substring(0, lastDotIndex);
         String methodName = name.substring(lastDotIndex + 1);
 
         try {
-            Class clazz = Class.forName(className, true,
-                    Thread.currentThread().getContextClassLoader());
+            Class clazz = Class.forName(className, true, Thread.currentThread().getContextClassLoader());
             addSecureMethod(clazz, methodName, attr);
         } catch (ClassNotFoundException ex) {
-            throw new IllegalArgumentException("Class '" + className
-                + "' not found");
+            throw new IllegalArgumentException("Class '" + className + "' not found");
         }
     }
 
     /**
-     * Add configuration attributes for a secure method. Method names can end
-     * or start with <code>&#42</code> for matching multiple methods.
+     * Add configuration attributes for a secure method. Method names can end or start with <code>&#42</code>
+     * for matching multiple methods.
      *
      * @param clazz target interface or class
      * @param mappedName mapped method name
@@ -156,28 +112,24 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
      *
      * @throws IllegalArgumentException DOCUMENT ME!
      */
-    public void addSecureMethod(Class clazz, String mappedName,
-        ConfigAttributeDefinition attr) {
+    public void addSecureMethod(Class clazz, String mappedName, ConfigAttributeDefinition attr) {
         String name = clazz.getName() + '.' + mappedName;
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Adding secure method [" + name
-                + "] with attributes [" + attr + "]");
+            logger.debug("Adding secure method [" + name + "] with attributes [" + attr + "]");
         }
 
         Method[] methods = clazz.getDeclaredMethods();
         List matchingMethods = new ArrayList();
 
         for (int i = 0; i < methods.length; i++) {
-            if (methods[i].getName().equals(mappedName)
-                || isMatch(methods[i].getName(), mappedName)) {
+            if (methods[i].getName().equals(mappedName) || isMatch(methods[i].getName(), mappedName)) {
                 matchingMethods.add(methods[i]);
             }
         }
 
         if (matchingMethods.isEmpty()) {
-            throw new IllegalArgumentException("Couldn't find method '"
-                + mappedName + "' on " + clazz);
+            throw new IllegalArgumentException("Couldn't find method '" + mappedName + "' on " + clazz);
         }
 
         // register all matching methods
@@ -185,33 +137,64 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
             Method method = (Method) it.next();
             String regMethodName = (String) this.nameMap.get(method);
 
-            if ((regMethodName == null)
-                || (!regMethodName.equals(name)
-                && (regMethodName.length() <= name.length()))) {
+            if ((regMethodName == null) || (!regMethodName.equals(name) && (regMethodName.length() <= name.length()))) {
                 // no already registered method name, or more specific
                 // method name specification now -> (re-)register method
                 if (regMethodName != null) {
-                    logger.debug("Replacing attributes for secure method ["
-                        + method + "]: current name [" + name
+                    logger.debug("Replacing attributes for secure method [" + method + "]: current name [" + name
                         + "] is more specific than [" + regMethodName + "]");
                 }
 
                 this.nameMap.put(method, name);
                 addSecureMethod(method, attr);
             } else {
-                logger.debug("Keeping attributes for secure method [" + method
-                    + "]: current name [" + name
+                logger.debug("Keeping attributes for secure method [" + method + "]: current name [" + name
                     + "] is not more specific than [" + regMethodName + "]");
             }
         }
+    }
+
+    /**
+     * Obtains the configuration attributes explicitly defined against this bean. This method will not return
+     * implicit configuration attributes that may be returned by {@link #lookupAttributes(Method)} as it does not have
+     * access to a method invocation at this time.
+     *
+     * @return the attributes explicitly defined against this bean
+     */
+    public Iterator getConfigAttributeDefinitions() {
+        return methodMap.values().iterator();
+    }
+
+    /**
+     * Obtains the number of configuration attributes explicitly defined against this bean. This method will
+     * not return implicit configuration attributes that may be returned by {@link #lookupAttributes(Method)} as it
+     * does not have access to a method invocation at this time.
+     *
+     * @return the number of configuration attributes explicitly defined against this bean
+     */
+    public int getMethodMapSize() {
+        return this.methodMap.size();
+    }
+
+    /**
+     * Return if the given method name matches the mapped name. The default implementation checks for "xxx" and
+     * "xxx" matches.
+     *
+     * @param methodName the method name of the class
+     * @param mappedName the name in the descriptor
+     *
+     * @return if the names match
+     */
+    private boolean isMatch(String methodName, String mappedName) {
+        return (mappedName.endsWith("*") && methodName.startsWith(mappedName.substring(0, mappedName.length() - 1)))
+        || (mappedName.startsWith("*") && methodName.endsWith(mappedName.substring(1, mappedName.length())));
     }
 
     protected ConfigAttributeDefinition lookupAttributes(Method method) {
         ConfigAttributeDefinition definition = new ConfigAttributeDefinition();
 
         // Add attributes explictly defined for this method invocation
-        ConfigAttributeDefinition directlyAssigned = (ConfigAttributeDefinition) this.methodMap
-            .get(method);
+        ConfigAttributeDefinition directlyAssigned = (ConfigAttributeDefinition) this.methodMap.get(method);
         merge(definition, directlyAssigned);
 
         // Add attributes explicitly defined for this method invocation's interfaces
@@ -222,10 +205,8 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
 
             try {
                 // Look for the method on the current interface
-                Method interfaceMethod = clazz.getDeclaredMethod(method.getName(),
-                        (Class[]) method.getParameterTypes());
-                ConfigAttributeDefinition interfaceAssigned = (ConfigAttributeDefinition) this.methodMap
-                    .get(interfaceMethod);
+                Method interfaceMethod = clazz.getDeclaredMethod(method.getName(), (Class[]) method.getParameterTypes());
+                ConfigAttributeDefinition interfaceAssigned = (ConfigAttributeDefinition) this.methodMap.get(interfaceMethod);
                 merge(definition, interfaceAssigned);
             } catch (Exception e) {
                 // skip this interface
@@ -240,25 +221,7 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
         }
     }
 
-    /**
-     * Return if the given method name matches the mapped name. The default
-     * implementation checks for "xxx" and "xxx" matches.
-     *
-     * @param methodName the method name of the class
-     * @param mappedName the name in the descriptor
-     *
-     * @return if the names match
-     */
-    private boolean isMatch(String methodName, String mappedName) {
-        return (mappedName.endsWith("*")
-        && methodName.startsWith(mappedName.substring(0, mappedName.length()
-                - 1)))
-        || (mappedName.startsWith("*")
-        && methodName.endsWith(mappedName.substring(1, mappedName.length())));
-    }
-
-    private void merge(ConfigAttributeDefinition definition,
-        ConfigAttributeDefinition toMerge) {
+    private void merge(ConfigAttributeDefinition definition, ConfigAttributeDefinition toMerge) {
         if (toMerge == null) {
             return;
         }

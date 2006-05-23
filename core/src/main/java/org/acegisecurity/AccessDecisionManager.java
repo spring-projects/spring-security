@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,54 +22,44 @@ package org.acegisecurity;
  * @version $Id$
  */
 public interface AccessDecisionManager {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Resolves an access control decision for the passed parameters.
      *
      * @param authentication the caller invoking the method
      * @param object the secured object being called
-     * @param config the configuration attributes associated with the secured
-     *        object being invoked
+     * @param config the configuration attributes associated with the secured object being invoked
      *
-     * @throws AccessDeniedException if access is denied as the authentication
-     *         does not hold a required authority or ACL privilege
-     * @throws InsufficientAuthenticationException if access is denied as the
-     *         authentication does not provide a sufficient level of trust
+     * @throws AccessDeniedException if access is denied as the authentication does not hold a required authority or
+     *         ACL privilege
+     * @throws InsufficientAuthenticationException if access is denied as the authentication does not provide a
+     *         sufficient level of trust
      */
-    public void decide(Authentication authentication, Object object,
-        ConfigAttributeDefinition config)
+    public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
         throws AccessDeniedException, InsufficientAuthenticationException;
 
     /**
-     * Indicates whether this <code>AccessDecisionManager</code> is able to
-     * process authorization requests presented with the passed
-     * <code>ConfigAttribute</code>.
-     * 
-     * <p>
-     * This allows the <code>AbstractSecurityInterceptor</code> to check every
-     * configuration attribute can be consumed by the configured
-     * <code>AccessDecisionManager</code> and/or <code>RunAsManager</code>
-     * and/or <code>AfterInvocationManager</code>.
-     * </p>
+     * Indicates whether this <code>AccessDecisionManager</code> is able to process authorization requests
+     * presented with the passed <code>ConfigAttribute</code>.<p>This allows the
+     * <code>AbstractSecurityInterceptor</code> to check every configuration attribute can be consumed by the
+     * configured <code>AccessDecisionManager</code> and/or <code>RunAsManager</code> and/or
+     * <code>AfterInvocationManager</code>.</p>
      *
-     * @param attribute a configuration attribute that has been configured
-     *        against the <code>AbstractSecurityInterceptor</code>
+     * @param attribute a configuration attribute that has been configured against the
+     *        <code>AbstractSecurityInterceptor</code>
      *
-     * @return true if this <code>AccessDecisionManager</code> can support the
-     *         passed configuration attribute
+     * @return true if this <code>AccessDecisionManager</code> can support the passed configuration attribute
      */
     public boolean supports(ConfigAttribute attribute);
 
     /**
-     * Indicates whether the <code>AccessDecisionManager</code> implementation
-     * is able to provide access control decisions for the indicated secured
-     * object type.
+     * Indicates whether the <code>AccessDecisionManager</code> implementation is able to provide access
+     * control decisions for the indicated secured object type.
      *
      * @param clazz the class that is being queried
      *
-     * @return <code>true</code> if the implementation can process the
-     *         indicated class
+     * @return <code>true</code> if the implementation can process the indicated class
      */
     public boolean supports(Class clazz);
 }

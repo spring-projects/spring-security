@@ -47,36 +47,20 @@ import javax.sql.DataSource;
 
 
 /**
- * <p>
- * Extension of the base {@link JdbcDaoImpl}, which implements {@link
- * BasicAclExtendedDao}.
- * </p>
- * 
- * <p>
- * A default database structure is assumed. This may be overridden by setting
- * the default query strings to use.
- * </p>
- * 
- * <p>
- * If you are using a cache with <code>BasicAclProvider</code>, you should
- * specify that cache via {@link #setBasicAclEntryCache(BasicAclEntryCache)}.
- * This will cause cache evictions (removals) to take place whenever a DAO
- * mutator method is called.
- * </p>
- * 
- * <p>
- * This implementation works with <code>String</code> based recipients and
- * {@link org.acegisecurity.acl.basic.NamedEntityObjectIdentity} only. The
- * latter can be changed by overriding {@link
- * #convertAclObjectIdentityToString(AclObjectIdentity)}.
- * </p>
+ * <p>Extension of the base {@link JdbcDaoImpl}, which implements {@link BasicAclExtendedDao}.</p>
+ *  <p>A default database structure is assumed. This may be overridden by setting the default query strings to use.</p>
+ *  <p>If you are using a cache with <code>BasicAclProvider</code>, you should specify that cache via {@link
+ * #setBasicAclEntryCache(BasicAclEntryCache)}. This will cause cache evictions (removals) to take place whenever a
+ * DAO mutator method is called.</p>
+ *  <p>This implementation works with <code>String</code> based recipients and {@link
+ * org.acegisecurity.acl.basic.NamedEntityObjectIdentity} only. The latter can be changed by overriding {@link
+ * #convertAclObjectIdentityToString(AclObjectIdentity)}.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class JdbcExtendedDaoImpl extends JdbcDaoImpl
-    implements BasicAclExtendedDao {
-    //~ Static fields/initializers =============================================
+public class JdbcExtendedDaoImpl extends JdbcDaoImpl implements BasicAclExtendedDao {
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(JdbcExtendedDaoImpl.class);
     public static final String DEF_ACL_OBJECT_IDENTITY_DELETE_STATEMENT = "DELETE FROM acl_object_identity WHERE id = ?";
@@ -86,7 +70,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
     public static final String DEF_ACL_PERMISSION_UPDATE_STATEMENT = "UPDATE acl_permission SET mask = ? WHERE id = ?";
     public static final String DEF_LOOKUP_PERMISSION_ID_QUERY = "SELECT id FROM acl_permission WHERE acl_object_identity = ? AND recipient = ?";
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private AclObjectIdentityDelete aclObjectIdentityDelete;
     private AclObjectIdentityInsert aclObjectIdentityInsert;
@@ -102,7 +86,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
     private String aclPermissionUpdateStatement;
     private String lookupPermissionIdQuery;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public JdbcExtendedDaoImpl() {
         aclObjectIdentityDeleteStatement = DEF_ACL_OBJECT_IDENTITY_DELETE_STATEMENT;
@@ -113,22 +97,20 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         lookupPermissionIdQuery = DEF_LOOKUP_PERMISSION_ID_QUERY;
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void changeMask(AclObjectIdentity aclObjectIdentity,
-        Object recipient, Integer newMask) throws DataAccessException {
+    public void changeMask(AclObjectIdentity aclObjectIdentity, Object recipient, Integer newMask)
+        throws DataAccessException {
         basicAclEntryCache.removeEntriesFromCache(aclObjectIdentity);
 
         // Retrieve acl_object_identity record details
         AclDetailsHolder aclDetailsHolder = lookupAclDetailsHolder(aclObjectIdentity);
 
         // Retrieve applicable acl_permission.id
-        long permissionId = lookupPermissionId(aclDetailsHolder.getForeignKeyId(),
-                recipient.toString());
+        long permissionId = lookupPermissionId(aclDetailsHolder.getForeignKeyId(), recipient.toString());
 
         if (permissionId == -1) {
-            throw new DataRetrievalFailureException(
-                "Could not locate existing acl_permission for aclObjectIdentity: "
+            throw new DataRetrievalFailureException("Could not locate existing acl_permission for aclObjectIdentity: "
                 + aclObjectIdentity + ", recipient: " + recipient.toString());
         }
 
@@ -147,59 +129,48 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         }
 
         // Retrieve acl_object_identity record details
-        AclDetailsHolder aclDetailsHolder = lookupAclDetailsHolder(basicAclEntry
-                .getAclObjectIdentity());
+        AclDetailsHolder aclDetailsHolder = lookupAclDetailsHolder(basicAclEntry.getAclObjectIdentity());
 
         // Ensure there isn't an existing record for this recipient
-        long permissionId = lookupPermissionId(aclDetailsHolder.getForeignKeyId(),
-                basicAclEntry.getRecipient());
+        long permissionId = lookupPermissionId(aclDetailsHolder.getForeignKeyId(), basicAclEntry.getRecipient());
 
         if (permissionId != -1) {
-            throw new DataIntegrityViolationException("Recipient '"
-                + basicAclEntry.getRecipient()
-                + "' already exists for aclObjectIdentity ID "
-                + aclDetailsHolder.getForeignKeyId() + " (permission ID " + ")");
+            throw new DataIntegrityViolationException("Recipient '" + basicAclEntry.getRecipient()
+                + "' already exists for aclObjectIdentity ID " + aclDetailsHolder.getForeignKeyId()
+                + " (permission ID " + ")");
         }
 
         // Create acl_permission
         aclPermissionInsert.insert(new Long(aclDetailsHolder.getForeignKeyId()),
-            basicAclEntry.getRecipient().toString(),
-            new Integer(basicAclEntry.getMask()));
+            basicAclEntry.getRecipient().toString(), new Integer(basicAclEntry.getMask()));
     }
 
     /**
-     * Convenience method that creates an acl_object_identity record if
-     * required.
+     * Convenience method that creates an acl_object_identity record if required.
      *
-     * @param basicAclEntry containing the <code>AclObjectIdentity</code> to
-     *        create
+     * @param basicAclEntry containing the <code>AclObjectIdentity</code> to create
      *
      * @throws DataAccessException
      */
     private void createAclObjectIdentityIfRequired(BasicAclEntry basicAclEntry)
         throws DataAccessException {
-        basicAclEntryCache.removeEntriesFromCache(basicAclEntry
-            .getAclObjectIdentity());
+        basicAclEntryCache.removeEntriesFromCache(basicAclEntry.getAclObjectIdentity());
 
-        String aclObjectIdentityString = convertAclObjectIdentityToString(basicAclEntry
-                .getAclObjectIdentity());
+        String aclObjectIdentityString = convertAclObjectIdentityToString(basicAclEntry.getAclObjectIdentity());
 
         // Lookup the object's main properties from the RDBMS (guaranteed no nulls)
         List objects = objectProperties.execute(aclObjectIdentityString);
 
         if (objects.size() == 0) {
             if (basicAclEntry.getAclObjectParentIdentity() != null) {
-                AclDetailsHolder parentDetails = lookupAclDetailsHolder(basicAclEntry
-                        .getAclObjectParentIdentity());
+                AclDetailsHolder parentDetails = lookupAclDetailsHolder(basicAclEntry.getAclObjectParentIdentity());
 
                 // Must create the acl_object_identity record
-                aclObjectIdentityInsert.insert(aclObjectIdentityString,
-                    new Long(parentDetails.getForeignKeyId()),
+                aclObjectIdentityInsert.insert(aclObjectIdentityString, new Long(parentDetails.getForeignKeyId()),
                     basicAclEntry.getClass().getName());
             } else {
                 // Must create the acl_object_identity record
-                aclObjectIdentityInsert.insert(aclObjectIdentityString, null,
-                    basicAclEntry.getClass().getName());
+                aclObjectIdentityInsert.insert(aclObjectIdentityString, null, basicAclEntry.getClass().getName());
             }
         }
     }
@@ -212,8 +183,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         AclDetailsHolder aclDetailsHolder = lookupAclDetailsHolder(aclObjectIdentity);
 
         // Retrieve all acl_permissions applying to this acl_object_identity
-        Iterator acls = aclsByObjectIdentity.execute(aclDetailsHolder
-                .getForeignKeyId()).iterator();
+        Iterator acls = aclsByObjectIdentity.execute(aclDetailsHolder.getForeignKeyId()).iterator();
 
         // Delete all existing acl_permissions applying to this acl_object_identity
         while (acls.hasNext()) {
@@ -222,8 +192,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         }
 
         // Delete acl_object_identity
-        aclObjectIdentityDelete.delete(new Long(
-                aclDetailsHolder.getForeignKeyId()));
+        aclObjectIdentityDelete.delete(new Long(aclDetailsHolder.getForeignKeyId()));
     }
 
     public void delete(AclObjectIdentity aclObjectIdentity, Object recipient)
@@ -234,8 +203,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         AclDetailsHolder aclDetailsHolder = lookupAclDetailsHolder(aclObjectIdentity);
 
         // Delete acl_permission
-        aclPermissionDelete.delete(new Long(aclDetailsHolder.getForeignKeyId()),
-            recipient.toString());
+        aclPermissionDelete.delete(new Long(aclDetailsHolder.getForeignKeyId()), recipient.toString());
     }
 
     public AclObjectIdentityDelete getAclObjectIdentityDelete() {
@@ -309,8 +277,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
      *
      * @throws DataRetrievalFailureException if record could not be found
      */
-    private AclDetailsHolder lookupAclDetailsHolder(
-        AclObjectIdentity aclObjectIdentity)
+    private AclDetailsHolder lookupAclDetailsHolder(AclObjectIdentity aclObjectIdentity)
         throws DataRetrievalFailureException {
         String aclObjectIdentityString = convertAclObjectIdentityToString(aclObjectIdentity);
 
@@ -318,8 +285,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         List objects = objectProperties.execute(aclObjectIdentityString);
 
         if (objects.size() == 0) {
-            throw new DataRetrievalFailureException(
-                "aclObjectIdentity not found: " + aclObjectIdentityString);
+            throw new DataRetrievalFailureException("aclObjectIdentity not found: " + aclObjectIdentityString);
         }
 
         // Should only be one record
@@ -327,8 +293,8 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
     }
 
     /**
-     * Convenience method to lookup the acl_permission applying to a given
-     * acl_object_identity.id and acl_permission.recipient.
+     * Convenience method to lookup the acl_permission applying to a given acl_object_identity.id and
+     * acl_permission.recipient.
      *
      * @param aclObjectIdentityId to locate
      * @param recipient to locate
@@ -339,8 +305,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
      */
     private long lookupPermissionId(long aclObjectIdentityId, Object recipient)
         throws DataAccessException {
-        List list = lookupPermissionIdMapping.execute(new Object[] {new Long(
-                        aclObjectIdentityId), recipient});
+        List list = lookupPermissionIdMapping.execute(new Object[] {new Long(aclObjectIdentityId), recipient});
 
         if (list.size() == 0) {
             return -1;
@@ -349,23 +314,19 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         return ((Long) list.get(0)).longValue();
     }
 
-    public void setAclObjectIdentityDelete(
-        AclObjectIdentityDelete aclObjectIdentityDelete) {
+    public void setAclObjectIdentityDelete(AclObjectIdentityDelete aclObjectIdentityDelete) {
         this.aclObjectIdentityDelete = aclObjectIdentityDelete;
     }
 
-    public void setAclObjectIdentityDeleteStatement(
-        String aclObjectIdentityDeleteStatement) {
+    public void setAclObjectIdentityDeleteStatement(String aclObjectIdentityDeleteStatement) {
         this.aclObjectIdentityDeleteStatement = aclObjectIdentityDeleteStatement;
     }
 
-    public void setAclObjectIdentityInsert(
-        AclObjectIdentityInsert aclObjectIdentityInsert) {
+    public void setAclObjectIdentityInsert(AclObjectIdentityInsert aclObjectIdentityInsert) {
         this.aclObjectIdentityInsert = aclObjectIdentityInsert;
     }
 
-    public void setAclObjectIdentityInsertStatement(
-        String aclObjectIdentityInsertStatement) {
+    public void setAclObjectIdentityInsertStatement(String aclObjectIdentityInsertStatement) {
         this.aclObjectIdentityInsertStatement = aclObjectIdentityInsertStatement;
     }
 
@@ -373,8 +334,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         this.aclPermissionDelete = aclPermissionDelete;
     }
 
-    public void setAclPermissionDeleteStatement(
-        String aclPermissionDeleteStatement) {
+    public void setAclPermissionDeleteStatement(String aclPermissionDeleteStatement) {
         this.aclPermissionDeleteStatement = aclPermissionDeleteStatement;
     }
 
@@ -382,8 +342,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         this.aclPermissionInsert = aclPermissionInsert;
     }
 
-    public void setAclPermissionInsertStatement(
-        String aclPermissionInsertStatement) {
+    public void setAclPermissionInsertStatement(String aclPermissionInsertStatement) {
         this.aclPermissionInsertStatement = aclPermissionInsertStatement;
     }
 
@@ -391,8 +350,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         this.aclPermissionUpdate = aclPermissionUpdate;
     }
 
-    public void setAclPermissionUpdateStatement(
-        String aclPermissionUpdateStatement) {
+    public void setAclPermissionUpdateStatement(String aclPermissionUpdateStatement) {
         this.aclPermissionUpdateStatement = aclPermissionUpdateStatement;
     }
 
@@ -401,8 +359,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         this.basicAclEntryCache = basicAclEntryCache;
     }
 
-    public void setLookupPermissionIdMapping(
-        MappingSqlQuery lookupPermissionIdMapping) {
+    public void setLookupPermissionIdMapping(MappingSqlQuery lookupPermissionIdMapping) {
         this.lookupPermissionIdMapping = lookupPermissionIdMapping;
     }
 
@@ -410,7 +367,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
         this.lookupPermissionIdQuery = lookupPermissionIdQuery;
     }
 
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     protected class AclObjectIdentityDelete extends SqlUpdate {
         protected AclObjectIdentityDelete(DataSource ds) {
@@ -419,8 +376,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
             compile();
         }
 
-        protected void delete(Long aclObjectIdentity)
-            throws DataAccessException {
+        protected void delete(Long aclObjectIdentity) throws DataAccessException {
             super.update(aclObjectIdentity.intValue());
         }
     }
@@ -434,8 +390,7 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
             compile();
         }
 
-        protected void insert(String objectIdentity,
-            Long parentAclObjectIdentity, String aclClass)
+        protected void insert(String objectIdentity, Long parentAclObjectIdentity, String aclClass)
             throws DataAccessException {
             Object[] objs = new Object[] {objectIdentity, parentAclObjectIdentity, aclClass};
             super.update(objs);
@@ -465,8 +420,8 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl
             compile();
         }
 
-        protected void insert(Long aclObjectIdentity, String recipient,
-            Integer mask) throws DataAccessException {
+        protected void insert(Long aclObjectIdentity, String recipient, Integer mask)
+            throws DataAccessException {
             Object[] objs = new Object[] {aclObjectIdentity, recipient, mask};
             super.update(objs);
         }

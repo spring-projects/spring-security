@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,51 +27,40 @@ import java.util.Iterator;
 
 
 /**
- * <p>
- * Votes if a {@link ConfigAttribute#getAttribute()} of
- * <code>IS_AUTHENTICATED_FULLY</code> or
- * <code>IS_AUTHENTICATED_REMEMBERED</code> or
- * <code>IS_AUTHENTICATED_ANONYMOUSLY</code> is present. This list is in order
- * of most strict checking to least strict checking.
- * </p>
- * 
- * <p>
- * The current <code>Authentication</code> will be inspected to determine if
- * the principal has a particular level of authentication. The "FULLY"
- * authenticated option means the user is authenticated fully (ie {@link
- * org.acegisecurity.AuthenticationTrustResolver#isAnonymous(Authentication)}
- * is false and {@link
- * org.acegisecurity.AuthenticationTrustResolver#isRememberMe(Authentication)}
- * is false. The "REMEMBERED" will grant access if the principal was either
- * authenticated via remember-me OR is fully authenticated. The "ANONYMOUSLY"
- * will grant access if the principal was authenticated via remember-me, OR
- * anonymously, OR via full authentication.
- * </p>
- * 
- * <p>
- * All comparisons and prefixes are case sensitive.
- * </p>
+ * <p>Votes if a {@link ConfigAttribute#getAttribute()} of <code>IS_AUTHENTICATED_FULLY</code> or
+ * <code>IS_AUTHENTICATED_REMEMBERED</code> or <code>IS_AUTHENTICATED_ANONYMOUSLY</code> is present. This list is in
+ * order of most strict checking to least strict checking.</p>
+ *  <p>The current <code>Authentication</code> will be inspected to determine if the principal has a particular
+ * level of authentication. The "FULLY" authenticated option means the user is authenticated fully (ie {@link
+ * org.acegisecurity.AuthenticationTrustResolver#isAnonymous(Authentication)} is false and {@link
+ * org.acegisecurity.AuthenticationTrustResolver#isRememberMe(Authentication)} is false. The "REMEMBERED" will grant
+ * access if the principal was either authenticated via remember-me OR is fully authenticated. The "ANONYMOUSLY" will
+ * grant access if the principal was authenticated via remember-me, OR anonymously, OR via full authentication.</p>
+ *  <p>All comparisons and prefixes are case sensitive.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class AuthenticatedVoter implements AccessDecisionVoter {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     public static final String IS_AUTHENTICATED_FULLY = "IS_AUTHENTICATED_FULLY";
     public static final String IS_AUTHENTICATED_REMEMBERED = "IS_AUTHENTICATED_REMEMBERED";
     public static final String IS_AUTHENTICATED_ANONYMOUSLY = "IS_AUTHENTICATED_ANONYMOUSLY";
 
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public void setAuthenticationTrustResolver(
-        AuthenticationTrustResolver authenticationTrustResolver) {
-        Assert.notNull(authenticationTrustResolver,
-            "AuthenticationTrustResolver cannot be set to null");
+    private boolean isFullyAuthenticated(Authentication authentication) {
+        return (!authenticationTrustResolver.isAnonymous(authentication)
+        && !authenticationTrustResolver.isRememberMe(authentication));
+    }
+
+    public void setAuthenticationTrustResolver(AuthenticationTrustResolver authenticationTrustResolver) {
+        Assert.notNull(authenticationTrustResolver, "AuthenticationTrustResolver cannot be set to null");
         this.authenticationTrustResolver = authenticationTrustResolver;
     }
 
@@ -87,8 +76,7 @@ public class AuthenticatedVoter implements AccessDecisionVoter {
     }
 
     /**
-     * This implementation supports any type of class, because it does not
-     * query the presented secure object.
+     * This implementation supports any type of class, because it does not query the presented secure object.
      *
      * @param clazz the secure object
      *
@@ -98,8 +86,7 @@ public class AuthenticatedVoter implements AccessDecisionVoter {
         return true;
     }
 
-    public int vote(Authentication authentication, Object object,
-        ConfigAttributeDefinition config) {
+    public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config) {
         int result = ACCESS_ABSTAIN;
         Iterator iter = config.getConfigAttributes();
 
@@ -122,12 +109,9 @@ public class AuthenticatedVoter implements AccessDecisionVoter {
                     }
                 }
 
-                if (IS_AUTHENTICATED_ANONYMOUSLY.equals(
-                        attribute.getAttribute())) {
-                    if (authenticationTrustResolver.isAnonymous(authentication)
-                        || isFullyAuthenticated(authentication)
-                        || authenticationTrustResolver.isRememberMe(
-                            authentication)) {
+                if (IS_AUTHENTICATED_ANONYMOUSLY.equals(attribute.getAttribute())) {
+                    if (authenticationTrustResolver.isAnonymous(authentication) || isFullyAuthenticated(authentication)
+                        || authenticationTrustResolver.isRememberMe(authentication)) {
                         return ACCESS_GRANTED;
                     }
                 }
@@ -135,10 +119,5 @@ public class AuthenticatedVoter implements AccessDecisionVoter {
         }
 
         return result;
-    }
-
-    private boolean isFullyAuthenticated(Authentication authentication) {
-        return (!authenticationTrustResolver.isAnonymous(authentication)
-        && !authenticationTrustResolver.isRememberMe(authentication));
     }
 }

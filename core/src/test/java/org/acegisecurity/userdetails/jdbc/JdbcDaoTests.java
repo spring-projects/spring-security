@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,19 @@
 
 package org.acegisecurity.userdetails.jdbc;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashSet;
-
 import junit.framework.TestCase;
 
 import org.acegisecurity.PopulatedDatabase;
+
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
+
 import org.springframework.jdbc.object.MappingSqlQuery;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import java.util.HashSet;
 
 
 /**
@@ -34,7 +37,7 @@ import org.springframework.jdbc.object.MappingSqlQuery;
  * @version $Id$
  */
 public class JdbcDaoTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public JdbcDaoTests() {
         super();
@@ -44,14 +47,32 @@ public class JdbcDaoTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(JdbcDaoTests.class);
+    }
+
+    private JdbcDaoImpl makePopulatedJdbcDao() throws Exception {
+        JdbcDaoImpl dao = new JdbcDaoImpl();
+        dao.setDataSource(PopulatedDatabase.getDataSource());
+        dao.afterPropertiesSet();
+
+        return dao;
+    }
+
+    private JdbcDaoImpl makePopulatedJdbcDaoWithRolePrefix()
+        throws Exception {
+        JdbcDaoImpl dao = new JdbcDaoImpl();
+        dao.setDataSource(PopulatedDatabase.getDataSource());
+        dao.setRolePrefix("ARBITRARY_PREFIX_");
+        dao.afterPropertiesSet();
+
+        return dao;
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testCheckDaoAccessUserSuccess() throws Exception {
@@ -60,6 +81,7 @@ public class JdbcDaoTests extends TestCase {
         assertEquals("marissa", user.getUsername());
         assertEquals("koala", user.getPassword());
         assertTrue(user.isEnabled());
+
         HashSet authorities = new HashSet(2);
         authorities.add(user.getAuthorities()[0].getAuthority());
         authorities.add(user.getAuthorities()[1].getAuthority());
@@ -127,6 +149,7 @@ public class JdbcDaoTests extends TestCase {
         UserDetails user = dao.loadUserByUsername("marissa");
         assertEquals("marissa", user.getUsername());
         assertEquals(2, user.getAuthorities().length);
+
         HashSet authorities = new HashSet(2);
         authorities.add(user.getAuthorities()[0].getAuthority());
         authorities.add(user.getAuthorities()[1].getAuthority());
@@ -157,25 +180,7 @@ public class JdbcDaoTests extends TestCase {
         }
     }
 
-    private JdbcDaoImpl makePopulatedJdbcDao() throws Exception {
-        JdbcDaoImpl dao = new JdbcDaoImpl();
-        dao.setDataSource(PopulatedDatabase.getDataSource());
-        dao.afterPropertiesSet();
-
-        return dao;
-    }
-
-    private JdbcDaoImpl makePopulatedJdbcDaoWithRolePrefix()
-        throws Exception {
-        JdbcDaoImpl dao = new JdbcDaoImpl();
-        dao.setDataSource(PopulatedDatabase.getDataSource());
-        dao.setRolePrefix("ARBITRARY_PREFIX_");
-        dao.afterPropertiesSet();
-
-        return dao;
-    }
-
-    //~ Inner Classes ==========================================================
+    //~ Inner Classes ==================================================================================================
 
     private class MockMappingSqlQuery extends MappingSqlQuery {
         protected Object mapRow(ResultSet arg0, int arg1)

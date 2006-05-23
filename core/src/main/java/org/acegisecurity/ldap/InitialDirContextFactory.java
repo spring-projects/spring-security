@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.acegisecurity.ldap;
 
 import javax.naming.directory.DirContext;
 
+
 /**
  * Access point for obtaining LDAP contexts.
  *
@@ -26,19 +27,30 @@ import javax.naming.directory.DirContext;
  * @version $Id$
  */
 public interface InitialDirContextFactory {
+    //~ Methods ========================================================================================================
+
+    /**
+     * 
+    DOCUMENT ME!
+     *
+     * @return The DN of the contexts returned by this factory.
+     */
+    String getRootDn();
 
     /**
      * Provides an initial context without specific user information.
+     *
+     * @return DOCUMENT ME!
      */
     DirContext newInitialDirContext();
 
     /**
      * Provides an initial context by binding as a specific user.
+     *
+     * @param userDn DOCUMENT ME!
+     * @param password DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
      */
     DirContext newInitialDirContext(String userDn, String password);
-
-    /**
-     * @return The DN of the contexts returned by this factory.
-     */
-    String getRootDn();
 }

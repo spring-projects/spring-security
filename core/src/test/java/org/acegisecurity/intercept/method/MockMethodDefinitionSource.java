@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,15 +32,14 @@ import java.util.Vector;
  * @version $Id$
  */
 public class MockMethodDefinitionSource extends AbstractMethodDefinitionSource {
-    //~ Instance fields ========================================================
+    //~ Instance fields ================================================================================================
 
     private List list;
     private boolean returnAnIterator;
 
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    public MockMethodDefinitionSource(boolean includeInvalidAttributes,
-        boolean returnAnIteratorWhenRequested) {
+    public MockMethodDefinitionSource(boolean includeInvalidAttributes, boolean returnAnIteratorWhenRequested) {
         returnAnIterator = returnAnIteratorWhenRequested;
         list = new Vector();
 
@@ -72,7 +71,7 @@ public class MockMethodDefinitionSource extends AbstractMethodDefinitionSource {
         super();
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Iterator getConfigAttributeDefinitions() {
         if (returnAnIterator) {

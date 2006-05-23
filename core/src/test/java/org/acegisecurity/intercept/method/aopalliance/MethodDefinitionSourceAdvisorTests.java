@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.acegisecurity.intercept.method.aopalliance;
 import junit.framework.TestCase;
 
 import org.acegisecurity.TargetObject;
+
 import org.acegisecurity.intercept.method.MethodDefinitionMap;
 import org.acegisecurity.intercept.method.MethodDefinitionSourceEditor;
 
@@ -33,7 +34,7 @@ import java.lang.reflect.Method;
  * @version $Id$
  */
 public class MethodDefinitionSourceAdvisorTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public MethodDefinitionSourceAdvisorTests() {
         super();
@@ -43,21 +44,32 @@ public class MethodDefinitionSourceAdvisorTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
+    private MethodSecurityInterceptor getInterceptor() {
+        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
+        editor.setAsText("org.acegisecurity.TargetObject.countLength=ROLE_NOT_USED");
+
+        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
+
+        MethodSecurityInterceptor msi = new MethodSecurityInterceptor();
+        msi.setObjectDefinitionSource(map);
+
+        return msi;
     }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(MethodDefinitionSourceAdvisorTests.class);
     }
 
+    public final void setUp() throws Exception {
+        super.setUp();
+    }
+
     public void testAdvisorReturnsFalseWhenMethodInvocationNotDefined()
         throws Exception {
         Class clazz = TargetObject.class;
-        Method method = clazz.getMethod("makeLowerCase",
-                new Class[] {String.class});
+        Method method = clazz.getMethod("makeLowerCase", new Class[] {String.class});
 
         MethodDefinitionSourceAdvisor advisor = new MethodDefinitionSourceAdvisor(getInterceptor());
         assertFalse(advisor.matches(method, clazz));
@@ -66,8 +78,7 @@ public class MethodDefinitionSourceAdvisorTests extends TestCase {
     public void testAdvisorReturnsTrueWhenMethodInvocationIsDefined()
         throws Exception {
         Class clazz = TargetObject.class;
-        Method method = clazz.getMethod("countLength",
-                new Class[] {String.class});
+        Method method = clazz.getMethod("countLength", new Class[] {String.class});
 
         MethodDefinitionSourceAdvisor advisor = new MethodDefinitionSourceAdvisor(getInterceptor());
         assertTrue(advisor.matches(method, clazz));
@@ -78,8 +89,7 @@ public class MethodDefinitionSourceAdvisorTests extends TestCase {
 
         try {
             new MethodDefinitionSourceAdvisor(msi);
-            fail(
-                "Should have detected null ObjectDefinitionSource and thrown AopConfigException");
+            fail("Should have detected null ObjectDefinitionSource and thrown AopConfigException");
         } catch (AopConfigException expected) {
             assertTrue(true);
         }
@@ -87,8 +97,7 @@ public class MethodDefinitionSourceAdvisorTests extends TestCase {
 
     public void testUnsupportedOperations() throws Throwable {
         Class clazz = TargetObject.class;
-        Method method = clazz.getMethod("countLength",
-                new Class[] {String.class});
+        Method method = clazz.getMethod("countLength", new Class[] {String.class});
 
         MethodDefinitionSourceAdvisor.InternalMethodInvocation imi = new MethodDefinitionSourceAdvisor(getInterceptor()).new InternalMethodInvocation(method);
 
@@ -126,18 +135,5 @@ public class MethodDefinitionSourceAdvisorTests extends TestCase {
         } catch (UnsupportedOperationException expected) {
             assertTrue(true);
         }
-    }
-
-    private MethodSecurityInterceptor getInterceptor() {
-        MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
-        editor.setAsText(
-            "org.acegisecurity.TargetObject.countLength=ROLE_NOT_USED");
-
-        MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
-
-        MethodSecurityInterceptor msi = new MethodSecurityInterceptor();
-        msi.setObjectDefinitionSource(map);
-
-        return msi;
     }
 }

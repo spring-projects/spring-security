@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ import javax.servlet.http.HttpSession;
  * @author Ray Krueger
  */
 public abstract class HttpSessionApplicationEvent extends ApplicationEvent {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Base constructor for all subclasses must have an HttpSession
      *
      * @param httpSession The session to carry as the event source.
@@ -37,7 +37,7 @@ public abstract class HttpSessionApplicationEvent extends ApplicationEvent {
         super(httpSession);
     }
 
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
      * Get the HttpSession that is the cause of the event

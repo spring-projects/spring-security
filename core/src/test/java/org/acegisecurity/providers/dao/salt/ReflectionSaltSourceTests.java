@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.acegisecurity.AuthenticationServiceException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
 
@@ -31,7 +32,7 @@ import org.acegisecurity.userdetails.UserDetails;
  * @version $Id$
  */
 public class ReflectionSaltSourceTests extends TestCase {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
     public ReflectionSaltSourceTests() {
         super();
@@ -41,14 +42,14 @@ public class ReflectionSaltSourceTests extends TestCase {
         super(arg0);
     }
 
-    //~ Methods ================================================================
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+    //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ReflectionSaltSourceTests.class);
+    }
+
+    public final void setUp() throws Exception {
+        super.setUp();
     }
 
     public void testDetectsMissingUserPropertyToUse() throws Exception {
@@ -58,8 +59,7 @@ public class ReflectionSaltSourceTests extends TestCase {
             saltSource.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("A userPropertyToUse must be set",
-                expected.getMessage());
+            assertEquals("A userPropertyToUse must be set", expected.getMessage());
         }
     }
 

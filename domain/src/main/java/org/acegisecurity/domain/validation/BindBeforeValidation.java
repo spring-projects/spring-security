@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,24 +34,16 @@ import org.springframework.validation.BindException;
  * @version $Id$
  */
 public interface BindBeforeValidation {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * This method will be called by infrastructure code before attempting to
-     * validate the object. Given this method is called prior to validation,
-     * implementations of this method should <b>not</b> assume the object is
-     * in a valid state.
-     * 
-     * <p>
-     * Implementations should modify the object as required so that the
-     * <code>Validator</code> will succeed if user-controllable properties are
-     * correct.
-     * </p>
+     * This method will be called by infrastructure code before attempting to validate the object. Given this
+     * method is called prior to validation, implementations of this method should <b>not</b> assume the object is in
+     * a valid state.<p>Implementations should modify the object as required so that the <code>Validator</code>
+     * will succeed if user-controllable properties are correct.</p>
      *
-     * @throws BindException if there are problems that the method wish to
-     *         advise (note that the <code>Validator</code> should be allowed
-     *         to determine errors in most cases, rather than this method
-     *         doing so)
+     * @throws BindException if there are problems that the method wish to advise (note that the <code>Validator</code>
+     *         should be allowed to determine errors in most cases, rather than this method doing so)
      */
     public void bindSupport() throws BindException;
 }

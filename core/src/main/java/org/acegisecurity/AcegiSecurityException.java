@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,21 +19,16 @@ import org.springframework.core.NestedRuntimeException;
 
 
 /**
- * Abstract superclass for all exceptions thrown in the security package and
- * subpackages.
- * 
- * <p>
- * Note that this is a runtime (unchecked) exception. Security exceptions are
- * usually fatal; there is no reason for them to be checked.
- * </p>
+ * Abstract superclass for all exceptions thrown in the security package and subpackages.<p>Note that this is a
+ * runtime (unchecked) exception. Security exceptions are usually fatal; there is no reason for them to be checked.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public abstract class AcegiSecurityException extends NestedRuntimeException {
-    //~ Constructors ===========================================================
+    //~ Constructors ===================================================================================================
 
-    /**
+/**
      * Constructs an <code>AcegiSecurityException</code> with the specified
      * message and root cause.
      *
@@ -44,7 +39,7 @@ public abstract class AcegiSecurityException extends NestedRuntimeException {
         super(msg, t);
     }
 
-    /**
+/**
      * Constructs an <code>AcegiSecurityException</code> with the specified
      * message and no root cause.
      *

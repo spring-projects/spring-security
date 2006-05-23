@@ -1,4 +1,4 @@
-/* Copyright 2004 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,24 +20,16 @@ import org.acegisecurity.AuthenticationException;
 
 
 /**
- * An {@link AuthenticationProvider} implementation for the  {@link
- * TestingAuthenticationToken}.
- * 
- * <p>
- * It simply accepts as valid whatever is contained within the
- * <code>TestingAuthenticationToken</code>.
- * </p>
- * 
- * <p>
- * The purpose of this implementation is to facilitate unit testing. This
- * provider should <B>never be enabled on a production system</b>.
- * </p>
+ * An {@link AuthenticationProvider} implementation for the  {@link TestingAuthenticationToken}.<p>It simply
+ * accepts as valid whatever is contained within the <code>TestingAuthenticationToken</code>.</p>
+ *  <p>The purpose of this implementation is to facilitate unit testing. This provider should <B>never be enabled
+ * on a production system</b>.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class TestingAuthenticationProvider implements AuthenticationProvider {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     public Authentication authenticate(Authentication authentication)
         throws AuthenticationException {

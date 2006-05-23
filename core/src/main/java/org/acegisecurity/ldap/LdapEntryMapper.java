@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
 
 package org.acegisecurity.ldap;
 
-import javax.naming.directory.Attributes;
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+
 
 /**
  * A mapper for use with {@link LdapTemplate}. Creates a customized object from
@@ -26,6 +27,8 @@ import javax.naming.NamingException;
  * @version $Id$
  */
 public interface LdapEntryMapper {
+    //~ Methods ========================================================================================================
 
-    public Object mapAttributes(String dn, Attributes attributes) throws NamingException;
+    public Object mapAttributes(String dn, Attributes attributes)
+        throws NamingException;
 }

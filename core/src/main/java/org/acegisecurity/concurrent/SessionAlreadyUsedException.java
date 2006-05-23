@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,20 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.acegisecurity.concurrent;
 
 import org.acegisecurity.AuthenticationException;
 
 
 /**
- * Thrown by a <code>SessionRegistry</code> implementation if
- * an attempt is made to create new session information for an existing
- * sessionId. The user should firstly clear the existing session from the
+ * Thrown by a <code>SessionRegistry</code> implementation if an attempt is made to create new session information
+ * for an existing sessionId. The user should firstly clear the existing session from the
  * <code>ConcurrentSessionRegistry</code>.
  *
  * @author Ben Alex
  */
 public class SessionAlreadyUsedException extends AuthenticationException {
+    //~ Constructors ===================================================================================================
+
     public SessionAlreadyUsedException(String msg) {
         super(msg);
     }
