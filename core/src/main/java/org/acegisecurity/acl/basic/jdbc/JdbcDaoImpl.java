@@ -114,9 +114,10 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements BasicAclDao {
      *        <code>aclClass</code> and <code>aclObjectIdentity</code>
      * @param aclInformation optional information about the individual ACL
      *        record (if <code>null</code> only an "inheritence marker"
-     *        instance is returned; if not <code>null</code>, it is prohibited
-     *        to present <code>null</code> or an empty <code>String</code> for
-     *        <code>recipient</code>)
+     *        instance is returned which will include a recipient of {@link
+     *        #RECIPIENT_USED_FOR_INHERITENCE_MARKER} ; if not
+     *        <code>null</code>, it is prohibited to present <code>null</code>
+     *        or an empty <code>String</code> for <code>recipient</code>)
      *
      * @return a fully populated instance suitable for use by external objects
      *
