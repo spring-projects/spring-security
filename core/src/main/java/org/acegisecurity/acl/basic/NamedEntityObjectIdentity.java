@@ -62,10 +62,10 @@ public class NamedEntityObjectIdentity implements AclObjectIdentity {
         Assert.notNull(object, "object cannot be null");
 
         this.classname = (getPackageName(object.getClass().getName()) == null)
-            ? ClassUtils.getShortName(object.getClass())
-            : getPackageName(object.getClass().getName() + "."
-                + ClassUtils.getShortName(object.getClass()));
-
+	        ? ClassUtils.getShortName(object.getClass())
+	        : getPackageName(object.getClass().getName()) + "."
+	            + ClassUtils.getShortName(object.getClass());
+        
         Class clazz = object.getClass();
 
         try {
