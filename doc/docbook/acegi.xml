@@ -2488,20 +2488,20 @@ public boolean supports(Class clazz);</programlisting></para>
         <para>The <literal>AbstractSecurityInterceptor</literal> is able to
         temporarily replace the <literal>Authentication</literal> object in
         the <literal>SecurityContext</literal> and
-        <literal>SecurityContextHolder</literal> during the
-        <literal>SecurityInterceptorCallback</literal>. This only occurs if
-        the original <literal>Authentication</literal> object was successfully
-        processed by the <literal>AuthenticationManager</literal> and
+        <literal>SecurityContextHolder</literal> during the secure object
+        callback phase. This only occurs if the original
+        <literal>Authentication</literal> object was successfully processed by
+        the <literal>AuthenticationManager</literal> and
         <literal>AccessDecisionManager</literal>. The
         <literal>RunAsManager</literal> will indicate the replacement
         <literal>Authentication</literal> object, if any, that should be used
         during the <literal>SecurityInterceptorCallback</literal>.</para>
 
         <para>By temporarily replacing the <literal>Authentication</literal>
-        object during a <literal>SecurityInterceptorCallback</literal>, the
-        secured invocation will be able to call other objects which require
-        different authentication and authorization credentials. It will also
-        be able to perform any internal security checks for specific
+        object during the secure object callback phase, the secured invocation
+        will be able to call other objects which require different
+        authentication and authorization credentials. It will also be able to
+        perform any internal security checks for specific
         <literal>GrantedAuthority</literal> objects. Because Acegi Security
         provides a number of helper classes that automatically configure
         remoting protocols based on the contents of the
