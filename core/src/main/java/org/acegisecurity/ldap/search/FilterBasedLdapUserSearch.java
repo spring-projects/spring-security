@@ -97,11 +97,11 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
     //~ Methods ========================================================================================================
 
     /**
-     * Return the LdapUserDetailsImpl containing the user's information
+     * Return the LdapUserDetails containing the user's information
      *
      * @param username the username to search for.
      *
-     * @return DOCUMENT ME!
+     * @return An LdapUserDetails object containing the details of the located user's directory entry
      *
      * @throws UsernameNotFoundException if no matching entry is found.
      */
@@ -129,9 +129,9 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
     }
 
     /**
-     * Sets the corresponding property on the SearchControls instance used in the search.
+     * Sets the corresponding property on the {@link SearchControls} instance used in the search.
      *
-     * @param deref DOCUMENT ME!
+     * @param deref the derefLinkFlag value as defined in SearchControls..
      */
     public void setDerefLinkFlag(boolean deref) {
         searchControls.setDerefLinkFlag(deref);
@@ -141,16 +141,17 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
      * If true then searches the entire subtree as identified by context, if false (the default) then only
      * searches the level identified by the context.
      *
-     * @param searchSubtree DOCUMENT ME!
+     * @param searchSubtree true the underlying search controls should be set to SearchControls.SUBTREE_SCOPE
+     * rather than SearchControls.ONELEVEL_SCOPE.
      */
     public void setSearchSubtree(boolean searchSubtree) {
         searchControls.setSearchScope(searchSubtree ? SearchControls.SUBTREE_SCOPE : SearchControls.ONELEVEL_SCOPE);
     }
 
     /**
-     * The time (in milliseconds) which to wait before the search fails; the default is zero, meaning forever.
+     * The time to wait before the search fails; the default is zero, meaning forever.
      *
-     * @param searchTimeLimit DOCUMENT ME!
+     * @param searchTimeLimit the time limit for the search (in milliseconds).
      */
     public void setSearchTimeLimit(int searchTimeLimit) {
         searchControls.setTimeLimit(searchTimeLimit);

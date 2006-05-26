@@ -92,19 +92,42 @@ public class LdapUserDetailsMapper implements LdapEntryMapper {
         return essence;
     }
 
+    /**
+     * Determines whether role field values will be converted to upper case when loaded.
+     * The default is true.
+     *
+     * @param convertToUpperCase true if the roles should be converted to upper case.
+     */
     public void setConvertToUpperCase(boolean convertToUpperCase) {
         this.convertToUpperCase = convertToUpperCase;
     }
 
+    /**
+     * The name of the attribute which contains the user's password.
+     * Defaults to "userPassword".
+     *
+     * @param passwordAttributeName the name of the attribute
+     */
     public void setPasswordAttributeName(String passwordAttributeName) {
         this.passwordAttributeName = passwordAttributeName;
     }
 
+    /**
+     * The names of any attributes in the user's  entry which represent application
+     * roles. These will be converted to <tt>GrantedAuthority</tt>s and added to the
+     * list in the returned LdapUserDetails object.
+     *
+     * @param roleAttributes the names of the role attributes.
+     */
     public void setRoleAttributes(String[] roleAttributes) {
         Assert.notNull(roleAttributes, "roleAttributes array cannot be null");
         this.roleAttributes = roleAttributes;
     }
 
+    /**
+     * The prefix that should be applied to the role names
+     * @param rolePrefix the prefix (defaults to "ROLE_").
+     */
     public void setRolePrefix(String rolePrefix) {
         this.rolePrefix = rolePrefix;
     }

@@ -114,7 +114,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be
      * set as a property.
      *
@@ -139,15 +139,25 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
     //~ Methods ========================================================================================================
 
+    /**
+     * This method should be overridden if required to obtain any additional
+     * roles for the given user (on top of those obtained from the standard
+     * search implemented by this class).
+     *
+     *
+     * @param ldapUser the user who's roles are required
+     * @return the extra roles which will be merged with those returned by the group search
+     */
+
     protected Set getAdditionalRoles(LdapUserDetails ldapUser) {
         return null;
     }
 
     /**
-     * 
-    DOCUMENT ME!
+     * Obtains the authorities for the user who's directory entry is represented by
+     * the supplied LdapUserDetails object.
      *
-     * @param userDetails DOCUMENT ME!
+     * @param userDetails the user who's authorities are required
      *
      * @return the set of roles granted to the user.
      */
@@ -191,6 +201,8 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 //
 //        return userRoles;
 //    }
+
+
     public final Set getGroupMembershipRoles(String userDn, String username) {
         Set authorities = new HashSet();
 

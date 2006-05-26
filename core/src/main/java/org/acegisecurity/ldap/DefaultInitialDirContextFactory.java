@@ -160,7 +160,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
     }
 
     /**
-     * DOCUMENT ME!
+     * Sets up the environment parameters for creating a new context.
      *
      * @return the Hashtable describing the base DirContext that will be created, minus the username/password if any.
      */
@@ -230,7 +230,8 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
     }
 
     /**
-     * DOCUMENT ME!
+     * Sets any custom environment variables which will be added to the those returned
+     * by the <tt>getEnvironment</tt> method.
      *
      * @param extraEnvVars extra environment variables to be added at config time.
      */
@@ -245,7 +246,9 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
     }
 
     /**
-     * DOCUMENT ME!
+     * Sets the directory user to authenticate as when obtaining a context using the
+     * <tt>newInitialDirContext()</tt> method.
+     * If no name is supplied then the context will be obtained anonymously.
      *
      * @param managerDn The name of the "manager" user for default authentication.
      */
@@ -255,7 +258,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
     }
 
     /**
-     * DOCUMENT ME!
+     * Sets the password which will be used in combination with the manager DN.
      *
      * @param managerPassword The "manager" user's password.
      */

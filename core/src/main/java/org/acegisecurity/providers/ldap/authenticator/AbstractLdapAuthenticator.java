@@ -154,7 +154,8 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
      * Sets the pattern which will be used to supply a DN for the user. The pattern should be the name relative
      * to the root DN. The pattern argument {0} will contain the username. An example would be "cn={0},ou=people".
      *
-     * @param dnPattern DOCUMENT ME!
+     * @param dnPattern the array of patterns which will be tried when obtaining a username
+     * to a DN.
      */
     public void setUserDnPatterns(String[] dnPattern) {
         Assert.notNull(dnPattern, "The array of DN patterns cannot be set to null");

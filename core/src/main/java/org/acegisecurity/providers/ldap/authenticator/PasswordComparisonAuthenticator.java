@@ -133,10 +133,10 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
     /**
      * Allows the use of both simple and hashed passwords in the directory.
      *
-     * @param password DOCUMENT ME!
-     * @param ldapPassword DOCUMENT ME!
+     * @param password the password supplied by the user
+     * @param ldapPassword the (possibly hashed) password (from the directory)
      *
-     * @return DOCUMENT ME!
+     * @return true if they match
      */
     private boolean verifyPassword(String password, String ldapPassword) {
         if (ldapPassword.equals(password)) {

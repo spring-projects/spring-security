@@ -61,16 +61,14 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
     }
 
     /**
-     * 
-    DOCUMENT ME!
+     * Calculates the hash of password (and salt bytes, if supplied) and returns a base64 encoded concatenation
+     * of the hash and salt, prefixed with {SHA} (or {SSHA} if salt was used).
      *
      * @param rawPass the password to be encoded.
      * @param salt the salt. Must be a byte array or null.
      *
-     * @return base64 encoded concatenation of password hash and salt, prefixed with {SHA} or {SSHA} depending on
-     *         whether salt bytes were supplied.
+     * @return the encoded password in the specified format
      *
-     * @throws LdapDataAccessException DOCUMENT ME!
      */
     public String encodePassword(String rawPass, Object salt) {
         MessageDigest sha;

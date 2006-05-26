@@ -22,6 +22,8 @@ import javax.naming.ldap.Control;
 
 
 /**
+ * Captures the information for a user's LDAP entry.
+ *
  * @author Luke Taylor
  * @version $Id$
  */
@@ -29,11 +31,10 @@ public interface LdapUserDetails extends UserDetails {
     //~ Methods ========================================================================================================
 
     /**
-     * 
-    DOCUMENT ME!
+     * The attributes for the user's entry in the directory (or a subset of them, depending on what was
+     * retrieved from the directory)
      *
-     * @return the attributes for the user's entry in the directory (or a subset of them, depending on what was
-     *         retrieved).
+     * @return the user's attributes, or an empty array if none were obtained, never null.
      */
     Attributes getAttributes();
 
@@ -45,10 +46,9 @@ public interface LdapUserDetails extends UserDetails {
     Control[] getControls();
 
     /**
-     * 
-    DOCUMENT ME!
+     * The DN of the entry for this user's account.
      *
-     * @return the DN of the entry for this user's account.
+     * @return the user's DN
      */
     String getDn();
 }

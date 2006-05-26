@@ -30,8 +30,9 @@ public interface InitialDirContextFactory {
     //~ Methods ========================================================================================================
 
     /**
-     * 
-    DOCUMENT ME!
+     * Returns the root DN of the contexts supplied by this factory.
+     * The names for searches etc. which are performed against contexts
+     * returned by this factory should be relative to the root DN.
      *
      * @return The DN of the contexts returned by this factory.
      */
@@ -40,17 +41,17 @@ public interface InitialDirContextFactory {
     /**
      * Provides an initial context without specific user information.
      *
-     * @return DOCUMENT ME!
+     * @return An initial context for the LDAP directory
      */
     DirContext newInitialDirContext();
 
     /**
      * Provides an initial context by binding as a specific user.
      *
-     * @param userDn DOCUMENT ME!
-     * @param password DOCUMENT ME!
+     * @param userDn the user to authenticate as when obtaining the context.
+     * @param password the user's password.
      *
-     * @return DOCUMENT ME!
+     * @return An initial context for the LDAP directory
      */
     DirContext newInitialDirContext(String userDn, String password);
 }
