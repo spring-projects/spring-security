@@ -115,9 +115,9 @@
     </developer>
   </developers>
   <contributors>
-  	<contributor>
-  		<name>Alef Arendsen</name>
-  	</contributor>
+    <contributor>
+      <name>Alef Arendsen</name>
+    </contributor>
     <contributor>
       <name>Cameron Braid</name>
     </contributor>
@@ -149,9 +149,6 @@
       <name>Andrew Petro</name>
     </contributor>
     <contributor>
-      <name>Sergio Berna</name>
-    </contributor>
-    <contributor>
       <name>Aaron Tang</name>
     </contributor>
     <contributor>
@@ -173,8 +170,8 @@
       <name>Eric Crampton</name>
     </contributor>
     <contributor>
-   	  <name>Paul Garvey</name>
-   	</contributor>
+      <name>Paul Garvey</name>
+    </contributor>
   </contributors>
   <dependencies>
     <dependency>
@@ -206,7 +203,7 @@
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
-    </dependency>	
+    </dependency>
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
@@ -411,7 +408,7 @@
       <type>jar</type>
     </dependency>
     <!-- End of ApacheDS dependencies -->
-							
+
     <!-- Keep log4j after the apacheds stuff to avoid nasty classpath errors -->
     <dependency>
       <groupId>log4j</groupId>
