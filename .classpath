@@ -67,14 +67,13 @@
 	<classpathentry kind="var" path="MAVEN_REPO/dom4j/jars/dom4j-1.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xercesImpl-2.6.2.jar"/>
 	<classpathentry sourcepath="MAVEN_REPO/jmock/distributions/jmock-1.0.1-src.jar" kind="var" path="MAVEN_REPO/jmock/jars/jmock-1.0.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jdbm/jars/jdbm-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/regexp/jars/regexp-1.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.slf4j/jars/slf4j-log4j12-1.0-rc5.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.server/jars/apacheds-core-1.0-RC1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.server/jars/apacheds-core-shared-1.0-RC1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory/jars/directory-asn1-0.3.4-20060201.032106-8.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory/jars/org.apache.ldap.common-0.9.4-20060201.032106-10.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.shared/jars/shared-asn1-0.9.5.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.shared/jars/shared-ldap-0.9.5.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/antlr/jars/antlr-2.7.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/ldapsdk/jars/ldapsdk-4.1.jar"/>
 	<classpathentry sourcepath="/MAVEN_REPO/springframework/src/spring-2.0-m2.zip" kind="var" path="MAVEN_REPO/springframework/jars/spring-hibernate3-2.0-m2.jar"/>
@@ -82,5 +81,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/net.sourceforge.retroweaver/jars/retroweaver-1.0fcs.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/taglibs/jars/standard-1.0.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-attributes/jars/commons-attributes-api-2.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>
