@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.acegisecurity</groupId>
   <artifactId>acegi-security-parent</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <name>Acegi Security System for Spring - Parent</name>
   <packaging>pom</packaging>
 
