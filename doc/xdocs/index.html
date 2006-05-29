@@ -9,10 +9,13 @@
       <CENTER><B>
       <HR>
 
-      <CENTER>Mission Statement</CENTER></B>
+      <CENTER>What is Acegi Security?</CENTER></B>
       <HR>
-      <BR>To provide comprehensive security services for <A 
-      href="http://www.springframework.org/"><I>The Spring Framework</I></A>. 
+	  <BR>Acegi Security is a powerful, flexible security solution for enterprise software,
+	  with a particular emphasis on applications that use 
+	  <A href="http://www.springframework.org/">Spring</A>. Using Acegi Security provides your
+	  applications with comprehensive authentication, authorization, instance-based access control,
+	  channel security and human user detection capabilities.
       </CENTER><BR><B>
       <HR>
 
@@ -20,16 +23,24 @@
       <HR>
       <BR>
       <UL>
-        <LI><B>It is ready NOW.</B> As explained in the reference guide, the API 
-        is now quite stable. We also use the <A 
+        <LI><B>Stable and mature.</B> Acegi Security 1.0.0 was released in May 2006 after
+        more than two and a half years of use in large production software projects, 70,000+ downloads
+        and hundreds of community contributions.
+        In terms of release numbering, we also use the <A 
         href="http://apr.apache.org/versioning.html">Apache APR Project 
-        Versioning Guidelines</A> so you can identify backward 
+        Versioning Guidelines</A> so that you can easily identify release
         compatibility.<BR><BR>
+        <LI><B>Well documented:</B> All APIs are fully documented using 
+        <a href="http://acegisecurity.sourceforge.net/multiproject/acegi-security/apidocs/index.html">JavaDoc</a>,
+        with almost 100 pages of
+		<a href="reference.html">Reference Guide</a> documentation providing an easy-to-follow
+        introduction. Even more documentation is provided on this web site, as
+		shown in the left hand navigation sidebar.<BR><BR>
         <LI><B>Fast results:</B> View our <a href="suggested.html">suggested steps</a>
         for the fastest way to develop complex, security-compliant applications.<BR><BR>
         <LI><B>Enterprise-wide single sign on:</B> Using JA-SIG's open 
         source <A href="http://www.ja-sig.org/products/cas/">Central Authentication 
-        Service</A> (CAS), the Acegi Security System for Spring can participate 
+        Service</A> (CAS), the Acegi Security can participate 
         in an enterprise-wide single sign on environment. You no longer need 
         every web application to have its own authentication database. Nor are 
         you restricted to single sign on across a single web container. Advanced 
@@ -61,7 +72,7 @@
         objects.<BR><BR>
         <LI><B>After invocation security:</B> Acegi Security can not only protect
 		methods from being invoked in the first place, but it can also
-		deal with the Objects returned from the methods. Included implementations 
+		deal with the objects returned from the methods. Included implementations 
 		of after invocation security can throw an exception or mutate the returned
 		object based on ACLs.<BR><BR>
         <LI><B>Secures your HTTP requests as well:</B> In addition to securing 
@@ -70,13 +81,14 @@
         HTTP requests can now be secured by your choice of regular expressions 
         or Apache Ant paths, along with pluggable authentication, authorization 
         and run-as replacement managers.<BR><BR>
-        <LI><B>Channel security:</B> The Acegi Security System for Spring can 
+        <LI><B>Channel security:</B> Acegi Security can 
         automatically redirect requests across an appropriate transport channel. 
         Whilst flexible enough to support any of your "channel" requirements (eg 
         the remote user is a human, not a robot), a common channel security 
         feature is to ensure your secure pages will only be available over 
         HTTPS, and your public pages only over HTTP. Acegi Security also 
-        supports unusual port combinations and pluggable transport decision 
+        supports unusual port combinations (including if accessed via an
+        intermediate server like Apache) and pluggable transport decision 
         managers.<BR><BR>
         <LI><B>Supports HTTP BASIC authentication:</B> Perfect for remoting 
         protocols or those web applications that prefer a simple browser pop-up 
@@ -87,18 +99,29 @@
         (which never sends the user's password across the wire). Digest Authentication
         is widely supported by modern browsers. Acegi Security's implementation complies
         with both RFC 2617 and RFC 2069.<BR><BR>
-        <LI><B>Convenient security taglib:</B> Your JSP files can use our taglib 
+        <LI><B>Computer Associates Siteminder support:</B> Authentication can be
+        delegated through to CA's Siteminder solution, which is common in large
+        corporate environments.<BR><BR>
+        <LI><B>X509 (Certificate) support:</B> Acegi Security can easily read
+        client-side X509 certificates for authenticating users.<BR><BR>
+        <LI><B>LDAP Support:</B> Do you have an LDAP directory? Acegi Security can
+        happily authenticate against it.<BR><BR>
+        <LI><B>Tag library support:</B> Your JSP files can use our taglib 
         to ensure that protected content like links and messages are only 
         displayed to users holding the appropriate granted authorities. The taglib
-		also fully integrates with Acegi Security's ACL services.<BR><BR>
-        <LI><B>Application context or attribute-based configuration:</B> You 
+		also fully integrates with Acegi Security's ACL services, and
+		obtaining extra information about the logged-in principal.<BR><BR>
+        <LI><B>Configuration via IoC XML, Commons Attributes, or JDK 5 Annotations:</B> You 
         select the method used to configure your security environment. The 
-        project supports configuration via Spring application contexts as well 
-        as Jakarta Commons Attributes.<BR><BR>
+        project supports configuration via Spring application contexts, as well 
+        as Jakarta Commons Attributes and Java 5's annotations feature. Some users
+        (such as those building content management systems) pull configuration data
+        from a database, which exemplifies Acegi Security's flexible configuration
+        metadata system.<BR><BR>
         <LI><B>Various authentication backends:</B> We include the ability to 
-        retrieve your user and granted authority definitions from either an XML 
-        file or JDBC datasource. Alternatively, you can implement the 
-        single-method DAO interface and obtain authentication details from 
+        retrieve your user and granted authority definitions from an XML 
+        file, JDBC datasource or Properties file. Alternatively, you can implement the 
+        single-method UserDetailsService interface and obtain authentication details from 
         anywhere you like.<BR><BR>
         <LI><B>Event support:</B> Building upon Spring's 
         <CODE>ApplicationEvent</CODE> services, you can write your own listeners 
@@ -126,23 +149,27 @@
         problem. Acegi Security integrates with standard Spring remoting 
         protocols, because it automatically processes the HTTP BASIC 
         authentication headers they present. Add our BASIC authentication filter 
-        to your web.xml and you're done.<BR><BR>
+        to your web.xml and you're done. You can also easily use RMI or Digest
+        authentication for your rich clients with a simple configuration statement.<BR><BR>
         <LI><B>Advanced password encoding:</B> Of course, passwords in your 
         authentication repository need not be in plain text. We support both SHA 
         and MD5 encoding, and also pluggable "salt" providers to maximise 
-        password security.<BR><BR>
-        <LI><B>Run-as replacement:</B> The security system fully supports 
-        temporarily replacing the authenticated user for the duration of the web 
+        password security. Acegi Security doesn't even need to see the password
+        if your backend can use a bind-based strategy for authentication (such as
+        an LDAP directory, or a database login).<BR><BR>
+        <LI><B>Run-as replacement:</B> The system fully supports 
+        temporarily replacing the authenticated principal for the duration of the web 
         request or bean invocation. This enables you to build public-facing 
         object tiers with different security configurations than your backend 
         objects.<BR><BR>
         <LI><B>Transparent security propagation:</B> Acegi Security can automatically
 		transfer its core authentication information from one machine to another,
 		using a variety of protocols including RMI and Spring's HttpInvoker.<BR><BR>
-        <LI><B>Compatible with HttpServletRequest.getRemoteUser():</B> Even though
+        <LI><B>Compatible with HttpServletRequest's security methods:</B> Even though
 		Acegi Security can deliver authentication using a range of pluggable mechanisms
 		(most of which require no web container configuration), we allow you to access
-		the resulting Authentication object via the getRemoteUser() method.<BR><BR>
+		the resulting Authentication object via the getRemoteUser() and other
+		security methods on HttpServletRequest.<BR><BR>
         <LI><B>Unit tests:</B> A must-have of any quality security project, unit 
         tests are included. Our unit test coverage is very high, as shown in the
 		<a href="multiproject/acegi-security/clover/index.html">coverage report</a>.<BR><BR>
@@ -155,19 +182,18 @@
         <LI><B>Peer reviewed:</B> Whilst nothing is ever completely secure, 
         using an open source security package leverages the continuous design 
         and code quality improvements that emerge from peer review.<BR><BR>
-        <LI><B>Thorough documentation:</B> All APIs are fully documented using 
-        <a href="http://acegisecurity.sourceforge.net/multiproject/acegi-security/apidocs/index.html">JavaDoc</a>, with a 40+ page 
-		<a href="reference.html">Reference Guide</a> providing an easy-to-follow 
-        introduction. More documentation is provided on this web site, as
-		shown in the left hand navigation sidebar.<BR><BR>
-        <LI><B>Apache license.</B><BR><BR></LI></UL><BR><B>
+        <LI><B>Community:</B> Well-known for its supportive community, Acegi Security
+        has an active group of developers and users. Visit our project resources (below)
+        to access these services.<BR><BR>
+        <LI><B>Apache license.</B> You can confidently use Acegi Security in your project.<BR><BR></LI></UL><BR><B>
       <HR>
 
       <CENTER>Project Resources</CENTER></B>
       <HR>
       <BR>
-      <CENTER><A href="http://forum.springframework.org/"><B>Support 
-      Forums</B></A><BR><BR><A 
-      href="http://sourceforge.net/project/showfiles.php?group_id=104215"><B>Downloads</B></A>
+      <CENTER>
+      <A href="http://forum.springframework.org/"><B>Support Forums</B></A><BR><BR>
+      <A href="mail-lists.html"><B>Developer Mailing List</B></A><BR><BR>
+      <A href="downloads.html"><B>Downloads</B></A>
       </CENTER></FONT>
 </BODY></HTML>

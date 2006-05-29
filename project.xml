@@ -479,7 +479,7 @@
   </build>
   <reports>
     <!-- report>maven-changelog-plugin</report -->
-    <report>maven-checkstyle-plugin</report>
+    <!-- report>maven-checkstyle-plugin</report -->
     <report>maven-clover-plugin</report>
     <report>maven-javadoc-plugin</report>
     <report>maven-jdepend-plugin</report>

@@ -116,48 +116,5 @@
 	<pre>maven clover:html-report -Dmaven.jar.override=on -Dmaven.jar.clover-ant=1.3.3_01</pre>
   </ol>
 
-  <h2>CVS-over-SSH Workarounds</h2>
-
-  <p>Another possible problem is related to CVS-over-SSH ("ext" in CVSROOT) appearing to freeze.
-	The following instructions assume you're an Acegi Security developer who has CVS access
-	to the project, as if you're not then you shouldn't be trying to use CVS-over-SSH.
-	The instructions above all relate to goals which use the default, anonymous
-	pserver CVS repository.</p>
-	
-  <p>If you really need authenticated SSH-based access, first check your
-	<code>$ACEGI_SECURITY/build.properties</code> contains a
-	<code>maven.username</code> equal to your SourceForge username. If your Maven CVS
-	or SSH commands still don't work, test you have automatic CVS-over-SSH access operational
-	by executing the following command:</p>
-  <ol>
-	<pre>cvs -d :ext:YOUR_SOURCEFORGE_USERNAME@cvs.sourceforge.net:/cvsroot/acegisecurity</pre>
-  </ol>
-  
-  <p>If this CVS command executes without requiring any interaction such as password
-	entry, you're ready to proceed. If it fails (or requires a password entry), you 
-	probably need to review your CVS setup. This varies depending on your CVS client.</p>
-	
-  <p>One Windows-based command line CVS-over-SSH-with-auto-login setup that 
-	works very well is to install 
-	<a href="http://www.cvsnt.com/">CVSNT</a> (which has a CVS client console utility)
-	and 
-	<a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/">PuTTY</a> (download
-	<code>putty.zip</code>) together, and use
-	PuTTY's Pageant to automatically authenticate. A resource that describes in detail
-	how to configure WinCVS (which internally uses CVSNT's command line client) with PuTTY 
-	(including automatic SSH authentication) is 
-	<a href="http://sourceforge.net/docman/display_doc.php?docid=766&group_id=1">SourceForge's instructions</a>.
-	One issue with the SourceForge instructions is they forget to mention how to
-	tell the CVS command-line client to use <code>plink.exe</code>, which is PuTTY's SSH command-line
-	version. The solution is to execute 
-	<code>set CVS_RSH=C:\Program Files\putty\plink.exe</code>
-	(or whatever path is appropriate to plink) before running the CVS command line.
-	In fairness, the SourceForge instructions target the Windows front-end to CVS, whilst
-	we need the command-line version to work.</p>
-	
-  <p>It is worth noting that as the Maven project uses the anonymous pserver
-	repository for most operations, these setup instructions really only apply if
-	doing something like deploying the site over SSH etc.</p>
-	
 </body>
 </html>
