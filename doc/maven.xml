@@ -86,9 +86,11 @@
 			<ant:fileset dir="${basedir}/../core-tiger/src/main/java">
 				<ant:include name="**/*"/>
 			</ant:fileset>
+			<!-- These are deprecated, not part of Acegi Security, and shouldn't be included
 			<ant:fileset dir="${basedir}/../domain/src/main/java">
 				<ant:include name="**/*"/>
 			</ant:fileset>
+			-->
 			<ant:fileset dir="${basedir}/../adapters/cas/src/main/java">
 				<ant:include name="**/*"/>
 			</ant:fileset>
