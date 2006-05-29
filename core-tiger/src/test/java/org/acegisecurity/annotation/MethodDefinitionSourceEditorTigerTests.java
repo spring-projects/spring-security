@@ -15,6 +15,9 @@
 
 package org.acegisecurity.annotation;
 
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Method;
+
 import junit.framework.TestCase;
 
 import org.acegisecurity.ConfigAttributeDefinition;
@@ -25,11 +28,9 @@ import org.acegisecurity.PersonServiceImpl;
 import org.acegisecurity.SecurityConfig;
 import org.acegisecurity.Service;
 import org.acegisecurity.ServiceImpl;
-
+import org.acegisecurity.intercept.method.MethodDefinitionMap;
+import org.acegisecurity.intercept.method.MethodDefinitionSourceEditor;
 import org.aopalliance.intercept.MethodInvocation;
-
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Method;
 
 
 /**
