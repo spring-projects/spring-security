@@ -5960,10 +5960,10 @@ END;
         <title>Tutorial Sample</title>
 
         <para>Whilst the <link linkend="contacts-sample">Contacts
-        Sample</link> is quite advanced in that illustrates the more powerful
-        features of domain object access control lists and so on, sometimes
-        you just want to start with a nice basic template. The tutorial sample
-        is intended to provide this initial base.</para>
+        Sample</link> is quite advanced in that it illustrates the more
+        powerful features of domain object access control lists and so on,
+        sometimes you just want to start with a nice basic example. The
+        tutorial sample is intended to provide this for you.</para>
 
         <para>The compiled tutorial is included in the distribution ZIP file,
         ready to be deployed into your web container. Authentication is
