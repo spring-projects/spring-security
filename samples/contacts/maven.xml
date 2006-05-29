@@ -8,6 +8,10 @@
 	    <echo>The "war" goal is deprecated. Use "multiwar:multiwar" instead.</echo>
     </goal>
     
+    <goal name="war:war">
+	    <echo>The "war" goal is deprecated. Use "multiwar:multiwar" instead.</echo>
+    </goal>
+
     <goal name="multiwar:multiwar">
     	<!-- needed otherwise first custom artifact (cas) doesn't get built) -->
         <attainGoal name="acegisecurity:war"/>
