@@ -38,6 +38,9 @@
 			<ant:fileset dir="${basedir}/../samples/contacts/target">
 				<ant:include name="*-filter.war"/>
 			</ant:fileset>
+			<ant:fileset dir="${basedir}/../samples/tutorial/target">
+				<ant:include name="*.war"/>
+			</ant:fileset>
 			<ant:fileset dir="${basedir}/../core/target/">
 				<ant:include name="*.jar"/>
 			</ant:fileset>

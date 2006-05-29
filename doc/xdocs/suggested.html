@@ -1,7 +1,7 @@
 <!--
  * ========================================================================
  * 
- * Copyright 2004 Acegi Technology Pty Limited
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,23 +31,35 @@
   <p>Presented below are the steps we encourage you to take in order to gain the most
   out of Acegi Security in a realistic timeframe.
   <ol>
-    <li>Your first step is to ensure you're able to actually build Acegi Security. This is
-	because if you encounter any problems the first thing we'll probably suggest you do is
-	upgrade to the latest CVS HEAD. It also means you can try things out if you get stuck,
-	such as adding even more logging messages to the actual Acegi Security core code.
-	The good news is building is actually very easy, and
-	we've gone to a lot of trouble to document what is involved. If you have a working Maven
-	installation, it <i>should</i> be as simple as two commands. Have a look on the
-	<a href="building.html">Building with Maven</a> page, and follow the
-	"Checking Out from CVS", "Installing commons-attributes-plugin", and 
-	"Building All JARs" steps. Of course, you can safely skip
-	this step if you don't have time.<br><br>
-	
+    <li>
+    First of all, deploy the "Tutorial Sample", which is included in the main distribution
+    ZIP file. The sample doesn't do a great deal, but it does give you a template that can
+    be quickly and easily used to integrate into your own project.<br><br>
+
 	Estimated time: 30 minutes - 2 hours.<br><br>
 	</li>
 	
-	<li>Next up gain a proper understanding of how the Contacts Sample application works.
-	This will probably involve deploying <code>acegi-security-sample-contacts-filter.war</code>.<br><br>
+	<li>
+	Next, review the <a href="reference.html">Reference Guide</a>, and in particular
+	Part I. It has been designed to give you a solid overview. Go through the beans
+	defined in the "Tutorial Sample" and understand their main purpose within the overall
+	framework. Once you understand this, you'll have no difficulty moving on to more
+	complex examples.<br><br>
+
+	Estimated time: 1 day.<br><br>
+	</li>
+	
+	<li>
+	If you have relatively simple security needs, you can probably start to integrate
+	Acegi Security into your application at this point. Just use the "Tutorial Sample"
+	as your basis (now that you understand how it works). Those with more complicated
+	requirements should review the "Contacts Sample" application.
+	This will probably involve deploying <code>acegi-security-sample-contacts-filter.war</code>,
+	which is also included in the release ZIP file.<br><br>
+	
+	The purpose of understanding the "Contacts Sample" is to get a better feel for how method
+	security is implemented, particularly with domain object access control lists. This will
+	really round-out the rest of the framework for you.<br><br>
 	
 	The actual <a target="_blank" class="newWindow" href="multiproject/acegi-security-sample-contacts/xref/index.html">java code</a>
 	is a completely standard Spring application, except <code>ContactManagerBackend</code>
@@ -64,56 +76,22 @@
 	<a href="reference.html">Reference Guide</a>.
 	<br><br>
 		
-	To gain the most from reviewing these XML files, we suggest you start by understanding how
-	authentication takes place. There's not much point knowing all about authorisation until authentication is
-	really clear, especially the interaction between the <code>ContextHolder</code>, the
-	authentication mechanism (such as <code>AuthenticationProcessingFilter</code>), the
-	authentication commencement process (specifically <code>SecurityEnforcementFilter</code> and
-	say <code>AuthenticationProcessingFilterEntryPoint</code>), and the system that manages authentication
-	data between invocations (say <code>HttpSessionIntegrationFilter</code>). You don't have to
-	know every detail, just basically what they do and the key differences (again, the
-	reference guide should help considerably, as there are diagrams etc).
-	<br><br>	
-		
-	Once you understand authentication in the contacts Sample application, look at how authorisation
-	is handled. Start with <code>FilterSecurityInterceptor</code>'s role and how its
-	regular expression or Ant paths protect URIs. Next up explore how <code>RoleVoter</code>
-	works in our sample application with the <code>FilterSecurityInterceptor</code> and
-	<code>MethodSecurityInterceptor</code>. Finally, review what the
-	<code>BasicAclEntryVoter</code> does in our sample application, in terms of protecting
-	domain objects from method invocations the principal does not have permission to.
-	
-	<br><br>Lastly, get an understanding of how the <code>AfterInvocationProviderManager</code>
-	is being used to stop domain objects being returned to which the principal has no
-	permission, and to filter <code>Collection</code>s so they don't contain domain objects to
-	which the principal has no permission. By all means comment out parts of the Spring IoC XML
-	and see the effect. For example, comment out the <code>AfterInvocationProviderManager</code> (of course, remove its reference
-	in the <code>MethodSecurityInterceptor</code>) and see how all of the contacts get returned.
-	<br><br>
-	
 	Please note the release ZIP files do not include the sample application Java source code. You
-	will need to download from CVS if you would like to access the Java sources.<br><br>
+	will need to download from SVN if you would like to access the Java sources.<br><br>
 	
 	Estimated time: 1-2 days.<br><br>
 	</li>
 	
 	<li>By now you will have a good grasp on how Acegi Security works, and all that is left to
-	do is design your own application's implementation. The way we suggested you explore the Contacts Sample
-	is the same way we suggest you implement security in your own application: start with authentication,
-	then add basic web request URI security. Follow it with the standard role voter to protect
-	method invocations. Finally, and only if your application actually needs it, introduce
-	domain object security with the <code>BasicAclEntryVoter</code> and 
-	<code>AfterInvocationProviderManager</code>.
+	do is design your own application's implementation.
 	<br><br>
 		
-	We do not encourage you to use CAS, container adapters, BASIC authentication, transparent
-	RMI invocation, run-as replacement, rich client integration or any of the other interesting features
-	of Acegi Security until you've got a "bare bones" installation working with <code>DaoAuthenticationProvider</code>,
-	one of Acegi Security's <code>AuthenticationDao</code>s (or your own), and your basic
-	authorisation configuration. Like anything, start with something simple and build on it
-	(this would be the opposite advice if you were building your own security framework,
-	where you would need to cross the highest and most difficult bridges first, to check they
-	are actually possible).<br><br>
+	We strongly recommend that you start your actual integration with the "Tutorial Sample".
+	Don't start by integrating with the "Contacts Sample", even if you have complex needs.
+	Most people reporting problems on the forums do so because of a configuration problem,
+	as they're trying to make far too many changes at once without really knowing what
+	they're doing. Instead, make changes one at a time, starting from the bare bones configuration
+	provided by the "Tutorial Sample".<br><br>
 	
 	If you've followed the steps above, and refer back to the 
 	<a href="reference.html">Reference Guide</a>, 
@@ -134,7 +112,7 @@
   on how much experience you have, particularly with Java and Spring. They will also vary depending
   on how complex your intended security-enabled application will be. Some people need to push the domain
   object instance access control list capabilities to the maximum, whilst others don't even need anything
-  beyond web request URI security. The good thing is Acegi Security will either directly support your future
+  beyond web request security. The good thing is Acegi Security will either directly support your future
   needs, or provide a clearly-defined extension point for addressing them.
   
   <p>
