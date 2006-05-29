@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity;
+package org.acegisecurity.annotation.test;
 
 import java.util.Collection;
 
@@ -22,7 +22,7 @@ import java.util.Collection;
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision$
+ * @version $Revision: 1496 $
   *
  * @param <E> DOCUMENT ME!
  */

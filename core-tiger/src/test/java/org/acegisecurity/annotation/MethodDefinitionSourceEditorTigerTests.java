@@ -21,13 +21,13 @@ import java.lang.reflect.Method;
 import junit.framework.TestCase;
 
 import org.acegisecurity.ConfigAttributeDefinition;
-import org.acegisecurity.Entity;
-import org.acegisecurity.OrganisationService;
-import org.acegisecurity.PersonService;
-import org.acegisecurity.PersonServiceImpl;
 import org.acegisecurity.SecurityConfig;
-import org.acegisecurity.Service;
-import org.acegisecurity.ServiceImpl;
+import org.acegisecurity.annotation.test.Entity;
+import org.acegisecurity.annotation.test.OrganisationService;
+import org.acegisecurity.annotation.test.PersonService;
+import org.acegisecurity.annotation.test.PersonServiceImpl;
+import org.acegisecurity.annotation.test.Service;
+import org.acegisecurity.annotation.test.ServiceImpl;
 import org.acegisecurity.intercept.method.MethodDefinitionMap;
 import org.acegisecurity.intercept.method.MethodDefinitionSourceEditor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -64,7 +64,7 @@ public class MethodDefinitionSourceEditorTigerTests extends TestCase {
         throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "org.acegisecurity.Service.makeLower*=ROLE_FROM_INTERFACE\r\norg.acegisecurity.Service.makeUpper*=ROLE_FROM_INTERFACE\r\norg.acegisecurity.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
+            "org.acegisecurity.annotation.test.Service.makeLower*=ROLE_FROM_INTERFACE\r\norg.acegisecurity.annotation.test.Service.makeUpper*=ROLE_FROM_INTERFACE\r\norg.acegisecurity.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
@@ -87,7 +87,7 @@ public class MethodDefinitionSourceEditorTigerTests extends TestCase {
         throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "org.acegisecurity.Service.makeLower*=ROLE_FROM_INTERFACE\r\norg.acegisecurity.Service.makeUpper*=ROLE_FROM_INTERFACE\r\norg.acegisecurity.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
+            "org.acegisecurity.annotation.test.Service.makeLower*=ROLE_FROM_INTERFACE\r\norg.acegisecurity.annotation.test.Service.makeUpper*=ROLE_FROM_INTERFACE\r\norg.acegisecurity.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         assertEquals(3, map.getMethodMapSize());

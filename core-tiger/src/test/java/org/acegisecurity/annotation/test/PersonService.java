@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package org.acegisecurity;
+package org.acegisecurity.annotation.test;
 
 /**
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision$
+ * @version $Revision: 1496 $
   */
 public interface PersonService extends Service<Person> {
     //~ Methods ========================================================================================================

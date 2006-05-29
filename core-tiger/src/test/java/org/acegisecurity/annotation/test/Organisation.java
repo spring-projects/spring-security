@@ -13,40 +13,32 @@
  * limitations under the License.
  */
 
-package org.acegisecurity;
-
-import org.springframework.util.Assert;
-
+package org.acegisecurity.annotation.test;
 
 /**
- * An entity used in our generics testing.
+ * An extended version of <code>Entity</code>.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class Entity {
+public class Organisation extends Entity {
     //~ Instance fields ================================================================================================
 
-    String info;
+    private boolean active = true;
 
     //~ Constructors ===================================================================================================
 
-    public Entity(String info) {
-        Assert.hasText(info, "Some information must be given!");
-        this.info = info;
+    public Organisation(String name) {
+        super(name);
     }
 
     //~ Methods ========================================================================================================
 
-    public String getInfo() {
-        return info;
+    void deactive() {
+        this.active = true;
     }
 
-    void makeLowercase() {
-        this.info = info.toLowerCase();
-    }
-
-    void makeUppercase() {
-        this.info = info.toUpperCase();
+    public boolean isActive() {
+        return this.active;
     }
 }

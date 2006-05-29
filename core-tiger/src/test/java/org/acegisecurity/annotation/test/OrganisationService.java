@@ -13,25 +13,16 @@
  * limitations under the License.
  */
 
-package org.acegisecurity;
-
-import java.util.Collection;
-
+package org.acegisecurity.annotation.test;
 
 /**
- * An interface that uses Java 5 generics.
+ * DOCUMENT ME!
  *
- * @author Ben Alex
- * @version $Id$
- */
-public interface Service<E extends Entity> {
+ * @author $author$
+ * @version $Revision: 1496 $
+  */
+public interface OrganisationService extends Service<Organisation> {
     //~ Methods ========================================================================================================
 
-    public int countElements(Collection<E> ids);
-
-    public void makeLowerCase(E input);
-
-    public void makeUpperCase(E input);
-
-    public void publicMakeLowerCase(E input);
+    public void deactive(Organisation org);
 }
