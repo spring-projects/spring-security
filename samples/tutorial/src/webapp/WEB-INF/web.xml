@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC '-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN' 'http://java.sun.com/dtd/web-app_2_3.dtd'>
+
+<!--
+  - Contacts web application
+  -
+  - web.xml for "filter" artifact only.
+  -
+  - $Id$
+  -->
+
+<web-app>
+
+    <display-name>Acegi Security Tutorial Application</display-name>
+    
+	<!--
+	  - Location of the XML file that defines the root application context
+	  - Applied by ContextLoaderListener.
+	  -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			/WEB-INF/applicationContext-acegi-security.xml
+		</param-value>
+	</context-param>
+	
+    <filter>
+        <filter-name>Acegi Filter Chain Proxy</filter-name>
+        <filter-class>org.acegisecurity.util.FilterToBeanProxy</filter-class>
+        <init-param>
+            <param-name>targetClass</param-name>
+            <param-value>org.acegisecurity.util.FilterChainProxy</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+      <filter-name>Acegi Filter Chain Proxy</filter-name>
+      <url-pattern>/*</url-pattern>
+    </filter-mapping>
+	
+	<!--
+	  - Loads the root application context of this web app at startup.
+	  - The application context is then available via 
+	  - WebApplicationContextUtils.getWebApplicationContext(servletContext).
+    -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+ 	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+</web-app>

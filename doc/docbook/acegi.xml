@@ -2035,7 +2035,7 @@ if (obj instanceof UserDetails) {
 
           <para>Most JAAS <literal>LoginModule</literal>s require a callback
           of some sort. These callbacks are usually used to obtain the
-          username and password from the user. </para>
+          username and password from the user.</para>
 
           <para>In an Acegi Security deployment, Acegi Security is responsible
           for this user interaction (via the authentication mechanism). Thus,
@@ -2079,7 +2079,7 @@ if (obj instanceof UserDetails) {
           principal, and multiple <literal>GrantedAuthority</literal>[]s. To
           facilitate mapping between these different concepts, Acegi
           Security's JAAS package includes an
-          <literal>AuthorityGranter</literal> interface. </para>
+          <literal>AuthorityGranter</literal> interface.</para>
 
           <para>An <literal>AuthorityGranter</literal> is responsible for
           inspecting a JAAS principal and returning a
@@ -5954,6 +5954,51 @@ END;
         does not currently support CAS. You can still give it a try, though,
         if you're ambitious: try <literal>client _cas_stateless_
         YOUR-SERVICE-TICKET-ID</literal>.</para>
+      </sect1>
+
+      <sect1 id="tutorial-sample">
+        <title>Tutorial Sample</title>
+
+        <para>Whilst the <link linkend="contacts-sample">Contacts
+        Sample</link> is quite advanced in that illustrates the more powerful
+        features of domain object access control lists and so on, sometimes
+        you just want to start with a nice basic template. The tutorial sample
+        is intended to provide this initial base.</para>
+
+        <para>The compiled tutorial is included in the distribution ZIP file,
+        ready to be deployed into your web container. Authentication is
+        handled by the <link
+        linkend="dao-provider">DaoAuthenticationProvider</link>, using the
+        <link linkend="in-memory-service">in-memory</link>
+        <literal>UserDetailsService</literal> that sources information from
+        the <literal>users.properties</literal> file located in the WAR's
+        <literal>/WEB-INF</literal> directory. The <link
+        linkend="form">form-based</link> authentication mechanism is used,
+        with the commonly-used <link linkend="remember-me">remember-me</link>
+        authentication provider used to automatically remember the login using
+        cookies.</para>
+
+        <para>In terms of authorization, to keep things simple we've
+        configured the tutorial to only perform some basic <link
+        linkend="filter-invocation-authorization">web filter
+        authorization</link>. We've wired two common <link
+        linkend="pre-invocation">pre-invocation access decision voters</link>,
+        being the <literal>RoleVoter</literal> and
+        <literal>AuthenticatedVoter</literal>, such that
+        <literal>ROLE_*</literal> configuration attributes and
+        <literal>IS_AUTHENTICATED_*</literal> configuration attributes may be
+        used. Of course, it's extremely easy to add in other providers, with
+        most users probably starting with some services-layer security using
+        <link linkend="aop-alliance">MethodSecurityInterceptor</link>.</para>
+
+        <para>We recommend you start with the tutorial sample, as the XML is
+        minimal and easy to follow. All of the needed <link
+        linkend="filters">filters</link> are configured properly, and using
+        best practise. Most importantly, you can easily this one XML file (and
+        its corresponding <literal>web.xml</literal> entries) to your existing
+        application. Only when this basic integration is achieved do we
+        suggest you attempt adding in method authorization or domain object
+        security.</para>
       </sect1>
     </chapter>
 
