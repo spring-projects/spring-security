@@ -46,7 +46,7 @@ public class InteractiveAuthenticationSuccessEvent extends AbstractAuthenticatio
      * Getter for the <code>Class</code> that generated this event. This can be useful for generating
      * additional logging information.
      *
-     * @return
+     * @return the class
      */
     public Class getGeneratedBy() {
         return generatedBy;

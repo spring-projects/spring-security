@@ -29,8 +29,7 @@ import java.security.Principal;
  * </p>
  * 
  * <p>
- * Stored in a request {@link
- * org.acegisecurity.context.security.SecurityContext}.
+ * Stored in a request {@link org.acegisecurity.context.SecurityContext}.
  * </p>
  *
  * @author Ben Alex

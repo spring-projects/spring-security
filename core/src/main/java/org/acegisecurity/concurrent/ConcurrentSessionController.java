@@ -47,7 +47,7 @@ public interface ConcurrentSessionController {
     /**
      * Called by an <code>AuthenticationManager</code> when the authentication was successful. An
      * implementation is expected to register the authenticated user in some sort of registry, for future concurrent
-     * tracking via the {@link #checkConcurrentAuthentication(Authentication)} method.
+     * tracking via the {@link #checkAuthenticationAllowed(Authentication)} method.
      *
      * @param authentication the successfully authenticated user (never <code>null</code>)
      */

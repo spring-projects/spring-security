@@ -33,8 +33,8 @@ import javax.servlet.http.HttpServletResponse;
  * Used by the <code>SecurityEnforcementFilter</code> to commence authentication via the {@link
  * BasicProcessingFilter}.<P>Once a user agent is authenticated using BASIC authentication, logout requires that
  * the browser be closed or an unauthorized (401) header be sent. The simplest way of achieving the latter is to call
- * the {@link #commence(ServletRequest, ServletResponse)} method below. This will indicate to the browser its
- * credentials are no longer authorized, causing it to prompt the user to login again.</p>
+ * the {@link #commence(ServletRequest, ServletResponse, AuthenticationException)} method below. This will indicate to
+ * the browser its credentials are no longer authorized, causing it to prompt the user to login again.</p>
  *
  * @author Ben Alex
  * @version $Id$

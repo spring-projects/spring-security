@@ -27,9 +27,10 @@ import java.lang.reflect.Method;
 
 
 /**
- * Obtains a salt from a specified property of the {@link User} object.<P>This allows you to subclass
- * <code>User</code> and provide an additional bean getter for a salt. You should use a synthetic value that does not
- * change, such as a database primary key.  Do not use <code>username</code> if it is likely to change.</p>
+ * Obtains a salt from a specified property of the {@link org.acegisecurity.userdetails.User} object.<P>This allows
+ * you to subclass <code>User</code> and provide an additional bean getter for a salt. You should use a synthetic
+ * value that does not change, such as a database primary key.  Do not use <code>username</code> if it is likely to
+ * change.</p>
  *
  * @author Ben Alex
  * @version $Id$

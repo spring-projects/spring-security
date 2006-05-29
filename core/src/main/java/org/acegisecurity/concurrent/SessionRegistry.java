@@ -27,7 +27,7 @@ public interface SessionRegistry {
     /**
      * Obtains all the known principals in the <code>SessionRegistry</code>.
      *
-     * @return each of the unique principals, which can then be presented to {@link #getAllSessions(Object)}.
+     * @return each of the unique principals, which can then be presented to {@link #getAllSessions(Object, boolean)}.
      */
     public Object[] getAllPrincipals();
 

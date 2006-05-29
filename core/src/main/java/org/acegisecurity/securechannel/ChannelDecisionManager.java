@@ -28,12 +28,6 @@ import javax.servlet.ServletException;
 /**
  * Decides whether a web channel provides sufficient security.
  * 
- * <P>
- * If necessary due to the nature of the redirection, implementations should
- * store the original destination of the request in {@link
- * org.acegisecurity.ui.AbstractProcessingFilter#ACEGI_SECURITY_TARGET_URL_KEY}.
- * </p>
- *
  * @author Ben Alex
  * @version $Id$
  */

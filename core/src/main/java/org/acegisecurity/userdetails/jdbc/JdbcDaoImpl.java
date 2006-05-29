@@ -171,8 +171,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     }
 
     /**
-     * If <code>true</code> (the default), indicates the {@link #getUsersByUsernameMapping()} returns a
-     * username in response to a query. If <code>false</code>, indicates that a primary key is used instead. If set to
+     * If <code>true</code> (the default), indicates the {@link #getUsersByUsernameQuery()} returns a username
+     * in response to a query. If <code>false</code>, indicates that a primary key is used instead. If set to
      * <code>true</code>, the class will use the database-derived username in the returned <code>UserDetails</code>.
      * If <code>false</code>, the class will use the {@link #loadUserByUsername(String)} derived username in the
      * returned <code>UserDetails</code>.

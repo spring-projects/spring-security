@@ -42,8 +42,7 @@ public class User implements UserDetails {
     //~ Constructors ===================================================================================================
 
 /**
-     * Construct the <code>User</code> with the details required by {@link
-     * DaoAuthenticationProvider}.
+     * Construct the <code>User</code> with the details required by {@link org.acegisecurity.providers.dao.DaoAuthenticationProvider}.
      *
      * @param username the username presented to the
      *        <code>DaoAuthenticationProvider</code>
@@ -67,8 +66,7 @@ public class User implements UserDetails {
     }
 
 /**
-     * Construct the <code>User</code> with the details required by {@link
-     * DaoAuthenticationProvider}.
+     * Construct the <code>User</code> with the details required by {@link org.acegisecurity.providers.dao.DaoAuthenticationProvider}.
      *
      * @param username the username presented to the
      *        <code>DaoAuthenticationProvider</code>
@@ -97,8 +95,7 @@ public class User implements UserDetails {
     }
 
 /**
-     * Construct the <code>User</code> with the details required by {@link
-     * DaoAuthenticationProvider}.
+     * Construct the <code>User</code> with the details required by {@link org.acegisecurity.providers.dao.DaoAuthenticationProvider}.
      *
      * @param username the username presented to the
      *        <code>DaoAuthenticationProvider</code>

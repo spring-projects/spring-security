@@ -36,9 +36,9 @@ public class X509AuthenticationToken extends AbstractAuthenticationToken {
 
     //~ Constructors ===================================================================================================
 
-/**
-     * Used for an authentication request.  The {@link
-     * Authentication#isAuthenticated()} will return <code>false</code>.
+    /**
+     * Used for an authentication request.  The {@link org.acegisecurity.Authentication#isAuthenticated()} will return
+     * <code>false</code>.
      *
      * @param credentials the certificate
      */
@@ -47,9 +47,9 @@ public class X509AuthenticationToken extends AbstractAuthenticationToken {
         this.credentials = credentials;
     }
 
-/**
-     * Used for an authentication response object. The {@link
-     * Authentication#isAuthenticated()} will return <code>true</code>.
+    /**
+     * Used for an authentication response object. The {@link Authentication#isAuthenticated()}
+     * will return <code>true</code>.
      *
      * @param principal the principal, which is generally a
      *        <code>UserDetails</code>

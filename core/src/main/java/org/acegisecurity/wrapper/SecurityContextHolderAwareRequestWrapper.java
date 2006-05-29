@@ -120,9 +120,10 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
     }
 
     /**
-     * Simple searches for an exactly matching {@link GrantedAuthority#getAuthority()}.<p>Will always return
-     * <code>false</code> if the <code>SecurityContextHolder</code> contains an <code>Authentication</code> with
-     * <code>null</code><code>principal</code> and/or <code>GrantedAuthority[]</code> objects.</p>
+     * Simple searches for an exactly matching {@link org.acegisecurity.GrantedAuthority#getAuthority()}.<p>Will
+     * always return <code>false</code> if the <code>SecurityContextHolder</code> contains an
+     * <code>Authentication</code> with <code>null</code><code>principal</code> and/or <code>GrantedAuthority[]</code>
+     * objects.</p>
      *
      * @param role the <code>GrantedAuthority</code><code>String</code> representation to check for
      *

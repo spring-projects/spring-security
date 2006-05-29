@@ -73,7 +73,7 @@ public interface Authz {
 
     /**
      * return true if the principal holds either permission specified for the provided domain object<P>Only
-     * works with permissions that are subclasses of {@link net.sf.acegisecurity.acl.basic.AbstractBasicAclEntry}.</p>
+     * works with permissions that are subclasses of {@link org.acegisecurity.acl.basic.AbstractBasicAclEntry}.</p>
      *  <p>For this class to operate it must be able to access the application context via the
      * <code>WebApplicationContextUtils</code> and locate an {@link AclManager}.</p>
      *

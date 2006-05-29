@@ -51,9 +51,9 @@ import javax.servlet.ServletResponse;
 /**
  * Delegates <code>Filter</code> requests to a list of Spring-managed beans.<p>The <code>FilterChainProxy</code> is
  * loaded via a standard {@link org.acegisecurity.util.FilterToBeanProxy} declaration in <code>web.xml</code>.
- * <code>FilterChainProxy</code> will then pass {@link #init(FilterConfig)}, {@link #destroy()}, {@link #doInit()} and
- * {@link #doFilter(ServletRequest, ServletResponse, FilterChain)} invocations through to each <code>Filter</code>
- * defined against <code>FilterChainProxy</code>.</p>
+ * <code>FilterChainProxy</code> will then pass {@link #init(FilterConfig)}, {@link #destroy()} and {@link
+ * #doFilter(ServletRequest, ServletResponse, FilterChain)} invocations through to each <code>Filter</code> defined
+ * against <code>FilterChainProxy</code>.</p>
  *  <p><code>FilterChainProxy</code> is configured using a standard {@link
  * org.acegisecurity.intercept.web.FilterInvocationDefinitionSource}. Each possible URI pattern that
  * <code>FilterChainProxy</code> should service must be entered. The first matching URI pattern located by

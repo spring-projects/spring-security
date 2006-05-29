@@ -37,8 +37,8 @@ import org.springframework.util.Assert;
 /**
  * An {@link AuthenticationProvider} implementation that validates {@link
  * org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken}s.<p>To be successfully validated, the
- * {@link{@link org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken#getKeyHash()} must match this
- * class' {@link #getKey()}.</p>
+ * {@link org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken#getKeyHash()} must match this class'
+ * {@link #getKey()}.</p>
  */
 public class RememberMeAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
     //~ Static fields/initializers =====================================================================================

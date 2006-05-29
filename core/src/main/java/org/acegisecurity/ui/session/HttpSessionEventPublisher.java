@@ -58,8 +58,7 @@ public class HttpSessionEventPublisher implements HttpSessionListener, ServletCo
     public void contextDestroyed(ServletContextEvent event) {}
 
     /**
-     * Handled internally by a call to {@link
-     * org.springframework.web.appContext.support.WebApplicationContextUtils#getRequiredWebApplicationContext(javax.servlet.ServletContext)}
+     * Handled internally by a call to {@link WebApplicationContextUtils#getWebApplicationContext(javax.servlet.ServletContext)}.
      *
      * @param event the ServletContextEvent passed in by the container, event.getServletContext() will be used to get
      *        the WebApplicationContext

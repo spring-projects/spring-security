@@ -71,7 +71,7 @@ import javax.servlet.http.HttpServletResponse;
  *  <p>This is a basic remember-me implementation which is suitable for many applications. However, we recommend a
  * database-based implementation if you require a more secure remember-me approach.</p>
  *  <p>By default the tokens will be valid for 14 days from the last successful authentication attempt. This can be
- * changed using {@link #setTokenValiditySeconds(int)}.</p>
+ * changed using {@link #setTokenValiditySeconds(long)}.</p>
  *
  * @author Ben Alex
  * @version $Id$
