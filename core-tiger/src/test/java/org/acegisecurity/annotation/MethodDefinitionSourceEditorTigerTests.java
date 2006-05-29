@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.intercept.method;
+package org.acegisecurity.annotation;
 
 import junit.framework.TestCase;
 
