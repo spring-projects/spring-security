@@ -1,4 +1,8 @@
-<html>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
 <title>Acegi Security - Upgrading from version 0.8.0 to 1.0.0</title>
 </head>
@@ -8,86 +12,110 @@
 <p>
 The following should help most casual users of the project update their
 applications:
+</p>
 
-    <ul>
-    
-    <h1>Changes 0.9.0 to RC1</h1>
+<h1>Changes 0.9.0 to RC1</h1>
 
-    <li>The top level package name has changed. Simply find "net.sf.acegisecurity" and replace with
-	"org.acegisecurity".</li>
-	
-	<li>
-		DaoAuthenticationProvider has a property, authenticationDao. This property should now be renamed to
-		userDetailsService.
-	</li>
-		
-	<li>
-		In JSPs, each "authz" taglib prefix must be changed from uri="http://acegisecurity.sf.net/authz"
-		to uri="http://acegisecurity.org/authz".
-	</li>
-		
-	<li>net.sf.acegisecurity.providers.dao.AuthenticationDao is now org.acegisecurity.userdetails.UserDetailsService.
-	The interface signature has not changed. Similarly, User and UserDetails have moved into the latter's package as well.
-	If you've implemented your own AuthenticationDao, you'll need to change the class it's implementing and quite likely
-	the import packages for User and UserDetails. In addition, if using JdbcDaoImpl or InMemoryDaoImpl please
-	note they have moved to this new package.</li>
-		
-	<li>Acegi Security is now localised. In net.sf.acegisecurity you will find a messages.properties. It is
-	suggested to register this in your application context, perhaps using ReloadableResourceBundleMessageSource.
-	If you do not do this, the default messages included in the source code will be used so this change is
-	not critical. The Spring LocaleContextHolder class is used to determine the locale of messages included in
-	exceptions. At present only the default messages.properties is included (which is in English). If
-	you localise this file to another language, please consider attaching it to a
-	<a href="http://opensource2.atlassian.com/projects/spring/secure/BrowseProject.jspa?id=10040">new JIRA task</a>
-	so that we can include it in future Acegi Security releases.</li>
-	
-    <h1>Changes RC1 to RC2</h1>
-	
-	<li>
-	org.acegisecurity.ui.rememberme.RememberMeProcessingFilter now requires an authenticationManager property. This will generally
-	point to an implementation of org.acegisecurity.providers.ProviderManager.
-	</li>
-	
-	<li>
-	org.acegisecurity.intercept.web.AuthenticationEntryPoint has moved to a new location,
-	org.acegisecurity.ui.AuthenticationEntryPoint.
-	</li>
-	
-	<li>
-	org.acegisecurity.intercept.web.SecurityEnforcementFilter has moved to a new location and name,
-	org.acegisecurity.ui.ExceptionTranslationFilter. In addition, the "filterSecurityInterceptor"
-	property on the old SecurityEnforcementFilter class has been removed. This is because
-	SecurityEnforcementFilter will no longer delegate to FilterSecurityInterceptor as it has in the
-	past. Because this delegation feature has been removed (see SEC-144 for a background as to why),
-	please add a new filter definition for FilterSecurityInterceptor to the end of your
-	FilterChainProxy. Generally you'll also rename the old SecurityEnforcementFilter entry in your
-	FilterChainProxy to ExceptionTranslationFilter, more accurately reflecting its purpose.
-	If you are not using FilterChainProxy (although we recommend that you do), you will need to add
-	an additional filter entry to web.xml and use FilterToBeanProxy to access the FilterSecurityInterceptor.
-	</li>
-	
-	<li>
-	If you are directly using SecurityContextHolder.setContext(SecurityContext) - which is not
-	very common - please not that best practise is now to call SecurityContextHolder.clearContext()
-	if you wish to erase the contents of the SecurityContextHolder. Previously code such as
-	SecurityContextHolder.setContext(new SecurityContextImpl()) would have been used. The revised
-	method internally stores null, which helps avoids redeployment issue caused by the previous
-	approaches (see SEC-159 for further details).
-	</li>
+<ul>
 
-    <h1>Changes RC2 to Final</h1>
-	
-	<li>
-	AbstractProcessingFilter.onUnsuccessfulAuthentication(HttpServletRequest, HttpServletResponse)
-    has changed it signature (SEC-238). If subclassing, please override the new signature.
-	</li>
-	
-	<li>
-	ExceptionTranslationFilter no longer provides a sendAccessDenied() method. Use the
-	new AccessDeniedHandler instead if custom handling is required.
-	</li>
-	
-    </ul>
+<li>The top level package name has changed. Simply find "net.sf.acegisecurity" and replace with
+"org.acegisecurity".</li>
+
+<li>
+DaoAuthenticationProvider has a property, authenticationDao. This property should now be renamed to
+userDetailsService.
+</li>
+
+<li>
+In JSPs, each "authz" taglib prefix must be changed from uri="http://acegisecurity.sf.net/authz"
+to uri="http://acegisecurity.org/authz".
+</li>
+
+<li>net.sf.acegisecurity.providers.dao.AuthenticationDao is now org.acegisecurity.userdetails.UserDetailsService.
+The interface signature has not changed. Similarly, User and UserDetails have moved into the latter's package as well.
+If you've implemented your own AuthenticationDao, you'll need to change the class it's implementing and quite likely
+the import packages for User and UserDetails. In addition, if using JdbcDaoImpl or InMemoryDaoImpl please
+note they have moved to this new package.</li>
+
+<li>Acegi Security is now localised. In net.sf.acegisecurity you will find a messages.properties. It is
+suggested to register this in your application context, perhaps using ReloadableResourceBundleMessageSource.
+If you do not do this, the default messages included in the source code will be used so this change is
+not critical. The Spring LocaleContextHolder class is used to determine the locale of messages included in
+exceptions. At present only the default messages.properties is included (which is in English). If
+you localise this file to another language, please consider attaching it to a
+<a href="http://opensource2.atlassian.com/projects/spring/secure/BrowseProject.jspa?id=10040">new JIRA task</a>
+so that we can include it in future Acegi Security releases.</li>
+
+</ul>
+
+
+<h1>Changes RC1 to RC2</h1>
+
+
+<ul>
+
+<li>
+org.acegisecurity.ui.rememberme.RememberMeProcessingFilter now requires an authenticationManager property. This will generally
+point to an implementation of org.acegisecurity.providers.ProviderManager.
+</li>
+
+<li>
+org.acegisecurity.intercept.web.AuthenticationEntryPoint has moved to a new location,
+org.acegisecurity.ui.AuthenticationEntryPoint.
+</li>
+
+<li>
+org.acegisecurity.intercept.web.SecurityEnforcementFilter has moved to a new location and name,
+org.acegisecurity.ui.ExceptionTranslationFilter. In addition, the "filterSecurityInterceptor"
+property on the old SecurityEnforcementFilter class has been removed. This is because
+SecurityEnforcementFilter will no longer delegate to FilterSecurityInterceptor as it has in the
+past. Because this delegation feature has been removed (see SEC-144 for a background as to why),
+please add a new filter definition for FilterSecurityInterceptor to the end of your
+FilterChainProxy. Generally you'll also rename the old SecurityEnforcementFilter entry in your
+FilterChainProxy to ExceptionTranslationFilter, more accurately reflecting its purpose.
+If you are not using FilterChainProxy (although we recommend that you do), you will need to add
+an additional filter entry to web.xml and use FilterToBeanProxy to access the FilterSecurityInterceptor.
+</li>
+
+<li>
+If you are directly using SecurityContextHolder.setContext(SecurityContext) - which is not
+very common - please not that best practise is now to call SecurityContextHolder.clearContext()
+if you wish to erase the contents of the SecurityContextHolder. Previously code such as
+SecurityContextHolder.setContext(new SecurityContextImpl()) would have been used. The revised
+method internally stores null, which helps avoids redeployment issue caused by the previous
+approaches (see SEC-159 for further details).
+</li>
+
+</ul>
+
+
+<h1>Changes RC2 to Final</h1>
+
+
+<ul>
+
+<li>
+AbstractProcessingFilter.onUnsuccessfulAuthentication(HttpServletRequest, HttpServletResponse)
+has changed it signature (SEC-238). If subclassing, please override the new signature.
+</li>
+
+<li>
+ExceptionTranslationFilter no longer provides a sendAccessDenied() method. Use the
+new AccessDeniedHandler instead if custom handling is required.
+</li>
+
+<li>
+There have been some changes to the LDAP provider APIs to allow for future improvements, as detailed in
+<a href="http://opensource.atlassian.com/projects/spring/browse/SEC-264">SEC-264</a>. These
+should only affect users who have written their own extensions to the provider. The general LDAP
+classes are now in the packages org.acegisecurity.ldap and the org.acegisecurity.userdetails.ldap
+package has been introduced. The search and authentication classes now return an
+<a href="../multiproject/acegi-security/apidocs/org/acegisecurity/userdetails/ldap/LdapUserDetails.html">LdapUserDetails</a>
+instance. The LdapAuthoritiesPopulator interface and its default implementation now both make use of
+LdapUserDetails. Any customized versions should be updated to use the new method signatures.
+</li>
+
+</ul>
 
 </body>
 </html>
