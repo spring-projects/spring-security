@@ -33,8 +33,8 @@
 	<classpathentry kind="src" path="core/src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="MAVEN_REPO/com.caucho/jars/resin-3.0.9.jar"/>
-	<classpathentry sourcepath="/MAVEN_REPO/springframework/src/spring-2.0-m2.zip" kind="var" path="MAVEN_REPO/springframework/jars/spring-2.0-m2.jar"/>
-	<classpathentry sourcepath="/MAVEN_REPO/springframework/src/spring-2.0-m2.zip" kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-2.0-m2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-2.0-m2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-mock-2.0-m2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/aopalliance/jars/aopalliance-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/aspectj/jars/aspectjrt-1.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/cas/jars/casclient-2.0.11.jar"/>
@@ -76,7 +76,7 @@
 	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.shared/jars/shared-ldap-0.9.5.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/antlr/jars/antlr-2.7.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/ldapsdk/jars/ldapsdk-4.1.jar"/>
-	<classpathentry sourcepath="/MAVEN_REPO/springframework/src/spring-2.0-m2.zip" kind="var" path="MAVEN_REPO/springframework/jars/spring-hibernate3-2.0-m2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-hibernate3-2.0-m2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/cas/jars/cas-server-3.0.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/net.sourceforge.retroweaver/jars/retroweaver-1.0fcs.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/taglibs/jars/standard-1.0.6.jar"/>
