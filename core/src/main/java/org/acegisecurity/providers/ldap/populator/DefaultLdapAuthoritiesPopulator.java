@@ -70,7 +70,9 @@ import javax.naming.directory.SearchControls;
  * &lt;!-- the following properties are shown with their default values -->
  *   &lt;property name="searchSubTree">&lt;value>false&lt;/value>&lt;/property>
  *   &lt;property name="rolePrefix">&lt;value>ROLE_&lt;/value>&lt;/property>
- *   &lt;property name="convertToUpperCase">&lt;value>true&lt;/value>&lt;/property>&lt;/bean></pre>A search for
+ *   &lt;property name="convertToUpperCase">&lt;value>true&lt;/value>&lt;/property>
+ * &lt;/bean>
+ * </pre>A search for
  * roles for user "uid=ben,ou=people,dc=acegisecurity,dc=org" would return the single granted authority
  * "ROLE_DEVELOPER".</p>
  *
