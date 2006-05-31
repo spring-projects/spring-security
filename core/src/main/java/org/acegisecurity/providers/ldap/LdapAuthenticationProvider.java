@@ -18,6 +18,7 @@ package org.acegisecurity.providers.ldap;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.AuthenticationServiceException;
 
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.dao.AbstractUserDetailsAuthenticationProvider;
@@ -31,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.dao.DataAccessException;
 
 
 /**
@@ -132,7 +134,7 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     //~ Methods ========================================================================================================
 
     protected void additionalAuthenticationChecks(UserDetails userDetails,
-        UsernamePasswordAuthenticationToken authentication)
+                                                  UsernamePasswordAuthenticationToken authentication)
         throws AuthenticationException {
         if (!userDetails.getPassword().equals(authentication.getCredentials().toString())) {
             throw new BadCredentialsException(messages.getMessage(
@@ -192,8 +194,13 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
                     "Empty Password"));
         }
 
-        LdapUserDetails ldapUser = authenticator.authenticate(username, password);
+        try {
+            LdapUserDetails ldapUser = authenticator.authenticate(username, password);
 
-        return createUserDetails(ldapUser, username, password);
+            return createUserDetails(ldapUser, username, password);
+
+        } catch (DataAccessException ldapAccessFailure) {
+            throw new AuthenticationServiceException(ldapAccessFailure.getMessage(), ldapAccessFailure);
+        }
     }
 }
