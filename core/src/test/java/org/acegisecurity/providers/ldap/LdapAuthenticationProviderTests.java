@@ -86,6 +86,23 @@ public class LdapAuthenticationProviderTests extends TestCase {
         } catch (BadCredentialsException expected) {}
     }
 
+    public void testEmptyPasswordIsAcceptedByDefault() {
+        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
+                new MockAuthoritiesPopulator());
+        ldapProvider.retrieveUser("jen", new UsernamePasswordAuthenticationToken("jen", ""));
+    }
+
+    public void testEmptyPasswordIsRejectedWhenFlagIsSet() {
+        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
+                new MockAuthoritiesPopulator());
+        ldapProvider.setAllowEmptyPasswords(false);
+
+        try {
+            ldapProvider.retrieveUser("jen", new UsernamePasswordAuthenticationToken("jen", ""));
+            fail("Expected BadCredentialsException for empty password");
+        } catch (BadCredentialsException expected) {}
+    }
+
     public void testNormalUsage() {
         LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
                 new MockAuthoritiesPopulator());
@@ -114,17 +131,23 @@ public class LdapAuthenticationProviderTests extends TestCase {
         Attributes userAttributes = new BasicAttributes("cn", "bob");
 
         public LdapUserDetails authenticate(String username, String password) {
+            LdapUserDetailsImpl.Essence userEssence = new LdapUserDetailsImpl.Essence();
+            userEssence.setPassword("{SHA}anencodedpassword");
+            userEssence.setAttributes(userAttributes);
+
             if (username.equals("bob") && password.equals("bobspassword")) {
-                LdapUserDetailsImpl.Essence userEssence = new LdapUserDetailsImpl.Essence();
                 userEssence.setDn("cn=bob,ou=people,dc=acegisecurity,dc=org");
-                userEssence.setPassword("{SHA}anencodedpassword");
-                userEssence.setAttributes(userAttributes);
+                userEssence.addAuthority(new GrantedAuthorityImpl("ROLE_FROM_ENTRY"));
+
+                return userEssence.createUserDetails();
+            } else if (username.equals("jen") && password.equals("")) {
+                userEssence.setDn("cn=jen,ou=people,dc=acegisecurity,dc=org");
                 userEssence.addAuthority(new GrantedAuthorityImpl("ROLE_FROM_ENTRY"));
 
                 return userEssence.createUserDetails();
             }
 
-            throw new BadCredentialsException("Authentication of Bob failed.");
+            throw new BadCredentialsException("Authentication failed.");
         }
     }
 

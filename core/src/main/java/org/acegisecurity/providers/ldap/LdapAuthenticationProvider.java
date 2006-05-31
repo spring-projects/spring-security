@@ -35,39 +35,59 @@ import org.springframework.util.StringUtils;
 
 /**
  * An {@link org.acegisecurity.providers.AuthenticationProvider} implementation that provides integration with an
- * LDAP server.<p>There are many ways in which an LDAP directory can be configured so this class delegates most of
- * its responsibilites to two separate strategy interfaces, {@link LdapAuthenticator} and {@link
- * LdapAuthoritiesPopulator}.</p>
- *  <h3>LdapAuthenticator</h3>This interface is responsible for performing the user authentication and retrieving
+ * LDAP server.
+ *
+ * <p>There are many ways in which an LDAP directory can be configured so this class delegates most of
+ * its responsibilites to two separate strategy interfaces, {@link LdapAuthenticator}
+ * and {@link LdapAuthoritiesPopulator}.</p>
+ *
+ *  <h3>LdapAuthenticator</h3>
+ * This interface is responsible for performing the user authentication and retrieving
  * the user's information from the directory. Example implementations are {@link
  * org.acegisecurity.providers.ldap.authenticator.BindAuthenticator BindAuthenticator} which authenticates the user by
  * "binding" as that user, and {@link org.acegisecurity.providers.ldap.authenticator.PasswordComparisonAuthenticator
  * PasswordComparisonAuthenticator} which performs a comparison of the supplied password with the value stored in the
- * directory, either by retrieving the password or performing an LDAP "compare" operation.<p>The task of retrieving
- * the user attributes is delegated to the authenticator because the permissions on the attributes may depend on the
- * type of authentication being used; for example, if binding as the user, it may be necessary to read them with the
- * user's own permissions (using the same context used for the bind operation).</p>
- *  <h3>LdapAuthoritiesPopulator</h3>Once the user has been authenticated, this interface is called to obtain the
- * set of granted authorities for the user. The {@link
- * org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator DefaultLdapAuthoritiesPopulator} can be
- * configured to obtain user role information from the user's attributes and/or to perform a search for "groups" that
- * the user is a member of and map these to roles.<p>A custom implementation could obtain the roles from a
- * completely different source, for example from a database.</p>
- *  <h3>Configuration</h3>A simple configuration might be as follows:<pre>
+ * directory, either by retrieving the password or performing an LDAP "compare" operation.
+ * <p>The task of retrieving the user attributes is delegated to the authenticator because the permissions on the
+ * attributes may depend on the type of authentication being used; for example, if binding as the user, it may be
+ * necessary to read them with the user's own permissions (using the same context used for the bind operation).</p>
+ *
+ *  <h3>LdapAuthoritiesPopulator</h3>
+ * Once the user has been authenticated, this interface is called to obtain the set of granted authorities for the
+ * user.
+ * The
+ * {@link org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator DefaultLdapAuthoritiesPopulator}
+ * can be configured to obtain user role information from the user's attributes and/or to perform a search for
+ * "groups" that the user is a member of and map these to roles.
+ *
+ * <p>A custom implementation could obtain the roles from a completely different source, for example from a database.
+ * </p>
+ *
+ *  <h3>Configuration</h3>A simple configuration might be as follows:
+ * <pre>
  *    &lt;bean id="initialDirContextFactory" class="org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory">
  *      &lt;constructor-arg value="ldap://monkeymachine:389/dc=acegisecurity,dc=org"/>
  *      &lt;property name="managerDn">&lt;value>cn=manager,dc=acegisecurity,dc=org&lt;/value>&lt;/property>
- *      &lt;property name="managerPassword">&lt;value>password&lt;/value>&lt;/property>   &lt;/bean>
+ *      &lt;property name="managerPassword">&lt;value>password&lt;/value>&lt;/property>
+ *    &lt;/bean>
+ *
  *    &lt;bean id="ldapAuthProvider" class="org.acegisecurity.providers.ldap.LdapAuthenticationProvider">
- *    &lt;constructor-arg>     &lt;bean class="org.acegisecurity.providers.ldap.authenticator.BindAuthenticator">
- *         &lt;constructor-arg>&lt;ref local="initialDirContextFactory"/>&lt;/constructor-arg>
- *         &lt;property name="userDnPatterns">&lt;list>&lt;value>uid={0},ou=people&lt;/value>&lt;/list>&lt;/property>
- *      &lt;/bean>   &lt;/constructor-arg>   &lt;constructor-arg>
- *      &lt;bean class="org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
- *         &lt;constructor-arg>&lt;ref local="initialDirContextFactory"/>&lt;/constructor-arg>
- *         &lt;constructor-arg>&lt;value>ou=groups&lt;/value>&lt;/constructor-arg>
- *         &lt;property name="groupRoleAttribute">&lt;value>ou&lt;/value>&lt;/property>     &lt;/bean>
- *    &lt;/constructor-arg> &lt;/bean></pre><p>This would set up the provider to access an LDAP server with URL
+ *      &lt;constructor-arg>
+ *        &lt;bean class="org.acegisecurity.providers.ldap.authenticator.BindAuthenticator">
+ *          &lt;constructor-arg>&lt;ref local="initialDirContextFactory"/>&lt;/constructor-arg>
+ *          &lt;property name="userDnPatterns">&lt;list>&lt;value>uid={0},ou=people&lt;/value>&lt;/list>&lt;/property>
+ *        &lt;/bean>
+ *      &lt;/constructor-arg>
+ *      &lt;constructor-arg>
+ *        &lt;bean class="org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
+ *          &lt;constructor-arg>&lt;ref local="initialDirContextFactory"/>&lt;/constructor-arg>
+ *          &lt;constructor-arg>&lt;value>ou=groups&lt;/value>&lt;/constructor-arg>
+ *          &lt;property name="groupRoleAttribute">&lt;value>ou&lt;/value>&lt;/property>
+ *        &lt;/bean>
+ *      &lt;/constructor-arg>
+ *    &lt;/bean></pre>
+ *
+ * <p>This would set up the provider to access an LDAP server with URL
  * <tt>ldap://monkeymachine:389/dc=acegisecurity,dc=org</tt>. Authentication will be performed by attempting to bind
  * with the DN <tt>uid=&lt;user-login-name&gt;,ou=people,dc=acegisecurity,dc=org</tt>. After successful
  * authentication, roles will be assigned to the user by searching under the DN
@@ -90,6 +110,9 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     private LdapAuthenticator authenticator;
     private LdapAuthoritiesPopulator authoritiesPopulator;
 
+    /** The provider will reject an authentication request with an empty password if this is set to "true" */
+    private boolean allowEmptyPasswords = true;
+
     //~ Constructors ===================================================================================================
 
     public LdapAuthenticationProvider(LdapAuthenticator authenticator, LdapAuthoritiesPopulator authoritiesPopulator) {
@@ -109,6 +132,15 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
             throw new BadCredentialsException(messages.getMessage(
                     "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"), userDetails);
         }
+    }
+
+    /**
+     * Determines whether the provider will reject empty passwords by default.
+     * This may be useful when using LDAP servers which interpret an empty password as
+     * anonymous access, even if a (possibly non-existent) principal is supplied.
+     */
+    public void setAllowEmptyPasswords(boolean allowEmptyPasswords) {
+        this.allowEmptyPasswords = allowEmptyPasswords;
     }
 
     /**
@@ -156,6 +188,12 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
 
         String password = (String) authentication.getCredentials();
         Assert.notNull(password, "Null password was supplied in authentication token");
+
+        if(!allowEmptyPasswords && password.length() == 0) {
+            logger.debug("Rejecting empty password for user " + username);
+            throw new BadCredentialsException(messages.getMessage("LdapAuthenticationProvider.emptyPassword",
+                    "Empty Password"));
+        }
 
         LdapUserDetails ldapUser = authenticator.authenticate(username, password);
 
