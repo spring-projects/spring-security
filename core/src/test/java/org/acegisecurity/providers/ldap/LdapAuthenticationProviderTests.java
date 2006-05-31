@@ -34,8 +34,7 @@ import javax.naming.directory.BasicAttributes;
 
 
 /**
- * 
-DOCUMENT ME!
+ * Tests {@link LdapAuthenticationProvider}.
  *
  * @author Luke Taylor
  * @version $Id$
@@ -86,20 +85,13 @@ public class LdapAuthenticationProviderTests extends TestCase {
         } catch (BadCredentialsException expected) {}
     }
 
-    public void testEmptyPasswordIsRejectedByDefault() {
+    public void testEmptyPasswordIsRejected() {
         LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
                 new MockAuthoritiesPopulator());
         try {
             ldapProvider.retrieveUser("jen", new UsernamePasswordAuthenticationToken("jen", ""));
             fail("Expected BadCredentialsException for empty password");
         } catch (BadCredentialsException expected) {}
-    }
-
-    public void testEmptyPasswordIsAcceptedWhenFlagIsSet() {
-        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
-                new MockAuthoritiesPopulator());
-        ldapProvider.setAllowEmptyPasswords(true);
-        ldapProvider.retrieveUser("jen", new UsernamePasswordAuthenticationToken("jen", ""));
     }
 
     public void testNormalUsage() {

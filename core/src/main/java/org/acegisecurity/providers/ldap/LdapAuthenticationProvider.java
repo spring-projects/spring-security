@@ -41,7 +41,7 @@ import org.springframework.util.StringUtils;
  * its responsibilites to two separate strategy interfaces, {@link LdapAuthenticator}
  * and {@link LdapAuthoritiesPopulator}.</p>
  *
- *  <h3>LdapAuthenticator</h3>
+ * <h3>LdapAuthenticator</h3>
  * This interface is responsible for performing the user authentication and retrieving
  * the user's information from the directory. Example implementations are {@link
  * org.acegisecurity.providers.ldap.authenticator.BindAuthenticator BindAuthenticator} which authenticates the user by
@@ -52,7 +52,7 @@ import org.springframework.util.StringUtils;
  * attributes may depend on the type of authentication being used; for example, if binding as the user, it may be
  * necessary to read them with the user's own permissions (using the same context used for the bind operation).</p>
  *
- *  <h3>LdapAuthoritiesPopulator</h3>
+ * <h3>LdapAuthoritiesPopulator</h3>
  * Once the user has been authenticated, this interface is called to obtain the set of granted authorities for the
  * user.
  * The
@@ -63,7 +63,7 @@ import org.springframework.util.StringUtils;
  * <p>A custom implementation could obtain the roles from a completely different source, for example from a database.
  * </p>
  *
- *  <h3>Configuration</h3>A simple configuration might be as follows:
+ * <h3>Configuration</h3>A simple configuration might be as follows:
  * <pre>
  *    &lt;bean id="initialDirContextFactory" class="org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory">
  *      &lt;constructor-arg value="ldap://monkeymachine:389/dc=acegisecurity,dc=org"/>
@@ -93,6 +93,15 @@ import org.springframework.util.StringUtils;
  * authentication, roles will be assigned to the user by searching under the DN
  * <tt>ou=groups,dc=acegisecurity,dc=org</tt> with the default filter <tt>(member=&lt;user's-DN&gt;)</tt>. The role
  * name will be taken from the "ou" attribute of each match.</p>
+ * <p>
+ * The authenticate method will reject empty passwords outright. LDAP servers may allow an anonymous
+ * bind operation with an empty password, even if a DN is supplied. In practice this means that if
+ * the LDAP directory is configured to allow unauthenitcated access, it might be possible to
+ * authenticate as <i>any</i> user just by supplying an empty password.
+ * More information on the misuse of unauthenticated access can be found in
+ * <a href="http://www.ietf.org/internet-drafts/draft-ietf-ldapbis-authmeth-19.txt">
+ * draft-ietf-ldapbis-authmeth-19.txt</a>.
+ * </p>
  *
  * @author Luke Taylor
  * @version $Id$
@@ -109,9 +118,6 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
 
     private LdapAuthenticator authenticator;
     private LdapAuthoritiesPopulator authoritiesPopulator;
-
-    /** The provider will allow an authentication request with an empty password if this is true */
-    private boolean allowEmptyPasswords = false;
 
     //~ Constructors ===================================================================================================
 
@@ -132,24 +138,6 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
             throw new BadCredentialsException(messages.getMessage(
                     "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"), userDetails);
         }
-    }
-
-    /**
-     * Determines whether the provider will reject empty passwords by default.
-     * LDAP servers may allow an anonymous bind operation with an empty password, even if
-     * a DN is supplied. In practice this means that if the LDAP directory is configured
-     * to allow unauthenitcated access, it might be possible to authenticate as <i>any</i>
-     * user just by supplying an empty password.
-     * <p>
-     * The use of empty passwords is disabled by default and should only be allowed
-     * if you have a very good reason.
-     * More information on the misuse of unauthenticated access can be found in
-     * <a href="http://www.ietf.org/internet-drafts/draft-ietf-ldapbis-authmeth-19.txt">
-     * draft-ietf-ldapbis-authmeth-19.txt</a>
-     * </p>
-     */
-    public void setAllowEmptyPasswords(boolean allowEmptyPasswords) {
-        this.allowEmptyPasswords = allowEmptyPasswords;
     }
 
     /**
@@ -198,7 +186,7 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         String password = (String) authentication.getCredentials();
         Assert.notNull(password, "Null password was supplied in authentication token");
 
-        if(!allowEmptyPasswords && password.length() == 0) {
+        if (password.length() == 0) {
             logger.debug("Rejecting empty password for user " + username);
             throw new BadCredentialsException(messages.getMessage("LdapAuthenticationProvider.emptyPassword",
                     "Empty Password"));
