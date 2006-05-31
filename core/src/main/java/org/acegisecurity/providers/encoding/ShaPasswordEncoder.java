@@ -12,42 +12,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.acegisecurity.providers.encoding;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
-
 
 /**
  * <p>SHA implementation of PasswordEncoder.</p>
- *  <p>If a <code>null</code> password is presented, it will be treated as an empty <code>String</code> ("")
+ * <p>If a <code>null</code> password is presented, it will be treated as an empty <code>String</code> ("")
  * password.</p>
- *  <P>As SHA is a one-way hash, the salt can contain any characters.</p>
+ * <P>As SHA is a one-way hash, the salt can contain any characters.</p>
  *
+ * The default strength for the SHA encoding is SHA-1. If you wish to use higher strengths use the argumented constructor.
+ * {@link #ShaPasswordEncoder(int strength)}
+ * <br/>
+ * The applicationContext example... <br/>
+ * &lt;bean id="passwordEncoder" class="org.acegisecurity.providers.encoding.ShaPasswordEncoder"&gt;<br/>
+ * &nbsp;&nbsp;&lt;constructor-arg value="256"/><br/>
+ * &lt;/bean&gt;
+ *
+ *
+ * @author Ray Krueger
  * @author colin sampaleanu
  * @author Ben Alex
  * @version $Id$
  */
-public class ShaPasswordEncoder extends BaseDigestPasswordEncoder implements PasswordEncoder {
-    //~ Methods ========================================================================================================
+public class ShaPasswordEncoder extends MessageDigestPasswordEncoder {
 
-    public String encodePassword(String rawPass, Object salt) {
-        String saltedPass = mergePasswordAndSalt(rawPass, salt, false);
-
-        if (!getEncodeHashAsBase64()) {
-            return DigestUtils.shaHex(saltedPass);
-        }
-
-        byte[] encoded = Base64.encodeBase64(DigestUtils.sha(saltedPass));
-
-        return new String(encoded);
+    /**
+     * Initializes the ShaPasswordEncoder for SHA-1 strength
+     */
+    public ShaPasswordEncoder() {
+        this(1);
     }
 
-    public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-        String pass1 = "" + encPass;
-        String pass2 = encodePassword(rawPass, salt);
-
-        return pass1.equals(pass2);
+    /**
+     * Initialize the ShaPasswordEncoder with a given SHA stength as supported by the JVM
+     * EX: <code>ShaPasswordEncoder encoder = new ShaPasswordEncoder(256);</code> initializes with SHA-256
+     *
+     * @param strength EX: 1, 256, 384, 512
+     */
+    public ShaPasswordEncoder(int strength) {
+        super("SHA-" + strength);
     }
 }

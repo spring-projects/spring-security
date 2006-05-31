@@ -23,6 +23,7 @@ import junit.framework.TestCase;
  *
  * @author colin sampaleanu
  * @author Ben Alex
+ * @author Ray Krueger
  * @version $Id$
  */
 public class Md5PasswordEncoderTests extends TestCase {
@@ -36,11 +37,17 @@ public class Md5PasswordEncoderTests extends TestCase {
         String encoded = pe.encodePassword(raw, salt);
         assertTrue(pe.isPasswordValid(encoded, raw, salt));
         assertFalse(pe.isPasswordValid(encoded, badRaw, salt));
-        assertTrue(encoded.length() == 32);
+        assertEquals("a68aafd90299d0b137de28fb4bb68573", encoded);
+        assertEquals("MD5", pe.getAlgorithm());
+    }
 
-        // now try Base64
+    public void testBase64() throws Exception {
+        Md5PasswordEncoder pe = new Md5PasswordEncoder();
         pe.setEncodeHashAsBase64(true);
-        encoded = pe.encodePassword(raw, salt);
+        String raw = "abc123";
+        String badRaw = "abc321";
+        String salt = "THIS_IS_A_SALT";
+        String encoded = pe.encodePassword(raw, salt);
         assertTrue(pe.isPasswordValid(encoded, raw, salt));
         assertFalse(pe.isPasswordValid(encoded, badRaw, salt));
         assertTrue(encoded.length() != 32);

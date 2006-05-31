@@ -12,42 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.acegisecurity.providers.encoding;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
-
 
 /**
  * <p>MD5 implementation of PasswordEncoder.</p>
- *  <p>If a <code>null</code> password is presented, it will be treated as an empty <code>String</code> ("")
+ * <p>If a <code>null</code> password is presented, it will be treated as an empty <code>String</code> ("")
  * password.</p>
- *  <P>As MD5 is a one-way hash, the salt can contain any characters.</p>
+ * <P>As MD5 is a one-way hash, the salt can contain any characters.</p>
  *
+ * This is a convenience class that extends the
+ * {@link MessageDigestPasswordEncoder} and passes MD5 as the algorithm to use.
+ *
+ * @author Ray Krueger
  * @author colin sampaleanu
  * @author Ben Alex
  * @version $Id$
  */
-public class Md5PasswordEncoder extends BaseDigestPasswordEncoder implements PasswordEncoder {
-    //~ Methods ========================================================================================================
+public class Md5PasswordEncoder extends MessageDigestPasswordEncoder {
 
-    public String encodePassword(String rawPass, Object salt) {
-        String saltedPass = mergePasswordAndSalt(rawPass, salt, false);
-
-        if (!getEncodeHashAsBase64()) {
-            return DigestUtils.md5Hex(saltedPass);
-        }
-
-        byte[] encoded = Base64.encodeBase64(DigestUtils.md5(saltedPass));
-
-        return new String(encoded);
-    }
-
-    public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-        String pass1 = "" + encPass;
-        String pass2 = encodePassword(rawPass, salt);
-
-        return pass1.equals(pass2);
+    public Md5PasswordEncoder() {
+        super("MD5");
     }
 }
