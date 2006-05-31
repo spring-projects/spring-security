@@ -27,7 +27,7 @@ import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 
 import org.springframework.util.Assert;
 
@@ -123,8 +123,12 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
             user.setUsername(username);
 
             return user.createUserDetails();
-        } catch (EmptyResultDataAccessException notFound) {
-            throw new UsernameNotFoundException("User " + username + " not found in directory.");
+        } catch (IncorrectResultSizeDataAccessException notFound) {
+            if(notFound.getActualSize() == 0) {
+                throw new UsernameNotFoundException("User " + username + " not found in directory.");
+            }
+            // Search should never return multiple results if properly configured, so just rethrow
+            throw notFound;
         }
     }
 

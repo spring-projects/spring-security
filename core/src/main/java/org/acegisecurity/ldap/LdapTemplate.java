@@ -16,7 +16,6 @@
 package org.acegisecurity.ldap;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 
 import org.springframework.util.Assert;
@@ -234,8 +233,7 @@ public class LdapTemplate {
      *
      * @return the object created by the mapper from the matching entry
      *
-     * @throws EmptyResultDataAccessException if no results are found.
-     * @throws IncorrectResultSizeDataAccessException if the search returns more than one result.
+     * @throws IncorrectResultSizeDataAccessException if no results are found or the search returns more than one result.
      */
     public Object searchForSingleEntry(final String base, final String filter, final Object[] params,
         final LdapEntryMapper mapper) {
@@ -245,13 +243,14 @@ public class LdapTemplate {
                     NamingEnumeration results = ctx.search(base, filter, params, searchControls);
 
                     if (!results.hasMore()) {
-                        throw new EmptyResultDataAccessException(1);
+                        throw new IncorrectResultSizeDataAccessException(1, 0);
                     }
 
                     SearchResult searchResult = (SearchResult) results.next();
 
                     if (results.hasMore()) {
-                        throw new IncorrectResultSizeDataAccessException(1);
+                        // We don't know how many results but set to 2 which is good enough
+                        throw new IncorrectResultSizeDataAccessException(1, 2);
                     }
 
                     // Work out the DN of the matched entry
