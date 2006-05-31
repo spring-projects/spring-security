@@ -110,8 +110,8 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     private LdapAuthenticator authenticator;
     private LdapAuthoritiesPopulator authoritiesPopulator;
 
-    /** The provider will reject an authentication request with an empty password if this is set to "true" */
-    private boolean allowEmptyPasswords = true;
+    /** The provider will allow an authentication request with an empty password if this is true */
+    private boolean allowEmptyPasswords = false;
 
     //~ Constructors ===================================================================================================
 
@@ -136,8 +136,17 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
 
     /**
      * Determines whether the provider will reject empty passwords by default.
-     * This may be useful when using LDAP servers which interpret an empty password as
-     * anonymous access, even if a (possibly non-existent) principal is supplied.
+     * LDAP servers may allow an anonymous bind operation with an empty password, even if
+     * a DN is supplied. In practice this means that if the LDAP directory is configured
+     * to allow unauthenitcated access, it might be possible to authenticate as <i>any</i>
+     * user just by supplying an empty password.
+     * <p>
+     * The use of empty passwords is disabled by default and should only be allowed
+     * if you have a very good reason.
+     * More information on the misuse of unauthenticated access can be found in
+     * <a href="http://www.ietf.org/internet-drafts/draft-ietf-ldapbis-authmeth-19.txt">
+     * draft-ietf-ldapbis-authmeth-19.txt</a>
+     * </p>
      */
     public void setAllowEmptyPasswords(boolean allowEmptyPasswords) {
         this.allowEmptyPasswords = allowEmptyPasswords;

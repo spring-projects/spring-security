@@ -86,21 +86,20 @@ public class LdapAuthenticationProviderTests extends TestCase {
         } catch (BadCredentialsException expected) {}
     }
 
-    public void testEmptyPasswordIsAcceptedByDefault() {
+    public void testEmptyPasswordIsRejectedByDefault() {
         LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
                 new MockAuthoritiesPopulator());
-        ldapProvider.retrieveUser("jen", new UsernamePasswordAuthenticationToken("jen", ""));
-    }
-
-    public void testEmptyPasswordIsRejectedWhenFlagIsSet() {
-        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
-                new MockAuthoritiesPopulator());
-        ldapProvider.setAllowEmptyPasswords(false);
-
         try {
             ldapProvider.retrieveUser("jen", new UsernamePasswordAuthenticationToken("jen", ""));
             fail("Expected BadCredentialsException for empty password");
         } catch (BadCredentialsException expected) {}
+    }
+
+    public void testEmptyPasswordIsAcceptedWhenFlagIsSet() {
+        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
+                new MockAuthoritiesPopulator());
+        ldapProvider.setAllowEmptyPasswords(true);
+        ldapProvider.retrieveUser("jen", new UsernamePasswordAuthenticationToken("jen", ""));
     }
 
     public void testNormalUsage() {
