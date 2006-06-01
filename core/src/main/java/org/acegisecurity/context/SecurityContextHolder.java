@@ -30,11 +30,11 @@ import java.lang.reflect.Constructor;
  * three valid <code>MODE_</code> settings defined as <code>static final</code> fields, or a fully qualified classname
  * to a concrete implementation of {@link org.acegisecurity.context.SecurityContextHolderStrategy} that provides a
  * public no-argument constructor.</p>
- *  <p>There are two ways to specify the desired mode <code>String</code>. The first is to specify it via the
- * system property keyed on {@link #SYSTEM_PROPERTY}. The second is to call {@link #setStrategyName(String)} before
- * using the class. If neither approach is used, the class will default to using {@link #MODE_THREADLOCAL}, which is
- * backwards compatible, has fewer JVM incompatibilities and is appropriate on servers (whereas {@link #MODE_GLOBAL}
- * is not).</p>
+ *  <p>There are two ways to specify the desired strategy mode <code>String</code>. The first is to specify it via
+ * the system property keyed on {@link #SYSTEM_PROPERTY}. The second is to call {@link #setStrategyName(String)}
+ * before using the class. If neither approach is used, the class will default to using {@link #MODE_THREADLOCAL},
+ * which is backwards compatible, has fewer JVM incompatibilities and is appropriate on servers (whereas {@link
+ * #MODE_GLOBAL} is definitely inappropriate for server use).</p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -49,8 +49,12 @@ public class SecurityContextHolder {
     public static final String MODE_GLOBAL = "MODE_GLOBAL";
     public static final String SYSTEM_PROPERTY = "acegi.security.strategy";
     private static String strategyName = System.getProperty(SYSTEM_PROPERTY);
-    private static Constructor customStrategy;
     private static SecurityContextHolderStrategy strategy;
+    private static int initializeCount = 0;
+
+    static {
+        initialize();
+    }
 
     //~ Methods ========================================================================================================
 
@@ -58,7 +62,6 @@ public class SecurityContextHolder {
      * Explicitly clears the context value from the current thread.
      */
     public static void clearContext() {
-        initialize();
         strategy.clearContext();
     }
 
@@ -68,9 +71,18 @@ public class SecurityContextHolder {
      * @return the security context (never <code>null</code>)
      */
     public static SecurityContext getContext() {
-        initialize();
-
         return strategy.getContext();
+    }
+
+    /**
+     * Primarily for troubleshooting purposes, this method shows how many times the class has reinitialized its
+     * <code>SecurityContextHolderStrategy</code>.
+     *
+     * @return the count (should be one unless you've called {@link #setStrategyName(String)} to switch to an alternate
+     *         strategy.
+     */
+    public static int getInitializeCount() {
+        return initializeCount;
     }
 
     private static void initialize() {
@@ -88,16 +100,15 @@ public class SecurityContextHolder {
         } else {
             // Try to load a custom strategy
             try {
-                if (customStrategy == null) {
-                    Class clazz = Class.forName(strategyName);
-                    customStrategy = clazz.getConstructor(new Class[] {});
-                }
-
+                Class clazz = Class.forName(strategyName);
+                Constructor customStrategy = clazz.getConstructor(new Class[] {});
                 strategy = (SecurityContextHolderStrategy) customStrategy.newInstance(new Object[] {});
             } catch (Exception ex) {
                 ReflectionUtils.handleReflectionException(ex);
             }
         }
+
+        initializeCount++;
     }
 
     /**
@@ -106,7 +117,6 @@ public class SecurityContextHolder {
      * @param context the new <code>SecurityContext</code> (may not be <code>null</code>)
      */
     public static void setContext(SecurityContext context) {
-        initialize();
         strategy.setContext(context);
     }
 
@@ -122,6 +132,6 @@ public class SecurityContextHolder {
     }
 
     public String toString() {
-        return "SecurityContextHolder[strategy='" + strategyName + "']";
+        return "SecurityContextHolder[strategy='" + strategyName + "'; initializeCount=" + initializeCount + "]";
     }
 }

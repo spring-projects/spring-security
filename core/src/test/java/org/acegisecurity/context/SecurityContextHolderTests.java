@@ -240,8 +240,8 @@ public class SecurityContextHolderTests extends TestCase {
 
     public void testSynchronizationCustomStrategyLoading() {
         SecurityContextHolder.setStrategyName(InheritableThreadLocalSecurityContextHolderStrategy.class.getName());
-        assertEquals("SecurityContextHolder[strategy='org.acegisecurity.context.InheritableThreadLocalSecurityContextHolderStrategy']",
-            new SecurityContextHolder().toString());
+        assertTrue(new SecurityContextHolder().toString()
+                                              .lastIndexOf("SecurityContextHolder[strategy='org.acegisecurity.context.InheritableThreadLocalSecurityContextHolderStrategy'") != -1);
         loadStartAndWaitForThreads(true, "Main_", 10, false, true);
         assertEquals("Thread errors detected; review log output for details", 0, errors);
     }
