@@ -3,6 +3,7 @@ package org.acegisecurity.ui.savedrequest;
 import junit.framework.TestCase;
 
 import javax.servlet.http.Cookie;
+import java.io.Serializable;
 
 public class SavedCookieTest extends TestCase {
 
@@ -60,4 +61,7 @@ public class SavedCookieTest extends TestCase {
         assertEquals(cookie.getVersion(), other.getVersion());
     }
 
+    public void testSerializable() throws Exception {
+        assertTrue(savedCookie instanceof Serializable);
+    }
 }
