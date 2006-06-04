@@ -81,14 +81,15 @@ import javax.servlet.http.HttpServletResponse;
  *  <p>To configure this filter to redirect to specific pages as the result of specific {@link
  * AuthenticationException}s you can do the following. Configure the <code>exceptionMappings</code> property in your
  * application xml. This property is a java.util.Properties object that maps a fully-qualified exception class name to
- * a redirection url target.<br>
- * For example:<br>
- * <code> &lt;property name="exceptionMappings"&gt;<br>
- * *  &nbsp;&nbsp;&lt;props&gt;<br>
- * *  &nbsp;&nbsp;&nbsp;&nbsp;&lt;prop&gt; key="org.acegisecurity.BadCredentialsException"&gt;/bad_credentials.jsp&lt;/prop&gt;<br>
- * *  &nbsp;&nbsp;&lt;/props&gt;<br>
- * *  &lt;/property&gt;<br>
- * * </code><br>
+ * a redirection url target.
+ * For example:
+ * <pre>
+ *  &lt;property name="exceptionMappings"&gt;
+ *    &lt;props&gt;
+ *      &lt;prop&gt; key="org.acegisecurity.BadCredentialsException"&gt;/bad_credentials.jsp&lt;/prop&gt;
+ *    &lt;/props&gt;
+ *  &lt;/property&gt;
+ * </pre>
  * The example above would redirect all {@link org.acegisecurity.BadCredentialsException}s thrown, to a page in the
  * web-application called /bad_credentials.jsp.</p>
  *  <p>Any {@link AuthenticationException} thrown that cannot be matched in the <code>exceptionMappings</code> will
@@ -122,7 +123,7 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
     private String authenticationFailureUrl;
 
     /**
-     * Where to redirect the browser to if authentication is successful but ACEGI_SECURITY_TARGET_URL_KEY is
+     * Where to redirect the browser to if authentication is successful but ACEGI_SAVED_REQUEST_KEY is
      * <code>null</code>
      */
     private String defaultTargetUrl;
@@ -134,7 +135,7 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
     private String filterProcessesUrl = getDefaultFilterProcessesUrl();
 
     /**
-     * If <code>true</code>, will always redirect to {@link #defaultTargetUrl} upon successful authentication,
+     * If <code>true</code>, will always redirect to the value of {@link #getDefaultTargetUrl} upon successful authentication,
      * irrespective of the page that caused the authentication request (defaults to <code>false</code>).
      */
     private boolean alwaysUseDefaultTargetUrl = false;
@@ -231,6 +232,14 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
      */
     public abstract String getDefaultFilterProcessesUrl();
 
+    /**
+     * Supplies the default target Url that will be used if no saved request is found or the
+     * <tt>alwaysUseDefaultTargetUrl</tt> propert is set to true.
+     * Override this method of you want to provide a customized default Url (for example if you want different Urls
+     * depending on the authorities of the user who has just logged in).
+     *
+     * @return the defaultTargetUrl property
+     */
     public String getDefaultTargetUrl() {
         return defaultTargetUrl;
     }
@@ -377,7 +386,7 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
         }
 
         if (targetUrl == null) {
-            targetUrl = request.getContextPath() + defaultTargetUrl;
+            targetUrl = request.getContextPath() + getDefaultTargetUrl();
         }
 
         if (logger.isDebugEnabled()) {
