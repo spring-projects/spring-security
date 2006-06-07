@@ -205,7 +205,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 //    }
 
 
-    public final Set getGroupMembershipRoles(String userDn, String username) {
+    public Set getGroupMembershipRoles(String userDn, String username) {
         Set authorities = new HashSet();
 
         if (groupSearchBase == null) {
