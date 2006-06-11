@@ -17,12 +17,12 @@ package org.acegisecurity.ui.savedrequest;
 
 import org.acegisecurity.util.PortResolver;
 import org.acegisecurity.util.UrlUtils;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.util.Assert;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -31,18 +31,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-
 
 /**
  * Represents central information from a <code>HttpServletRequest</code>.<p>This class is used by {@link
  * org.acegisecurity.ui.AbstractProcessingFilter} and {@link org.acegisecurity.wrapper.SavedRequestAwareWrapper} to
  * reproduce the request after successful authentication. An instance of this class is stored at the time of an
  * authentication exception by {@link org.acegisecurity.ui.ExceptionTranslationFilter}.</p>
- *  <p><em>IMPLEMENTATION NOTE</em>: It is assumed that this object is accessed only from the context of a single
+ * <p><em>IMPLEMENTATION NOTE</em>: It is assumed that this object is accessed only from the context of a single
  * thread, so no synchronization around internal collection classes is performed.</p>
- *  <p>This class is based on code in Apache Tomcat.</p>
+ * <p>This class is based on code in Apache Tomcat.</p>
  *
  * @author Craig McClanahan
  * @author Andrey Grebnev
@@ -133,7 +130,7 @@ public class SavedRequest implements java.io.Serializable {
     //~ Methods ========================================================================================================
 
     private void addCookie(Cookie cookie) {
-        cookies.add(cookie);
+        cookies.add(new SavedCookie(cookie));
     }
 
     private void addHeader(String name, String value) {
@@ -161,7 +158,6 @@ public class SavedRequest implements java.io.Serializable {
      *
      * @param request DOCUMENT ME!
      * @param portResolver DOCUMENT ME!
-     *
      * @return DOCUMENT ME!
      */
     public boolean doesRequestMatch(HttpServletRequest request, PortResolver portResolver) {
@@ -180,7 +176,8 @@ public class SavedRequest implements java.io.Serializable {
             return false;
         }
 
-        if (!propertyEquals("serverPort", new Integer(this.serverPort), new Integer(portResolver.getServerPort(request)))) {
+        if (!propertyEquals("serverPort", new Integer(this.serverPort), new Integer(portResolver.getServerPort(request))))
+        {
             return false;
         }
 
@@ -212,7 +209,12 @@ public class SavedRequest implements java.io.Serializable {
     }
 
     public List getCookies() {
-        return cookies;
+        List cookieList = new ArrayList(cookies.size());
+        for (Iterator iterator = cookies.iterator(); iterator.hasNext();) {
+            SavedCookie savedCookie = (SavedCookie) iterator.next();
+            cookieList.add(savedCookie.getCookie());
+        }
+        return cookieList;
     }
 
     /**
