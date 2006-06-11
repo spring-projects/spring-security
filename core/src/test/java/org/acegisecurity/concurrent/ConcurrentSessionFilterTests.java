@@ -16,15 +16,10 @@
 package org.acegisecurity.concurrent;
 
 import junit.framework.TestCase;
-
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
-
-import java.io.IOException;
-
-import java.util.Date;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -32,6 +27,8 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import java.io.IOException;
+import java.util.Date;
 
 
 /**
@@ -72,7 +69,7 @@ public class ConcurrentSessionFilterTests extends TestCase {
         request.setSession(session);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterConfig config = new MockFilterConfig(null);
+        MockFilterConfig config = new MockFilterConfig(null, null);
 
         // Setup our expectation that the filter chain will not be invoked, as we redirect to expiredUrl
         MockFilterChain chain = new MockFilterChain(false);
@@ -122,7 +119,7 @@ public class ConcurrentSessionFilterTests extends TestCase {
         request.setSession(session);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterConfig config = new MockFilterConfig(null);
+        MockFilterConfig config = new MockFilterConfig(null, null);
 
         // Setup our expectation that the filter chain will be invoked, as our session hasn't expired
         MockFilterChain chain = new MockFilterChain(true);

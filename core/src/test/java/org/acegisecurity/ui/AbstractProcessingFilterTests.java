@@ -16,7 +16,6 @@
 package org.acegisecurity.ui;
 
 import junit.framework.TestCase;
-
 import org.acegisecurity.AccountExpiredException;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
@@ -24,23 +23,14 @@ import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.MockAuthenticationManager;
-
 import org.acegisecurity.context.SecurityContextHolder;
-
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-
 import org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices;
 import org.acegisecurity.ui.savedrequest.SavedRequest;
-
 import org.acegisecurity.util.PortResolverImpl;
-
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import java.io.IOException;
-
-import java.util.Properties;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -50,6 +40,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Properties;
 
 
 /**
@@ -154,7 +146,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = createMockRequest();
 
         // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig(null);
+        MockFilterConfig config = new MockFilterConfig(null, null);
 
         // Setup our expectation that the filter chain will not be invoked, as we redirect to authenticationFailureUrl
         MockFilterChain chain = new MockFilterChain(false);
@@ -194,7 +186,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         request.setRequestURI("/mycontext/j_OTHER_LOCATION");
 
         // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig(null);
+        MockFilterConfig config = new MockFilterConfig(null, null);
 
         // Setup our expectation that the filter chain will not be invoked, as we redirect to defaultTargetUrl
         MockFilterChain chain = new MockFilterChain(false);
@@ -242,7 +234,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         request.setRequestURI("/mycontext/some.file.html");
 
         // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig(null);
+        MockFilterConfig config = new MockFilterConfig(null, null);
 
         // Setup our expectation that the filter chain will be invoked, as our request is for a page the filter isn't monitoring
         MockFilterChain chain = new MockFilterChain(true);
@@ -261,7 +253,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = createMockRequest();
 
         // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig(null);
+        MockFilterConfig config = new MockFilterConfig(null, null);
 
         // Setup our expectation that the filter chain will not be invoked, as we redirect to defaultTargetUrl
         MockFilterChain chain = new MockFilterChain(false);
@@ -349,7 +341,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = createMockRequest();
 
         // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig(null);
+        MockFilterConfig config = new MockFilterConfig(null, null);
 
         // Setup our expectation that the filter chain will not be invoked, as we redirect to defaultTargetUrl
         MockFilterChain chain = new MockFilterChain(false);
@@ -389,7 +381,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
 
         // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig(null);
+        MockFilterConfig config = new MockFilterConfig(null, null);
 
         // Setup our expectation that the filter chain will be invoked, as we want to go to the location requested in the session
         MockFilterChain chain = new MockFilterChain(true);
@@ -416,7 +408,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
 
         // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig(null);
+        MockFilterConfig config = new MockFilterConfig(null, null);
 
         // Setup our expectation that the filter chain will be invoked, as we want to go to the location requested in the session
         MockFilterChain chain = new MockFilterChain(true);
