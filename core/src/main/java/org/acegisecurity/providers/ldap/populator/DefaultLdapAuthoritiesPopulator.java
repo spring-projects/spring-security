@@ -40,23 +40,19 @@ import javax.naming.directory.SearchControls;
 
 /**
  * The default strategy for obtaining user role information from the directory.<p>It obtains roles by
- *  <ul>
- *      <li>Reading the values of the roles specified by the attribute names in the <tt>userRoleAttributes</tt></li>
- *      <li>Performing a search for "groups" the user is a member of and adding those to the list of roles.</li>
- *  </ul>
+ * performing a search for "groups" the user is a member of.
  *  </p>
- *  <p>If the <tt>userRolesAttributes</tt> property is set, any matching attributes amongst those retrieved for the
- * user will have their values added to the list of roles. If <tt>userRolesAttributes</tt> is null, no attributes will
- * be mapped to roles.</p>
  *  <p>A typical group search scenario would be where each group/role is specified using the <tt>groupOfNames</tt>
  * (or <tt>groupOfUniqueNames</tt>) LDAP objectClass and the user's DN is listed in the <tt>member</tt> (or
  * <tt>uniqueMember</tt>) attribute to indicate that they should be assigned that role. The following LDIF sample has
  * the groups stored under the DN <tt>ou=groups,dc=acegisecurity,dc=org</tt> and a group called "developers" with
- * "ben" and "marissa" as members:<pre>dn: ou=groups,dc=acegisecurity,dc=orgobjectClass: top
+ * "ben" and "marissa" as members:
+ * <pre>dn: ou=groups,dc=acegisecurity,dc=orgobjectClass: top
  * objectClass: organizationalUnitou: groupsdn: cn=developers,ou=groups,dc=acegisecurity,dc=org
  * objectClass: groupOfNamesobjectClass: topcn: developersdescription: Acegi Security Developers
  * member: uid=ben,ou=people,dc=acegisecurity,dc=orgmember: uid=marissa,ou=people,dc=acegisecurity,dc=orgou: developer
- * </pre></p>
+ * </pre>
+ * </p>
  *  <p>The group search is performed within a DN specified by the <tt>groupSearchBase</tt> property, which should
  * be relative to the root DN of its <tt>InitialDirContextFactory</tt>. If the search base is null, group searching is
  * disabled. The filter used in the search is defined by the <tt>groupSearchFilter</tt> property, with the filter
