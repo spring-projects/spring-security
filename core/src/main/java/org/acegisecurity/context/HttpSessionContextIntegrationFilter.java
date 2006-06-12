@@ -71,16 +71,12 @@ import javax.servlet.http.HttpSession;
 public class HttpSessionContextIntegrationFilter implements InitializingBean, Filter {
     //~ Static fields/initializers =====================================================================================
 
-    // ~ Static fields/initializers
-    // =============================================
     protected static final Log logger = LogFactory.getLog(HttpSessionContextIntegrationFilter.class);
     private static final String FILTER_APPLIED = "__acegi_session_integration_filter_applied";
     public static final String ACEGI_SECURITY_CONTEXT_KEY = "ACEGI_SECURITY_CONTEXT";
 
     //~ Instance fields ================================================================================================
 
-    // ~ Instance fields
-    // ========================================================
     private Class context = SecurityContextImpl.class;
     private Object contextObject;
 
@@ -287,8 +283,6 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         return allowSessionCreation;
     }
 
-    // ~ Methods
-    // ================================================================
     public boolean isForceEagerSessionCreation() {
         return forceEagerSessionCreation;
     }
