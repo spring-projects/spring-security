@@ -16,6 +16,7 @@
 package org.acegisecurity.userdetails.ldap;
 
 import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.GrantedAuthority;
 
 import org.acegisecurity.ldap.LdapEntryMapper;
 
@@ -74,22 +75,39 @@ public class LdapUserDetailsMapper implements LdapEntryMapper {
             NamingEnumeration attributeRoles = roleAttribute.getAll();
 
             while (attributeRoles.hasMore()) {
-                Object role = attributeRoles.next();
+                GrantedAuthority authority = createAuthority(attributeRoles.next());
 
-                // We only handle Strings for the time being
-                if (role instanceof String) {
-                    if (convertToUpperCase) {
-                        role = ((String) role).toUpperCase();
-                    }
-
-                    essence.addAuthority(new GrantedAuthorityImpl(rolePrefix + role));
+                if(authority != null) {
+                    essence.addAuthority(authority);
                 } else {
-                    logger.warn("Non-String value found for role attribute " + roleAttribute.getID());
+                    logger.debug("Failed to create an authority value from attribute with Id: " + roleAttribute.getID());
                 }
             }
         }
 
         return essence;
+    }
+
+    /**
+     * Creates a GrantedAuthority from a role attribute. Override to customize
+     * authority object creation.
+     * <p>
+     * The default implementation converts string attributes to roles, making use of the <tt>rolePrefix</tt>
+     * and <tt>convertToUpperCase</tt> properties. Non-String attributes are ignored.
+     * </p>
+     *
+     * @param role the attribute returned from
+     * @return the authority to be added to the list of authorities for the user, or null
+     * if this attribute should be ignored.
+     */
+    protected GrantedAuthority createAuthority(Object role) {
+        if (role instanceof String) {
+            if (convertToUpperCase) {
+                role = ((String) role).toUpperCase();
+            }
+            return new GrantedAuthorityImpl(rolePrefix + role);
+        }
+        return null;
     }
 
     /**
