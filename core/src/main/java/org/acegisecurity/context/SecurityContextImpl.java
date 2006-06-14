@@ -72,7 +72,7 @@ public class SecurityContextImpl implements SecurityContext {
         if (this.authentication == null) {
             sb.append(": Null authentication");
         } else {
-            sb.append(": Authentication: " + this.authentication);
+            sb.append(": Authentication: ").append(this.authentication);
         }
 
         return sb.toString();
