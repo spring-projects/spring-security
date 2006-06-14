@@ -72,6 +72,11 @@ public class LdapUserDetailsMapper implements LdapEntryMapper {
         for (int i = 0; (roleAttributes != null) && (i < roleAttributes.length); i++) {
             Attribute roleAttribute = attributes.get(roleAttributes[i]);
 
+            if(roleAttribute == null) {
+                logger.debug("Couldn't read role attribute '" + roleAttributes[i] + "' for user " + dn);
+                continue;
+            }
+
             NamingEnumeration attributeRoles = roleAttribute.getAll();
 
             while (attributeRoles.hasMore()) {
