@@ -20,6 +20,8 @@ import junit.framework.TestCase;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.BasicAttribute;
 
+import org.acegisecurity.GrantedAuthorityImpl;
+
 /**
  * Tests {@link LdapUserDetailsMapper}.
  *
@@ -63,5 +65,18 @@ public class LdapUserDetailsMapperTests extends TestCase {
 
         assertEquals(1, user.getGrantedAuthorities().length);
         assertEquals("ROLE_X", user.getGrantedAuthorities()[0].getAuthority());
+    }
+
+    public void testNonStringRoleAttributeIsIgnoredByDefault() throws Exception {
+        LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
+
+        mapper.setRoleAttributes(new String[] {"userRole"});
+
+        BasicAttributes attrs = new BasicAttributes();
+        attrs.put(new BasicAttribute("userRole", new GrantedAuthorityImpl("X")));
+
+        LdapUserDetailsImpl.Essence user = (LdapUserDetailsImpl.Essence) mapper.mapAttributes("cn=someName", attrs);
+
+        assertEquals(0, user.getGrantedAuthorities().length);
     }
 }
