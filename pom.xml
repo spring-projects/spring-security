@@ -231,6 +231,7 @@
           <excludes>
             <exclude>**/Abstract*</exclude>
           </excludes>
+          <forkMode>once</forkMode>
         </configuration>
       </plugin>
       <plugin>
