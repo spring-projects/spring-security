@@ -86,8 +86,8 @@ public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
         filter.setContinueChainBeforeSuccessfulAuthentication(true);
         assertTrue(filter.isContinueChainBeforeSuccessfulAuthentication());
 
-        filter.setDefaultTargetUrl("bar");
-        assertEquals("bar", filter.getDefaultTargetUrl());
+        filter.setDefaultTargetUrl("/bar");
+        assertEquals("/bar", filter.getDefaultTargetUrl());
 
         filter.setFilterProcessesUrl("foobar");
         assertEquals("foobar", filter.getFilterProcessesUrl());

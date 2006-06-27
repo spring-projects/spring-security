@@ -313,13 +313,13 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
         return uri.endsWith(request.getContextPath() + filterProcessesUrl);
     }
 
-    protected void sendRedirect(HttpServletRequest request, HttpServletResponse response, String failureUrl)
+    protected void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
         throws IOException {
-        if (!failureUrl.startsWith("http://") && !failureUrl.startsWith("https://")) {
-            failureUrl = request.getContextPath() + failureUrl;
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            url = request.getContextPath() + url;
         }
 
-        response.sendRedirect(response.encodeRedirectURL(failureUrl));
+        response.sendRedirect(response.encodeRedirectURL(url));
     }
 
     public void setAlwaysUseDefaultTargetUrl(boolean alwaysUseDefaultTargetUrl) {
@@ -348,6 +348,8 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
     }
 
     public void setDefaultTargetUrl(String defaultTargetUrl) {
+        Assert.isTrue(defaultTargetUrl.startsWith("/") | defaultTargetUrl.startsWith("http"),
+                "defaultTarget must start with '/' or with 'http(s)'");
         this.defaultTargetUrl = defaultTargetUrl;
     }
 
@@ -379,14 +381,11 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
             logger.debug("Updated SecurityContextHolder to contain the following Authentication: '" + authResult + "'");
         }
 
-        String targetUrl = obtainFullRequestUrl(request);
-
-        if (alwaysUseDefaultTargetUrl) {
-            targetUrl = null;
-        }
+        // Don't attempt to obtain the url from the saved request if alwaysUsedefaultTargetUrl is set
+        String targetUrl = alwaysUseDefaultTargetUrl ? null : obtainFullRequestUrl(request);
 
         if (targetUrl == null) {
-            targetUrl = request.getContextPath() + getDefaultTargetUrl();
+            targetUrl = getDefaultTargetUrl();
         }
 
         if (logger.isDebugEnabled()) {
@@ -402,7 +401,7 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
             eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
         }
 
-        response.sendRedirect(response.encodeRedirectURL(targetUrl));
+        sendRedirect(request, response, targetUrl);
     }
 
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,

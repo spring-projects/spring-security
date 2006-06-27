@@ -70,6 +70,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         request.setScheme("http");
         request.setServerName("www.example.com");
         request.setRequestURI("/mycontext/j_mock_post");
+        request.setContextPath("/mycontext");
 
         return request;
     }
@@ -154,27 +155,27 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         // Setup our test object, to deny access
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(false);
-        filter.setAuthenticationFailureUrl("/myApp/failed.jsp");
+        filter.setAuthenticationFailureUrl("/failed.jsp");
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
 
-        assertEquals("/myApp/failed.jsp", response.getRedirectedUrl());
+        assertEquals("/mycontext/failed.jsp", response.getRedirectedUrl());
         assertNull(SecurityContextHolder.getContext().getAuthentication());
 
         //Prepare again, this time using the exception mapping
         filter = new MockAbstractProcessingFilter(new AccountExpiredException("You're account is expired"));
-        filter.setAuthenticationFailureUrl("/myApp/failed.jsp");
+        filter.setAuthenticationFailureUrl("/failed.jsp");
 
         Properties exceptionMappings = filter.getExceptionMappings();
-        exceptionMappings.setProperty(AccountExpiredException.class.getName(), "/myApp/accountExpired.jsp");
+        exceptionMappings.setProperty(AccountExpiredException.class.getName(), "/accountExpired.jsp");
         filter.setExceptionMappings(exceptionMappings);
         response = new MockHttpServletResponse();
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
 
-        assertEquals("/myApp/accountExpired.jsp", response.getRedirectedUrl());
+        assertEquals("/mycontext/accountExpired.jsp", response.getRedirectedUrl());
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
@@ -199,7 +200,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
-        assertEquals("/logged_in.jsp", response.getRedirectedUrl());
+        assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
     }
@@ -224,6 +225,19 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         filter.setAuthenticationFailureUrl("/fail");
         assertEquals("/fail", filter.getAuthenticationFailureUrl());
+    }
+
+    public void testDefaultUrlMuststartWithSlashOrHttpScheme() {
+        AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
+
+        filter.setDefaultTargetUrl("/acceptableRelativeUrl");
+        filter.setDefaultTargetUrl("http://some.site.org/index.html");
+        filter.setDefaultTargetUrl("https://some.site.org/index.html");
+
+        try {
+            filter.setDefaultTargetUrl("missingSlash");
+            fail("Shouldn't accept default target without leading slash");
+        } catch (IllegalArgumentException expected) {}
     }
 
     public void testIgnoresAnyServletPathOtherThanFilterProcessesUrl()
@@ -269,7 +283,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
-        assertEquals("/logged_in.jsp", response.getRedirectedUrl());
+        assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
     }
@@ -354,7 +368,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
-        assertEquals("/logged_in.jsp", response.getRedirectedUrl());
+        assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
 
@@ -397,7 +411,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
-        assertEquals("/foobar", response.getRedirectedUrl());
+        assertEquals("/mycontext/foobar", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
@@ -421,6 +435,27 @@ public class AbstractProcessingFilterTests extends TestCase {
         // Test
         executeFilterInContainerSimulator(config, filter, request, response, chain);
         assertEquals(makeSavedRequestForUrl().getFullRequestUrl(), response.getRedirectedUrl());
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    /**
+     * SEC-297 fix. 
+     */
+    public void testFullDefaultTargetUrlDoesNotHaveContextPathPrepended() throws Exception {
+        MockHttpServletRequest request = createMockRequest();
+        MockFilterConfig config = new MockFilterConfig(null, null);
+
+        MockFilterChain chain = new MockFilterChain(true);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        // Setup our test object, to grant access
+        MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter(true);
+        filter.setFilterProcessesUrl("/j_mock_post");
+        filter.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        filter.setAlwaysUseDefaultTargetUrl(true);
+
+        executeFilterInContainerSimulator(config, filter, request, response, chain);
+        assertEquals("http://monkeymachine.co.uk/", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
