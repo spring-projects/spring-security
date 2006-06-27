@@ -3140,14 +3140,14 @@ key:              A private key to prevent modification of the remember-me token
         <para>A typical configuration, using some of the beans we've discussed
         above, might look like this: <programlisting>
     &lt;bean id="initialDirContextFactory" 
-            class="org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory"&gt;
+            class="org.acegisecurity.ldap.DefaultInitialDirContextFactory"&gt;
       &lt;constructor-arg value="ldap://monkeymachine:389/dc=acegisecurity,dc=org"/&gt;
       &lt;property name="managerDn"&gt;&lt;value&gt;cn=manager,dc=acegisecurity,dc=org&lt;/value&gt;&lt;/property&gt;
       &lt;property name="managerPassword"&gt;&lt;value&gt;password&lt;/value&gt;&lt;/property&gt;
     &lt;/bean&gt;
 
     &lt;bean id="userSearch"
-            class="org.acegisecurity.providers.ldap.search.FilterBasedLdapUserSearch"&gt;
+            class="org.acegisecurity.ldap.search.FilterBasedLdapUserSearch"&gt;
       &lt;constructor-arg index="0"&gt;
         &lt;value&gt;&lt;/value&gt;
       &lt;/constructor-arg&gt;
