@@ -100,6 +100,10 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
      */
     private boolean forceEagerSessionCreation = false;
 
+    public HttpSessionContextIntegrationFilter() throws ServletException {
+        this.contextObject = generateNewContext();
+    }
+
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
@@ -113,8 +117,6 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
             throw new IllegalArgumentException(
                 "If using forceEagerSessionCreation, you must set allowSessionCreation to also be true");
         }
-
-        this.contextObject = generateNewContext();
     }
 
     /**

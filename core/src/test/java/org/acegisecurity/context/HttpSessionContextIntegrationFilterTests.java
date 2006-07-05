@@ -190,7 +190,8 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
         // Prepare filter
         HttpSessionContextIntegrationFilter filter = new HttpSessionContextIntegrationFilter();
         filter.setContext(SecurityContextImpl.class);
-        filter.afterPropertiesSet();
+        // don't call afterPropertiesSet to test case when not instantiated by Spring 
+        //filter.afterPropertiesSet();
 
         // Execute filter
         executeFilterInContainerSimulator(new MockFilterConfig(), filter, request, response, chain);
