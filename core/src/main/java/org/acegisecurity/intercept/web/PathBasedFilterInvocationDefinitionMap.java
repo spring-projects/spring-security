@@ -93,7 +93,7 @@ public class PathBasedFilterInvocationDefinitionMap extends AbstractFilterInvoca
             url = url.substring(0, firstQuestionMarkIndex);
         }
 
-        if (convertUrlToLowercaseBeforeComparison) {
+        if (isConvertUrlToLowercaseBeforeComparison()) {
             url = url.toLowerCase();
 
             if (logger.isDebugEnabled()) {

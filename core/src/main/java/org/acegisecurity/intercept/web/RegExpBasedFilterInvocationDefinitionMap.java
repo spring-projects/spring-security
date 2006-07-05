@@ -100,7 +100,7 @@ public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvo
 
         Iterator iter = requestMap.iterator();
 
-        if (convertUrlToLowercaseBeforeComparison) {
+        if (isConvertUrlToLowercaseBeforeComparison()) {
             url = url.toLowerCase();
 
             if (logger.isDebugEnabled()) {
