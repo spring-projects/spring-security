@@ -86,4 +86,14 @@ public class UserMap {
     public int getUserCount() {
         return this.userMap.size();
     }
+
+    /**
+     * Set the users in this {@link UserMap}. Overrides previously added users.
+     * 
+     * @param users {@link Map} &lt;{@link String}, {@link UserDetails}> with pairs (username, userdetails)
+     * @since 1.1
+     */
+    public void setUsers(Map users) {
+        this.userMap = users;
+    }
 }

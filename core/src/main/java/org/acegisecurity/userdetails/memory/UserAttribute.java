@@ -53,6 +53,16 @@ public class UserAttribute {
         return (GrantedAuthority[]) this.authorities.toArray(toReturn);
     }
 
+    /**
+     * Set all authorities for this user.
+     * 
+     * @param authorities {@link List} &lt;{@link GrantedAuthority}>
+     * @since 1.1
+     */
+    public void setAuthorities(List authorities) {
+        this.authorities = authorities;
+    }
+
     public String getPassword() {
         return password;
     }
