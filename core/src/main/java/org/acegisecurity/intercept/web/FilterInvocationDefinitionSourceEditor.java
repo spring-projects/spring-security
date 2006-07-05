@@ -15,9 +15,6 @@
 
 package org.acegisecurity.intercept.web;
 
-import org.acegisecurity.ConfigAttributeDefinition;
-import org.acegisecurity.ConfigAttributeEditor;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +24,8 @@ import java.beans.PropertyEditorSupport;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -77,6 +76,8 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
             BufferedReader br = new BufferedReader(new StringReader(s));
             int counter = 0;
             String line;
+            
+            List mappings = new ArrayList();
 
             while (true) {
                 counter++;
@@ -153,15 +154,21 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
                     }
                 }
 
-                // Convert value to series of security configuration attributes
-                ConfigAttributeEditor configAttribEd = new ConfigAttributeEditor();
-                configAttribEd.setAsText(value);
+                FilterInvocationDefinitionSourceMapping mapping = new FilterInvocationDefinitionSourceMapping();
+                mapping.setUrl(name);
 
-                ConfigAttributeDefinition attr = (ConfigAttributeDefinition) configAttribEd.getValue();
+                String[] tokens = org.springframework.util.StringUtils
+                        .commaDelimitedListToStringArray(value);
 
-                // Register the regular expression and its attribute
-                source.addSecureUrl(name, attr);
+                for (int i = 0; i < tokens.length; i++) {
+                    mapping.addConfigAttribute(tokens[i].trim());
+                }
+
+                mappings.add(mapping);
             }
+            FilterInvocationDefinitionMapDecorator decorator = new FilterInvocationDefinitionMapDecorator(
+                    source);
+            decorator.setMappings(mappings);
         }
 
         setValue(source);
