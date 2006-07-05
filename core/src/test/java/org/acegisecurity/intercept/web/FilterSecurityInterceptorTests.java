@@ -30,17 +30,16 @@ import org.acegisecurity.MockAuthenticationManager;
 import org.acegisecurity.MockRunAsManager;
 import org.acegisecurity.RunAsManager;
 import org.acegisecurity.SecurityConfig;
-
 import org.acegisecurity.context.SecurityContextHolder;
-
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -229,6 +228,31 @@ public class FilterSecurityInterceptorTests extends TestCase {
 
         // Destroy the Context
         SecurityContextHolder.clearContext();
+    }
+
+    public void testNotLoadedFromApplicationContext() throws Exception {
+        FilterInvocationDefinitionSourceMapping mapping = new FilterInvocationDefinitionSourceMapping();
+        mapping.setUrl("/secure/**");
+        mapping.addConfigAttribute("ROLE_USER");
+
+        List mappings = new ArrayList(1);
+        mappings.add(mapping);
+
+        PathBasedFilterInvocationDefinitionMap filterInvocationDefinitionSource = new PathBasedFilterInvocationDefinitionMap();
+        filterInvocationDefinitionSource
+                .setConvertUrlToLowercaseBeforeComparison(true);
+        filterInvocationDefinitionSource.setMappings(mappings);
+
+        FilterSecurityInterceptor filter = new FilterSecurityInterceptor();
+        filter.setObjectDefinitionSource(filterInvocationDefinitionSource);
+
+        MockFilterChain filterChain = new MockFilterChain();
+        filterChain.expectToProceed = true;
+
+        FilterInvocation fi = new FilterInvocation(
+                new MockHttpServletRequest(), new MockHttpServletResponse(),
+                filterChain);
+        filter.invoke(fi);
     }
 
     //~ Inner Classes ==================================================================================================

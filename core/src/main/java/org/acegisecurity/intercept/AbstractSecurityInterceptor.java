@@ -41,6 +41,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
@@ -276,7 +277,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
             } catch (AccessDeniedException accessDeniedException) {
                 AuthorizationFailureEvent event = new AuthorizationFailureEvent(object, attr, authenticated,
                         accessDeniedException);
-                this.eventPublisher.publishEvent(event);
+                publishEvent(event);
 
                 throw accessDeniedException;
             }
@@ -286,7 +287,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
             }
 
             AuthorizedEvent event = new AuthorizedEvent(object, attr, authenticated);
-            this.eventPublisher.publishEvent(event);
+            publishEvent(event);
 
             // Attempt to run as a different user
             Authentication runAs = this.runAsManager.buildRunAs(authenticated, object, attr);
@@ -311,7 +312,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
                 logger.debug("Public object - authentication not attempted");
             }
 
-            this.eventPublisher.publishEvent(new PublicInvocationEvent(object));
+            publishEvent(new PublicInvocationEvent(object));
 
             return null; // no further work post-invocation
         }
@@ -330,7 +331,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
         AuthenticationCredentialsNotFoundEvent event = new AuthenticationCredentialsNotFoundEvent(secureObject,
                 configAttribs, exception);
-        this.eventPublisher.publishEvent(event);
+        publishEvent(event);
 
         throw exception;
     }
@@ -430,5 +431,11 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
     public void setValidateConfigAttributes(boolean validateConfigAttributes) {
         this.validateConfigAttributes = validateConfigAttributes;
+    }
+
+    private void publishEvent(ApplicationEvent event) {
+        if (this.eventPublisher != null) {
+            this.eventPublisher.publishEvent(event);
+        }
     }
 }
