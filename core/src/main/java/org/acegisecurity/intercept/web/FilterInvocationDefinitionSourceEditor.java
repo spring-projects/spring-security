@@ -170,6 +170,6 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
             source.setMappings(mappings);
         }
 
-        setValue(source);
+        setValue(source.getDecorated());
     }
 }
