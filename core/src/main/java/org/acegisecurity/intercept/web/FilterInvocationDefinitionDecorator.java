@@ -22,23 +22,31 @@ import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.SecurityConfig;
 
 /**
- * Decorator of {@link FilterInvocationDefinitionMap} for easier configuration,
+ * <p>
+ * Decorator of {@link FilterInvocationDefinition} for easier configuration,
  * using {@link FilterInvocationDefinitionSourceMapping}.
+ * </p>
+ * 
+ * <p>
+ * Delegates all calls to decorated object set in constructor
+ * {@link #FilterInvocationDefinitionDecorator(FilterInvocationDefinition)} or
+ * by calling {@link #setDecorated(FilterInvocationDefinition)}
+ * </p>
  * 
  * @author <a href="mailto:carlos@apache.org">Carlos Sanchez</a>
  * @version $Id$
+ * @since 1.1
  */
-public class FilterInvocationDefinitionMapDecorator {
+public class FilterInvocationDefinitionDecorator implements FilterInvocationDefinition {
 
-    private FilterInvocationDefinitionMap decorated;
+    private FilterInvocationDefinition decorated;
 
     private List mappings;
 
-    public FilterInvocationDefinitionMapDecorator() {
+    public FilterInvocationDefinitionDecorator() {
     }
 
-    public FilterInvocationDefinitionMapDecorator(
-            FilterInvocationDefinitionMap decorated) {
+    public FilterInvocationDefinitionDecorator(FilterInvocationDefinition decorated) {
         this.setDecorated(decorated);
     }
 
@@ -46,18 +54,18 @@ public class FilterInvocationDefinitionMapDecorator {
      * Set the decorated object
      * 
      * @param decorated
-     *            the decorated {@link FilterInvocationDefinitionMap}
+     *            the decorated {@link FilterInvocationDefinition}
      */
-    public void setDecorated(FilterInvocationDefinitionMap decorated) {
+    public void setDecorated(FilterInvocationDefinition decorated) {
         this.decorated = decorated;
     }
 
     /**
      * Get decorated object
      * 
-     * @return the decorated {@link FilterInvocationDefinitionMap}
+     * @return the decorated {@link FilterInvocationDefinition}
      */
-    public FilterInvocationDefinitionMap getDecorated() {
+    public FilterInvocationDefinition getDecorated() {
         return decorated;
     }
 
@@ -78,12 +86,10 @@ public class FilterInvocationDefinitionMapDecorator {
         this.mappings = mappings;
         Iterator it = mappings.iterator();
         while (it.hasNext()) {
-            FilterInvocationDefinitionSourceMapping mapping = (FilterInvocationDefinitionSourceMapping) it
-                    .next();
+            FilterInvocationDefinitionSourceMapping mapping = (FilterInvocationDefinitionSourceMapping) it.next();
             ConfigAttributeDefinition configDefinition = new ConfigAttributeDefinition();
 
-            Iterator configAttributesIt = mapping.getConfigAttributes()
-                    .iterator();
+            Iterator configAttributesIt = mapping.getConfigAttributes().iterator();
             while (configAttributesIt.hasNext()) {
                 String s = (String) configAttributesIt.next();
                 configDefinition.addConfigAttribute(new SecurityConfig(s));
@@ -101,5 +107,47 @@ public class FilterInvocationDefinitionMapDecorator {
      */
     public List getMappings() {
         return mappings;
+    }
+
+    /**
+     * Delegate to decorated object
+     */
+    public void addSecureUrl(String expression, ConfigAttributeDefinition attr) {
+        getDecorated().addSecureUrl(expression, attr);
+    }
+
+    /**
+     * Delegate to decorated object
+     */
+    public boolean isConvertUrlToLowercaseBeforeComparison() {
+        return getDecorated().isConvertUrlToLowercaseBeforeComparison();
+    }
+
+    /**
+     * Delegate to decorated object
+     */
+    public void setConvertUrlToLowercaseBeforeComparison(boolean convertUrlToLowercaseBeforeComparison) {
+        getDecorated().setConvertUrlToLowercaseBeforeComparison(convertUrlToLowercaseBeforeComparison);
+    }
+
+    /**
+     * Delegate to decorated object
+     */
+    public ConfigAttributeDefinition getAttributes(Object object) throws IllegalArgumentException {
+        return getDecorated().getAttributes(object);
+    }
+
+    /**
+     * Delegate to decorated object
+     */
+    public Iterator getConfigAttributeDefinitions() {
+        return getDecorated().getConfigAttributeDefinitions();
+    }
+
+    /**
+     * Delegate to decorated object
+     */
+    public boolean supports(Class clazz) {
+        return getDecorated().supports(clazz);
     }
 }

@@ -45,7 +45,7 @@ import java.util.Vector;
  *  <p>If no registered regular expressions match the HTTP URL, <code>null</code> is returned.</p>
  */
 public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvocationDefinitionSource
-    implements FilterInvocationDefinitionMap {
+    implements FilterInvocationDefinition {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(RegExpBasedFilterInvocationDefinitionMap.class);

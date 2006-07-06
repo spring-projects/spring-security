@@ -49,14 +49,15 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
     //~ Methods ========================================================================================================
 
     public void setAsText(String s) throws IllegalArgumentException {
-        FilterInvocationDefinitionMap source = new RegExpBasedFilterInvocationDefinitionMap();
+        FilterInvocationDefinitionDecorator source = new FilterInvocationDefinitionDecorator();
+        source.setDecorated(new RegExpBasedFilterInvocationDefinitionMap());
 
         if ((s == null) || "".equals(s)) {
             // Leave target object empty
         } else {
             // Check if we need to override the default definition map
             if (s.lastIndexOf(DIRECTIVE_PATTERN_TYPE_APACHE_ANT) != -1) {
-                source = new PathBasedFilterInvocationDefinitionMap();
+                source.setDecorated(new PathBasedFilterInvocationDefinitionMap());
 
                 if (logger.isDebugEnabled()) {
                     logger.debug(("Detected " + DIRECTIVE_PATTERN_TYPE_APACHE_ANT
@@ -139,7 +140,7 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
 
                 // Attempt to detect malformed lines (as per SEC-204)
                 if (source.isConvertUrlToLowercaseBeforeComparison()
-                    && source instanceof PathBasedFilterInvocationDefinitionMap) {
+                    && source.getDecorated() instanceof PathBasedFilterInvocationDefinitionMap) {
                     // Should all be lowercase; check each character
                     // We only do this for Ant (regexp have control chars)
                     for (int i = 0; i < name.length(); i++) {
@@ -166,9 +167,7 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
 
                 mappings.add(mapping);
             }
-            FilterInvocationDefinitionMapDecorator decorator = new FilterInvocationDefinitionMapDecorator(
-                    source);
-            decorator.setMappings(mappings);
+            source.setMappings(mappings);
         }
 
         setValue(source);

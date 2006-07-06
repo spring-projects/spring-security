@@ -241,7 +241,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         PathBasedFilterInvocationDefinitionMap filterInvocationDefinitionSource = new PathBasedFilterInvocationDefinitionMap();
         filterInvocationDefinitionSource
                 .setConvertUrlToLowercaseBeforeComparison(true);
-        FilterInvocationDefinitionMapDecorator decorator = new FilterInvocationDefinitionMapDecorator(
+        FilterInvocationDefinitionDecorator decorator = new FilterInvocationDefinitionDecorator(
                 filterInvocationDefinitionSource);
         decorator.setMappings(mappings);
 

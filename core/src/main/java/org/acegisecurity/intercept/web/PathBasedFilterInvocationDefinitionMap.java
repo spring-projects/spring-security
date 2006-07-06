@@ -44,7 +44,7 @@ import java.util.Vector;
  * @version $Id$
  */
 public class PathBasedFilterInvocationDefinitionMap extends AbstractFilterInvocationDefinitionSource
-    implements FilterInvocationDefinitionMap {
+    implements FilterInvocationDefinition {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(PathBasedFilterInvocationDefinitionMap.class);
