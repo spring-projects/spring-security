@@ -24,7 +24,7 @@ import java.util.Vector;
 
 
 /**
- * DOCUMENT ME!
+ * Mock for {@link FilterInvocationDefinitionSource}
  *
  * @author Ben Alex
  * @version $Id$
