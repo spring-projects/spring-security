@@ -51,6 +51,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
@@ -95,6 +96,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(ProviderManager.class);
+    private static final Properties DEFAULT_EXCEPTION_MAPPINGS = new Properties();
 
     //~ Instance fields ================================================================================================
 
@@ -102,7 +104,28 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
     private ConcurrentSessionController sessionController = new NullConcurrentSessionController();
     private List providers;
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
-    private Properties exceptionMappings;
+    private Properties exceptionMappings = new Properties();
+
+    static {
+        DEFAULT_EXCEPTION_MAPPINGS.put(AccountExpiredException.class.getName(),
+            AuthenticationFailureExpiredEvent.class.getName());
+        DEFAULT_EXCEPTION_MAPPINGS.put(AuthenticationServiceException.class.getName(),
+            AuthenticationFailureServiceExceptionEvent.class.getName());
+        DEFAULT_EXCEPTION_MAPPINGS.put(LockedException.class.getName(), AuthenticationFailureLockedEvent.class.getName());
+        DEFAULT_EXCEPTION_MAPPINGS.put(CredentialsExpiredException.class.getName(),
+            AuthenticationFailureCredentialsExpiredEvent.class.getName());
+        DEFAULT_EXCEPTION_MAPPINGS.put(DisabledException.class.getName(), AuthenticationFailureDisabledEvent.class.getName());
+        DEFAULT_EXCEPTION_MAPPINGS.put(BadCredentialsException.class.getName(),
+            AuthenticationFailureBadCredentialsEvent.class.getName());
+        DEFAULT_EXCEPTION_MAPPINGS.put(UsernameNotFoundException.class.getName(),
+            AuthenticationFailureBadCredentialsEvent.class.getName());
+        DEFAULT_EXCEPTION_MAPPINGS.put(ConcurrentLoginException.class.getName(),
+            AuthenticationFailureConcurrentLoginEvent.class.getName());
+        DEFAULT_EXCEPTION_MAPPINGS.put(ProviderNotFoundException.class.getName(),
+            AuthenticationFailureProviderNotFoundEvent.class.getName());
+        DEFAULT_EXCEPTION_MAPPINGS.put(ProxyUntrustedException.class.getName(),
+            AuthenticationFailureProxyUntrustedEvent.class.getName());
+    }
 
     //~ Methods ========================================================================================================
 
@@ -111,26 +134,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
         Assert.notNull(this.messages, "A message source must be set");
 
         if (exceptionMappings == null) {
-            exceptionMappings = new Properties();
-            exceptionMappings.put(AccountExpiredException.class.getName(),
-                AuthenticationFailureExpiredEvent.class.getName());
-            exceptionMappings.put(AuthenticationServiceException.class.getName(),
-                AuthenticationFailureServiceExceptionEvent.class.getName());
-            exceptionMappings.put(LockedException.class.getName(), AuthenticationFailureLockedEvent.class.getName());
-            exceptionMappings.put(CredentialsExpiredException.class.getName(),
-                AuthenticationFailureCredentialsExpiredEvent.class.getName());
-            exceptionMappings.put(DisabledException.class.getName(), AuthenticationFailureDisabledEvent.class.getName());
-            exceptionMappings.put(BadCredentialsException.class.getName(),
-                AuthenticationFailureBadCredentialsEvent.class.getName());
-            exceptionMappings.put(UsernameNotFoundException.class.getName(),
-                AuthenticationFailureBadCredentialsEvent.class.getName());
-            exceptionMappings.put(ConcurrentLoginException.class.getName(),
-                AuthenticationFailureConcurrentLoginEvent.class.getName());
-            exceptionMappings.put(ProviderNotFoundException.class.getName(),
-                AuthenticationFailureProviderNotFoundEvent.class.getName());
-            exceptionMappings.put(ProxyUntrustedException.class.getName(),
-                AuthenticationFailureProxyUntrustedEvent.class.getName());
-            doAddExtraDefaultExceptionMappings(exceptionMappings);
+            doAddExtraDefaultExceptionMappings(DEFAULT_EXCEPTION_MAPPINGS);
         }
     }
 
@@ -189,7 +193,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
 
                 if (result != null) {
                     sessionController.registerSuccessfulAuthentication(result);
-                    applicationEventPublisher.publishEvent(new AuthenticationSuccessEvent(result));
+                    publishEvent(new AuthenticationSuccessEvent(result));
 
                     return result;
                 }
@@ -222,7 +226,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
         }
 
         if (event != null) {
-            applicationEventPublisher.publishEvent(event);
+            publishEvent(event);
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug("No event was found for the exception " + lastException.getClass().getName());
@@ -273,6 +277,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
             try {
                 currentObject = iter.next();
 
+                //TODO bad idea, should use assignable from or instance of 
                 AuthenticationProvider attemptToCast = (AuthenticationProvider) currentObject;
             } catch (ClassCastException cce) {
                 throw new IllegalArgumentException("AuthenticationProvider " + currentObject.getClass().getName()
@@ -291,5 +296,11 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
      */
     public void setSessionController(ConcurrentSessionController sessionController) {
         this.sessionController = sessionController;
+    }
+
+    private void publishEvent( ApplicationEvent event ) {
+        if ( applicationEventPublisher != null ) {
+            applicationEventPublisher.publishEvent( event );
+        }
     }
 }
