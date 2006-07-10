@@ -44,6 +44,19 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
     //~ Constructors ===================================================================================================
 
+    /**
+     * Create an uninitialized instance. You must call {@link #setInitialDirContextFactory(InitialDirContextFactory)}
+     * before using it.
+     */
+    public BindAuthenticator() {
+        super();
+    }
+
+    /**
+     * Create an initialized instance to the {@link InitialDirContextFactory} provided.
+     * 
+     * @param initialDirContextFactory
+     */
     public BindAuthenticator(InitialDirContextFactory initialDirContextFactory) {
         super(initialDirContextFactory);
     }

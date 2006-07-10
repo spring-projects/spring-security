@@ -106,10 +106,32 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
     //~ Constructors ===================================================================================================
 
-    public DefaultInitialDirContextFactory(String providerUrl) {
-        this.providerUrl = providerUrl;
+    /**
+     * Create an uninitialized object. You must call {@link #setProviderUrl(String)} after instantiation.
+     */
+    public DefaultInitialDirContextFactory() {
+    }
 
+    /**
+     * Create and initialize an instance to the LDAP url provided
+     * 
+     * @param providerUrl a String of the form <code>ldap://localhost:389/base_dn<code>
+     */
+    public DefaultInitialDirContextFactory(String providerUrl) {
+        this.setProviderUrl(providerUrl);
+    }
+
+    //~ Methods ========================================================================================================
+
+    /**
+     * Set the LDAP url
+     * 
+     * @param providerUrl a String of the form <code>ldap://localhost:389/base_dn<code>
+     */
+    public void setProviderUrl(String providerUrl) {
         Assert.hasLength(providerUrl, "An LDAP connection URL must be supplied.");
+
+        this.providerUrl = providerUrl;
 
         StringTokenizer st = new StringTokenizer(providerUrl);
 
@@ -131,7 +153,14 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
         //Assert.isTrue(uri.getScheme().equals("ldap"), "Ldap URL must start with 'ldap://'");
     }
 
-    //~ Methods ========================================================================================================
+    /**
+     * Get the LDAP url
+     * 
+     * @return the url
+     */
+    public String getProviderUrl() {
+        return providerUrl;
+    }
 
     private InitialDirContext connect(Hashtable env) {
         if (logger.isDebugEnabled()) {
@@ -169,7 +198,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
         env.put(Context.SECURITY_AUTHENTICATION, authenticationType);
         env.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
-        env.put(Context.PROVIDER_URL, providerUrl);
+        env.put(Context.PROVIDER_URL, getProviderUrl());
 
         if (useConnectionPool) {
             env.put(CONNECTION_POOL_KEY, "true");

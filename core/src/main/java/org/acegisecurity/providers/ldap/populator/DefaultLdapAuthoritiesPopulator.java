@@ -113,6 +113,13 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     //~ Constructors ===================================================================================================
 
     /**
+     * Create an uninitialized instance. You must call {@link #setInitialDirContextFactory(InitialDirContextFactory)}
+     * and {@link #setGroupSearchBase(String)} before using it.
+     */
+    public DefaultLdapAuthoritiesPopulator() {
+    }
+
+    /**
      * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be
      * set as a property.
      *
@@ -121,18 +128,8 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * context factory.
      */
     public DefaultLdapAuthoritiesPopulator(InitialDirContextFactory initialDirContextFactory, String groupSearchBase) {
-        Assert.notNull(initialDirContextFactory, "InitialDirContextFactory must not be null");
-        Assert.notNull(groupSearchBase, "The groupSearchBase (name to search under), must not be null.");
-        this.initialDirContextFactory = initialDirContextFactory;
-        this.groupSearchBase = groupSearchBase;
-
-        if (groupSearchBase.length() == 0) {
-            logger.info("groupSearchBase is empty. Searches will be performed from the root: "
-                + initialDirContextFactory.getRootDn());
-        }
-
-        ldapTemplate = new LdapTemplate(initialDirContextFactory);
-        ldapTemplate.setSearchControls(searchControls);
+        this.setInitialDirContextFactory(initialDirContextFactory);
+        this.setGroupSearchBase(groupSearchBase);
     }
 
     //~ Methods ========================================================================================================
@@ -204,16 +201,16 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     public Set getGroupMembershipRoles(String userDn, String username) {
         Set authorities = new HashSet();
 
-        if (groupSearchBase == null) {
+        if (getGroupSearchBase() == null) {
             return authorities;
         }
 
         if (logger.isDebugEnabled()) {
             logger.debug("Searching for roles for user '" + username + "', DN = " + "'" + userDn + "', with filter "
-                + groupSearchFilter + " in search base '" + groupSearchBase + "'");
+                + groupSearchFilter + " in search base '" + getGroupSearchBase() + "'");
         }
 
-        Set userRoles = ldapTemplate.searchForSingleAttributeValues(groupSearchBase, groupSearchFilter,
+        Set userRoles = ldapTemplate.searchForSingleAttributeValues(getGroupSearchBase(), groupSearchFilter,
                 new String[] {userDn, username}, groupRoleAttribute);
 
         if (logger.isDebugEnabled()) {
@@ -252,6 +249,38 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
     protected InitialDirContextFactory getInitialDirContextFactory() {
         return initialDirContextFactory;
+    }
+
+    /**
+     * Set the {@link InitialDirContextFactory}
+     * 
+     * @param initialDirContextFactory supplies the contexts used to search for user roles.
+     */
+    public void setInitialDirContextFactory(InitialDirContextFactory initialDirContextFactory) {
+        Assert.notNull(initialDirContextFactory, "InitialDirContextFactory must not be null");
+        this.initialDirContextFactory = initialDirContextFactory;
+
+        ldapTemplate = new LdapTemplate(initialDirContextFactory);
+        ldapTemplate.setSearchControls(searchControls);
+    }
+
+    /**
+     * Set the group search base (name to search under)
+     * 
+     * @param groupSearchBase if this is an empty string the search will be performed from the root DN of the context
+     * factory.
+     */
+    public void setGroupSearchBase(String groupSearchBase) {
+        Assert.notNull(groupSearchBase, "The groupSearchBase (name to search under), must not be null.");
+        this.groupSearchBase = groupSearchBase;
+        if (groupSearchBase.length() == 0) {
+            logger.info("groupSearchBase is empty. Searches will be performed from the root: "
+                + getInitialDirContextFactory().getRootDn());
+        }
+    }
+
+    protected String getGroupSearchBase() {
+        return groupSearchBase;
     }
 
     public void setConvertToUpperCase(boolean convertToUpperCase) {

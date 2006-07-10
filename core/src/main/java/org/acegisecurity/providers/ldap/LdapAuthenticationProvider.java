@@ -123,15 +123,43 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
 
     //~ Constructors ===================================================================================================
 
-    public LdapAuthenticationProvider(LdapAuthenticator authenticator, LdapAuthoritiesPopulator authoritiesPopulator) {
-        Assert.notNull(authenticator, "An LdapAuthenticator must be supplied");
-        Assert.notNull(authoritiesPopulator, "An LdapAuthoritiesPopulator must be supplied");
+    /**
+     * Create an uninitialized instance. You must call {@link #setAuthenticator(LdapAuthenticator)} and
+     * {@link #setAuthoritiesPopulator(LdapAuthoritiesPopulator)} before using.
+     */
+    public LdapAuthenticationProvider() {
+    }
 
-        this.authenticator = authenticator;
-        this.authoritiesPopulator = authoritiesPopulator;
+    /**
+     * Create an initialized instance to the values passed as arguments
+     * 
+     * @param authenticator
+     * @param authoritiesPopulator
+     */
+    public LdapAuthenticationProvider(LdapAuthenticator authenticator, LdapAuthoritiesPopulator authoritiesPopulator) {
+        this.setAuthenticator(authenticator);
+        this.setAuthoritiesPopulator(authoritiesPopulator);
     }
 
     //~ Methods ========================================================================================================
+
+    public void setAuthenticator(LdapAuthenticator authenticator) {
+        Assert.notNull(authenticator, "An LdapAuthenticator must be supplied");
+        this.authenticator = authenticator;
+    }
+
+    public LdapAuthenticator getAuthenticator() {
+        return authenticator;
+    }
+
+    public void setAuthoritiesPopulator(LdapAuthoritiesPopulator authoritiesPopulator) {
+        Assert.notNull(authoritiesPopulator, "An LdapAuthoritiesPopulator must be supplied");
+        this.authoritiesPopulator = authoritiesPopulator;
+    }
+
+    public LdapAuthoritiesPopulator getAuthoritiesPopulator() {
+        return authoritiesPopulator;
+    }
 
     protected void additionalAuthenticationChecks(UserDetails userDetails,
                                                   UsernamePasswordAuthenticationToken authentication)
@@ -161,7 +189,7 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         user.setUsername(username);
         user.setPassword(password);
 
-        GrantedAuthority[] extraAuthorities = authoritiesPopulator.getGrantedAuthorities(ldapUser);
+        GrantedAuthority[] extraAuthorities = getAuthoritiesPopulator().getGrantedAuthorities(ldapUser);
 
         for (int i = 0; i < extraAuthorities.length; i++) {
             user.addAuthority(extraAuthorities[i]);
@@ -171,7 +199,7 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     }
 
     protected LdapAuthoritiesPopulator getAuthoritiesPoulator() {
-        return authoritiesPopulator;
+        return getAuthoritiesPopulator();
     }
 
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
@@ -195,7 +223,7 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         }
 
         try {
-            LdapUserDetails ldapUser = authenticator.authenticate(username, password);
+            LdapUserDetails ldapUser = getAuthenticator().authenticate(username, password);
 
             return createUserDetails(ldapUser, username, password);
 

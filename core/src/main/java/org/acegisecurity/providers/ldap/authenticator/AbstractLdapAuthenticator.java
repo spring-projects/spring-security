@@ -70,7 +70,36 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 
     //~ Constructors ===================================================================================================
 
-    protected AbstractLdapAuthenticator(InitialDirContextFactory initialDirContextFactory) {
+    /**
+     * Create an uninitialized instance. You must call {@link #setInitialDirContextFactory(InitialDirContextFactory)}
+     * before using it.
+     */
+    public AbstractLdapAuthenticator() {
+    }
+
+    /**
+     * Create an initialized instance to the {@link InitialDirContextFactory} provided.
+     * 
+     * @param initialDirContextFactory
+     */
+    public AbstractLdapAuthenticator(InitialDirContextFactory initialDirContextFactory) {
+        this.setInitialDirContextFactory(initialDirContextFactory);
+    }
+
+    // ~ Methods
+    // ========================================================================================================
+
+    public void afterPropertiesSet() throws Exception {
+        Assert.isTrue((userDnFormat != null) || (userSearch != null),
+                "Either an LdapUserSearch or DN pattern (or both) must be supplied.");
+    }
+
+    /**
+     * Set the {@link InitialDirContextFactory} and initialize this instance from its data.
+     * 
+     * @param initialDirContextFactory
+     */
+    public void setInitialDirContextFactory(InitialDirContextFactory initialDirContextFactory) {
         Assert.notNull(initialDirContextFactory, "initialDirContextFactory must not be null.");
         this.initialDirContextFactory = initialDirContextFactory;
 
@@ -81,14 +110,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
         }
     }
 
-    //~ Methods ========================================================================================================
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.isTrue((userDnFormat != null) || (userSearch != null),
-            "Either an LdapUserSearch or DN pattern (or both) must be supplied.");
-    }
-
-    protected InitialDirContextFactory getInitialDirContextFactory() {
+    public InitialDirContextFactory getInitialDirContextFactory() {
         return initialDirContextFactory;
     }
 
