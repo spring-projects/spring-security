@@ -148,7 +148,8 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         this.authenticator = authenticator;
     }
 
-    public LdapAuthenticator getAuthenticator() {
+    protected LdapAuthenticator getAuthenticator() {
+        Assert.notNull(authenticator, "You must set the authenticator before using this instance.");
         return authenticator;
     }
 
@@ -157,7 +158,8 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         this.authoritiesPopulator = authoritiesPopulator;
     }
 
-    public LdapAuthoritiesPopulator getAuthoritiesPopulator() {
+    protected LdapAuthoritiesPopulator getAuthoritiesPopulator() {
+        Assert.notNull(authoritiesPopulator, "You must set the authoritiesPopulator before using this instance.");
         return authoritiesPopulator;
     }
 

@@ -248,6 +248,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     }
 
     protected InitialDirContextFactory getInitialDirContextFactory() {
+        Assert.notNull(initialDirContextFactory, "You must set the initialDirContextFactory before using this instance.");
         return initialDirContextFactory;
     }
 
@@ -280,6 +281,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     }
 
     protected String getGroupSearchBase() {
+        Assert.notNull(groupSearchBase, "You must set the groupSearchBase before using this instance.");
         return groupSearchBase;
     }
 

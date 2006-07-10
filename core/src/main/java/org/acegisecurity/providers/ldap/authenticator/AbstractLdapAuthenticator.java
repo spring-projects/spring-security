@@ -111,6 +111,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
     }
 
     public InitialDirContextFactory getInitialDirContextFactory() {
+        Assert.notNull(initialDirContextFactory, "You must set the initialDirContextFactory before using this instance.");
         return initialDirContextFactory;
     }
 
