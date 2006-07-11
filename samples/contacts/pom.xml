@@ -11,6 +11,26 @@
   <artifactId>acegi-security-sample-contacts</artifactId>
   <name>Acegi Security System for Spring - Contacts sample</name>
   <packaging>war</packaging>
+
   <dependencies>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.4</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <webXml>src/main/webapp/filter/WEB-INF/web.xml</webXml>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>
