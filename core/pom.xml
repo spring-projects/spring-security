@@ -7,6 +7,7 @@
   </parent>
   <artifactId>acegi-security</artifactId>
   <name>Acegi Security System for Spring</name>
+
   <dependencies>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -123,7 +124,27 @@
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
     </dependency>
-
   </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/../</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>notice.txt</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/resources/org/acegisecurity/taglibs</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>*.tld</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+    </resources>
+  </build>
 
 </project>
