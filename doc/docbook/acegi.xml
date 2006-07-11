@@ -1373,7 +1373,7 @@ if (obj instanceof UserDetails) {
         <literal>web.xml</literal>:</para>
 
         <para><programlisting>&lt;taglib&gt;
-  &lt;taglib-uri&gt;http://acegisecurity.sf.net/authz&lt;/taglib-uri&gt;
+  &lt;taglib-uri&gt;http://acegisecurity.org/authz&lt;/taglib-uri&gt;
   &lt;taglib-location&gt;/WEB-INF/authz.tld&lt;/taglib-location&gt;
 &lt;/taglib&gt;       </programlisting></para>
       </sect1>
