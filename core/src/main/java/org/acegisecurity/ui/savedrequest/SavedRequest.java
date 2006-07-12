@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 
 
 /**
@@ -55,7 +56,7 @@ public class SavedRequest implements java.io.Serializable {
 
     private ArrayList cookies = new ArrayList();
     private ArrayList locales = new ArrayList();
-    private HashMap headers = new HashMap();
+    private TreeMap headers = new TreeMap(String.CASE_INSENSITIVE_ORDER);
     private HashMap parameters = new HashMap();
     private String contextPath;
     private String method;
