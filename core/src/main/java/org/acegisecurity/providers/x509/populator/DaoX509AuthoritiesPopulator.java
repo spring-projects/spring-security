@@ -117,7 +117,7 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator, In
         this.subjectDNRegex = subjectDNRegex;
     }
 
-    public void setUserDetailsService(UserDetailsService authenticationDao) {
-        this.userDetailsService = authenticationDao;
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
     }
 }

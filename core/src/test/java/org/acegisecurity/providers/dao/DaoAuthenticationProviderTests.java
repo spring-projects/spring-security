@@ -417,10 +417,10 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
     public void testStartupSuccess() throws Exception {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        UserDetailsService dao = new MockAuthenticationDaoUserMarissa();
-        provider.setUserDetailsService(dao);
+        UserDetailsService userDetailsService = new MockAuthenticationDaoUserMarissa();
+        provider.setUserDetailsService(userDetailsService);
         provider.setUserCache(new MockUserCache());
-        assertEquals(dao, provider.getUserDetailsService());
+        assertEquals(userDetailsService, provider.getUserDetailsService());
         provider.afterPropertiesSet();
         assertTrue(true);
     }

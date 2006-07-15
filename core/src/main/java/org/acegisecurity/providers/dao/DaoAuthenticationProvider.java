@@ -63,7 +63,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
     }
 
     protected void doAfterPropertiesSet() throws Exception {
-        Assert.notNull(this.userDetailsService, "An Authentication DAO must be set");
+        Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
     }
 
     public PasswordEncoder getPasswordEncoder() {
@@ -90,7 +90,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
         if (loadedUser == null) {
             throw new AuthenticationServiceException(
-                "AuthenticationDao returned null, which is an interface contract violation");
+                "UserDetailsService returned null, which is an interface contract violation");
         }
 
         return loadedUser;
@@ -117,7 +117,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         this.saltSource = saltSource;
     }
 
-    public void setUserDetailsService(UserDetailsService authenticationDao) {
-        this.userDetailsService = authenticationDao;
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
     }
 }

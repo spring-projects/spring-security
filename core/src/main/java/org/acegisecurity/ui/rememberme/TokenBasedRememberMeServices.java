@@ -319,7 +319,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
         this.tokenValiditySeconds = tokenValiditySeconds;
     }
 
-    public void setUserDetailsService(UserDetailsService authenticationDao) {
-        this.userDetailsService = authenticationDao;
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
     }
 }

@@ -55,7 +55,7 @@ public class DaoCasAuthoritiesPopulator implements CasAuthoritiesPopulator, Init
         return userDetailsService;
     }
 
-    public void setUserDetailsService(UserDetailsService authenticationDao) {
-        this.userDetailsService = authenticationDao;
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
     }
 }

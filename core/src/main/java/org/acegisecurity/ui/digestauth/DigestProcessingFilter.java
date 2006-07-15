@@ -431,7 +431,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean, Message
         this.userCache = userCache;
     }
 
-    public void setUserDetailsService(UserDetailsService authenticationDao) {
-        this.userDetailsService = authenticationDao;
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
     }
 }

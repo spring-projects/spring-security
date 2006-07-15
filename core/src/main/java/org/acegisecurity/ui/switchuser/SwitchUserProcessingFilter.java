@@ -439,8 +439,8 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
      *
      * @param authenticationDao The authentication dao
      */
-    public void setUserDetailsService(UserDetailsService authenticationDao) {
-        this.userDetailsService = authenticationDao;
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
     }
 
     /**
