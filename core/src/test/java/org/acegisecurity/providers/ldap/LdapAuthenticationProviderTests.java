@@ -98,7 +98,7 @@ public class LdapAuthenticationProviderTests extends TestCase {
         LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
                 new MockAuthoritiesPopulator());
 
-        assertNotNull(ldapProvider.getAuthoritiesPoulator());
+        assertNotNull(ldapProvider.getAuthoritiesPopulator());
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
         UserDetails user = ldapProvider.retrieveUser("bob", authRequest);

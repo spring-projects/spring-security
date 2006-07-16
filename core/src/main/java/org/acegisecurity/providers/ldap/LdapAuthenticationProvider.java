@@ -132,7 +132,7 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
 
     /**
      * Create an initialized instance to the values passed as arguments
-     * 
+     *
      * @param authenticator
      * @param authoritiesPopulator
      */
@@ -198,10 +198,6 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         }
 
         return user.createUserDetails();
-    }
-
-    protected LdapAuthoritiesPopulator getAuthoritiesPoulator() {
-        return getAuthoritiesPopulator();
     }
 
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
