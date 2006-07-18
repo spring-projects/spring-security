@@ -46,17 +46,17 @@
 
   <distributionManagement>
     <repository>
-      <id>acegi.sourceforge.releases</id>
+      <id>sourceforge.net</id>
       <name>Acegi Releases Repository at Sourceforge</name>
       <url>scp://shell.sourceforge.net/home/groups/a/ac/acegisecurity/htdocs/repository/releases</url>
     </repository>
     <snapshotRepository>
-      <id>acegi.sourceforge.snapshots</id>
+      <id>sourceforge.net</id>
       <name>Acegi Snapshots Repository at Sourceforge</name>
       <url>scp://shell.sourceforge.net/home/groups/a/ac/acegisecurity/htdocs/repository/snapshots</url>
     </snapshotRepository>
     <site>
-      <id>acegi.sourceforge.site</id>
+      <id>sourceforge.net</id>
       <name>Acegi Website at Sourceforge</name>
       <url>scp://shell.sourceforge.net/home/groups/a/ac/acegisecurity/htdocs/maven2</url>
     </site>
@@ -64,7 +64,7 @@
 
   <repositories>
     <repository>
-      <id>acegi-snapshot</id>
+      <id>sourceforge.net</id>
       <name>Acegi snapshot repository</name>
       <url>http://acegisecurity.sourceforge.net/repository/snapshots</url>
       <releases>
@@ -72,7 +72,7 @@
       </releases>
     </repository>
     <repository>
-      <id>apache-maven-snapshots</id>
+      <id>apache.org</id>
       <name>Apache snapshot repository</name>
       <url>http://svn.apache.org/maven-snapshot-repository</url>
       <releases>
