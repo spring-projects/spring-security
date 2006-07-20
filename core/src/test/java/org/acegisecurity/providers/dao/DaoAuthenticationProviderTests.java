@@ -341,7 +341,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
             provider.authenticate(token);
             fail("Should have thrown AuthenticationServiceException");
         } catch (AuthenticationServiceException expected) {
-            assertEquals("AuthenticationDao returned null, which is an interface contract violation",
+            assertEquals("UserDetailsService returned null, which is an interface contract violation",
                 expected.getMessage());
         }
     }
