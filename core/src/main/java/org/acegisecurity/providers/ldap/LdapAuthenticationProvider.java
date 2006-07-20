@@ -124,13 +124,6 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     //~ Constructors ===================================================================================================
 
     /**
-     * Create an uninitialized instance. You must call {@link #setAuthenticator(LdapAuthenticator)} and
-     * {@link #setAuthoritiesPopulator(LdapAuthoritiesPopulator)} before using.
-     */
-    public LdapAuthenticationProvider() {
-    }
-
-    /**
      * Create an initialized instance to the values passed as arguments
      *
      * @param authenticator
@@ -143,23 +136,21 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
 
     //~ Methods ========================================================================================================
 
-    public void setAuthenticator(LdapAuthenticator authenticator) {
+    private void setAuthenticator(LdapAuthenticator authenticator) {
         Assert.notNull(authenticator, "An LdapAuthenticator must be supplied");
         this.authenticator = authenticator;
     }
 
-    protected LdapAuthenticator getAuthenticator() {
-        Assert.notNull(authenticator, "You must set the authenticator before using this instance.");
+    private LdapAuthenticator getAuthenticator() {
         return authenticator;
     }
 
-    public void setAuthoritiesPopulator(LdapAuthoritiesPopulator authoritiesPopulator) {
+    private void setAuthoritiesPopulator(LdapAuthoritiesPopulator authoritiesPopulator) {
         Assert.notNull(authoritiesPopulator, "An LdapAuthoritiesPopulator must be supplied");
         this.authoritiesPopulator = authoritiesPopulator;
     }
 
     protected LdapAuthoritiesPopulator getAuthoritiesPopulator() {
-        Assert.notNull(authoritiesPopulator, "You must set the authoritiesPopulator before using this instance.");
         return authoritiesPopulator;
     }
 

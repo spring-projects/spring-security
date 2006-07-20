@@ -71,13 +71,6 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
     //~ Constructors ===================================================================================================
 
     /**
-     * Create an uninitialized instance. You must call {@link #setInitialDirContextFactory(InitialDirContextFactory)}
-     * before using it.
-     */
-    public AbstractLdapAuthenticator() {
-    }
-
-    /**
      * Create an initialized instance to the {@link InitialDirContextFactory} provided.
      * 
      * @param initialDirContextFactory
@@ -99,7 +92,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
      * 
      * @param initialDirContextFactory
      */
-    public void setInitialDirContextFactory(InitialDirContextFactory initialDirContextFactory) {
+    private void setInitialDirContextFactory(InitialDirContextFactory initialDirContextFactory) {
         Assert.notNull(initialDirContextFactory, "initialDirContextFactory must not be null.");
         this.initialDirContextFactory = initialDirContextFactory;
 
@@ -110,8 +103,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
         }
     }
 
-    public InitialDirContextFactory getInitialDirContextFactory() {
-        Assert.notNull(initialDirContextFactory, "You must set the initialDirContextFactory before using this instance.");
+    protected InitialDirContextFactory getInitialDirContextFactory() {
         return initialDirContextFactory;
     }
 

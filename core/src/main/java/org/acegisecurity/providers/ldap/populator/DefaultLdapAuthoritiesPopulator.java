@@ -113,13 +113,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     //~ Constructors ===================================================================================================
 
     /**
-     * Create an uninitialized instance. You must call {@link #setInitialDirContextFactory(InitialDirContextFactory)}
-     * and {@link #setGroupSearchBase(String)} before using it.
-     */
-    public DefaultLdapAuthoritiesPopulator() {
-    }
-
-    /**
      * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be
      * set as a property.
      *
@@ -248,7 +241,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     }
 
     protected InitialDirContextFactory getInitialDirContextFactory() {
-        Assert.notNull(initialDirContextFactory, "You must set the initialDirContextFactory before using this instance.");
         return initialDirContextFactory;
     }
 
@@ -257,7 +249,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * 
      * @param initialDirContextFactory supplies the contexts used to search for user roles.
      */
-    public void setInitialDirContextFactory(InitialDirContextFactory initialDirContextFactory) {
+    private void setInitialDirContextFactory(InitialDirContextFactory initialDirContextFactory) {
         Assert.notNull(initialDirContextFactory, "InitialDirContextFactory must not be null");
         this.initialDirContextFactory = initialDirContextFactory;
 
@@ -271,7 +263,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * @param groupSearchBase if this is an empty string the search will be performed from the root DN of the context
      * factory.
      */
-    public void setGroupSearchBase(String groupSearchBase) {
+    private void setGroupSearchBase(String groupSearchBase) {
         Assert.notNull(groupSearchBase, "The groupSearchBase (name to search under), must not be null.");
         this.groupSearchBase = groupSearchBase;
         if (groupSearchBase.length() == 0) {
@@ -280,8 +272,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         }
     }
 
-    protected String getGroupSearchBase() {
-        Assert.notNull(groupSearchBase, "You must set the groupSearchBase before using this instance.");
+    private String getGroupSearchBase() {
         return groupSearchBase;
     }
 

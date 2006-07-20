@@ -107,12 +107,6 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
     //~ Constructors ===================================================================================================
 
     /**
-     * Create an uninitialized object. You must call {@link #setProviderUrl(String)} after instantiation.
-     */
-    public DefaultInitialDirContextFactory() {
-    }
-
-    /**
      * Create and initialize an instance to the LDAP url provided
      * 
      * @param providerUrl a String of the form <code>ldap://localhost:389/base_dn<code>
@@ -128,7 +122,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
      * 
      * @param providerUrl a String of the form <code>ldap://localhost:389/base_dn<code>
      */
-    public void setProviderUrl(String providerUrl) {
+    private void setProviderUrl(String providerUrl) {
         Assert.hasLength(providerUrl, "An LDAP connection URL must be supplied.");
 
         this.providerUrl = providerUrl;
@@ -158,7 +152,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
      * 
      * @return the url
      */
-    public String getProviderUrl() {
+    private String getProviderUrl() {
         return providerUrl;
     }
 
