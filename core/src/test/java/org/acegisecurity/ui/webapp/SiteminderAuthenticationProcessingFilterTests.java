@@ -19,12 +19,9 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.MockAuthenticationManager;
-
 import org.acegisecurity.ui.WebAuthenticationDetails;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
 
 /**
  * Tests SiteminderAuthenticationProcessingFilter.
@@ -36,18 +33,18 @@ import org.springframework.mock.web.MockHttpServletResponse;
 public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
     //~ Constructors ===================================================================================================
 
-/**
-         * Basic constructor.
-         */
+    /**
+     * Basic constructor.
+     */
     public SiteminderAuthenticationProcessingFilterTests() {
         super();
     }
 
-/**
-         * Argument constructor.
-         * 
-         * @param arg0
-         */
+    /**
+     * Argument constructor.
+     * 
+     * @param arg0
+     */
     public SiteminderAuthenticationProcessingFilterTests(String arg0) {
         super(arg0);
     }
@@ -92,14 +89,8 @@ public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
         filter.setFilterProcessesUrl("foobar");
         assertEquals("foobar", filter.getFilterProcessesUrl());
 
-        filter.setFormPasswordParameterKey("passwordParamKey");
-        assertEquals("passwordParamKey", filter.getFormPasswordParameterKey());
-
         filter.setFormUsernameParameterKey("usernameParamKey");
         assertEquals("usernameParamKey", filter.getFormUsernameParameterKey());
-
-        filter.setSiteminderPasswordHeaderKey("passwordHeaderKey");
-        assertEquals("passwordHeaderKey", filter.getSiteminderPasswordHeaderKey());
 
         filter.setSiteminderUsernameHeaderKey("usernameHeaderKey");
         assertEquals("usernameHeaderKey", filter.getSiteminderUsernameHeaderKey());
@@ -131,8 +122,7 @@ public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
      *
      * @throws Exception
      */
-    public void testFormNullPasswordHandledGracefully()
-        throws Exception {
+    public void testFormNullPasswordHandledGracefully() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addParameter(SiteminderAuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY, "marissa");
 
@@ -151,8 +141,7 @@ public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
      *
      * @throws Exception
      */
-    public void testFormNullUsernameHandledGracefully()
-        throws Exception {
+    public void testFormNullUsernameHandledGracefully() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addParameter(SiteminderAuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY, "koala");
 
@@ -186,7 +175,6 @@ public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
         filter.setAuthenticationManager(authMgrThatGrantsAccess);
 
         filter.setSiteminderUsernameHeaderKey("SM_USER");
-        filter.setSiteminderPasswordHeaderKey("SM_USER");
         filter.init(null);
 
         // Requests for an unknown URL should NOT require (re)authentication
@@ -220,7 +208,6 @@ public class SiteminderAuthenticationProcessingFilterTests extends TestCase {
         SiteminderAuthenticationProcessingFilter filter = new SiteminderAuthenticationProcessingFilter();
         filter.setAuthenticationManager(authMgr);
         filter.setSiteminderUsernameHeaderKey("SM_USER");
-        filter.setSiteminderPasswordHeaderKey("SM_USER");
         filter.init(null);
 
         Authentication result = filter.attemptAuthentication(request);
