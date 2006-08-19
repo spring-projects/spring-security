@@ -1420,7 +1420,7 @@ if (obj instanceof UserDetails) {
         this:</para>
 
         <para><programlisting>&lt;filter&gt;
-  &lt;filter-name&gt;Acegi HTTP Request Security Filter&lt;/filter-name&gt;
+  &lt;filter-name&gt;Acegi Filter Chain Proxy&lt;/filter-name&gt;
   &lt;filter-class&gt;org.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
