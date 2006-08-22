@@ -44,17 +44,18 @@ public class SimpleAclEntry extends AbstractBasicAclEntry {
     public static final int READ_WRITE_DELETE = READ | WRITE | DELETE;
 
     // Array required by the abstract superclass via getValidPermissions()
-    private static final int[] validPermissions = {
+    private static final int[] VALID_PERMISSIONS = {
             NOTHING, ADMINISTRATION, READ, WRITE, CREATE, DELETE, READ_WRITE_CREATE_DELETE, READ_WRITE_CREATE,
             READ_WRITE, READ_WRITE_DELETE
         };
+
     private static final String[] VALID_PERMISSIONS_AS_STRING = {
             "NOTHING", "ADMINISTRATION", "READ", "WRITE", "CREATE", "DELETE", "READ_WRITE_CREATE_DELETE", "READ_WRITE_CREATE",
             "READ_WRITE", "READ_WRITE_DELETE" };
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Allows {@link BasicAclDao} implementations to construct this object
      * using <code>newInstance()</code>.
      * 
@@ -73,8 +74,11 @@ public class SimpleAclEntry extends AbstractBasicAclEntry {
 
     //~ Methods ========================================================================================================
 
+    /**
+     * @return a copy of the permissions array, changes to the values won't affect this class.
+     */
     public int[] getValidPermissions() {
-        return validPermissions;
+        return (int[]) VALID_PERMISSIONS.clone();
     }
 
     public String printPermissionsBlock(int i) {
@@ -123,8 +127,9 @@ public class SimpleAclEntry extends AbstractBasicAclEntry {
      */
     public static int parsePermission(String permission) {
         for (int i = 0; i < VALID_PERMISSIONS_AS_STRING.length; i++) {
-            if (VALID_PERMISSIONS_AS_STRING[i].equalsIgnoreCase(permission))
-                return validPermissions[i];
+            if (VALID_PERMISSIONS_AS_STRING[i].equalsIgnoreCase(permission)) {
+                return VALID_PERMISSIONS[i];
+            }
         }
         throw new IllegalArgumentException("Permission provided does not exist: " + permission);
     }

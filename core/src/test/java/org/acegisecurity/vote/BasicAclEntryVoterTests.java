@@ -446,13 +446,13 @@ public class BasicAclEntryVoterTests extends TestCase {
     }
 
     public void testSetRequirePermissionFromString() {
-        assertPermission("NOTHING", 0);
-        assertPermission("ADMINISTRATION", 1);
-        assertPermission("READ", 2);
-        assertPermission("WRITE", 4);
-        assertPermission("CREATE", 8);
-        assertPermission("DELETE", 16);
-        assertPermission(new String[] { "WRITE", "CREATE" }, new int[] { 4, 8 });
+        assertPermission("NOTHING", SimpleAclEntry.NOTHING);
+        assertPermission("ADMINISTRATION", SimpleAclEntry.ADMINISTRATION);
+        assertPermission("READ", SimpleAclEntry.READ);
+        assertPermission("WRITE", SimpleAclEntry.WRITE);
+        assertPermission("CREATE", SimpleAclEntry.CREATE);
+        assertPermission("DELETE", SimpleAclEntry.DELETE);
+        assertPermission(new String[] { "WRITE", "CREATE" }, new int[] { SimpleAclEntry.WRITE, SimpleAclEntry.CREATE });
     }
 
     public void testSetRequirePermissionFromStringWrongValues() {

@@ -172,13 +172,13 @@ public class SimpleAclEntryTests extends TestCase {
     }
 
     public void testParsePermission() {
-        assertPermission("NOTHING", 0);
-        assertPermission("ADMINISTRATION", 1);
-        assertPermission("READ", 2);
-        assertPermission("WRITE", 4);
-        assertPermission("CREATE", 8);
-        assertPermission("DELETE", 16);
-        assertPermission("READ_WRITE_DELETE", 22);
+        assertPermission("NOTHING", SimpleAclEntry.NOTHING);
+        assertPermission("ADMINISTRATION", SimpleAclEntry.ADMINISTRATION);
+        assertPermission("READ", SimpleAclEntry.READ);
+        assertPermission("WRITE", SimpleAclEntry.WRITE);
+        assertPermission("CREATE", SimpleAclEntry.CREATE);
+        assertPermission("DELETE", SimpleAclEntry.DELETE);
+        assertPermission("READ_WRITE_DELETE", SimpleAclEntry.READ_WRITE_DELETE);
     }
 
     public void testParsePermissionWrongValues() {
@@ -192,5 +192,16 @@ public class SimpleAclEntryTests extends TestCase {
 
     private void assertPermission(String permission, int value) {
         assertEquals(value, SimpleAclEntry.parsePermission(permission));
+    }
+
+    /**
+     * Check that the value returned by {@link SimpleAclEntry#getValidPermissions()} is not modifiable.
+     */
+    public void testGetPermissions() {
+        SimpleAclEntry acl = new SimpleAclEntry("", new NamedEntityObjectIdentity("x", "x"), null, 0);
+        int[] permissions = acl.getValidPermissions();
+        int i = permissions[0];
+        permissions[0] -= 100;
+        assertEquals("Value returned by getValidPermissions can be modified", i, acl.getValidPermissions()[0]);
     }
 }
