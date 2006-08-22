@@ -23,6 +23,7 @@ import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.acl.AclManager;
 import org.acegisecurity.acl.basic.BasicAclEntry;
+import org.acegisecurity.acl.basic.SimpleAclEntry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -141,6 +142,16 @@ public class BasicAclEntryVoter extends AbstractAclVoter implements Initializing
 
     public void setRequirePermission(int[] requirePermission) {
         this.requirePermission = requirePermission;
+    }
+
+    /**
+     * Allow setting permissions with String literals instead of integers as {@link #setRequirePermission(int[])}
+     * 
+     * @param requirePermission Permission literals
+     * @see SimpleAclEntry#parsePermissions(String[]) for valid values
+     */
+    public void setRequirePermissionFromString(String[] requirePermission) {
+        setRequirePermission(SimpleAclEntry.parsePermissions(requirePermission));
     }
 
     public boolean supports(ConfigAttribute attribute) {

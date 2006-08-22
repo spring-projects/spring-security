@@ -211,6 +211,16 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider implements 
         this.requirePermission = requirePermission;
     }
 
+    /**
+     * Allow setting permissions with String literals instead of integers as {@link #setRequirePermission(int[])}
+     * 
+     * @param requirePermission permission literals
+     * @see SimpleAclEntry#parsePermissions(String[]) for valid values
+     */
+    public void setRequirePermissionFromString(String[] requirePermission) {
+        setRequirePermission(SimpleAclEntry.parsePermissions(requirePermission));
+    }
+
     public boolean supports(ConfigAttribute attribute) {
         if ((attribute.getAttribute() != null) && attribute.getAttribute().equals(getProcessConfigAttribute())) {
             return true;

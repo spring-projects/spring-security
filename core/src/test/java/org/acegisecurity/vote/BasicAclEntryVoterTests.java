@@ -21,22 +21,16 @@ import org.acegisecurity.AuthorizationServiceException;
 import org.acegisecurity.ConfigAttributeDefinition;
 import org.acegisecurity.MockAclManager;
 import org.acegisecurity.SecurityConfig;
-
 import org.acegisecurity.acl.AclEntry;
 import org.acegisecurity.acl.AclManager;
 import org.acegisecurity.acl.basic.MockAclObjectIdentity;
 import org.acegisecurity.acl.basic.SimpleAclEntry;
-
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-
 import org.acegisecurity.util.SimpleMethodInvocation;
-
 import org.aopalliance.intercept.MethodInvocation;
-
 import org.aspectj.lang.JoinPoint;
 
 import java.lang.reflect.Method;
-
 
 /**
  * Tests {@link BasicAclEntryVoter}.
@@ -448,6 +442,40 @@ public class BasicAclEntryVoterTests extends TestCase {
             fail("Should have thrown AuthorizationServiceException");
         } catch (AuthorizationServiceException expected) {
             assertTrue(true);
+        }
+    }
+
+    public void testSetRequirePermissionFromString() {
+        assertPermission("NOTHING", 0);
+        assertPermission("ADMINISTRATION", 1);
+        assertPermission("READ", 2);
+        assertPermission("WRITE", 4);
+        assertPermission("CREATE", 8);
+        assertPermission("DELETE", 16);
+        assertPermission(new String[] { "WRITE", "CREATE" }, new int[] { 4, 8 });
+    }
+
+    public void testSetRequirePermissionFromStringWrongValues() {
+        BasicAclEntryVoter voter = new BasicAclEntryVoter();
+        try {
+            voter.setRequirePermissionFromString(new String[] { "X" });
+            fail(IllegalArgumentException.class.getName() + " must have been thrown.");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+    }
+
+    private void assertPermission(String text, int value) {
+        assertPermission(new String[] { text }, new int[] { value });
+    }
+
+    private void assertPermission(String[] text, int[] value) {
+        BasicAclEntryVoter voter = new BasicAclEntryVoter();
+        voter.setRequirePermissionFromString(text);
+        assertEquals("Test incorreclty coded", value.length, text.length);
+        assertEquals(value.length, voter.getRequirePermission().length);
+        for (int i = 0; i < value.length; i++) {
+            assertEquals(value[i], voter.getRequirePermission()[i]);
         }
     }
 

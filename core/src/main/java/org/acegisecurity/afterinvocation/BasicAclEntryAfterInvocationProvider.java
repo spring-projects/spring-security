@@ -39,7 +39,6 @@ import org.springframework.util.Assert;
 
 import java.util.Iterator;
 
-
 /**
  * <p>Given a domain object instance returned from a secure object invocation, ensures the principal has
  * appropriate permission as defined by the {@link AclManager}.</p>
@@ -185,6 +184,16 @@ public class BasicAclEntryAfterInvocationProvider implements AfterInvocationProv
 
     public void setRequirePermission(int[] requirePermission) {
         this.requirePermission = requirePermission;
+    }
+
+    /**
+     * Allow setting permissions with String literals instead of integers as {@link #setRequirePermission(int[])}
+     * 
+     * @param requirePermission Permission literals
+     * @see SimpleAclEntry#parsePermissions(String[]) for valid values
+     */
+    public void setRequirePermissionFromString(String[] requirePermission) {
+        setRequirePermission(SimpleAclEntry.parsePermissions(requirePermission));
     }
 
     public boolean supports(ConfigAttribute attribute) {

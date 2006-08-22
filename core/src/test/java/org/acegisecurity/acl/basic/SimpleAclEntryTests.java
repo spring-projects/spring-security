@@ -17,7 +17,6 @@ package org.acegisecurity.acl.basic;
 
 import junit.framework.TestCase;
 
-
 /**
  * Tests {@link SimpleAclEntry}.
  *
@@ -170,5 +169,28 @@ public class SimpleAclEntryTests extends TestCase {
         SimpleAclEntry acl = new SimpleAclEntry(recipient, objectIdentity, null, 0);
         acl.addPermissions(new int[] {SimpleAclEntry.READ, SimpleAclEntry.WRITE, SimpleAclEntry.CREATE});
         assertTrue(acl.toString().endsWith("marissa=-RWC- ............................111. (14)]"));
+    }
+
+    public void testParsePermission() {
+        assertPermission("NOTHING", 0);
+        assertPermission("ADMINISTRATION", 1);
+        assertPermission("READ", 2);
+        assertPermission("WRITE", 4);
+        assertPermission("CREATE", 8);
+        assertPermission("DELETE", 16);
+        assertPermission("READ_WRITE_DELETE", 22);
+    }
+
+    public void testParsePermissionWrongValues() {
+        try {
+            SimpleAclEntry.parsePermission("X");
+            fail(IllegalArgumentException.class.getName() + " must have been thrown.");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+    }
+
+    private void assertPermission(String permission, int value) {
+        assertEquals(value, SimpleAclEntry.parsePermission(permission));
     }
 }

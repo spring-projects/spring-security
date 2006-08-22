@@ -18,7 +18,6 @@ package org.acegisecurity.acl.basic;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
 /**
  * Stores some privileges typical of a domain object.
  *
@@ -49,6 +48,9 @@ public class SimpleAclEntry extends AbstractBasicAclEntry {
             NOTHING, ADMINISTRATION, READ, WRITE, CREATE, DELETE, READ_WRITE_CREATE_DELETE, READ_WRITE_CREATE,
             READ_WRITE, READ_WRITE_DELETE
         };
+    private static final String[] VALID_PERMISSIONS_AS_STRING = {
+            "NOTHING", "ADMINISTRATION", "READ", "WRITE", "CREATE", "DELETE", "READ_WRITE_CREATE_DELETE", "READ_WRITE_CREATE",
+            "READ_WRITE", "READ_WRITE_DELETE" };
 
     //~ Constructors ===================================================================================================
 
@@ -109,5 +111,35 @@ public class SimpleAclEntry extends AbstractBasicAclEntry {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Parse a permission {@link String} literal and return associated value.
+     * 
+     * @param permission one of the field names that represent a permission: <code>ADMINISTRATION</code>,
+     * <code>READ</code>, <code>WRITE</code>,...
+     * @return the value associated to that permission
+     * @throws IllegalArgumentException if argument is not a valid permission
+     */
+    public static int parsePermission(String permission) {
+        for (int i = 0; i < VALID_PERMISSIONS_AS_STRING.length; i++) {
+            if (VALID_PERMISSIONS_AS_STRING[i].equalsIgnoreCase(permission))
+                return validPermissions[i];
+        }
+        throw new IllegalArgumentException("Permission provided does not exist: " + permission);
+    }
+
+    /**
+     * Parse a list of permission {@link String} literals and return associated values.
+     * 
+     * @param permissions array with permissions as {@link String}
+     * @see #parsePermission(String) for valid values
+     */
+    public static int[] parsePermissions(String[] permissions) {
+        int[] requirepermissionAsIntArray = new int[permissions.length];
+        for (int i = 0; i < requirepermissionAsIntArray.length; i++) {
+            requirepermissionAsIntArray[i] = parsePermission(permissions[i]);
+        }
+        return requirepermissionAsIntArray;
     }
 }
