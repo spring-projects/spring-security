@@ -15,17 +15,17 @@
 
 package org.acegisecurity.intercept.method;
 
-import org.acegisecurity.ConfigAttributeDefinition;
-import org.acegisecurity.ConfigAttributeEditor;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.propertyeditors.PropertiesEditor;
+import org.springframework.util.StringUtils;
 
 import java.beans.PropertyEditorSupport;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 
@@ -56,20 +56,24 @@ public class MethodDefinitionSourceEditor extends PropertyEditorSupport {
             Properties props = (Properties) propertiesEditor.getValue();
 
             // Now we have properties, process each one individually
-            ConfigAttributeEditor configAttribEd = new ConfigAttributeEditor();
+            List mappings = new ArrayList();
 
             for (Iterator iter = props.keySet().iterator(); iter.hasNext();) {
                 String name = (String) iter.next();
                 String value = props.getProperty(name);
 
-                // Convert value to series of security configuration attributes
-                configAttribEd.setAsText(value);
+                MethodDefinitionSourceMapping mapping = new MethodDefinitionSourceMapping();
+                mapping.setMethodName(name);
 
-                ConfigAttributeDefinition attr = (ConfigAttributeDefinition) configAttribEd.getValue();
+                String[] tokens = StringUtils.commaDelimitedListToStringArray(value);
 
-                // Register name and attribute
-                source.addSecureMethod(name, attr);
+                for (int i = 0; i < tokens.length; i++) {
+                    mapping.addConfigAttribute(tokens[i].trim());
+                }
+
+                mappings.add(mapping);
             }
+            source.setMappings(mappings);
         }
 
         setValue(source);

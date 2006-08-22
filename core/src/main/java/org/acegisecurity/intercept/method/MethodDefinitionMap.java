@@ -17,6 +17,7 @@ package org.acegisecurity.intercept.method;
 
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
+import org.acegisecurity.SecurityConfig;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -230,6 +231,27 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
 
         while (attribs.hasNext()) {
             definition.addConfigAttribute((ConfigAttribute) attribs.next());
+        }
+    }
+
+    /**
+     * Easier configuration of the instance, using {@link MethodDefinitionSourceMapping}.
+     * 
+     * @param mappings {@link List} of {@link MethodDefinitionSourceMapping} objects.
+     */
+    public void setMappings(List mappings) {
+        Iterator it = mappings.iterator();
+        while (it.hasNext()) {
+            MethodDefinitionSourceMapping mapping = (MethodDefinitionSourceMapping) it.next();
+            ConfigAttributeDefinition configDefinition = new ConfigAttributeDefinition();
+
+            Iterator configAttributesIt = mapping.getConfigAttributes().iterator();
+            while (configAttributesIt.hasNext()) {
+                String s = (String) configAttributesIt.next();
+                configDefinition.addConfigAttribute(new SecurityConfig(s));
+            }
+
+            addSecureMethod(mapping.getMethodName(), configDefinition);
         }
     }
 }
