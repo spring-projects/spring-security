@@ -48,7 +48,7 @@ public interface PasswordEncoder {
      * @param salt optionally used by the implementation to "salt" the raw password before encoding. A
      *        <code>null</code> value is legal.
      *
-     * @return DOCUMENT ME!
+     * @return encoded password
      *
      * @throws DataAccessException DOCUMENT ME!
      */
@@ -67,7 +67,7 @@ public interface PasswordEncoder {
      * @param salt optionally used by the implementation to "salt" the raw password before encoding. A
      *        <code>null</code> value is legal.
      *
-     * @return DOCUMENT ME!
+     * @return true if the password is valid , false otherwise
      *
      * @throws DataAccessException DOCUMENT ME!
      */
