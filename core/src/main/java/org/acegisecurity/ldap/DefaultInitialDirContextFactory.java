@@ -34,6 +34,7 @@ import java.util.StringTokenizer;
 import javax.naming.CommunicationException;
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
@@ -169,16 +170,21 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
         try {
             return new InitialDirContext(env);
-        } catch (CommunicationException ce) {
-            throw new LdapDataAccessException(messages.getMessage(
-                    "DefaultIntitalDirContextFactory.communicationFailure", "Unable to connect to LDAP server"), ce);
-        } catch (javax.naming.AuthenticationException ae) {
-            throw new BadCredentialsException(messages.getMessage("DefaultIntitalDirContextFactory.badCredentials",
-                    "Bad credentials"), ae);
-        } catch (NamingException nx) {
+        } catch (NamingException ne) {
+            if ((ne instanceof javax.naming.AuthenticationException) ||
+                    (ne instanceof OperationNotSupportedException)) {
+                throw new BadCredentialsException(messages.getMessage("DefaultIntitalDirContextFactory.badCredentials",
+                        "Bad credentials"), ne);
+            }
+
+            if (ne instanceof CommunicationException) {
+                throw new LdapDataAccessException(messages.getMessage(
+                        "DefaultIntitalDirContextFactory.communicationFailure", "Unable to connect to LDAP server"), ne);
+            }
+
             throw new LdapDataAccessException(messages.getMessage(
                     "DefaultIntitalDirContextFactory.unexpectedException",
-                    "Failed to obtain InitialDirContext due to unexpected exception"), nx);
+                    "Failed to obtain InitialDirContext due to unexpected exception"), ne);
         }
     }
 
