@@ -29,7 +29,7 @@ public class BadCredentialsException extends AuthenticationException {
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructs a <code>BadCredentialsException</code> with the specified
      * message.
      *
@@ -44,7 +44,7 @@ public class BadCredentialsException extends AuthenticationException {
         this.extraInformation = extraInformation;
     }
 
-/**
+    /**
      * Constructs a <code>BadCredentialsException</code> with the specified
      * message and root cause.
      *
