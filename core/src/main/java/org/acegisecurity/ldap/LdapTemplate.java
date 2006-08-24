@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.Context;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -135,7 +136,11 @@ public class LdapTemplate {
                     public Object doInDirContext(DirContext ctx)
                         throws NamingException {
                         try {
-                            ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
+                            Object obj = ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
+                            if (obj instanceof Context) {
+                                LdapUtils.closeContext((Context) obj);
+                            }
+
                         } catch (NameNotFoundException nnfe) {
                             return Boolean.FALSE;
                         }
