@@ -109,7 +109,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
      * Variation of essence pattern. Used to create mutable intermediate object
      */
     public static class Essence {
-        LdapUserDetailsImpl instance = new LdapUserDetailsImpl();
+        LdapUserDetailsImpl instance = createTarget();
         List mutableAuthorities = new ArrayList();
 
         public Essence() {}
@@ -125,6 +125,10 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
             setAccountNonLocked(copyMe.isAccountNonLocked());
             setControls(copyMe.getControls());
             setAuthorities(copyMe.getAuthorities());
+        }
+
+        LdapUserDetailsImpl createTarget() {
+            return new LdapUserDetailsImpl();
         }
 
         public Essence addAuthority(GrantedAuthority a) {
