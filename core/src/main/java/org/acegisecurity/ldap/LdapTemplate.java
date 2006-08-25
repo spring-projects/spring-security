@@ -133,21 +133,21 @@ public class LdapTemplate {
 
     public boolean nameExists(final String dn) {
         Boolean exists = (Boolean) execute(new LdapCallback() {
-                    public Object doInDirContext(DirContext ctx)
-                        throws NamingException {
-                        try {
-                            Object obj = ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
-                            if (obj instanceof Context) {
-                                LdapUtils.closeContext((Context) obj);
-                            }
-
-                        } catch (NameNotFoundException nnfe) {
-                            return Boolean.FALSE;
+                public Object doInDirContext(DirContext ctx)
+                    throws NamingException {
+                    try {
+                        Object obj = ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
+                        if (obj instanceof Context) {
+                            LdapUtils.closeContext((Context) obj);
                         }
 
-                        return Boolean.TRUE;
+                    } catch (NameNotFoundException nnfe) {
+                        return Boolean.FALSE;
                     }
-                });
+
+                    return Boolean.TRUE;
+                }
+            });
 
         return exists.booleanValue();
     }
