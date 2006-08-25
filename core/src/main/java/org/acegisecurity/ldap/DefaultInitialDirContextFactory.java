@@ -35,6 +35,7 @@ import javax.naming.CommunicationException;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
+import javax.naming.ldap.InitialLdapContext;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
@@ -105,6 +106,9 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
      */
     private boolean useConnectionPool = true;
 
+    /** Set to true for ldap v3 compatible servers */
+    private boolean useLdapContext = false;
+
     //~ Constructors ===================================================================================================
 
     /**
@@ -169,7 +173,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
         }
 
         try {
-            return new InitialDirContext(env);
+            return useLdapContext ? new InitialLdapContext(env, null) : new InitialDirContext(env);
         } catch (NamingException ne) {
             if ((ne instanceof javax.naming.AuthenticationException) ||
                     (ne instanceof OperationNotSupportedException)) {
@@ -308,5 +312,9 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
      */
     public void setUseConnectionPool(boolean useConnectionPool) {
         this.useConnectionPool = useConnectionPool;
+    }
+
+    public void setUseLdapContext(boolean useLdapContext) {
+        this.useLdapContext = useLdapContext;
     }
 }
