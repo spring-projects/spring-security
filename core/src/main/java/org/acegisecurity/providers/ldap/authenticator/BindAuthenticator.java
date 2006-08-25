@@ -26,6 +26,7 @@ import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.naming.NamingException;
 import java.util.Iterator;
 
 
@@ -82,10 +83,6 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
     private LdapUserDetails bindWithDn(String userDn, String username, String password) {
         LdapTemplate template = new LdapTemplate(getInitialDirContextFactory(), userDn, password);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Attempting to bind with DN = " + userDn);
-        }
-
         try {
             LdapUserDetailsImpl.Essence user = (LdapUserDetailsImpl.Essence) template.retrieveEntry(userDn,
                     getUserDetailsMapper(), getUserAttributes());
@@ -94,12 +91,21 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
             return user.createUserDetails();
         } catch (BadCredentialsException e) {
             // This will be thrown if an invalid user name is used and the method may
-            // be called multiple times to try different names, so we trap the exception.
-            if (logger.isDebugEnabled()) {
-                logger.debug("Failed to bind as " + userDn + ": " + e.getCause());
-            }
+            // be called multiple times to try different names, so we trap the exception
+            // unless a subclass wishes to implement more specialized behaviour.
+            handleBindException(userDn, username, e.getCause());
         }
 
         return null;
+    }
+
+    /**
+     * Allows subclasses to inspect the exception thrown by an attempt to bind with a particular DN.
+     * The default implementation just reports the failure to the debug log.
+     */
+    void handleBindException(String userDn, String username, Throwable cause) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Failed to bind as " + userDn + ": " + cause);
+        }
     }
 }
