@@ -21,11 +21,8 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.Control;
+import javax.naming.ldap.LdapContext;
 import java.util.Hashtable;
-
-import org.acegisecurity.ldap.ppolicy.OracleIDPasswordPolicyControl;
-import org.acegisecurity.ldap.ppolicy.PasswordPolicyResponseControl;
-
 
 /**
  * Tests for <tt>PasswordPolicyResponse</tt>.
@@ -42,26 +39,29 @@ public class PasswordPolicyResponseControlTests extends TestCase {
 //    public void testAgainstServer() throws Exception {
 //        Hashtable env = new Hashtable();
 //        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-//        env.put(Context.PROVIDER_URL, "ldap://myip/");
+//        env.put(Context.PROVIDER_URL, "ldap://gorille:389/");
 //        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-//        env.put(Context.SECURITY_PRINCIPAL, "cn=orcladmin,cn=Users");
-//        env.put(Context.SECURITY_CREDENTIALS, "password");
+//        env.put(Context.SECURITY_PRINCIPAL, "cn=manager,dc=acegisecurity,dc=org");
+//        env.put(Context.SECURITY_CREDENTIALS, "acegisecurity");
+//        env.put(LdapContext.CONTROL_FACTORIES, PasswordPolicyControlFactory.class.getName());
 //
 //        InitialLdapContext ctx = new InitialLdapContext(env, null);
 //
-//        Control[] rctls = { new OracleIDPasswordPolicyControl()};
+//        Control[] rctls = { new PasswordPolicyControl(false) };
+//
+//        ctx.setRequestControls(rctls);
 //
 //        try {
-////            ctx.addToEnvironment(LdapContext.CONTROL_FACTORIES, PasswordPolicyControlFactory.class.getName());
-//            ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, "cn=jerrymouse,cn=Users" );
-//            ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, "wheresthecheese");
-//            ctx.reconnect(rctls);
-//        } catch(NamingException ne) {
-//            ne.printStackTrace();
-//            // Ok.
-//        }
+//            ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, "uid=bob,ou=people,dc=acegisecurity,dc=org" );
+//            ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, "bobspassword");
+//            Object o = ctx.lookup("");
 //
-//        Control[] controls = ctx.getResponseControls();
+//            System.out.println(o);
+//
+//        } catch(NamingException ne) {
+//            // Ok.
+//            System.err.println(ne);
+//        }
 //
 //        PasswordPolicyResponseControl ctrl = getPPolicyResponseCtl(ctx);
 //        System.out.println(ctrl);
@@ -70,6 +70,7 @@ public class PasswordPolicyResponseControlTests extends TestCase {
 //
 //        //com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
 //    }
+
 
     private PasswordPolicyResponseControl getPPolicyResponseCtl(InitialLdapContext ctx) throws NamingException {
         Control[] ctrls = ctx.getResponseControls();
