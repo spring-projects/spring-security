@@ -79,4 +79,17 @@ public class LdapUserDetailsMapperTests extends TestCase {
 
         assertEquals(0, user.getGrantedAuthorities().length);
     }
+
+    public void testPasswordAttributeIsMappedCorrectly() throws Exception {
+        LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
+
+        mapper.setPasswordAttributeName("myappsPassword");
+        BasicAttributes attrs = new BasicAttributes();
+        attrs.put(new BasicAttribute("myappsPassword", "mypassword".getBytes()));
+
+        LdapUserDetails user =
+                ((LdapUserDetailsImpl.Essence) mapper.mapAttributes("cn=someName", attrs)).createUserDetails();
+
+        assertEquals("mypassword", user.getPassword());
+    }
 }

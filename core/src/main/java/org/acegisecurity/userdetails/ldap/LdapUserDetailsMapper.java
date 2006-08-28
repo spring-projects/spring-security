@@ -58,14 +58,7 @@ public class LdapUserDetailsMapper implements LdapEntryMapper {
         Attribute passwordAttribute = attributes.get(passwordAttributeName);
 
         if (passwordAttribute != null) {
-            Object retrievedPassword = passwordAttribute.get();
-
-            if (!(retrievedPassword instanceof String)) {
-                // Assume it's binary
-                retrievedPassword = new String((byte[]) retrievedPassword);
-            }
-
-            essence.setPassword((String) retrievedPassword);
+            essence.setPassword(mapPassword(passwordAttribute));
         }
 
         // Map the roles
@@ -91,6 +84,25 @@ public class LdapUserDetailsMapper implements LdapEntryMapper {
         }
 
         return essence;
+    }
+
+    /**
+     * Extension point to allow customized creation of the user's password from
+     * the attribute stored in the directory.
+     *
+     * @param passwordAttribute the attribute instance containing the password
+     * @return a String representation of the password.
+     */
+    protected String mapPassword(Attribute passwordAttribute) throws NamingException {
+        Object retrievedPassword = passwordAttribute.get();
+
+        if (!(retrievedPassword instanceof String)) {
+            // Assume it's binary
+            retrievedPassword = new String((byte[]) retrievedPassword);
+        }
+
+        return (String) retrievedPassword;
+
     }
 
     /**
