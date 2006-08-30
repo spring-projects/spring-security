@@ -148,7 +148,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         synchronized (aces) {
             int offset = findAceOffset(aceId);
 
-            if (offset == 1) {
+            if (offset == -1) {
                 throw new NotFoundException("Requested ACE ID not found");
             }
 

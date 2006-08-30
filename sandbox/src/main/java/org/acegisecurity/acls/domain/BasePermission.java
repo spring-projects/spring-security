@@ -18,7 +18,6 @@ package org.acegisecurity.acls.domain;
 import org.acegisecurity.acls.AclFormattingUtils;
 import org.acegisecurity.acls.Permission;
 
-
 /**
  * DOCUMENT ME!
  *
@@ -31,7 +30,8 @@ public class BasePermission implements Permission {
     public static final Permission READ = new BasePermission(1 << 0, 'R'); // 1
     public static final Permission WRITE = new BasePermission(1 << 1, 'W'); // 2
     public static final Permission CREATE = new BasePermission(1 << 2, 'C'); // 4
-    public static final Permission ADMINISTRATION = new BasePermission(1 << 3, 'A'); // 8
+    public static final Permission DELETE = new BasePermission(1 << 3, 'D'); // 8
+    public static final Permission ADMINISTRATION = new BasePermission(1 << 4, 'A'); // 16
 
     //~ Instance fields ================================================================================================
 
@@ -72,6 +72,10 @@ public class BasePermission implements Permission {
         }
 
         if (mask == 8) {
+            permission.set(DELETE);
+        }
+        
+        if (mask == 16) {
             permission.set(ADMINISTRATION);
         }
 
