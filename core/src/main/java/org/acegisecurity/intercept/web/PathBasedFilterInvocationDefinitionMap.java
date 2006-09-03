@@ -86,8 +86,8 @@ public class PathBasedFilterInvocationDefinitionMap extends AbstractFilterInvoca
     }
 
     public ConfigAttributeDefinition lookupAttributes(String url) {
-        // Strip anything after a question mark symbol, as per SEC-161.
-        int firstQuestionMarkIndex = url.lastIndexOf("?");
+        // Strip anything after a question mark symbol, as per SEC-161. See also SEC-321
+        int firstQuestionMarkIndex = url.indexOf("?");
 
         if (firstQuestionMarkIndex != -1) {
             url = url.substring(0, firstQuestionMarkIndex);

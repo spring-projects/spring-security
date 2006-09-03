@@ -45,14 +45,6 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(PathBasedFilterDefinitionMapTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testConvertUrlToLowercaseIsFalseByDefault() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
         assertFalse(map.isConvertUrlToLowercaseBeforeComparison());
@@ -73,14 +65,7 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         map.addSecureUrl("/secure/super/**", def);
 
-        // Build a HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI(null);
-
-        MockHttpServletRequest req = request;
-        req.setServletPath("/SeCuRE/super/somefile.html");
-
-        FilterInvocation fi = new FilterInvocation(req, new MockHttpServletResponse(), new MockFilterChain());
+        FilterInvocation fi = createFilterinvocation("/SeCuRE/super/somefile.html");
 
         ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
@@ -94,14 +79,7 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         map.addSecureUrl("/secure/super/**", def);
 
-        // Build a HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI(null);
-
-        MockHttpServletRequest req = request;
-        req.setServletPath("/SeCuRE/super/somefile.html");
-
-        FilterInvocation fi = new FilterInvocation(req, new MockHttpServletResponse(), new MockFilterChain());
+        FilterInvocation fi = createFilterinvocation("/SeCuRE/super/somefile.html");
 
         ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(null, response);
@@ -115,14 +93,7 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         map.addSecureUrl("/secure/super/**", def);
 
-        // Build a HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI(null);
-
-        MockHttpServletRequest req = request;
-        req.setServletPath("/secure/super/somefile.html");
-
-        FilterInvocation fi = new FilterInvocation(req, new MockHttpServletResponse(), new MockFilterChain());
+        FilterInvocation fi = createFilterinvocation("/secure/super/somefile.html");
 
         ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
@@ -136,16 +107,38 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         map.addSecureUrl("/someAdminPage.html**", def);
 
-        // Build a HTTP request
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI(null);
-
-        MockHttpServletRequest req = request;
-        req.setServletPath("/someAdminPage.html?a=/test");
-
-        FilterInvocation fi = new FilterInvocation(req, new MockHttpServletResponse(), new MockFilterChain());
+        FilterInvocation fi = createFilterinvocation("/someAdminPage.html?a=/test");
 
         ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response); // see SEC-161 (it should truncate after ? sign)
+    }
+
+    /** Check fixes for SEC-321 */
+    public void testExtraQuestionMarkStillMatches() {
+        PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
+        assertFalse(map.isConvertUrlToLowercaseBeforeComparison());
+
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
+        def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        map.addSecureUrl("/someAdminPage.html*", def);
+
+        FilterInvocation fi = createFilterinvocation("/someAdminPage.html?x=2/aa?y=3");
+
+        ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
+        assertEquals(def, response);
+
+        fi = createFilterinvocation("/someAdminPage.html??");
+
+        response = map.lookupAttributes(fi.getRequestUrl());
+        assertEquals(def, response);
+    }
+
+    private FilterInvocation createFilterinvocation(String path) {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI(null);
+
+        request.setServletPath(path);
+
+        return new FilterInvocation(request, new MockHttpServletResponse(), new MockFilterChain());
     }
 }
