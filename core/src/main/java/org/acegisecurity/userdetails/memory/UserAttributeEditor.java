@@ -15,12 +15,11 @@
 
 package org.acegisecurity.userdetails.memory;
 
-import org.acegisecurity.GrantedAuthorityImpl;
+import java.beans.PropertyEditorSupport;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.util.StringUtils;
-
-import java.beans.PropertyEditorSupport;
-
 
 /**
  * Property editor that creates a {@link UserAttribute} from a  comma separated list of values.
@@ -35,6 +34,8 @@ public class UserAttributeEditor extends PropertyEditorSupport {
         if (StringUtils.hasText(s)) {
             String[] tokens = StringUtils.commaDelimitedListToStringArray(s);
             UserAttribute userAttrib = new UserAttribute();
+            
+            List authoritiesAsString = new ArrayList();
 
             for (int i = 0; i < tokens.length; i++) {
                 String currentToken = tokens[i].trim();
@@ -47,10 +48,11 @@ public class UserAttributeEditor extends PropertyEditorSupport {
                     } else if (currentToken.toLowerCase().equals("disabled")) {
                         userAttrib.setEnabled(false);
                     } else {
-                        userAttrib.addAuthority(new GrantedAuthorityImpl(currentToken));
+                        authoritiesAsString.add(currentToken);
                     }
                 }
             }
+            userAttrib.setAuthoritiesAsString(authoritiesAsString);
 
             if (userAttrib.isValid()) {
                 setValue(userAttrib);

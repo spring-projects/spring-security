@@ -18,6 +18,8 @@ package org.acegisecurity.userdetails.memory;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -61,6 +63,22 @@ public class UserAttribute {
      */
     public void setAuthorities(List authorities) {
         this.authorities = authorities;
+    }
+
+    /**
+     * Set all authorities for this user from String values.
+     * It will create the necessary {@link GrantedAuthority} objects.
+     * 
+     * @param authoritiesAsString {@link List} &lt;{@link String}>
+     * @since 1.1
+     */
+    public void setAuthoritiesAsString(List authoritiesAsString) {
+        setAuthorities(new ArrayList(authoritiesAsString.size()));
+        Iterator it = authoritiesAsString.iterator();
+        while (it.hasNext()) {
+            GrantedAuthority grantedAuthority = new GrantedAuthorityImpl((String) it.next());
+            addAuthority(grantedAuthority);
+        }
     }
 
     public String getPassword() {
