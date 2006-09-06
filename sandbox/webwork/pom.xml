@@ -5,23 +5,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.acegisecurity</groupId>
-    <artifactId>acegi-security-parent</artifactId>
+    <artifactId>acegi-security-sandbox</artifactId>
     <version>1.1-SNAPSHOT</version>
   </parent>
-  <artifactId>acegi-security-sandbox</artifactId>
-  <name>Acegi Security System for Spring - Sandbox</name>
-  <packaging>pom</packaging>
-
-  <modules>
-    <module>webwork</module>
-    <module>other</module>
-  </modules>
-
+  <artifactId>acegi-security-webwork</artifactId>
+  <name>Acegi Security System for Spring - Webwork support</name>
+  <description>Acegi Security System for Spring - Support for WebWork 2</description>
+  <version>0.1-SNAPSHOT</version>
   <dependencies>
-    <dependency>
-      <groupId>org.acegisecurity</groupId>
-      <artifactId>acegi-security</artifactId>
-      <version>1.1-SNAPSHOT</version>
-    </dependency>
   </dependencies>
 </project>
