@@ -240,7 +240,8 @@ public final class BasicLookupStrategy implements LookupStrategy {
         try {
             aces = (List) acesField.get(acl);
         } catch (IllegalAccessException ex) {
-            throw new IllegalStateException("Could not obtain AclImpl.ace field", ex);
+            throw new IllegalStateException("Could not obtain AclImpl.ace field: cause[" + ex.getMessage() + "]");
+
         }
 
         // Add the ACE if it doesn't already exist in the ACL.aces field
@@ -259,7 +260,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
         if (field == null) {
             // Unable to locate, so try the superclass (if there is one)
             if (clazz.getSuperclass() != null) {
-                getAccessibleField(clazz.getSuperclass(), protectedField);
+                field = getAccessibleField(clazz.getSuperclass(), protectedField);
             } else {
                 throw new IllegalArgumentException("Couldn't find '" + protectedField + "' field");
             }
