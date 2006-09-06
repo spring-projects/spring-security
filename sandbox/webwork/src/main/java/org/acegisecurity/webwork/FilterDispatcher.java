@@ -28,7 +28,12 @@ import com.opensymphony.webwork.dispatcher.DispatcherUtils;
  * </p>
  * 
  * <p>
- * Set it up in your web.xml instead of WebWrok provided {@link com.opensymphony.webwork.dispatcher.FilterDispatcher}.
+ * Set it up in your web.xml instead of WebWork provided {@link com.opensymphony.webwork.dispatcher.FilterDispatcher}.
+ * </p>
+ * 
+ * <p>
+ * This is meant to be fixed inside WebWork, see <a href="http://jira.opensymphony.com/browse/WW-291">WW-291</a>. Known
+ * broken versions are 2.2.3 and 2.2.4.
  * </p>
  * 
  * @author <a href="mailto:carlos@apache.org">Carlos Sanchez</a>

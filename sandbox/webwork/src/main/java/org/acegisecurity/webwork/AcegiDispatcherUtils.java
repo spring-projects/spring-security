@@ -28,8 +28,15 @@ import org.acegisecurity.ui.ExceptionTranslationFilter;
 import com.opensymphony.webwork.dispatcher.DispatcherUtils;
 
 /**
+ * <p>
  * WebWork {@link DispatcherUtils} that ignores Acegi exceptions so they can be processed by
- * {@link ExceptionTranslationFilter}
+ * {@link ExceptionTranslationFilter}.
+ * </p>
+ * 
+ * <p>
+ * This is meant to be fixed inside WebWork, see <a href="http://jira.opensymphony.com/browse/WW-291">WW-291</a>. Known
+ * broken versions are 2.2.3 and 2.2.4.
+ * </p>
  * 
  * @author <a href="mailto:carlos@apache.org">Carlos Sanchez</a>
  * @version $Id$
