@@ -456,7 +456,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         }
 
         sb.append("inheriting: ").append(this.entriesInheriting).append("; ");
-        sb.append("parent: ").append((this.parentAcl == null) ? "Null" : this.parentAcl.getObjectIdentity());
+        sb.append("parent: ").append((this.parentAcl == null) ? "Null" : this.parentAcl.getObjectIdentity().toString());
         sb.append("]");
 
         return sb.toString();

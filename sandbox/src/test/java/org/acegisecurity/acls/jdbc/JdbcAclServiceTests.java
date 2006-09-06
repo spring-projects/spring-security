@@ -47,12 +47,12 @@ public class JdbcAclServiceTests extends AbstractDependencyInjectionSpringContex
     }
 
     public void testStub() {
-        ObjectIdentity id1 = new ObjectIdentityImpl("sample.contact.Contact", new Long(1));
-        ObjectIdentity id2 = new ObjectIdentityImpl("sample.contact.Contact", new Long(2));
-        ObjectIdentity id3 = new ObjectIdentityImpl("sample.contact.Contact", new Long(3));
-        ObjectIdentity id4 = new ObjectIdentityImpl("sample.contact.Contact", new Long(4));
-        ObjectIdentity id5 = new ObjectIdentityImpl("sample.contact.Contact", new Long(5));
-        ObjectIdentity id6 = new ObjectIdentityImpl("sample.contact.Contact", new Long(6));
+        ObjectIdentity id1 = new ObjectIdentityImpl("java.lang.Object", new Long(1));
+        ObjectIdentity id2 = new ObjectIdentityImpl("java.lang.Object", new Long(2));
+        ObjectIdentity id3 = new ObjectIdentityImpl("java.lang.Object", new Long(3));
+        ObjectIdentity id4 = new ObjectIdentityImpl("java.lang.Object", new Long(4));
+        ObjectIdentity id5 = new ObjectIdentityImpl("java.lang.Object", new Long(5));
+        ObjectIdentity id6 = new ObjectIdentityImpl("java.lang.Object", new Long(6));
         Map map = jdbcAclService.readAclsById(new ObjectIdentity[] {id1, id2, id3, id4, id5, id6});
         Iterator iterator = map.keySet().iterator();
 
