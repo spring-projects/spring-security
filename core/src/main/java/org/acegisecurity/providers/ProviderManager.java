@@ -127,15 +127,16 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
             AuthenticationFailureProxyUntrustedEvent.class.getName());
     }
 
+    public ProviderManager() {
+        exceptionMappings.putAll(DEFAULT_EXCEPTION_MAPPINGS);
+    }
+
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         checkIfValidList(this.providers);
         Assert.notNull(this.messages, "A message source must be set");
-
-        if (exceptionMappings == null) {
-            doAddExtraDefaultExceptionMappings(DEFAULT_EXCEPTION_MAPPINGS);
-        }
+        doAddExtraDefaultExceptionMappings(DEFAULT_EXCEPTION_MAPPINGS);
     }
 
     private void checkIfValidList(List listToCheck) {
