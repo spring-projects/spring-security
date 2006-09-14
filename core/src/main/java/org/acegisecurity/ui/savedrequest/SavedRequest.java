@@ -25,7 +25,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -56,8 +55,8 @@ public class SavedRequest implements java.io.Serializable {
 
     private ArrayList cookies = new ArrayList();
     private ArrayList locales = new ArrayList();
-    private TreeMap headers = new TreeMap(String.CASE_INSENSITIVE_ORDER);
-    private HashMap parameters = new HashMap();
+    private Map headers = new TreeMap(String.CASE_INSENSITIVE_ORDER);
+    private Map parameters = new TreeMap(String.CASE_INSENSITIVE_ORDER);
     private String contextPath;
     private String method;
     private String pathInfo;
