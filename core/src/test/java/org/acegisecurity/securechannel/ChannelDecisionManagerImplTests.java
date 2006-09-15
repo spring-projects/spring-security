@@ -197,13 +197,13 @@ public class ChannelDecisionManagerImplTests extends TestCase {
             Iterator iter = config.getConfigAttributes();
 
             if (failIfCalled) {
-                fail("Should not have called this channel processor");
+                fail("Should not have called this channel processor: " + configAttribute);
             }
 
             while (iter.hasNext()) {
                 ConfigAttribute attr = (ConfigAttribute) iter.next();
 
-                if (attr.equals(configAttribute)) {
+                if (attr.getAttribute().equals(configAttribute)) {
                     invocation.getHttpResponse().sendRedirect("/redirected");
 
                     return;
