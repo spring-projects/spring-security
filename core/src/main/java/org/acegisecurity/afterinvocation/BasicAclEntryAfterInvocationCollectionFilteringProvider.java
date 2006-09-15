@@ -342,7 +342,7 @@ class CollectionFilterer implements Filterer {
      * @see org.acegisecurity.afterinvocation.Filterer#remove(java.lang.Object)
      */
     public void remove(Object object) {
-        collectionIter.remove();
+        removeList.add(object);
     }
 }
 
