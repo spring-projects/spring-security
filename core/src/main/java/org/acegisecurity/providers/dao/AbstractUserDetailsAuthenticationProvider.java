@@ -145,10 +145,15 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
         try {
             additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
         } catch (AuthenticationException exception) {
-            // There was a problem, so try again after checking we're using latest data
-            cacheWasUsed = false;
-            user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
-            additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
+        	if(cacheWasUsed) {
+                // There was a problem, so try again after checking
+        		// we're using latest data (ie not from the cache)
+                cacheWasUsed = false;
+                user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
+                additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
+        	} else {
+        		throw exception;
+		    }
         }
 
         if (!user.isCredentialsNonExpired()) {
