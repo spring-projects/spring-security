@@ -71,21 +71,7 @@ public class RememberMeAuthenticationTokenTests extends TestCase {
         }
 
         try {
-            new RememberMeAuthenticationToken("key", "Test", null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-
-        try {
             new RememberMeAuthenticationToken("key", "Test", new GrantedAuthority[] {null});
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-
-        try {
-            new RememberMeAuthenticationToken("key", "Test", new GrantedAuthority[] {});
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);

@@ -15,13 +15,10 @@
 
 package org.acegisecurity.providers.rememberme;
 
-import org.acegisecurity.GrantedAuthority;
-
-import org.acegisecurity.providers.AbstractAuthenticationToken;
-
-import org.springframework.util.Assert;
-
 import java.io.Serializable;
+
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 
 /**
@@ -39,7 +36,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken i
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructor.
      *
      * @param key to identify if this object made by an authorised client
@@ -51,14 +48,8 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken i
     public RememberMeAuthenticationToken(String key, Object principal, GrantedAuthority[] authorities) {
         super(authorities);
 
-        if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal) || (authorities == null)
-            || (authorities.length == 0)) {
+        if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal)) {
             throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
-        }
-
-        for (int i = 0; i < authorities.length; i++) {
-            Assert.notNull(authorities[i],
-                "Granted authority element " + i + " is null - GrantedAuthority[] cannot contain any null elements");
         }
 
         this.keyHash = key.hashCode();
