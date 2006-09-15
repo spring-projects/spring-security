@@ -89,7 +89,7 @@ public class MethodInvocationPrivilegeEvaluatorTests extends TestCase {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_LOWER")});
         MethodInvocation mi = MethodInvocationUtils.createFromClass(ITargetObject.class, "makeLowerCase",
-                new Class[] {String.class});
+                new Class[] {String.class}, new Object[] {"Hello world"});
         MethodSecurityInterceptor interceptor = makeSecurityInterceptor();
 
         MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
@@ -118,7 +118,7 @@ public class MethodInvocationPrivilegeEvaluatorTests extends TestCase {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_NOT_HELD")});
         MethodInvocation mi = MethodInvocationUtils.createFromClass(ITargetObject.class, "makeLowerCase",
-                new Class[] {String.class});
+                new Class[] {String.class}, new Object[] {"helloWorld"});
         MethodSecurityInterceptor interceptor = makeSecurityInterceptor();
 
         MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
