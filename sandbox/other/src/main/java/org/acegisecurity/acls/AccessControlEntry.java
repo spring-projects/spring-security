@@ -47,5 +47,11 @@ public interface AccessControlEntry {
 
     public Sid getSid();
 
+    /**
+     * Indicates the a Permission is being granted to the relevant Sid. If false,
+     * indicates the permission is being revoked/blocked.
+     * 
+     * @return true if being granted, false otherwise
+     */
     public boolean isGranting();
 }
