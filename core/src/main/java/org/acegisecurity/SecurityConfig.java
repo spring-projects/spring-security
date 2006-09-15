@@ -35,10 +35,6 @@ public class SecurityConfig implements ConfigAttribute {
     //~ Methods ========================================================================================================
 
     public boolean equals(Object obj) {
-        if (obj instanceof String) {
-            return obj.equals(this.attrib);
-        }
-
         if (obj instanceof ConfigAttribute) {
             ConfigAttribute attr = (ConfigAttribute) obj;
 

@@ -66,8 +66,9 @@ public class SecurityConfigTests extends TestCase {
         SecurityConfig security2 = new SecurityConfig("TEST");
         assertEquals(security1, security2);
 
+        // SEC-311: Must observe symmetry requirement of Object.equals(Object) contract
         String securityString1 = "TEST";
-        assertEquals(security1, securityString1);
+        assertNotSame(security1, securityString1);
 
         String securityString2 = "NOT_EQUAL";
         assertTrue(!security1.equals(securityString2));
