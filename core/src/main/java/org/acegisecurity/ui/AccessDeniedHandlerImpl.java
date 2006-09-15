@@ -62,21 +62,13 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 
             // Perform RequestDispatcher "forward"
             RequestDispatcher rd = request.getRequestDispatcher(errorPage);
-
-            try {
-                rd.forward(request, response);
-                ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_FORBIDDEN);
-
-                return;
-            } catch (Exception responseCommitted) {
-                if (logger.isErrorEnabled()) {
-                    logger.error("Error processing " + request.toString(), responseCommitted);
-                }
-            }
+        	rd.forward(request, response); 
         }
 
-        // Send 403 (we do this after response has been written)
-        ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN, accessDeniedException.getMessage());
+        if (!response.isCommitted()) {
+            // Send 403 (we do this after response has been written)
+            ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN, accessDeniedException.getMessage());
+        }
     }
 
     /**
