@@ -15,17 +15,14 @@
 
 package org.acegisecurity.userdetails.memory;
 
-import org.acegisecurity.userdetails.User;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.util.Assert;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 
 /**
@@ -68,8 +65,8 @@ public class UserMap {
      *
      * @throws UsernameNotFoundException if the user could not be found
      */
-    public User getUser(String username) throws UsernameNotFoundException {
-        User result = (User) this.userMap.get(username.toLowerCase());
+    public UserDetails getUser(String username) throws UsernameNotFoundException {
+        UserDetails result = (UserDetails) this.userMap.get(username.toLowerCase());
 
         if (result == null) {
             throw new UsernameNotFoundException("Could not find user: " + username);
