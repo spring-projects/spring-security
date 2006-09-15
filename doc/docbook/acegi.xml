@@ -26,7 +26,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>1.0.0</releaseinfo>
+    <releaseinfo>1.0.2</releaseinfo>
 
     <authorgroup>
       <author>
@@ -1790,9 +1790,11 @@ if (obj instanceof UserDetails) {
         <para>In addition, you will need to add the
         <literal>org.acegisecurity.concurrent.ConcurrentSessionFilter</literal>
         to your <literal>FilterChainProxy</literal>. The
-        ConcurrentSessionFilter requires only one property,
+        ConcurrentSessionFilter requires two properties,
         <literal>sessionRegistry</literal>, which generally points to an
-        instance of <literal>SessionRegistryImpl</literal>.</para>
+        instance of <literal>SessionRegistryImpl</literal>, and
+        <literal>expiredUrl</literal>, which points to the page to display
+        when a session has expired.</para>
 
         <para>The <literal>web.xml</literal>
         <literal>HttpSessionEventPublisher</literal> causes an
