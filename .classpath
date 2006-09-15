@@ -17,8 +17,6 @@
 	<classpathentry kind="src" path="core/src/main/resources"/>
 	<classpathentry kind="src" path="core/src/test/resources"/>
 	<classpathentry kind="src" path="samples/contacts/src/main/java"/>
-	<classpathentry kind="src" path="sandbox/src/main/java"/>
-	<classpathentry kind="src" path="sandbox/src/test/java"/>
 	<classpathentry kind="src" path="adapters/cas/src/main/java"/>
 	<classpathentry kind="src" path="adapters/cas/src/test/java"/>
 	<classpathentry kind="src" path="adapters/catalina/src/main/java"/>
