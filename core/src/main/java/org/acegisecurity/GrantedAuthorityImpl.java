@@ -28,6 +28,7 @@ import java.io.Serializable;
 public class GrantedAuthorityImpl implements GrantedAuthority, Serializable {
     //~ Instance fields ================================================================================================
 
+	private static final long serialVersionUID = 1L;
     private String role;
 
     //~ Constructors ===================================================================================================

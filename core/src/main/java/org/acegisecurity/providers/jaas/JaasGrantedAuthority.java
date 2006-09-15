@@ -32,6 +32,7 @@ import java.security.Principal;
 public class JaasGrantedAuthority extends GrantedAuthorityImpl {
     //~ Instance fields ================================================================================================
 
+	private static final long serialVersionUID = 1L;
     private Principal principal;
 
     //~ Constructors ===================================================================================================

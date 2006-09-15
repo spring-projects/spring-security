@@ -29,6 +29,7 @@ import org.acegisecurity.providers.AbstractAuthenticationToken;
 public class RunAsUserToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================
 
+	private static final long serialVersionUID = 1L;
     private Class originalAuthentication;
     private Object credentials;
     private Object principal;

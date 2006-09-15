@@ -41,6 +41,7 @@ import javax.naming.ldap.Control;
 public class LdapUserDetailsImpl implements LdapUserDetails {
     //~ Static fields/initializers =====================================================================================
 
+	private static final long serialVersionUID = 1L;
     private static final GrantedAuthority[] NO_AUTHORITIES = new GrantedAuthority[0];
     private static final Control[] NO_CONTROLS = new Control[0];
 

@@ -15,6 +15,8 @@
 
 package org.acegisecurity;
 
+import java.io.Serializable;
+
 /**
  * Represents an authority granted to an {@link Authentication} object.
  * 
@@ -27,7 +29,7 @@ package org.acegisecurity;
  * @author Ben Alex
  * @version $Id$
  */
-public interface GrantedAuthority {
+public interface GrantedAuthority extends Serializable {
     //~ Methods ========================================================================================================
 
     /**

@@ -31,6 +31,7 @@ import org.mortbay.http.UserPrincipal;
 public class JettyAcegiUserToken extends AbstractAdapterAuthenticationToken implements UserPrincipal {
     //~ Instance fields ================================================================================================
 
+	private static final long serialVersionUID = 1L;
     private String password;
     private String username;
 

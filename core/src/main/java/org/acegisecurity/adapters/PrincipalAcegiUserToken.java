@@ -29,6 +29,7 @@ import java.security.Principal;
 public class PrincipalAcegiUserToken extends AbstractAdapterAuthenticationToken implements Principal {
     //~ Instance fields ================================================================================================
 
+	private static final long serialVersionUID = 1L;
     private Object principal;
     private String password;
     private String username;
