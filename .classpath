@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="samples/attributes/src/main/java"/>
+	<classpathentry kind="src" path="sandbox/other/src/main/java"/>
 	<classpathentry kind="src" path="samples/acegifier/src/test/resources"/>
 	<classpathentry kind="src" path="samples/acegifier/src/main/resources"/>
 	<classpathentry kind="src" path="samples/acegifier/src/main/java"/>
