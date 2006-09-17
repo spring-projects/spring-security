@@ -10,6 +10,12 @@
   <artifactId>acegi-security</artifactId>
   <name>Acegi Security System for Spring</name>
 
+  <scm>
+    <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core</connection>
+    <developerConnection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core</developerConnection>
+    <url>http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/core/</url>
+  </scm>
+
   <dependencies>
     <dependency>
       <groupId>org.springframework</groupId>

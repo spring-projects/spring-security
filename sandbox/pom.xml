@@ -12,6 +12,12 @@
   <name>Acegi Security System for Spring - Sandbox</name>
   <packaging>pom</packaging>
 
+  <scm>
+    <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/sandbox</connection>
+    <developerConnection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/sandbox</developerConnection>
+    <url>http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/sandbox/</url>
+  </scm>
+
   <modules>
     <module>webwork</module>
     <module>other</module>

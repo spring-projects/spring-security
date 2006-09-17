@@ -7,6 +7,13 @@
   </parent>
   <artifactId>acegi-security-tiger</artifactId>
   <name>Acegi Security System for Spring - Java 5 (Tiger)</name>
+
+  <scm>
+    <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core-tiger</connection>
+    <developerConnection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core-tiger</developerConnection>
+    <url>http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/core-tiger/</url>
+  </scm>
+
   <dependencies>
     <dependency>
       <groupId>org.acegisecurity</groupId>
@@ -19,6 +26,7 @@
       <version>1.2.7</version>
     </dependency>
   </dependencies>
+
   <build>
     <plugins>
       <plugin>
