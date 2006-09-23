@@ -1307,6 +1307,15 @@ if (obj instanceof UserDetails) {
         wired up by default to many Acegi Security beans. Please refer to the
         JavaDocs for <literal>PortResolverImpl</literal> for further
         details.</para>
+
+        <para>You should note that using a secure channel is recommended if
+        usernames and passwords are to be kept secure during the login
+        process. If you do decide to use
+        <literal>ChannelProcessingFilter</literal> with form-based login,
+        please ensure that your login page is set to
+        <literal>REQUIRES_SECURE_CHANNEL</literal>, and that the
+        <literal>AuthenticationProcessingFilterEntryPoint.forceHttps</literal>
+        property is <literal>true</literal>.</para>
       </sect1>
 
       <sect1 id="channel-security-conclusion">
