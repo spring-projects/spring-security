@@ -15,27 +15,6 @@
 
 package org.acegisecurity.ui.basicauth;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationManager;
-
-import org.acegisecurity.context.SecurityContextHolder;
-
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-
-import org.acegisecurity.ui.AuthenticationDetailsSource;
-import org.acegisecurity.ui.AuthenticationDetailsSourceImpl;
-import org.acegisecurity.ui.AuthenticationEntryPoint;
-import org.acegisecurity.ui.rememberme.RememberMeServices;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.util.Assert;
-
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -46,6 +25,21 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationManager;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.ui.AuthenticationDetailsSource;
+import org.acegisecurity.ui.AuthenticationDetailsSourceImpl;
+import org.acegisecurity.ui.AuthenticationEntryPoint;
+import org.acegisecurity.ui.rememberme.RememberMeServices;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 
 /**
@@ -135,7 +129,10 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
             // Only reauthenticate if username doesn't match SecurityContextHolder and user isn't authenticated (see SEC-53)
             Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
 
-            if ((existingAuth == null) || !existingAuth.getName().equals(username) || !existingAuth.isAuthenticated()) {
+            // Limit username comparison to providers which user usernames (ie UsernamePasswordAuthenticationToken) (see SEC-348)
+            if ((existingAuth == null) 
+            		|| (existingAuth instanceof UsernamePasswordAuthenticationToken && !existingAuth.getName().equals(username)) 
+            		|| !existingAuth.isAuthenticated()) {
                 UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username,
                         password);
                 authRequest.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
