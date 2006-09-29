@@ -18,13 +18,18 @@ package org.acegisecurity.ui.logout;
 import org.acegisecurity.Authentication;
 
 import org.acegisecurity.context.SecurityContextHolder;
+import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 
 /**
  * Performs a logout by modifying the {@link org.acegisecurity.context.SecurityContextHolder}.
+ *
+ * <p>Will also invalidate the {@link HttpSession} if {@link #isInvalidateHttpSession()} is
+ * <code>true</code> and the session is not <code>null</code>.
  *
  * @author Ben Alex
  * @version $Id$
@@ -32,14 +37,41 @@ import javax.servlet.http.HttpServletResponse;
 public class SecurityContextLogoutHandler implements LogoutHandler {
     //~ Methods ========================================================================================================
 
+	private boolean invalidateHttpSession = true;
+	
     /**
-     * Does not use any arguments. They can all be <code>null</code>.
+     * Requires the request to be passed in.
      *
-     * @param request not used (can be <code>null</code>)
+     * @param request from which to obtain a HTTP session (cannot be null)
      * @param response not used (can be <code>null</code>)
      * @param authentication not used (can be <code>null</code>)
      */
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        SecurityContextHolder.clearContext();
+    	Assert.notNull(request, "HttpServletRequest required");
+    	if (invalidateHttpSession) {
+        	HttpSession session = request.getSession(false);
+			if (session != null) {
+				session.invalidate();
+			}
+		}
+    	
+    	SecurityContextHolder.clearContext();
     }
+
+	public boolean isInvalidateHttpSession() {
+		return invalidateHttpSession;
+	}
+
+	/**
+	 * Causes the {@link HttpSession} to be invalidated when this
+	 * {@link LogoutHandler} is invoked. Defaults to true.
+	 * 
+	 * @param invalidateHttpSession true if you wish the session to be
+	 * invalidated (default) or false if it should not be
+	 */
+	public void setInvalidateHttpSession(boolean invalidateHttpSession) {
+		this.invalidateHttpSession = invalidateHttpSession;
+	}
+    
+    
 }
