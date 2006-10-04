@@ -33,7 +33,7 @@
     <dependency>
       <groupId>org.acegisecurity</groupId>
       <artifactId>acegi-security</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.3-SNAPSHOT</version>
       <type>jar</type>
     </dependency>
     <dependency>
