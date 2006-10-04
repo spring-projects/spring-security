@@ -8,12 +8,12 @@
   <artifactId>acegi-security-webwork</artifactId>
   <name>Acegi Security System for Spring - Webwork support</name>
   <description>Acegi Security System for Spring - Support for WebWork 2</description>
-  <version>0.1</version>
+  <version>0.2-SNAPSHOT</version>
 
   <scm>
-    <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/tags/acegi-security-webwork-0.1</connection>
-    <developerConnection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/tags/acegi-security-webwork-0.1</developerConnection>
-    <url>https://svn.sourceforge.net/svnroot/acegisecurity/tags/acegi-security-webwork-0.1</url>
+    <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/sandbox/webwork</connection>
+    <developerConnection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/sandbox/webwork</developerConnection>
+    <url>http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/sandbox/webwork/</url>
   </scm>
 
   <dependencies>
