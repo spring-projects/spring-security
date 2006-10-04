@@ -117,19 +117,6 @@
     <chapter id="introduction">
       <title>Introduction</title>
 
-      <sect1 id="before-you-begin">
-        <title>Before You Begin</title>
-
-        <para>For your security, each official release JAR of Acegi Security
-        has been signed by the project leader. This does not in any way alter
-        the liability disclaimer contained in the License, but it does ensure
-        you are using a properly reviewed, official build of Acegi Security.
-        Please refer to the <literal>readme.txt</literal> file in the root of
-        the release distribution for instructions on how to validate the JARs
-        are correctly signed, and which certificate has been used to sign
-        them.</para>
-      </sect1>
-
       <sect1 id="what-is-acegi-security">
         <title>What is Acegi Security?</title>
 
