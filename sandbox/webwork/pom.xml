@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.acegisecurity</groupId>
     <artifactId>acegi-security-sandbox</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.0.2</version>
   </parent>
   <artifactId>acegi-security-webwork</artifactId>
   <name>Acegi Security System for Spring - Webwork support</name>
