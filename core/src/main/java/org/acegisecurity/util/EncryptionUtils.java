@@ -107,6 +107,19 @@ public class EncryptionUtils {
 	}
 
 	/**
+	 * Encrypts the inputBytes using the key.
+	 * 
+	 * @param key at least 24 character long key (required)
+	 * @param inputBytes the bytes to encrypt (required)
+	 * @return the encrypted version of the inputBytes
+	 * @throws EncryptionException in the event of an encryption failure
+	 */
+	public static byte[] encrypt(String key, byte[] inputBytes) throws EncryptionException {
+		isValidKey(key);
+		return Base64.encodeBase64(cipher(key, inputBytes, Cipher.ENCRYPT_MODE));
+	}
+
+	/**
 	 * Decrypts the inputString using the key.
 	 * 
 	 * @param key the key used to originally encrypt the string (required)
@@ -120,6 +133,19 @@ public class EncryptionUtils {
 		return byteArrayToString(cipherText);
 	}
 
+	/**
+	 * Decrypts the inputBytes using the key.
+	 * 
+	 * @param key the key used to originally encrypt the string (required)
+	 * @param inputBytes the encrypted bytes (required)
+	 * @return the decrypted version of inputBytes
+	 * @throws EncryptionException in the event of an encryption failure
+	 */
+	public static byte[] decrypt(String key, byte[] inputBytes) throws EncryptionException {
+		Assert.hasText(key, "A key is required to attempt decryption");
+		return cipher(key, Base64.decodeBase64(inputBytes), Cipher.DECRYPT_MODE);
+	}
+	
 	private static void isValidKey(String key) {
 		Assert.hasText(key, "A key to perform the encryption is required");
 		Validate.isTrue(key.length() >= 24, "Key must be at least 24 characters long");

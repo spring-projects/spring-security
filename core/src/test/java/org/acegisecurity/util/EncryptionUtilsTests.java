@@ -35,6 +35,11 @@ public class EncryptionUtilsTests extends TestCase {
 		assertEquals("3YIE8sIbaEoqGZZrHamFGQ==", encryptedString);
 	}
 
+	public void testEncryptByteArrayUsingDESEde() {
+		final byte[] encryptedArray = EncryptionUtils.encrypt(ENCRYPTION_KEY, EncryptionUtils.stringToByteArray(STRING_TO_ENCRYPT));
+		assertEquals("3YIE8sIbaEoqGZZrHamFGQ==", EncryptionUtils.byteArrayToString(encryptedArray));
+	}
+
 	public void testEncryptionKeyCanContainLetters() throws EncryptionException {
 		final String encryptedString = EncryptionUtils.encrypt("ASDF asdf 1234 8983 jklasdf J2Jaf8", STRING_TO_ENCRYPT);
 		assertEquals("v4+DQoClx6qm5tJwBcRrkw==", encryptedString);
@@ -46,56 +51,62 @@ public class EncryptionUtilsTests extends TestCase {
 		assertEquals(STRING_TO_ENCRYPT, decryptedString);
 	}
 
-	public void testCantEncryptWithNullEncryptionKey() throws EncryptionException {
+	public void testDecryptByteArrayUsingDESEde() {
+		final byte[] encrypted = EncryptionUtils.stringToByteArray("3YIE8sIbaEoqGZZrHamFGQ==");
+		final byte[] decrypted = EncryptionUtils.decrypt(ENCRYPTION_KEY, encrypted);
+		assertEquals(STRING_TO_ENCRYPT, EncryptionUtils.byteArrayToString(decrypted));
+	}
+
+	public void testFailEncryptWithNullEncryptionKey() {
 		try {
-			EncryptionUtils.encrypt(null, "");
-			fail("Should have thrown IAE");
-		} catch (final IllegalArgumentException e) {
+			EncryptionUtils.encrypt(null, STRING_TO_ENCRYPT);
+			fail();
+		} catch (IllegalArgumentException e) {
 			assertTrue(true);
 		}
 	}
 
-	public void testCantEncryptWithEmptyEncryptionKey() throws EncryptionException {
+	public void testFailEncryptWithEmptyEncryptionKey() {
 		try {
-			EncryptionUtils.encrypt("", "");
-			fail("Should have thrown IAE");
-		} catch (final IllegalArgumentException e) {
+			EncryptionUtils.encrypt("", STRING_TO_ENCRYPT);
+			fail();
+		} catch (IllegalArgumentException e) {
 			assertTrue(true);
 		}
 	}
 
-	public void testCantEncryptWithShortEncryptionKey() throws EncryptionException {
+	public void teastFailEncryptWithShortEncryptionKey() {
 		try {
-			EncryptionUtils.encrypt("01234567890123456789012", "");
-			fail("Should have thrown IAE");
-		} catch (final IllegalArgumentException e) {
+			EncryptionUtils.encrypt("01234567890123456789012", STRING_TO_ENCRYPT);
+			fail();
+		} catch (IllegalArgumentException e) {
 			assertTrue(true);
 		}
 	}
 
-	public void testCantDecryptWithEmptyString() throws EncryptionException {
+	public void testFailDecryptWithEmptyString() {
 		try {
 			EncryptionUtils.decrypt(ENCRYPTION_KEY, "");
-			fail("Should have thrown IAE");
-		} catch (final IllegalArgumentException e) {
+			fail();
+		} catch (IllegalArgumentException e) {
 			assertTrue(true);
 		}
 	}
 
-	public void testCantEncryptWithEmptyString() throws EncryptionException {
+	public void testFailEncryptWithEmptyString() {
 		try {
 			EncryptionUtils.encrypt(ENCRYPTION_KEY, "");
-			fail("Should have thrown IAE");
-		} catch (final IllegalArgumentException e) {
+			fail();
+		} catch (IllegalArgumentException e) {
 			assertTrue(true);
 		}
 	}
 
-	public void testCantEncryptWithNullString() throws EncryptionException {
+	public void testFailEncryptWithNullString() {
 		try {
-			EncryptionUtils.encrypt(ENCRYPTION_KEY, null);
-			fail("Should have thrown IAE");
-		} catch (final IllegalArgumentException e) {
+			EncryptionUtils.encrypt(ENCRYPTION_KEY, (String) null);
+			fail();
+		} catch (IllegalArgumentException e) {
 			assertTrue(true);
 		}
 	}
