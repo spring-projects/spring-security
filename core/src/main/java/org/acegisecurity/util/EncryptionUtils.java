@@ -25,7 +25,6 @@ import javax.crypto.spec.DESedeKeySpec;
 
 import org.acegisecurity.AcegiSecurityException;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.Validate;
 import org.springframework.util.Assert;
 
 /**
@@ -148,7 +147,7 @@ public class EncryptionUtils {
 	
 	private static void isValidKey(String key) {
 		Assert.hasText(key, "A key to perform the encryption is required");
-		Validate.isTrue(key.length() >= 24, "Key must be at least 24 characters long");
+		Assert.isTrue(key.length() >= 24, "Key must be at least 24 characters long");
 	}
 
 	public static class EncryptionException extends AcegiSecurityException {
