@@ -1,0 +1,287 @@
+<!--
+ * ========================================================================
+ * 
+ * Copyright 2004 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * ========================================================================
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>Frequently Asked Questions (FAQ) on Acegi Security</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+</head>
+
+<body>
+  <h1>Frequently Asked Questions</h1>
+  
+  <h2>What is Acegi Security?</h2>
+  <p>Acegi Security is an open source project that provides comprehensive authentication
+	and authorisation services for enterprise applications based on
+	<a href="http://www.springframework.org">The Spring Framework</a>.
+	Acegi Security can authenticate using a variety of pluggable providers, and
+	can authorise both web requests and method invocations.
+	Acegi Security provides an integrated security approach across
+	these various targets, and also offers access control list (ACL) capabilities to
+	enable individual domain object instances to be secured. At an implementation
+	level, Acegi Security is managed through Spring's inversion of control and 
+	lifecycle services,	and actually enforces security using interception through
+	servlet Filters and Java AOP frameworks. In terms of AOP framework support, Acegi
+	Security currently supports AOP Alliance (which is what the
+	Spring IoC container uses internally) and AspectJ, although additional frameworks
+	can be easily supported.</p>
+
+  <h2>Why not just use web.xml security?</h2>
+  <p>Let's assume you're developing an enterprise application based on Spring.
+	There are four security concerns you typically need to address: authentication,
+	web request security, service layer security (ie your methods that implement
+	business logic), and domain object instance security (ie different domain objects
+	have different permissions). With these typical requirements in mind:
+	<ol>
+		<li><b>Authentication</b>: The servlet specification provides an approach
+			to authentication. However, you will need to configure the container 
+			to perform authentication which typically requires editing of
+			container-specific "realm" settings. This makes a non-portable
+			configuration, and if you need to write an actual Java class to implement 
+			the container's authentication interface, it becomes even more non-portable.
+			With Acegi Security you achieve complete portability - right down to the 
+			WAR level. Also, Acegi Security offers a choice of production-proven
+			authentication providers and mechanisms, meaning you can switch your 
+			authentication approaches at deployment time. This is particularly
+			valuable for software vendors writing products that need to work in
+			an unknown target environment.<br><br></li>
+		<li><b>Web request security:</b> The servlet specification provides an
+			approach to secure your request URIs. However, these URIs can only be
+			expressed in the servlet specification's own limited URI path format.
+			Acegi Security provides a far more comprehensive approach. For instance,
+			you can use Ant paths or regular expressions, you can consider parts of the
+			URI other than simply the requested page (eg you can consider HTTP GET
+			parameters), and you can implement your own runtime source of configuration
+			data. This means your web request security can be dynamically changed during
+			the actual execution of your webapp.<br><br></li>
+		<li><b>Service layer and domain object security:</b> The absence of support 
+			in the servlet specification for services layer security or domain object 
+			instance security represent serious limitations for multi-tiered 
+			applications. Typically developers either ignore these requirements, or
+			implement security logic within their MVC controller code (or even worse,
+			inside the views). There are serious disadvantages with this approach:<br><br>
+				<ol>
+					<li><i>Separation of concerns:</i> Authorization is a 
+						crosscutting concern and should be implemented as such. 
+						MVC controllers or views implementing authorization code 
+						makes it more difficult to test both the controller and 
+						authorization logic, more difficult to debug, and will 
+						often lead to code duplication.</li>
+					<li><i>Support for rich clients and web services:</i> If an 
+						additional client type must ultimately be supported, any 
+						authorization code embedded within the web layer is 
+						non-reusable. It should be considered that Spring remoting 
+						exporters only export service layer beans (not MVC 
+						controllers). As such authorization logic needs to be 
+						located in the services layer to support a multitude of 
+						client types.</li>
+					<li><i>Layering issues:</i> An MVC controller or view is simply 
+						the incorrect architectural layer to implement authorization 
+						decisions concerning services layer methods or domain object 
+						instances. Whilst the Principal may be passed to the services 
+						layer to enable it to make the authorization decision, doing 
+						so would introduce an additional argument on every services 
+						layer method. A more elegant approach is to use a ThreadLocal 
+						to hold the Principal, although this would likely increase 
+						development time to a point where it would become more
+						economical (on a cost-benefit basis) to simply use a dedicated 
+						security framework.</li>
+					<li><i>Authorisation code quality:</i> It is often said of web 
+						frameworks that they "make it easier to do the right things, 
+						and harder to do the wrong things". Security frameworks are 
+						the same, because they are designed in an abstract manner for 
+						a wide range of purposes. Writing your own authorization code 
+						from scratch does not provide the "design check" a framework 
+						would offer, and in-house authorization code will typically 
+						lack the improvements that emerge from widespread deployment, 
+						peer review and new versions.
+				</ol>
+				</li>
+	</ol>
+	For simple applications, servlet specification security may just be enough.
+	Although when considered within the context of web container portability, 
+	configuration requirements, limited web request security flexibility, and 
+	non-existent services layer and domain object instance security, it becomes 
+	clear why developers often look to alternative solutions.
+	</p>
+
+  <h2>How do you pronounce "Acegi"?</h2>
+  <p><i>Ah-see-gee</i>. Said quickly, without emphasis on any part.
+	Acegi isn't an acronym, name of a Greek God or anything similarly
+	impressive - it's just letters #1, #3, #5, #7 and #9 of the alphabet.</p>
+
+  <h2>Is it called "Acegi" or "Acegi Security"?</h2>
+  <p>It's official name is <i>Acegi Security System for Spring</i>,
+	although we're happy for it to be abbreviated to
+	<i>Acegi Security</i>. Please don't just call it <i>Acegi</i>, though,
+	as that gets confused with the name of the company that maintains Acegi
+	Security.</p>
+
+  <h2>What catches 80% of users reporting problems?</h2>
+  <p>80% of support questions are because people have not defined
+	the necessary filters in <code>web.xml</code>, or the filters are being
+	mapped in the incorrect order. Check the 
+	<a href="reference.html">Reference Guide</a>, which
+	has a specific section on filter ordering.</p>
+  
+  <h2>I'm sure my filters are ordered correctly. What else could be wrong?</h2>
+  <p>The next most common source of problems stem from custom
+	<code>AuthenticationDao</code> implementations that simply don't properly
+	implement the interface contract. For example, they return <code>null</code> instead
+	of the user not found exception, or fail to add in the
+	<code>GrantedAuthority[]</code>s. Whilst <code>DaoAuthenticationProvider</code>
+	does its best to check the <code>AuthenticationDao</code> returns a valid 
+	<code>UserDetails</code>, we suggest you write the
+	<code>UserDetails</code> object to the log and check it looks correct.</p>
+
+  <h2>Common Problem #1: My application goes into an "endless loop" when I try to login, what's going on?</h2>
+  <p>A common user problem with infinite loop and redirecting to the login page
+     is caused by accidently configuring the login page as a "secured" resource.
+     Generally make sure you mark your login page as requiring ROLE_ANONYMOUS.
+     </p>
+
+  <h2>Common Problem #2: My application pages don't seem to be protected.</h2>
+  <p>If you are securing web resources and they dont seem to be matched in the URL patterns,
+     check the objectDefinitionSource in the FilterSecurityInterceptor.
+     If you are using the <tt>CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON</tt> setting,
+     then the URL patterns configured MUST be in lowercase.
+  <p>
+     For example, making a request ending in <tt>/someAction.do</tt> will need 
+     to be configured as: <tt>/someaction.do</tt> (Note the case).
+<pre>
+&lt;property name="objectDefinitionSource">
+  &lt;value>
+    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+    PATTERN_TYPE_APACHE_ANT
+    /index.jsp=ROLE_ANONYMOUS,ROLE_USER
+    /someaction.do=ROLE_USER     			    
+  &lt;value>
+&lt;/property>     
+</pre>
+
+  <h2>Common Problem #3: How do I disable a user after a number of failed logins?</h2>
+  <p>A common user requirement is to disable / lock an account after a number of failed login attempts.
+     Acegi itself does not provide anything "out of the box", however in your application you can implement 
+     and register an <tt>org.springframework.context.ApplicationListener</tt>. Inside your application
+     event listener you can then check for an instanceof the particular <tt>AuthenticationFailureEvent</tt>
+     and then call your application user management interface to update the user details.
+     <p>
+     For example:
+     <pre>
+     public void onApplicationEvent(ApplicationEvent event) {
+     
+       // check failed event
+       if(event instanceof AuthenticationFailurePasswordEvent){
+          // call user management interface to increment failed login attempts, etc.
+          . . .
+       }  
+     }
+     </pre>
+
+  <h2>Common Problem #4: I am changing my password using a web controller and DAO, why is my password still not being refreshed?</h2>
+  <p>There are three things you must do to make a user password change take affect:
+  <ul>
+  <li> Change the password using your authentication DAO</li>
+  <li> Remove the user from the User Cache (i.e. if you have a cache configured) </li>
+  <li> Update the <tt>SecurityContextHolder</tt> to include the new <tt>Authentication</tt> object and password</li>
+  </ul>
+
+  <h2>I need some help. What files should I post?</h2>
+  <p>The most important things to post with any support requests on the
+	<a href="http://forum.springframework.org">Spring Forums</a> are your
+	<code>web.xml</code>, <code>applicationContext.xml</code> (or whichever
+	XML loads the security-related beans) as well as any custom
+	<code>AuthenticationDao</code> you might be using. For really odd problems,
+	also switch on debug-level logging and include the resulting log.</p>
+
+  <h2>How do I switch on debug-level logging?</h2>
+  <p>Acegi Security uses Commons Logging, just as Spring does. So you use the
+	same approach as you'd use for Spring. Most people output to Log4J, so
+	the following <code>log4j.properties</code> would work:</p>
+	
+	<pre>
+		log4j.rootCategory=WARN, stdout
+		
+		log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+		log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+		log4j.appender.stdout.layout.ConversionPattern=%d %p %c - %m%n
+		
+		log4j.category.net.sf.acegisecurity=DEBUG</pre>
+
+  <h2>How do I store custom properties, like a user's email address?</h2>
+  <p>In most cases write an <code>AuthenticationDao</code> which returns
+	a subclass of <code>User</code>. Alternatively, write your own
+	<code>UserDetails</code> implementation from scratch and return that.</p>
+
+  <h2>Why doesn't Acegi Security use JAAS?</h2>
+  <p>Acegi Security targets <i>enterprise applications</i>, which are typically
+	multi-user, data-oriented applications that are important to
+	the core business. Acegi Security was designed to provide a portable and effective
+	security framework for this target application type. It was not designed for securing
+	limited privilege runtime environments, such as web browser applets.</p>
+	
+	<p>We did consider JAAS when designing Acegi Security, but it simply
+	wasn't suitable for our purpose. We needed to avoid complex JRE configurations,
+	we needed container portability, and we wanted maximum leveraging of the Spring IoC
+	container. Particularly as limited privilege runtime environments were not
+	an actual requirement, this lead to the natural design of Acegi Security as
+	it exists today.</p>
+	
+	<p>Acegi Security already provides some JAAS integration. It can today authenticate
+	via delegation to a JAAS login module. This means it offers the same level of JAAS
+	integration as many web containers. Indeed the container adapter model supported by
+	Acegi Security allows Acegi Security and container-managed security to happily
+	co-exist and benefit from each other. Any debate about Acegi Security and JAAS
+	should therefore centre on the authorisation issue. An evaluation of major
+	containers and security frameworks would reveal that Acegi Security is by no
+	means unusual in not using JAAS for authorisation.</p>
+	
+	<p>There are many examples of open source applications being preferred to
+	official standards. A few that come to mind in the Java community include
+	using Spring managed POJOs (rather than EJBs), Hibernate (instead of entity beans),
+	Log4J (instead of JDK logging), Tapestry (instead of JSF), and Velocity/FreeMarker
+	(instead of JSP). It's important to recognise that many open source projects do
+	develop into de facto standards, and in doing so play a legitimate and beneficial
+	role in professional software development.</p>
+
+  <h2>Do you welcome contributions?</h2>
+  <p>Yes. If you've written something and it works well, please feel free to share it.
+	Simply email the contribution to the 
+	<a href="mail-lists.html">acegisecurity-developers</a> list. If you haven't yet
+	written the contribution, we encourage you to send your thoughts to the same 
+	list so that you can receive some initial design feedback.</p>
+	
+	<p>For a contribution to be used, it must have appropriate unit test coverage and
+	detailed JavaDocs. It will ideally have some comments for the Reference Guide
+	as well (this can be sent in word processor or HTML format if desired). This
+	helps ensure the contribution maintains the same quality as the remainder of
+	the project.</p>
+	
+	<p>We also welcome documentation improvements, unit tests, illustrations,
+	people supporting the user community (especially on the forums), design ideas,
+	articles, blog entries, presentations and alike. If you're looking for something
+	to do, you can always email the
+	<a href="mail-lists.html">acegisecurity-developers</a> list and we'll be
+	pleased to suggest something. :-)</p>
+
+</body>
+</html>

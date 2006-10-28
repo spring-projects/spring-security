@@ -1,0 +1,120 @@
+<!--
+ * ========================================================================
+ * 
+ * Copyright 2004 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * ========================================================================
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>Building</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+</head>
+
+<body>
+  <h1>Building Acegi Security System</h1>
+  <h2>Checking Out from Subversion (SVN)</h2>
+  <p>This project uses <a href="http://maven.apache.org">Maven</a> as project manager
+	and build tool.	We recommend you to install Maven 1.0.2 or greater before trying
+	the following. <b>Note there are workarounds at the bottom of this page.</b></p>
+  <p>To checkout Acegi Security from SVN, see our 
+  <a href="cvs-usage.html">CVS Usage</a> page.</p>
+  
+  <h2>Quick Build</h2>
+  <p>Often people reading this document just want to see if Acegi Security will work 
+	for their projects. They want to deploy a sample application, and that's about it
+	(after all, all the reference documentation can be read online at
+	<a href="http://acegisecurity.sourceforge.net">http://acegisecurity.sourceforge.net</a>).
+	In this case, execute:</p>
+  <ol>
+	<pre>cd $ACEGI_SECURITY/core (or cd %ACEGI_SECURITY%/core on Windows)</pre>
+	<pre>maven jar:install</pre>
+	<pre>cd $ACEGI_SECURITY/samples/contacts</pre>
+	<pre>maven multiwar:multiwar</pre>
+	<pre>copy $ACEGI_SECURITY/samples/contacts/target/acegi-security-sample-contacts-filter.war $YOUR_CONTAINER/webapps</pre>
+  </ol>
+  <p>Then load up your web container and visit
+	<a href="http://localhost:8080/acegi-security-sample-contacts-filter/">http://localhost:8080/acegi-security-sample-contacts-filter/</a>
+	(or whatever location is appropriate for your web container).</p>
+
+  <h2>Installing commons-attributes-plugin</h2>
+  <p>To properly integrate Commons Attributes with Maven (as required by
+     the <a href="/multiproject/acegi-security-sample-attributes/index.html">Attributes Sample</a>),
+	 you need to install an additional plugin.</b></p>
+  <p>To install the <code>commons-attributes-plugin</code>, execute the following commands:</p>
+  <ol>
+	<pre>cd $ACEGI_SECURITY/doc</pre>
+    <pre>maven plugin:download
+    -DgroupId=commons-attributes
+    -DartifactId=commons-attributes-plugin
+    -Dversion=2.1</pre>
+  </ol>
+  <p>The second (final) command should be executed on a single line.</p>
+
+  <h2>Building All JARs</h2>
+  <p>Sometimes people are already using Acegi Security, and they just want to build the
+	latest code from CVS. To build all artifacts (JARs) and install them into
+	your local Maven repository, simply perform a CVS checkout and install the
+	<code>commons-attributes-plugin</code> (as detailed above), and then
+	execute:</p>
+  <ol>
+	<pre>cd $ACEGI_SECURITY/doc</pre>
+	<pre>maven multiproject:install</pre>
+  </ol>
+  <p>You can then check your <code>$HOME/.maven/repository/acegisecurity</code>
+	directory and it should contain all of the latest Acegi Security JARs.</p>
+  
+  <h2>Building The Site</h2>
+  <p>By "site" we mean the web site you can browse at 
+	<a href="http://acegisecurity.sourceforge.net">http://acegisecurity.sourceforge.net</a>,
+	which includes the reference documentation and all of the Maven reports.
+	If you'd like a local copy, simply execute:
+  <ol>
+	<pre>cd $ACEGI_SECURITY/doc</pre>
+	<pre>maven -Dpassword= changelog:create-cvspass</pre>
+	<pre>maven    multiproject:clean multiproject:site
+	-Dmaven.jar.override=on 
+	-Dmaven.jar.clover-ant=1.3.3_01 
+</pre>
+  </ol>
+  <p>As per the
+	<a href="http://maven.apache.org/reference/plugins/changelog/">Maven Changelog Plugin Documentation</a>,
+	you must tell the plugin the "anonymous CVS pserver" password is blank. This is
+	why there is the "create-cvspass" command shown above. You should only need to
+	do this once.</p>
+
+  <h2>Memory and Clover Workarounds</h2>
+  <p>If you get an <code>OutOfMemoryError</code>, simply execute the following before
+	calling Maven:</p>
+	<ol>
+		<pre>set MAVEN_OPTS=-Xmx1024m -XX:MaxPermSize=512m</pre>
+	</ol>
+  <p>If you get an <code>[ERROR] Invalid license: Invalid license file [E1202]</code>,
+	this is because the <code>maven-clover-plugin</code> is using an old version of
+	<code>clover-ant-xxx.jar</code>. Whilst Acegi Security's <code>project.properties</code>
+	specifies a newer version, subprojects have an inheritence problem and don't pick
+	this up (as of the time of writing). To workaround this issue, you need to
+	specify those override properties on the command line. For example, to execute the
+	Clover reports for the core subproject, you would do the following:</p>
+  <ol>
+	<pre>cd $ACEGI_SECURITY/core</pre>
+	<pre>maven clover:html-report -Dmaven.jar.override=on -Dmaven.jar.clover-ant=1.3.3_01</pre>
+  </ol>
+
+</body>
+</html>
