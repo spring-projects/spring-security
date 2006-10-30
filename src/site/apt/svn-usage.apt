@@ -24,18 +24,4 @@ Subversion Usage
     If you'd prefer not to use SVN directly, please see our {{{"downloads.html"}downloads page}} for nightly snapshots.
 
 
-* Anonymous Access with Maven
-
-    This project's CVS repository can be checked out through anonymous (pserver) CVS with the following command
-    on a single line:
-
-+----------------------------------------------------------------------------------------------------------------------+
-
- maven scm:checkout-project
-    -Dmaven.scm.method=svn
-    -Dmaven.scm.svn.module=modulename
-    -Dmaven.scm.svn.root=scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity
-    -Dmaven.scm.checkout.dir=acegisecurity
-+----------------------------------------------------------------------------------------------------------------------+
-
 
