@@ -188,7 +188,7 @@ Key Features
 
     * <<Unit tests:>> A must-have of any quality security project, unit
         tests are included. Our unit test coverage is very high, as shown in the
-		{{{multiproject/acegi-security/clover/index.html}coverage report}}.
+		{{{acegi-security/cobertura/index.html}coverage report}}.
 
     * <<Built by Maven:>> This assists you in effectively reusing the Acegi
 		Security artifacts in your own Maven-based projects.
