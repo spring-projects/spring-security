@@ -289,7 +289,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
     protected Cookie makeCancelCookie(HttpServletRequest request) {
         Cookie cookie = new Cookie(ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY, null);
         cookie.setMaxAge(0);
-        cookie.setPath(request.getContextPath());
+        cookie.setPath(StringUtils.hasLength(request.getContextPath()) ? request.getContextPath() : "/");
 
         return cookie;
     }
@@ -297,7 +297,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
     protected Cookie makeValidCookie(long expiryTime, String tokenValueBase64, HttpServletRequest request) {
         Cookie cookie = new Cookie(ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY, tokenValueBase64);
         cookie.setMaxAge(60 * 60 * 24 * 365 * 5); // 5 years
-        cookie.setPath(request.getContextPath());
+        cookie.setPath(StringUtils.hasLength(request.getContextPath()) ? request.getContextPath() : "/");
 
         return cookie;
     }
