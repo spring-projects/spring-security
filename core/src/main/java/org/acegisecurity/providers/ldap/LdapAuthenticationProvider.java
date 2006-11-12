@@ -120,10 +120,11 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
 
     private LdapAuthenticator authenticator;
     private LdapAuthoritiesPopulator authoritiesPopulator;
+    private boolean includeDetailsObject = true;
 
     //~ Constructors ===================================================================================================
 
-    /**
+	/**
      * Create an initialized instance to the values passed as arguments
      *
      * @param authenticator
@@ -159,7 +160,7 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         throws AuthenticationException {
         if (!userDetails.getPassword().equals(authentication.getCredentials().toString())) {
             throw new BadCredentialsException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"), userDetails);
+                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"), includeDetailsObject ? userDetails : null);
         }
     }
 
@@ -220,4 +221,13 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
             throw new AuthenticationServiceException(ldapAccessFailure.getMessage(), ldapAccessFailure);
         }
     }
+    
+    public boolean isIncludeDetailsObject() {
+		return includeDetailsObject;
+	}
+
+	public void setIncludeDetailsObject(boolean includeDetailsObject) {
+		this.includeDetailsObject = includeDetailsObject;
+	}
+
 }
