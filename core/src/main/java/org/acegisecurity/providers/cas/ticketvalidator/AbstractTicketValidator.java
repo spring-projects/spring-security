@@ -36,7 +36,7 @@ import org.springframework.util.Assert;
 public abstract class AbstractTicketValidator implements TicketValidator, InitializingBean {
     //~ Static fields/initializers =====================================================================================
 
-    private static final Log logger = LogFactory.getLog(CasProxyTicketValidator.class);
+    private static final Log logger = LogFactory.getLog(AbstractTicketValidator.class);
 
     //~ Instance fields ================================================================================================
 
