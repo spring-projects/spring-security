@@ -90,6 +90,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
     private String parameter = DEFAULT_PARAMETER;
     private UserDetailsService userDetailsService;
     private long tokenValiditySeconds = 1209600; // 14 days
+    private boolean alwaysRemember = false;
 
     //~ Methods ========================================================================================================
 
@@ -238,10 +239,18 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
         cancelCookie(request, response, "Interactive authentication attempt was unsuccessful");
     }
 
+    protected boolean rememberMeRequested(HttpServletRequest request, String parameter) {
+    	if (alwaysRemember) {
+    		return true;
+    	}
+    	
+    	return RequestUtils.getBooleanParameter(request, parameter, false);
+    }
+    
     public void loginSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication successfulAuthentication) {
         // Exit if the principal hasn't asked to be remembered
-        if (!RequestUtils.getBooleanParameter(request, parameter, false)) {
+        if (!rememberMeRequested(request, parameter)) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Did not send remember-me cookie (principal did not set parameter '" + this.parameter
                     + "')");
@@ -322,4 +331,12 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
     public void setUserDetailsService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
+
+	public boolean isAlwaysRemember() {
+		return alwaysRemember;
+	}
+
+	public void setAlwaysRemember(boolean alwaysRemember) {
+		this.alwaysRemember = alwaysRemember;
+	}
 }
