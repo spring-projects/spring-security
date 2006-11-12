@@ -38,6 +38,12 @@ import java.io.Serializable;
  * {@link org.acegisecurity.userdetails.User} for a
  * reference implementation (which you might like to extend).
  * </p>
+ * 
+ * <p>
+ * Concrete implementations should be immutable (value object semantics,
+ * like a String). This is because the <code>UserDetails</code> will be
+ * stored in caches and as such multiple threads may use the same instance.
+ * </p>
  *
  * @author Ben Alex
  * @version $Id$
