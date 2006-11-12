@@ -148,8 +148,17 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
         }
 
         if (afterInvocationManager != null) {
-            returnedObject = afterInvocationManager.decide(token.getAuthentication(), token.getSecureObject(),
-                    token.getAttr(), returnedObject);
+            // Attempt after invocation handling
+            try {
+                returnedObject = afterInvocationManager.decide(token.getAuthentication(), token.getSecureObject(),
+                        token.getAttr(), returnedObject);
+            } catch (AccessDeniedException accessDeniedException) {
+                AuthorizationFailureEvent event = new AuthorizationFailureEvent(token.getSecureObject(),
+                		token.getAttr(), token.getAuthentication(), accessDeniedException);
+                publishEvent(event);
+
+                throw accessDeniedException;
+            }
         }
 
         return returnedObject;

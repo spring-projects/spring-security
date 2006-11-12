@@ -15,13 +15,19 @@
 
 package org.acegisecurity.event.authorization;
 
+import org.acegisecurity.AccessDecisionManager;
 import org.acegisecurity.AccessDeniedException;
+import org.acegisecurity.AfterInvocationManager;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttributeDefinition;
 
 
 /**
- * Indicates a secure object invocation failed because the principal could not be authorized for the request.
+ * Indicates a secure object invocation failed because the principal could not
+ * be authorized for the request.
+ *
+ * <p>This event might be thrown as a result of either an
+ * {@link AccessDecisionManager} or an {@link AfterInvocationManager}.
  *
  * @author Ben Alex
  * @version $Id$
