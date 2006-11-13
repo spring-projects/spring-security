@@ -33,6 +33,7 @@ import org.springframework.util.Assert;
 
 import java.io.IOException;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -66,6 +67,7 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
     private PortResolver portResolver = new PortResolverImpl();
     private String loginFormUrl;
     private boolean forceHttps = false;
+    private boolean serverSideRedirect = false;
 
     //~ Methods ========================================================================================================
 
@@ -88,27 +90,70 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
 
         boolean includePort = true;
 
+        String redirectUrl = null;
+        boolean doForceHttps = false;
+        Integer httpsPort = null;
+
         if (inHttp && (serverPort == 80)) {
             includePort = false;
         } else if (inHttps && (serverPort == 443)) {
             includePort = false;
         }
 
-        String redirectUrl = scheme + "://" + serverName + ((includePort) ? (":" + serverPort) : "") + contextPath
-            + loginFormUrl;
 
         if (forceHttps && inHttp) {
-            Integer httpsPort = (Integer) portMapper.lookupHttpsPort(new Integer(serverPort));
-
+            httpsPort = (Integer) portMapper.lookupHttpsPort(new Integer(serverPort));
+            doForceHttps = true;
+        
             if (httpsPort != null) {
                 if (httpsPort.intValue() == 443) {
                     includePort = false;
                 } else {
                     includePort = true;
                 }
+            }
+            
+        }
+  
+        if ( serverSideRedirect ) {
+
+            if ( doForceHttps ) {
+          
+                // before doing server side redirect, we need to do client redirect to https.
+              
+                String servletPath = req.getServletPath();
+                String pathInfo = req.getPathInfo();
+                String query = req.getQueryString();
+
+                redirectUrl = "https://" + serverName + ((includePort) ? (":" + httpsPort) : "") + contextPath
+                  + servletPath + (pathInfo == null ? "" : pathInfo ) + (query == null ? "" : "?"+query );
+
+            } else {
+
+                if (logger.isDebugEnabled()) {
+                  logger.debug("Server side forward to: " + loginFormUrl);
+                }
+
+                RequestDispatcher dispatcher = req.getRequestDispatcher( loginFormUrl );
+
+                dispatcher.forward( request, response );
+                
+                return;
+
+            }
+
+        } else {
+
+            if ( doForceHttps ) {
 
                 redirectUrl = "https://" + serverName + ((includePort) ? (":" + httpsPort) : "") + contextPath
                     + loginFormUrl;
+
+            } else {
+
+                redirectUrl = scheme + "://" + serverName + ((includePort) ? (":" + serverPort) : "") + contextPath
+                  + loginFormUrl;
+
             }
         }
 
@@ -133,6 +178,10 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
 
     public PortResolver getPortResolver() {
         return portResolver;
+    }
+
+    public boolean isServerSideRedirect() {
+       return serverSideRedirect;
     }
 
     /**
@@ -163,4 +212,15 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
     public void setPortResolver(PortResolver portResolver) {
         this.portResolver = portResolver;
     }
+ 
+    /**
+     * Tells if we are to do a server side include of the <code>loginFormUrl</code> instead of a 302
+     * redirect.
+     * 
+     * @param serverSideRedirect
+     */
+    public void setServerSideRedirect(boolean serverSideRedirect) {
+        this.serverSideRedirect = serverSideRedirect;
+    }
+
 }
