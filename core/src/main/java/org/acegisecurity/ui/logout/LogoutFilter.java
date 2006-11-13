@@ -94,10 +94,8 @@ public class LogoutFilter implements Filter {
                 logger.debug("Logging out user '" + auth + "' and redirecting to logout page");
             }
 
-            if (auth != null) {
-                for (int i = 0; i < handlers.length; i++) {
-                    handlers[i].logout(httpRequest, httpResponse, auth);
-                }
+            for (int i = 0; i < handlers.length; i++) {
+                handlers[i].logout(httpRequest, httpResponse, auth);
             }
 
             sendRedirect(httpRequest, httpResponse, logoutSuccessUrl);
