@@ -15,17 +15,17 @@
 
 package org.acegisecurity.intercept.web;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.beans.PropertyEditorSupport;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.acegisecurity.util.StringSplitUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.StringUtils;
 
 
 /**
@@ -131,10 +131,10 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
 
                 // Tokenize the line into its name/value tokens
                 // As per SEC-219, use the LAST equals as the delimiter between LHS and RHS
-                String name = StringUtils.substringBeforeLast(line, "=");
-                String value = StringUtils.substringAfterLast(line, "=");
+                String name = StringSplitUtils.substringBeforeLast(line, "=");
+                String value = StringSplitUtils.substringAfterLast(line, "=");
 
-                if (StringUtils.isBlank(name) || StringUtils.isBlank(value)) {
+                if (!StringUtils.hasText(name) || !StringUtils.hasText(value)) {
                     throw new IllegalArgumentException("Failed to parse a valid name/value pair from " + line);
                 }
 

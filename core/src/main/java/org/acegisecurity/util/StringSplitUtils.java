@@ -104,4 +104,31 @@ public class StringSplitUtils {
 
         return map;
     }
+    
+    public static String substringBeforeLast(String str, String separator) {
+        if (str == null || separator == null || str.length() == 0 ||
+    separator.length() == 0) {
+            return str;
+        }
+        int pos = str.lastIndexOf(separator);
+        if (pos == -1) {
+            return str;
+        }
+        return str.substring(0, pos);
+    }
+    
+    public static String substringAfterLast(String str, String separator) {
+        if (str == null || str.length() == 0) {
+            return str;
+        }
+        if (separator == null || separator.length() == 0) {
+            return "";
+        }
+        int pos = str.lastIndexOf(separator);
+        if (pos == -1 || pos == (str.length() - separator.length())) {
+            return "";
+        }
+        return str.substring(pos + separator.length());
+    }
+    
 }
