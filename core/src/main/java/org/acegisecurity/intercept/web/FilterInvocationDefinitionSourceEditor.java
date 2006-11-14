@@ -53,7 +53,7 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
 
         if ((s == null) || "".equals(s)) {
             // Leave target object empty
-            source.setDecorated(new PathBasedFilterInvocationDefinitionMap());
+            source.setDecorated(new RegExpBasedFilterInvocationDefinitionMap());
         } else {
             // Check if we need to override the default definition map
             if (s.lastIndexOf(DIRECTIVE_PATTERN_TYPE_APACHE_ANT) != -1) {
