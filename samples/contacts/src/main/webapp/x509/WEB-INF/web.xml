@@ -21,8 +21,8 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
 			/WEB-INF/applicationContext-acegi-security.xml
-			/WEB-INF/applicationContext-common-business.xml
-			/WEB-INF/applicationContext-common-authorization.xml
+			classpath:applicationContext-common-business.xml
+			classpath:applicationContext-common-authorization.xml
 		</param-value>
 	</context-param>
 <!--	

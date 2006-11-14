@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="samples/attributes/src/main/java"/>
+	<classpathentry kind="src" path="core/src/main/java"/>
+	<classpathentry kind="src" path="core/src/main/resources"/>
+	<classpathentry kind="src" path="core/src/test/java"/>
+	<classpathentry kind="src" path="core/src/test/resources"/>
 	<classpathentry kind="src" path="sandbox/other/src/main/java"/>
-	<classpathentry kind="src" path="samples/acegifier/src/test/resources"/>
-	<classpathentry kind="src" path="samples/acegifier/src/main/resources"/>
+	<classpathentry kind="src" path="samples/contacts/src/main/java"/>
+	<classpathentry kind="src" path="samples/contacts/src/main/resources"/>
+	<classpathentry kind="src" path="samples/contacts/src/test/java"/>
+	<classpathentry kind="src" path="samples/contacts/src/test/resources"/>
 	<classpathentry kind="src" path="samples/acegifier/src/main/java"/>
+	<classpathentry kind="src" path="samples/acegifier/src/main/resources"/>
 	<classpathentry kind="src" path="samples/acegifier/src/test/java"/>
-	<classpathentry kind="src" path="adapters/catalina/src/main/resources"/>
+	<classpathentry kind="src" path="samples/acegifier/src/test/resources"/>
+	<classpathentry kind="src" path="samples/attributes/src/main/java"/>
 	<classpathentry kind="src" path="samples/attributes/src/main/resources"/>
 	<classpathentry kind="src" path="samples/attributes/src/test/java"/>
 	<classpathentry kind="src" path="adapters/cas/src/test/resources"/>
 	<classpathentry kind="src" path="adapters/cas/src/main/resources"/>
-	<classpathentry kind="src" path="core/src/main/resources"/>
-	<classpathentry kind="src" path="core/src/test/resources"/>
-	<classpathentry kind="src" path="samples/contacts/src/main/java"/>
 	<classpathentry kind="src" path="adapters/cas/src/main/java"/>
 	<classpathentry kind="src" path="adapters/cas/src/test/java"/>
 	<classpathentry kind="src" path="adapters/catalina/src/main/java"/>
+	<classpathentry kind="src" path="adapters/catalina/src/main/resources"/>
 	<classpathentry kind="src" path="adapters/catalina/src/test/java"/>
 	<classpathentry kind="src" path="adapters/jboss/src/main/java"/>
 	<classpathentry kind="src" path="adapters/jboss/src/test/java"/>
@@ -24,8 +29,7 @@
 	<classpathentry kind="src" path="adapters/jetty/src/test/java"/>
 	<classpathentry kind="src" path="adapters/resin/src/main/java"/>
 	<classpathentry kind="src" path="adapters/resin/src/test/java"/>
-	<classpathentry kind="src" path="core/src/main/java"/>
-	<classpathentry kind="src" path="core/src/test/java"/>
+	<classpathentry kind="src" path="java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="MAVEN_REPO/com.caucho/jars/resin-3.0.9.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-2.0-m2.jar"/>
@@ -49,14 +53,14 @@
 	<classpathentry kind="var" path="MAVEN_REPO/javax.servlet/jars/jsp-api-2.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0.3.jar"/>
 	<classpathentry sourcepath="DIST_BASE/commons-beanutils-1.6.1-src/src/java" kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.6.1.jar"/>
+	<classpathentry kind="src" path="samples/contacts-tiger/src/main/java"/>
 	<classpathentry kind="src" path="core-tiger/src/main/java"/>
-	<classpathentry kind="src" path="core-tiger/src/test/java"/>
 	<classpathentry kind="src" path="core-tiger/src/main/resources"/>
+	<classpathentry kind="src" path="core-tiger/src/test/java"/>
 	<classpathentry kind="src" path="core-tiger/src/test/resources"/>
 	<classpathentry kind="src" path="samples/annotations/src/main/java"/>
 	<classpathentry kind="src" path="samples/annotations/src/main/resources"/>
 	<classpathentry kind="src" path="samples/annotations/src/test/java"/>
-	<classpathentry kind="src" path="samples/contacts-tiger/src/main/java"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.samba.jcifs/jars/jcifs-1.2.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/dom4j/jars/dom4j-1.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xercesImpl-2.6.2.jar"/>
