@@ -115,6 +115,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
     private String exitUserUrl = "/j_acegi_exit_user";
     private String switchUserUrl = "/j_acegi_switch_user";
     private String targetUrl;
+    private SwitchUserAuthorityChanger switchUserAuthorityChanger;
 
     // ~ Instance fields
     // ========================================================
@@ -277,6 +278,11 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
         // get the original authorities
         List orig = Arrays.asList(targetUser.getAuthorities());
 
+        // Allow subclasses to change the authorities to be granted
+        if (switchUserAuthorityChanger != null) {
+        	switchUserAuthorityChanger.modifyGrantedAuthorities(targetUser, currentAuth, orig);
+        }
+        
         // add the new switch user authority
         List newAuths = new ArrayList(orig);
         newAuths.add(switchAuthority);
@@ -460,4 +466,12 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
 
         return uri;
     }
+
+    /**
+     * @param switchUserAuthorityChanger to use to fine-tune the authorities granted to subclasses (may be null if
+     * SwitchUserProcessingFilter shoudl not fine-tune the authorities)
+     */
+	public void setSwitchUserAuthorityChanger(SwitchUserAuthorityChanger switchUserAuthorityChanger) {
+		this.switchUserAuthorityChanger = switchUserAuthorityChanger;
+	}
 }
