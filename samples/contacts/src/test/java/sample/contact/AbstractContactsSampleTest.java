@@ -15,10 +15,7 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
  * convenience test support methods.
  * 
  * @author David Leal
- */
-/**
- * @author balex
- *
+ * @author Ben Alex
  */
 public abstract class AbstractContactsSampleTest extends AbstractTransactionalSpringContextTests {
 
