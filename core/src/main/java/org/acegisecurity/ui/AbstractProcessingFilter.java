@@ -428,4 +428,9 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 
         sendRedirect(request, response, failureUrl);
     }
+
+	public AuthenticationDetailsSource getAuthenticationDetailsSource() {
+		// Required due to SEC-310
+		return authenticationDetailsSource;
+	}
 }
