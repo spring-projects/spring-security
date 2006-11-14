@@ -150,7 +150,7 @@ public class AuthorizeTag extends TagSupport {
 
             // Remove the role's whitespace characters without depending on JDK 1.4+ 
             // Includes space, tab, new line, carriage return and form feed. 
-            String role = StringUtils.replace(authority, " ", "");
+            String role = authority.trim(); // trim, don't use spaces, as per SEC-378
             role = StringUtils.replace(role, "\t", "");
             role = StringUtils.replace(role, "\r", "");
             role = StringUtils.replace(role, "\n", "");

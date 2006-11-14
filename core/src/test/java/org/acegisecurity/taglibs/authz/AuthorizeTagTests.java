@@ -47,7 +47,7 @@ public class AuthorizeTagTests extends TestCase {
 
         currentUser = new TestingAuthenticationToken("abc", "123",
                 new GrantedAuthority[] {
-                    new GrantedAuthorityImpl("ROLE_SUPERVISOR"), new GrantedAuthorityImpl("ROLE_TELLER"),
+                    new GrantedAuthorityImpl("ROLE SUPERVISOR"), new GrantedAuthorityImpl("ROLE_TELLER"),
                 });
 
         SecurityContextHolder.getContext().setAuthentication(currentUser);
@@ -80,7 +80,7 @@ public class AuthorizeTagTests extends TestCase {
     }
 
     public void testOutputsBodyWhenAllGranted() throws JspException {
-        authorizeTag.setIfAllGranted("ROLE_SUPERVISOR,ROLE_TELLER");
+        authorizeTag.setIfAllGranted("ROLE SUPERVISOR,ROLE_TELLER");
         assertEquals("allows request - all required roles granted on principal", Tag.EVAL_BODY_INCLUDE,
             authorizeTag.doStartTag());
     }
@@ -107,7 +107,7 @@ public class AuthorizeTagTests extends TestCase {
 
     public void testSkipsBodyWhenMissingAnAllGranted()
         throws JspException {
-        authorizeTag.setIfAllGranted("ROLE_SUPERVISOR,ROLE_TELLER,ROLE_BANKER");
+        authorizeTag.setIfAllGranted("ROLE SUPERVISOR,ROLE_TELLER,ROLE_BANKER");
         assertEquals("prevents request - missing ROLE_BANKER on principal", Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 
