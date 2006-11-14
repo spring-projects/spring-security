@@ -110,8 +110,15 @@ public class SavedRequest implements java.io.Serializable {
 
         while (paramNames.hasNext()) {
             String paramName = (String) paramNames.next();
-            String[] paramValues = (String[]) parameters.get(paramName);
-            this.addParameter(paramName, paramValues);
+            Object o = parameters.get(paramName);
+            if (o instanceof String[]) {
+                String[] paramValues = (String[]) o;
+                this.addParameter(paramName, paramValues);
+            } else {
+            	if (logger.isWarnEnabled()) {
+                	logger.warn("ServletRequest.getParameterMap() returned non-String array");
+            	}
+            }
         }
 
         // Primitives
