@@ -15,12 +15,8 @@
 
 package org.acegisecurity.context;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.InitializingBean;
-
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -30,6 +26,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 
 
 /**
@@ -99,8 +101,28 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
      * are conscious of the session creation overhead.
      */
     private boolean forceEagerSessionCreation = false;
+    
+    /**
+     * Indicates whether the <code>SecurityContext</code> will be cloned from the <code>HttpSession</code>. The
+     * default is to simply reference (ie the default is <code>false</code>). The default may cause issues if
+     * concurrent threads need to have a different security identity from other threads being concurrently processed
+     * that share the same <code>HttpSession</code>. In most normal environments this does not represent an issue,
+     * as changes to the security identity in one thread is allowed to affect the security identitiy in other
+     * threads associated with the same <code>HttpSession</code>. For unusual cases where this is not permitted, 
+     * change this value to <code>true</code> and ensure the {@link #context} is set to a <code>SecurityContext</code>
+     * that implements {@link Cloneable} and overrides the <code>clone()</code> method.
+     */
+    private boolean cloneFromHttpSession = false;
 
-    public HttpSessionContextIntegrationFilter() throws ServletException {
+    public boolean isCloneFromHttpSession() {
+		return cloneFromHttpSession;
+	}
+
+	public void setCloneFromHttpSession(boolean cloneFromHttpSession) {
+		this.cloneFromHttpSession = cloneFromHttpSession;
+	}
+
+	public HttpSessionContextIntegrationFilter() throws ServletException {
         this.contextObject = generateNewContext();
     }
 
@@ -145,7 +167,21 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
                 httpSessionExistedAtStartOfRequest = true;
 
                 Object contextFromSessionObject = httpSession.getAttribute(ACEGI_SECURITY_CONTEXT_KEY);
-
+                
+                // Clone if required (see SEC-356)
+                if (cloneFromHttpSession) {
+                	Assert.isInstanceOf(Cloneable.class, contextFromSessionObject, "Context must implement Clonable and provide a Object.clone() method");
+                	try {
+                		Method m = contextFromSessionObject.getClass().getMethod("clone", new Class[] {});
+                		if (!m.isAccessible()) {
+                    		m.setAccessible(true);
+                		}
+                		contextFromSessionObject = m.invoke(contextFromSessionObject, new Object[] {});
+                	} catch (Exception ex) {
+                		ReflectionUtils.handleReflectionException(ex);
+                	}
+                }
+                
                 if (contextFromSessionObject != null) {
                     if (contextFromSessionObject instanceof SecurityContext) {
                         if (logger.isDebugEnabled()) {
