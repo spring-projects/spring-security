@@ -247,7 +247,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         assertEquals(expected, returned);
     }
 
-    public void testSingleUrlParsing() throws Exception {
+    public void testSingleUrlParsingWithRegularExpressions() throws Exception {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText("\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE,ANOTHER_ROLE");
 
@@ -266,6 +266,25 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         assertEquals(expected, returned);
     }
 
+    public void testSingleUrlParsingWithAntPaths() throws Exception {
+        FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
+        editor.setAsText("PATTERN_TYPE_APACHE_ANT\r\n/secure/super/**=ROLE_WE_DONT_HAVE,ANOTHER_ROLE");
+
+        PathBasedFilterInvocationDefinitionMap map = (PathBasedFilterInvocationDefinitionMap) editor.getValue();
+
+        MockHttpServletRequest httpRequest = new MockHttpServletRequest(null, null);
+        httpRequest.setServletPath("/secure/super/very_secret.html");
+
+        ConfigAttributeDefinition returned = map.getAttributes(new FilterInvocation(httpRequest,
+                    new MockHttpServletResponse(), new MockFilterChain()));
+
+        ConfigAttributeDefinition expected = new ConfigAttributeDefinition();
+        expected.addConfigAttribute(new SecurityConfig("ROLE_WE_DONT_HAVE"));
+        expected.addConfigAttribute(new SecurityConfig("ANOTHER_ROLE"));
+
+        assertEquals(expected, returned);
+    }
+    
     public void testWhitespaceAndCommentsAndLinesWithoutEqualsSignsAreIgnored() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText(

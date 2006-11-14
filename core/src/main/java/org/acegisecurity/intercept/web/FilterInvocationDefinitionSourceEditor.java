@@ -50,10 +50,10 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
 
     public void setAsText(String s) throws IllegalArgumentException {
         FilterInvocationDefinitionDecorator source = new FilterInvocationDefinitionDecorator();
-        source.setDecorated(new RegExpBasedFilterInvocationDefinitionMap());
 
         if ((s == null) || "".equals(s)) {
             // Leave target object empty
+            source.setDecorated(new PathBasedFilterInvocationDefinitionMap());
         } else {
             // Check if we need to override the default definition map
             if (s.lastIndexOf(DIRECTIVE_PATTERN_TYPE_APACHE_ANT) != -1) {
@@ -63,6 +63,8 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
                     logger.debug(("Detected " + DIRECTIVE_PATTERN_TYPE_APACHE_ANT
                         + " directive; using Apache Ant style path expressions"));
                 }
+            } else {
+                source.setDecorated(new RegExpBasedFilterInvocationDefinitionMap());
             }
 
             if (s.lastIndexOf(DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON) != -1) {
