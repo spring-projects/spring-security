@@ -100,12 +100,11 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
             includePort = false;
         }
 
-
         if (forceHttps && inHttp) {
             httpsPort = (Integer) portMapper.lookupHttpsPort(new Integer(serverPort));
-            doForceHttps = true;
         
             if (httpsPort != null) {
+                doForceHttps = true;
                 if (httpsPort.intValue() == 443) {
                     includePort = false;
                 } else {
