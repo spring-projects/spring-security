@@ -38,8 +38,8 @@ public class AddPermissionValidator implements Validator {
     public void validate(Object obj, Errors errors) {
         AddPermission addPermission = (AddPermission) obj;
 
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "permission", "err.permission", "Permission is required");
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "recipient", "err.recipient", "Recipient is required");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "permission", "err.permission", "Permission is required. *");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "recipient", "err.recipient", "Recipient is required. *");
 
         if (addPermission.getPermission() != null) {
             int permission = addPermission.getPermission().intValue();
@@ -47,14 +47,14 @@ public class AddPermissionValidator implements Validator {
             if ((permission != SimpleAclEntry.NOTHING) && (permission != SimpleAclEntry.ADMINISTRATION)
                 && (permission != SimpleAclEntry.READ) && (permission != SimpleAclEntry.DELETE)
                 && (permission != SimpleAclEntry.READ_WRITE_DELETE)) {
-                errors.rejectValue("permission", "err.permission.invalid", "The indicated permission is invalid.");
+                errors.rejectValue("permission", "err.permission.invalid", "The indicated permission is invalid. *");
             }
         }
 
         if (addPermission.getRecipient() != null) {
             if (addPermission.getRecipient().length() > 100) {
                 errors.rejectValue("recipient", "err.recipient.length",
-                    "The recipient is too long (maximum 100 characters).");
+                    "The recipient is too long (maximum 100 characters). *");
             }
         }
     }
