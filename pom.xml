@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.acegisecurity</groupId>
   <artifactId>acegi-security-parent</artifactId>
@@ -322,7 +324,22 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-mock</artifactId>
-        <version>1.2.8</version>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-remoting</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jdbc</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-support</artifactId>
+        <version>${spring.version}</version>
       </dependency>
       <dependency>
         <groupId>log4j</groupId>
@@ -333,4 +350,9 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <properties>
+    <spring.version>1.2.8</spring.version>
+  </properties>
+
 </project>
