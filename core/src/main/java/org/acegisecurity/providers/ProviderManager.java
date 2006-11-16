@@ -273,17 +273,8 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
         Iterator iter = newList.iterator();
 
         while (iter.hasNext()) {
-            Object currentObject = null;
-
-            try {
-                currentObject = iter.next();
-
-                //TODO bad idea, should use assignable from or instance of 
-                AuthenticationProvider attemptToCast = (AuthenticationProvider) currentObject;
-            } catch (ClassCastException cce) {
-                throw new IllegalArgumentException("AuthenticationProvider " + currentObject.getClass().getName()
-                    + " must implement AuthenticationProvider");
-            }
+            Object currentObject = iter.next();
+            Assert.isInstanceOf(AuthenticationProvider.class, currentObject, "Can only provide AuthenticationProvider instances");
         }
 
         this.providers = newList;
