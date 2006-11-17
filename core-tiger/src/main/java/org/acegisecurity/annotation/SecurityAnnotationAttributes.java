@@ -12,12 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.acegisecurity.annotation;
 
 import org.acegisecurity.SecurityConfig;
 
 import org.springframework.metadata.Attributes;
+
+import org.springframework.util.ClassUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -43,6 +44,8 @@ import java.util.Set;
  * &lt;/bean></pre></p>
  *  <p>These security annotations are similiar to the Commons Attributes approach, however they are using Java 5
  * language-level metadata support.</p>
+ *  <p>This class should be used with Spring 2.0 or above, as it relies upon utility classes in Spring 2.0 for
+ * correct introspection of annotations on bridge methods.</p>
  *
  * @author Mark St.Godard
  * @version $Id$
@@ -96,7 +99,19 @@ public class SecurityAnnotationAttributes implements Attributes {
     public Collection getAttributes(Method method) {
         Set<SecurityConfig> attributes = new HashSet<SecurityConfig>();
 
-        for (Annotation annotation : method.getAnnotations()) {
+        Annotation[] annotations = null;
+
+        // Use AnnotationUtils if in classpath (ie Spring 1.2.9+ deployment)
+        try {
+            Class clazz = ClassUtils.forName("org.springframework.core.annotation.AnnotationUtils");
+            Method m = clazz.getMethod("getAnnotations", new Class[] {Method.class});
+            annotations = (Annotation[]) m.invoke(null, new Object[] {method});
+        } catch (Exception ex) {
+            // Fallback to manual retrieval if no AnnotationUtils available
+            annotations = method.getAnnotations();
+        }
+
+        for (Annotation annotation : annotations) {
             // check for Secured annotations
             if (annotation instanceof Secured) {
                 Secured attr = (Secured) annotation;
