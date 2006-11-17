@@ -265,7 +265,7 @@
     <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
-      <version>1.7.3.0</version>
+      <version>1.8.0.4</version>
       <type>jar</type>
       <url>http://hsqldb.sourceforge.net/</url>
       <properties>

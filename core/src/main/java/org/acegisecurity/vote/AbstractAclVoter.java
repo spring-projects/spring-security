@@ -12,12 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.acegisecurity.vote;
 
 import org.acegisecurity.AuthorizationServiceException;
-
-import org.acegisecurity.acl.AclManager;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -28,8 +25,7 @@ import org.springframework.util.Assert;
 
 
 /**
- * <p>Given a domain object instance passed as a method argument, ensures the principal has appropriate permission
- * as defined by the {@link AclManager}.</p>
+ * <p>Provides helper methods for writing domain object ACL voters. Is not bound to any particular ACL system.</p>
  *
  * @author Ben Alex
  * @version $Id$

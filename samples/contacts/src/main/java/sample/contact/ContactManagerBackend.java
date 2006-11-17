@@ -12,15 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package sample.contact;
 
 import org.acegisecurity.Authentication;
 
-import org.acegisecurity.acl.basic.AclObjectIdentity;
-import org.acegisecurity.acl.basic.BasicAclExtendedDao;
-import org.acegisecurity.acl.basic.NamedEntityObjectIdentity;
-import org.acegisecurity.acl.basic.SimpleAclEntry;
+import org.acegisecurity.acls.AccessControlEntry;
+import org.acegisecurity.acls.MutableAcl;
+import org.acegisecurity.acls.MutableAclService;
+import org.acegisecurity.acls.NotFoundException;
+import org.acegisecurity.acls.Permission;
+import org.acegisecurity.acls.domain.BasePermission;
+import org.acegisecurity.acls.objectidentity.ObjectIdentity;
+import org.acegisecurity.acls.objectidentity.ObjectIdentityImpl;
+import org.acegisecurity.acls.sid.PrincipalSid;
+import org.acegisecurity.acls.sid.Sid;
 
 import org.acegisecurity.context.SecurityContextHolder;
 
@@ -45,27 +50,33 @@ import java.util.Random;
 public class ContactManagerBackend extends ApplicationObjectSupport implements ContactManager, InitializingBean {
     //~ Instance fields ================================================================================================
 
-    private BasicAclExtendedDao basicAclExtendedDao;
     private ContactDao contactDao;
+    private MutableAclService mutableAclService;
     private int counter = 1000;
 
     //~ Methods ========================================================================================================
 
-    public void addPermission(Contact contact, String recipient, Integer permission) {
-        SimpleAclEntry simpleAclEntry = new SimpleAclEntry();
-        simpleAclEntry.setAclObjectIdentity(makeObjectIdentity(contact));
-        simpleAclEntry.setMask(permission.intValue());
-        simpleAclEntry.setRecipient(recipient);
-        basicAclExtendedDao.create(simpleAclEntry);
+    public void addPermission(Contact contact, Sid recipient, Permission permission) {
+        MutableAcl acl;
+        ObjectIdentity oid = new ObjectIdentityImpl(Contact.class, contact.getId());
+
+        try {
+            acl = (MutableAcl) mutableAclService.readAclById(oid);
+        } catch (NotFoundException nfe) {
+            acl = mutableAclService.createAcl(oid);
+        }
+
+        acl.insertAce(null, permission, recipient, true);
+        mutableAclService.updateAcl(acl);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Added permission " + permission + " for recipient " + recipient + " contact " + contact);
+            logger.debug("Added permission " + permission + " for Sid " + recipient + " contact " + contact);
         }
     }
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(contactDao, "contactDao required");
-        Assert.notNull(basicAclExtendedDao, "basicAclExtendedDao required");
+        Assert.notNull(mutableAclService, "mutableAclService required");
     }
 
     public void create(Contact contact) {
@@ -73,8 +84,8 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
         contact.setId(new Long(counter++));
         contactDao.create(contact);
 
-        // Grant the current principal access to the contact 
-        addPermission(contact, getUsername(), new Integer(SimpleAclEntry.ADMINISTRATION));
+        // Grant the current principal administrative permission to the contact 
+        addPermission(contact, new PrincipalSid(getUsername()), BasePermission.ADMINISTRATION);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Created contact " + contact + " and granted admin permission to recipient " + getUsername());
@@ -85,15 +96,28 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
         contactDao.delete(contact.getId());
 
         // Delete the ACL information as well
-        basicAclExtendedDao.delete(makeObjectIdentity(contact));
+        ObjectIdentity oid = new ObjectIdentityImpl(Contact.class, contact.getId());
+        mutableAclService.deleteAcl(oid, false);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Deleted contact " + contact + " including ACL permissions");
         }
     }
 
-    public void deletePermission(Contact contact, String recipient) {
-        basicAclExtendedDao.delete(makeObjectIdentity(contact), recipient);
+    public void deletePermission(Contact contact, Sid recipient, Permission permission) {
+        ObjectIdentity oid = new ObjectIdentityImpl(Contact.class, contact.getId());
+        MutableAcl acl = (MutableAcl) mutableAclService.readAclById(oid);
+
+        // Remove all permissions associated with this particular recipient (string equality to KISS)
+        AccessControlEntry[] entries = acl.getEntries();
+
+        for (int i = 0; i < entries.length; i++) {
+            if (entries[i].getSid().equals(recipient) && entries[i].getPermission().equals(permission)) {
+                acl.deleteAce(entries[i].getId());
+            }
+        }
+
+        mutableAclService.updateAcl(acl);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Deleted contact " + contact + " ACL permissions for recipient " + recipient);
@@ -114,13 +138,8 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
         }
 
         List list = contactDao.findAllPrincipals();
-        list.addAll(contactDao.findAllRoles());
 
         return list;
-    }
-
-    public BasicAclExtendedDao getBasicAclExtendedDao() {
-        return basicAclExtendedDao;
     }
 
     public Contact getById(Long id) {
@@ -129,10 +148,6 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
         }
 
         return contactDao.getById(id);
-    }
-
-    public ContactDao getContactDao() {
-        return contactDao;
     }
 
     /**
@@ -162,16 +177,12 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
         }
     }
 
-    private AclObjectIdentity makeObjectIdentity(Contact contact) {
-        return new NamedEntityObjectIdentity(contact.getClass().getName(), contact.getId().toString());
-    }
-
-    public void setBasicAclExtendedDao(BasicAclExtendedDao basicAclExtendedDao) {
-        this.basicAclExtendedDao = basicAclExtendedDao;
-    }
-
     public void setContactDao(ContactDao contactDao) {
         this.contactDao = contactDao;
+    }
+
+    public void setMutableAclService(MutableAclService mutableAclService) {
+        this.mutableAclService = mutableAclService;
     }
 
     public void update(Contact contact) {

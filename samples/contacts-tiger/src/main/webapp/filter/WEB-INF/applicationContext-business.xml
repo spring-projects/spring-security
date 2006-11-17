@@ -31,7 +31,9 @@
 	</bean>
 	
    <bean id="dataSourcePopulator" class="sample.contact.DataSourcePopulator">
-	   <property name="dataSource"><ref local="dataSource"/></property>
+	   <property name="dataSource" ref="dataSource"/>
+	   <property name="mutableAclService" ref="aclService"/>
+	   <property name="platformTransactionManager" ref="transactionManager"/>
    </bean>
    
    <bean id="contactDao" class="sample.contact.ContactDaoSpring">
@@ -42,7 +44,7 @@
    <!-- Advised Contact Manager using Java 5 Annotations --> 
    <bean id="contactManager" class="sample.contact.annotation.ContactManagerBackend">
 	   <property name="contactDao"><ref local="contactDao"/></property>
-	   <property name="basicAclExtendedDao"><ref bean="basicAclExtendedDao"/></property>
+	   <property name="mutableAclService"><ref bean="aclService"/></property>
    </bean>
 
 </beans>

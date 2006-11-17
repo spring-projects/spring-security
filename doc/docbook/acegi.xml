@@ -4702,9 +4702,97 @@ public boolean supports(Class clazz);</programlisting></para>
         <sect2 id="after-invocation-acl-aware">
           <title>ACL-Aware AfterInvocationProviders</title>
 
-          <para>TODO: This section will be removed when we deprecate the
-          existing ACL package. It should be discussed with the context of the
-          ACL implementation chapter instead.</para>
+          <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
+          ACL module. The new ACL module is a significant rewrite of the
+          existing ACL module. The new module can be found under the
+          <literal>org.acegisecurity.acls</literal> package, with the old ACL
+          module under <literal>org.acegisecurity.acl</literal>. We encourage
+          users to consider testing with the new ACL module and build
+          applications with it. The old ACL module should be considered
+          deprecated and may be removed from a future release. The following
+          information relates to the new ACL package, and is thus
+          recommended.</para>
+
+          <para>A common services layer method we've all written at one stage
+          or another looks like this:</para>
+
+          <para><programlisting>public Contact getById(Integer id);</programlisting></para>
+
+          <para>Quite often, only principals with permission to read the
+          <literal>Contact</literal> should be allowed to obtain it. In this
+          situation the <literal>AccessDecisionManager</literal> approach
+          provided by the <literal>AbstractSecurityInterceptor</literal> will
+          not suffice. This is because the identity of the
+          <literal>Contact</literal> is all that is available before the
+          secure object is invoked. The
+          <literal>AclAfterInvocationProvider</literal> delivers a solution,
+          and is configured as follows:</para>
+
+          <para><programlisting>&lt;bean id="afterAclRead" class="org.acegisecurity.afterinvocation.AclEntryAfterInvocationProvider"&gt;
+  &lt;constructor-arg&gt;
+    &lt;ref bean="aclService"/&gt;
+  &lt;/constructor-arg&gt;
+  &lt;constructor-arg&gt;
+    &lt;list&gt;
+      &lt;ref local="org.acegisecurity.acls.domain.BasePermission.ADMINISTRATION"/&gt;
+      &lt;ref local="org.acegisecurity.acls.domain.BasePermission.READ"/&gt;
+    &lt;/list&gt;
+  &lt;/constructor-arg&gt;
+&lt;/bean&gt;      </programlisting></para>
+
+          <para>In the above example, the <literal>Contact</literal> will be
+          retrieved and passed to the
+          <literal>AclEntryAfterInvocationProvider</literal>. The provider
+          will thrown an <literal>AccessDeniedException</literal> if one of
+          the listed <literal>requirePermission</literal>s is not held by the
+          <literal>Authentication</literal>. The
+          <literal>AclEntryAfterInvocationProvider</literal> queries the
+          <literal>Acl</literal>Service to determine the ACL that applies for
+          this domain object to this <literal>Authentication</literal>.</para>
+
+          <para>Similar to the
+          <literal>AclEntryAfterInvocationProvider</literal> is
+          <literal>AclEntryAfterInvocationCollectionFilteringProvider</literal>.
+          It is designed to remove <literal>Collection</literal> or array
+          elements for which a principal does not have access. It never thrown
+          an <literal>AccessDeniedException</literal> - simply silently
+          removes the offending elements. The provider is configured as
+          follows:</para>
+
+          <para><programlisting>&lt;bean id="afterAclCollectionRead" class="org.acegisecurity.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider"&gt;
+  &lt;constructor-arg&gt;
+    &lt;ref bean="aclService"/&gt;
+  &lt;/constructor-arg&gt;
+  &lt;constructor-arg&gt;
+    &lt;list&gt;
+      &lt;ref local="org.acegisecurity.acls.domain.BasePermission.ADMINISTRATION"/&gt;
+      &lt;ref local="org.acegisecurity.acls.domain.BasePermission.READ"/&gt;
+    &lt;/list&gt;
+  &lt;/constructor-arg&gt;
+&lt;/bean&gt;    </programlisting></para>
+
+          <para>As you can imagine, the returned <literal>Object</literal>
+          must be a <literal>Collection</literal> or array for this provider
+          to operate. It will remove any element if the
+          <literal>AclManager</literal> indicates the
+          <literal>Authentication</literal> does not hold one of the listed
+          <literal>requirePermission</literal>s.</para>
+
+          <para>The Contacts sample application demonstrates these two
+          <literal>AfterInvocationProvider</literal>s.</para>
+        </sect2>
+
+        <sect2 id="after-invocation-acl-aware-old">
+          <title>ACL-Aware AfterInvocationProviders (old ACL module)</title>
+
+          <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
+          ACL module. The new ACL module is a significant rewrite of the
+          existing ACL module. The new module can be found under the
+          <literal>org.acegisecurity.acls</literal> package, with the old ACL
+          module under <literal>org.acegisecurity.acl</literal>. We encourage
+          users to consider testing with the new ACL module and build
+          applications with it. The old ACL module should be considered
+          deprecated and may be removed from a future release.</para>
 
           <para>A common services layer method we've all written at one stage
           or another looks like this:</para>
@@ -4838,25 +4926,28 @@ public boolean supports(Class clazz);</programlisting></para>
         <literal>ifAllGranted</literal>, and finally, <literal>if
         AnyGranted</literal>.</para>
 
-        <para><literal>AclTag</literal> is used to include content if the
-        current principal has a ACL to the indicated domain object.</para>
+        <para><literal>AccessControlListTag</literal> is used to include
+        content if the current principal has an ACL to the indicated domain
+        object.</para>
 
         <para>The following JSP fragment illustrates how to use the
-        <literal>AclTag</literal>:</para>
+        <literal>AccessControlListTag</literal>:</para>
 
-        <para><programlisting>
-&lt;authz:acl domainObject="${contact}" hasPermission="16,1"&gt;
+        <para><programlisting>&lt;authz:accesscontrollist domainObject="${contact}" hasPermission="8,16"&gt;
   &lt;td&gt;&lt;A HREF="&lt;c:url value="del.htm"&gt;&lt;c:param name="contactId" value="${contact.id}"/&gt;&lt;/c:url&gt;"&gt;Del&lt;/A&gt;&lt;/td&gt;
-&lt;/authz:acl&gt;
-
-          </programlisting></para>
+&lt;/authz:accesscontrollist&gt;</programlisting></para>
 
         <para>This tag would cause the tag's body to be output if the
         principal holds either permission 16 or permission 1 for the "contact"
         domain object. The numbers are actually integers that are used with
-        <literal>AbstractBasicAclEntry</literal> bit masking. Please refer to
-        the ACL section of this reference guide to understand more about the
-        ACL capabilities of Acegi Security</para>
+        <literal>BasePermission</literal> bit masking. Please refer to the ACL
+        section of this reference guide to understand more about the ACL
+        capabilities of Acegi Security.</para>
+
+        <para><literal>AclTag</literal> is part of the old ACL module and
+        should be considered deprecated. For the sake of historical reference,
+        works exactly the samae as
+        <literal>AccessControlListTag</literal>.</para>
       </sect1>
     </chapter>
 
@@ -5371,6 +5462,15 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
       <section id="domain-acls-overview">
         <title>Overview</title>
 
+        <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
+        ACL module. The new ACL module is a significant rewrite of the
+        existing ACL module. The new module can be found under the
+        <literal>org.acegisecurity.acls</literal> package, with the old ACL
+        module under <literal>org.acegisecurity.acl</literal>. We encourage
+        users to consider testing with the new ACL module and build
+        applications with it. The old ACL module should be considered
+        deprecated and may be removed from a future release.</para>
+
         <para>Complex applications often will find the need to define access
         permissions not simply at a web request or method invocation level.
         Instead, security decisions need to comprise both who
@@ -5448,7 +5548,183 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         about below.</para>
       </section>
 
-      <section id="domain-acls-basic">
+      <section id="domain-acls-key-concepts">
+        <title>Key Concepts</title>
+
+        <para>The org.acegisecurity.acls package should be consulted for its
+        major interfaces. The key interfaces are:</para>
+
+        <itemizedlist spacing="compact">
+          <listitem>
+            <para><literal>Acl</literal>: Every domain object has one and only
+            one <literal>Acl</literal> object, which internally holds the
+            <literal>AccessControlEntry</literal>s as well as knows the owner
+            of the <literal>Acl</literal>. An Acl does not refer directly to
+            the domain object, but instead to an
+            <literal>ObjectIdentity</literal>.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal><literal>AccessControlEntry</literal></literal>: An
+            Acl holds multiple <literal>AccessControlEntry</literal>s, which
+            are often abbreviated as ACEs in the framework. Each ACE refers to
+            a specific tuple of <literal>Permission</literal>,
+            <literal>Sid</literal> and <literal>Acl</literal>. An ACE can also
+            be granting or non-granting and contain audit settings.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>Permission</literal>: A permission represents an
+            immutable particular bit mask, and offers convenience functions
+            for bit masking and outputting information.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>Sid</literal>: The ACL module needs to refer to
+            principals and <literal>GrantedAuthority[]</literal>s. A level of
+            indirection is provided by the <literal>Sid</literal> interface.
+            Common classes include <literal>PrincipalSid</literal> (to
+            represent the principal inside an
+            <literal>Authentication</literal> object) and
+            <literal>GrantedAuthoritySid</literal>.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>ObjectIdentity</literal>: Each domain object is
+            represented internally within the ACL module by an
+            <literal>ObjectIdentity</literal>.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>AclService</literal>: Retrieves the
+            <literal>Acl</literal> applicable for a given
+            <literal>ObjectIdentity</literal>.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>MutableAclService</literal>: Allows a modified
+            <literal>Acl</literal> to be presented for persistence. It is not
+            essential to use this interface if you do not wish.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>The ACL module was based on extensive feedback from the user
+        community following real-world use of the original ACL module. This
+        feedback resulted in a rearchitecture of the ACL module to offer
+        significantly enhanced performance (particularly in the area of
+        database retrieval), significantly better encapsulation, higher
+        cohesion, and enhanced customisation points.</para>
+
+        <para>The Contacts Sample that ships with Acegi Security 1.0.3 offers
+        a demonstration of the new ACL module. Converting Contacts from using
+        the old module to the new module was relatively simple, and users of
+        the old ACL module will likely find their applications can be modified
+        with relatively little work.</para>
+
+        <para>We will document the new ACL module more fully with a subsequent
+        release. Please note that the new ACL module should be considered a
+        preview only (ie do not use in production without proper prior
+        testing), and there is a small chance there may be changes between
+        1.0.3 and 1.1.0 when it will become final. Nevertheless,
+        compatibility-affecting changes are considered quite unlikely,
+        especially given the module is already based on several years of
+        feedback from users of the original ACL module.</para>
+      </section>
+    </chapter>
+
+    <chapter id="domain-acls-old">
+      <title>Domain Object Security (old ACL module)</title>
+
+      <section id="domain-acls-overview-old">
+        <title>Overview</title>
+
+        <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
+        ACL module. The new ACL module is a significant rewrite of the
+        existing ACL module. The new module can be found under the
+        <literal>org.acegisecurity.acls</literal> package, with the old ACL
+        module under <literal>org.acegisecurity.acl</literal>. We encourage
+        users to consider testing with the new ACL module and build
+        applications with it. The old ACL module should be considered
+        deprecated and may be removed from a future release.</para>
+
+        <para>Complex applications often will find the need to define access
+        permissions not simply at a web request or method invocation level.
+        Instead, security decisions need to comprise both who
+        (<literal>Authentication</literal>), where
+        (<literal>MethodInvocation</literal>) and what
+        (<literal>SomeDomainObject</literal>). In other words, authorization
+        decisions also need to consider the actual domain object instance
+        subject of a method invocation.</para>
+
+        <para>Imagine you're designing an application for a pet clinic. There
+        will be two main groups of users of your Spring-based application:
+        staff of the pet clinic, as well as the pet clinic's customers. The
+        staff will have access to all of the data, whilst your customers will
+        only be able to see their own customer records. To make it a little
+        more interesting, your customers can allow other users to see their
+        customer records, such as their "puppy preschool "mentor or president
+        of their local "Pony Club". Using Acegi Security as the foundation,
+        you have several approaches that can be used:<orderedlist>
+            <listitem>
+              <para>Write your business methods to enforce the security. You
+              could consult a collection within the
+              <literal>Customer</literal> domain object instance to determine
+              which users have access. By using the
+              <literal>SecurityContextHolder.getContext().getAuthentication()</literal>,
+              you'll be able to access the <literal>Authentication</literal>
+              object.</para>
+            </listitem>
+
+            <listitem>
+              <para>Write an <literal>AccessDecisionVoter</literal> to enforce
+              the security from the <literal>GrantedAuthority[]</literal>s
+              stored in the <literal>Authentication</literal> object. This
+              would mean your <literal>AuthenticationManager</literal> would
+              need to populate the <literal>Authentication</literal> with
+              custom <literal>GrantedAuthority</literal>[]s representing each
+              of the <literal>Customer</literal> domain object instances the
+              principal has access to.</para>
+            </listitem>
+
+            <listitem>
+              <para>Write an <literal>AccessDecisionVoter</literal> to enforce
+              the security and open the target <literal>Customer</literal>
+              domain object directly. This would mean your voter needs access
+              to a DAO that allows it to retrieve the
+              <literal>Customer</literal> object. It would then access the
+              <literal>Customer</literal> object's collection of approved
+              users and make the appropriate decision.</para>
+            </listitem>
+          </orderedlist></para>
+
+        <para>Each one of these approaches is perfectly legitimate. However,
+        the first couples your authorization checking to your business code.
+        The main problems with this include the enhanced difficulty of unit
+        testing and the fact it would be more difficult to reuse the
+        <literal>Customer</literal> authorization logic elsewhere. Obtaining
+        the <literal>GrantedAuthority[]</literal>s from the
+        <literal>Authentication</literal> object is also fine, but will not
+        scale to large numbers of <literal>Customer</literal>s. If a user
+        might be able to access 5,000 <literal>Customer</literal>s (unlikely
+        in this case, but imagine if it were a popular vet for a large Pony
+        Club!) the amount of memory consumed and time required to construct
+        the <literal>Authentication</literal> object would be undesirable. The
+        final method, opening the <literal>Customer</literal> directly from
+        external code, is probably the best of the three. It achieves
+        separation of concerns, and doesn't misuse memory or CPU cycles, but
+        it is still inefficient in that both the
+        <literal>AccessDecisionVoter</literal> and the eventual business
+        method itself will perform a call to the DAO responsible for
+        retrieving the <literal>Customer</literal> object. Two accesses per
+        method invocation is clearly undesirable. In addition, with every
+        approach listed you'll need to write your own access control list
+        (ACL) persistence and business logic from scratch.</para>
+
+        <para>Fortunately, there is another alternative, which we'll talk
+        about below.</para>
+      </section>
+
+      <section id="domain-acls-basic-old">
         <title>Basic ACL Package</title>
 
         <para>Please note that our Basic ACL services are currently being

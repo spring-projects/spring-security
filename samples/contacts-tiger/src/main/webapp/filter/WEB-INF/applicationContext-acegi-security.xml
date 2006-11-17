@@ -21,7 +21,7 @@
          <value>
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 		    PATTERN_TYPE_APACHE_ANT
-            /**=httpSessionContextIntegrationFilter,authenticationProcessingFilter,basicProcessingFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
+            /**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,switchUserProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
          </value>
       </property>
     </bean>
@@ -38,7 +38,7 @@
       </property>
    </bean>
 
-   <bean id="jdbcDaoImpl" class="org.acegisecurity.providers.dao.jdbc.JdbcDaoImpl">
+   <bean id="jdbcDaoImpl" class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
       <property name="dataSource"><ref bean="dataSource"/></property>
    </bean>
 
@@ -90,6 +90,7 @@
    </bean>
 
    <bean id="rememberMeProcessingFilter" class="org.acegisecurity.ui.rememberme.RememberMeProcessingFilter">
+      <property name="authenticationManager"><ref local="authenticationManager"/></property>
       <property name="rememberMeServices"><ref local="rememberMeServices"/></property>
    </bean>
 
@@ -101,6 +102,18 @@
    <bean id="rememberMeAuthenticationProvider" class="org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider">
       <property name="key"><value>springRocks</value></property>
    </bean>
+   
+   <bean id="logoutFilter" class="org.acegisecurity.ui.logout.LogoutFilter">
+      <constructor-arg value="/index.jsp"/> <!-- URL redirected to after logout -->
+      <constructor-arg>
+         <list>
+              <ref bean="rememberMeServices"/>
+              <bean class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler"/>
+         </list>
+      </constructor-arg>
+   </bean>
+   
+   <bean id="securityContextHolderAwareRequestFilter" class="org.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter"/>
 
    <!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
 
@@ -136,6 +149,11 @@
 
    <bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
       <property name="authenticationEntryPoint"><ref local="authenticationProcessingFilterEntryPoint"/></property>
+      <property name="accessDeniedHandler">
+      	<bean class="org.acegisecurity.ui.AccessDeniedHandlerImpl">
+      		<property name="errorPage" value="/accessDenied.jsp"/>
+      	</bean>
+      </property>
    </bean>
 
    <bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
@@ -173,10 +191,22 @@
 			    /index.jsp=ROLE_ANONYMOUS,ROLE_USER
 			    /hello.htm=ROLE_ANONYMOUS,ROLE_USER
 			    /logoff.jsp=ROLE_ANONYMOUS,ROLE_USER
+			    /switchuser.jsp=ROLE_SUPERVISOR
+			    /j_acegi_switch_user=ROLE_SUPERVISOR
 			    /acegilogin.jsp*=ROLE_ANONYMOUS,ROLE_USER
 				/**=ROLE_USER
          </value>
       </property>
    </bean>
+
+   <!-- Filter used to switch the user context. Note: the switch and exit url must be secured 
+        based on the role granted the ability to 'switch' to another user -->
+   <!-- In this example 'marissa' has ROLE_SUPERVISOR that can switch to regular ROLE_USER(s) -->
+   <bean id="switchUserProcessingFilter" class="org.acegisecurity.ui.switchuser.SwitchUserProcessingFilter">
+      <property name="userDetailsService" ref="jdbcDaoImpl" />
+	  <property name="switchUserUrl"><value>/j_acegi_switch_user</value></property>
+	  <property name="exitUserUrl"><value>/j_acegi_exit_user</value></property>
+	  <property name="targetUrl"><value>/acegi-security-sample-contacts-filter/secure/index.htm</value></property>
+   </bean>    
 
 </beans>

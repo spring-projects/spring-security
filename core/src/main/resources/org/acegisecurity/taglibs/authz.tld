@@ -113,4 +113,34 @@
 		</attribute>
 	</tag>
 
+	<tag>
+		<name>accesscontrollist</name>
+		<tag-class>org.acegisecurity.taglibs.authz.AccessControlListTag</tag-class>
+		<description>
+            Allows inclusion of a tag body if the current Authentication
+			has one of the specified permissions to the presented
+			domain object instance.
+		</description>
+
+		<attribute>
+			<name>hasPermission</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+                A comma separated list of integers, each representing a
+				required bit mask permission from a subclass of
+				org.acegisecurity.acl.basic.AbstractBasicAclEntry.
+			</description>
+		</attribute>
+		<attribute>
+			<name>domainObject</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+                The actual domain object instance for which permissions
+				are being evaluated.
+			</description>
+		</attribute>
+	</tag>
+	
 </taglib>

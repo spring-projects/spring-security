@@ -16,7 +16,8 @@
             <value>org.hsqldb.jdbcDriver</value>
         </property>
         <property name="url">
-            <value>jdbc:hsqldb:mem:contacts</value>
+            <value>jdbc:hsqldb:mem:test</value>
+            <!-- <value>jdbc:hsqldb:hsql://localhost/acl</value> -->
         </property>
         <property name="username">
             <value>sa</value>
@@ -46,7 +47,9 @@
 	</bean>
 
    <bean id="dataSourcePopulator" class="sample.contact.DataSourcePopulator">
-	   <property name="dataSource"><ref local="dataSource"/></property>
+	   <property name="dataSource" ref="dataSource"/>
+	   <property name="mutableAclService" ref="aclService"/>
+	   <property name="platformTransactionManager" ref="transactionManager"/>
    </bean>
    
    <bean id="contactDao" class="sample.contact.ContactDaoSpring">
@@ -66,7 +69,7 @@
 
    <bean id="contactManagerTarget" class="sample.contact.ContactManagerBackend">
 	   <property name="contactDao"><ref local="contactDao"/></property>
-	   <property name="basicAclExtendedDao"><ref bean="basicAclExtendedDao"/></property>
+	   <property name="mutableAclService"><ref bean="aclService"/></property>
    </bean>
 
 </beans>

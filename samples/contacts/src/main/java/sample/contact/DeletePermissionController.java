@@ -12,10 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package sample.contact;
 
-import org.acegisecurity.acl.AclManager;
+import org.acegisecurity.acls.AclService;
+import org.acegisecurity.acls.Permission;
+import org.acegisecurity.acls.domain.BasePermission;
+import org.acegisecurity.acls.sid.PrincipalSid;
+import org.acegisecurity.acls.sid.Sid;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -44,42 +47,40 @@ import javax.servlet.http.HttpServletResponse;
 public class DeletePermissionController implements Controller, InitializingBean {
     //~ Instance fields ================================================================================================
 
-    private AclManager aclManager;
+    private AclService aclService;
     private ContactManager contactManager;
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(contactManager, "A ContactManager implementation is required");
-        Assert.notNull(aclManager, "An aclManager implementation is required");
-    }
-
-    public AclManager getAclManager() {
-        return aclManager;
-    }
-
-    public ContactManager getContactManager() {
-        return contactManager;
+        Assert.notNull(aclService, "An aclService implementation is required");
     }
 
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
+        // <c:param name="sid" value="${acl.sid.principal}"/><c:param name="permission" value="${acl.permission.mask}"/></c:url>">Del</A>
         int contactId = RequestUtils.getRequiredIntParameter(request, "contactId");
-        String recipient = RequestUtils.getRequiredStringParameter(request, "recipient");
+        String sid = RequestUtils.getRequiredStringParameter(request, "sid");
+        int mask = RequestUtils.getRequiredIntParameter(request, "permission");
 
         Contact contact = contactManager.getById(new Long(contactId));
 
-        contactManager.deletePermission(contact, recipient);
+        Sid sidObject = new PrincipalSid(sid);
+        Permission permission = BasePermission.buildFromMask(mask);
+
+        contactManager.deletePermission(contact, sidObject, permission);
 
         Map model = new HashMap();
         model.put("contact", contact);
-        model.put("recipient", recipient);
+        model.put("sid", sidObject);
+        model.put("permission", permission);
 
         return new ModelAndView("deletePermission", "model", model);
     }
 
-    public void setAclManager(AclManager aclManager) {
-        this.aclManager = aclManager;
+    public void setAclService(AclService aclService) {
+        this.aclService = aclService;
     }
 
     public void setContactManager(ContactManager contact) {

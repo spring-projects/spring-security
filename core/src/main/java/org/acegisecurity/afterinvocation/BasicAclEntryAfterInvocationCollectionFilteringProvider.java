@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.acegisecurity.afterinvocation;
 
 import org.acegisecurity.AccessDeniedException;
@@ -26,7 +25,6 @@ import org.acegisecurity.acl.AclManager;
 import org.acegisecurity.acl.basic.BasicAclEntry;
 import org.acegisecurity.acl.basic.SimpleAclEntry;
 
-import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -34,12 +32,8 @@ import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.util.Assert;
 
-import java.lang.reflect.Array;
-
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 
 /**
@@ -135,42 +129,40 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider implements 
 
                     boolean hasPermission = false;
 
-                    AclEntry[] acls = null;
-
                     if (domainObject == null) {
                         hasPermission = true;
                     } else if (!processDomainObjectClass.isAssignableFrom(domainObject.getClass())) {
                         hasPermission = true;
                     } else {
-                        acls = aclManager.getAcls(domainObject, authentication);
-                    }
+                        AclEntry[] acls = aclManager.getAcls(domainObject, authentication);
 
-                    if ((acls != null) && (acls.length != 0)) {
-                        for (int i = 0; i < acls.length; i++) {
-                            // Locate processable AclEntrys
-                            if (acls[i] instanceof BasicAclEntry) {
-                                BasicAclEntry processableAcl = (BasicAclEntry) acls[i];
+                        if ((acls != null) && (acls.length != 0)) {
+                            for (int i = 0; i < acls.length; i++) {
+                                // Locate processable AclEntrys
+                                if (acls[i] instanceof BasicAclEntry) {
+                                    BasicAclEntry processableAcl = (BasicAclEntry) acls[i];
 
-                                // See if principal has any of the required permissions
-                                for (int y = 0; y < requirePermission.length; y++) {
-                                    if (processableAcl.isPermitted(requirePermission[y])) {
-                                        hasPermission = true;
+                                    // See if principal has any of the required permissions
+                                    for (int y = 0; y < requirePermission.length; y++) {
+                                        if (processableAcl.isPermitted(requirePermission[y])) {
+                                            hasPermission = true;
 
-                                        if (logger.isDebugEnabled()) {
-                                            logger.debug("Principal is authorised for element: " + domainObject
-                                                + " due to ACL: " + processableAcl.toString());
+                                            if (logger.isDebugEnabled()) {
+                                                logger.debug("Principal is authorised for element: " + domainObject
+                                                    + " due to ACL: " + processableAcl.toString());
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    if (!hasPermission) {
-                        filterer.remove(domainObject);
+                        if (!hasPermission) {
+                            filterer.remove(domainObject);
 
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Principal is NOT authorised for element: " + domainObject);
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("Principal is NOT authorised for element: " + domainObject);
+                            }
                         }
                     }
                 }
@@ -212,9 +204,11 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider implements 
     }
 
     /**
-     * Allow setting permissions with String literals instead of integers as {@link #setRequirePermission(int[])}
-     * 
+     * Allow setting permissions with String literals instead of integers as {@link
+     * #setRequirePermission(int[])}
+     *
      * @param requirePermission permission literals
+     *
      * @see SimpleAclEntry#parsePermissions(String[]) for valid values
      */
     public void setRequirePermissionFromString(String[] requirePermission) {
@@ -238,181 +232,5 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider implements 
      */
     public boolean supports(Class clazz) {
         return true;
-    }
-}
-
-
-/**
- * Filter strategy interface.
- */
-interface Filterer {
-    //~ Methods ========================================================================================================
-
-    /**
-     * Gets the filtered collection or array.
-     *
-     * @return the filtered collection or array
-     */
-    public Object getFilteredObject();
-
-    /**
-     * Returns an iterator over the filtered collection or array.
-     *
-     * @return an Iterator
-     */
-    public Iterator iterator();
-
-    /**
-     * Removes the the given object from the resulting list.
-     *
-     * @param object the object to be removed
-     */
-    public void remove(Object object);
-}
-
-
-/**
- * A filter used to filter Collections.
- */
-class CollectionFilterer implements Filterer {
-    //~ Static fields/initializers =====================================================================================
-
-    protected static final Log logger = LogFactory.getLog(BasicAclEntryAfterInvocationCollectionFilteringProvider.class);
-
-    //~ Instance fields ================================================================================================
-
-    private Collection collection;
-
-    // collectionIter offers significant performance optimisations (as
-    // per acegisecurity-developer mailing list conversation 19/5/05)
-    private Iterator collectionIter;
-    private Set removeList;
-
-    //~ Constructors ===================================================================================================
-
-    CollectionFilterer(Collection collection) {
-        this.collection = collection;
-
-        // We create a Set of objects to be removed from the Collection,
-        // as ConcurrentModificationException prevents removal during
-        // iteration, and making a new Collection to be returned is
-        // problematic as the original Collection implementation passed
-        // to the method may not necessarily be re-constructable (as
-        // the Collection(collection) constructor is not guaranteed and
-        // manually adding may lose sort order or other capabilities)
-        removeList = new HashSet();
-    }
-
-    //~ Methods ========================================================================================================
-
-    /**
-     * 
-     * @see org.acegisecurity.afterinvocation.Filterer#getFilteredObject()
-     */
-    public Object getFilteredObject() {
-        // Now the Iterator has ended, remove Objects from Collection
-        Iterator removeIter = removeList.iterator();
-
-        int originalSize = collection.size();
-
-        while (removeIter.hasNext()) {
-            collection.remove(removeIter.next());
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Original collection contained " + originalSize + " elements; now contains "
-                + collection.size() + " elements");
-        }
-
-        return collection;
-    }
-
-    /**
-     * 
-     * @see org.acegisecurity.afterinvocation.Filterer#iterator()
-     */
-    public Iterator iterator() {
-        collectionIter = collection.iterator();
-
-        return collectionIter;
-    }
-
-    /**
-     * 
-     * @see org.acegisecurity.afterinvocation.Filterer#remove(java.lang.Object)
-     */
-    public void remove(Object object) {
-        removeList.add(object);
-    }
-}
-
-
-/**
- * A filter used to filter arrays.
- */
-class ArrayFilterer implements Filterer {
-    //~ Static fields/initializers =====================================================================================
-
-    protected static final Log logger = LogFactory.getLog(BasicAclEntryAfterInvocationCollectionFilteringProvider.class);
-
-    //~ Instance fields ================================================================================================
-
-    private Set removeList;
-    private Object[] list;
-
-    //~ Constructors ===================================================================================================
-
-    ArrayFilterer(Object[] list) {
-        this.list = list;
-
-        // Collect the removed objects to a HashSet so that
-        // it is fast to lookup them when a filtered array
-        // is constructed.
-        removeList = new HashSet();
-    }
-
-    //~ Methods ========================================================================================================
-
-    /**
-     * 
-     * @see org.acegisecurity.afterinvocation.Filterer#getFilteredObject()
-     */
-    public Object getFilteredObject() {
-        // Recreate an array of same type and filter the removed objects.
-        int originalSize = list.length;
-        int sizeOfResultingList = originalSize - removeList.size();
-        Object[] filtered = (Object[]) Array.newInstance(list.getClass().getComponentType(), sizeOfResultingList);
-
-        for (int i = 0, j = 0; i < list.length; i++) {
-            Object object = list[i];
-
-            if (!removeList.contains(object)) {
-                filtered[j] = object;
-                j++;
-            }
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Original array contained " + originalSize + " elements; now contains " + sizeOfResultingList
-                + " elements");
-        }
-
-        return filtered;
-    }
-
-    /**
-     * 
-     * @see org.acegisecurity.afterinvocation.Filterer#iterator()
-     */
-    public Iterator iterator() {
-        return new ArrayIterator(list);
-    }
-
-    /**
-     * 
-     * @see org.acegisecurity.afterinvocation.Filterer#remove(java.lang.Object)
-     */
-    public void remove(Object object) {
-        removeList.add(object);
     }
 }

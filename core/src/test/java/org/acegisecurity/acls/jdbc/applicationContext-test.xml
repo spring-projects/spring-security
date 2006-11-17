@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Application context containing business beans.
+  -
+  - Used by all artifacts.
+  -
+  - $Id$
+  -->
+
+<beans>
+
+	<bean id="databaseSeeder" class="org.acegisecurity.acls.jdbc.DatabaseSeeder">
+		<constructor-arg ref="dataSource"/>
+		<constructor-arg value="classpath:org/acegisecurity/acls/jdbc/testData.sql"/>
+	</bean>
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<bean id="aclCache" class="org.acegisecurity.acls.jdbc.EhCacheBasedAclCache">
+		<constructor-arg>
+		   <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		      <property name="cacheManager">
+				<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+		      </property>
+		      <property name="cacheName">
+		         <value>aclCache</value>
+		      </property>
+		   </bean>
+		</constructor-arg>
+	</bean>
+    
+	<bean id="lookupStrategy" class="org.acegisecurity.acls.jdbc.BasicLookupStrategy">
+		<constructor-arg ref="dataSource"/>
+		<constructor-arg ref="aclCache"/>
+		<constructor-arg ref="aclAuthorizationStrategy"/>
+		<constructor-arg>
+			<bean class="org.acegisecurity.acls.domain.ConsoleAuditLogger"/>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="aclAuthorizationStrategy" class="org.acegisecurity.acls.domain.AclAuthorizationStrategyImpl">
+		<constructor-arg>
+			<list>
+				<bean class="org.acegisecurity.GrantedAuthorityImpl">
+					<constructor-arg value="ROLE_ADMINISTRATOR"/>
+				</bean>
+				<bean class="org.acegisecurity.GrantedAuthorityImpl">
+					<constructor-arg value="ROLE_ADMINISTRATOR"/>
+				</bean>
+				<bean class="org.acegisecurity.GrantedAuthorityImpl">
+					<constructor-arg value="ROLE_ADMINISTRATOR"/>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="aclService" class="org.acegisecurity.acls.jdbc.JdbcMutableAclService">
+		<constructor-arg ref="dataSource"/>
+		<constructor-arg ref="lookupStrategy"/>
+		<constructor-arg ref="aclCache"/>
+	</bean>
+
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName">
+            <value>org.hsqldb.jdbcDriver</value>
+        </property>
+        <property name="url">
+            <value>jdbc:hsqldb:mem:test</value>
+            <!--  <value>jdbc:hsqldb:hsql://localhost/acl</value> -->
+        </property>
+        <property name="username">
+            <value>sa</value>
+        </property>
+        <property name="password">
+            <value></value>
+        </property>
+    </bean>
+	
+</beans>

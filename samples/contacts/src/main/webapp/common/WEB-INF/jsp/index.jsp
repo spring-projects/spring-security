@@ -18,12 +18,12 @@
   <td>
       <c:out value="${contact.email}"/>
   </td>
-  <authz:acl domainObject="${contact}" hasPermission="16,1">
+  <authz:accesscontrollist domainObject="${contact}" hasPermission="8,16">
     <td><A HREF="<c:url value="del.htm"><c:param name="contactId" value="${contact.id}"/></c:url>">Del</A></td>
-  </authz:acl>
-  <authz:acl domainObject="${contact}" hasPermission="1">
+  </authz:accesscontrollist>
+  <authz:accesscontrollist domainObject="${contact}" hasPermission="16">
     <td><A HREF="<c:url value="adminPermission.htm"><c:param name="contactId" value="${contact.id}"/></c:url>">Admin Permission</A></td>
-  </authz:acl>
+  </authz:accesscontrollist>
   </tr>
 </c:forEach>
 </table>

@@ -1,4 +1,3 @@
-<%@ page import="org.acegisecurity.acl.basic.SimpleAclEntry" %>
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 
 <html>
@@ -11,7 +10,10 @@
 </code>
 <P>
 <code>
-<c:out value="${model.recipient}"/>
+<c:out value="${model.sid}"/>
+</code>
+<code>
+<c:out value="${model.permission}"/>
 </code>
 <p><a href="<c:url value="index.htm"/>">Manage</a>
 </body>

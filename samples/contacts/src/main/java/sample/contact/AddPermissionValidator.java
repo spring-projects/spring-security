@@ -12,10 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package sample.contact;
 
-import org.acegisecurity.acl.basic.SimpleAclEntry;
+import org.acegisecurity.acls.domain.BasePermission;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -44,9 +43,8 @@ public class AddPermissionValidator implements Validator {
         if (addPermission.getPermission() != null) {
             int permission = addPermission.getPermission().intValue();
 
-            if ((permission != SimpleAclEntry.NOTHING) && (permission != SimpleAclEntry.ADMINISTRATION)
-                && (permission != SimpleAclEntry.READ) && (permission != SimpleAclEntry.DELETE)
-                && (permission != SimpleAclEntry.READ_WRITE_DELETE)) {
+            if ((permission != BasePermission.ADMINISTRATION.getMask())
+                && (permission != BasePermission.READ.getMask()) && (permission != BasePermission.DELETE.getMask())) {
                 errors.rejectValue("permission", "err.permission.invalid", "The indicated permission is invalid. *");
             }
         }

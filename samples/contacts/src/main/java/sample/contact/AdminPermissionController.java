@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package sample.contact;
 
-import org.acegisecurity.acl.AclEntry;
-import org.acegisecurity.acl.AclManager;
+import org.acegisecurity.acls.Acl;
+import org.acegisecurity.acls.AclService;
+import org.acegisecurity.acls.objectidentity.ObjectIdentityImpl;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -45,22 +45,14 @@ import javax.servlet.http.HttpServletResponse;
 public class AdminPermissionController implements Controller, InitializingBean {
     //~ Instance fields ================================================================================================
 
-    private AclManager aclManager;
+    private AclService aclService;
     private ContactManager contactManager;
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(contactManager, "A ContactManager implementation is required");
-        Assert.notNull(aclManager, "An aclManager implementation is required");
-    }
-
-    public AclManager getAclManager() {
-        return aclManager;
-    }
-
-    public ContactManager getContactManager() {
-        return contactManager;
+        Assert.notNull(aclService, "An aclService implementation is required");
     }
 
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
@@ -68,17 +60,17 @@ public class AdminPermissionController implements Controller, InitializingBean {
         int id = RequestUtils.getRequiredIntParameter(request, "contactId");
 
         Contact contact = contactManager.getById(new Long(id));
-        AclEntry[] acls = aclManager.getAcls(contact);
+        Acl acl = aclService.readAclById(new ObjectIdentityImpl(contact));
 
         Map model = new HashMap();
         model.put("contact", contact);
-        model.put("acls", acls);
+        model.put("acl", acl);
 
         return new ModelAndView("adminPermission", "model", model);
     }
 
-    public void setAclManager(AclManager aclManager) {
-        this.aclManager = aclManager;
+    public void setAclService(AclService aclService) {
+        this.aclService = aclService;
     }
 
     public void setContactManager(ContactManager contact) {

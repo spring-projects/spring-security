@@ -12,10 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package sample.contact;
 
-import org.acegisecurity.acl.basic.SimpleAclEntry;
+import org.acegisecurity.acls.Permission;
+import org.acegisecurity.acls.domain.BasePermission;
+import org.acegisecurity.acls.sid.PrincipalSid;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -59,7 +60,7 @@ public class AddPermissionController extends SimpleFormController implements Ini
     protected ModelAndView disallowDuplicateFormSubmission(HttpServletRequest request, HttpServletResponse response)
         throws Exception {
         BindException errors = new BindException(formBackingObject(request), getCommandName());
-        errors.reject("err.duplicateFormSubmission", "Duplicate form submission.");
+        errors.reject("err.duplicateFormSubmission", "Duplicate form submission. *");
 
         return showForm(request, response, errors);
     }
@@ -76,10 +77,6 @@ public class AddPermissionController extends SimpleFormController implements Ini
         return addPermission;
     }
 
-    public ContactManager getContactManager() {
-        return contactManager;
-    }
-
     protected ModelAndView handleInvalidSubmit(HttpServletRequest request, HttpServletResponse response)
         throws Exception {
         return disallowDuplicateFormSubmission(request, response);
@@ -87,16 +84,12 @@ public class AddPermissionController extends SimpleFormController implements Ini
 
     private Map listPermissions(HttpServletRequest request) {
         Map map = new LinkedHashMap();
-        map.put(new Integer(SimpleAclEntry.NOTHING),
-            getApplicationContext().getMessage("select.none", null, "None", request.getLocale()));
-        map.put(new Integer(SimpleAclEntry.ADMINISTRATION),
+        map.put(new Integer(BasePermission.ADMINISTRATION.getMask()),
             getApplicationContext().getMessage("select.administer", null, "Administer", request.getLocale()));
-        map.put(new Integer(SimpleAclEntry.READ),
+        map.put(new Integer(BasePermission.READ.getMask()),
             getApplicationContext().getMessage("select.read", null, "Read", request.getLocale()));
-        map.put(new Integer(SimpleAclEntry.DELETE),
+        map.put(new Integer(BasePermission.DELETE.getMask()),
             getApplicationContext().getMessage("select.delete", null, "Delete", request.getLocale()));
-        map.put(new Integer(SimpleAclEntry.READ_WRITE_DELETE),
-            getApplicationContext().getMessage("select.readWriteDelete", null, "Read+Write+Delete", request.getLocale()));
 
         return map;
     }
@@ -120,13 +113,14 @@ public class AddPermissionController extends SimpleFormController implements Ini
         BindException errors) throws Exception {
         AddPermission addPermission = (AddPermission) command;
 
+        PrincipalSid sid = new PrincipalSid(addPermission.getRecipient());
+        Permission permission = BasePermission.buildFromMask(addPermission.getPermission().intValue());
+
         try {
-            contactManager.addPermission(addPermission.getContact(), addPermission.getRecipient(),
-                addPermission.getPermission());
+            contactManager.addPermission(addPermission.getContact(), sid, permission);
         } catch (DataAccessException existingPermission) {
             existingPermission.printStackTrace();
-            errors.rejectValue("recipient", "err.recipientExistsForContact",
-                "This recipient already has permissions to this contact.");
+            errors.rejectValue("recipient", "err.recipientExistsForContact", "Addition failure.");
 
             return showForm(request, response, errors);
         }

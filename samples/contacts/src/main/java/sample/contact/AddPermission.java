@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package sample.contact;
 
 import org.acegisecurity.acl.basic.SimpleAclEntry;
@@ -28,7 +27,7 @@ public class AddPermission {
     //~ Instance fields ================================================================================================
 
     public Contact contact;
-    public Integer permission = new Integer(SimpleAclEntry.NOTHING);
+    public Integer permission = new Integer(SimpleAclEntry.READ);
     public String recipient;
 
     //~ Methods ========================================================================================================

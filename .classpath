@@ -5,6 +5,7 @@
 	<classpathentry kind="src" path="core/src/test/java"/>
 	<classpathentry kind="src" path="core/src/test/resources"/>
 	<classpathentry kind="src" path="sandbox/other/src/main/java"/>
+	<classpathentry kind="src" path="sandbox/other/src/test/java"/>
 	<classpathentry kind="src" path="samples/contacts/src/main/java"/>
 	<classpathentry kind="src" path="samples/contacts/src/main/resources"/>
 	<classpathentry kind="src" path="samples/contacts/src/test/java"/>
@@ -40,7 +41,7 @@
 	<classpathentry kind="var" path="MAVEN_REPO/commons-codec/jars/commons-codec-1.3.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-collections/jars/commons-collections-3.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/hsqldb/jars/hsqldb-1.7.3.0.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/hsqldb/jars/hsqldb-1.8.0.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/oro/jars/oro-2.0.8.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/javax.servlet/jars/servlet-api-2.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/tomcat/jars/catalina-4.1.9.jar"/>

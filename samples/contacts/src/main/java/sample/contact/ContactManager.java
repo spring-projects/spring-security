@@ -12,8 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package sample.contact;
+
+import org.acegisecurity.acls.Permission;
+import org.acegisecurity.acls.sid.Sid;
 
 import java.util.List;
 
@@ -27,13 +29,13 @@ import java.util.List;
 public interface ContactManager {
     //~ Methods ========================================================================================================
 
-    public void addPermission(Contact contact, String recipient, Integer permission);
+    public void addPermission(Contact contact, Sid recipient, Permission permission);
 
     public void create(Contact contact);
 
     public void delete(Contact contact);
 
-    public void deletePermission(Contact contact, String recipient);
+    public void deletePermission(Contact contact, Sid recipient, Permission permission);
 
     public List getAll();
 
