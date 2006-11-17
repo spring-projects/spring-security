@@ -41,7 +41,7 @@ import java.util.Map;
  * Integration tests the ACL system using an in-memory database.
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id:JdbcAclServiceTests.java 1754 2006-11-17 02:01:21Z benalex $
  */
 public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringContextTests {
     //~ Instance fields ================================================================================================
@@ -66,9 +66,9 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        ObjectIdentity topParentOid = new ObjectIdentityImpl("sample.contact.Contact", new Long(100));
-        ObjectIdentity middleParentOid = new ObjectIdentityImpl("sample.contact.Contact", new Long(101));
-        ObjectIdentity childOid = new ObjectIdentityImpl("sample.contact.Contact", new Long(102));
+        ObjectIdentity topParentOid = new ObjectIdentityImpl("org.acegisecurity.TargetObject", new Long(100));
+        ObjectIdentity middleParentOid = new ObjectIdentityImpl("org.acegisecurity.TargetObject", new Long(101));
+        ObjectIdentity childOid = new ObjectIdentityImpl("org.acegisecurity.TargetObject", new Long(102));
 
         MutableAcl topParent = jdbcMutableAclService.createAcl(topParentOid);
         MutableAcl middleParent = jdbcMutableAclService.createAcl(middleParentOid);
@@ -200,7 +200,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
    auth.setAuthenticated(true);
    SecurityContextHolder.getContext().setAuthentication(auth);
 
-   ObjectIdentity topParentOid = new ObjectIdentityImpl("sample.contact.Contact", new Long(110));
+   ObjectIdentity topParentOid = new ObjectIdentityImpl("org.acegisecurity.TargetObject", new Long(110));
    MutableAcl topParent = jdbcMutableAclService.createAcl(topParentOid);
 
    // Add an ACE permission entry
