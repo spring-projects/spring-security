@@ -6,7 +6,7 @@
   -
   - Used by all artifacts.
   -
-  - $Id$
+  - $Id:applicationContext-test.xml 1754 2006-11-17 02:01:21Z benalex $
   -->
 
 <beans>
