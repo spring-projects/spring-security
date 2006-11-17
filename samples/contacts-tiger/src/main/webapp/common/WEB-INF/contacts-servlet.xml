@@ -29,12 +29,12 @@
 
     <bean id="adminPermissionController" class="sample.contact.AdminPermissionController">
     	<property name="contactManager"><ref bean="contactManager"/></property>
-    	<property name="aclManager"><ref bean="aclManager"/></property>
+    	<property name="aclService"><ref bean="aclService"/></property>
  	</bean>
 
     <bean id="deletePermissionController" class="sample.contact.DeletePermissionController">
     	<property name="contactManager"><ref bean="contactManager"/></property>
-    	<property name="aclManager"><ref bean="aclManager"/></property>
+    	<property name="aclService"><ref bean="aclService"/></property>
  	</bean>
 
     <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">

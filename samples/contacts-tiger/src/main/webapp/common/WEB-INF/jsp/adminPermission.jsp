@@ -1,4 +1,3 @@
-<%@ page import="net.sf.acegisecurity.acl.basic.SimpleAclEntry" %>
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
 
 <html>
@@ -11,27 +10,17 @@
 </code>
 <P>
 <table cellpadding=3 border=0>
-<c:forEach var="acl" items="${model.acls}">
-  <c:if test="${acl.class.name eq 'net.sf.acegisecurity.acl.basic.SimpleAclEntry'}">
+<c:forEach var="acl" items="${model.acl.entries}">
     <tr>
       <td>
         <code>
-          <%
-            SimpleAclEntry simpleAcl = ((SimpleAclEntry) pageContext.getAttribute("acl"));
-            String permissionBlock = simpleAcl.printPermissionsBlock(); 
-          %>
-          <%= permissionBlock %>
-          [<c:out value="${acl.mask}"/>]
-          <c:out value="${acl.recipient}"/>
+          <c:out value="${acl}"/>
         </code>
       </td>
       <td>
-      <!-- This application doesn't use ACL inheritance, so we can safely use
-           the model's contact and know it was directly assigned the ACL -->
-        <A HREF="<c:url value="deletePermission.htm"><c:param name="contactId" value="${model.contact.id}"/><c:param name="recipient" value="${acl.recipient}"/></c:url>">Del</A>
+      <A HREF="<c:url value="deletePermission.htm"><c:param name="contactId" value="${model.contact.id}"/><c:param name="sid" value="${acl.sid.principal}"/><c:param name="permission" value="${acl.permission.mask}"/></c:url>">Del</A>
       </td>
     </tr>
-  </c:if>
 </c:forEach>
 </table>
 <p><a href="<c:url value="addPermission.htm"><c:param name="contactId" value="${model.contact.id}"/></c:url>">Add Permission</a>   <a href="<c:url value="index.htm"/>">Manage</a>

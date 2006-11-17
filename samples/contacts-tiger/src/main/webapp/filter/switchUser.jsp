@@ -1,7 +1,7 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core' %>
-<%@ page import="net.sf.acegisecurity.ui.AbstractProcessingFilter" %>
-<%@ page import="net.sf.acegisecurity.ui.webapp.AuthenticationProcessingFilter" %>
-<%@ page import="net.sf.acegisecurity.AuthenticationException" %>
+<%@ page import="org.acegisecurity.ui.AbstractProcessingFilter" %>
+<%@ page import="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter" %>
+<%@ page import="org.acegisecurity.AuthenticationException" %>
 
 <html>
   <head>
