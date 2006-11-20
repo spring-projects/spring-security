@@ -46,16 +46,6 @@ public class HttpSessionEventPublisherTests extends TestCase {
         context.setServletContext(servletContext);
     }
 
-    public void testGetContextThrowsExceptionIfContextNotSet() {
-        HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
-        publisher.contextInitialized(new ServletContextEvent(new MockServletContext()));
-
-        try {
-            publisher.getContext();
-            fail("IllegalStateException expected when no context set");
-        } catch (IllegalStateException expected) {}
-    }
-
     /**
      * It's not that complicated so we'll just run it straight through here.
      */
@@ -73,10 +63,11 @@ public class HttpSessionEventPublisherTests extends TestCase {
 
         publisher.contextInitialized(new ServletContextEvent(servletContext));
 
-        MockHttpSession session = new MockHttpSession();
+        MockHttpSession session = new MockHttpSession(servletContext);
         TestListener listener = (TestListener) context.getBean("listener");
 
         HttpSessionEvent event = new HttpSessionEvent(session);
+        
         publisher.sessionCreated(event);
 
         assertNotNull(listener.getCreatedEvent());

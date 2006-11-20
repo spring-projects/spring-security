@@ -45,9 +45,6 @@ public class HttpSessionEventPublisher implements HttpSessionListener, ServletCo
 
     //~ Instance fields ================================================================================================
 
-    private ApplicationContext appContext;
-    private ServletContext servletContext = null;
-
     //~ Methods ========================================================================================================
 
     /**
@@ -67,21 +64,10 @@ public class HttpSessionEventPublisher implements HttpSessionListener, ServletCo
         if (log.isDebugEnabled()) {
             log.debug("Received ServletContextEvent: " + event);
         }
-
-        appContext = WebApplicationContextUtils.getWebApplicationContext(event.getServletContext());
-
-        if (appContext == null) {
-            log.warn("Web application context is null. Will delay initialization until it's first used.");
-            servletContext = event.getServletContext();
-        }
     }
 
-    ApplicationContext getContext() {
-        if (appContext == null) {
-            appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-        }
-
-        return appContext;
+    ApplicationContext getContext(ServletContext servletContext) {
+        return WebApplicationContextUtils.getWebApplicationContext(servletContext);
     }
 
     /**
@@ -97,7 +83,7 @@ public class HttpSessionEventPublisher implements HttpSessionListener, ServletCo
             log.debug("Publishing event: " + e);
         }
 
-        getContext().publishEvent(e);
+        getContext(event.getSession().getServletContext()).publishEvent(e);
     }
 
     /**
@@ -113,6 +99,6 @@ public class HttpSessionEventPublisher implements HttpSessionListener, ServletCo
             log.debug("Publishing event: " + e);
         }
 
-        getContext().publishEvent(e);
+        getContext(event.getSession().getServletContext()).publishEvent(e);
     }
 }
