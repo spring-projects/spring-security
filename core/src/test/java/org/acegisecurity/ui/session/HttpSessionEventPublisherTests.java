@@ -16,13 +16,10 @@
 package org.acegisecurity.ui.session;
 
 import junit.framework.TestCase;
-
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockServletContext;
-
 import org.springframework.web.context.support.StaticWebApplicationContext;
 
-import javax.servlet.ServletContextEvent;
 import javax.servlet.http.HttpSessionEvent;
 
 
@@ -35,18 +32,7 @@ import javax.servlet.http.HttpSessionEvent;
 public class HttpSessionEventPublisherTests extends TestCase {
     //~ Methods ========================================================================================================
 
-    public void testDelayedContextInitializationSucceeds() {
-        HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
-        MockServletContext servletContext = new MockServletContext();
-
-        // shouldn't fail, even with null context
-        publisher.contextInitialized(new ServletContextEvent(servletContext));
-
-        StaticWebApplicationContext context = new StaticWebApplicationContext();
-        context.setServletContext(servletContext);
-    }
-
-    /**
+   /**
      * It's not that complicated so we'll just run it straight through here.
      */
     public void testPublisher() {
@@ -61,13 +47,11 @@ public class HttpSessionEventPublisherTests extends TestCase {
         context.registerSingleton("listener", TestListener.class, null);
         context.refresh();
 
-        publisher.contextInitialized(new ServletContextEvent(servletContext));
-
         MockHttpSession session = new MockHttpSession(servletContext);
         TestListener listener = (TestListener) context.getBean("listener");
 
         HttpSessionEvent event = new HttpSessionEvent(session);
-        
+
         publisher.sessionCreated(event);
 
         assertNotNull(listener.getCreatedEvent());
@@ -82,6 +66,5 @@ public class HttpSessionEventPublisherTests extends TestCase {
         assertNull(listener.getCreatedEvent());
         assertEquals(session, listener.getDestroyedEvent().getSession());
 
-        publisher.contextDestroyed(new ServletContextEvent(servletContext));
     }
 }

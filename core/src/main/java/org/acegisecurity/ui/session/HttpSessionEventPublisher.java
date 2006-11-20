@@ -38,7 +38,7 @@ import javax.servlet.http.HttpSessionListener;
  *
  * @author Ray Krueger
  */
-public class HttpSessionEventPublisher implements HttpSessionListener, ServletContextListener {
+public class HttpSessionEventPublisher implements HttpSessionListener {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log log = LogFactory.getLog(HttpSessionEventPublisher.class);
@@ -46,25 +46,6 @@ public class HttpSessionEventPublisher implements HttpSessionListener, ServletCo
     //~ Instance fields ================================================================================================
 
     //~ Methods ========================================================================================================
-
-    /**
-     * Not implemented
-     *
-     * @param event
-     */
-    public void contextDestroyed(ServletContextEvent event) {}
-
-    /**
-     * Handled internally by a call to {@link WebApplicationContextUtils#getWebApplicationContext(javax.servlet.ServletContext)}.
-     *
-     * @param event the ServletContextEvent passed in by the container, event.getServletContext() will be used to get
-     *        the WebApplicationContext
-     */
-    public void contextInitialized(ServletContextEvent event) {
-        if (log.isDebugEnabled()) {
-            log.debug("Received ServletContextEvent: " + event);
-        }
-    }
 
     ApplicationContext getContext(ServletContext servletContext) {
         return WebApplicationContextUtils.getWebApplicationContext(servletContext);
