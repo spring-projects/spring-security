@@ -155,7 +155,7 @@ public class BasicAclEntryVoter extends AbstractAclVoter implements Initializing
     }
 
     public boolean supports(ConfigAttribute attribute) {
-        if ((attribute.getAttribute() != null) && attribute.getAttribute().startsWith(getProcessConfigAttribute())) {
+        if ((attribute.getAttribute() != null) && attribute.getAttribute().equals(getProcessConfigAttribute())) {
             return true;
         } else {
             return false;

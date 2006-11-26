@@ -14,11 +14,14 @@
  */
 package org.acegisecurity.vote;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Iterator;
+
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthorizationServiceException;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
-
 import org.acegisecurity.acls.Acl;
 import org.acegisecurity.acls.AclService;
 import org.acegisecurity.acls.NotFoundException;
@@ -29,16 +32,9 @@ import org.acegisecurity.acls.objectidentity.ObjectIdentityRetrievalStrategyImpl
 import org.acegisecurity.acls.sid.Sid;
 import org.acegisecurity.acls.sid.SidRetrievalStrategy;
 import org.acegisecurity.acls.sid.SidRetrievalStrategyImpl;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.util.Assert;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import java.util.Iterator;
 
 
 /**
@@ -140,7 +136,7 @@ public class AclEntryVoter extends AbstractAclVoter {
     }
 
     public boolean supports(ConfigAttribute attribute) {
-        if ((attribute.getAttribute() != null) && attribute.getAttribute().startsWith(getProcessConfigAttribute())) {
+        if ((attribute.getAttribute() != null) && attribute.getAttribute().equals(getProcessConfigAttribute())) {
             return true;
         } else {
             return false;
@@ -158,18 +154,9 @@ public class AclEntryVoter extends AbstractAclVoter {
                 // Attempt to locate the domain object instance to process
                 Object domainObject = getDomainObjectInstance(object);
 
-                // If domain object is null, vote to abstain
-                if (domainObject == null) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Voting to abstain - domainObject is null");
-                    }
-
-                    return AccessDecisionVoter.ACCESS_ABSTAIN;
-                }
-
                 // Evaluate if we are required to use an inner domain object
-                if ((internalMethod != null) && !"".equals(internalMethod)) {
-                    try {
+                if (domainObject != null && internalMethod != null && (!"".equals(internalMethod))) {
+                	try {
                         Class clazz = domainObject.getClass();
                         Method method = clazz.getMethod(internalMethod, new Class[] {});
                         domainObject = method.invoke(domainObject, new Object[] {});
@@ -201,6 +188,15 @@ public class AclEntryVoter extends AbstractAclVoter {
                     }
                 }
 
+                // If domain object is null, vote to abstain
+                if (domainObject == null) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Voting to abstain - domainObject is null");
+                    }
+
+                    return AccessDecisionVoter.ACCESS_ABSTAIN;
+                }
+                
                 // Obtain the OID applicable to the domain object
                 ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
 
