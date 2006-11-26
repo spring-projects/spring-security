@@ -83,6 +83,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
             throw new IdentityUnavailableException("Could not extract identity from object " + object, e);
         }
 
+        Assert.notNull(result, "getId() is required to return a non-null value");
         Assert.isInstanceOf(Serializable.class, result, "Getter must provide a return value of type Serializable");
         this.identifier = (Serializable) result;
     }
