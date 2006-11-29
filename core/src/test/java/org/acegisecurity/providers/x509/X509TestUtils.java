@@ -31,26 +31,42 @@ public class X509TestUtils {
     //~ Methods ========================================================================================================
 
     /**
-     * Builds an X.509 certificate. In human-readable form it is:<pre>Certificate:  Data:     Version: 3 (0x2)
-     *      Serial Number: 1 (0x1)     Signature Algorithm: sha1WithRSAEncryption
-     *      Issuer: CN=Monkey Machine CA, C=UK, ST=Scotland, L=Glasgow,
-     *          O=monkeymachine.co.uk/emailAddress=ca@monkeymachine     Validity
-     *          Not Before: Mar  6 23:28:22 2005 GMT         Not After : Mar  6 23:28:22 2006 GMT
-     *      Subject: C=UK, ST=Scotland, L=Glasgow, O=Monkey Machine Ltd,
-     *          OU=Open Source Development Lab., CN=Luke Taylor/emailAddress=luke@monkeymachine
-     *      Subject Public Key Info:         Public Key Algorithm: rsaEncryption         RSA Public Key: (512 bit)
-     *              [omitted]     X509v3 extensions:         X509v3 Basic Constraints:         CA:FALSE
-     *          Netscape Cert Type:         SSL Client         X509v3 Key Usage:
-     *          Digital Signature, Non Repudiation, Key Encipherment         X509v3 Subject Key Identifier:
-     *          6E:E6:5B:57:33:CF:0E:2F:15:C2:F4:DF:EC:14:BE:FB:CF:54:56:3C         X509v3 Authority Key Identifier:
-     *          keyid:AB:78:EC:AF:10:1B:8A:9B:1F:C7:B1:25:8F:16:28:F2:17:9A:AD:36
-     *          DirName:/CN=Monkey Machine CA/C=UK/ST=Scotland/L=Glasgow/O=monkeymachine.co.uk/emailAddress=ca@monkeymachine
-     *          serial:00         Netscape CA Revocation Url:         https://monkeymachine.co.uk/ca-crl.pem
-     *   Signature Algorithm: sha1WithRSAEncryption            [signature omitted]</pre>
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws Exception DOCUMENT ME!
+     * Builds an X.509 certificate. In human-readable form it is:
+     * <pre>
+     * Certificate:
+     *  Data:
+     *    Version: 3 (0x2)
+     *    Serial Number: 1 (0x1)
+     *    Signature Algorithm: sha1WithRSAEncryption
+     *    Issuer: CN=Monkey Machine CA, C=UK, ST=Scotland, L=Glasgow,
+     *      O=monkeymachine.co.uk/emailAddress=ca@monkeymachine
+     *    Validity
+     *      Not Before: Mar  6 23:28:22 2005 GMT
+     *      Not After : Mar  6 23:28:22 2006 GMT
+     *    Subject: C=UK, ST=Scotland, L=Glasgow, O=Monkey Machine Ltd,
+     *      OU=Open Source Development Lab., CN=Luke Taylor/emailAddress=luke@monkeymachine
+     *    Subject Public Key Info:
+     *      Public Key Algorithm: rsaEncryption
+     *      RSA Public Key: (512 bit)
+     *          [omitted]
+     *    X509v3 extensions:
+     *      X509v3 Basic Constraints:
+     *      CA:FALSE
+     *      Netscape Cert Type:
+     *      SSL Client
+     *      X509v3 Key Usage:
+     *      Digital Signature, Non Repudiation, Key Encipherment
+     *      X509v3 Subject Key Identifier:
+     *      6E:E6:5B:57:33:CF:0E:2F:15:C2:F4:DF:EC:14:BE:FB:CF:54:56:3C
+     *      X509v3 Authority Key Identifier:
+     *      keyid:AB:78:EC:AF:10:1B:8A:9B:1F:C7:B1:25:8F:16:28:F2:17:9A:AD:36
+     *      DirName:/CN=Monkey Machine CA/C=UK/ST=Scotland/L=Glasgow/O=monkeymachine.co.uk/emailAddress=ca@monkeymachine
+     *      serial:00
+     *      Netscape CA Revocation Url:
+     *      https://monkeymachine.co.uk/ca-crl.pem
+     *  Signature Algorithm: sha1WithRSAEncryption
+     *             [signature omitted]
+     * </pre>
      */
     public static X509Certificate buildTestCertificate()
         throws Exception {
