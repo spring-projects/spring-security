@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Application context representing the application without any security services.
+  -
+  - $Id$
+  -->
+
+<beans>
+
+	<bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+		<property name="transactionAttributeSource">
+			<value>
+				sample.dms.DocumentDao.*=PROPAGATION_REQUIRED
+			</value>
+		</property>
+		<property name="transactionManager" ref="transactionManager" />
+	</bean>
+
+	<bean id="documentDao" class="sample.dms.DocumentDaoImpl">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<bean id="dataSourcePopulator" class="sample.dms.DataSourcePopulator">
+		<constructor-arg ref="dataSource"/>
+		<constructor-arg ref="documentDao"/>
+		<constructor-arg ref="transactionManager"/>
+	</bean>
+
+</beans>

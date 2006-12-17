@@ -4,6 +4,10 @@
 	<classpathentry kind="src" path="core/src/main/resources"/>
 	<classpathentry kind="src" path="core/src/test/java"/>
 	<classpathentry kind="src" path="core/src/test/resources"/>
+	<classpathentry kind="src" path="samples/dms/src/test/java"/>
+	<classpathentry kind="src" path="samples/dms/src/main/resources"/>
+	<classpathentry kind="src" path="samples/dms/src/main/java"/>
+	<classpathentry kind="src" path="samples/dms/src/test/resources"/>
 	<classpathentry kind="src" path="sandbox/other/src/main/java"/>
 	<classpathentry kind="src" path="sandbox/other/src/test/java"/>
 	<classpathentry kind="src" path="samples/contacts/src/main/java"/>
@@ -52,7 +56,7 @@
 	<classpathentry kind="var" path="MAVEN_REPO/ehcache/jars/ehcache-1.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/javax.servlet/jars/jsp-api-2.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0.3.jar"/>
-	<classpathentry sourcepath="DIST_BASE/commons-beanutils-1.6.1-src/src/java" kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.6.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.6.1.jar" sourcepath="DIST_BASE/commons-beanutils-1.6.1-src/src/java"/>
 	<classpathentry kind="src" path="samples/contacts-tiger/src/main/java"/>
 	<classpathentry kind="src" path="core-tiger/src/main/java"/>
 	<classpathentry kind="src" path="core-tiger/src/main/resources"/>
@@ -64,7 +68,7 @@
 	<classpathentry kind="var" path="MAVEN_REPO/org.samba.jcifs/jars/jcifs-1.2.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/dom4j/jars/dom4j-1.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xercesImpl-2.6.2.jar"/>
-	<classpathentry sourcepath="MAVEN_REPO/jmock/distributions/jmock-1.0.1-src.jar" kind="var" path="MAVEN_REPO/jmock/jars/jmock-1.0.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/jmock/jars/jmock-1.0.1.jar" sourcepath="MAVEN_REPO/jmock/distributions/jmock-1.0.1-src.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jdbm/jars/jdbm-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/regexp/jars/regexp-1.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.slf4j/jars/slf4j-log4j12-1.0-rc5.jar"/>
@@ -79,5 +83,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/taglibs/jars/standard-1.0.6.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-attributes/jars/commons-attributes-api-2.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/postgresql/postgresql/8.1-407.jdbc3/postgresql-8.1-407.jdbc3.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>

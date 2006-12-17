@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Application context representing the application WITH security services.
+  -
+  - $Id$
+  -->
+
+<beans>
+
+	<bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+		<property name="transactionAttributeSource">
+			<value>
+				sample.dms.secured.SecureDocumentDao.*=PROPAGATION_REQUIRED
+				sample.dms.DocumentDao.*=PROPAGATION_REQUIRED
+				org.acegisecurity.acls.AclService.*=PROPAGATION_REQUIRED
+				org.acegisecurity.acls.MutableAclService.*=PROPAGATION_REQUIRED
+				org.acegisecurity.acls.jdbc.JdbcMutableAclService.*=PROPAGATION_REQUIRED
+				org.acegisecurity.acls.jdbc.JdbcAclService.*=PROPAGATION_REQUIRED
+			</value>
+		</property>
+		<property name="transactionManager" ref="transactionManager" />
+	</bean>
+
+	<bean id="documentDao" class="sample.dms.secured.SecureDocumentDaoImpl">
+		<constructor-arg ref="aclService"/>
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<bean id="dataSourcePopulator" class="sample.dms.secured.SecureDataSourcePopulator">
+		<constructor-arg ref="dataSource"/>
+		<constructor-arg ref="documentDao"/>
+		<constructor-arg ref="transactionManager"/>
+		<constructor-arg ref="aclService"/>
+	</bean>
+
+	<!-- ===================================  SECURITY DEFINITION BEANS ======================================== -->
+
+   <!-- ======================== AUTHENTICATION (note there is no UI and this is for integration tests only) ======================= -->
+
+   <bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
+      <property name="providers">
+         <list>
+            <ref local="daoAuthenticationProvider"/>
+            <ref local="anonymousAuthenticationProvider"/>
+            <ref local="rememberMeAuthenticationProvider"/>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="jdbcDaoImpl" class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
+      <property name="dataSource" ref="dataSource"/>
+   </bean>
+
+   <bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
+      <property name="userDetailsService" ref="jdbcDaoImpl"/>
+      <property name="userCache" ref="userCache"/>
+      <property name="passwordEncoder">
+		<bean class="org.acegisecurity.providers.encoding.Md5PasswordEncoder"/>
+      </property>
+   </bean>
+
+   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+    
+   <bean id="userCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+      <property name="cacheManager" ref="cacheManager"/>
+      <property name="cacheName" value="userCache"/>
+   </bean>
+   
+   <bean id="userCache" class="org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
+      <property name="cache" ref="userCacheBackend"/>
+   </bean>
+
+   <!-- Automatically receives AuthenticationEvent messages -->
+   <bean id="loggerListener" class="org.acegisecurity.event.authentication.LoggerListener"/>
+
+   <bean id="anonymousAuthenticationProvider" class="org.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider">
+      <property name="key" value="foobar"/>
+   </bean>
+
+   <bean id="httpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter"/>
+
+   <bean id="rememberMeServices" class="org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices">
+      <property name="userDetailsService" ref="jdbcDaoImpl"/>
+      <property name="key" value="springRocks"/>
+   </bean>
+   
+   <bean id="rememberMeAuthenticationProvider" class="org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider">
+      <property name="key" value="springRocks"/>
+   </bean>
+   
+   <!-- ========================= "BEFORE INVOCATION" AUTHORIZATION DEFINITIONS ============================== -->
+
+   <!-- ACL permission masks used by this application -->
+   <bean id="org.acegisecurity.acls.domain.BasePermission.ADMINISTRATION" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+      <property name="staticField"><value>org.acegisecurity.acls.domain.BasePermission.ADMINISTRATION</value></property>
+   </bean>
+   <bean id="org.acegisecurity.acls.domain.BasePermission.READ" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+      <property name="staticField"><value>org.acegisecurity.acls.domain.BasePermission.READ</value></property>
+   </bean>
+   <bean id="org.acegisecurity.acls.domain.BasePermission.WRITE" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+      <property name="staticField"><value>org.acegisecurity.acls.domain.BasePermission.WRITE</value></property>
+   </bean>
+
+
+   <!-- An access decision voter that reads ROLE_* configuration settings -->
+   <bean id="roleVoter" class="org.acegisecurity.vote.RoleVoter"/>
+
+   <!-- An access decision voter that reads ACL_ABSTRACT_ELEMENT_WRITE_PARENT configuration settings -->
+   <bean id="aclAbstractElementWriteParentVoter" class="org.acegisecurity.vote.AclEntryVoter">
+      <constructor-arg ref="aclService"/>
+      <constructor-arg value="ACL_ABSTRACT_ELEMENT_WRITE_PARENT"/>
+      <constructor-arg>
+      	<list>
+          <ref local="org.acegisecurity.acls.domain.BasePermission.ADMINISTRATION"/>
+          <ref local="org.acegisecurity.acls.domain.BasePermission.WRITE"/>
+      	</list>
+      </constructor-arg>
+      <property name="processDomainObjectClass"><value>sample.dms.AbstractElement</value></property>
+      <property name="internalMethod" value="getParent"/>
+   </bean>
+
+   <!-- An access decision voter that reads ACL_ABSTRACT_ELEMENT_WRITE configuration settings -->
+   <bean id="aclAbstractElementWriteVoter" class="org.acegisecurity.vote.AclEntryVoter">
+      <constructor-arg ref="aclService"/>
+      <constructor-arg value="ACL_ABSTRACT_ELEMENT_WRITE"/>
+      <constructor-arg>
+      	<list>
+          <ref local="org.acegisecurity.acls.domain.BasePermission.ADMINISTRATION"/>
+          <ref local="org.acegisecurity.acls.domain.BasePermission.WRITE"/>
+      	</list>
+      </constructor-arg>
+      <property name="processDomainObjectClass"><value>sample.dms.AbstractElement</value></property>
+   </bean>
+   
+   <!-- An access decision manager used by the business objects -->
+   <bean id="businessAccessDecisionManager" class="org.acegisecurity.vote.AffirmativeBased">
+      <property name="allowIfAllAbstainDecisions" value="true"/>
+      <property name="decisionVoters">
+         <list>
+            <ref local="roleVoter"/>
+            <ref local="aclAbstractElementWriteParentVoter"/>
+            <ref local="aclAbstractElementWriteVoter"/>
+         </list>
+      </property>
+   </bean>
+
+   <!-- ========= ACCESS CONTROL LIST LOOKUP MANAGER DEFINITIONS ========= -->
+
+	<bean id="aclCache" class="org.acegisecurity.acls.jdbc.EhCacheBasedAclCache">
+		<constructor-arg>
+		   <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		      <property name="cacheManager">
+				<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+		      </property>
+		      <property name="cacheName" value="aclCache"/>
+		   </bean>
+		</constructor-arg>
+	</bean>
+    
+	<bean id="lookupStrategy" class="org.acegisecurity.acls.jdbc.BasicLookupStrategy">
+		<constructor-arg ref="dataSource"/>
+		<constructor-arg ref="aclCache"/>
+		<constructor-arg ref="aclAuthorizationStrategy"/>
+		<constructor-arg>
+			<bean class="org.acegisecurity.acls.domain.ConsoleAuditLogger"/>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="aclAuthorizationStrategy" class="org.acegisecurity.acls.domain.AclAuthorizationStrategyImpl">
+		<constructor-arg>
+			<list>
+				<bean class="org.acegisecurity.GrantedAuthorityImpl">
+					<constructor-arg value="ROLE_ADMINISTRATOR"/>
+				</bean>
+				<bean class="org.acegisecurity.GrantedAuthorityImpl">
+					<constructor-arg value="ROLE_ADMINISTRATOR"/>
+				</bean>
+				<bean class="org.acegisecurity.GrantedAuthorityImpl">
+					<constructor-arg value="ROLE_ADMINISTRATOR"/>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="aclService" class="org.acegisecurity.acls.jdbc.JdbcMutableAclService">
+		<constructor-arg ref="dataSource"/>
+		<constructor-arg ref="lookupStrategy"/>
+		<constructor-arg ref="aclCache"/>
+	</bean>
+
+   <!-- ============== "AFTER INTERCEPTION" AUTHORIZATION DEFINITIONS =========== -->
+
+   <bean id="afterInvocationManager" class="org.acegisecurity.afterinvocation.AfterInvocationProviderManager">
+      <property name="providers">
+         <list>
+            <ref local="afterAclCollectionRead"/>
+         </list>
+      </property>
+   </bean>
+   
+   <!-- Processes AFTER_ACL_COLLECTION_READ configuration settings -->
+   <bean id="afterAclCollectionRead" class="org.acegisecurity.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider">
+      <constructor-arg ref="aclService"/>
+      <constructor-arg>
+      	<list>
+          <ref local="org.acegisecurity.acls.domain.BasePermission.ADMINISTRATION"/>
+          <ref local="org.acegisecurity.acls.domain.BasePermission.READ"/>
+      	</list>
+      </constructor-arg>
+   </bean>
+   
+   <!-- ================= METHOD INVOCATION AUTHORIZATION ==================== -->
+
+	<bean id="methodSecurityAdvisor" class="org.acegisecurity.intercept.method.aopalliance.MethodDefinitionSourceAdvisor" autowire="constructor"/>
+	
+   <bean id="methodSecurityInterceptor" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
+      <property name="authenticationManager"><ref bean="authenticationManager"/></property>
+      <property name="accessDecisionManager"><ref local="businessAccessDecisionManager"/></property>
+      <property name="afterInvocationManager"><ref local="afterInvocationManager"/></property>
+      <property name="objectDefinitionSource">
+         <value>
+            sample.dms.DocumentDao.create=ACL_ABSTRACT_ELEMENT_WRITE_PARENT
+            sample.dms.DocumentDao.delete=ACL_ABSTRACT_ELEMENT_WRITE
+            sample.dms.DocumentDao.update=ACL_ABSTRACT_ELEMENT_WRITE
+            sample.dms.DocumentDao.findElements=AFTER_ACL_COLLECTION_READ
+            sample.dms.secured.SecureDocumentDao.getUsers=ROLE_USER
+         </value>
+      </property>
+   </bean>
+
+</beans>
