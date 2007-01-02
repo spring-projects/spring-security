@@ -292,7 +292,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
     }
 
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        cancelCookie(request, response, "Logout of user " + authentication == null ? "Unknown" : authentication.getName()); 
+        cancelCookie(request, response, "Logout of user " + (authentication == null ? "Unknown" : authentication.getName())); 
     }
 
     protected Cookie makeCancelCookie(HttpServletRequest request) {
