@@ -16,10 +16,10 @@
 package org.acegisecurity.ldap;
 
 import org.apache.directory.server.core.configuration.Configuration;
-import org.apache.directory.server.core.configuration.MutableDirectoryPartitionConfiguration;
+import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.server.core.partition.DirectoryPartitionNexus;
+import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 
 import java.io.File;
 
@@ -162,7 +162,7 @@ public class LdapTestServer {
 
     private void initConfiguration() throws NamingException {
         // Create the partition for the acegi tests
-        MutableDirectoryPartitionConfiguration acegiDit = new MutableDirectoryPartitionConfiguration();
+        MutablePartitionConfiguration acegiDit = new MutablePartitionConfiguration();
         acegiDit.setName("acegisecurity");
         acegiDit.setSuffix("dc=acegisecurity,dc=org");
 
@@ -217,8 +217,8 @@ public class LdapTestServer {
         env.setProperty(Context.PROVIDER_URL, "dc=acegisecurity,dc=org");
         env.setProperty(Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName());
         env.setProperty(Context.SECURITY_AUTHENTICATION, "simple");
-        env.setProperty(Context.SECURITY_PRINCIPAL, DirectoryPartitionNexus.ADMIN_PRINCIPAL);
-        env.setProperty(Context.SECURITY_CREDENTIALS, DirectoryPartitionNexus.ADMIN_PASSWORD);
+        env.setProperty(Context.SECURITY_PRINCIPAL, DefaultPartitionNexus.ADMIN_PRINCIPAL);
+        env.setProperty(Context.SECURITY_CREDENTIALS, DefaultPartitionNexus.ADMIN_PASSWORD);
 
         try {
             initConfiguration();

@@ -99,7 +99,7 @@
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core</artifactId>
-      <version>1.0-RC3</version>
+      <version>1.0.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>

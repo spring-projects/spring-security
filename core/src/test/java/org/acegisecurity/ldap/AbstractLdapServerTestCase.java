@@ -23,8 +23,7 @@ import java.util.Hashtable;
 
 
 /**
- * 
-DOCUMENT ME!
+ *
  *
  * @author Luke Taylor
  * @version $Id$
