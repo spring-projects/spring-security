@@ -49,8 +49,6 @@ public class LdapTestServer {
 
     private DirContext serverContext;
 
-    // Move the working dir to the temp directory
-    private File workingDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "apacheds-work");
     private MutableStartupConfiguration cfg;
 
     //~ Constructors ===================================================================================================
@@ -208,9 +206,24 @@ public class LdapTestServer {
 
     private void startLdapServer() {
         cfg = new MutableStartupConfiguration();
+
+        // Attempt to use the maven target directory for the apache ds store.
+        // This doesn't work at the moment - need to find out if we can access maven properties somehow.
+
+        String tempDirectory = System.getProperty("maven.build.dir");
+
+        if(tempDirectory == null) {
+            tempDirectory = System.getProperty("java.io.tmpdir");
+        }
+
+        File workingDir = new File(tempDirectory + File.separator + "apacheds-work");
+
+        // Delete any previous contents (often not compatible between apache-ds versions).
+        deleteDir(workingDir);
+
         ((MutableStartupConfiguration) cfg).setWorkingDirectory(workingDir);
 
-        System.out.println("Working directory is " + workingDir.getAbsolutePath());
+        System.out.println("Ldap Server Working directory is " + workingDir.getAbsolutePath());
 
         Properties env = new Properties();
 
@@ -228,5 +241,20 @@ public class LdapTestServer {
             System.err.println("Failed to start Apache DS");
             e.printStackTrace();
         }
+    }
+
+    /** Recursively deletes a directory */
+    private static boolean deleteDir(File dir) {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i=0; i<children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+
+        return dir.delete();
     }
 }
