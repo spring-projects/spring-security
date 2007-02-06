@@ -213,7 +213,7 @@ public class LdapTestServer {
         String apacheWorkDir = System.getProperty("apacheDSWorkDir");
 
         if(apacheWorkDir == null) {
-            apacheWorkDir = System.getProperty("java.io.tmpdir" + File.separator + "apacheds-work");
+            apacheWorkDir = System.getProperty("java.io.tmpdir") + File.separator + "apacheds-work";
         }
 
         File workingDir = new File(apacheWorkDir);
