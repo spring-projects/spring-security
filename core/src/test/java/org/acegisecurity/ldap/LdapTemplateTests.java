@@ -23,7 +23,6 @@ import javax.naming.directory.DirContext;
 
 /**
  * 
-DOCUMENT ME!
  *
  * @author Luke Taylor
  * @version $Id$
@@ -42,8 +41,7 @@ public class LdapTemplateTests extends AbstractLdapServerTestCase {
     }
 
     public void testCompareOfCorrectByteValueSucceeds() {
-// Doesn't work with embedded server due to bugs in apacheds
-//        assertTrue(template.compare("uid=bob,ou=people,dc=acegisecurity,dc=org", "userPassword", LdapUtils.getUtf8Bytes("bobspassword")));
+        assertTrue(template.compare("uid=bob,ou=people,dc=acegisecurity,dc=org", "userPassword", LdapUtils.getUtf8Bytes("bobspassword")));
     }
 
     public void testCompareOfCorrectValueSucceeds() {
@@ -51,8 +49,7 @@ public class LdapTemplateTests extends AbstractLdapServerTestCase {
     }
 
     public void testCompareOfWrongByteValueFails() {
-// Doesn't work with embedded server due to bugs in apacheds
-//        assertFalse(template.compare("uid=bob,ou=people,dc=acegisecurity,dc=org", "userPassword", LdapUtils.getUtf8Bytes("wrongvalue")));
+        assertFalse(template.compare("uid=bob,ou=people,dc=acegisecurity,dc=org", "userPassword", LdapUtils.getUtf8Bytes("wrongvalue")));
     }
 
     public void testCompareOfWrongValueFails() {
