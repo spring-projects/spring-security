@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.acegisecurity</groupId>
   <artifactId>acegi-security-parent</artifactId>
@@ -250,6 +248,13 @@
             <exclude>**/Abstract*</exclude>
           </excludes>
           <forkMode>once</forkMode>
+          <systemProperties>
+            <!-- The working directory for the embedded apache Ldap test server --> 
+            <property>
+              <name>apacheDSWorkDir</name>
+              <value>${basedir}/target/apacheds-work</value>
+            </property>
+          </systemProperties>
         </configuration>
       </plugin>
       <plugin>

@@ -207,16 +207,16 @@ public class LdapTestServer {
     private void startLdapServer() {
         cfg = new MutableStartupConfiguration();
 
-        // Attempt to use the maven target directory for the apache ds store.
-        // This doesn't work at the moment - need to find out if we can access maven properties somehow.
+        // Attempt to use the maven target directory for the apache ds store. Property is passed
+        // through surefire plugin setup in pom.xml.
 
-        String tempDirectory = System.getProperty("maven.build.dir");
+        String apacheWorkDir = System.getProperty("apacheDSWorkDir");
 
-        if(tempDirectory == null) {
-            tempDirectory = System.getProperty("java.io.tmpdir");
+        if(apacheWorkDir == null) {
+            apacheWorkDir = System.getProperty("java.io.tmpdir" + File.separator + "apacheds-work");
         }
 
-        File workingDir = new File(tempDirectory + File.separator + "apacheds-work");
+        File workingDir = new File(apacheWorkDir);
 
         // Delete any previous contents (often not compatible between apache-ds versions).
         deleteDir(workingDir);
