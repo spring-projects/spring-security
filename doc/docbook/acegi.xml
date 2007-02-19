@@ -3662,7 +3662,8 @@ key:              A private key to prevent modification of the remember-me token
           applications. CAS is only concerned with username and passwords (and
           the enabled/disabled status).</para>
 
-          <para>Copy Acegi<literal>-security.jar</literal> file into
+          <para>Copy <literal>acegi-security.jar</literal> and 
+          <literal>acegi-security-cas.jar</literal> files into
           <literal>/localPlugins/lib</literal>. Now use the <literal>ant
           war</literal> task in the <literal>build.xml</literal> in the
           /localPlugins directory. This will create
