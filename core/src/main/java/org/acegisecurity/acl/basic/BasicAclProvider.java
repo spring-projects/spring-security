@@ -36,18 +36,24 @@ import java.util.Map;
 
 
 /**
- * <P>Retrieves access control lists (ACL) entries for domain object instances from a data access object (DAO).</p>
- *  <P>This implementation will provide ACL lookup services for any object that it can determine the {@link
+ * Retrieves access control lists (ACL) entries for domain object instances from a data access object (DAO).
+ * <p>
+ * This implementation will provide ACL lookup services for any object that it can determine the {@link
  * AclObjectIdentity} for by calling the {@link #obtainIdentity(Object)} method. Subclasses can override this method
- * if they only want the <code>BasicAclProvider</code> responding to particular domain object instances.</p>
- *  <P><code>BasicAclProvider</code> will walk an inheritance hierarchy if a <code>BasicAclEntry</code> returned by
- * the DAO indicates it has a parent. NB: inheritance occurs at a <I>domain instance object</I> level. It does not
- * occur at an ACL recipient level. This means <B>all</B><code>BasicAclEntry</code>s for a given domain instance
- * object <B>must</B> have the <B>same</B> parent identity, or <B>all</B><code>BasicAclEntry</code>s must have
- * <code>null</code> as their parent identity.</p>
- *  <P>A cache should be used. This is provided by the {@link BasicAclEntryCache}. <code>BasicAclProvider</code> by
- * default is setup to use the {@link NullAclEntryCache}, which performs no caching.</p>
- *  <P>To implement the {@link #getAcls(Object, Authentication)} method, <code>BasicAclProvider</code> requires a
+ * if they only want the <code>BasicAclProvider</code> responding to particular domain object instances.
+ * </p>
+ * <p>
+ * <code>BasicAclProvider</code> will walk an inheritance hierarchy if a <code>BasicAclEntry</code> returned by
+ * the DAO indicates it has a parent. NB: inheritance occurs at a <i>domain instance object</i> level. It does not
+ * occur at an ACL recipient level. This means <b>all</b><code>BasicAclEntry</code>s for a given domain instance
+ * object <b>must</b> have the <b>same</b> parent identity, or <b>all</b><code>BasicAclEntry</code>s must have
+ * <code>null</code> as their parent identity.
+ * </p>
+ * <p>
+ * A cache should be used. This is provided by the {@link BasicAclEntryCache}. <code>BasicAclProvider</code> by
+ * default is setup to use the {@link NullAclEntryCache}, which performs no caching.
+ * </p>
+ * <p>To implement the {@link #getAcls(Object, Authentication)} method, <code>BasicAclProvider</code> requires a
  * {@link EffectiveAclsResolver} to be configured against it. By default the {@link
  * GrantedAuthorityEffectiveAclsResolver} is used.</p>
  *
@@ -60,7 +66,7 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
     private static final Log logger = LogFactory.getLog(BasicAclProvider.class);
 
     /** Marker added to the cache to indicate an AclObjectIdentity has no corresponding BasicAclEntry[]s */
-    private static String RECIPIENT_FOR_CACHE_EMPTY = "RESERVED_RECIPIENT_NOBODY";
+    private static final String RECIPIENT_FOR_CACHE_EMPTY = "RESERVED_RECIPIENT_NOBODY";
 
     //~ Instance fields ================================================================================================
 
@@ -237,7 +243,8 @@ public class BasicAclProvider implements AclProvider, InitializingBean {
             Constructor constructor = defaultAclObjectIdentityClass.getConstructor(new Class[] {Object.class});
 
             if (logger.isDebugEnabled()) {
-                logger.debug("domainInstance: " + domainInstance + " attempting to pass to constructor: " + constructor);
+                logger.debug("domainInstance: " + domainInstance
+                        + " attempting to pass to constructor: " + constructor);
             }
 
             return (AclObjectIdentity) constructor.newInstance(new Object[] {domainInstance});
