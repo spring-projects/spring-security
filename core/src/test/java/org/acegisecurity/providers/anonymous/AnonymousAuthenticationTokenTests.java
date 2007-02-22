@@ -93,9 +93,6 @@ public class AnonymousAuthenticationTokenTests extends TestCase {
     }
 
     public void testEqualsWhenEqual() {
-        List proxyList1 = new Vector();
-        proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");
-
         AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key", "Test",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
 

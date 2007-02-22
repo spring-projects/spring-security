@@ -79,9 +79,6 @@ public class RememberMeAuthenticationTokenTests extends TestCase {
     }
 
     public void testEqualsWhenEqual() {
-        List proxyList1 = new Vector();
-        proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");
-
         RememberMeAuthenticationToken token1 = new RememberMeAuthenticationToken("key", "Test",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
 
