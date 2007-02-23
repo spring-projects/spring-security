@@ -95,7 +95,8 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
     public void destroy() {}
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-        throws IOException, ServletException {
+            throws IOException, ServletException {
+
         if (!(request instanceof HttpServletRequest)) {
             throw new ServletException("Can only process HttpServletRequest");
         }
@@ -126,15 +127,9 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
                 password = token.substring(delim + 1);
             }
 
-            // Only reauthenticate if username doesn't match SecurityContextHolder and user isn't authenticated (see SEC-53)
-            Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
-
-            // Limit username comparison to providers which user usernames (ie UsernamePasswordAuthenticationToken) (see SEC-348)
-            if ((existingAuth == null) 
-            		|| (existingAuth instanceof UsernamePasswordAuthenticationToken && !existingAuth.getName().equals(username)) 
-            		|| !existingAuth.isAuthenticated()) {
-                UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username,
-                        password);
+            if (authenticationIsRequired(username)) {
+                UsernamePasswordAuthenticationToken authRequest =
+                        new UsernamePasswordAuthenticationToken(username, password);
                 authRequest.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
 
                 Authentication authResult;
@@ -176,6 +171,25 @@ public class BasicProcessingFilter implements Filter, InitializingBean {
         }
 
         chain.doFilter(request, response);
+    }
+
+    private boolean authenticationIsRequired(String username) {
+        // Only reauthenticate if username doesn't match SecurityContextHolder and user isn't authenticated
+        // (see SEC-53)
+        Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
+
+        if(existingAuth == null || !existingAuth.isAuthenticated()) {
+            return true;
+        }
+
+        // Limit username comparison to providers which use usernames (ie UsernamePasswordAuthenticationToken)
+        // (see SEC-348)
+
+        if (existingAuth instanceof UsernamePasswordAuthenticationToken && !existingAuth.getName().equals(username)) {
+            return true;
+        }
+
+        return false;
     }
 
     public AuthenticationEntryPoint getAuthenticationEntryPoint() {
