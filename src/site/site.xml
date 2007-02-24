@@ -44,7 +44,7 @@
 
     <menu name="Documentation">
       <item name="Suggested Steps" href="suggested.html"/>
-      <item name="Reference Guide" href="reference.html"/>
+      <item name="Reference Guide" href="docbook/acegi.html"/>
       <item name="Sample SQL Schema" href="dbinit.txt"/>
       <item name="FAQ" href="faq.html"/>
       <item name="Petclinic Tutorial" href="petclinic-tutorial.html"/>
