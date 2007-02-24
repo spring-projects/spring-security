@@ -36,7 +36,8 @@ import java.util.Set;
 class ArrayFilterer implements Filterer {
     //~ Static fields/initializers =====================================================================================
 
-    protected static final Log logger = LogFactory.getLog(BasicAclEntryAfterInvocationCollectionFilteringProvider.class);
+    protected static final Log logger =
+            LogFactory.getLog(BasicAclEntryAfterInvocationCollectionFilteringProvider.class);
 
     //~ Instance fields ================================================================================================
 
@@ -57,7 +58,7 @@ class ArrayFilterer implements Filterer {
     //~ Methods ========================================================================================================
 
     /**
-     * 
+     *
      * @see org.acegisecurity.afterinvocation.Filterer#getFilteredObject()
      */
     public Object getFilteredObject() {
@@ -84,7 +85,7 @@ class ArrayFilterer implements Filterer {
     }
 
     /**
-     * 
+     *
      * @see org.acegisecurity.afterinvocation.Filterer#iterator()
      */
     public Iterator iterator() {
@@ -92,7 +93,7 @@ class ArrayFilterer implements Filterer {
     }
 
     /**
-     * 
+     *
      * @see org.acegisecurity.afterinvocation.Filterer#remove(java.lang.Object)
      */
     public void remove(Object object) {

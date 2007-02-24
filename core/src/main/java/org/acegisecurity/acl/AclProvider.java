@@ -21,7 +21,7 @@ import org.acegisecurity.Authentication;
 /**
  * Indicates a class can process a given domain object instance and
  * authoritatively return the ACLs that apply.
- * 
+ *
  * <P>
  * Implementations are typically called from the {@link AclProviderManager}.
  * </p>
@@ -40,7 +40,7 @@ public interface AclProvider {
      *
      * @return the ACLs that apply, or <code>null</code> if no ACLs apply to the specified domain instance
      */
-    public AclEntry[] getAcls(Object domainInstance);
+    AclEntry[] getAcls(Object domainInstance);
 
     /**
      * Obtains the ACLs that apply to the specified domain instance and presented <code>Authentication</code>
@@ -52,7 +52,7 @@ public interface AclProvider {
      * @return only those ACLs applying to the domain instance that have been granted to the principal (or
      *         <code>null</code>) if no such ACLs are found
      */
-    public AclEntry[] getAcls(Object domainInstance, Authentication authentication);
+    AclEntry[] getAcls(Object domainInstance, Authentication authentication);
 
     /**
      * Indicates whether this <code>AclProvider</code> can authoritatively return ACL information for the
@@ -63,5 +63,5 @@ public interface AclProvider {
      * @return <code>true</code> if this provider is authoritative for the specified domain object instance,
      *         <code>false</code> otherwise
      */
-    public boolean supports(Object domainInstance);
+    boolean supports(Object domainInstance);
 }

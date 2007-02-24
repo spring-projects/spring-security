@@ -21,7 +21,7 @@ import org.acegisecurity.userdetails.UserDetails;
 
 /**
  * Provides a cache of {@link User} objects.
- * 
+ *
  * <P>
  * Implementations should provide appropriate methods to set their cache
  * parameters (eg time-to-live) and/or force removal of entities before their
@@ -44,7 +44,7 @@ public interface UserCache {
      * @return the populated <code>UserDetails</code> or <code>null</code> if the user could not be found or if the
      *         cache entry has expired
      */
-    public UserDetails getUserFromCache(String username);
+    UserDetails getUserFromCache(String username);
 
     /**
      * Places a {@link UserDetails} in the cache. The <code>username</code> is the key used to subsequently
@@ -52,7 +52,7 @@ public interface UserCache {
      *
      * @param user the fully populated <code>UserDetails</code> to place in the cache
      */
-    public void putUserInCache(UserDetails user);
+    void putUserInCache(UserDetails user);
 
     /**
      * Removes the specified user from the cache. The <code>username</code> is the key used to remove the user.
@@ -62,5 +62,5 @@ public interface UserCache {
      *
      * @param username to be evicted from the cache
      */
-    public void removeUserFromCache(String username);
+    void removeUserFromCache(String username);
 }

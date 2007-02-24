@@ -31,7 +31,7 @@ import org.acegisecurity.ConfigAttributeDefinition;
 public interface AfterInvocationProvider {
     //~ Methods ========================================================================================================
 
-    public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+    Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
         Object returnedObject) throws AccessDeniedException;
 
     /**
@@ -46,7 +46,7 @@ public interface AfterInvocationProvider {
      *
      * @return true if this <code>AfterInvocationProvider</code> can support the passed configuration attribute
      */
-    public boolean supports(ConfigAttribute attribute);
+    boolean supports(ConfigAttribute attribute);
 
     /**
      * Indicates whether the <code>AfterInvocationProvider</code> is able to provide "after invocation"
@@ -56,5 +56,5 @@ public interface AfterInvocationProvider {
      *
      * @return true if the implementation can process the indicated class
      */
-    public boolean supports(Class clazz);
+    boolean supports(Class clazz);
 }

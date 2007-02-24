@@ -21,12 +21,12 @@ import org.acegisecurity.Authentication;
 /**
  * Strategy interface that provides an ability to determine the {@link Sid} instances applicable
  * for an {@link Authentication}.
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  */
 public interface SidRetrievalStrategy {
     //~ Methods ========================================================================================================
 
-    public Sid[] getSids(Authentication authentication);
+    Sid[] getSids(Authentication authentication);
 }

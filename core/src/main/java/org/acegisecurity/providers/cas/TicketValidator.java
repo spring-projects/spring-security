@@ -20,14 +20,14 @@ import org.acegisecurity.AuthenticationException;
 
 /**
  * Validates a CAS service ticket.
- * 
- * <P>
+ *
+ * <p>
  * Implementations must accept CAS proxy tickets, in addition to CAS service
  * tickets. If proxy tickets should be rejected, this is resolved by a {@link
  * CasProxyDecider} implementation (not by the <code>TicketValidator</code>).
  * </p>
- * 
- * <P>
+ *
+ * <p>
  * Implementations may request a proxy granting ticket if wish,  although this
  * behaviour is not mandatory.
  * </p>
@@ -48,6 +48,6 @@ public interface TicketValidator {
      *
      * @throws AuthenticationException DOCUMENT ME!
      */
-    public TicketResponse confirmTicketValid(String serviceTicket)
+    TicketResponse confirmTicketValid(String serviceTicket)
         throws AuthenticationException;
 }

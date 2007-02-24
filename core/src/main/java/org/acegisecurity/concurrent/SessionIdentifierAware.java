@@ -18,7 +18,7 @@ package org.acegisecurity.concurrent;
 /**
  * Implemented by {@link org.acegisecurity.Authentication#getDetails()}
  * implementations that are capable of returning a session ID.
- * 
+ *
  * <p>
  * This interface is used by {@link
  * org.acegisecurity.concurrent.SessionRegistryUtils} to extract the session
@@ -40,5 +40,5 @@ public interface SessionIdentifierAware {
      *
      * @return the session ID, or <code>null</code> if not known.
      */
-    public String getSessionId();
+    String getSessionId();
 }

@@ -20,12 +20,13 @@ import java.io.Serializable;
 
 
 /**
- * Represents an individual permission assignment within an {@link Acl}. 
- * 
+ * Represents an individual permission assignment within an {@link Acl}.
+ *
  * <p>
  * Instances MUST be immutable, as they are returned by <code>Acl</code>
  * and should not allow client modification.
- * 
+ * </p>
+ *
  * @author Ben Alex
  * @version $Id$
  *
@@ -33,18 +34,18 @@ import java.io.Serializable;
 public interface AccessControlEntry {
     //~ Methods ========================================================================================================
 
-    public Acl getAcl();
+    Acl getAcl();
 
     /**
      * Obtains an identifier that represents this ACE.
      *
      * @return the identifier, or <code>null</code> if unsaved
      */
-    public Serializable getId();
+    Serializable getId();
 
-    public Permission getPermission();
+    Permission getPermission();
 
-    public Sid getSid();
+    Sid getSid();
 
     /**
      * Indicates the a Permission is being granted to the relevant Sid. If false, indicates the permission is
@@ -52,5 +53,5 @@ public interface AccessControlEntry {
      *
      * @return true if being granted, false otherwise
      */
-    public boolean isGranting();
+    boolean isGranting();
 }

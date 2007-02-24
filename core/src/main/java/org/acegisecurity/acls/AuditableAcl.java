@@ -19,7 +19,7 @@ import java.io.Serializable;
 
 /**
  * A mutable ACL that provides audit capabilities.
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  *
@@ -27,5 +27,5 @@ import java.io.Serializable;
 public interface AuditableAcl extends MutableAcl {
     //~ Methods ========================================================================================================
 
-    public void updateAuditing(Serializable aceId, boolean auditSuccess, boolean auditFailure);
+    void updateAuditing(Serializable aceId, boolean auditSuccess, boolean auditFailure);
 }

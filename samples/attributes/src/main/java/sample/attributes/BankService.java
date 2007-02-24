@@ -24,29 +24,25 @@ package sample.attributes;
  *
  */
 public interface BankService {
-    //~ Methods ================================================================
+    //~ Methods ========================================================================================================
 
     /**
-     * The SecurityConfig below will be merged with the interface-level
-     * SecurityConfig above by Commons Attributes. ie: this is equivalent to
-     * defining BankService=ROLE_TELLER,ROLE_PERMISSION_BALANACE in  the bean
-     * context.
+     * The SecurityConfig below will be merged with the interface-level SecurityConfig above by Commons Attributes.
+     * ie: this is equivalent to defining BankService=ROLE_TELLER,ROLE_PERMISSION_BALANACE in the bean context.
      *
      * @return DOCUMENT ME!
      *
      * @@net.sf.acegisecurity.SecurityConfig("ROLE_PERMISSION_BALANCE")
      */
-    public float balance(String accountNumber);
+    float balance(String accountNumber);
 
     /**
-     * The SecurityConfig below will be merged with the interface-level
-     * SecurityConfig above by Commons Attributes. ie: this is equivalent to
-     * defining BankService=ROLE_TELLER,ROLE_PERMISSION_LIST in  the bean
-     * context.
+     * The SecurityConfig below will be merged with the interface-level SecurityConfig above by Commons Attributes.
+     * ie: this is equivalent to defining BankService=ROLE_TELLER,ROLE_PERMISSION_LIST in the bean context.
      *
      * @return DOCUMENT ME!
      *
      * @@net.sf.acegisecurity.SecurityConfig("ROLE_PERMISSION_LIST")
      */
-    public String[] listAccounts();
+    String[] listAccounts();
 }

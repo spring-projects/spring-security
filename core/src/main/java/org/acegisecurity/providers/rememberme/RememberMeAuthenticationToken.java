@@ -31,7 +31,7 @@ import org.acegisecurity.providers.AbstractAuthenticationToken;
 public class RememberMeAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
     //~ Instance fields ================================================================================================
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private Object principal;
     private int keyHash;
 

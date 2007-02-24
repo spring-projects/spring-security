@@ -42,15 +42,19 @@ import javax.naming.directory.InitialDirContext;
 
 /**
  * Encapsulates the information for connecting to an LDAP server and provides an access point for obtaining
- * <tt>DirContext</tt> references.<p>The directory location is configured using by setting the constructor argument
+ * <tt>DirContext</tt> references.
+ * <p>
+ * The directory location is configured using by setting the constructor argument
  * <tt>providerUrl</tt>. This should be in the form <tt>ldap://monkeymachine.co.uk:389/dc=acegisecurity,dc=org</tt>.
  * The Sun JNDI provider also supports lists of space-separated URLs, each of which will be tried in turn until a
- * connection is obtained.</p>
- *  <p>To obtain an initial context, the client calls the <tt>newInitialDirContext</tt> method. There are two
- * signatures - one with no arguments and one which allows binding with a specific username and password.</p>
- *  <p>The no-args version will bind anonymously unless a manager login has been configured using the properties
+ * connection is obtained.
+ * </p>
+ * <p>To obtain an initial context, the client calls the <tt>newInitialDirContext</tt> method. There are two
+ * signatures - one with no arguments and one which allows binding with a specific username and password.
+ * </p>
+ * <p>The no-args version will bind anonymously unless a manager login has been configured using the properties
  * <tt>managerDn</tt> and <tt>managerPassword</tt>, in which case it will bind as the manager user.</p>
- *  <p>Connection pooling is enabled by default for anonymous or manager connections, but not when binding as a
+ * <p>Connection pooling is enabled by default for anonymous or manager connections, but not when binding as a
  * specific user.</p>
  *
  * @author Robert Sanders
@@ -113,7 +117,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
     /**
      * Create and initialize an instance to the LDAP url provided
-     * 
+     *
      * @param providerUrl a String of the form <code>ldap://localhost:389/base_dn<code>
      */
     public DefaultInitialDirContextFactory(String providerUrl) {
@@ -124,7 +128,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
     /**
      * Set the LDAP url
-     * 
+     *
      * @param providerUrl a String of the form <code>ldap://localhost:389/base_dn<code>
      */
     private void setProviderUrl(String providerUrl) {
@@ -154,7 +158,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
     /**
      * Get the LDAP url
-     * 
+     *
      * @return the url
      */
     private String getProviderUrl() {
@@ -175,8 +179,8 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
         try {
             return useLdapContext ? new InitialLdapContext(env, null) : new InitialDirContext(env);
         } catch (NamingException ne) {
-            if ((ne instanceof javax.naming.AuthenticationException) ||
-                    (ne instanceof OperationNotSupportedException)) {
+            if ((ne instanceof javax.naming.AuthenticationException)
+                    || (ne instanceof OperationNotSupportedException)) {
                 throw new BadCredentialsException(messages.getMessage("DefaultIntitalDirContextFactory.badCredentials",
                         "Bad credentials"), ne);
             }

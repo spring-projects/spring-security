@@ -23,8 +23,11 @@ import org.springframework.context.ApplicationListener;
 
 
 /**
- * Outputs interceptor-related application events to Commons Logging.<P>All failures are logged at the warning
- * level, with success events logged at the information level, and public invocation events logged at the debug level.</p>
+ * Outputs interceptor-related application events to Commons Logging.
+ * <p>
+ * All failures are logged at the warning level, with success events logged at the information level,
+ * and public invocation events logged at the debug level.
+ * </p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -52,8 +55,9 @@ public class LoggerListener implements ApplicationListener {
 
             if (logger.isWarnEnabled()) {
                 logger.warn("Security authorization failed due to: " + authEvent.getAccessDeniedException()
-                    + "; authenticated principal: " + authEvent.getAuthentication() + "; secure object: "
-                    + authEvent.getSource() + "; configuration attributes: " + authEvent.getConfigAttributeDefinition());
+                    + "; authenticated principal: " + authEvent.getAuthentication()
+                    + "; secure object: " + authEvent.getSource()
+                    + "; configuration attributes: " + authEvent.getConfigAttributeDefinition());
             }
         }
 

@@ -19,7 +19,7 @@ import java.io.Serializable;
 
 /**
  * Represents an authority granted to an {@link Authentication} object.
- * 
+ *
  * <p>
  * A <code>GrantedAuthority</code> must either represent itself as a
  * <code>String</code> or be specifically supported by an  {@link
@@ -44,5 +44,5 @@ public interface GrantedAuthority extends Serializable {
      * @return a representation of the granted authority (or <code>null</code> if the granted authority cannot be
      *         expressed as a <code>String</code> with sufficient precision).
      */
-    public String getAuthority();
+    String getAuthority();
 }

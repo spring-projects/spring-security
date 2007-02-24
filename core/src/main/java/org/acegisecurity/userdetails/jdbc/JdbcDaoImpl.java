@@ -58,8 +58,10 @@ import javax.sql.DataSource;
 public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     //~ Static fields/initializers =====================================================================================
 
-    public static final String DEF_USERS_BY_USERNAME_QUERY = "SELECT username,password,enabled FROM users WHERE username = ?";
-    public static final String DEF_AUTHORITIES_BY_USERNAME_QUERY = "SELECT username,authority FROM authorities WHERE username = ?";
+    public static final String DEF_USERS_BY_USERNAME_QUERY =
+            "SELECT username,password,enabled FROM users WHERE username = ?";
+    public static final String DEF_AUTHORITIES_BY_USERNAME_QUERY =
+            "SELECT username,authority FROM authorities WHERE username = ?";
 
     //~ Instance fields ================================================================================================
 

@@ -67,14 +67,16 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
         SessionRegistry registry) {
         if (exceptionIfMaximumExceeded || (sessions == null)) {
             throw new ConcurrentLoginException(messages.getMessage("ConcurrentSessionControllerImpl.exceededAllowed",
-                    new Object[] {new Integer(allowableSessions)}, "Maximum sessions of {0} for this principal exceeded"));
+                    new Object[] {new Integer(allowableSessions)},
+                    "Maximum sessions of {0} for this principal exceeded"));
         }
 
         // Determine least recently used session, and mark it for invalidation
         SessionInformation leastRecentlyUsed = null;
 
         for (int i = 0; i < sessions.length; i++) {
-            if ((leastRecentlyUsed == null) || sessions[i].getLastRequest().before(leastRecentlyUsed.getLastRequest())) {
+            if ((leastRecentlyUsed == null)
+                    || sessions[i].getLastRequest().before(leastRecentlyUsed.getLastRequest())) {
                 leastRecentlyUsed = sessions[i];
             }
         }
@@ -98,8 +100,8 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
         }
 
         int allowableSessions = getMaximumSessionsForThisUser(request);
-        Assert.isTrue(allowableSessions != 0,
-            "getMaximumSessionsForThisUser() must return either -1 to allow unlimited logins, or a positive integer to specify a maximum");
+        Assert.isTrue(allowableSessions != 0, "getMaximumSessionsForThisUser() must return either -1 to allow "
+                + "unlimited logins, or a positive integer to specify a maximum");
 
         if (sessionCount < allowableSessions) {
             // They haven't got too many login sessions running at present

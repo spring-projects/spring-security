@@ -31,7 +31,7 @@ import org.acegisecurity.GrantedAuthorityImpl;
 public class SwitchUserGrantedAuthority extends GrantedAuthorityImpl {
     //~ Instance fields ================================================================================================
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private Authentication source;
 
     //~ Constructors ===================================================================================================

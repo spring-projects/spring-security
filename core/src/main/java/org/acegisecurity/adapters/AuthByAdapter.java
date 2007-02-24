@@ -21,7 +21,7 @@ import org.acegisecurity.Authentication;
 /**
  * Indicates a specialized, immutable, server-side only {@link Authentication}
  * class.
- * 
+ *
  * <P>
  * Automatically considered valid by the {@link AuthByAdapterProvider},
  * provided the hash code presented by the implementation objects matches that
@@ -41,5 +41,5 @@ public interface AuthByAdapter extends Authentication {
      *
      * @return the hash code of the key used when the object was created.
      */
-    public int getKeyHash();
+    int getKeyHash();
 }

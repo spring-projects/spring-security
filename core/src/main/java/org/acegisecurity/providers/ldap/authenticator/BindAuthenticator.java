@@ -26,7 +26,6 @@ import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.naming.NamingException;
 import java.util.Iterator;
 
 
@@ -47,7 +46,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
     /**
      * Create an initialized instance to the {@link InitialDirContextFactory} provided.
-     * 
+     *
      * @param initialDirContextFactory
      */
     public BindAuthenticator(InitialDirContextFactory initialDirContextFactory) {
@@ -74,7 +73,8 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
         }
 
         if (user == null) {
-            throw new BadCredentialsException(messages.getMessage("BindAuthenticator.badCredentials", "Bad credentials"));
+            throw new BadCredentialsException(
+                    messages.getMessage("BindAuthenticator.badCredentials", "Bad credentials"));
         }
 
         return user;

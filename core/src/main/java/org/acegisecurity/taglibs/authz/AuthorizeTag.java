@@ -148,8 +148,8 @@ public class AuthorizeTag extends TagSupport {
         for (int i = 0; i < authorities.length; i++) {
             String authority = authorities[i];
 
-            // Remove the role's whitespace characters without depending on JDK 1.4+ 
-            // Includes space, tab, new line, carriage return and form feed. 
+            // Remove the role's whitespace characters without depending on JDK 1.4+
+            // Includes space, tab, new line, carriage return and form feed.
             String role = authority.trim(); // trim, don't use spaces, as per SEC-378
             role = StringUtils.replace(role, "\t", "");
             role = StringUtils.replace(role, "\r", "");
@@ -168,10 +168,12 @@ public class AuthorizeTag extends TagSupport {
      * iterate over both collections, because the granted authorities might not implement {@link
      * Object#equals(Object)} and {@link Object#hashCode()} in the same way as {@link GrantedAuthorityImpl}, thereby
      * invalidating {@link Collection#retainAll(java.util.Collection)} results.</p>
-     *  <p><strong>CAVEAT</strong>:  This method <strong>will not</strong> work if the granted authorities
+     * <p>
+     * <strong>CAVEAT</strong>:  This method <strong>will not</strong> work if the granted authorities
      * returns a <code>null</code> string as the return value of {@link
-     * org.acegisecurity.GrantedAuthority#getAuthority()}.</p>
-     *  <p>Reported by rawdave, on Fri Feb 04, 2005 2:11 pm in the Acegi Security System for Spring forums.</p>
+     * org.acegisecurity.GrantedAuthority#getAuthority()}.
+     * </p>
+     * <p>Reported by rawdave, on Fri Feb 04, 2005 2:11 pm in the Acegi Security System for Spring forums.</p>
      *
      * @param granted The authorities granted by the authentication. May be any implementation of {@link
      *        GrantedAuthority} that does <strong>not</strong> return <code>null</code> from {@link
@@ -182,7 +184,7 @@ public class AuthorizeTag extends TagSupport {
      * @return A set containing only the common authorities between <var>granted</var> and <var>required</var>.
      *
      * @see <a href="http://forum.springframework.org/viewtopic.php?t=3367">authz:authorize ifNotGranted not behaving
-     *      as expected</a>
+     *      as expected</a> TODO: wrong article Url
      */
     private Set retainAll(final Collection granted, final Set required) {
         Set grantedRoles = authoritiesToRoles(granted);

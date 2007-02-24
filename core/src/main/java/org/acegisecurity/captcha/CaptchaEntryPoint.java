@@ -44,11 +44,15 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * The captcha entry point : redirect to the captcha test page. <br><p>This entry point can force the use of SSL :
- * see {@link #getForceHttps()}<br></p>
- *  This entry point allows internal OR external redirect : see {@link #setOutsideWebApp(boolean)}<br>
- * / Original request can be added to the redirect path using a custom translation : see {@link #setIncludeOriginalRequest(boolean)}<br>
- * Original request is translated using URLEncoding and the following translation mapping in the redirect url :
+ * The captcha entry point : redirect to the captcha test page.
+ * <p>
+ * This entry point can force the use of SSL : see {@link #getForceHttps()}
+ * </p>
+ * <p>
+ * This entry point allows internal OR external redirect : see {@link #setOutsideWebApp(boolean)}<br />
+ * / Original request can be added to the redirect path using a custom translation : see
+ * {@link #setIncludeOriginalRequest(boolean)}<br />
+ * The original request is translated using URLEncoding and the following translation mapping in the redirect url :
  *  <ul>
  *      <li>original url => {@link #getOriginalRequestUrlParameterName()}</li>
  *      <li>If {@link #isIncludeOriginalParameters()}</li>
@@ -63,17 +67,20 @@ import javax.servlet.http.HttpServletResponse;
  *      </li>
  *  </ul>
  *  <br><br>
- * Default values :<br>
- * forceHttps = false<br>
- * includesOriginalRequest = true<br>
- * includesOriginalParameters = false<br>
- * isOutsideWebApp=false<br>
- * originalRequestUrlParameterName  =original_requestUrl <br>
- * originalRequestParametersParameterName = original_request_parameters<br>
- * originalRequestParametersNameValueSeparator =   __ <br>
- * originalRequestParametersSeparator =  ;; <br>
- * originalRequestMethodParameterName =  original_request_method    <br>
- * urlEncodingCharset = UTF-8<br>
+ * Default values :
+ * <pre>
+ * forceHttps = false
+ * includesOriginalRequest = true
+ * includesOriginalParameters = false
+ * isOutsideWebApp = false
+ * originalRequestUrlParameterName = original_requestUrl
+ * originalRequestParametersParameterName = original_request_parameters
+ * originalRequestParametersNameValueSeparator = __
+ * originalRequestParametersSeparator = ;;
+ * originalRequestMethodParameterName = original_request_method
+ * urlEncodingCharset = UTF-8
+ * </pre>
+ * </p>
  *
  * @author marc antoine Garrigue
  * @version $Id$
@@ -81,8 +88,6 @@ import javax.servlet.http.HttpServletResponse;
 public class CaptchaEntryPoint implements ChannelEntryPoint, InitializingBean {
     //~ Static fields/initializers =====================================================================================
 
-    // ~ Static fields/initializers
-    // =============================================
     private static final Log logger = LogFactory.getLog(CaptchaEntryPoint.class);
 
     //~ Instance fields ================================================================================================

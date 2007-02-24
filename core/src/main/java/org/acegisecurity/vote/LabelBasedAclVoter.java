@@ -18,8 +18,6 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
 
-import org.acegisecurity.vote.AbstractAclVoter;
-
 import org.aopalliance.intercept.MethodInvocation;
 
 import org.apache.commons.logging.Log;
@@ -36,13 +34,16 @@ import java.util.Vector;
 /**
  * <p>This Acl voter will evaluate methods based on labels applied to incoming arguments. It will only check
  * methods that have been properly tagged in the MethodSecurityInterceptor with the value stored in
- * <b>attributeIndicatingLabeledOperation</b>. If a method has been tagged, then it examines each argument, and if the
- * argument implements {@link LabeledData}, then it will asses if the user's list of granted authorities matches.</p>
- *  <p>By default, if none of the arguments are labeled, then the access will be granted. This can be overridden by
- * setting <b>allowAccessIfNoAttributesAreLabeled</b> to false in the Spring context file.</p>
- *  <p>In many situations, different values are linked together to define a common label, it is  necessary to
+ * <tt>attributeIndicatingLabeledOperation</tt>. If a method has been tagged, then it examines each argument, and if the
+ * argument implements {@link LabeledData}, then it will asses if the user's list of granted authorities matches.
+ * </p>
+ *
+ * <p>By default, if none of the arguments are labeled, then the access will be granted. This can be overridden by
+ * setting <tt>allowAccessIfNoAttributesAreLabeled</tt> to false in the Spring context file.</p>
+ *
+ * <p>In many situations, different values are linked together to define a common label, it is necessary to
  * define a map in the application context that links user-assigned label access to domain object labels. This is done
- * by setting up the <b>labelMap</b> in the application context.</p>
+ * by setting up the <tt>labelMap</tt> in the application context.</p>
  *
  * @author Greg Turnquist
  * @version $Id$
@@ -50,18 +51,22 @@ import java.util.Vector;
  * @see org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor
  */
 public class LabelBasedAclVoter extends AbstractAclVoter {
+    //~ Static fields/initializers =====================================================================================
+
+    private static final Log logger = LogFactory.getLog(LabelBasedAclVoter.class);
+
     //~ Instance fields ================================================================================================
 
     private HashMap labelMap = null;
-    Log logger = LogFactory.getLog(LabelBasedAclVoter.class);
     private String attributeIndicatingLabeledOperation = null;
     private boolean allowAccessIfNoAttributesAreLabeled = true;
 
     //~ Methods ========================================================================================================
 
     /**
-     * Set whether or not to allow the user to run methods in which none of the incoming arguments are labeled.<p>Default
-     * value: <b>true, users can run such methods.</b></p>
+     * Set whether or not to allow the user to run methods in which none of the incoming arguments are labeled.
+     *
+     * <p>Default value: <b>true, users can run such methods.</b></p>
      *
      * @param allowAccessIfNoAttributesAreLabeled boolean
      */
@@ -82,52 +87,55 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
 
     /**
      * Set the map that correlate a user's assigned label against domain object values that are considered data
-     * labels.<p></p>
+     * labels. An example application context configuration of a <tt>labelMap</tt>:
      *
-     * @param labelMap - HashMap  Example application context configuration of a labelMap:
-     * 
      * <pre>
-	 *  &lt;bean id="accessDecisionManager" class="org.acegisecurity.vote.UnanimousBased"&gt;<br>
-	 *		&lt;property name="allowIfAllAbstainDecisions">&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;<br>
-	 *		&lt;property name="decisionVoters"&gt;<br>
-	 *			&lt;list&gt;<br>
-	 *				&lt;bean class="org.acegisecurity.vote.RoleVoter"/&gt;<br>
-	 *				&lt;bean class="net.homelinux.scifi.LabelBasedAclVoter"&gt;<br>
-	 *					&lt;property name="attributeIndicatingLabeledOperation"&gt;&lt;value&gt;LABELED_OPERATION&lt;/value&gt;&lt;/property&gt;<br>
-	 *					&lt;property name="labelMap"&gt;<br>
-	 *						&lt;map&gt;<br>
-	 *							&lt;entry key="DATA_LABEL_BLUE"&gt;<br>
-	 *								&lt;list&gt;<br>
-	 *									&lt;value&gt;blue&lt;/value&gt;<br>
-	 *									&lt;value&gt;indigo&lt;/value&gt;<br>
-	 *									&lt;value&gt;purple&lt;/value&gt;<br>
-	 *								&lt;/list&gt;<br>
-	 *							&lt;/entry&gt;<br>
-	 *							&lt;entry key="LABEL_ORANGE"&gt;<br>
-	 *								&lt;list&gt;<br>
-	 *									&lt;value&gt;orange&lt;/value&gt;<br>
-	 *									&lt;value&gt;sunshine&lt;/value&gt;<br>
-	 *									&lt;value&gt;amber&lt;/value&gt;<br>
-	 *								&lt;/list&gt;<br>
-	 *							&lt;/entry&gt;<br>
-	 *							&lt;entry key="LABEL_ADMIN"&gt;<br>
-	 *								&lt;list&gt;<br>
-	 *									&lt;value&gt;blue&lt;/value&gt;<br>
-	 *									&lt;value&gt;indigo&lt;/value&gt;<br>
-	 *									&lt;value&gt;purple&lt;/value&gt;<br>
-	 *									&lt;value&gt;orange&lt;/value&gt;<br>
-	 *									&lt;value&gt;sunshine&lt;/value&gt;<br>
-	 *									&lt;value&gt;amber&lt;/value&gt;<br>
-	 *								&lt;/list&gt;<br>
-	 *							&lt;/entry&gt;<br>
-	 *						&lt;/map&gt;<br>
-	 *					&lt;/property&gt;<br>
-	 *				&lt;/bean&gt;<br>
-	 *			&lt;/list&gt;<br>
-	 *		&lt;/property&gt;<br>
-	 *	&lt;/bean&gt;<br>
-	 * </pre>
-	 */
+     * &lt;bean id="accessDecisionManager" class="org.acegisecurity.vote.UnanimousBased"&gt;
+     *     &lt;property name="allowIfAllAbstainDecisions"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
+     *     &lt;property name="decisionVoters"&gt;
+     *       &lt;list&gt;
+     *         &lt;bean class="org.acegisecurity.vote.RoleVoter"/&gt;
+     *         &lt;bean class="org.acegisecurity.vote.LabelBasedAclVoter"&gt;
+     *           &lt;property name="attributeIndicatingLabeledOperation"&gt;
+     *             &lt;value&gt;LABELED_OPERATION&lt;/value&gt;
+     *           &lt;/property&gt;
+     *           &lt;property name="labelMap"&gt;
+     *             &lt;map&gt;
+     *               &lt;entry key="DATA_LABEL_BLUE"&gt;
+     *                 &lt;list&gt;
+     *                   &lt;value&gt;blue&lt;/value&gt;
+     *                   &lt;value&gt;indigo&lt;/value&gt;
+     *                   &lt;value&gt;purple&lt;/value&gt;
+     *                 &lt;/list&gt;
+     *               &lt;/entry&gt;
+     *               &lt;entry key="LABEL_ORANGE"&gt;
+     *                 &lt;list&gt;
+     *                   &lt;value&gt;orange&lt;/value&gt;
+     *                   &lt;value&gt;sunshine&lt;/value&gt;
+     *                   &lt;value&gt;amber&lt;/value&gt;
+     *                 &lt;/list&gt;
+     *               &lt;/entry&gt;
+     *               &lt;entry key="LABEL_ADMIN"&gt;
+     *                 &lt;list&gt;
+     *                   &lt;value&gt;blue&lt;/value&gt;
+     *                   &lt;value&gt;indigo&lt;/value&gt;
+     *                   &lt;value&gt;purple&lt;/value&gt;
+     *                   &lt;value&gt;orange&lt;/value&gt;
+     *                   &lt;value&gt;sunshine&lt;/value&gt;
+     *                   &lt;value&gt;amber&lt;/value&gt;
+     *                 &lt;/list&gt;
+     *               &lt;/entry&gt;
+     *             &lt;/map&gt;
+     *           &lt;/property&gt;
+     *         &lt;/bean&gt;
+     *       &lt;/list&gt;
+     *     &lt;/property&gt;
+     *   &lt;/bean&gt;
+     * </pre>
+     *
+     * @param labelMap a map structured as in the above example.
+     *
+     */
     public void setLabelMap(HashMap labelMap) {
         this.labelMap = labelMap;
     }
@@ -233,7 +241,8 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
                         logger.debug("We have a miss!");
                         misses++;
                     }
-                } /* if arguments is an ILabel */} /* loop through all arguments */
+                }
+            }
             Assert.isTrue((matches + misses) == labeledArguments,
                 "The matches (" + matches + ") and misses (" + misses + " ) don't add up (" + labeledArguments + ")");
 

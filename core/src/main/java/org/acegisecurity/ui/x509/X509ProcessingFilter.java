@@ -43,9 +43,14 @@ import java.io.IOException;
 
 import java.security.cert.X509Certificate;
 
-import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.Filter;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletException;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletResponse;
+import javax.servlet.FilterConfig;
 
 
 /**
@@ -96,7 +101,7 @@ public class X509ProcessingFilter implements Filter, InitializingBean, Applicati
      * @param filterChain DOCUMENT ME!
      *
      * @throws IOException DOCUMENT ME!
-     * @throws ServletException DOCUMENT ME!
+     * @throws javax.servlet.ServletException DOCUMENT ME!
      */
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
         throws IOException, ServletException {

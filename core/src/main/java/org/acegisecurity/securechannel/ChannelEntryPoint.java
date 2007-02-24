@@ -24,7 +24,7 @@ import javax.servlet.ServletResponse;
 
 /**
  * May be used by a {@link ChannelProcessor} to launch a web channel.
- * 
+ *
  * <P>
  * <code>ChannelProcessor</code>s can elect to launch a new web channel
  * directly, or they can delegate to another class. The
@@ -49,6 +49,6 @@ public interface ChannelEntryPoint {
      * @throws IOException DOCUMENT ME!
      * @throws ServletException DOCUMENT ME!
      */
-    public void commence(ServletRequest request, ServletResponse response)
+    void commence(ServletRequest request, ServletResponse response)
         throws IOException, ServletException;
 }

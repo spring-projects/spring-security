@@ -32,7 +32,12 @@ import java.util.List;
  * @author Ben Alex
  * @version $Id$
  */
-public class MethodInvocationUtils {
+public final class MethodInvocationUtils {
+    //~ Constructors ===================================================================================================
+
+    private MethodInvocationUtils() {
+    }
+
     //~ Methods ========================================================================================================
 
     /**

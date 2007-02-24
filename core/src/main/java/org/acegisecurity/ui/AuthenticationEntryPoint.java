@@ -49,6 +49,6 @@ public interface AuthenticationEntryPoint {
      * @throws IOException DOCUMENT ME!
      * @throws ServletException DOCUMENT ME!
      */
-    public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
+    void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
         throws IOException, ServletException;
 }

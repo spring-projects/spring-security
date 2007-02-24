@@ -28,9 +28,6 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id$
  */
 public abstract class AbstractFilterInvocationDefinitionSource implements FilterInvocationDefinitionSource {
-    //~ Static fields/initializers =====================================================================================
-
-    private static final Log logger = LogFactory.getLog(AbstractFilterInvocationDefinitionSource.class);
 
     //~ Methods ========================================================================================================
 
@@ -47,9 +44,11 @@ public abstract class AbstractFilterInvocationDefinitionSource implements Filter
 
     /**
      * Performs the actual lookup of the relevant <code>ConfigAttributeDefinition</code> for the specified
-     * <code>FilterInvocation</code>.<P>Provided so subclasses need only to provide one basic method to
-     * properly interface with the <code>FilterInvocationDefinitionSource</code>.</p>
-     *  <P>Public visiblity so that tablibs or other view helper classes can access the
+     * <code>FilterInvocation</code>.
+     * <p>Provided so subclasses need only to provide one basic method to properly interface with the
+     * <code>FilterInvocationDefinitionSource</code>.
+     * </p>
+     * <p>Public visiblity so that tablibs or other view helper classes can access the
      * <code>ConfigAttributeDefinition</code> applying to a given URI pattern without needing to construct a mock
      * <code>FilterInvocation</code> and retrieving the attibutes via the {@link #getAttributes(Object)} method.</p>
      *
@@ -60,10 +59,6 @@ public abstract class AbstractFilterInvocationDefinitionSource implements Filter
     public abstract ConfigAttributeDefinition lookupAttributes(String url);
 
     public boolean supports(Class clazz) {
-        if (FilterInvocation.class.isAssignableFrom(clazz)) {
-            return true;
-        } else {
-            return false;
-        }
+        return FilterInvocation.class.isAssignableFrom(clazz);
     }
 }

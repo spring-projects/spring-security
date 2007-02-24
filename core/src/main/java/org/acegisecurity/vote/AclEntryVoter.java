@@ -156,7 +156,7 @@ public class AclEntryVoter extends AbstractAclVoter {
 
                 // Evaluate if we are required to use an inner domain object
                 if (domainObject != null && internalMethod != null && (!"".equals(internalMethod))) {
-                	try {
+                    try {
                         Class clazz = domainObject.getClass();
                         Method method = clazz.getMethod(internalMethod, new Class[] {});
                         domainObject = method.invoke(domainObject, new Object[] {});
@@ -196,7 +196,7 @@ public class AclEntryVoter extends AbstractAclVoter {
 
                     return AccessDecisionVoter.ACCESS_ABSTAIN;
                 }
-                
+
                 // Obtain the OID applicable to the domain object
                 ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
 

@@ -39,5 +39,5 @@ public interface LookupStrategy {
      * @return the <code>Map</code> pursuant to the interface contract for {@link
      *         org.acegisecurity.acls.AclService#readAclsById(ObjectIdentity[], Sid[])}
      */
-    public Map readAclsById(ObjectIdentity[] objects, Sid[] sids);
+    Map readAclsById(ObjectIdentity[] objects, Sid[] sids);
 }

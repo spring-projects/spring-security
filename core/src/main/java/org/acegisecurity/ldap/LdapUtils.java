@@ -32,10 +32,15 @@ import javax.naming.NamingException;
  * @author Luke Taylor
  * @version $Id$
  */
-public class LdapUtils {
+public final class LdapUtils {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(LdapUtils.class);
+
+    //~ Constructors ===================================================================================================
+
+    private LdapUtils() {
+    }
 
     //~ Methods ========================================================================================================
 

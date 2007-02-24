@@ -66,7 +66,8 @@ public class RejectProxyTickets implements CasProxyDecider, MessageSourceAware, 
             logger.debug("Proxies are unacceptable; proxy list provided: " + proxyList.toString());
         }
 
-        throw new ProxyUntrustedException(messages.getMessage("RejectProxyTickets.reject", "Proxy tickets are rejected"));
+        throw new ProxyUntrustedException(
+                messages.getMessage("RejectProxyTickets.reject", "Proxy tickets are rejected"));
     }
 
     public void setMessageSource(MessageSource messageSource) {

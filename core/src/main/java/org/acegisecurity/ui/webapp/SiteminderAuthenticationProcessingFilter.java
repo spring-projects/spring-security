@@ -76,7 +76,7 @@ public class SiteminderAuthenticationProcessingFilter extends AuthenticationProc
     //~ Methods ========================================================================================================
 
     /**
-     * 
+     *
      * @see org.acegisecurity.ui.AbstractProcessingFilter#attemptAuthentication(javax.servlet.http.HttpServletRequest)
      */
     public Authentication attemptAuthentication(HttpServletRequest request)
@@ -201,15 +201,15 @@ public class SiteminderAuthenticationProcessingFilter extends AuthenticationProc
         int pathParamIndex = uri.indexOf(';');
 
         if (pathParamIndex > 0) {
-            // strip everything after the first semi-colon 
+            // strip everything after the first semi-colon
             uri = uri.substring(0, pathParamIndex);
         }
 
-        //attempt authentication if j_secuity_check is present or if the getDefaultTargetUrl() 
-        //is present and user is not already authenticated. 
+        //attempt authentication if j_secuity_check is present or if the getDefaultTargetUrl()
+        //is present and user is not already authenticated.
         boolean bAuthenticated = false;
-        SecurityContext context = (SecurityContext) request.getSession()
-                                                           .getAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
+        SecurityContext context = (SecurityContext)
+                request.getSession().getAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
 
         if (context != null) {
             Authentication auth = context.getAuthentication();
@@ -222,7 +222,7 @@ public class SiteminderAuthenticationProcessingFilter extends AuthenticationProc
 
         // if true is returned then authentication will be attempted.
         boolean bAttemptAuthentication = (uri.endsWith(request.getContextPath() + getFilterProcessesUrl()))
-            || ((getDefaultTargetUrl() != null) && uri.endsWith(getDefaultTargetUrl()) && !bAuthenticated);
+                || ((getDefaultTargetUrl() != null) && uri.endsWith(getDefaultTargetUrl()) && !bAuthenticated);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Authentication attempted for the following URI ==> " + uri + " is " + bAttemptAuthentication);

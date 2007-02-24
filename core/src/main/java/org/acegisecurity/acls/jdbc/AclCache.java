@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 /**
  * A caching layer for {@link JdbcAclService}.
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  *
@@ -30,13 +30,13 @@ import java.io.Serializable;
 public interface AclCache {
     //~ Methods ========================================================================================================
 
-    public void evictFromCache(Serializable pk);
+    void evictFromCache(Serializable pk);
 
-    public void evictFromCache(ObjectIdentity objectIdentity);
+    void evictFromCache(ObjectIdentity objectIdentity);
 
-    public MutableAcl getFromCache(ObjectIdentity objectIdentity);
+    MutableAcl getFromCache(ObjectIdentity objectIdentity);
 
-    public MutableAcl getFromCache(Serializable pk);
+    MutableAcl getFromCache(Serializable pk);
 
-    public void putInCache(MutableAcl acl);
+    void putInCache(MutableAcl acl);
 }

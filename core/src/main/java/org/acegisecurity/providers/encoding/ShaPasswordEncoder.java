@@ -18,16 +18,17 @@ package org.acegisecurity.providers.encoding;
  * <p>SHA implementation of PasswordEncoder.</p>
  * <p>If a <code>null</code> password is presented, it will be treated as an empty <code>String</code> ("")
  * password.</p>
- * <P>As SHA is a one-way hash, the salt can contain any characters.</p>
- *
- * The default strength for the SHA encoding is SHA-1. If you wish to use higher strengths use the argumented constructor.
+ * <p>As SHA is a one-way hash, the salt can contain any characters. The default strength for the SHA encoding is SHA-1.
+ * If you wish to use higher strengths use the argumented constructor.
  * {@link #ShaPasswordEncoder(int strength)}
- * <br/>
- * The applicationContext example... <br/>
- * &lt;bean id="passwordEncoder" class="org.acegisecurity.providers.encoding.ShaPasswordEncoder"&gt;<br/>
- * &nbsp;&nbsp;&lt;constructor-arg value="256"/><br/>
+ * </p>
+ * <p>
+ * The applicationContext example...
+ * <pre>
+ * &lt;bean id="passwordEncoder" class="org.acegisecurity.providers.encoding.ShaPasswordEncoder"&gt;
+ *     &lt;constructor-arg value="256"/>
  * &lt;/bean&gt;
- *
+ * </pre>
  *
  * @author Ray Krueger
  * @author colin sampaleanu

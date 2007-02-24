@@ -27,7 +27,7 @@ import java.util.TimeZone;
 
 /**
  * <p>Utility class to generate HTTP dates.</p>
- *  <p>This class is based on code in Apache Tomcat.</p>
+ * <p>This class is based on code in Apache Tomcat.</p>
  *
  * @author Remy Maucherat
  * @author Andrey Grebnev
@@ -47,7 +47,7 @@ public class FastHttpDateFormat {
         };
 
     /** GMT timezone - all HTTP dates are on GMT */
-    protected final static TimeZone gmtZone = TimeZone.getTimeZone("GMT");
+    protected static final TimeZone gmtZone = TimeZone.getTimeZone("GMT");
 
     static {
         format.setTimeZone(gmtZone);
@@ -138,7 +138,7 @@ public class FastHttpDateFormat {
      *
      * @return Parsed date (or <code>null</code> if no formatter mached)
      */
-    private static final Long internalParseDate(String value, DateFormat[] formats) {
+    private static Long internalParseDate(String value, DateFormat[] formats) {
         Date date = null;
 
         for (int i = 0; (date == null) && (i < formats.length); i++) {
@@ -205,7 +205,7 @@ public class FastHttpDateFormat {
      * @param key Key to be updated
      * @param value New value
      */
-    private static final void updateCache(HashMap cache, Object key, Object value) {
+    private static void updateCache(HashMap cache, Object key, Object value) {
         if (value == null) {
             return;
         }

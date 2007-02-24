@@ -21,7 +21,7 @@ import java.io.Serializable;
 /**
  * Marker interface representing an access control list entry associated with a
  * specific domain object instance.
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  */

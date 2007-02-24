@@ -48,7 +48,7 @@ import javax.servlet.jsp.tagext.TagSupport;
 public class AuthenticationTag extends TagSupport {
     //~ Static fields/initializers =====================================================================================
 
-    private final static Set methodPrefixValidOptions = new HashSet();
+    private static final Set methodPrefixValidOptions = new HashSet();
 
     static {
         methodPrefixValidOptions.add("get");

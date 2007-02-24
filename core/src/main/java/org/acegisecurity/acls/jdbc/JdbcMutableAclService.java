@@ -128,7 +128,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
                 }
 
                 public void setValues(PreparedStatement stmt, int i)
-                    throws SQLException {
+                        throws SQLException {
                     AccessControlEntry entry_ = (AccessControlEntry) Array.get(acl.getEntries(), i);
                     Assert.isTrue(entry_ instanceof AccessControlEntryImpl, "Unknown ACE class");
 
@@ -176,7 +176,8 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
             if (allowCreate) {
                 classId = null;
                 jdbcTemplate.update(insertClass, new Object[] {clazz.getName()});
-                Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(), "Transaction must be running");
+                Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
+                        "Transaction must be running");
                 classId = new Long(jdbcTemplate.queryForLong(identityQuery));
             }
         } else {
@@ -220,7 +221,8 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
             if (allowCreate) {
                 sidId = null;
                 jdbcTemplate.update(insertSid, new Object[] {new Boolean(principal), sidName});
-                Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(), "Transaction must be running");
+                Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
+                        "Transaction must be running");
                 sidId = new Long(jdbcTemplate.queryForLong(identityQuery));
             }
         } else {
@@ -263,7 +265,8 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
      * @param oid the rows in acl_entry to delete
      */
     protected void deleteEntries(ObjectIdentity oid) {
-        jdbcTemplate.update(deleteEntryByObjectIdentityForeignKey, new Object[] {retrieveObjectIdentityPrimaryKey(oid)});
+        jdbcTemplate.update(deleteEntryByObjectIdentityForeignKey,
+                new Object[] {retrieveObjectIdentityPrimaryKey(oid)});
     }
 
     /**

@@ -21,18 +21,18 @@ import org.acegisecurity.acls.Acl;
 /**
  * Strategy used by {@link AclImpl} to determine whether a principal is permitted to call
  * adminstrative methods on the <code>AclImpl</code>.
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  */
 public interface AclAuthorizationStrategy {
     //~ Static fields/initializers =====================================================================================
 
-    public static final int CHANGE_OWNERSHIP = 0;
-    public static final int CHANGE_AUDITING = 1;
-    public static final int CHANGE_GENERAL = 2;
+    int CHANGE_OWNERSHIP = 0;
+    int CHANGE_AUDITING = 1;
+    int CHANGE_GENERAL = 2;
 
     //~ Methods ========================================================================================================
 
-    public void securityCheck(Acl acl, int changeType);
+    void securityCheck(Acl acl, int changeType);
 }

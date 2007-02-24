@@ -23,10 +23,10 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Indicates a class that is able to participate in logout handling.
- * 
+ *
  * <p>
  * Called by {@link LogoutFilter}.
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  */
@@ -40,5 +40,5 @@ public interface LogoutHandler {
      * @param response the HTTP resonse
      * @param authentication the current principal details
      */
-    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication);
+    void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication);
 }

@@ -20,7 +20,6 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
 
-import org.acegisecurity.acls.Acl;
 import org.acegisecurity.acls.AclService;
 import org.acegisecurity.acls.Permission;
 
@@ -37,19 +36,20 @@ import java.util.Iterator;
 /**
  * <p>Given a domain object instance returned from a secure object invocation, ensures the principal has
  * appropriate permission as defined by the {@link AclService}.</p>
- *  <p>The <code>AclService</code> is used to retrieve the access control list (ACL) permissions associated with a
+ * <p>The <code>AclService</code> is used to retrieve the access control list (ACL) permissions associated with a
  * domain object instance for the current <code>Authentication</code> object.</p>
- *  <p>This after invocation provider will fire if any  {@link ConfigAttribute#getAttribute()} matches the {@link
+ * <p>This after invocation provider will fire if any  {@link ConfigAttribute#getAttribute()} matches the {@link
  * #processConfigAttribute}. The provider will then lookup the ACLs from the <code>AclService</code> and ensure the
- * principal is {@link Acl#isGranted(org.acegisecurity.acls.Permission[], org.acegisecurity.acls.sid.Sid[], boolean)}
+ * principal is {@link org.acegisecurity.acls.Acl#isGranted(org.acegisecurity.acls.Permission[],
+   org.acegisecurity.acls.sid.Sid[], boolean) Acl.isGranted(Permission[], Sid[], boolean)}
  * when presenting the {@link #requirePermission} array to that method.</p>
- *  <p>Often users will setup an <code>AclEntryAfterInvocationProvider</code> with a {@link
+ * <p>Often users will setup an <code>AclEntryAfterInvocationProvider</code> with a {@link
  * #processConfigAttribute} of <code>AFTER_ACL_READ</code> and a {@link #requirePermission} of
  * <code>BasePermission.READ</code>. These are also the defaults.</p>
- *  <p>If the principal does not have sufficient permissions, an <code>AccessDeniedException</code> will be thrown.</p>
- *  <p>If the provided <code>returnObject</code> is <code>null</code>, permission will always be granted and
+ * <p>If the principal does not have sufficient permissions, an <code>AccessDeniedException</code> will be thrown.</p>
+ * <p>If the provided <code>returnObject</code> is <code>null</code>, permission will always be granted and
  * <code>null</code> will be returned.</p>
- *  <p>All comparisons and prefixes are case sensitive.</p>
+ * <p>All comparisons and prefixes are case sensitive.</p>
  */
 public class AclEntryAfterInvocationProvider extends AbstractAclProvider implements MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
@@ -113,7 +113,7 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
         return returnedObject;
     }
 
-    public void setMessageSource(MessageSource messages) {
-        this.messages = new MessageSourceAccessor(messages);
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
     }
 }

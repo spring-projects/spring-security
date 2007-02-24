@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * The AuthorityGranter interface is used to map a given principal to role
  * names.
- * 
+ *
  * <P>
  * If a Windows NT login module were to be used from JAAS, an AuthrityGranter
  * implementation could be created to map a NT Group Principal to a ROLE_USER
@@ -48,5 +48,5 @@ public interface AuthorityGranter {
      *
      * @return A java.util.Set of role names to grant, or null meaning no roles should be granted for the principal.
      */
-    public Set grant(Principal principal);
+    Set grant(Principal principal);
 }

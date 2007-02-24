@@ -53,7 +53,7 @@ public class LdapTestServer {
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Starts up and configures ApacheDS.
      */
     public LdapTestServer() {
@@ -212,7 +212,7 @@ public class LdapTestServer {
 
         String apacheWorkDir = System.getProperty("apacheDSWorkDir");
 
-        if(apacheWorkDir == null) {
+        if (apacheWorkDir == null) {
             apacheWorkDir = System.getProperty("java.io.tmpdir") + File.separator + "apacheds-work";
         }
 
@@ -244,7 +244,7 @@ public class LdapTestServer {
     }
 
     /** Recursively deletes a directory */
-    private static boolean deleteDir(File dir) {
+    private boolean deleteDir(File dir) {
         if (dir.isDirectory()) {
             String[] children = dir.list();
             for (int i=0; i<children.length; i++) {

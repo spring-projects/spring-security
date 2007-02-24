@@ -43,7 +43,8 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(FilterInvocationDefinitionSourceEditor.class);
-    public static final String DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON = "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON";
+    public static final String DIRECTIVE_CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON =
+            "CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON";
     public static final String DIRECTIVE_PATTERN_TYPE_APACHE_ANT = "PATTERN_TYPE_APACHE_ANT";
 
     //~ Methods ========================================================================================================
@@ -79,7 +80,7 @@ public class FilterInvocationDefinitionSourceEditor extends PropertyEditorSuppor
             BufferedReader br = new BufferedReader(new StringReader(s));
             int counter = 0;
             String line;
-            
+
             List mappings = new ArrayList();
 
             while (true) {

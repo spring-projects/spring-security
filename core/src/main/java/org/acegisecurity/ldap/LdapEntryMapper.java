@@ -29,6 +29,6 @@ import javax.naming.directory.Attributes;
 public interface LdapEntryMapper {
     //~ Methods ========================================================================================================
 
-    public Object mapAttributes(String dn, Attributes attributes)
+    Object mapAttributes(String dn, Attributes attributes)
         throws NamingException;
 }

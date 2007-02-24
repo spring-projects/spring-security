@@ -69,17 +69,22 @@ import java.util.Properties;
 
 
 /**
- * Iterates an {@link Authentication} request through a list of {@link AuthenticationProvider}s. Can optionally be
- * configured with a {@link ConcurrentSessionController} to limit the number of sessions a user can have.<p><code>AuthenticationProvider</code>s
- * are tried in order until one provides a non-null response. A non-null response indicates the provider had authority
- * to decide on the authentication request and no further providers are tried. If an
- * <code>AuthenticationException</code> is thrown by a provider, it is retained until subsequent providers are tried.
- * If a subsequent provider successfully authenticates the request, the earlier authentication exception is
- * disregarded and the successful authentication will be used. If no subsequent provider provides a non-null response,
- * or a new <code>AuthenticationException</code>, the last <code>AuthenticationException</code> received will be used.
- * If no provider returns a non-null response, or indicates it can even process an <code>Authentication</code>, the
- * <code>ProviderManager</code> will throw a <code>ProviderNotFoundException</code>.</p>
- *  <p>If a valid <code>Authentication</code> is returned by an <code>AuthenticationProvider</code>, the
+ * Iterates an {@link Authentication} request through a list of {@link AuthenticationProvider}s.
+ *
+ * Can optionally be configured with a {@link ConcurrentSessionController} to limit the number of sessions a user can
+ * have.
+ * <p>
+ * <code>AuthenticationProvider</code>s are tried in order until one provides a non-null response.
+ * A non-null response indicates the provider had authority to decide on the authentication request and no further
+ * providers are tried. If an <code>AuthenticationException</code> is thrown by a provider, it is retained until
+ * subsequent providers are tried. If a subsequent provider successfully authenticates the request, the earlier
+ * authentication exception is disregarded and the successful authentication will be used. If no subsequent provider
+ * provides a non-null response, or a new <code>AuthenticationException</code>, the last
+ * <code>AuthenticationException</code> received will be used. If no provider returns a non-null response, or indicates
+ * it can even process an <code>Authentication</code>, the <code>ProviderManager</code> will throw a
+ * <code>ProviderNotFoundException</code>.</p>
+ *
+ * <p>If a valid <code>Authentication</code> is returned by an <code>AuthenticationProvider</code>, the
  * <code>ProviderManager</code> will publish an {@link
  * org.acegisecurity.event.authentication.AuthenticationSuccessEvent}. If an <code>AuthenticationException</code> is
  * detected, the final <code>AuthenticationException</code> thrown will be used to publish an appropriate failure
@@ -108,23 +113,25 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
 
     static {
         DEFAULT_EXCEPTION_MAPPINGS.put(AccountExpiredException.class.getName(),
-            AuthenticationFailureExpiredEvent.class.getName());
+                AuthenticationFailureExpiredEvent.class.getName());
         DEFAULT_EXCEPTION_MAPPINGS.put(AuthenticationServiceException.class.getName(),
-            AuthenticationFailureServiceExceptionEvent.class.getName());
-        DEFAULT_EXCEPTION_MAPPINGS.put(LockedException.class.getName(), AuthenticationFailureLockedEvent.class.getName());
+                AuthenticationFailureServiceExceptionEvent.class.getName());
+        DEFAULT_EXCEPTION_MAPPINGS.put(LockedException.class.getName(),
+                AuthenticationFailureLockedEvent.class.getName());
         DEFAULT_EXCEPTION_MAPPINGS.put(CredentialsExpiredException.class.getName(),
-            AuthenticationFailureCredentialsExpiredEvent.class.getName());
-        DEFAULT_EXCEPTION_MAPPINGS.put(DisabledException.class.getName(), AuthenticationFailureDisabledEvent.class.getName());
+                AuthenticationFailureCredentialsExpiredEvent.class.getName());
+        DEFAULT_EXCEPTION_MAPPINGS.put(DisabledException.class.getName(),
+                AuthenticationFailureDisabledEvent.class.getName());
         DEFAULT_EXCEPTION_MAPPINGS.put(BadCredentialsException.class.getName(),
-            AuthenticationFailureBadCredentialsEvent.class.getName());
+                AuthenticationFailureBadCredentialsEvent.class.getName());
         DEFAULT_EXCEPTION_MAPPINGS.put(UsernameNotFoundException.class.getName(),
-            AuthenticationFailureBadCredentialsEvent.class.getName());
+                AuthenticationFailureBadCredentialsEvent.class.getName());
         DEFAULT_EXCEPTION_MAPPINGS.put(ConcurrentLoginException.class.getName(),
-            AuthenticationFailureConcurrentLoginEvent.class.getName());
+                AuthenticationFailureConcurrentLoginEvent.class.getName());
         DEFAULT_EXCEPTION_MAPPINGS.put(ProviderNotFoundException.class.getName(),
-            AuthenticationFailureProviderNotFoundEvent.class.getName());
+                AuthenticationFailureProviderNotFoundEvent.class.getName());
         DEFAULT_EXCEPTION_MAPPINGS.put(ProxyUntrustedException.class.getName(),
-            AuthenticationFailureProxyUntrustedEvent.class.getName());
+                AuthenticationFailureProxyUntrustedEvent.class.getName());
     }
 
     public ProviderManager() {
@@ -274,7 +281,8 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
 
         while (iter.hasNext()) {
             Object currentObject = iter.next();
-            Assert.isInstanceOf(AuthenticationProvider.class, currentObject, "Can only provide AuthenticationProvider instances");
+            Assert.isInstanceOf(AuthenticationProvider.class, currentObject,
+                    "Can only provide AuthenticationProvider instances");
         }
 
         this.providers = newList;
@@ -290,9 +298,9 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
         this.sessionController = sessionController;
     }
 
-    private void publishEvent( ApplicationEvent event ) {
-        if ( applicationEventPublisher != null ) {
-            applicationEventPublisher.publishEvent( event );
+    private void publishEvent(ApplicationEvent event) {
+        if (applicationEventPublisher != null) {
+            applicationEventPublisher.publishEvent(event);
         }
     }
 }

@@ -44,15 +44,19 @@ import org.springframework.util.Assert;
 /**
  * A base {@link AuthenticationProvider} that allows subclasses to override and work with {@link
  * org.acegisecurity.userdetails.UserDetails} objects. The class is designed to respond to {@link
- * UsernamePasswordAuthenticationToken} authentication requests.<p>Upon successful validation, a
- * <code>UsernamePasswordAuthenticationToken</code> will be created and returned to the caller. The token will include
- * as its principal either a <code>String</code> representation of the username, or the {@link UserDetails} that was
- * returned from the authentication repository. Using <code>String</code> is appropriate if a container adapter is
- * being used, as it expects <code>String</code> representations of the username. Using <code>UserDetails</code> is
- * appropriate if you require access to additional properties of the authenticated user, such as email addresses,
- * human-friendly names etc. As container adapters are not recommended to be used, and <code>UserDetails</code>
- * implementations provide additional flexibility, by default a <code>UserDetails</code> is returned. To override this
- * default, set the {@link #setForcePrincipalAsString} to <code>true</code>.</p>
+ * UsernamePasswordAuthenticationToken} authentication requests.
+ *
+ * <p>
+ * Upon successful validation, a <code>UsernamePasswordAuthenticationToken</code> will be created and returned to the
+ * caller. The token will include as its principal either a <code>String</code> representation of the username, or the
+ * {@link UserDetails} that was returned from the authentication repository. Using <code>String</code> is appropriate
+ * if a container adapter is being used, as it expects <code>String</code> representations of the username.
+ * Using <code>UserDetails</code> is appropriate if you require access to additional properties of the authenticated
+ * user, such as email addresses, human-friendly names etc. As container adapters are not recommended to be used,
+ * and <code>UserDetails</code> implementations provide additional flexibility, by default a <code>UserDetails</code>
+ * is returned. To override this
+ * default, set the {@link #setForcePrincipalAsString} to <code>true</code>.
+ * </p>
  *  <p>Caching is handled via the <code>UserDetails</code> object being placed in the {@link UserCache}. This
  * ensures that subsequent requests with the same username can be validated without needing to query the {@link
  * UserDetailsService}. It should be noted that if a user appears to present an incorrect password, the {@link
@@ -145,15 +149,15 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
         try {
             additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
         } catch (AuthenticationException exception) {
-        	if(cacheWasUsed) {
+            if (cacheWasUsed) {
                 // There was a problem, so try again after checking
-        		// we're using latest data (ie not from the cache)
+                // we're using latest data (ie not from the cache)
                 cacheWasUsed = false;
                 user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
                 additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
-        	} else {
-        		throw exception;
-		    }
+            } else {
+                throw exception;
+            }
         }
 
         if (!user.isCredentialsNonExpired()) {

@@ -50,15 +50,15 @@ public class SimpleAclEntry extends AbstractBasicAclEntry {
         };
 
     private static final String[] VALID_PERMISSIONS_AS_STRING = {
-            "NOTHING", "ADMINISTRATION", "READ", "WRITE", "CREATE", "DELETE", "READ_WRITE_CREATE_DELETE", "READ_WRITE_CREATE",
-            "READ_WRITE", "READ_WRITE_DELETE" };
+            "NOTHING", "ADMINISTRATION", "READ", "WRITE", "CREATE", "DELETE", "READ_WRITE_CREATE_DELETE",
+            "READ_WRITE_CREATE", "READ_WRITE", "READ_WRITE_DELETE" };
 
     //~ Constructors ===================================================================================================
 
     /**
      * Allows {@link BasicAclDao} implementations to construct this object
      * using <code>newInstance()</code>.
-     * 
+     *
      * <P>
      * Normal classes should <B>not</B> use this default constructor.
      * </p>
@@ -119,7 +119,7 @@ public class SimpleAclEntry extends AbstractBasicAclEntry {
 
     /**
      * Parse a permission {@link String} literal and return associated value.
-     * 
+     *
      * @param permission one of the field names that represent a permission: <code>ADMINISTRATION</code>,
      * <code>READ</code>, <code>WRITE</code>,...
      * @return the value associated to that permission
@@ -136,7 +136,7 @@ public class SimpleAclEntry extends AbstractBasicAclEntry {
 
     /**
      * Parse a list of permission {@link String} literals and return associated values.
-     * 
+     *
      * @param permissions array with permissions as {@link String}
      * @see #parsePermission(String) for valid values
      */

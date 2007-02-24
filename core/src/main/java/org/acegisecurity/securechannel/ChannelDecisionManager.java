@@ -27,7 +27,7 @@ import javax.servlet.ServletException;
 
 /**
  * Decides whether a web channel provides sufficient security.
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  */
@@ -44,7 +44,7 @@ public interface ChannelDecisionManager {
      * @throws IOException DOCUMENT ME!
      * @throws ServletException DOCUMENT ME!
      */
-    public void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
+    void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
         throws IOException, ServletException;
 
     /**
@@ -57,5 +57,5 @@ public interface ChannelDecisionManager {
      *
      * @return true if this <code>ChannelDecisionManager</code> can support the passed configuration attribute
      */
-    public boolean supports(ConfigAttribute attribute);
+    boolean supports(ConfigAttribute attribute);
 }

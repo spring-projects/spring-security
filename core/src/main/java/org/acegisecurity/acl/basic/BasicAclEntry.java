@@ -35,7 +35,7 @@ public interface BasicAclEntry extends AclEntry {
      *
      * @return the ACL object identity that is subject of this ACL entry (never <code>null</code>)
      */
-    public AclObjectIdentity getAclObjectIdentity();
+    AclObjectIdentity getAclObjectIdentity();
 
     /**
      * Indicates any ACL parent of the domain object instance. This is used by <code>BasicAclProvider</code> to
@@ -44,7 +44,7 @@ public interface BasicAclEntry extends AclEntry {
      * @return the ACL object identity that is the parent of this ACL entry (may be <code>null</code> if no parent
      *         should be consulted)
      */
-    public AclObjectIdentity getAclObjectParentIdentity();
+    AclObjectIdentity getAclObjectParentIdentity();
 
     /**
      * Access control lists in this package are based on bit masking. The integer value of the bit mask can be
@@ -53,7 +53,7 @@ public interface BasicAclEntry extends AclEntry {
      * @return the bit mask applicable to this ACL entry (zero indicates a bit mask where no permissions have been
      *         granted)
      */
-    public int getMask();
+    int getMask();
 
     /**
      * A domain object instance will usually have multiple <code>BasicAclEntry</code>s. Each separate
@@ -65,12 +65,12 @@ public interface BasicAclEntry extends AclEntry {
      * object type will vary depending on the type of recipient. For instance, it might be a <code>String</code>
      * containing a username, or a <code>GrantedAuthorityImpl</code> containing a complex granted authority that is
      * being granted the permissions contained in this access control entry. The {@link EffectiveAclsResolver} and
-     * {@link BasicAclProvider#getAcls(Object, Authentication)} can process the different recipient types and return
-     * only those that apply to a specified <code>Authentication</code> object.</p>
+     * {@link BasicAclProvider#getAcls(Object,org.acegisecurity.Authentication)} can process the different recipient
+     * types and return only those that apply to a specified <code>Authentication</code> object.</p>
      *
      * @return the recipient of this access control list entry (never <code>null</code>)
      */
-    public Object getRecipient();
+    Object getRecipient();
 
     /**
      * Determine if the mask of this entry includes this permission or not
@@ -79,7 +79,7 @@ public interface BasicAclEntry extends AclEntry {
      *
      * @return if the entry's mask includes this permission
      */
-    public boolean isPermitted(int permissionToCheck);
+    boolean isPermitted(int permissionToCheck);
 
     /**
      * This setter should <B>only</B> be used by DAO implementations.
@@ -87,7 +87,7 @@ public interface BasicAclEntry extends AclEntry {
      * @param aclObjectIdentity an object which can be used to uniquely identify the domain object instance subject of
      *        this ACL entry
      */
-    public void setAclObjectIdentity(AclObjectIdentity aclObjectIdentity);
+    void setAclObjectIdentity(AclObjectIdentity aclObjectIdentity);
 
     /**
      * This setter should <B>only</B> be used by DAO implementations.
@@ -96,14 +96,14 @@ public interface BasicAclEntry extends AclEntry {
      *        this ACL entry, or <code>null</code> if either the domain object instance has no parent or its parent
      *        should be not used to compute an inheritance hierarchy
      */
-    public void setAclObjectParentIdentity(AclObjectIdentity aclObjectParentIdentity);
+    void setAclObjectParentIdentity(AclObjectIdentity aclObjectParentIdentity);
 
     /**
      * This setter should <B>only</B> be used by DAO implementations.
      *
      * @param mask the integer representing the permissions bit mask
      */
-    public void setMask(int mask);
+    void setMask(int mask);
 
     /**
      * This setter should <B>only</B> be used by DAO implementations.
@@ -111,5 +111,5 @@ public interface BasicAclEntry extends AclEntry {
      * @param recipient a representation of the recipient of this ACL entry that makes sense to an
      *        <code>EffectiveAclsResolver</code> implementation
      */
-    public void setRecipient(Object recipient);
+    void setRecipient(Object recipient);
 }

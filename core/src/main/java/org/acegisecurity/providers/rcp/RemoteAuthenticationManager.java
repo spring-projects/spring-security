@@ -42,6 +42,6 @@ public interface RemoteAuthenticationManager {
      *
      * @throws RemoteAuthenticationException if the authentication failed.
      */
-    public GrantedAuthority[] attemptAuthentication(String username, String password)
+    GrantedAuthority[] attemptAuthentication(String username, String password)
         throws RemoteAuthenticationException;
 }

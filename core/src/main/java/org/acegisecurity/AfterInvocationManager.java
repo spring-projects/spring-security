@@ -19,7 +19,7 @@ package org.acegisecurity;
  * Reviews the <code>Object</code> returned from a secure object invocation,
  * being able to modify the <code>Object</code> or throw an {@link
  * AccessDeniedException}.
- * 
+ *
  * <p>
  * Typically used to ensure the principal is permitted to access the domain
  * object instance returned by a service layer bean. Can also be used to
@@ -28,7 +28,7 @@ package org.acegisecurity;
  * in conjunction with an {@link org.acegisecurity.acl.AclManager} to
  * obtain the access control list applicable for the domain object instance.
  * </p>
- * 
+ *
  * <p>
  * Special consideration should be given to using an
  * <code>AfterInvocationManager</code> on bean methods that modify a database.
@@ -60,7 +60,7 @@ public interface AfterInvocationManager {
      *
      * @throws AccessDeniedException if access is denied
      */
-    public Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
+    Object decide(Authentication authentication, Object object, ConfigAttributeDefinition config,
         Object returnedObject) throws AccessDeniedException;
 
     /**
@@ -75,7 +75,7 @@ public interface AfterInvocationManager {
      *
      * @return true if this <code>AfterInvocationManager</code> can support the passed configuration attribute
      */
-    public boolean supports(ConfigAttribute attribute);
+    boolean supports(ConfigAttribute attribute);
 
     /**
      * Indicates whether the <code>AfterInvocationManager</code> implementation is able to provide access
@@ -85,5 +85,5 @@ public interface AfterInvocationManager {
      *
      * @return <code>true</code> if the implementation can process the indicated class
      */
-    public boolean supports(Class clazz);
+    boolean supports(Class clazz);
 }

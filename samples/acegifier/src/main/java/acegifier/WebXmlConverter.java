@@ -53,9 +53,9 @@ public class WebXmlConverter {
     private Document newWebXml, acegiBeansXml;
 
     public WebXmlConverter() throws IOException, TransformerConfigurationException {
-    	TransformerFactory tf = TransformerFactory.newInstance();
-    	Source source = createTransformerSource(WEB_TO_SPRING_XSL_FILE);
-    	System.out.println("1");
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Source source = createTransformerSource(WEB_TO_SPRING_XSL_FILE);
+        System.out.println("1");
         acegiSecurityTransformer = tf.newTransformer(source);
         System.out.println("2");
         newWebXmlTransformer = tf.newTransformer(createTransformerSource(NEW_WEB_XSLT_FILE));
@@ -109,14 +109,14 @@ public class WebXmlConverter {
     private void validateWebXml(Document document) throws DocumentException {
         Node authMethodNode =
                 document.selectSingleNode("/web-app/login-config/auth-method");
-        if(authMethodNode == null)
+        if (authMethodNode == null)
             throw new DocumentException("login-config and auth-method must be present");
         String authMethod =  authMethodNode.getStringValue().toUpperCase();
-        if(!authMethod.equals("BASIC") && !authMethod.equals("FORM")) {
+        if (!authMethod.equals("BASIC") && !authMethod.equals("FORM")) {
             throw new DocumentException("unsupported auth-method: " + authMethod);
         }
         List roles = document.selectNodes("/web-app/security-role");
-        if(roles.isEmpty()) {
+        if (roles.isEmpty()) {
             throw new DocumentException("Each role used must be defined in a security-role element");
         }
     }

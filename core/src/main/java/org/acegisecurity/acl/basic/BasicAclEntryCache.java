@@ -17,7 +17,7 @@ package org.acegisecurity.acl.basic;
 
 /**
  * Provides a cache of {@link BasicAclEntry} objects.
- * 
+ *
  * <P>
  * Implementations should provide appropriate methods to set their cache
  * parameters (eg time-to-live) and/or force removal of entities before their
@@ -41,7 +41,7 @@ public interface BasicAclEntryCache {
      * @return any applicable <code>BasicAclEntry</code>s (no <code>null</code>s are permitted in the returned array)
      *         or <code>null</code> if the object identity could not be found or if the cache entry has expired
      */
-    public BasicAclEntry[] getEntriesFromCache(AclObjectIdentity aclObjectIdentity);
+    BasicAclEntry[] getEntriesFromCache(AclObjectIdentity aclObjectIdentity);
 
     /**
      * Places an array of {@link BasicAclEntry}s in the cache.<P>No <code>null</code>s are allowed in the
@@ -50,12 +50,12 @@ public interface BasicAclEntryCache {
      * @param basicAclEntry the ACL entries to cache (the key will be extracted from the {@link
      *        BasicAclEntry#getAclObjectIdentity()} method
      */
-    public void putEntriesInCache(BasicAclEntry[] basicAclEntry);
+    void putEntriesInCache(BasicAclEntry[] basicAclEntry);
 
     /**
      * Removes all ACL entries related to an {@link AclObjectIdentity} from the cache.
      *
      * @param aclObjectIdentity which should be removed from the cache
      */
-    public void removeEntriesFromCache(AclObjectIdentity aclObjectIdentity);
+    void removeEntriesFromCache(AclObjectIdentity aclObjectIdentity);
 }

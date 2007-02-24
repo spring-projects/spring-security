@@ -35,16 +35,22 @@ import org.springframework.util.ReflectionUtils;
 
 
 /**
- * <p>Populates the {@link SecurityContextHolder} with information obtained from the <code>HttpSession</code>.</p>
- *  <p>The <code>HttpSession</code> will be queried to retrieve the <code>SecurityContext</code> that should be
+ * Populates the {@link SecurityContextHolder} with information obtained from the <code>HttpSession</code>.
+ *
+ * <p>
+ * The <code>HttpSession</code> will be queried to retrieve the <code>SecurityContext</code> that should be
  * stored against the <code>SecurityContextHolder</code> for the duration of the web request. At the end of the web
  * request, any updates made to the <code>SecurityContextHolder</code> will be persisted back to the
- * <code>HttpSession</code> by this filter.</p>
- *  <p>If a valid <code>SecurityContext</code> cannot be obtained from the <code>HttpSession</code> for whatever
+ * <code>HttpSession</code> by this filter.
+ * </p>
+ * <p>
+ * If a valid <code>SecurityContext</code> cannot be obtained from the <code>HttpSession</code> for whatever
  * reason, a fresh <code>SecurityContext</code> will be created and used instead. The created object will be of the
  * instance defined by the {@link #setContext(Class)} method (which defaults to {@link
- * org.acegisecurity.context.SecurityContextImpl}.</p>
- *  <p>No <code>HttpSession</code> will be created by this filter if one does not already exist. If at the end of
+ * org.acegisecurity.context.SecurityContextImpl}.
+ * </p>
+ * <p>
+ * No <code>HttpSession</code> will be created by this filter if one does not already exist. If at the end of
  * the web request the <code>HttpSession</code> does not exist, a <code>HttpSession</code> will <b>only</b> be created
  * if the current contents of the <code>SecurityContextHolder</code> are not {@link
  * java.lang.Object#equals(java.lang.Object)} to a <code>new</code> instance of {@link #setContext(Class)}. This
@@ -52,19 +58,25 @@ import org.springframework.util.ReflectionUtils;
  * <code>SecurityContextHolder</code>. There is one exception to this rule, that is if the {@link
  * #forceEagerSessionCreation} property is <code>true</code>, in which case sessions will always be created
  * irrespective of normal session-minimisation logic (the default is <code>false</code>, as this is resource intensive
- * and not recommended).</p>
- *  <p>This filter will only execute once per request, to resolve servlet container (specifically Weblogic)
+ * and not recommended).
+ * </p>
+ * <p>
+ * This filter will only execute once per request, to resolve servlet container (specifically Weblogic)
  * incompatibilities.</p>
- *  <p>If for whatever reason no <code>HttpSession</code> should <b>ever</b> be created (eg this filter is only
+ * <p>
+ * If for whatever reason no <code>HttpSession</code> should <b>ever</b> be created (eg this filter is only
  * being used with Basic authentication or similar clients that will never present the same <code>jsessionid</code>
  * etc), the {@link #setAllowSessionCreation(boolean)} should be set to <code>false</code>. Only do this if you really
  * need to conserve server memory and ensure all classes using the <code>SecurityContextHolder</code> are designed to
  * have no persistence of the <code>SecurityContext</code> between web requests. Please note that if {@link
  * #forceEagerSessionCreation} is <code>true</code>, the <code>allowSessionCreation</code> must also be
- * <code>true</code> (setting it to <code>false</code> will cause a startup time error).</p>
- *  <p>This filter MUST be executed BEFORE any authentication processing mechanisms. Authentication processing
+ * <code>true</code> (setting it to <code>false</code> will cause a startup time error).
+ * </p>
+ * <p>
+ * This filter MUST be executed BEFORE any authentication processing mechanisms. Authentication processing
  * mechanisms (eg BASIC, CAS processing filters etc) expect the <code>SecurityContextHolder</code> to contain a valid
- * <code>SecurityContext</code> by the time they execute.</p>
+ * <code>SecurityContext</code> by the time they execute.
+ * </p>
  *
  * @author Ben Alex
  * @author Patrick Burleson
@@ -101,28 +113,28 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
      * are conscious of the session creation overhead.
      */
     private boolean forceEagerSessionCreation = false;
-    
+
     /**
      * Indicates whether the <code>SecurityContext</code> will be cloned from the <code>HttpSession</code>. The
      * default is to simply reference (ie the default is <code>false</code>). The default may cause issues if
      * concurrent threads need to have a different security identity from other threads being concurrently processed
      * that share the same <code>HttpSession</code>. In most normal environments this does not represent an issue,
      * as changes to the security identity in one thread is allowed to affect the security identitiy in other
-     * threads associated with the same <code>HttpSession</code>. For unusual cases where this is not permitted, 
+     * threads associated with the same <code>HttpSession</code>. For unusual cases where this is not permitted,
      * change this value to <code>true</code> and ensure the {@link #context} is set to a <code>SecurityContext</code>
      * that implements {@link Cloneable} and overrides the <code>clone()</code> method.
      */
     private boolean cloneFromHttpSession = false;
 
     public boolean isCloneFromHttpSession() {
-		return cloneFromHttpSession;
-	}
+        return cloneFromHttpSession;
+    }
 
-	public void setCloneFromHttpSession(boolean cloneFromHttpSession) {
-		this.cloneFromHttpSession = cloneFromHttpSession;
-	}
+    public void setCloneFromHttpSession(boolean cloneFromHttpSession) {
+        this.cloneFromHttpSession = cloneFromHttpSession;
+    }
 
-	public HttpSessionContextIntegrationFilter() throws ServletException {
+    public HttpSessionContextIntegrationFilter() throws ServletException {
         this.contextObject = generateNewContext();
     }
 
@@ -131,7 +143,8 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
     public void afterPropertiesSet() throws Exception {
         if ((this.context == null) || (!SecurityContext.class.isAssignableFrom(this.context))) {
             throw new IllegalArgumentException(
-                "context must be defined and implement SecurityContext (typically use org.acegisecurity.context.SecurityContextImpl; existing class is "
+                "context must be defined and implement SecurityContext "
+                + "(typically use org.acegisecurity.context.SecurityContextImpl; existing class is "
                 + this.context + ")");
         }
 
@@ -167,27 +180,27 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
                 httpSessionExistedAtStartOfRequest = true;
 
                 Object contextFromSessionObject = httpSession.getAttribute(ACEGI_SECURITY_CONTEXT_KEY);
-                
+
                 // Clone if required (see SEC-356)
                 if (cloneFromHttpSession) {
-                	Assert.isInstanceOf(Cloneable.class, contextFromSessionObject, "Context must implement Clonable and provide a Object.clone() method");
-                	try {
-                		Method m = contextFromSessionObject.getClass().getMethod("clone", new Class[] {});
-                		if (!m.isAccessible()) {
-                    		m.setAccessible(true);
-                		}
-                		contextFromSessionObject = m.invoke(contextFromSessionObject, new Object[] {});
-                	} catch (Exception ex) {
-                		ReflectionUtils.handleReflectionException(ex);
-                	}
+                    Assert.isInstanceOf(Cloneable.class, contextFromSessionObject,
+                            "Context must implement Clonable and provide a Object.clone() method");
+                    try {
+                        Method m = contextFromSessionObject.getClass().getMethod("clone", new Class[] {});
+                        if (!m.isAccessible()) {
+                            m.setAccessible(true);
+                        }
+                        contextFromSessionObject = m.invoke(contextFromSessionObject, new Object[] {});
+                    } catch (Exception ex) {
+                        ReflectionUtils.handleReflectionException(ex);
+                    }
                 }
-                
+
                 if (contextFromSessionObject != null) {
                     if (contextFromSessionObject instanceof SecurityContext) {
                         if (logger.isDebugEnabled()) {
-                            logger.debug(
-                                "Obtained from ACEGI_SECURITY_CONTEXT a valid SecurityContext and set to SecurityContextHolder: '"
-                                + contextFromSessionObject + "'");
+                            logger.debug("Obtained from ACEGI_SECURITY_CONTEXT a valid SecurityContext and "
+                                + "set to SecurityContextHolder: '" + contextFromSessionObject + "'");
                         }
 
                         SecurityContextHolder.setContext((SecurityContext) contextFromSessionObject);
@@ -195,23 +208,26 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
                         if (logger.isWarnEnabled()) {
                             logger.warn("ACEGI_SECURITY_CONTEXT did not contain a SecurityContext but contained: '"
                                 + contextFromSessionObject
-                                + "'; are you improperly modifying the HttpSession directly (you should always use SecurityContextHolder) or using the HttpSession attribute reserved for this class? - new SecurityContext instance associated with SecurityContextHolder");
+                                + "'; are you improperly modifying the HttpSession directly "
+                                + "(you should always use SecurityContextHolder) or using the HttpSession attribute "
+                                + "reserved for this class? - new SecurityContext instance associated with "
+                                + "SecurityContextHolder");
                         }
 
                         SecurityContextHolder.setContext(generateNewContext());
                     }
                 } else {
                     if (logger.isDebugEnabled()) {
-                        logger.debug(
-                            "HttpSession returned null object for ACEGI_SECURITY_CONTEXT - new SecurityContext instance associated with SecurityContextHolder");
+                        logger.debug("HttpSession returned null object for ACEGI_SECURITY_CONTEXT - new "
+                            + "SecurityContext instance associated with SecurityContextHolder");
                     }
 
                     SecurityContextHolder.setContext(generateNewContext());
                 }
             } else {
                 if (logger.isDebugEnabled()) {
-                    logger.debug(
-                        "No HttpSession currently exists - new SecurityContext instance associated with SecurityContextHolder");
+                    logger.debug("No HttpSession currently exists - new SecurityContext instance "
+                        + "associated with SecurityContextHolder");
                 }
 
                 SecurityContextHolder.setContext(generateNewContext());
@@ -240,8 +256,8 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
                 if ((httpSession == null) && httpSessionExistedAtStartOfRequest) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug(
-                            "HttpSession is now null, but was not null at start of request; session was invalidated, so do not create a new session");
+                        logger.debug("HttpSession is now null, but was not null at start of request; "
+                                + "session was invalidated, so do not create a new session");
                     }
                 }
 
@@ -249,8 +265,10 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
                 if ((httpSession == null) && !httpSessionExistedAtStartOfRequest) {
                     if (!allowSessionCreation) {
                         if (logger.isDebugEnabled()) {
-                            logger.debug(
-                                "The HttpSession is currently null, and the HttpSessionContextIntegrationFilter is prohibited from creating a HttpSession (because the allowSessionCreation property is false) - SecurityContext thus not stored for next request");
+                            logger.debug("The HttpSession is currently null, and the "
+                                   + "HttpSessionContextIntegrationFilter is prohibited from creating an HttpSession "
+                                   + "(because the allowSessionCreation property is false) - SecurityContext thus not "
+                                   + "stored for next request");
                         }
                     } else if (!contextObject.equals(SecurityContextHolder.getContext())) {
                         if (logger.isDebugEnabled()) {
@@ -263,17 +281,15 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
                     } else {
                         if (logger.isDebugEnabled()) {
                             logger.debug(
-                                "HttpSession is null, but SecurityContextHolder has not changed from default: ' "
-                                + SecurityContextHolder.getContext()
-                                + "'; not creating HttpSession or storing SecurityContextHolder contents");
+                                    "HttpSession is null, but SecurityContextHolder has not changed from default: ' "
+                                    + SecurityContextHolder.getContext()
+                                    + "'; not creating HttpSession or storing SecurityContextHolder contents");
                         }
                     }
                 }
 
-                // If HttpSession exists, store current SecurityContextHolder
-                // contents
-                // but only if SecurityContext has actually changed (see JIRA
-                // SEC-37)
+                // If HttpSession exists, store current SecurityContextHolder contents but only if SecurityContext has
+                // actually changed (see JIRA SEC-37)
                 if ((httpSession != null)
                     && (SecurityContextHolder.getContext().hashCode() != contextWhenChainProceeded)) {
                     httpSession.setAttribute(ACEGI_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());

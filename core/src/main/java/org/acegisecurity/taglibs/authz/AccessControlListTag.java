@@ -182,8 +182,8 @@ public class AccessControlListTag extends TagSupport {
             } else if (map.size() == 1) {
                 sidRetrievalStrategy = (SidRetrievalStrategy) map.values().iterator().next();
             } else {
-                throw new JspException(
-                    "Found incorrect number of SidRetrievalStrategy instances in application context - you must have only have one!");
+                throw new JspException("Found incorrect number of SidRetrievalStrategy instances in application "
+                        + "context - you must have only have one!");
             }
 
             map = applicationContext.getBeansOfType(ObjectIdentityRetrievalStrategy.class);
@@ -193,8 +193,8 @@ public class AccessControlListTag extends TagSupport {
             } else if (map.size() == 1) {
                 objectIdentityRetrievalStrategy = (ObjectIdentityRetrievalStrategy) map.values().iterator().next();
             } else {
-                throw new JspException(
-                    "Found incorrect number of ObjectIdentityRetrievalStrategy instances in application context - you must have only have one!");
+                throw new JspException("Found incorrect number of ObjectIdentityRetrievalStrategy instances in "
+                        + "application context - you must have only have one!");
             }
         }
     }

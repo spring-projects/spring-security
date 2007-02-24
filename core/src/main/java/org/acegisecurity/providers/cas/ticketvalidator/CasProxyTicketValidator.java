@@ -55,7 +55,9 @@ public class CasProxyTicketValidator extends AbstractTicketValidator {
 
         if (super.getServiceProperties().isSendRenew()) {
             logger.warn(
-                "The current CAS ProxyTicketValidator does not support the 'renew' property. The ticket cannot be validated as having been issued by a 'renew' authentication. It is expected this will be corrected in a future version of CAS' ProxyTicketValidator.");
+                  "The current CAS ProxyTicketValidator does not support the 'renew' property. "
+                + "The ticket cannot be validated as having been issued by a 'renew' authentication. "
+                + "It is expected this will be corrected in a future version of CAS' ProxyTicketValidator.");
         }
 
         if ((this.proxyCallbackUrl != null) && (!"".equals(this.proxyCallbackUrl))) {
@@ -66,11 +68,13 @@ public class CasProxyTicketValidator extends AbstractTicketValidator {
     }
 
     /**
-     * Optional callback URL to obtain a proxy-granting ticket from CAS.<P>This callback URL belongs to the
-     * Acegi Security System for Spring secured application. We suggest you use CAS' <code>ProxyTicketReceptor</code>
-     * servlet to receive this callback and manage the proxy-granting ticket list. The callback URL is usually
-     * something like <code>https://www.mycompany.com/application/casProxy/receptor</code>.</p>
-     *  <P>If left <code>null</code>, the <code>CasAuthenticationToken</code> will not have a proxy granting
+     * Optional callback URL to obtain a proxy-granting ticket from CAS.
+     * <p>This callback URL belongs to the Acegi Security System for Spring secured application. We suggest you use
+     * CAS' <code>ProxyTicketReceptor</code> servlet to receive this callback and manage the proxy-granting ticket list.
+     * The callback URL is usually something like
+     * <code>https://www.mycompany.com/application/casProxy/receptor</code>.
+     * </p>
+     * <p>If left <code>null</code>, the <code>CasAuthenticationToken</code> will not have a proxy granting
      * ticket IOU and there will be no proxy-granting ticket callback. Accordingly, the Acegi Securty System for
      * Spring secured application will be unable to obtain a proxy ticket to call another CAS-secured service on
      * behalf of the user. This is not really an issue for most applications.</p>

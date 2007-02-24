@@ -44,14 +44,10 @@ import javax.servlet.http.HttpSession;
 public class CaptchaValidationProcessingFilter implements InitializingBean, Filter {
     //~ Static fields/initializers =====================================================================================
 
-    // ~ Static fields/initializers
-    // =============================================
     protected static final Log logger = LogFactory.getLog(CaptchaValidationProcessingFilter.class);
 
     //~ Instance fields ================================================================================================
 
-    // ~ Instance fields
-    // ========================================================
     private CaptchaServiceProxy captchaService;
     private String captchaValidationParameter = "_captcha_parameter";
 
@@ -74,9 +70,9 @@ public class CaptchaValidationProcessingFilter implements InitializingBean, Filt
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
         throws IOException, ServletException {
-        String captcha_reponse = request.getParameter(captchaValidationParameter);
+        String captchaResponse = request.getParameter(captchaValidationParameter);
 
-        if ((request != null) && request instanceof HttpServletRequest && (captcha_reponse != null)) {
+        if ((request != null) && request instanceof HttpServletRequest && (captchaResponse != null)) {
             logger.debug("captcha validation parameter found");
 
             // validate the request against CaptchaServiceProxy
@@ -89,7 +85,7 @@ public class CaptchaValidationProcessingFilter implements InitializingBean, Filt
 
             if (session != null) {
                 String id = session.getId();
-                valid = this.captchaService.validateReponseForId(id, captcha_reponse);
+                valid = this.captchaService.validateReponseForId(id, captchaResponse);
                 logger.debug("captchaServiceProxy says : request is valid = " + valid);
 
                 if (valid) {
@@ -114,8 +110,6 @@ public class CaptchaValidationProcessingFilter implements InitializingBean, Filt
         chain.doFilter(request, response);
     }
 
-    // ~ Methods
-    // ================================================================
     public CaptchaServiceProxy getCaptchaService() {
         return captchaService;
     }

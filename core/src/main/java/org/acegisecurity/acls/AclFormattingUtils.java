@@ -23,7 +23,12 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class AclFormattingUtils {
+public final class AclFormattingUtils {
+    //~ Constructors ===================================================================================================
+
+    private AclFormattingUtils() {
+    }
+
     //~ Methods ========================================================================================================
 
     public static String demergePatterns(String original, String removeBits) {

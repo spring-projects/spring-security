@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
 public class User implements UserDetails {
     //~ Instance fields ================================================================================================
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private String password;
     private String username;
     private GrantedAuthority[] authorities;
@@ -42,8 +42,9 @@ public class User implements UserDetails {
 
     //~ Constructors ===================================================================================================
 
-/**
-     * Construct the <code>User</code> with the details required by {@link org.acegisecurity.providers.dao.DaoAuthenticationProvider}.
+    /**
+     * Construct the <code>User</code> with the details required by
+     * {@link org.acegisecurity.providers.dao.DaoAuthenticationProvider}.
      *
      * @param username the username presented to the
      *        <code>DaoAuthenticationProvider</code>
@@ -66,8 +67,9 @@ public class User implements UserDetails {
         this(username, password, enabled, true, true, authorities);
     }
 
-/**
-     * Construct the <code>User</code> with the details required by {@link org.acegisecurity.providers.dao.DaoAuthenticationProvider}.
+    /**
+     * Construct the <code>User</code> with the details required by
+     * {@link org.acegisecurity.providers.dao.DaoAuthenticationProvider}.
      *
      * @param username the username presented to the
      *        <code>DaoAuthenticationProvider</code>
@@ -95,8 +97,9 @@ public class User implements UserDetails {
         this(username, password, enabled, accountNonExpired, credentialsNonExpired, true, authorities);
     }
 
-/**
-     * Construct the <code>User</code> with the details required by {@link org.acegisecurity.providers.dao.DaoAuthenticationProvider}.
+    /**
+     * Construct the <code>User</code> with the details required by
+     * {@link org.acegisecurity.providers.dao.DaoAuthenticationProvider}.
      *
      * @param username the username presented to the
      *        <code>DaoAuthenticationProvider</code>
@@ -156,9 +159,10 @@ public class User implements UserDetails {
 
         // We rely on constructor to guarantee non-null username and password
         return (this.getPassword().equals(user.getPassword()) && this.getUsername().equals(user.getUsername())
-        && (this.isAccountNonExpired() == user.isAccountNonExpired())
-        && (this.isAccountNonLocked() == user.isAccountNonLocked())
-        && (this.isCredentialsNonExpired() == user.isCredentialsNonExpired()) && (this.isEnabled() == user.isEnabled()));
+                && (this.isAccountNonExpired() == user.isAccountNonExpired())
+                && (this.isAccountNonLocked() == user.isAccountNonLocked())
+                && (this.isCredentialsNonExpired() == user.isCredentialsNonExpired())
+                && (this.isEnabled() == user.isEnabled()));
     }
 
     public GrantedAuthority[] getAuthorities() {

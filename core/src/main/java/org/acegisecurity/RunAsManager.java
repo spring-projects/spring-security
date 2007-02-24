@@ -18,7 +18,7 @@ package org.acegisecurity;
 /**
  * Creates a new temporary {@link Authentication} object for the current secure
  * object invocation only.
- * 
+ *
  * <p>
  * This interface permits implementations to replace the
  * <code>Authentication</code> object that applies to the current secure
@@ -29,7 +29,7 @@ package org.acegisecurity;
  * for the duration of  the secure object callback only, returning it to
  * the original <code>Authentication</code> object when the callback ends.
  * </p>
- * 
+ *
  * <p>
  * This is provided so that systems with two layers of objects can be
  * established. One layer is public facing and has normal secure methods with
@@ -43,7 +43,7 @@ package org.acegisecurity;
  * <code>RunAsManager</code> interface provides a mechanism to elevate
  * security in this manner.
  * </p>
- * 
+ *
  * <p>
  * It is expected implementations will provide a corresponding concrete
  * <code>Authentication</code> and <code>AuthenticationProvider</code> so that
@@ -71,7 +71,7 @@ public interface RunAsManager {
      * @return a replacement object to be used for duration of the secure object invocation, or <code>null</code> if
      *         the <code>Authentication</code> should be left as is
      */
-    public Authentication buildRunAs(Authentication authentication, Object object, ConfigAttributeDefinition config);
+    Authentication buildRunAs(Authentication authentication, Object object, ConfigAttributeDefinition config);
 
     /**
      * Indicates whether this <code>RunAsManager</code> is able to process the passed
@@ -84,7 +84,7 @@ public interface RunAsManager {
      *
      * @return <code>true</code> if this <code>RunAsManager</code> can support the passed configuration attribute
      */
-    public boolean supports(ConfigAttribute attribute);
+    boolean supports(ConfigAttribute attribute);
 
     /**
      * Indicates whether the <code>RunAsManager</code> implementation is able to provide run-as replacement for
@@ -94,5 +94,5 @@ public interface RunAsManager {
      *
      * @return true if the implementation can process the indicated class
      */
-    public boolean supports(Class clazz);
+    boolean supports(Class clazz);
 }

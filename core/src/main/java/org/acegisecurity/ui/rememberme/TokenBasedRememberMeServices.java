@@ -47,31 +47,43 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Identifies previously remembered users by a Base-64 encoded cookie.<p>This implementation does not rely on an
- * external database, so is attractive for simple applications. The cookie will be valid for a specific period from
- * the date of the last {@link #loginSuccess(HttpServletRequest, HttpServletResponse, Authentication)}. As per the
+ * Identifies previously remembered users by a Base-64 encoded cookie.
+ *
+ * <p>
+ * This implementation does not rely on an external database, so is attractive for simple applications.
+ * The cookie will be valid for a specific period from the date of the last
+ * {@link #loginSuccess(HttpServletRequest, HttpServletResponse, Authentication)}. As per the
  * interface contract, this method will only be called when the principal completes a successful interactive
  * authentication. As such the time period commences from the last authentication attempt where they furnished
  * credentials - not the time period they last logged in via remember-me. The implementation will only send a
  * remember-me token if the parameter defined by {@link #setParameter(String)} is present.</p>
- *  <p>An {@link org.acegisecurity.userdetails.UserDetailsService} is required by this implementation, so that it
+ *
+ * <p>An {@link org.acegisecurity.userdetails.UserDetailsService} is required by this implementation, so that it
  * can construct a valid <code>Authentication</code> from the returned {@link
  * org.acegisecurity.userdetails.UserDetails}. This is also necessary so that the user's password is available and can
  * be checked as part of the encoded cookie.</p>
- *  <p>The cookie encoded by this implementation adopts the following form:</p>
- *  <p><code> username + ":" + expiryTime + ":" + Md5Hex(username + ":" + expiryTime + ":" + password + ":" + key)
- * </code>.</p>
- *  <p>As such, if the user changes their password any remember-me token will be invalidated. Equally, the system
+ *
+ * <p>
+ * The cookie encoded by this implementation adopts the following form:
+ * <pre>username + ":" + expiryTime + ":" + Md5Hex(username + ":" + expiryTime + ":" + password + ":" + key)</pre>
+ * </p>
+ * <p>
+ * As such, if the user changes their password any remember-me token will be invalidated. Equally, the system
  * administrator may invalidate every remember-me token on issue by changing the key. This provides some reasonable
  * approaches to recovering from a remember-me token being left on a public machine (eg kiosk system, Internet cafe
  * etc). Most importantly, at no time is the user's password ever sent to the user agent, providing an important
  * security safeguard. Unfortunately the username is necessary in this implementation (as we do not want to rely on a
  * database for remember-me services) and as such high security applications should be aware of this occasionally
- * undesired disclosure of a valid username.</p>
- *  <p>This is a basic remember-me implementation which is suitable for many applications. However, we recommend a
- * database-based implementation if you require a more secure remember-me approach.</p>
- *  <p>By default the tokens will be valid for 14 days from the last successful authentication attempt. This can be
- * changed using {@link #setTokenValiditySeconds(long)}.</p>
+ * undesired disclosure of a valid username.
+ * </p>
+ * <p>
+ * This is a basic remember-me implementation which is suitable for many applications. However, we recommend a
+ * database-based implementation if you require a more secure remember-me approach.
+ * </p>
+ * <p>
+ * By default the tokens will be valid for 14 days from the last successful authentication attempt. This can be
+ * changed using {@link #setTokenValiditySeconds(long)}.
+ * </p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -117,8 +129,9 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
                     }
 
                     // Decode token from Base64
-                    // format of token is:  
-                    //     username + ":" + expiryTime + ":" + Md5Hex(username + ":" + expiryTime + ":" + password + ":" + key)
+                    // format of token is:
+                    // username + ":" + expiryTime + ":" +
+                    //      Md5Hex(username + ":" + expiryTime + ":" + password + ":" + key)
                     String cookieAsPlainText = new String(Base64.decodeBase64(cookieValue.getBytes()));
                     String[] cookieTokens = StringUtils.delimitedListToStringArray(cookieAsPlainText, ":");
 
@@ -240,13 +253,13 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
     }
 
     protected boolean rememberMeRequested(HttpServletRequest request, String parameter) {
-    	if (alwaysRemember) {
-    		return true;
-    	}
-    	
-    	return RequestUtils.getBooleanParameter(request, parameter, false);
+        if (alwaysRemember) {
+            return true;
+        }
+
+        return RequestUtils.getBooleanParameter(request, parameter, false);
     }
-    
+
     public void loginSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication successfulAuthentication) {
         // Exit if the principal hasn't asked to be remembered
@@ -281,18 +294,20 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 
         // construct token to put in cookie; format is:
         //     username + ":" + expiryTime + ":" + Md5Hex(username + ":" + expiryTime + ":" + password + ":" + key)
-        String signatureValue = new String(DigestUtils.md5Hex(username + ":" + expiryTime + ":" + password + ":" + key));
+        String signatureValue = DigestUtils.md5Hex(username + ":" + expiryTime + ":" + password + ":" + key);
         String tokenValue = username + ":" + expiryTime + ":" + signatureValue;
         String tokenValueBase64 = new String(Base64.encodeBase64(tokenValue.getBytes()));
         response.addCookie(makeValidCookie(expiryTime, tokenValueBase64, request));
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Added remember-me cookie for user '" + username + "', expiry: '" + new Date(expiryTime) + "'");
+            logger.debug("Added remember-me cookie for user '" + username
+                    + "', expiry: '" + new Date(expiryTime) + "'");
         }
     }
 
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        cancelCookie(request, response, "Logout of user " + (authentication == null ? "Unknown" : authentication.getName())); 
+        cancelCookie(request, response, "Logout of user "
+                + (authentication == null ? "Unknown" : authentication.getName()));
     }
 
     protected Cookie makeCancelCookie(HttpServletRequest request) {
@@ -332,11 +347,11 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
         this.userDetailsService = userDetailsService;
     }
 
-	public boolean isAlwaysRemember() {
-		return alwaysRemember;
-	}
+    public boolean isAlwaysRemember() {
+        return alwaysRemember;
+    }
 
-	public void setAlwaysRemember(boolean alwaysRemember) {
-		this.alwaysRemember = alwaysRemember;
-	}
+    public void setAlwaysRemember(boolean alwaysRemember) {
+        this.alwaysRemember = alwaysRemember;
+    }
 }

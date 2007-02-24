@@ -19,7 +19,7 @@ package org.acegisecurity.vote;
  * This interface indicates data objects that carry a label. The purpose is to support
  * the {@link LabelBasedAclVoter}. When it votes, it evaluates all method arguments
  * tagged with this interface, and votes if they match the user's granted authorities list.
- * 
+ *
  * @author Greg Turnquist
  */
 public interface LabeledData {
@@ -31,5 +31,5 @@ public interface LabeledData {
      *
      * @return The label value of data object as a string.
      */
-    public String getLabel();
+    String getLabel();
 }

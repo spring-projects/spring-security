@@ -29,7 +29,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
  * handle method. The JaasAuthenticationCallbackHandler is only asked to
  * handle one Callback instance at at time rather than an array of all
  * Callbacks, as the javax... CallbackHandler defines.
- * 
+ *
  * <p>
  * Before a JaasAuthenticationCallbackHandler is asked to 'handle' any
  * callbacks, it is first passed the Authentication object that the login
@@ -44,8 +44,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
  * @see JaasPasswordCallbackHandler
  * @see <a
  *      href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>
- * @see <a
- *      href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/CallbackHandler.html">CallbackHandler</a>
+ * @see <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/CallbackHandler.html">
+ *      CallbackHandler</a>
  */
 public interface JaasAuthenticationCallbackHandler {
     //~ Methods ========================================================================================================

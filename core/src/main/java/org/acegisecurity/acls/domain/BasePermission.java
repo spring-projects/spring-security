@@ -33,7 +33,7 @@ import java.util.Vector;
  * @author Ben Alex
  * @version $Id$
  */
-public class BasePermission implements Permission {
+public final class BasePermission implements Permission {
     //~ Static fields/initializers =====================================================================================
 
     public static final Permission READ = new BasePermission(1 << 0, 'R'); // 1

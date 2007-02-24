@@ -29,7 +29,12 @@ import javax.servlet.http.HttpServletRequest;
  * @author Ben Alex
  * @version $Id$
  */
-public class UrlUtils {
+public final class UrlUtils {
+    //~ Constructors ===================================================================================================
+
+    private UrlUtils() {
+    }
+
     //~ Methods ========================================================================================================
 
     /**
@@ -50,6 +55,7 @@ public class UrlUtils {
      */
     private static String buildFullRequestUrl(String scheme, String serverName, int serverPort, String contextPath,
         String requestUrl, String servletPath, String requestURI, String pathInfo, String queryString) {
+
         boolean includePort = true;
 
         if ("http".equals(scheme.toLowerCase()) && (serverPort == 80)) {
@@ -77,6 +83,7 @@ public class UrlUtils {
      */
     private static String buildRequestUrl(String servletPath, String requestURI, String contextPath, String pathInfo,
         String queryString) {
+
         String uri = servletPath;
 
         if (uri == null) {

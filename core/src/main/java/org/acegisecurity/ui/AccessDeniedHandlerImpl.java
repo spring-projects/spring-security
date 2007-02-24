@@ -45,7 +45,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
     //~ Static fields/initializers =====================================================================================
 
     public static final String ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY = "ACEGI_SECURITY_403_EXCEPTION";
-    protected final static Log logger = LogFactory.getLog(AccessDeniedHandlerImpl.class);
+    protected static final Log logger = LogFactory.getLog(AccessDeniedHandlerImpl.class);
 
     //~ Instance fields ================================================================================================
 
@@ -62,7 +62,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 
             // Perform RequestDispatcher "forward"
             RequestDispatcher rd = request.getRequestDispatcher(errorPage);
-        	rd.forward(request, response); 
+            rd.forward(request, response);
         }
 
         if (!response.isCommitted()) {

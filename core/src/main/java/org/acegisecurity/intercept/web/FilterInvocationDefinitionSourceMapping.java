@@ -24,7 +24,7 @@ import org.acegisecurity.ConfigAttribute;
  * Configuration entry for {@link FilterInvocationDefinitionSource}, that holds
  * the url to be protected and the {@link ConfigAttribute}s as {@link String}
  * that apply to that url.
- * 
+ *
  * @author <a href="mailto:carlos@apache.org">Carlos Sanchez</a>
  * @version $Id$
  * @since 1.1
@@ -37,7 +37,7 @@ public class FilterInvocationDefinitionSourceMapping {
 
     /**
      * Url to be secured.
-     * 
+     *
      * @param url
      */
     public void setUrl(String url) {
@@ -46,7 +46,7 @@ public class FilterInvocationDefinitionSourceMapping {
 
     /**
      * Url to be secured.
-     * 
+     *
      * @return the url
      */
     public String getUrl() {
@@ -55,15 +55,14 @@ public class FilterInvocationDefinitionSourceMapping {
 
     /**
      * 
-     * @param roles
-     *            {@link List}&lt;{@link String}>
+     * @param roles {@link List}&lt;{@link String}>
      */
     public void setConfigAttributes(List roles) {
         this.configAttributes = roles;
     }
 
     /**
-     * 
+     *
      * @return {@link List}&lt;{@link String}>
      */
     public List getConfigAttributes() {
@@ -72,7 +71,7 @@ public class FilterInvocationDefinitionSourceMapping {
 
     /**
      * Add a {@link ConfigAttribute} as {@link String}
-     * 
+     *
      * @param configAttribute
      */
     public void addConfigAttribute(String configAttribute) {

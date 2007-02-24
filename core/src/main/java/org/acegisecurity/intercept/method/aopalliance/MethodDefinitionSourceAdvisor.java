@@ -68,11 +68,12 @@ public class MethodDefinitionSourceAdvisor extends StaticMethodMatcherPointcutAd
     //~ Inner Classes ==================================================================================================
 
     /**
-     * Represents a <code>MethodInvocation</code>.<p>Required as <code>MethodDefinitionSource</code> only
-     * supports lookup of configuration attributes for <code>MethodInvocation</code>s.</p>
+     * Represents a <code>MethodInvocation</code>.
+     * <p>Required as <code>MethodDefinitionSource</code> only supports lookup of configuration attributes for
+     * <code>MethodInvocation</code>s.</p>
      */
     class InternalMethodInvocation implements MethodInvocation {
-        Method method;
+        private Method method;
 
         public InternalMethodInvocation(Method method) {
             this.method = method;

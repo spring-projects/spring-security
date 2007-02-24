@@ -23,14 +23,14 @@ import org.acegisecurity.acl.AclEntry;
 /**
  * Determines the ACLs that are effective for a given
  * <code>Authentication</code> object.
- * 
+ *
  * <P>
  * Implementations will vary depending on their ability to interpret the
  * "recipient" object types contained in {@link BasicAclEntry} instances, and
  * how those recipient object types correspond to
  * <code>Authentication</code>-presented principals and granted authorities.
  * </p>
- * 
+ *
  * <P>
  * Implementations should not filter the resulting ACL list from lower-order
  * permissions. So if a resulting ACL list grants a "read" permission, an
@@ -57,5 +57,5 @@ public interface EffectiveAclsResolver {
      *
      * @return the ACLs that apply to the presented principal, or <code>null</code> if there are none after filtering
      */
-    public AclEntry[] resolveEffectiveAcls(AclEntry[] allAcls, Authentication filteredBy);
+    AclEntry[] resolveEffectiveAcls(AclEntry[] allAcls, Authentication filteredBy);
 }

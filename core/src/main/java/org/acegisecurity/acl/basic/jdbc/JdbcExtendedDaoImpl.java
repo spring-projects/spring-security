@@ -48,8 +48,8 @@ import javax.sql.DataSource;
 
 /**
  * <p>Extension of the base {@link JdbcDaoImpl}, which implements {@link BasicAclExtendedDao}.</p>
- *  <p>A default database structure is assumed. This may be overridden by setting the default query strings to use.</p>
- *  <p>If you are using a cache with <code>BasicAclProvider</code>, you should specify that cache via {@link
+ * <p>A default database structure is assumed. This may be overridden by setting the default query strings to use.</p>
+ * <p>If you are using a cache with <code>BasicAclProvider</code>, you should specify that cache via {@link
  * #setBasicAclEntryCache(BasicAclEntryCache)}. This will cause cache evictions (removals) to take place whenever a
  * DAO mutator method is called.</p>
  *  <p>This implementation works with <code>String</code> based recipients and {@link
@@ -63,12 +63,18 @@ public class JdbcExtendedDaoImpl extends JdbcDaoImpl implements BasicAclExtended
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(JdbcExtendedDaoImpl.class);
-    public static final String DEF_ACL_OBJECT_IDENTITY_DELETE_STATEMENT = "DELETE FROM acl_object_identity WHERE id = ?";
-    public static final String DEF_ACL_OBJECT_IDENTITY_INSERT_STATEMENT = "INSERT INTO acl_object_identity (object_identity, parent_object, acl_class) VALUES (?, ?, ?)";
-    public static final String DEF_ACL_PERMISSION_DELETE_STATEMENT = "DELETE FROM acl_permission WHERE acl_object_identity = ? AND recipient = ?";
-    public static final String DEF_ACL_PERMISSION_INSERT_STATEMENT = "INSERT INTO acl_permission (acl_object_identity, recipient, mask) VALUES (?, ?, ?)";
-    public static final String DEF_ACL_PERMISSION_UPDATE_STATEMENT = "UPDATE acl_permission SET mask = ? WHERE id = ?";
-    public static final String DEF_LOOKUP_PERMISSION_ID_QUERY = "SELECT id FROM acl_permission WHERE acl_object_identity = ? AND recipient = ?";
+    public static final String DEF_ACL_OBJECT_IDENTITY_DELETE_STATEMENT =
+            "DELETE FROM acl_object_identity WHERE id = ?";
+    public static final String DEF_ACL_OBJECT_IDENTITY_INSERT_STATEMENT =
+            "INSERT INTO acl_object_identity (object_identity, parent_object, acl_class) VALUES (?, ?, ?)";
+    public static final String DEF_ACL_PERMISSION_DELETE_STATEMENT =
+            "DELETE FROM acl_permission WHERE acl_object_identity = ? AND recipient = ?";
+    public static final String DEF_ACL_PERMISSION_INSERT_STATEMENT =
+            "INSERT INTO acl_permission (acl_object_identity, recipient, mask) VALUES (?, ?, ?)";
+    public static final String DEF_ACL_PERMISSION_UPDATE_STATEMENT =
+            "UPDATE acl_permission SET mask = ? WHERE id = ?";
+    public static final String DEF_LOOKUP_PERMISSION_ID_QUERY =
+            "SELECT id FROM acl_permission WHERE acl_object_identity = ? AND recipient = ?";
 
     //~ Instance fields ================================================================================================
 

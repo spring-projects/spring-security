@@ -37,7 +37,7 @@ public interface AuthenticationTrustResolver {
      * @return <code>true</code> the passed authentication token represented an anonymous principal, <code>false</code>
      *         otherwise
      */
-    public boolean isAnonymous(Authentication authentication);
+    boolean isAnonymous(Authentication authentication);
 
     /**
      * Indicates whether the passed <code>Authentication</code> token represents user that has been remembered
@@ -52,5 +52,5 @@ public interface AuthenticationTrustResolver {
      * @return <code>true</code> the passed authentication token represented a principal authenticated using a
      *         remember-me token, <code>false</code> otherwise
      */
-    public boolean isRememberMe(Authentication authentication);
+    boolean isRememberMe(Authentication authentication);
 }

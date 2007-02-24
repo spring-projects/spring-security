@@ -23,7 +23,7 @@ import org.springframework.dao.DataAccessException;
 /**
  * Defines an interface for implementations that wish to provide data access
  * services to the {@link DaoAuthenticationProvider}.
- * 
+ *
  * <p>
  * The interface requires only one read-only method, which simplifies support
  * of new data access strategies.
@@ -48,6 +48,6 @@ public interface UserDetailsService {
      * @throws UsernameNotFoundException if the user could not be found or the user has no GrantedAuthority
      * @throws DataAccessException if user could not be found for a repository-specific reason
      */
-    public UserDetails loadUserByUsername(String username)
+    UserDetails loadUserByUsername(String username)
         throws UsernameNotFoundException, DataAccessException;
 }

@@ -23,16 +23,16 @@ import org.acegisecurity.userdetails.UserDetails;
 /**
  * Populates the <code>UserDetails</code> associated with a CAS authenticated
  * user.
- * 
- * <P>
+ *
+ * <p>
  * CAS does not provide the authorities (roles) granted to a user. It merely
  * authenticates their identity. As the Acegi Security System for Spring needs
  * to know the authorities granted to a user in order to construct a valid
  * <code>Authentication</code> object, implementations of this interface will
  * provide this information.
  * </p>
- * 
- * <P>
+ *
+ * <p>
  * A {@link UserDetails} is returned by implementations. The
  * <code>UserDetails</code> must, at minimum, contain the username and
  * <code>GrantedAuthority[]</code> objects applicable to the CAS-authenticated
@@ -43,8 +43,8 @@ import org.acegisecurity.userdetails.UserDetails;
  * generated <code>CasAuthenticationToken</code>, so additional properties
  * such as email addresses, telephone numbers etc can easily be stored.
  * </p>
- * 
- * <P>
+ *
+ * <p>
  * Implementations should not perform any caching. They will only be called
  * when a refresh is required.
  * </p>
@@ -65,6 +65,6 @@ public interface CasAuthoritiesPopulator {
      *
      * @throws AuthenticationException DOCUMENT ME!
      */
-    public UserDetails getUserDetails(String casUserId)
+    UserDetails getUserDetails(String casUserId)
         throws AuthenticationException;
 }

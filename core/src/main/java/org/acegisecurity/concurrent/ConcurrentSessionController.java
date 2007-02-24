@@ -41,7 +41,7 @@ public interface ConcurrentSessionController {
      *
      * @throws AuthenticationException if the user has exceeded their maximum allowed current sessions
      */
-    public void checkAuthenticationAllowed(Authentication request)
+    void checkAuthenticationAllowed(Authentication request)
         throws AuthenticationException;
 
     /**
@@ -51,5 +51,5 @@ public interface ConcurrentSessionController {
      *
      * @param authentication the successfully authenticated user (never <code>null</code>)
      */
-    public void registerSuccessfulAuthentication(Authentication authentication);
+    void registerSuccessfulAuthentication(Authentication authentication);
 }

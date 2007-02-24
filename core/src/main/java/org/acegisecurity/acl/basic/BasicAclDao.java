@@ -18,13 +18,13 @@ package org.acegisecurity.acl.basic;
 /**
  * Represents a data access object that can return the {@link BasicAclEntry}s
  * applying to a given ACL object identity.
- * 
+ *
  * <P>
  * <code>BasicAclDao</code> implementations are responsible for interpreting a
  * given {@link AclObjectIdentity} and being able to lookup and return the
  * corresponding {@link BasicAclEntry}[]s.
  * </p>
- * 
+ *
  * <P>
  * <code>BasicAclDao</code>s many, but are not required to, allow the backend
  * ACL repository to specify the class of <code>BasicAclEntry</code>
@@ -48,5 +48,5 @@ public interface BasicAclDao {
      * @return the ACLs that apply (no <code>null</code>s are permitted in the array), or <code>null</code> if no ACLs
      *         could be found for the specified ACL object identity
      */
-    public BasicAclEntry[] getAcls(AclObjectIdentity aclObjectIdentity);
+    BasicAclEntry[] getAcls(AclObjectIdentity aclObjectIdentity);
 }

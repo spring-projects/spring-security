@@ -20,7 +20,6 @@ import org.acegisecurity.AuthorizationServiceException;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
 
-import org.acegisecurity.acls.Acl;
 import org.acegisecurity.acls.AclService;
 import org.acegisecurity.acls.Permission;
 
@@ -39,7 +38,9 @@ import java.util.Iterator;
  * each <code>Collection</code> domain object instance element for the current <code>Authentication</code> object.</p>
  *  <p>This after invocation provider will fire if any {@link ConfigAttribute#getAttribute()} matches the {@link
  * #processConfigAttribute}. The provider will then lookup the ACLs from the <code>AclService</code> and ensure the
- * principal is {@link Acl#isGranted(org.acegisecurity.acls.Permission[], org.acegisecurity.acls.sid.Sid[], boolean)}
+ * principal is
+ * {@link org.acegisecurity.acls.Acl#isGranted(org.acegisecurity.acls.Permission[],
+ * org.acegisecurity.acls.sid.Sid[], boolean) Acl.isGranted(Permission[], Sid[], boolean)}
  * when presenting the {@link #requirePermission} array to that method.</p>
  *  <p>If the principal does not have permission, that element will not be included in the returned
  * <code>Collection</code>.</p>
@@ -94,9 +95,8 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
                     Object[] array = (Object[]) returnedObject;
                     filterer = new ArrayFilterer(array);
                 } else {
-                    throw new AuthorizationServiceException(
-                        "A Collection or an array (or null) was required as the returnedObject, but the returnedObject was: "
-                        + returnedObject);
+                    throw new AuthorizationServiceException("A Collection or an array (or null) was required as the "
+                            + "returnedObject, but the returnedObject was: " + returnedObject);
                 }
 
                 // Locate unauthorised Collection elements

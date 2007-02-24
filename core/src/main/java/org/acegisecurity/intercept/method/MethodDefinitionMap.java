@@ -207,7 +207,8 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
             try {
                 // Look for the method on the current interface
                 Method interfaceMethod = clazz.getDeclaredMethod(method.getName(), (Class[]) method.getParameterTypes());
-                ConfigAttributeDefinition interfaceAssigned = (ConfigAttributeDefinition) this.methodMap.get(interfaceMethod);
+                ConfigAttributeDefinition interfaceAssigned =
+                        (ConfigAttributeDefinition) this.methodMap.get(interfaceMethod);
                 merge(definition, interfaceAssigned);
             } catch (Exception e) {
                 // skip this interface
@@ -236,7 +237,7 @@ public class MethodDefinitionMap extends AbstractMethodDefinitionSource {
 
     /**
      * Easier configuration of the instance, using {@link MethodDefinitionSourceMapping}.
-     * 
+     *
      * @param mappings {@link List} of {@link MethodDefinitionSourceMapping} objects.
      */
     public void setMappings(List mappings) {

@@ -18,7 +18,7 @@ package org.acegisecurity.acls.objectidentity;
 /**
  * Strategy interface that provides the ability to determine which {@link ObjectIdentity}
  * will be returned for a particular domain object
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  *
@@ -26,5 +26,5 @@ package org.acegisecurity.acls.objectidentity;
 public interface ObjectIdentityRetrievalStrategy {
     //~ Methods ========================================================================================================
 
-    public ObjectIdentity getObjectIdentity(Object domainObject);
+    ObjectIdentity getObjectIdentity(Object domainObject);
 }

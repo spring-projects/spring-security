@@ -19,7 +19,7 @@ import org.acegisecurity.acls.sid.Sid;
 
 /**
  * A mutable ACL that provides ownership capabilities.
- * 
+ *
  * <p>
  * Generally the owner of an ACL is able to call any ACL mutator method, as
  * well as assign a new owner.
@@ -31,5 +31,5 @@ import org.acegisecurity.acls.sid.Sid;
 public interface OwnershipAcl extends MutableAcl {
     //~ Methods ========================================================================================================
 
-    public void setOwner(Sid newOwner);
+    void setOwner(Sid newOwner);
 }

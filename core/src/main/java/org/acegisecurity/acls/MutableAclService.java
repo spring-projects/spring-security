@@ -36,7 +36,7 @@ public interface MutableAclService extends AclService {
      *
      * @throws AlreadyExistsException if the passed object identity already has a record
      */
-    public MutableAcl createAcl(ObjectIdentity objectIdentity)
+    MutableAcl createAcl(ObjectIdentity objectIdentity)
         throws AlreadyExistsException;
 
     /**
@@ -47,7 +47,7 @@ public interface MutableAclService extends AclService {
      *
      * @throws ChildrenExistException if the deleteChildren argument was <code>false</code> but children exist
      */
-    public void deleteAcl(ObjectIdentity objectIdentity, boolean deleteChildren)
+    void deleteAcl(ObjectIdentity objectIdentity, boolean deleteChildren)
         throws ChildrenExistException;
 
     /**
@@ -61,5 +61,5 @@ public interface MutableAclService extends AclService {
      *         #createAcl(ObjectIdentity)} to create the object, rather than creating it with the <code>new</code>
      *         keyword?)
      */
-    public MutableAcl updateAcl(MutableAcl acl) throws NotFoundException;
+    MutableAcl updateAcl(MutableAcl acl) throws NotFoundException;
 }

@@ -23,16 +23,19 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
 
 /**
- * Declared in web.xml as <br><pre>&lt;listener&gt;
- * &lt;listener-class&gt;org.acegisecurity.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;&lt;/listener&gt;
- * </pre>Publishes <code>HttpSessionApplicationEvent</code>s to the Spring Root WebApplicationContext. Maps
+ * Declared in web.xml as
+ * <pre>
+ * &lt;listener&gt;
+ *     &lt;listener-class&gt;org.acegisecurity.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;
+ * &lt;/listener&gt;
+ * </pre>
+ *
+ * Publishes <code>HttpSessionApplicationEvent</code>s to the Spring Root WebApplicationContext. Maps
  * javax.servlet.http.HttpSessionListener.sessionCreated() to {@link HttpSessionCreatedEvent}. Maps
  * javax.servlet.http.HttpSessionListener.sessionDestroyed() to {@link HttpSessionDestroyedEvent}.
  *

@@ -35,7 +35,7 @@ public interface AclManager {
      *
      * @return the ACLs that apply, or <code>null</code> if no ACLs apply to the specified domain instance
      */
-    public AclEntry[] getAcls(Object domainInstance);
+    AclEntry[] getAcls(Object domainInstance);
 
     /**
      * Obtains the ACLs that apply to the specified domain instance, but only including those ACLs which have
@@ -47,5 +47,5 @@ public interface AclManager {
      * @return only those ACLs applying to the domain instance that have been granted to the principal (or
      *         <code>null</code>) if no such ACLs are found
      */
-    public AclEntry[] getAcls(Object domainInstance, Authentication authentication);
+    AclEntry[] getAcls(Object domainInstance, Authentication authentication);
 }

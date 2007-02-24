@@ -19,7 +19,7 @@ import org.acegisecurity.acls.AccessControlEntry;
 
 /**
  * Used by <code>AclImpl</code> to log audit events.
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  *
@@ -27,5 +27,5 @@ import org.acegisecurity.acls.AccessControlEntry;
 public interface AuditLogger {
     //~ Methods ========================================================================================================
 
-    public void logIfNeeded(boolean granted, AccessControlEntry ace);
+    void logIfNeeded(boolean granted, AccessControlEntry ace);
 }

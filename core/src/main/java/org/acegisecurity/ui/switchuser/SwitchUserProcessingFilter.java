@@ -280,9 +280,9 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
 
         // Allow subclasses to change the authorities to be granted
         if (switchUserAuthorityChanger != null) {
-        	switchUserAuthorityChanger.modifyGrantedAuthorities(targetUser, currentAuth, orig);
+            switchUserAuthorityChanger.modifyGrantedAuthorities(targetUser, currentAuth, orig);
         }
-        
+
         // add the new switch user authority
         List newAuths = new ArrayList(orig);
         newAuths.add(switchAuthority);
@@ -302,7 +302,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
     public void destroy() {}
 
     /**
-     * 
+     *
      * @see javax.servlet.Filter#doFilter
      */
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -471,7 +471,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
      * @param switchUserAuthorityChanger to use to fine-tune the authorities granted to subclasses (may be null if
      * SwitchUserProcessingFilter shoudl not fine-tune the authorities)
      */
-	public void setSwitchUserAuthorityChanger(SwitchUserAuthorityChanger switchUserAuthorityChanger) {
-		this.switchUserAuthorityChanger = switchUserAuthorityChanger;
-	}
+    public void setSwitchUserAuthorityChanger(SwitchUserAuthorityChanger switchUserAuthorityChanger) {
+        this.switchUserAuthorityChanger = switchUserAuthorityChanger;
+    }
 }

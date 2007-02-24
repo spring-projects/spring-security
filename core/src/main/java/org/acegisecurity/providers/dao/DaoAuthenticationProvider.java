@@ -57,9 +57,11 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
             salt = this.saltSource.getSalt(userDetails);
         }
 
-        if (!passwordEncoder.isPasswordValid(userDetails.getPassword(), authentication.getCredentials().toString(), salt)) {
+        if (!passwordEncoder.isPasswordValid(
+                userDetails.getPassword(), authentication.getCredentials().toString(), salt)) {
             throw new BadCredentialsException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"), includeDetailsObject ? userDetails : null);
+                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
+                    includeDetailsObject ? userDetails : null);
         }
     }
 
@@ -122,11 +124,11 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         this.userDetailsService = userDetailsService;
     }
 
-	public boolean isIncludeDetailsObject() {
-		return includeDetailsObject;
-	}
+    public boolean isIncludeDetailsObject() {
+        return includeDetailsObject;
+    }
 
-	public void setIncludeDetailsObject(boolean includeDetailsObject) {
-		this.includeDetailsObject = includeDetailsObject;
-	}
+    public void setIncludeDetailsObject(boolean includeDetailsObject) {
+        this.includeDetailsObject = includeDetailsObject;
+    }
 }

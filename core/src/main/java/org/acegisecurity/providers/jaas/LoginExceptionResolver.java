@@ -41,5 +41,5 @@ public interface LoginExceptionResolver {
      *
      * @return The AcegiSecurityException that the JaasAuthenticationProvider should throw.
      */
-    public AcegiSecurityException resolveException(LoginException e);
+    AcegiSecurityException resolveException(LoginException e);
 }

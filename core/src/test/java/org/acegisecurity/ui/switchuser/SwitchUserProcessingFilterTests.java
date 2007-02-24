@@ -79,7 +79,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
     }
 
     public void testAttemptSwitchToUnknownUser() throws Exception {
-        // set current user 
+        // set current user
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -98,7 +98,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
     public void testAttemptSwitchToUserThatIsDisabled()
         throws Exception {
-        // set current user 
+        // set current user
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -121,7 +121,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
     public void testAttemptSwitchToUserWithAccountExpired()
         throws Exception {
-        // set current user 
+        // set current user
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -144,7 +144,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
     public void testAttemptSwitchToUserWithExpiredCredentials()
         throws Exception {
-        // set current user 
+        // set current user
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -166,7 +166,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
     }
 
     public void testAttemptSwitchUser() throws Exception {
-        // set current user 
+        // set current user
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -218,7 +218,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
     }
 
     public void testExitRequestUserJackLordToDano() throws Exception {
-        // original user	
+        // original user
         GrantedAuthority[] auths = {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")};
         UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("dano", "hawaii50", auths);
 
@@ -249,7 +249,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         // run 'exit'
         filter.doFilter(request, response, chain);
 
-        // check current user, should be back to original user (dano) 
+        // check current user, should be back to original user (dano)
         Authentication targetAuth = SecurityContextHolder.getContext().getAuthentication();
         assertNotNull(targetAuth);
         assertEquals("dano", targetAuth.getPrincipal());
@@ -273,7 +273,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
         MockFilterChain chain = new MockFilterChain(true);
 
-        // run 'exit', expect fail due to no current user 
+        // run 'exit', expect fail due to no current user
         try {
             filter.doFilter(request, response, chain);
 
@@ -282,7 +282,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
     }
 
     public void testRedirectToTargetUrl() throws Exception {
-        // set current user 
+        // set current user
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -327,7 +327,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
     }
 
     public void testSwitchRequestFromDanoToJackLord() throws Exception {
-        // set current user 
+        // set current user
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
         SecurityContextHolder.getContext().setAuthentication(auth);
 

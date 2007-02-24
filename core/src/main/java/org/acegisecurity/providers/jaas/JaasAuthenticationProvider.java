@@ -64,49 +64,78 @@ import javax.security.auth.login.LoginException;
 
 
 /**
- * An {@link AuthenticationProvider} implementation that retrieves user details from a JAAS login configuration.<p>This
- * <code>AuthenticationProvider</code> is capable of validating {@link
+ * An {@link AuthenticationProvider} implementation that retrieves user details from a JAAS login configuration.
+ *
+ * <p>This <code>AuthenticationProvider</code> is capable of validating {@link
  * org.acegisecurity.providers.UsernamePasswordAuthenticationToken} requests contain the correct username and
  * password.</p>
- *  <p>This implementation is backed by a <a
+ * <p>This implementation is backed by a <a
  * href="http://java.sun.com/j2se/1.4.2/docs/guide/security/jaas/JAASRefGuide.html">JAAS</a> configuration. The
  * loginConfig property must be set to a given JAAS configuration file. This setter accepts a Spring {@link
  * org.springframework.core.io.Resource} instance. It should point to a JAAS configuration file containing an index
- * matching the {@link #setLoginContextName(java.lang.String) loginContextName} property.</p>
- *  <p>For example: If this JaasAuthenticationProvider were configured in a Spring WebApplicationContext the xml to
- * set the loginConfiguration could be as follows...<pre> &lt;property name="loginConfig"&gt;
- *  &lt;value&gt;/WEB-INF/login.conf&lt;/value&gt; &lt;/property&gt; </pre></p>
- *  <p>The loginContextName should coincide with a given index in the loginConfig specifed. The loginConfig file
- * used in the JUnit tests appears as the following...<pre> JAASTest {
- *  org.acegisecurity.providers.jaas.TestLoginModule required; }; </pre>Using the example login configuration
- * above, the loginContextName property would be set as <i>JAASTest</i>...<pre>
- *  &lt;property name="loginContextName"&gt; &lt;value&gt;JAASTest&lt;/value&gt; &lt;/property&gt; </pre></p>
- *  <p>When using JAAS login modules as the authentication source, sometimes the <a
- * href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/login/LoginContext.html">LoginContext</a> will
- * require <i>CallbackHandler</i>s. The JaasAuthenticationProvider uses an internal <a
- * href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/CallbackHandler.html">CallbackHandler</a>
- * to wrap the {@link JaasAuthenticationCallbackHandler}s configured in the ApplicationContext. When the LoginContext
- * calls the internal CallbackHandler, control is passed to each {@link JaasAuthenticationCallbackHandler} for each
- * Callback passed.</p>
- *  <p>{{@link JaasAuthenticationCallbackHandler}s are passed to the JaasAuthenticationProvider through the {@link
+ * matching the {@link #setLoginContextName(java.lang.String) loginContextName} property.
+ * </p>
+ * <p>
+ * For example: If this JaasAuthenticationProvider were configured in a Spring WebApplicationContext the xml to
+ * set the loginConfiguration could be as follows...
+ * <pre>
+ * &lt;property name="loginConfig"&gt;
+ *   &lt;value&gt;/WEB-INF/login.conf&lt;/value&gt;
+ * &lt;/property&gt;
+ * </pre>
+ * </p>
+ * <p>
+ * The loginContextName should coincide with a given index in the loginConfig specifed. The loginConfig file
+ * used in the JUnit tests appears as the following...
+ * <pre> JAASTest {
+ *   org.acegisecurity.providers.jaas.TestLoginModule required;
+ * };
+ * </pre>
+ * Using the example login configuration above, the loginContextName property would be set as <i>JAASTest</i>...
+ * <pre>
+ *  &lt;property name="loginContextName"&gt; &lt;value&gt;JAASTest&lt;/value&gt; &lt;/property&gt;
+ * </pre>
+ * </p>
+ *  <p>When using JAAS login modules as the authentication source, sometimes the
+ * <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/login/LoginContext.html">LoginContext</a> will
+ * require <i>CallbackHandler</i>s. The JaasAuthenticationProvider uses an internal
+ * <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/CallbackHandler.html">CallbackHandler
+ * </a> to wrap the {@link JaasAuthenticationCallbackHandler}s configured in the ApplicationContext.
+ * When the LoginContext calls the internal CallbackHandler, control is passed to each
+ * {@link JaasAuthenticationCallbackHandler} for each Callback passed.
+ * </p>
+ * <p>{@link JaasAuthenticationCallbackHandler}s are passed to the JaasAuthenticationProvider through the {@link
  * #setCallbackHandlers(org.acegisecurity.providers.jaas.JaasAuthenticationCallbackHandler[]) callbackHandlers}
- * property. }<pre> &lt;property name="callbackHandlers"&gt; &lt;list&gt;
- *  &lt;bean class="org.acegisecurity.providers.jaas.TestCallbackHandler"/&gt;
- *  &lt;bean class="{@link JaasNameCallbackHandler org.acegisecurity.providers.jaas.JaasNameCallbackHandler}"/&gt;
- *  &lt;bean class="{@link JaasPasswordCallbackHandler org.acegisecurity.providers.jaas.JaasPasswordCallbackHandler}"/&gt;
- *  &lt;/list&gt; &lt;/property&gt; </pre></p>
- *  <p>After calling LoginContext.login(), the JaasAuthenticationProvider will retrieve the returned Principals
+ * property.
+ * <pre>
+ * &lt;property name="callbackHandlers"&gt;
+ *   &lt;list&gt;
+ *     &lt;bean class="org.acegisecurity.providers.jaas.TestCallbackHandler"/&gt;
+ *     &lt;bean class="{@link JaasNameCallbackHandler org.acegisecurity.providers.jaas.JaasNameCallbackHandler}"/&gt;
+ *     &lt;bean class="{@link JaasPasswordCallbackHandler org.acegisecurity.providers.jaas.JaasPasswordCallbackHandler}"/&gt;
+ *  &lt;/list&gt;
+ * &lt;/property&gt;
+ * </pre>
+ * </p>
+ * <p>
+ * After calling LoginContext.login(), the JaasAuthenticationProvider will retrieve the returned Principals
  * from the Subject (LoginContext.getSubject().getPrincipals). Each returned principal is then passed to the
  * configured {@link AuthorityGranter}s. An AuthorityGranter is a mapping between a returned Principal, and a role
  * name. If an AuthorityGranter wishes to grant an Authorization a role, it returns that role name from it's {@link
  * AuthorityGranter#grant(java.security.Principal)} method. The returned role will be applied to the Authorization
  * object as a {@link GrantedAuthority}.</p>
- *  <p>AuthorityGranters are configured in spring xml as follows...<pre> &lt;property name="authorityGranters"&gt;
- *  &lt;list&gt; &lt;bean class="org.acegisecurity.providers.jaas.TestAuthorityGranter"/&gt; &lt;/list&gt;
- *  &lt;/property&gt; <p/> </pre></p>
- *  A configuration note: The JaasAuthenticationProvider uses the security properites
+ * <p>AuthorityGranters are configured in spring xml as follows...
+ * <pre>
+ * &lt;property name="authorityGranters"&gt;
+ *   &lt;list&gt;
+ *     &lt;bean class="org.acegisecurity.providers.jaas.TestAuthorityGranter"/&gt;
+ *   &lt;/list&gt;
+ *  &lt;/property&gt;
+ * </pre>
+ * A configuration note: The JaasAuthenticationProvider uses the security properites
  * &quote;login.config.url.X&quote; to configure jaas. If you would like to customize the way Jaas gets configured,
  * create a subclass of this and override the {@link #configureJaas(Resource)} method.
+ * </p>
  *
  * @author Ray Krueger
  * @version $Id$
@@ -135,7 +164,10 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Initi
         configureJaas(loginConfig);
 
         Assert.notNull(Configuration.getConfiguration(),
-            "As per http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/Configuration.html \"If a Configuration object was set via the Configuration.setConfiguration method, then that object is returned. Otherwise, a default Configuration object is returned\". Your JRE returned null to Configuration.getConfiguration().");
+              "As per http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/Configuration.html "
+            + "\"If a Configuration object was set via the Configuration.setConfiguration method, then that object is "
+            + "returned. Otherwise, a default Configuration object is returned\". Your JRE returned null to "
+            + "Configuration.getConfiguration().");
     }
 
     /**
@@ -298,8 +330,8 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Initi
      * @param event
      */
     protected void handleLogout(HttpSessionDestroyedEvent event) {
-        SecurityContext context = (SecurityContext) event.getSession()
-                                                         .getAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
+        SecurityContext context = (SecurityContext)
+                event.getSession().getAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
 
         if (context == null) {
             log.debug("The destroyed session has no SecurityContext");

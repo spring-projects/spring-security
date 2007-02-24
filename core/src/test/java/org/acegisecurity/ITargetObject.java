@@ -24,13 +24,13 @@ package org.acegisecurity;
 public interface ITargetObject {
     //~ Methods ========================================================================================================
 
-    public Integer computeHashCode(String input);
+    Integer computeHashCode(String input);
 
-    public int countLength(String input);
+    int countLength(String input);
 
-    public String makeLowerCase(String input);
+    String makeLowerCase(String input);
 
-    public String makeUpperCase(String input);
+    String makeUpperCase(String input);
 
-    public String publicMakeLowerCase(String input);
+    String publicMakeLowerCase(String input);
 }

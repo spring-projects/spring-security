@@ -18,7 +18,7 @@ package org.acegisecurity.acl.basic;
 /**
  * Indicates a domain object instance is able to provide {@link
  * AclObjectIdentity} information.
- * 
+ *
  * <P>
  * Domain objects must implement this interface if they wish to provide an
  * <code>AclObjectIdentity</code> rather than it being determined by relying
@@ -37,5 +37,5 @@ public interface AclObjectIdentityAware {
      *
      * @return the ACL object identity for this instance (can never be <code>null</code>)
      */
-    public AclObjectIdentity getAclObjectIdentity();
+    AclObjectIdentity getAclObjectIdentity();
 }

@@ -21,7 +21,7 @@ import javax.servlet.ServletRequest;
 /**
  * A <code>PortResolver</code> determines the port a web request was received
  * on.
- * 
+ *
  * <P>
  * This interface is necessary because
  * <code>ServletRequest.getServerPort()</code> may not return the correct port
@@ -42,5 +42,5 @@ public interface PortResolver {
      *
      * @return the port the request was received on
      */
-    public int getServerPort(ServletRequest request);
+    int getServerPort(ServletRequest request);
 }

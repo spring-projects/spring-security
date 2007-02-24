@@ -23,24 +23,24 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Implement by a class that is capable of providing a remember-me service.
- * 
- * <P>
+ *
+ * <p>
  * Acegi Security filters (namely {@link
  * org.acegisecurity.ui.AbstractProcessingFilter} and {@link
  * org.acegisecurity.ui.rememberme.RememberMeProcessingFilter} will call
  * the methods provided by an implementation of this interface.
  * </p>
- * 
- * <P>
+ *
+ * <p>
  * Implementations may implement any type of remember-me capability they wish.
- * Rolling cookies (as per <a
- * href="http://fishbowl.pastiche.org/2004/01/19/persistent_login_cookie_best_practice">http://fishbowl.pastiche.org/2004/01/19/persistent_login_cookie_best_practice</a>)
+ * Rolling cookies (as per <a href="http://fishbowl.pastiche.org/2004/01/19/persistent_login_cookie_best_practice">
+ * http://fishbowl.pastiche.org/2004/01/19/persistent_login_cookie_best_practice</a>)
  * can be used, as can simple implementations that don't require a persistent
  * store. Implementations also determine the validity period of a remember-me
  * cookie.  This interface has been designed to accommodate any of these
  * remember-me models.
  * </p>
- * 
+ *
  * <p>
  * This interface does not define how remember-me services should offer a
  * "cancel all remember-me tokens" type capability, as this will be
@@ -71,7 +71,7 @@ public interface RememberMeServices {
      *
      * @return a valid authentication object, or <code>null</code> if the request should not be authenticated
      */
-    public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response);
+    Authentication autoLogin(HttpServletRequest request, HttpServletResponse response);
 
     /**
      * Called whenever an interactive authentication attempt was made, but the credentials supplied by the user
@@ -81,7 +81,7 @@ public interface RememberMeServices {
      * @param request that contained an invalid authentication request
      * @param response to change, cancel or modify the remember-me token
      */
-    public void loginFail(HttpServletRequest request, HttpServletResponse response);
+    void loginFail(HttpServletRequest request, HttpServletResponse response);
 
     /**
      * Called whenever an interactive authentication attempt is successful. An implementation may automatically
@@ -93,6 +93,6 @@ public interface RememberMeServices {
      * @param response to change, cancel or modify the remember-me token
      * @param successfulAuthentication representing the successfully authenticated principal
      */
-    public void loginSuccess(HttpServletRequest request, HttpServletResponse response,
+    void loginSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication successfulAuthentication);
 }

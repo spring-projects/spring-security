@@ -27,7 +27,12 @@ import java.lang.reflect.Field;
  * @author Ben Alex
  * @version $Id$
  */
-public class FieldUtils {
+public final class FieldUtils {
+    //~ Constructors ===================================================================================================
+
+    private FieldUtils() {
+    }
+
     //~ Methods ========================================================================================================
 
     public static String getAccessorName(String fieldName, Class type) {

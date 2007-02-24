@@ -85,9 +85,8 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor extends SimpleHttpIn
             }
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "Unable to set BASIC authentication header as SecurityContext did not provide valid Authentication: "
-                    + auth);
+                logger.debug("Unable to set BASIC authentication header as SecurityContext did not provide "
+                        + "valid Authentication: " + auth);
             }
         }
 

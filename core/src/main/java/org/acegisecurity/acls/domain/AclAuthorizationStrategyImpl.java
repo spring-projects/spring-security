@@ -53,7 +53,7 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 /**
      * Constructor. The only mandatory parameter relates to the system-wide {@link GrantedAuthority} instances that
      * can be held to always permit ACL changes.
-     * 
+     *
      * @param auths an array of <code>GrantedAuthority</code>s that have
      * special permissions (index 0 is the authority needed to change
      * ownership, index 1 is the authority needed to modify auditing details,
@@ -81,7 +81,8 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
         // Check if authorized by virtue of ACL ownership
         Sid currentUser = new PrincipalSid(authentication);
 
-        if (currentUser.equals(acl.getOwner()) && ((changeType == CHANGE_GENERAL) || (changeType == CHANGE_OWNERSHIP))) {
+        if (currentUser.equals(acl.getOwner())
+                && ((changeType == CHANGE_GENERAL) || (changeType == CHANGE_OWNERSHIP))) {
             return;
         }
 

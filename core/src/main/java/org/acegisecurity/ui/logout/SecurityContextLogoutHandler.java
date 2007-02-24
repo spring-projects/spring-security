@@ -37,8 +37,8 @@ import javax.servlet.http.HttpSession;
 public class SecurityContextLogoutHandler implements LogoutHandler {
     //~ Methods ========================================================================================================
 
-	private boolean invalidateHttpSession = true;
-	
+    private boolean invalidateHttpSession = true;
+
     /**
      * Requires the request to be passed in.
      *
@@ -47,31 +47,31 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
      * @param authentication not used (can be <code>null</code>)
      */
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-    	Assert.notNull(request, "HttpServletRequest required");
-    	if (invalidateHttpSession) {
-        	HttpSession session = request.getSession(false);
-			if (session != null) {
-				session.invalidate();
-			}
-		}
-    	
-    	SecurityContextHolder.clearContext();
+        Assert.notNull(request, "HttpServletRequest required");
+        if (invalidateHttpSession) {
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
+        }
+
+        SecurityContextHolder.clearContext();
     }
 
-	public boolean isInvalidateHttpSession() {
-		return invalidateHttpSession;
-	}
+    public boolean isInvalidateHttpSession() {
+        return invalidateHttpSession;
+    }
 
-	/**
-	 * Causes the {@link HttpSession} to be invalidated when this
-	 * {@link LogoutHandler} is invoked. Defaults to true.
-	 * 
-	 * @param invalidateHttpSession true if you wish the session to be
-	 * invalidated (default) or false if it should not be
-	 */
-	public void setInvalidateHttpSession(boolean invalidateHttpSession) {
-		this.invalidateHttpSession = invalidateHttpSession;
-	}
-    
-    
+    /**
+     * Causes the {@link HttpSession} to be invalidated when this
+     * {@link LogoutHandler} is invoked. Defaults to true.
+     *
+     * @param invalidateHttpSession true if you wish the session to be
+     * invalidated (default) or false if it should not be
+     */
+    public void setInvalidateHttpSession(boolean invalidateHttpSession) {
+        this.invalidateHttpSession = invalidateHttpSession;
+    }
+
+
 }

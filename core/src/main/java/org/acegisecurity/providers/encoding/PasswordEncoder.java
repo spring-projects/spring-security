@@ -52,7 +52,7 @@ public interface PasswordEncoder {
      *
      * @throws DataAccessException DOCUMENT ME!
      */
-    public String encodePassword(String rawPass, Object salt)
+    String encodePassword(String rawPass, Object salt)
         throws DataAccessException;
 
     /**
@@ -71,6 +71,6 @@ public interface PasswordEncoder {
      *
      * @throws DataAccessException DOCUMENT ME!
      */
-    public boolean isPasswordValid(String encPass, String rawPass, Object salt)
+    boolean isPasswordValid(String encPass, String rawPass, Object salt)
         throws DataAccessException;
 }

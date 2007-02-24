@@ -65,7 +65,9 @@ import org.springframework.dao.DataAccessException;
  * <p>A custom implementation could obtain the roles from a completely different source, for example from a database.
  * </p>
  *
- * <h3>Configuration</h3>A simple configuration might be as follows:
+ * <h3>Configuration</h3>
+ *
+ * A simple configuration might be as follows:
  * <pre>
  *    &lt;bean id="initialDirContextFactory" class="org.acegisecurity.providers.ldap.DefaultInitialDirContextFactory">
  *      &lt;constructor-arg value="ldap://monkeymachine:389/dc=acegisecurity,dc=org"/>
@@ -124,11 +126,13 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
 
     //~ Constructors ===================================================================================================
 
-	/**
+    /**
      * Create an initialized instance to the values passed as arguments
      *
-     * @param authenticator
-     * @param authoritiesPopulator
+     * @param authenticator the authentication strategy (bind, password comparison, etc)
+     *          to be used by this provider for authenticating users.
+     * @param authoritiesPopulator the strategy for obtaining the authorities for a given user after they've been
+     *          authenticated.
      */
     public LdapAuthenticationProvider(LdapAuthenticator authenticator, LdapAuthoritiesPopulator authoritiesPopulator) {
         this.setAuthenticator(authenticator);
@@ -160,7 +164,8 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         throws AuthenticationException {
         if (!userDetails.getPassword().equals(authentication.getCredentials().toString())) {
             throw new BadCredentialsException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"), includeDetailsObject ? userDetails : null);
+                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
+                    includeDetailsObject ? userDetails : null);
         }
     }
 
@@ -221,13 +226,12 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
             throw new AuthenticationServiceException(ldapAccessFailure.getMessage(), ldapAccessFailure);
         }
     }
-    
+
     public boolean isIncludeDetailsObject() {
-		return includeDetailsObject;
-	}
+        return includeDetailsObject;
+    }
 
-	public void setIncludeDetailsObject(boolean includeDetailsObject) {
-		this.includeDetailsObject = includeDetailsObject;
-	}
-
+    public void setIncludeDetailsObject(boolean includeDetailsObject) {
+        this.includeDetailsObject = includeDetailsObject;
+    }
 }

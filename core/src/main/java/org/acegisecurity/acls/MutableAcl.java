@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 /**
  * A mutable <code>Acl</code>.
- * 
+ *
  * <p>
  * A mutable ACL must ensure that appropriate security checks are performed
  * before allowing access to its methods.
@@ -33,7 +33,7 @@ import java.io.Serializable;
 public interface MutableAcl extends Acl {
     //~ Methods ========================================================================================================
 
-    public void deleteAce(Serializable aceId) throws NotFoundException;
+    void deleteAce(Serializable aceId) throws NotFoundException;
 
     /**
      * Retrieves all of the non-deleted {@link AccessControlEntry} instances currently stored by the
@@ -44,16 +44,16 @@ public interface MutableAcl extends Acl {
      *
      * @return DOCUMENT ME!
      */
-    public AccessControlEntry[] getEntries();
+    AccessControlEntry[] getEntries();
 
     /**
      * Obtains an identifier that represents this <code>MutableAcl</code>.
      *
      * @return the identifier, or <code>null</code> if unsaved
      */
-    public Serializable getId();
+    Serializable getId();
 
-    public void insertAce(Serializable afterAceId, Permission permission, Sid sid, boolean granting)
+    void insertAce(Serializable afterAceId, Permission permission, Sid sid, boolean granting)
         throws NotFoundException;
 
     /**
@@ -61,15 +61,15 @@ public interface MutableAcl extends Acl {
      *
      * @param entriesInheriting the new value
      */
-    public void setEntriesInheriting(boolean entriesInheriting);
+    void setEntriesInheriting(boolean entriesInheriting);
 
     /**
      * Changes the parent of this ACL.
      *
      * @param newParent the new parent
      */
-    public void setParent(MutableAcl newParent);
+    void setParent(MutableAcl newParent);
 
-    public void updateAce(Serializable aceId, Permission permission)
+    void updateAce(Serializable aceId, Permission permission)
         throws NotFoundException;
 }

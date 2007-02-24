@@ -154,7 +154,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
                         token.getAttr(), returnedObject);
             } catch (AccessDeniedException accessDeniedException) {
                 AuthorizationFailureEvent event = new AuthorizationFailureEvent(token.getSecureObject(),
-                		token.getAttr(), token.getAuthentication(), accessDeniedException);
+                        token.getAttr(), token.getAuthentication(), accessDeniedException);
                 publishEvent(event);
 
                 throw accessDeniedException;
@@ -196,7 +196,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
             if (iter == null) {
                 if (logger.isWarnEnabled()) {
                     logger.warn(
-                        "Could not validate configuration attributes as the MethodDefinitionSource did not return a ConfigAttributeDefinition Iterator");
+                        "Could not validate configuration attributes as the MethodDefinitionSource did not return a "
+                                + "ConfigAttributeDefinition Iterator");
                 }
             } else {
                 Set set = new HashSet();
@@ -239,8 +240,9 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
         ConfigAttributeDefinition attr = this.obtainObjectDefinitionSource().getAttributes(object);
 
         if ((attr == null) && rejectPublicInvocations) {
-            throw new IllegalArgumentException(
-                "No public invocations are allowed via this AbstractSecurityInterceptor. This indicates a configuration error because the AbstractSecurityInterceptor.rejectPublicInvocations property is set to 'true'");
+            throw new IllegalArgumentException("No public invocations are allowed via this AbstractSecurityInterceptor. "
+                    + "This indicates a configuration error because the "
+                    + "AbstractSecurityInterceptor.rejectPublicInvocations property is set to 'true'");
         }
 
         if (attr != null) {
@@ -306,7 +308,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
                     logger.debug("RunAsManager did not change Authentication object");
                 }
 
-                return new InterceptorStatusToken(authenticated, false, attr, object); // no further work post-invocation
+                // no further work post-invocation
+                return new InterceptorStatusToken(authenticated, false, attr, object);
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Switching to RunAs Authentication: " + runAs.toString());
@@ -314,7 +317,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
                 SecurityContextHolder.getContext().setAuthentication(runAs);
 
-                return new InterceptorStatusToken(authenticated, true, attr, object); // revert to token.Authenticated post-invocation
+                // revert to token.Authenticated post-invocation
+                return new InterceptorStatusToken(authenticated, true, attr, object);
             }
         } else {
             if (logger.isDebugEnabled()) {
@@ -406,8 +410,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
         this.alwaysReauthenticate = alwaysReauthenticate;
     }
 
-    public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
-        this.eventPublisher = eventPublisher;
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.eventPublisher = applicationEventPublisher;
     }
 
     public void setAuthenticationManager(AuthenticationManager newManager) {

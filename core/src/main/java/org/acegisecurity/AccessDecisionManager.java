@@ -36,7 +36,7 @@ public interface AccessDecisionManager {
      * @throws InsufficientAuthenticationException if access is denied as the authentication does not provide a
      *         sufficient level of trust
      */
-    public void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
+    void decide(Authentication authentication, Object object, ConfigAttributeDefinition config)
         throws AccessDeniedException, InsufficientAuthenticationException;
 
     /**
@@ -51,7 +51,7 @@ public interface AccessDecisionManager {
      *
      * @return true if this <code>AccessDecisionManager</code> can support the passed configuration attribute
      */
-    public boolean supports(ConfigAttribute attribute);
+    boolean supports(ConfigAttribute attribute);
 
     /**
      * Indicates whether the <code>AccessDecisionManager</code> implementation is able to provide access
@@ -61,5 +61,5 @@ public interface AccessDecisionManager {
      *
      * @return <code>true</code> if the implementation can process the indicated class
      */
-    public boolean supports(Class clazz);
+    boolean supports(Class clazz);
 }

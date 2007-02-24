@@ -77,8 +77,8 @@ public class ChannelProcessingFilter implements InitializingBean, Filter {
 
         if (iter == null) {
             if (logger.isWarnEnabled()) {
-                logger.warn(
-                    "Could not validate configuration attributes as the FilterInvocationDefinitionSource did not return a ConfigAttributeDefinition Iterator");
+                logger.warn("Could not validate configuration attributes as the FilterInvocationDefinitionSource did "
+                        + "not return a ConfigAttributeDefinition Iterator");
             }
 
             return;

@@ -37,7 +37,7 @@ public interface LabelParameterStrategy {
      *
      * @return string value of the label
      */
-    public String getLabel(Method method, Object arg);
+    String getLabel(Method method, Object arg);
 
     /**
      * Evaluate if one particular argument is labeled. The context of the method is also provided should that
@@ -48,5 +48,5 @@ public interface LabelParameterStrategy {
      *
      * @return boolean
      */
-    public boolean isLabeled(Method method, Object arg);
+    boolean isLabeled(Method method, Object arg);
 }

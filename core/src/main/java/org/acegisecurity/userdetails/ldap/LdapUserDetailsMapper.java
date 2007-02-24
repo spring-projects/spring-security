@@ -65,7 +65,7 @@ public class LdapUserDetailsMapper implements LdapEntryMapper {
         for (int i = 0; (roleAttributes != null) && (i < roleAttributes.length); i++) {
             Attribute roleAttribute = attributes.get(roleAttributes[i]);
 
-            if(roleAttribute == null) {
+            if (roleAttribute == null) {
                 logger.debug("Couldn't read role attribute '" + roleAttributes[i] + "' for user " + dn);
                 continue;
             }
@@ -75,10 +75,11 @@ public class LdapUserDetailsMapper implements LdapEntryMapper {
             while (attributeRoles.hasMore()) {
                 GrantedAuthority authority = createAuthority(attributeRoles.next());
 
-                if(authority != null) {
+                if (authority != null) {
                     essence.addAuthority(authority);
                 } else {
-                    logger.debug("Failed to create an authority value from attribute with Id: " + roleAttribute.getID());
+                    logger.debug("Failed to create an authority value from attribute with Id: "
+                            + roleAttribute.getID());
                 }
             }
         }

@@ -21,12 +21,12 @@ import org.springframework.dao.DataAccessException;
 /**
  * Represents a more extensive data access object
  * for {@link BasicAclEntry}s.
- * 
- * <P>
+ *
+ * <p>
  * <code>BasicAclExtendedDao</code> implementations are responsible for interpreting a
  * a given {@link AclObjectIdentity}.
  * </p>
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  */
@@ -43,10 +43,10 @@ public interface BasicAclExtendedDao extends BasicAclDao {
      *
      * @throws DataAccessException DOCUMENT ME!
      */
-    public void changeMask(AclObjectIdentity aclObjectIdentity, Object recipient, Integer newMask)
+    void changeMask(AclObjectIdentity aclObjectIdentity, Object recipient, Integer newMask)
         throws DataAccessException;
 
-    public void create(BasicAclEntry basicAclEntry) throws DataAccessException;
+    void create(BasicAclEntry basicAclEntry) throws DataAccessException;
 
     /**
      * Deletes <b>all</b> entries associated with the specified <code>AclObjectIdentity</code>.
@@ -55,7 +55,7 @@ public interface BasicAclExtendedDao extends BasicAclDao {
      *
      * @throws DataAccessException DOCUMENT ME!
      */
-    public void delete(AclObjectIdentity aclObjectIdentity)
+    void delete(AclObjectIdentity aclObjectIdentity)
         throws DataAccessException;
 
     /**
@@ -67,6 +67,6 @@ public interface BasicAclExtendedDao extends BasicAclDao {
      *
      * @throws DataAccessException DOCUMENT ME!
      */
-    public void delete(AclObjectIdentity aclObjectIdentity, Object recipient)
+    void delete(AclObjectIdentity aclObjectIdentity, Object recipient)
         throws DataAccessException;
 }

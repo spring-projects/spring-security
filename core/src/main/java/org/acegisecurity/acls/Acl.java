@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 /**
  * Represents an access control list (ACL) for a domain object.
- * 
+ *
  * <p>
  * An <code>Acl</code> represents all ACL entries for a given domain object. In
  * order to avoid needing references to the domain object itself, this
@@ -30,7 +30,7 @@ import java.io.Serializable;
  * identity via the {@link
  * org.acegisecurity.acls.objectidentity.ObjectIdentity} interface.
  * </p>
- * 
+ *
  * <p>
  * An implementation represents the {@link org.acegisecurity.acls.Permission}
  * list applicable for some or all {@link org.acegisecurity.acls.sid.Sid}
@@ -50,14 +50,14 @@ public interface Acl extends Serializable {
      * particular ordering logic in authorization decisions, the entries returned by this method <em>MUST</em> be
      * ordered in that manner.</p>
      *  <p>Do <em>NOT</em> use this method for making authorization decisions. Instead use {@link
-     * #isGranted(Permission[], Sid[])}.</p>
+     * #isGranted(Permission[], Sid[], boolean)}.</p>
      *  <p>This method must operate correctly even if the <code>Acl</code> only represents a subset of
      * <code>Sid</code>s. The caller is responsible for correctly handling the result if only a subset of
      * <code>Sid</code>s is represented.</p>
      *
      * @return the list of entries represented by the <code>Acl</code>
      */
-    public AccessControlEntry[] getEntries();
+    AccessControlEntry[] getEntries();
 
     /**
      * Obtains the domain object this <code>Acl</code> provides entries for. This is immutable once an
@@ -65,7 +65,7 @@ public interface Acl extends Serializable {
      *
      * @return the object identity
      */
-    public ObjectIdentity getObjectIdentity();
+    ObjectIdentity getObjectIdentity();
 
     /**
      * Determines the owner of the <code>Acl</code>. The meaning of ownership varies by implementation and is
@@ -73,7 +73,7 @@ public interface Acl extends Serializable {
      *
      * @return the owner (may be null if the implementation does not use ownership concepts)
      */
-    public Sid getOwner();
+    Sid getOwner();
 
     /**
      * A domain object may have a parent for the purpose of ACL inheritance. If there is a parent, its ACL can
@@ -87,7 +87,7 @@ public interface Acl extends Serializable {
      *
      * @return the parent <code>Acl</code>
      */
-    public Acl getParentAcl();
+    Acl getParentAcl();
 
     /**
      * Indicates whether the ACL entries from the {@link #getParentAcl()} should flow down into the current
@@ -98,7 +98,7 @@ public interface Acl extends Serializable {
      *
      * @return <code>true</code> if parent ACL entries inherit into the current <code>Acl</code>
      */
-    public boolean isEntriesInheriting();
+    boolean isEntriesInheriting();
 
     /**
      * This is the actual authorization logic method, and must be used whenever ACL authorization decisions are
@@ -131,22 +131,25 @@ public interface Acl extends Serializable {
      * @throws UnloadedSidException thrown if the <code>Acl</code> does not have details for one or more of the
      *         <code>Sid</code>s passed as arguments
      */
-    public boolean isGranted(Permission[] permission, Sid[] sids, boolean administrativeMode)
+    boolean isGranted(Permission[] permission, Sid[] sids, boolean administrativeMode)
         throws NotFoundException, UnloadedSidException;
 
     /**
      * For efficiency reasons an <code>Acl</code> may be loaded and <em>not</em> contain entries for every
      * <code>Sid</code> in the system. If an <code>Acl</code> has been loaded and does not represent every
      * <code>Sid</code>, all methods of the <code>Sid</code> can only be used within the limited scope of the
-     * <code>Sid</code> instances it actually represents.<p>It is normal to load an <code>Acl</code> for only
-     * particular <code>Sid</code>s if read-only authorization decisions are being made. However, if user interface
-     * reporting or modification of <code>Acl</code>s are desired, an <code>Acl</code> should be loaded with all
-     * <code>Sid</code>s. This method denotes whether or not the specified <code>Sid</code>s have been loaded or not.</p>
+     * <code>Sid</code> instances it actually represents.
+     * <p>
+     * It is normal to load an <code>Acl</code> for only particular <code>Sid</code>s if read-only authorization
+     * decisions are being made. However, if user interface reporting or modification of <code>Acl</code>s are
+     * desired, an <code>Acl</code> should be loaded with all <code>Sid</code>s. This method denotes whether or
+     * not the specified <code>Sid</code>s have been loaded or not.
+     * </p>
      *
      * @param sids one or more security identities the caller is interest in knowing whether this <code>Sid</code>
      *        supports
      *
      * @return <code>true</code> if every passed <code>Sid</code> is represented by this <code>Acl</code> instance
      */
-    public boolean isSidLoaded(Sid[] sids);
+    boolean isSidLoaded(Sid[] sids);
 }

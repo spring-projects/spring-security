@@ -31,7 +31,7 @@ import java.security.cert.X509Certificate;
 public class X509AuthenticationToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private Object principal;
     private X509Certificate credentials;
 

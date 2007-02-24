@@ -123,9 +123,9 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean, App
                     }
                 } catch (AuthenticationException authenticationException) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug(
-                            "SecurityContextHolder not populated with remember-me token, as AuthenticationManager rejected Authentication returned by RememberMeServices: '"
-                            + rememberMeAuth + "'; invalidating remember-me token", authenticationException);
+                        logger.debug("SecurityContextHolder not populated with remember-me token, as "
+                                + "AuthenticationManager rejected Authentication returned by RememberMeServices: '"
+                                + rememberMeAuth + "'; invalidating remember-me token", authenticationException);
                     }
 
                     rememberMeServices.loginFail(httpRequest, httpResponse);

@@ -35,5 +35,5 @@ public interface AuthenticationDetailsSource {
      *
      * @return a fully-configured authentication details instance
      */
-    public Object buildDetails(HttpServletRequest request);
+    Object buildDetails(HttpServletRequest request);
 }

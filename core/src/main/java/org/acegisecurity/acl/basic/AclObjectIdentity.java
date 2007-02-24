@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 /**
  * Interface representing the identity of an individual domain object instance.
- * 
+ *
  * <P>
  * It should be noted that <code>AclObjectIdentity</code> instances are created
  * in various locations throughout the package. As
@@ -31,7 +31,7 @@ import java.io.Serializable;
  * <code>identity1.equals(identity2)</code>, rather than reference-equality of
  * <code>identity1==identity2</code>.
  * </p>
- * 
+ *
  * <P>
  * In practical terms this means you must implement the standard
  * <code>java.lang.Object</code> methods shown below. Depending on your
@@ -53,12 +53,12 @@ public interface AclObjectIdentity extends Serializable {
      *
      * @return <code>true</code> if the objects are equal, <code>false</code> otherwise
      */
-    public boolean equals(Object obj);
+    boolean equals(Object obj);
 
     /**
      * Refer to the <code>java.lang.Object</code> documentation for the interface contract.
      *
      * @return a hash code representation of this object
      */
-    public int hashCode();
+    int hashCode();
 }

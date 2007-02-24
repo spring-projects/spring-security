@@ -44,6 +44,6 @@ public interface AuthenticationManager {
      *
      * @throws AuthenticationException if authentication fails
      */
-    public Authentication authenticate(Authentication authentication)
+    Authentication authenticate(Authentication authentication)
         throws AuthenticationException;
 }

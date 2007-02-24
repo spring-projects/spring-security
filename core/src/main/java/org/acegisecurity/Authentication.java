@@ -22,12 +22,12 @@ import java.security.Principal;
 
 /**
  * Represents an authentication request.
- * 
+ *
  * <p>
  * An <code>Authentication</code> object is not considered authenticated until
  * it is processed by an {@link AuthenticationManager}.
  * </p>
- * 
+ *
  * <p>
  * Stored in a request {@link org.acegisecurity.context.SecurityContext}.
  * </p>
@@ -46,7 +46,7 @@ public interface Authentication extends Principal, Serializable {
      *
      * @return the authorities granted to the principal, or <code>null</code> if authentication has not been completed
      */
-    public GrantedAuthority[] getAuthorities();
+    GrantedAuthority[] getAuthorities();
 
     /**
      * The credentials that prove the principal is correct. This is usually a password, but could be anything
@@ -54,7 +54,7 @@ public interface Authentication extends Principal, Serializable {
      *
      * @return the credentials that prove the identity of the <code>Principal</code>
      */
-    public Object getCredentials();
+    Object getCredentials();
 
     /**
      * Stores additional details about the authentication request. These might be an IP address, certificate
@@ -62,7 +62,7 @@ public interface Authentication extends Principal, Serializable {
      *
      * @return additional details about the authentication request, or <code>null</code> if not used
      */
-    public Object getDetails();
+    Object getDetails();
 
     /**
      * The identity of the principal being authenticated. This is usually a username. Callers are expected to
@@ -70,7 +70,7 @@ public interface Authentication extends Principal, Serializable {
      *
      * @return the <code>Principal</code> being authenticated
      */
-    public Object getPrincipal();
+    Object getPrincipal();
 
     /**
      * Used to indicate to <code>AbstractSecurityInterceptor</code> whether it should present the
@@ -85,7 +85,7 @@ public interface Authentication extends Principal, Serializable {
      * @return true if the token has been authenticated and the <code>AbstractSecurityInterceptor</code> does not need
      *         to represent the token for re-authentication to the <code>AuthenticationManager</code>
      */
-    public boolean isAuthenticated();
+    boolean isAuthenticated();
 
     /**
      * See {@link #isAuthenticated()} for a full description.<p>Implementations should <b>always</b> allow this
@@ -101,6 +101,6 @@ public interface Authentication extends Principal, Serializable {
      *         <code>true</code> as the argument) is rejected due to the implementation being immutable or
      *         implementing its own alternative approach to {@link #isAuthenticated()}
      */
-    public void setAuthenticated(boolean isAuthenticated)
+    void setAuthenticated(boolean isAuthenticated)
         throws IllegalArgumentException;
 }

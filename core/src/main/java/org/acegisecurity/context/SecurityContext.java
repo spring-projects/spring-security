@@ -23,7 +23,7 @@ import java.io.Serializable;
 /**
  * Interface defining the minimum security information associated with the
  * current thread of execution.
- * 
+ *
  * <p>
  * The security context is stored in a {@link SecurityContextHolder}.
  * </p>
@@ -39,7 +39,7 @@ public interface SecurityContext extends Serializable {
      *
      * @return the <code>Authentication</code> or <code>null</code> if no authentication information is available
      */
-    public Authentication getAuthentication();
+    Authentication getAuthentication();
 
     /**
      * Changes the currently authenticated principal, or removes the authentication information.
@@ -47,5 +47,5 @@ public interface SecurityContext extends Serializable {
      * @param authentication the new <code>Authentication</code> token, or <code>null</code> if no further
      *        authentication information should be stored
      */
-    public void setAuthentication(Authentication authentication);
+    void setAuthentication(Authentication authentication);
 }

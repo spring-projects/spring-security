@@ -16,7 +16,7 @@ package org.acegisecurity.acls;
 
 /**
  * Represents an ACE that provides auditing information.
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  *
@@ -24,7 +24,7 @@ package org.acegisecurity.acls;
 public interface AuditableAccessControlEntry extends AccessControlEntry {
     //~ Methods ========================================================================================================
 
-    public boolean isAuditFailure();
+    boolean isAuditFailure();
 
-    public boolean isAuditSuccess();
+    boolean isAuditSuccess();
 }

@@ -146,7 +146,8 @@ public class BasicAclEntryAfterInvocationProvider implements AfterInvocationProv
                 throw new AccessDeniedException(messages.getMessage(
                         "BasicAclEntryAfterInvocationProvider.insufficientPermission",
                         new Object[] {authentication.getName(), returnedObject},
-                        "Authentication {0} has ACL permissions to the domain object, but not the required ACL permission to the domain object {1}"));
+                        "Authentication {0} has ACL permissions to the domain object, "
+                        + "but not the required ACL permission to the domain object {1}"));
             }
         }
 
@@ -188,12 +189,12 @@ public class BasicAclEntryAfterInvocationProvider implements AfterInvocationProv
 
     /**
      * Allow setting permissions with String literals instead of integers as {@link #setRequirePermission(int[])}
-     * 
-     * @param requirePermission Permission literals
+     *
+     * @param requiredPermissions Permission literals
      * @see SimpleAclEntry#parsePermissions(String[]) for valid values
      */
-    public void setRequirePermissionFromString(String[] requirePermission) {
-        setRequirePermission(SimpleAclEntry.parsePermissions(requirePermission));
+    public void setRequirePermissionFromString(String[] requiredPermissions) {
+        setRequirePermission(SimpleAclEntry.parsePermissions(requiredPermissions));
     }
 
     public boolean supports(ConfigAttribute attribute) {

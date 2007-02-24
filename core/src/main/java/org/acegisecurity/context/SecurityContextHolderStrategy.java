@@ -17,7 +17,7 @@ package org.acegisecurity.context;
 
 /**
  * A strategy for storing security context information against a thread.
- * 
+ *
  * <p>
  * The preferred strategy is loaded by {@link
  * org.acegisecurity.context.SecurityContextHolder}.
@@ -32,14 +32,14 @@ public interface SecurityContextHolderStrategy {
     /**
      * Clears the current context.
      */
-    public void clearContext();
+    void clearContext();
 
     /**
      * Obtains the current context.
      *
      * @return a context (never <code>null</code> - create a default implementation if necessary)
      */
-    public SecurityContext getContext();
+    SecurityContext getContext();
 
     /**
      * Sets the current context.
@@ -47,5 +47,5 @@ public interface SecurityContextHolderStrategy {
      * @param context to the new argument (should never be <code>null</code>, although implementations must check if
      *        <code>null</code> has been passed and throw an <code>IllegalArgumentException</code> in such cases)
      */
-    public void setContext(SecurityContext context);
+    void setContext(SecurityContext context);
 }

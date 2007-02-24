@@ -27,12 +27,12 @@ import javax.servlet.ServletException;
 
 /**
  * Decides whether a web channel meets a specific security condition.
- * 
+ *
  * <P>
  * <code>ChannelProcessor</code> implementations are iterated by the {@link
  * ChannelDecisionManagerImpl}.
  * </p>
- * 
+ *
  * <P>
  * If an implementation has an issue with the channel security, they should
  * take action themselves. The callers of the implementation do not take any
@@ -55,7 +55,7 @@ public interface ChannelProcessor {
      * @throws IOException DOCUMENT ME!
      * @throws ServletException DOCUMENT ME!
      */
-    public void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
+    void decide(FilterInvocation invocation, ConfigAttributeDefinition config)
         throws IOException, ServletException;
 
     /**
@@ -68,5 +68,5 @@ public interface ChannelProcessor {
      *
      * @return true if this <code>ChannelProcessor</code> can support the passed configuration attribute
      */
-    public boolean supports(ConfigAttribute attribute);
+    boolean supports(ConfigAttribute attribute);
 }

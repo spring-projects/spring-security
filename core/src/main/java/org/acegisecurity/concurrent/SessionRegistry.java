@@ -29,7 +29,7 @@ public interface SessionRegistry {
      *
      * @return each of the unique principals, which can then be presented to {@link #getAllSessions(Object, boolean)}.
      */
-    public Object[] getAllPrincipals();
+    Object[] getAllPrincipals();
 
     /**
      * Obtains all the known sessions for the specified principal. Sessions that have been destroyed are not
@@ -41,7 +41,7 @@ public interface SessionRegistry {
      *
      * @return the matching sessions for this principal, or <code>null</code> if none were found
      */
-    public SessionInformation[] getAllSessions(Object principal, boolean includeExpiredSessions);
+    SessionInformation[] getAllSessions(Object principal, boolean includeExpiredSessions);
 
     /**
      * Obtains the session information for the specified <code>sessionId</code>. Even expired sessions are
@@ -51,7 +51,7 @@ public interface SessionRegistry {
      *
      * @return the session information, or <code>null</code> if not found
      */
-    public SessionInformation getSessionInformation(String sessionId);
+    SessionInformation getSessionInformation(String sessionId);
 
     /**
      * Updates the given <code>sessionId</code> so its last request time is equal to the present date and time.
@@ -59,7 +59,7 @@ public interface SessionRegistry {
      *
      * @param sessionId for which to update the date and time of the last request (should never be <code>null</code>)
      */
-    public void refreshLastRequest(String sessionId);
+    void refreshLastRequest(String sessionId);
 
     /**
      * Registers a new session for the specified principal. The newly registered session will not be marked for
@@ -70,7 +70,7 @@ public interface SessionRegistry {
      *
      * @throws SessionAlreadyUsedException DOCUMENT ME!
      */
-    public void registerNewSession(String sessionId, Object principal)
+    void registerNewSession(String sessionId, Object principal)
         throws SessionAlreadyUsedException;
 
     /**
@@ -79,5 +79,5 @@ public interface SessionRegistry {
      *
      * @param sessionId to delete information for (should never be <code>null</code>)
      */
-    public void removeSessionInformation(String sessionId);
+    void removeSessionInformation(String sessionId);
 }

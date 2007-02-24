@@ -116,9 +116,8 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider implements 
                     Object[] array = (Object[]) returnedObject;
                     filterer = new ArrayFilterer(array);
                 } else {
-                    throw new AuthorizationServiceException(
-                        "A Collection or an array (or null) was required as the returnedObject, but the returnedObject was: "
-                        + returnedObject);
+                    throw new AuthorizationServiceException("A Collection or an array (or null) was required as the "
+                            + "returnedObject, but the returnedObject was: " + returnedObject);
                 }
 
                 // Locate unauthorised Collection elements
@@ -207,12 +206,12 @@ public class BasicAclEntryAfterInvocationCollectionFilteringProvider implements 
      * Allow setting permissions with String literals instead of integers as {@link
      * #setRequirePermission(int[])}
      *
-     * @param requirePermission permission literals
+     * @param requiredPermissions permission literals
      *
      * @see SimpleAclEntry#parsePermissions(String[]) for valid values
      */
-    public void setRequirePermissionFromString(String[] requirePermission) {
-        setRequirePermission(SimpleAclEntry.parsePermissions(requirePermission));
+    public void setRequirePermissionFromString(String[] requiredPermissions) {
+        setRequirePermission(SimpleAclEntry.parsePermissions(requiredPermissions));
     }
 
     public boolean supports(ConfigAttribute attribute) {

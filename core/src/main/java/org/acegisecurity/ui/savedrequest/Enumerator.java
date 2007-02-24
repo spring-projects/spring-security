@@ -26,8 +26,8 @@ import java.util.NoSuchElementException;
 
 /**
  * <p>Adapter that wraps an <code>Enumeration</code> around a Java 2 collection <code>Iterator</code>.</p>
- *  <p>Constructors are provided to easily create such wrappers.</p>
- *  <p>This class is based on code in Apache Tomcat.</p>
+ * <p>Constructors are provided to easily create such wrappers.</p>
+ * <p>This class is based on code in Apache Tomcat.</p>
  *
  * @author Craig McClanahan
  * @author Andrey Grebnev
@@ -36,7 +36,9 @@ import java.util.NoSuchElementException;
 public class Enumerator implements Enumeration {
     //~ Instance fields ================================================================================================
 
-    /** The <code>Iterator</code> over which the <code>Enumeration</code> represented by this class actually operates. */
+    /**
+     * The <code>Iterator</code> over which the <code>Enumeration</code> represented by this class actually operates.
+     */
     private Iterator iterator = null;
 
     //~ Constructors ===================================================================================================

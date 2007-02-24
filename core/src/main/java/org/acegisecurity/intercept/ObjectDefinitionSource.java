@@ -42,7 +42,7 @@ public interface ObjectDefinitionSource {
      * @throws IllegalArgumentException if the passed object is not of a type supported by the
      *         <code>ObjectDefinitionSource</code> implementation
      */
-    public ConfigAttributeDefinition getAttributes(Object object)
+    ConfigAttributeDefinition getAttributes(Object object)
         throws IllegalArgumentException;
 
     /**
@@ -52,7 +52,7 @@ public interface ObjectDefinitionSource {
      *
      * @return an iterator over all the <code>ConfigAttributeDefinition</code>s or <code>null</code> if unsupported
      */
-    public Iterator getConfigAttributeDefinitions();
+    Iterator getConfigAttributeDefinitions();
 
     /**
      * Indicates whether the <code>ObjectDefinitionSource</code> implementation is able to provide
@@ -62,5 +62,5 @@ public interface ObjectDefinitionSource {
      *
      * @return true if the implementation can process the indicated class
      */
-    public boolean supports(Class clazz);
+    boolean supports(Class clazz);
 }

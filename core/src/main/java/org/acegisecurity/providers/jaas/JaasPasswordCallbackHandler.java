@@ -33,8 +33,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
  * @version $Id$
  *
  * @see <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>
- * @see <a
- *      href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/PasswordCallback.html">PasswordCallback</a>
+ * @see <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/PasswordCallback.html">
+ *         PasswordCallback</a>
  */
 public class JaasPasswordCallbackHandler implements JaasAuthenticationCallbackHandler {
     //~ Methods ========================================================================================================

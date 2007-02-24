@@ -135,8 +135,8 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
     private String filterProcessesUrl = getDefaultFilterProcessesUrl();
 
     /**
-     * If <code>true</code>, will always redirect to the value of {@link #getDefaultTargetUrl} upon successful authentication,
-     * irrespective of the page that caused the authentication request (defaults to <code>false</code>).
+     * If <code>true</code>, will always redirect to the value of {@link #getDefaultTargetUrl} upon successful
+     * authentication, irrespective of the page that caused the authentication request (defaults to <code>false</code>).
      */
     private boolean alwaysUseDefaultTargetUrl = false;
 
@@ -429,8 +429,8 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
         sendRedirect(request, response, failureUrl);
     }
 
-	public AuthenticationDetailsSource getAuthenticationDetailsSource() {
-		// Required due to SEC-310
-		return authenticationDetailsSource;
-	}
+    public AuthenticationDetailsSource getAuthenticationDetailsSource() {
+        // Required due to SEC-310
+        return authenticationDetailsSource;
+    }
 }

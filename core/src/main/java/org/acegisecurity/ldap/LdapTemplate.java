@@ -238,7 +238,8 @@ public class LdapTemplate {
      *
      * @return the object created by the mapper from the matching entry
      *
-     * @throws IncorrectResultSizeDataAccessException if no results are found or the search returns more than one result.
+     * @throws IncorrectResultSizeDataAccessException if no results are found or the search returns more than one
+     *         result.
      */
     public Object searchForSingleEntry(final String base, final String filter, final Object[] params,
         final LdapEntryMapper mapper) {

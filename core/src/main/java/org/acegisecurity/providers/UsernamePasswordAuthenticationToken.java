@@ -30,7 +30,7 @@ import org.acegisecurity.GrantedAuthority;
 public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private Object credentials;
     private Object principal;
 

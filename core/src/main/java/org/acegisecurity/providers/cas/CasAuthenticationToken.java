@@ -35,7 +35,7 @@ import java.util.List;
 public class CasAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
     //~ Instance fields ================================================================================================
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private final List proxyList;
     private final Object credentials;
     private final Object principal;

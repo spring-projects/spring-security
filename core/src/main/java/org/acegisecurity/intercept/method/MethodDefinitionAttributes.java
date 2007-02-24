@@ -86,7 +86,7 @@ public class MethodDefinitionAttributes extends AbstractMethodDefinitionSource {
                 Method m = clazz.getDeclaredMethod(method.getName(), (Class[]) method.getParameterTypes());
                 addMethodAttributes(definition, m);
             } catch (Exception e) {
-                // this won't happen since we are getting a method from an interface that 
+                // this won't happen since we are getting a method from an interface that
                 // the declaring class implements
             }
         }

@@ -34,5 +34,5 @@ public interface SaltSource {
      *
      * @return the salt to use for this <code>UserDetails</code>
      */
-    public Object getSalt(UserDetails user);
+    Object getSalt(UserDetails user);
 }

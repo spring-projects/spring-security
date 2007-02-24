@@ -42,17 +42,20 @@ public interface AuthenticationProvider {
      *
      * @throws AuthenticationException if authentication fails.
      */
-    public Authentication authenticate(Authentication authentication)
+    Authentication authenticate(Authentication authentication)
         throws AuthenticationException;
 
     /**
      * Returns <code>true</code> if this <Code>AuthenticationProvider</code> supports the indicated
-     * <Code>Authentication</code> object.<p>Returning <code>true</code> does not guarantee an
-     * <code>AuthenticationProvider</code> will be able to authenticate the presented instance of the
-     * <code>Authentication</code> class. It simply indicates it can support closer evaluation of it. An
-     * <code>AuthenticationProvider</code> can still return <code>null</code> from the {@link
-     * #authenticate(Authentication)} method to indicate another <code>AuthenticationProvider</code> should be tried.</p>
-     *  <P>Selection of an <code>AuthenticationProvider</code> capable of performing authentication is
+     * <Code>Authentication</code> object.
+     * <p>
+     * Returning <code>true</code> does not guarantee an <code>AuthenticationProvider</code> will be able to
+     * authenticate the presented instance of the <code>Authentication</code> class. It simply indicates it can support
+     * closer evaluation of it. An <code>AuthenticationProvider</code> can still return <code>null</code> from the
+     * {@link #authenticate(Authentication)} method to indicate another <code>AuthenticationProvider</code> should be
+     * tried.
+     * </p>
+     * <p>Selection of an <code>AuthenticationProvider</code> capable of performing authentication is
      * conducted at runtime the <code>ProviderManager</code>.</p>
      *
      * @param authentication DOCUMENT ME!
@@ -60,5 +63,5 @@ public interface AuthenticationProvider {
      * @return <code>true</code> if the implementation can more closely evaluate the <code>Authentication</code> class
      *         presented
      */
-    public boolean supports(Class authentication);
+    boolean supports(Class authentication);
 }

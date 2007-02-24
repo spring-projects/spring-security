@@ -32,24 +32,24 @@ import org.dom4j.io.XMLWriter;
  */
 public class WebXmlConverterTests extends TestCase {
 
-	private static final String XML_TRANSFORMER = "javax.xml.transform.TransformerFactory";
-	
+    private static final String XML_TRANSFORMER = "javax.xml.transform.TransformerFactory";
+
     public void testFileConversion() throws Exception {
-    	/*
-    	 
-    	THIS TEST HAS BEEN DISABLED AS IT BREAKS THE BUILD (see SEC-181 for details)
-    	 
-		WebXmlConverter converter;
-		try {
-    		converter = new WebXmlConverter();
-    	} catch (Exception e) {
-    		// TODO: Something went wrong, set transforer manually and retry... 
-    		System.out.println("**** WARNING: NEEDING TO FALLBACK TO A MANUAL SYSTEM PROPERTY ****");
-        	System.setProperty(XML_TRANSFORMER, "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
-        	System.out.println(XML_TRANSFORMER + ": " + System.getProperty(XML_TRANSFORMER));
-    		converter = new WebXmlConverter();
-    	}
-        
+        /*
+
+        THIS TEST HAS BEEN DISABLED AS IT BREAKS THE BUILD (see SEC-181 for details)
+
+        WebXmlConverter converter;
+        try {
+            converter = new WebXmlConverter();
+        } catch (Exception e) {
+            // TODO: Something went wrong, set transforer manually and retry...
+            System.out.println("**** WARNING: NEEDING TO FALLBACK TO A MANUAL SYSTEM PROPERTY ****");
+            System.setProperty(XML_TRANSFORMER, "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
+            System.out.println(XML_TRANSFORMER + ": " + System.getProperty(XML_TRANSFORMER));
+            converter = new WebXmlConverter();
+        }
+
         Resource r = new ClassPathResource("test-web.xml");
         converter.setInput(r.getInputStream());
         converter.doConversion();

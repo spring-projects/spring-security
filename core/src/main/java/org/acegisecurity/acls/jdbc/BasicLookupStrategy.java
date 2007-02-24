@@ -106,7 +106,8 @@ public final class BasicLookupStrategy implements LookupStrategy {
         String startSql = "select ACL_OBJECT_IDENTITY.OBJECT_ID_IDENTITY, ACL_ENTRY.ACE_ORDER, "
             + "ACL_OBJECT_IDENTITY.ID as ACL_ID, " + "ACL_OBJECT_IDENTITY.PARENT_OBJECT, "
             + "ACL_OBJECT_IDENTITY,ENTRIES_INHERITING, "
-            + "ACL_ENTRY.ID as ACE_ID, ACL_ENTRY.MASK, ACL_ENTRY.GRANTING, ACL_ENTRY.AUDIT_SUCCESS, ACL_ENTRY.AUDIT_FAILURE, "
+            + "ACL_ENTRY.ID as ACE_ID, ACL_ENTRY.MASK, ACL_ENTRY.GRANTING, "
+            + "ACL_ENTRY.AUDIT_SUCCESS, ACL_ENTRY.AUDIT_FAILURE, "
             + "ACL_SID.PRINCIPAL as ACE_PRINCIPAL, ACL_SID.SID as ACE_SID, "
             + "ACLI_SID.PRINCIPAL as ACL_PRINCIPAL, ACLI_SID.SID as ACL_SID, " + "ACL_CLASS.CLASS "
             + "from ACL_OBJECT_IDENTITY, ACL_SID ACLI_SID, ACL_CLASS "
@@ -387,7 +388,8 @@ public final class BasicLookupStrategy implements LookupStrategy {
                     continue; // now in results, so move to next element
                 } else {
                     throw new IllegalStateException(
-                        "Error: SID-filtered element detected when implementation does not perform SID filtering - have you added something to the cache manually?");
+                        "Error: SID-filtered element detected when implementation does not perform SID filtering "
+                                + "- have you added something to the cache manually?");
                 }
             }
 

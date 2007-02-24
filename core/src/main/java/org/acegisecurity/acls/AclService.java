@@ -36,7 +36,7 @@ public interface AclService {
      *
      * @return the children (or <code>null</code> if none were found)
      */
-    public ObjectIdentity[] findChildren(ObjectIdentity parentIdentity);
+    ObjectIdentity[] findChildren(ObjectIdentity parentIdentity);
 
     /**
      * Same as {@link #readAclsById(ObjectIdentity[])} except it returns only a single Acl.<p>This method
@@ -49,7 +49,7 @@ public interface AclService {
      *
      * @throws NotFoundException DOCUMENT ME!
      */
-    public Acl readAclById(ObjectIdentity object) throws NotFoundException;
+    Acl readAclById(ObjectIdentity object) throws NotFoundException;
 
     /**
      * Same as {@link #readAclsById(ObjectIdentity[], Sid[])} except it returns only a single Acl.
@@ -61,7 +61,7 @@ public interface AclService {
      *
      * @throws NotFoundException DOCUMENT ME!
      */
-    public Acl readAclById(ObjectIdentity object, Sid[] sids)
+    Acl readAclById(ObjectIdentity object, Sid[] sids)
         throws NotFoundException;
 
     /**
@@ -75,7 +75,7 @@ public interface AclService {
      *
      * @throws NotFoundException DOCUMENT ME!
      */
-    public Map readAclsById(ObjectIdentity[] objects) throws NotFoundException;
+    Map readAclsById(ObjectIdentity[] objects) throws NotFoundException;
 
     /**
      * Obtains all the <code>Acl</code>s that apply for the passed <code>Object</code>s, but only for the
@@ -95,6 +95,6 @@ public interface AclService {
      *
      * @throws NotFoundException DOCUMENT ME!
      */
-    public Map readAclsById(ObjectIdentity[] objects, Sid[] sids)
+    Map readAclsById(ObjectIdentity[] objects, Sid[] sids)
         throws NotFoundException;
 }

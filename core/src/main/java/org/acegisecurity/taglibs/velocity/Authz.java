@@ -45,7 +45,7 @@ public interface Authz {
      *
      * @return granted (true|false)
      */
-    public boolean allGranted(String roles);
+    boolean allGranted(String roles);
 
     /**
      * any the listed roles must be granted to return true, otherwise fasle;
@@ -54,14 +54,14 @@ public interface Authz {
      *
      * @return granted (true|false)
      */
-    public boolean anyGranted(String roles);
+    boolean anyGranted(String roles);
 
     /**
      * set Spring application context which contains acegi related bean
      *
      * @return DOCUMENT ME!
      */
-    public ApplicationContext getAppCtx();
+    ApplicationContext getAppCtx();
 
     /**
      * return the principal's name, supports the various type of principals that can exist in the {@link
@@ -69,7 +69,7 @@ public interface Authz {
      *
      * @return string representation of principal's name
      */
-    public String getPrincipal();
+    String getPrincipal();
 
     /**
      * return true if the principal holds either permission specified for the provided domain object<P>Only
@@ -82,7 +82,7 @@ public interface Authz {
      *
      * @return got acl permission (true|false)
      */
-    public boolean hasPermission(Object domainObject, String permissions);
+    boolean hasPermission(Object domainObject, String permissions);
 
     /**
      * none the listed roles must be granted to return true, otherwise fasle;
@@ -91,12 +91,12 @@ public interface Authz {
      *
      * @return granted (true|false)
      */
-    public boolean noneGranted(String roles);
+    boolean noneGranted(String roles);
 
     /**
      * get Spring application context which contains acegi related bean
      *
      * @param appCtx DOCUMENT ME!
      */
-    public void setAppCtx(ApplicationContext appCtx);
+    void setAppCtx(ApplicationContext appCtx);
 }

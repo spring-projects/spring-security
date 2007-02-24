@@ -23,8 +23,8 @@ import java.io.InputStream;
 
 
 /**
- * An in memory implementation of Spring's {@link org.springframework.core.io.Resource} interface.<p>Used by the
- * "Acegifier" web application to create a bean factory from an XML string, rather than a file.</p>
+ * An in memory implementation of Spring's {@link org.springframework.core.io.Resource} interface.
+ * <p>Used by the "Acegifier" web application to create a bean factory from an XML string, rather than a file.</p>
  *
  * @author Luke Taylor
  * @version $Id$
@@ -32,8 +32,8 @@ import java.io.InputStream;
 public class InMemoryResource extends AbstractResource {
     //~ Instance fields ================================================================================================
 
-    ByteArrayInputStream in;
-    String description;
+    private ByteArrayInputStream in;
+    private String description;
 
     //~ Constructors ===================================================================================================
 

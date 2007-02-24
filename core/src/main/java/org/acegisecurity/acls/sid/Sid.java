@@ -16,7 +16,7 @@ package org.acegisecurity.acls.sid;
 
 /**
  * A security identity recognised by the ACL system.
- * 
+ *
  * <p>
  * This interface provides indirection between actual security objects (eg
  * principals, roles, groups etc) and what is stored inside an
@@ -39,12 +39,12 @@ public interface Sid {
      *
      * @return <code>true</code> if the objects are equal, <code>false</code> otherwise
      */
-    public boolean equals(Object obj);
+    boolean equals(Object obj);
 
     /**
      * Refer to the <code>java.lang.Object</code> documentation for the interface contract.
      *
      * @return a hash code representation of this object
      */
-    public int hashCode();
+    int hashCode();
 }

@@ -15,9 +15,7 @@
 
 package org.acegisecurity.event.authorization;
 
-import org.acegisecurity.AccessDecisionManager;
 import org.acegisecurity.AccessDeniedException;
-import org.acegisecurity.AfterInvocationManager;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttributeDefinition;
 
@@ -27,7 +25,8 @@ import org.acegisecurity.ConfigAttributeDefinition;
  * be authorized for the request.
  *
  * <p>This event might be thrown as a result of either an
- * {@link AccessDecisionManager} or an {@link AfterInvocationManager}.
+ * {@link org.acegisecurity.AccessDecisionManager AccessDecisionManager} or an
+ * {@link org.acegisecurity.AfterInvocationManager AfterInvocationManager}.
  *
  * @author Ben Alex
  * @version $Id$
@@ -41,7 +40,7 @@ public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Construct the event.
      *
      * @param secureObject the secure object

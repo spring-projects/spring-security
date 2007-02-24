@@ -33,7 +33,7 @@ public interface PortMapper {
      *
      * @return the HTTP port or <code>null</code> if unknown
      */
-    public Integer lookupHttpPort(Integer httpsPort);
+    Integer lookupHttpPort(Integer httpsPort);
 
     /**
      * Locates the HTTPS port associated with the specified HTTP port.<P>Returns <code>null</code> if unknown.</p>
@@ -42,5 +42,5 @@ public interface PortMapper {
      *
      * @return the HTTPS port or <code>null</code> if unknown
      */
-    public Integer lookupHttpsPort(Integer httpPort);
+    Integer lookupHttpsPort(Integer httpPort);
 }

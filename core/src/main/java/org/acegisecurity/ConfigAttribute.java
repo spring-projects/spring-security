@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 /**
  * Stores a security system related configuration attribute.
- * 
+ *
  * <p>
  * When an {@link org.acegisecurity.intercept.AbstractSecurityInterceptor}
  * is setup, a list of configuration attributes is defined for secure object
@@ -28,7 +28,7 @@ import java.io.Serializable;
  * RunAsManager}, {@link AccessDecisionManager} or
  * <code>AccessDecisionManager</code> delegate.
  * </p>
- * 
+ *
  * <P>
  * Stored at runtime with other <code>ConfigAttribute</code>s for the same
  * secure object target within a {@link ConfigAttributeDefinition}.
@@ -52,5 +52,5 @@ public interface ConfigAttribute extends Serializable {
      * @return a representation of the configuration attribute (or <code>null</code> if the configuration attribute
      *         cannot be expressed as a <code>String</code> with sufficient precision).
      */
-    public String getAttribute();
+    String getAttribute();
 }

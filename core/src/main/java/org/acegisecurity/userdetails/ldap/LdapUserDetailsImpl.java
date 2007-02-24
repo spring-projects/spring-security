@@ -41,7 +41,7 @@ import javax.naming.ldap.Control;
 public class LdapUserDetailsImpl implements LdapUserDetails {
     //~ Static fields/initializers =====================================================================================
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private static final GrantedAuthority[] NO_AUTHORITIES = new GrantedAuthority[0];
     private static final Control[] NO_CONTROLS = new Control[0];
 
@@ -110,8 +110,8 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
      * Variation of essence pattern. Used to create mutable intermediate object
      */
     public static class Essence {
-        LdapUserDetailsImpl instance = createTarget();
-        List mutableAuthorities = new ArrayList();
+        private LdapUserDetailsImpl instance = createTarget();
+        private List mutableAuthorities = new ArrayList();
 
         public Essence() {}
 

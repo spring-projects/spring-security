@@ -27,5 +27,5 @@ package org.acegisecurity.intercept.method.aspectj;
 public interface AspectJCallback {
     //~ Methods ========================================================================================================
 
-    public Object proceedWithObject();
+    Object proceedWithObject();
 }

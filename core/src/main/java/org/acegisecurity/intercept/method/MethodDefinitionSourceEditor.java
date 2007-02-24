@@ -30,8 +30,8 @@ import java.util.Properties;
 
 
 /**
- * Property editor to assist with the setup of a {@link MethodDefinitionSource}.<p>The class creates and populates
- * a {@link MethodDefinitionMap}.</p>
+ * Property editor to assist with the setup of a {@link MethodDefinitionSource}.
+ * <p>The class creates and populates a {@link MethodDefinitionMap}.</p>
  *
  * @author Ben Alex
  * @version $Id$

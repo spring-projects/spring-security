@@ -169,7 +169,10 @@ public class AclProviderManagerTests extends TestCase {
                 new NamedEntityObjectIdentity("OBJECT", "100"), null, 2);
         private UsernamePasswordAuthenticationToken scott = new UsernamePasswordAuthenticationToken("scott",
                 "not used",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FOO"), new GrantedAuthorityImpl("ROLE_MANAGER")});
+                new GrantedAuthority[] {
+                        new GrantedAuthorityImpl("ROLE_FOO"),
+                        new GrantedAuthorityImpl("ROLE_MANAGER")
+                });
         private SimpleAclEntry entry100Scott = new SimpleAclEntry(scott.getPrincipal(),
                 new NamedEntityObjectIdentity("OBJECT", "100"), null, 4);
 

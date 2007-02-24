@@ -96,9 +96,8 @@ public class GrantedAuthorityEffectiveAclsResolver implements EffectiveAclsResol
 
                 if ((authorities == null) || (authorities.length == 0)) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug(
-                            "Did not match principal and there are no granted authorities, so cannot compare with recipient: "
-                            + recipient);
+                        logger.debug("Did not match principal and there are no granted authorities, "
+                                + "so cannot compare with recipient: " + recipient);
                     }
 
                     continue;

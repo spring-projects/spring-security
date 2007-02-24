@@ -19,7 +19,7 @@ import java.io.Serializable;
 
 /**
  * Interface representing the identity of an individual domain object instance.
- * 
+ *
  * <P>
  * As implementations are used as the key for caching and lookup, it is
  * essential that implementations provide methods so that object-equality
@@ -42,7 +42,7 @@ public interface ObjectIdentity extends Serializable {
      *
      * @return <code>true</code> if the objects are equal, <code>false</code> otherwise
      */
-    public boolean equals(Object obj);
+    boolean equals(Object obj);
 
     /**
      * Obtains the actual identifier. This identifier must not be reused to represent other domain objects with
@@ -52,19 +52,19 @@ public interface ObjectIdentity extends Serializable {
      *
      * @return the identifier (unique within this <code>javaType</code>
      */
-    public Serializable getIdentifier();
+    Serializable getIdentifier();
 
     /**
      * Obtains the Java type represented by the domain object.
      *
      * @return the Java type of the domain object
      */
-    public Class getJavaType();
+    Class getJavaType();
 
     /**
      * Refer to the <code>java.lang.Object</code> documentation for the interface contract.
      *
      * @return a hash code representation of this object
      */
-    public int hashCode();
+    int hashCode();
 }

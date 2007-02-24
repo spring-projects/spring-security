@@ -28,7 +28,12 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class SessionRegistryUtils {
+public final class SessionRegistryUtils {
+    //~ Constructors ===================================================================================================
+
+    private SessionRegistryUtils() {
+    }
+
     //~ Methods ========================================================================================================
 
     public static Object obtainPrincipalFromAuthentication(Authentication auth) {

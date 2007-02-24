@@ -7,20 +7,25 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * <p>Base for digest password encoders.</p>
- * This class can be used stand-alone, or one of the subclasses can be used for compatiblity and convenience
- * <p>When using this class directly you must specify a
+ * Base for digest password encoders.
+ * <p>This class can be used stand-alone, or one of the subclasses can be used for compatiblity and convenience.
+ * When using this class directly you must specify a
  * <a href="http://java.sun.com/j2se/1.4.2/docs/guide/security/CryptoSpec.html#AppA">
  * Message Digest Algorithm</a> to use as a constructor arg</p>
  *
- * The encoded password hash is normally returned as Hex (32 char) version of the hash bytes. Setting the encodeHashAsBase64
- * property to true will cause the encoded pass to be returned as Base64 text, which will consume 24 characters. See {@link BaseDigestPasswordEncoder#setEncodeHashAsBase64(boolean)}
- * <br/>
+ * <p>The encoded password hash is normally returned as Hex (32 char) version of the hash bytes.
+ * Setting the <tt>encodeHashAsBase64</tt> property to <tt>true</tt> will cause the encoded pass to be returned
+ * as Base64 text, which will consume 24 characters.
+ * See {@link BaseDigestPasswordEncoder#setEncodeHashAsBase64(boolean)}
+ * </p>
+ * <p>
  * This PasswordEncoder can be used directly as in the following example:<br/>
- * &lt;bean id="passwordEncoder" class="org.acegisecurity.providers.encoding.MessageDigestPasswordEncoder"&gt;<br/>
- * &nbsp;&nbsp;&lt;constructor-arg value="MD5"/><br/>
+ * <pre>
+ * &lt;bean id="passwordEncoder" class="org.acegisecurity.providers.encoding.MessageDigestPasswordEncoder"&gt;
+ *     &lt;constructor-arg value="MD5"/&gt;
  * &lt;/bean&gt;
- *
+ * </pre>
+ * </p>
  *
  * @author Ray Krueger
  * @since 1.0.1
@@ -87,8 +92,7 @@ public class MessageDigestPasswordEncoder extends BaseDigestPasswordEncoder {
         try {
             return MessageDigest.getInstance(algorithm);
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException("No such algorithm [" +
-                    algorithm + "]");
+            throw new IllegalArgumentException("No such algorithm [" + algorithm + "]");
         }
     }
 

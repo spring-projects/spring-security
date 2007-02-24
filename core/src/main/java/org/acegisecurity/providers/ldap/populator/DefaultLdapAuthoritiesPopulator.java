@@ -39,27 +39,30 @@ import javax.naming.directory.SearchControls;
 
 
 /**
- * The default strategy for obtaining user role information from the directory.<p>It obtains roles by
- * performing a search for "groups" the user is a member of.
- *  </p>
- *  <p>A typical group search scenario would be where each group/role is specified using the <tt>groupOfNames</tt>
+ * The default strategy for obtaining user role information from the directory.
+ * <p>It obtains roles by performing a search for "groups" the user is a member of.
+ * </p>
+ * <p>A typical group search scenario would be where each group/role is specified using the <tt>groupOfNames</tt>
  * (or <tt>groupOfUniqueNames</tt>) LDAP objectClass and the user's DN is listed in the <tt>member</tt> (or
  * <tt>uniqueMember</tt>) attribute to indicate that they should be assigned that role. The following LDIF sample has
  * the groups stored under the DN <tt>ou=groups,dc=acegisecurity,dc=org</tt> and a group called "developers" with
  * "ben" and "marissa" as members:
- * <pre>dn: ou=groups,dc=acegisecurity,dc=orgobjectClass: top
+ * <pre>
+ * dn: ou=groups,dc=acegisecurity,dc=orgobjectClass: top
  * objectClass: organizationalUnitou: groupsdn: cn=developers,ou=groups,dc=acegisecurity,dc=org
  * objectClass: groupOfNamesobjectClass: topcn: developersdescription: Acegi Security Developers
  * member: uid=ben,ou=people,dc=acegisecurity,dc=orgmember: uid=marissa,ou=people,dc=acegisecurity,dc=orgou: developer
  * </pre>
  * </p>
- *  <p>The group search is performed within a DN specified by the <tt>groupSearchBase</tt> property, which should
+ * <p>The group search is performed within a DN specified by the <tt>groupSearchBase</tt> property, which should
  * be relative to the root DN of its <tt>InitialDirContextFactory</tt>. If the search base is null, group searching is
  * disabled. The filter used in the search is defined by the <tt>groupSearchFilter</tt> property, with the filter
  * argument {0} being the full DN of the user. You can also specify which attribute defines the role name by setting
  * the <tt>groupRoleAttribute</tt> property (the default is "cn").</p>
- *  <p>The configuration below shows how the group search might be performed with the above schema.<pre>
- * &lt;bean id="ldapAuthoritiesPopulator" class="org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
+ * <p>The configuration below shows how the group search might be performed with the above schema.
+ * <pre>
+ * &lt;bean id="ldapAuthoritiesPopulator"
+ *         class="org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
  *   &lt;constructor-arg>&lt;ref local="initialDirContextFactory"/>&lt;/constructor-arg>
  *   &lt;constructor-arg>&lt;value>ou=groups&lt;/value>&lt;/constructor-arg>
  *   &lt;property name="groupRoleAttribute">&lt;value>ou&lt;/value>&lt;/property>
@@ -68,8 +71,8 @@ import javax.naming.directory.SearchControls;
  *   &lt;property name="rolePrefix">&lt;value>ROLE_&lt;/value>&lt;/property>
  *   &lt;property name="convertToUpperCase">&lt;value>true&lt;/value>&lt;/property>
  * &lt;/bean>
- * </pre>A search for
- * roles for user "uid=ben,ou=people,dc=acegisecurity,dc=org" would return the single granted authority
+ * </pre>
+ * A search for roles for user "uid=ben,ou=people,dc=acegisecurity,dc=org" would return the single granted authority
  * "ROLE_DEVELOPER".</p>
  *
  * @author Luke Taylor
@@ -246,7 +249,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
     /**
      * Set the {@link InitialDirContextFactory}
-     * 
+     *
      * @param initialDirContextFactory supplies the contexts used to search for user roles.
      */
     private void setInitialDirContextFactory(InitialDirContextFactory initialDirContextFactory) {
@@ -259,7 +262,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
     /**
      * Set the group search base (name to search under)
-     * 
+     *
      * @param groupSearchBase if this is an empty string the search will be performed from the root DN of the context
      * factory.
      */

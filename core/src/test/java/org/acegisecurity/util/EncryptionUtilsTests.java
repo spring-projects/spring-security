@@ -21,100 +21,100 @@ import org.acegisecurity.util.EncryptionUtils.EncryptionException;
 
 /**
  * JUnit tests for EncryptionUtils.
- * 
+ *
  * @author Alan Stewart
  * @author Ben Alex
  * @version $Id$
  */
 public class EncryptionUtilsTests extends TestCase {
-	private final static String STRING_TO_ENCRYPT = "Alan K Stewart";
-	private final static String ENCRYPTION_KEY = "123456789012345678901234567890";
+    private final static String STRING_TO_ENCRYPT = "Alan K Stewart";
+    private final static String ENCRYPTION_KEY = "123456789012345678901234567890";
 
-	public void testEncryptsUsingDESEde() throws EncryptionException {
-		final String encryptedString = EncryptionUtils.encrypt(ENCRYPTION_KEY, STRING_TO_ENCRYPT);
-		assertEquals("3YIE8sIbaEoqGZZrHamFGQ==", encryptedString);
-	}
+    public void testEncryptsUsingDESEde() throws EncryptionException {
+        final String encryptedString = EncryptionUtils.encrypt(ENCRYPTION_KEY, STRING_TO_ENCRYPT);
+        assertEquals("3YIE8sIbaEoqGZZrHamFGQ==", encryptedString);
+    }
 
-	public void testEncryptByteArrayUsingDESEde() {
-		final byte[] encryptedArray = EncryptionUtils.encrypt(ENCRYPTION_KEY, EncryptionUtils.stringToByteArray(STRING_TO_ENCRYPT));
-		assertEquals("3YIE8sIbaEoqGZZrHamFGQ==", EncryptionUtils.byteArrayToString(encryptedArray));
-	}
+    public void testEncryptByteArrayUsingDESEde() {
+        final byte[] encryptedArray = EncryptionUtils.encrypt(ENCRYPTION_KEY, EncryptionUtils.stringToByteArray(STRING_TO_ENCRYPT));
+        assertEquals("3YIE8sIbaEoqGZZrHamFGQ==", EncryptionUtils.byteArrayToString(encryptedArray));
+    }
 
-	public void testEncryptionKeyCanContainLetters() throws EncryptionException {
-		final String encryptedString = EncryptionUtils.encrypt("ASDF asdf 1234 8983 jklasdf J2Jaf8", STRING_TO_ENCRYPT);
-		assertEquals("v4+DQoClx6qm5tJwBcRrkw==", encryptedString);
-	}
+    public void testEncryptionKeyCanContainLetters() throws EncryptionException {
+        final String encryptedString = EncryptionUtils.encrypt("ASDF asdf 1234 8983 jklasdf J2Jaf8", STRING_TO_ENCRYPT);
+        assertEquals("v4+DQoClx6qm5tJwBcRrkw==", encryptedString);
+    }
 
-	public void testDecryptsUsingDESEde() throws EncryptionException {
-		final String encryptedString = "3YIE8sIbaEoqGZZrHamFGQ==";
-		final String decryptedString = EncryptionUtils.decrypt(ENCRYPTION_KEY, encryptedString);
-		assertEquals(STRING_TO_ENCRYPT, decryptedString);
-	}
+    public void testDecryptsUsingDESEde() throws EncryptionException {
+        final String encryptedString = "3YIE8sIbaEoqGZZrHamFGQ==";
+        final String decryptedString = EncryptionUtils.decrypt(ENCRYPTION_KEY, encryptedString);
+        assertEquals(STRING_TO_ENCRYPT, decryptedString);
+    }
 
-	public void testDecryptByteArrayUsingDESEde() {
-		final byte[] encrypted = EncryptionUtils.stringToByteArray("3YIE8sIbaEoqGZZrHamFGQ==");
-		final byte[] decrypted = EncryptionUtils.decrypt(ENCRYPTION_KEY, encrypted);
-		assertEquals(STRING_TO_ENCRYPT, EncryptionUtils.byteArrayToString(decrypted));
-	}
+    public void testDecryptByteArrayUsingDESEde() {
+        final byte[] encrypted = EncryptionUtils.stringToByteArray("3YIE8sIbaEoqGZZrHamFGQ==");
+        final byte[] decrypted = EncryptionUtils.decrypt(ENCRYPTION_KEY, encrypted);
+        assertEquals(STRING_TO_ENCRYPT, EncryptionUtils.byteArrayToString(decrypted));
+    }
 
-	public void testFailEncryptWithNullEncryptionKey() {
-		try {
-			EncryptionUtils.encrypt(null, STRING_TO_ENCRYPT);
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
-	}
+    public void testFailEncryptWithNullEncryptionKey() {
+        try {
+            EncryptionUtils.encrypt(null, STRING_TO_ENCRYPT);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertTrue(true);
+        }
+    }
 
-	public void testFailEncryptWithEmptyEncryptionKey() {
-		try {
-			EncryptionUtils.encrypt("", STRING_TO_ENCRYPT);
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
-	}
+    public void testFailEncryptWithEmptyEncryptionKey() {
+        try {
+            EncryptionUtils.encrypt("", STRING_TO_ENCRYPT);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertTrue(true);
+        }
+    }
 
-	public void teastFailEncryptWithShortEncryptionKey() {
-		try {
-			EncryptionUtils.encrypt("01234567890123456789012", STRING_TO_ENCRYPT);
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
-	}
+    public void teastFailEncryptWithShortEncryptionKey() {
+        try {
+            EncryptionUtils.encrypt("01234567890123456789012", STRING_TO_ENCRYPT);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertTrue(true);
+        }
+    }
 
-	public void testFailDecryptWithEmptyString() {
-		try {
-			EncryptionUtils.decrypt(ENCRYPTION_KEY, "");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
-	}
+    public void testFailDecryptWithEmptyString() {
+        try {
+            EncryptionUtils.decrypt(ENCRYPTION_KEY, "");
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertTrue(true);
+        }
+    }
 
-	public void testFailEncryptWithEmptyString() {
-		try {
-			EncryptionUtils.encrypt(ENCRYPTION_KEY, "");
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
-	}
+    public void testFailEncryptWithEmptyString() {
+        try {
+            EncryptionUtils.encrypt(ENCRYPTION_KEY, "");
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertTrue(true);
+        }
+    }
 
-	public void testFailEncryptWithNullString() {
-		try {
-			EncryptionUtils.encrypt(ENCRYPTION_KEY, (String) null);
-			fail();
-		} catch (IllegalArgumentException e) {
-			assertTrue(true);
-		}
-	}
+    public void testFailEncryptWithNullString() {
+        try {
+            EncryptionUtils.encrypt(ENCRYPTION_KEY, (String) null);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertTrue(true);
+        }
+    }
 
-	public void testEncryptAndDecrypt() throws EncryptionException {
-		final String stringToEncrypt = "Alan Stewart";
-		final String encryptedString = EncryptionUtils.encrypt(ENCRYPTION_KEY, stringToEncrypt);
-		final String decryptedString = EncryptionUtils.decrypt(ENCRYPTION_KEY, encryptedString);
-		assertEquals(stringToEncrypt, decryptedString);
-	}
+    public void testEncryptAndDecrypt() throws EncryptionException {
+        final String stringToEncrypt = "Alan Stewart";
+        final String encryptedString = EncryptionUtils.encrypt(ENCRYPTION_KEY, stringToEncrypt);
+        final String decryptedString = EncryptionUtils.decrypt(ENCRYPTION_KEY, encryptedString);
+        assertEquals(stringToEncrypt, decryptedString);
+    }
 }

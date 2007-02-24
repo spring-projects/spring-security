@@ -124,7 +124,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 
             return user.createUserDetails();
         } catch (IncorrectResultSizeDataAccessException notFound) {
-            if(notFound.getActualSize() == 0) {
+            if (notFound.getActualSize() == 0) {
                 throw new UsernameNotFoundException("User " + username + " not found in directory.");
             }
             // Search should never return multiple results if properly configured, so just rethrow

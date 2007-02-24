@@ -38,7 +38,12 @@ import javax.servlet.ServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class FilterInvocationUtils {
+public final class FilterInvocationUtils {
+    //~ Constructors ===================================================================================================
+
+    private FilterInvocationUtils() {
+    }
+
     //~ Methods ========================================================================================================
 
     /**

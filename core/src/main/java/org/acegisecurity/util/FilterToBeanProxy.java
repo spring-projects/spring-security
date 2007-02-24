@@ -36,16 +36,16 @@ import javax.servlet.ServletResponse;
 
 /**
  * <p>Delegates <code>Filter</code> requests to a Spring-managed bean.</p>
- * 
+ *
  * <p>This class acts as a proxy on behalf of a
  * target <code>Filter</code> that is defined in the Spring bean context. It is necessary to specify which target
  * <code>Filter</code> should be proxied as a filter initialization parameter.</p>
- * 
+ *
  * <p>On filter initialisation, the class will use Spring's {@link
  * WebApplicationContextUtils#getWebApplicationContext(ServletContext sc)} method to obtain an
  * <code>ApplicationContext</code> instance. It will expect to find the target <code>Filter</code> in this
  * <code>ApplicationContext</code>.</p>
- * 
+ *
  * <p>To use this filter, it is necessary to specify <b>one</b> of the following filter initialization parameters:
  *  <ul>
  *      <li><code>targetClass</code> indicates the class of the target <code>Filter</code> defined in the bean
@@ -54,13 +54,13 @@ import javax.servlet.ServletResponse;
  *      <li><code>targetBean</code> indicates the bean name of the target class.</li>
  *  </ul>
  * If both initialization parameters are specified, <code>targetBean</code> takes priority.</p>
- * 
+ *
  * <p>An additional
  * initialization parameter, <code>init</code>, is also supported. If set to "<code>lazy</code>" the initialization
  * will take place on the first HTTP request, rather than at filter creation time. This makes it possible to use
  * <code>FilterToBeanProxy</code> with the Spring <code>ContextLoaderServlet</code>. Where possible you should not use
  * this initialization parameter, instead using <code>ContextLoaderListener</code>.</p>
- * 
+ *
  * <p>A final optional initialization parameter, <code>lifecycle</code>, determines whether the servlet container
  * or the IoC container manages the lifecycle of the proxied filter. When possible you should write your filters to be
  * managed via the IoC container interfaces such as {@link org.springframework.beans.factory.InitializingBean} and

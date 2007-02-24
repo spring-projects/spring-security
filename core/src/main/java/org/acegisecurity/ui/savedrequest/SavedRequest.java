@@ -115,9 +115,9 @@ public class SavedRequest implements java.io.Serializable {
                 String[] paramValues = (String[]) o;
                 this.addParameter(paramName, paramValues);
             } else {
-            	if (logger.isWarnEnabled()) {
-                	logger.warn("ServletRequest.getParameterMap() returned non-String array");
-            	}
+                if (logger.isWarnEnabled()) {
+                    logger.warn("ServletRequest.getParameterMap() returned non-String array");
+                }
             }
         }
 
