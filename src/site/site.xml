@@ -76,7 +76,7 @@
       <item name="Attributes" href="acegi-security-sample-attributes/index.html"/>
     </menu>
 -->
-    <menu type="footer">
+    <menu name="" type="footer">
       <item name="Spring Framework" href="http://www.springframework.org/" img="http://www.springframework.org/buttons/spring_white.png"/>
     </menu>
 
