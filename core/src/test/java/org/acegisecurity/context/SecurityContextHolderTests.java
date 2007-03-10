@@ -34,6 +34,9 @@ public class SecurityContextHolderTests extends TestCase {
 
     private static int errors = 0;
 
+    private static final int NUM_OPS = 25;
+    private static final int NUM_THREADS = 10;
+
     //~ Constructors ===================================================================================================
 
     public SecurityContextHolderTests() {
@@ -134,7 +137,7 @@ public class SecurityContextHolderTests extends TestCase {
         final Random rnd = new Random();
 
         Thread t = new Thread(new Runnable() {
-                    public void run() {
+                   public void run() {
                         if (injectAuthIntoCurrentThread) {
                             // Set authentication in this thread
                             SecurityContextHolder.getContext()
@@ -147,7 +150,7 @@ public class SecurityContextHolderTests extends TestCase {
                         }
 
                         // Do some operations in current thread, checking authentication is as expected in the current thread (ie another thread doesn't change it)
-                        for (int i = 0; i < 25; i++) {
+                        for (int i = 0; i < NUM_OPS; i++) {
                             String currentUsername = (SecurityContextHolder.getContext().getAuthentication() == null)
                                 ? null : SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -242,14 +245,14 @@ public class SecurityContextHolderTests extends TestCase {
         SecurityContextHolder.setStrategyName(InheritableThreadLocalSecurityContextHolderStrategy.class.getName());
         assertTrue(new SecurityContextHolder().toString()
                                               .lastIndexOf("SecurityContextHolder[strategy='org.acegisecurity.context.InheritableThreadLocalSecurityContextHolderStrategy'") != -1);
-        loadStartAndWaitForThreads(true, "Main_", 10, false, true);
+        loadStartAndWaitForThreads(true, "Main_", NUM_THREADS, false, true);
         assertEquals("Thread errors detected; review log output for details", 0, errors);
     }
 
     public void testSynchronizationGlobal() throws Exception {
         SecurityContextHolder.clearContext();
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_GLOBAL);
-        loadStartAndWaitForThreads(true, "Main_", 10, true, false);
+        loadStartAndWaitForThreads(true, "Main_", NUM_THREADS, true, false);
         assertEquals("Thread errors detected; review log output for details", 0, errors);
     }
 
@@ -257,14 +260,14 @@ public class SecurityContextHolderTests extends TestCase {
         throws Exception {
         SecurityContextHolder.clearContext();
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
-        loadStartAndWaitForThreads(true, "Main_", 10, false, true);
+        loadStartAndWaitForThreads(true, "Main_", NUM_THREADS, false, true);
         assertEquals("Thread errors detected; review log output for details", 0, errors);
     }
 
     public void testSynchronizationThreadLocal() throws Exception {
         SecurityContextHolder.clearContext();
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_THREADLOCAL);
-        loadStartAndWaitForThreads(true, "Main_", 10, false, false);
+        loadStartAndWaitForThreads(true, "Main_", NUM_THREADS, false, false);
         assertEquals("Thread errors detected; review log output for details", 0, errors);
     }
 }
