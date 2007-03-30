@@ -239,88 +239,14 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
         ConfigAttributeDefinition attr = this.obtainObjectDefinitionSource().getAttributes(object);
 
-        if ((attr == null) && rejectPublicInvocations) {
-            throw new IllegalArgumentException("No public invocations are allowed via this AbstractSecurityInterceptor. "
+        if (attr == null) {
+            if(rejectPublicInvocations) {
+                throw new IllegalArgumentException(
+                      "No public invocations are allowed via this AbstractSecurityInterceptor. "
                     + "This indicates a configuration error because the "
                     + "AbstractSecurityInterceptor.rejectPublicInvocations property is set to 'true'");
-        }
-
-        if (attr != null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Secure object: " + object.toString() + "; ConfigAttributes: " + attr.toString());
             }
 
-            // We check for just the property we're interested in (we do
-            // not call Context.validate() like the ContextInterceptor)
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                credentialsNotFound(messages.getMessage("AbstractSecurityInterceptor.authenticationNotFound",
-                        "An Authentication object was not found in the SecurityContext"), object, attr);
-            }
-
-            // Attempt authentication if not already authenticated, or user always wants reauthentication
-            Authentication authenticated;
-
-            if (!SecurityContextHolder.getContext().getAuthentication().isAuthenticated() || alwaysReauthenticate) {
-                try {
-                    authenticated = this.authenticationManager.authenticate(SecurityContextHolder.getContext()
-                                                                                                 .getAuthentication());
-                } catch (AuthenticationException authenticationException) {
-                    throw authenticationException;
-                }
-
-                // We don't authenticated.setAuthentication(true), because each provider should do that
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Successfully Authenticated: " + authenticated.toString());
-                }
-
-                SecurityContextHolder.getContext().setAuthentication(authenticated);
-            } else {
-                authenticated = SecurityContextHolder.getContext().getAuthentication();
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Previously Authenticated: " + authenticated.toString());
-                }
-            }
-
-            // Attempt authorization
-            try {
-                this.accessDecisionManager.decide(authenticated, object, attr);
-            } catch (AccessDeniedException accessDeniedException) {
-                AuthorizationFailureEvent event = new AuthorizationFailureEvent(object, attr, authenticated,
-                        accessDeniedException);
-                publishEvent(event);
-
-                throw accessDeniedException;
-            }
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Authorization successful");
-            }
-
-            AuthorizedEvent event = new AuthorizedEvent(object, attr, authenticated);
-            publishEvent(event);
-
-            // Attempt to run as a different user
-            Authentication runAs = this.runAsManager.buildRunAs(authenticated, object, attr);
-
-            if (runAs == null) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("RunAsManager did not change Authentication object");
-                }
-
-                // no further work post-invocation
-                return new InterceptorStatusToken(authenticated, false, attr, object);
-            } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Switching to RunAs Authentication: " + runAs.toString());
-                }
-
-                SecurityContextHolder.getContext().setAuthentication(runAs);
-
-                // revert to token.Authenticated post-invocation
-                return new InterceptorStatusToken(authenticated, true, attr, object);
-            }
-        } else {
             if (logger.isDebugEnabled()) {
                 logger.debug("Public object - authentication not attempted");
             }
@@ -328,6 +254,80 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
             publishEvent(new PublicInvocationEvent(object));
 
             return null; // no further work post-invocation
+        }
+
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Secure object: " + object.toString() + "; ConfigAttributes: " + attr.toString());
+        }
+
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            credentialsNotFound(messages.getMessage("AbstractSecurityInterceptor.authenticationNotFound",
+                    "An Authentication object was not found in the SecurityContext"), object, attr);
+        }
+
+        // Attempt authentication if not already authenticated, or user always wants reauthentication
+        Authentication authenticated;
+
+        if (!SecurityContextHolder.getContext().getAuthentication().isAuthenticated() || alwaysReauthenticate) {
+            try {
+                authenticated = this.authenticationManager.authenticate(SecurityContextHolder.getContext()
+                                                                                             .getAuthentication());
+            } catch (AuthenticationException authenticationException) {
+                throw authenticationException;
+            }
+
+            // We don't authenticated.setAuthentication(true), because each provider should do that
+            if (logger.isDebugEnabled()) {
+                logger.debug("Successfully Authenticated: " + authenticated.toString());
+            }
+
+            SecurityContextHolder.getContext().setAuthentication(authenticated);
+        } else {
+            authenticated = SecurityContextHolder.getContext().getAuthentication();
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Previously Authenticated: " + authenticated.toString());
+            }
+        }
+
+        // Attempt authorization
+        try {
+            this.accessDecisionManager.decide(authenticated, object, attr);
+        } catch (AccessDeniedException accessDeniedException) {
+            AuthorizationFailureEvent event = new AuthorizationFailureEvent(object, attr, authenticated,
+                    accessDeniedException);
+            publishEvent(event);
+
+            throw accessDeniedException;
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Authorization successful");
+        }
+
+        AuthorizedEvent event = new AuthorizedEvent(object, attr, authenticated);
+        publishEvent(event);
+
+        // Attempt to run as a different user
+        Authentication runAs = this.runAsManager.buildRunAs(authenticated, object, attr);
+
+        if (runAs == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("RunAsManager did not change Authentication object");
+            }
+
+            // no further work post-invocation
+            return new InterceptorStatusToken(authenticated, false, attr, object);
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Switching to RunAs Authentication: " + runAs.toString());
+            }
+
+            SecurityContextHolder.getContext().setAuthentication(runAs);
+
+            // revert to token.Authenticated post-invocation
+            return new InterceptorStatusToken(authenticated, true, attr, object);
         }
     }
 
