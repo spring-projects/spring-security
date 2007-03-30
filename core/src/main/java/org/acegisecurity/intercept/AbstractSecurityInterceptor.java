@@ -194,36 +194,32 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
             Iterator iter = this.obtainObjectDefinitionSource().getConfigAttributeDefinitions();
 
             if (iter == null) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn(
-                        "Could not validate configuration attributes as the MethodDefinitionSource did not return a "
-                                + "ConfigAttributeDefinition Iterator");
-                }
-            } else {
-                Set set = new HashSet();
+                logger.warn("Could not validate configuration attributes as the MethodDefinitionSource did not return "
+                        + "a ConfigAttributeDefinition Iterator");
+                return;
+            }
 
-                while (iter.hasNext()) {
-                    ConfigAttributeDefinition def = (ConfigAttributeDefinition) iter.next();
-                    Iterator attributes = def.getConfigAttributes();
+            Set unsupportedAttrs = new HashSet();
 
-                    while (attributes.hasNext()) {
-                        ConfigAttribute attr = (ConfigAttribute) attributes.next();
+            while (iter.hasNext()) {
+                ConfigAttributeDefinition def = (ConfigAttributeDefinition) iter.next();
+                Iterator attributes = def.getConfigAttributes();
 
-                        if (!this.runAsManager.supports(attr) && !this.accessDecisionManager.supports(attr)
-                            && ((this.afterInvocationManager == null) || !this.afterInvocationManager.supports(attr))) {
-                            set.add(attr);
-                        }
+                while (attributes.hasNext()) {
+                    ConfigAttribute attr = (ConfigAttribute) attributes.next();
+
+                    if (!this.runAsManager.supports(attr) && !this.accessDecisionManager.supports(attr)
+                        && ((this.afterInvocationManager == null) || !this.afterInvocationManager.supports(attr))) {
+                        unsupportedAttrs.add(attr);
                     }
-                }
-
-                if (set.size() == 0) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info("Validated configuration attributes");
-                    }
-                } else {
-                    throw new IllegalArgumentException("Unsupported configuration attributes: " + set.toString());
                 }
             }
+
+            if (unsupportedAttrs.size() != 0) {
+                throw new IllegalArgumentException("Unsupported configuration attributes: " + unsupportedAttrs);
+            }
+
+            logger.info("Validated configuration attributes");
         }
     }
 
@@ -431,7 +427,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
      * attempt is made to invoke a secure object that has no configuration attributes.
      *
      * @param rejectPublicInvocations set to <code>true</code> to reject invocations of secure objects that have no
-     *        configuration attributes (by default it is <code>true</code> which treats undeclared secure objects as
+     *        configuration attributes (by default it is <code>false</code> which treats undeclared secure objects as
      *        "public" or unauthorized)
      */
     public void setRejectPublicInvocations(boolean rejectPublicInvocations) {
