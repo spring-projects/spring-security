@@ -1,0 +1,83 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.acegisecurity</groupId>
+        <artifactId>acegi-security-sandbox</artifactId>
+        <version>1.0.2</version>
+    </parent>
+    <artifactId>acegi-security-openid</artifactId>
+    <name>Acegi Security System for Spring - OpenID support</name>
+    <description>Acegi Security System for Spring - Support for OpenID</description>
+    <version>0.1-SNAPSHOT</version>
+
+    <repositories>
+        <repository>
+            <id>AcegiMaven</id>
+            <name>Acegi 3rd party repository</name>
+            <url>http://acegisecurity.sourceforge.net/maven</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <scm>
+        <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/sandbox/openid
+        </connection>
+        <developerConnection>
+            scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/sandbox/openid
+        </developerConnection>
+        <url>http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/sandbox/openid/</url>
+    </scm>
+
+    <dependencies>
+        <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-mock</artifactId>
+          <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.janrain</groupId>
+            <artifactId>Janrain-Openid</artifactId>
+            <version>20070226</version>
+        </dependency>
+        <dependency>
+            <groupId>gnu</groupId>
+            <artifactId>libidn</artifactId>
+            <version>0.6.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.4_spec</artifactId>
+            <version>1.1.1</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <!--
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.4</version>
+            <scope>provided</scope>
+        </dependency>
+-->
+    </dependencies>
+
+    <!--This doesn't even exist...-->
+<!--
+    <build>
+        <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>jalopy-maven-plugin</artifactId>
+          <version>1.0-SNAPSHOT</version>
+            <configuration>
+                <convention>../../jalopy.xml</convention>
+                <failOnError>false</failOnError>
+            </configuration>
+        </plugin>
+        </plugins>
+    </build>
+-->
+</project>

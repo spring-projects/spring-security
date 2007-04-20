@@ -20,6 +20,7 @@
 
   <modules>
     <module>webwork</module>
+    <module>openid</module>
     <module>other</module>
   </modules>
 
