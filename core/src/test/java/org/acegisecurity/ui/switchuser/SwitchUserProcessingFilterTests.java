@@ -179,6 +179,27 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         Authentication result = filter.attemptSwitchUser(request);
         assertTrue(result != null);
     }
+    
+    public void testIfSwitchUserWithNullUsernameThrowsException() throws Exception {
+        // set current user
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        String username = null;
+        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, username);
+
+        SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
+        filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
+        Authentication result = null ;
+        try {
+        	 result = filter.attemptSwitchUser(request);
+        	 fail("UsernameNotFoundException should have been thrown");
+        } catch (UsernameNotFoundException e) {
+        	
+        }
+        assertFalse(result != null);
+    }
 
     public void testBadConfigMissingAuthenticationDao() {
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
