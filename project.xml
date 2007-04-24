@@ -363,7 +363,7 @@
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core</artifactId>
-      <version>1.0-RC1</version>
+      <version>1.0.0</version>
       <properties>
         <scope>test</scope>
       </properties>
@@ -371,7 +371,7 @@
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-shared</artifactId>
-      <version>1.0-RC1</version>
+      <version>1.0.0</version>
       <properties>
         <scope>test</scope>
       </properties>
@@ -379,12 +379,12 @@
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-asn1</artifactId>
-      <version>0.9.5</version>
+      <version>0.9.5.3</version>
     </dependency>    
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
-      <version>0.9.5</version>
+      <version>0.9.5.3</version>
     </dependency>
     <dependency>
       <groupId>antlr</groupId>
