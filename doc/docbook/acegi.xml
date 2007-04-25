@@ -1444,7 +1444,7 @@ if (obj instanceof UserDetails) {
     &lt;value&gt;
       CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
       PATTERN_TYPE_APACHE_ANT
-      /**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,switchUserProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
+      /**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor,switchUserProcessingFilter
     &lt;/value&gt;
   &lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
