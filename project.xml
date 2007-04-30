@@ -70,11 +70,6 @@
       <timezone>+10</timezone>
     </developer>
     <developer>
-      <name>Francois Beausoleil</name>
-      <id>fbos</id>
-      <email>fbos at users.sourceforge.net</email>
-    </developer>
-    <developer>
       <name>Colin Sampaleanu</name>
       <id>colins</id>
       <email>colinml1 at exis.com</email>
@@ -85,6 +80,11 @@
       <email>carlossg at users.sourceforge.net</email>
       <timezone>+1</timezone>
     </developer>
+    <developer>
+      <name>Francois Beausoleil</name>
+      <id>fbos</id>
+      <email>fbos at users.sourceforge.net</email>
+    </developer>    
     <developer>
       <name>Luke Taylor</name>
       <id>luke_t</id>
@@ -112,6 +112,13 @@
       <id>smccrory</id>
       <email>smccrory at users.sourceforge.net</email>
       <timezone>-5</timezone>
+    </developer>
+    <developer>
+      <name>Vishal Puri</name>
+      <id>vishalpuri</id>
+      <email>vishalpuri at users.sourceforge.net</email>
+      <organization>Interface21 Pty Limited (http://www.interface21.com)</organization>
+      <timezone>+10</timezone>
     </developer>
   </developers>
   <contributors>
@@ -178,9 +185,9 @@
   </contributors>
   <dependencies>
     <dependency>
-      <groupId>ehcache</groupId>
+      <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
-      <version>1.1</version>
+      <version>1.2.4</version>
       <type>jar</type>
       <url>http://ehcache.sourceforge.net</url>
       <properties>
