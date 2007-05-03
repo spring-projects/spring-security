@@ -1,0 +1,16 @@
+The acegi-security-doc team is pleased to announce the Acegi Security System 
+for Spring 0.1 release! 
+
+http://acegisecurity.org/
+
+Acegi Security System for Spring 
+
+Changes in this version include:
+
+  New Features:
+
+o Initial public release  
+
+Have fun!
+-The acegi-security-doc team
+      

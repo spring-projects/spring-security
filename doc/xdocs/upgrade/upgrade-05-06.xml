@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document><properties><title>Acegi Security - Upgrading from version 0.3 to 0.4</title></properties><body><section name="Upgrading from 0.5 to 0.6"><p>
+The following should help most casual users of the project update their
+applications:
+<ul>
+<li>
+Locate and remove all property references to 
+  DaoAuthenticationProvider.key and 
+  DaoAuthenticationProvider.refreshTokenInterval.</li>
+
+<li>If you are using DaoAuthenticationProvider and either (i) you are using
+  container adapters or (ii) your code relies on the Authentication object
+  having its getPrincipal() return a String, you must set the new
+  DaoAuthenticationProvider property, forcePrincipalAsString, to true.
+  By default DaoAuthenticationProvider returns an Authentication object
+  containing the relevant User, which allows access to additional properties.
+  Where possible, we recommend you change your code to something like this,
+  so that you can leave forcePrincipalAsString to the false default:<br></br><br></br>
+    <code>
+    String username = authentication.getPrincipal();<br></br>
+    if (authentication.getPrincipal() instanceof User) {<br></br>
+      username = ((User) authentication.getPrincipal()).getUsername();<br></br>
+    }
+	</code><br></br>
+</li>
+
+<li>The signature of AuthenticationDaos have changed. In concrete
+  implementations, modify the User to UserDetails, as shown below:<br></br><br></br>
+    <code>
+    public User loadUserByUsername(String username)<br></br>
+        throws UsernameNotFoundException, DataAccessException {<br></br><br></br>
+
+    to:<br></br><br></br>
+  
+    public UserDetails loadUserByUsername(String username)<br></br>
+        throws UsernameNotFoundException, DataAccessException {<br></br><br></br>
+	</code>
+
+  Existing concrete implementations would be returning User, which implements
+  UserDetails, so no further code changes should be required.
+</li>
+<li>Similar signature changes (User -&gt; UserDetails) are also required to any
+  custom implementations of UserCache and SaltSource.</li>
+
+<li>Any custom event listeners relying on AuthenticationEvent should note a
+  UserDetails is now provided in the AuthenticationEvent (not a User).</li>
+
+<li>CAS users should note the CasAuthoritiesPopulator interface signature has
+  changed. Most CAS users will be using DaoCasAuthoritiesPopulator, so this
+  change is unlikely to require any action.</li>
+
+<li>Please check your web.xml for whether you are using AutoIntegrationFilter.
+  Previously this class was loaded directly by web.xml as a filter. It is
+  now recommended to load it via FilterToBeanProxy and define it as a
+  bean in your application context. This usually involves making the entry
+  in web.xml match the following:<br></br><br></br>
+  <code>
+    &lt;filter&gt;<br></br>
+        &lt;filter-name&gt;Acegi Security System for Spring Auto Integration Filter&lt;/filter-name&gt;<br></br>
+        &lt;filter-class&gt;net.sf.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;<br></br>
+        &lt;init-param&gt;<br></br>
+            &lt;param-name&gt;targetClass&lt;/param-name&gt;<br></br>
+            &lt;param-value&gt;net.sf.acegisecurity.ui.AutoIntegrationFilter&lt;/param-value&gt;<br></br>
+        &lt;/init-param&gt;<br></br>
+    &lt;/filter&gt;<br></br>
+  </code>
+  <br></br><br></br>
+  Then add the following to applicationContext.xml:  <br></br><br></br>
+  <code>
+  	&lt;bean id="autoIntegrationFilter" class="net.sf.acegisecurity.ui.AutoIntegrationFilter"/&gt;<br></br>
+  </code>
+</li>
+</ul>
+
+
+</p></section></body></document>

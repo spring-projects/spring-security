@@ -1,16 +1,10 @@
-<html>
-<head>
-<title>Acegi Security - Upgrading from version 0.3 to 0.4</title>
-</head>
-<body>
-<h1>Upgrading from 0.3 to 0.4</h1>
-
-<p>Several changes were made between version 0.3 and 0.4 of the project.
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document><properties><title>Acegi Security - Upgrading from version 0.3 to 0.4</title></properties><body><section name="Upgrading from 0.3 to 0.4"><p>Several changes were made between version 0.3 and 0.4 of the project.
 These changes increased the modularity of the code, enhanced unit testing,
 made package roles clearer, and added compelling alternatives to container
 adapters and using web.xml security constraints to protect HTTP resources.
 
-<p>Unfortunately, changes to the API and package locations were required. The
+</p><p>Unfortunately, changes to the API and package locations were required. The
 following should help most casual users of the project update their
 applications:
 
@@ -34,20 +28,21 @@ applications:
   net.sf.acegisecurity.intercept.web package. This will give you considerably
   more flexibility, and reuse the same concepts as you'd be familiar with
   via the method security interception system. Refer to the reference
-  documentation or Contacts sample application.</li>
+  documentation or Contacts sample application.</security-constraint></li>
 
 <li>The Contacts sample application now builds two distributions: contacts.war
   can be instantly deployed without configuring any container adapters,
   whilst contacts-container-adapter.war still uses container adapters. The
   contacts.war uses the net.sf.acegisecurity.intercept.web package to
-  protect HTTP URLs, rather than web.xml <security-constraint>s.</li>
+  protect HTTP URLs, rather than web.xml <security-constraint>s.</security-constraint></li>
 
 <li>If you're using the Jetty container adapter, please check the jetty.xml
   requirements in the reference documentation. There has been a minor change.</li>
 </ul>
 
-<p>
+</p><p>
 We hope you find the new features useful in your projects.
 
-</body>
-</html>
+
+
+</p></section></body></document>

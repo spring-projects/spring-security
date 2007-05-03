@@ -1,0 +1,50 @@
+The acegi-security-doc team is pleased to announce the Acegi Security System 
+for Spring 0.6 release! 
+
+http://acegisecurity.org/
+
+Acegi Security System for Spring 
+
+Changes in this version include:
+
+  New Features:
+
+o Added domain object instance access control list (ACL) packages 
+o Added feature so DaoAuthenticationProvider returns User in Authentication 
+o Added AbstractIntegrationFilter.secureContext property for custom contexts 
+o Added stack trace logging to SecurityEnforcementFilter 
+o Added exception-specific target URLs to AbstractProcessingFilter 
+o Added JdbcDaoImpl hook so subclasses can insert custom granted authorities 
+o Added AuthenticationProvider that wraps JAAS login modules 
+o Added support for EL expressions in the authz tag library 
+o Added failed Authentication object to AuthenticationExceptions 
+o Added signed JARs to all official release builds (see readme.txt) 
+o Added remote client authentication validation package 
+o Added protected sendAccessDeniedError method to SecurityEnforcementFilter 
+
+  Fixed bugs:
+
+o Fixed CasAuthenticationToken if proxy granting ticket callback not 
+  requested 
+o Fixed EH-CACHE handling on web context refresh 
+
+  Changes:
+
+o Updated Authentication to be serializable (Weblogic support) 
+o Updated JAR to Spring 1.1 RC 1 
+o Updated to Clover 1.3 
+o Updated to HSQLDB version 1.7.2 Release Candidate 6D 
+o Refactored User to net.sf.acegisecurity.UserDetails interface 
+o Refactored CAS package to store UserDetails in CasAuthenticationToken 
+o Improved organisation of DaoAuthenticationProvider to facilitate 
+  subclassing 
+o Improved test coverage (now 98.3%) 
+o Improved JDBC-based tests to use in-memory database rather than filesystem 
+o Fixed Linux compatibility issues (directory case sensitivity etc) 
+o Fixed AbstractProcessingFilter to handle servlet spec container differences 
+o Fixed AbstractIntegrationFilter to resolve a Weblogic compatibility issue 
+o Documentation improvements  
+
+Have fun!
+-The acegi-security-doc team
+      

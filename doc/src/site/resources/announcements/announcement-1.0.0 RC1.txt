@@ -1,0 +1,17 @@
+The acegi-security-doc team is pleased to announce the Acegi Security System 
+for Spring 1.0.0 RC1 release! 
+
+http://acegisecurity.org/
+
+Acegi Security System for Spring 
+
+Changes in this version include:
+
+  Changes:
+
+o All changes are in JIRA at 
+  http://opensource2.atlassian.com/projects/spring/secure/ReleaseNote.jspa?projectId=10040  
+
+Have fun!
+-The acegi-security-doc team
+      

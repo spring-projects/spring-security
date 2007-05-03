@@ -1,0 +1,40 @@
+The acegi-security-doc team is pleased to announce the Acegi Security System 
+for Spring 0.4 release! 
+
+http://acegisecurity.org/
+
+Acegi Security System for Spring 
+
+Changes in this version include:
+
+  New Features:
+
+o Added HTTP session authentication as an alternative to container adapters 
+o Added HTTP request security interceptor (offers considerable flexibility) 
+o Added security taglib 
+o Added Clover test coverage instrumentation (currently 97.2%) 
+o Added support for Catalina (Tomcat) 4.1.30 to in-container integration 
+  tests 
+o Added HTML test and summary reporting to in-container integration tests 
+
+  Fixed bugs:
+
+o Fixed case handling support in data access object authentication provider 
+
+  Changes:
+
+o Updated JARs to Spring Framework release 1.0, with associated AOP changes 
+o Updated to Apache License version 2.0 
+o Updated copyright with permission of past contributors 
+o Refactored unit tests to use mock objects and focus on a single class each 
+o Refactored many classes to enable insertion of mock objects during testing 
+o Refactored core classes to ease support of new secure object types 
+o Changed package layout to better describe the role of contained items 
+o Changed the extractor to extract additional classes from JBoss and Catalina 
+o Changed Jetty container adapter configuration (see reference documentation) 
+o Improved AutoIntegrationFilter handling of deployments without JBoss JARs 
+o Documentation improvements  
+
+Have fun!
+-The acegi-security-doc team
+      

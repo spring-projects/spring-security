@@ -1,0 +1,68 @@
+The acegi-security-doc team is pleased to announce the Acegi Security System 
+for Spring 0.7.0 release! 
+
+http://acegisecurity.org/
+
+Acegi Security System for Spring 
+
+Changes in this version include:
+
+  New Features:
+
+o Major CVS repository restructure to support Maven and eliminate libraries 
+o Added AfterInvocationManager to mutate objects return from invocations 
+o Added BasicAclEntryAfterInvocationProvider to ACL evaluate returned Object 
+o Added BasicAclEntryAfterInvocationCollectionFilteringProvider 
+o Added security propagation during RMI invocations (from sandbox) 
+o Added security propagation for Spring's HTTP invoker 
+o Added BasicAclEntryVoter, which votes based on AclManager permissions 
+o Added AspectJ support (especially useful for instance-level security) 
+o Added MethodDefinitionSourceAdvisor for performance and autoproxying 
+o Added MethodDefinitionMap querying of interfaces defined by secure objects 
+o Added AuthenticationProcessingFilter.setDetails for use by subclasses 
+o Added 403-causing exception to HttpSession via SecurityEnforcementFilter 
+o Added net.sf.acegisecurity.intercept.event package 
+o Added BasicAclExtendedDao interface and JdbcExtendedDaoImpl for ACL CRUD 
+o Added additional remoting protocol demonstrations to Contacts sample 
+o Added AbstractProcessingFilter property to always use defaultTargetUrl 
+o Added ContextHolderAwareRequestWrapper to integrate with getRemoteUser() 
+o Added attempted username to view if processed by 
+  AuthenticationProcessingFilter 
+o Added UserDetails account and credentials expiration methods 
+o Added exceptions and events to support new UserDetails methods 
+o Added new exceptions to JBoss container adapter 
+
+  Fixed bugs:
+
+o Fixed ambiguous column references in JdbcDaoImpl default query 
+o Fixed AbstractProcessingFilter to use removeAttribute (JRun compatibility) 
+o Fixed GrantedAuthorityEffectiveAclResolver support of UserDetails 
+  principals 
+o Fixed HttpSessionIntegrationFilter "cannot commit to container" during 
+  logoff 
+
+  Changes:
+
+o Major improvements to Contacts sample application (now demos ACL security) 
+o Improved BasicAclProvider to only respond to specified ACL object requests 
+o Refactored MethodDefinitionSource to work with Method, not MethodInvocation 
+o Refactored AbstractFilterInvocationDefinitionSource to work with URL 
+  Strings alone 
+o Refactored AbstractSecurityInterceptor to better support other AOP 
+  libraries 
+o Improved performance of JBoss container adapter (see reference docs) 
+o Made DaoAuthenticationProvider detect null in Authentication.principal 
+o Improved JaasAuthenticationProvider startup error detection 
+o Refactored EH-CACHE implementations to use Spring IoC defined caches 
+  instead 
+o AbstractProcessingFilter now has various hook methods to assist subclasses 
+o DaoAuthenticationProvider better detects AuthenticationDao interface 
+  violations 
+o The User class has a new constructor (the old constructor is deprecated) 
+o Moved MethodSecurityInterceptor to ...intercept.method.aopalliance package 
+o Documentation improvements 
+o Test coverage improvements  
+
+Have fun!
+-The acegi-security-doc team
+      
