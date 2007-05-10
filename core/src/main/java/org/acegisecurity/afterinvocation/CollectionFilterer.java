@@ -34,7 +34,7 @@ import java.util.Set;
 class CollectionFilterer implements Filterer {
     //~ Static fields/initializers =====================================================================================
 
-    protected static final Log logger = LogFactory.getLog(BasicAclEntryAfterInvocationCollectionFilteringProvider.class);
+    protected static final Log logger = LogFactory.getLog(CollectionFilterer.class);
 
     //~ Instance fields ================================================================================================
 
