@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd 
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/beans/spring-util-2.0.xsd
+http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+
+	<!-- http://www.springframework.org/schema/security file:/Users/vpuri/interface21/acegisecurity/trunk/acegisecurity/core/src/main/resources/org/acegisecurity/config/spring-security-2.0.xsd -->
+	<!-- http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd" -->
+
+	<!-- Case 1: defaults (userDetailsService mandatory)-->
+	<!--  autocreate userDetailsService with dataSource(search in ctx) injected -->
+
+	<security:authentication-repository id="authenticationRepository">
+		<!--<security:salt-source>
+			<security:system-wide systemWideSalt="12345" />
+		</security:salt-source>
+		--><security:password-encoder encoderBeanRef="passwordEncoder"/>
+		<!-- OR <security:password-encoder>
+				<security:encoder method="md5"/>
+		</security:password-encoder>
+	--></security:authentication-repository>
+
+	<bean id="userDetailsService"
+		class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+	</bean>
+
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName">
+			<value>org.hsqldb.jdbcDriver</value>
+		</property>
+		<property name="url">
+			<value>jdbc:hsqldb:mem:test</value>
+			<!-- <value>jdbc:hsqldb:hsql://localhost/acl</value> -->
+		</property>
+		<property name="username">
+			<value>sa</value>
+		</property>
+		<property name="password">
+			<value></value>
+		</property>
+	</bean>
+
+	<bean id="saltSource"
+		class="org.acegisecurity.providers.dao.salt.SystemWideSaltSource">
+		<property name="systemWideSalt">
+			<value>12345</value>
+		</property>
+	</bean>
+
+	<bean id="passwordEncoder"
+		class="org.acegisecurity.providers.encoding.Md5PasswordEncoder" />
+</beans>

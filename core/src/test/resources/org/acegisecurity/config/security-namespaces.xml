@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd 
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/beans/spring-util-2.0.xsd
+	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+
+	<!-- http://www.springframework.org/schema/security file:/Users/vpuri/interface21/acegisecurity/trunk/acegisecurity/core/src/main/resources/org/acegisecurity/config/spring-security-2.0.xsd -->
+	<!-- http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd" -->
+
+	<!-- introspect all bean definitions for an explicit object of a "required" type, and if not found, add it. You can turn OFF ones you dont want added via attributes -->
+	<security:security-autoconfig exceptionTranslation="disable" sessionContextIntegration="disable" logoutSupport="disable" filterChain="disable"  servletRequestEmulation="disabled" anonyomousRoleGranter="disabled"/>
+
+	<!-- autodetect attribute is the default, and an exception is thrown if false, as the expectation is they will write their own legacy <beans> format
+	FilterChainProxy bean definition is dissatisfied with the auto approach. The auto approach simply creates a bean definition similar to that shown
+	below with the AUTODETECT_ALL_ORDERED_FILTERs. As suggested, this causes a runtime check of app ctx for all javax.servlet.Filter instances, and
+	for each that also implemented Ordered, these are automatically applied to the pattern shown (which is **/* in the case of autodetect=true).*-->
+	<security:filter-chain id="id" />
+	<bean id="dcdc" class="FilterChainProxy">
+		<property name="chainConfig">
+			<value>
+				**/*=AUTODETECT_ALL_ORDERED_FILTERS
+				**/*=filter1,filter2,filter3
+			</value>
+		</property>
+	</bean>
+	<!--  also provide an OrderedFilterAdapter, impls Filter and Ordered, and can be configured declaratively in Spring XML (eg SiteMesh), setOrder, setDelegate(Filter object) -->
+
+	<!-- creates a bean definition for an AccessDecisionManager; strategy defaults to AffirmativeBased; 
+	superclass AbstractAccessDecisionManager requires refactoring so if no setProvider(List) given, it introspects app ctx for all AccessDecisionVoters
+	and uses their Ordered interface to apply them; if one doesn't implement Ordered, assume it is Integer.MAX_VALUE -->
+	<security:authorization-manager id="id" strategy="consensus|unanimous|affirmative"/>
+
+	<!-- ======================== AUTHENTICATION ======================= -->
+
+	<!-- sessionCreation defaults to ifRequired. -->
+	<security:session-context-integration id="httpSessionContextIntegrationFilter" sessionCreation="never|ifRequired|always" />
+
+	<!-- The rules are:
+	     AuthenticationManager interface is implemented by ProviderManager
+	     So if you have any auto-detection, create a ProviderManager definition
+	     If ProviderManager.setProvider(List) is never called, auto-detect all AuthenticationProviders from app ctx, using Ordered to resolve their order
+	     Every authentication mechanism OR provider must start with security:authentication-something
+	     Use appropriate attrs and elements depending on provider or mechanism
+	      -->
+	<security:authentication-repository id="id" repositoryBeanRef="beanIdOfRepositoryIfUnspecifiedAutoDetectTheirUserDetailsInstance">
+		<security:salt-source saltSourceBeanRef="beanRefOfAnExternalEncoder"/> <!--  or allow it to be written inline as an inner bean -->
+		<security:password-encoder encoder="md5|md5Hex|sha|shaHex|custom" encoderBeanRef="beanRefOfAnExternalEncoder"/> <!-- same story here, inner beans allowed -->
+	</security:authentication-repository>
+	
+	<security:salt-source>
+			<security:system-wide systemWideSalt="12345"/>
+			<security-reflection userPropertyToUse="sss"/>
+	</security:salt-source>
+	
+	
+	<!--  the URLs are all mandatory and have no defaults (well, except authenticationUrl) -->
+	<security:authentication-form id="id" authenticationUrl="/login" loginFormUrl="/login.html" errorFormUrl="error.html"/>
+	
+	<!-- AuthenticationEntryPoints handled across the system via Ordered interface; every Acegi entry point has an order; the highest order wins and
+	is used as the entry point by ExceptionTranslationFilter; for things like BasicAuthenticationfilter, they're smart enough to know they need a
+	BasicAuthenticationProcessingFilterEntryPoint, so they use that one; here we have an entryPointOrder to say when we make the BasicEntryPoint,
+	we will call setOrder(2) such that this app effectively will use somehing with a higher order as the app-wide default -->
+	<security:authentication-basic id="id" realmName="Spring Security Application" entryPointOrder="2"/>
+	
+	<!-- This is used if they want an out-of-the-bx UserDetails; if they write their own, this goes away and they wire a legacy bean definition and then the various
+	beans depending on a UserDetails will auto-detect it at runtime OR provide a way of setUserDetails(UserDetails) if to specified explicitly.
+	If they fail to provide a repository, the security-autodetect will set one up for them with a few basic in-memory users and pwds -->
+	<security:principal-repository id="id">
+		<security:ldap x="you can do the attributes and suitable nested elements"/>
+		<security:jdbc x="you can do the attributes and suitable nested elements"/>
+		<security:properties resource="resourceStringToPropertiesFile"> <!-- if they specify a resource attrib, that means throw exception if they nest some user-definition data) -->
+			<security:user-definition username="ben" password="nottellingYou" enabled="true" it="more stuff if you want">
+				<security:granted-authority authority="ROLE_ANONYMOUS"/>
+				<ref bean="fooBarAuthority"/>
+			</security:user-definition>
+		</security:properties>
+	</security:principal-repository>
+
+	<!-- makes the filter, but does little else, as it auto-detects everything -->
+	<security:authentication-remember-me-filter id="id" rememberMeServicesBeanRef="theId" />
+
+	<!-- services should auto-detect UserDetails from app ctx if principalRepository was not specified; key is handled in same way as discussed earlier -->
+	<security:authentication-remember-me-services id="id" key="someValue" principalRepositoryBeanRef="jdbcDaoImpl" />
+
+	<!-- key is optional; if unspecified, in the NamespaceHandler pick a rnd int and use for all unspecified key properties for acegi beans -->
+	<security:anonymous-role-granter " id="id" key="someValue" >
+		<security:granted-authority authority="ROLE_ANONYMOUS"/>
+		<ref bean="fooBarAuthority"/>
+	</security:anonymous-role-granter>	
+
+	<security:granted-authority id="fooBarAuthority" authority="ROLE_FOOBAR"/>
+
+	<!-- If LogoutFilter does not have setHandlers populated, introspect app ctx for LogoutHandlers, using Ordered (if present, otherwise assume Integer.MAX_VALUE) -->
+	<!-- The logoutUrl and redirectAfterLogout are both optional and default to that shown -->
+	<security:logout-support id="logoutFilter" redirectAfterLogoutUrl="/" logoutUrl="/logout"/>
+
+
+	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
+
+	<!--  channel security out of scope; they use existing bean definition format; the channel filter will auto-detect and use Ordered interface as discussed above -->
+	
+	<!--  any kind of ACL support is out of scope; frankly it is too hard for 1.1.0 -->
+
+	<!-- ensure element name is not overlapping with portlet or spring web flow or tapestry URI patterns, as this filter is incompatible with them -->
+	<security:authorization-http-url>
+		<security:url-mapping source="xml - the default and no other options" sourceBeanId="referenceToTheirObjectDefinitionSource">
+			<!-- Specify security:uri-patterns in order of processing; each pattern must specify EITHER a regularExpression OR a path, but not both
+				 and ALL patterns in the url-mapping MUST be of the SAME type (ie cannot mix a regular expression and Ant Path) - give exception if tried -->
+			<security:uri-pattern path ="/index.jsp" regularExpression="whatever">
+				<security:configuration-attribute attribute="ROLE_A"/>
+				<ref bean="someExternalConfigurationAttributeThatIsATopLevelBean"/>
+			</security:uri-pattern>
+			<security:uri-pattern path ="/**" regularExperssion="whatever">
+				<security:configuration-attribute attribute="ROLE_A"/>
+				<ref bean="someExternalConfigurationAttributeThatIsATopLevelBean"/>
+			</security:uri-pattern>
+		</security:url-mapping>
+	</security:authorization-http-url>
+
+	<!-- the source refers to use of the relevant concete ObjectDefinitionSource; user can alternately specify their own instance and refer to it
+	via the sourceBeanId property; in that case they must specify "custom"; if unspecified, it means it's described as nested elements using the
+	security:method-pattern element, and you will therefore create it via the MethodDefinitionSourceEditor (that is what the default source=xml means, too)
+	For aspectj and springAop, that means create a MethodSecurityInterceptor and AspectJSecurityInterceptor bean definition respectively (in the case of
+	springAop, also create a MethodDefinitionSourceAdvisor); defaults to springAop=true, aspectJ=false -->
+	<security:authorization-joinpoint aspectj="false|true" springAop="true|false" >
+		<security:url-mapping source="custom|xml|attributes|annotations" sourceBeanId="referenceToTheirObjectDefinitionSource">
+			<security:method-pattern type="com.foo.Bar.whateverMethodNamePattern">
+				<security:configuration-attribute attribute="ROLE_A"/>
+				<ref bean="someExternalConfigurationAttributeThatIsATopLevelBean"/>
+			</security:method-pattern>
+		</security:url-mapping>
+		<!-- if get time, do a new security:pointcut-pattern -->
+	</security:authorization-joinpoint>
+
+	
+	<!-- Basically accessDeniedUrl is optional, we if unspecified impl will auto-detect any AccessDeniedHandler in ctx and use it; 
+	alternately if there are > 1 such handlers, we can nominate the one to use via accessDeniedBeanRef; provide nested elements for
+	other props; i do not mind if you move the access denied stuff to a sub-element -->
+	<security:exception-translation id="id" accessDeniedUrl="/accessDenied.jsp" accessDeniedBeanRef="theBeanToUse">
+		<security:entry-point path="/acegilogin.jsp" https="boolean"/>
+	</security:exception-translation>
+
+</beans>

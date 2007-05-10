@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd 
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/beans/spring-util-2.0.xsd
+http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+
+	<!-- http://www.springframework.org/schema/security file:/Users/vpuri/interface21/acegisecurity/trunk/acegisecurity/core/src/main/resources/org/acegisecurity/config/spring-security-2.0.xsd -->
+	<!-- http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd" -->
+
+	<!-- ======================== AUTHENTICATION ======================= -->
+
+	<!-- makes the filter, but does little else, as it auto-detects everything -->
+	<security:authentication-remember-me-filter id="rememberMeFilter"
+		rememberMeServicesBeanRef="rememberMeServices" />
+
+	<!-- services should auto-detect UserDetails from app ctx if principalRepository was not specified; -->
+	<!-- key is optional; if unspecified, in the NamespaceHandler pick a rnd int and use for all unspecified key properties for acegi beans -->
+	<security:authentication-remember-me-services
+		id="rememberMeServices" key="someValue"
+		principalRepositoryBeanRef="userDetailsService" />
+
+	<!-- The rules are:
+		AuthenticationManager interface is implemented by ProviderManager
+		So if you have any auto-detection, create a ProviderManager definition
+		If ProviderManager.setProvider(List) is never called, auto-detect all AuthenticationProviders from app ctx, using Ordered to resolve their order
+		Every authentication mechanism OR provider must start with security:authentication-something
+		Use appropriate attrs and elements depending on provider or mechanism
+	-->
+	<bean id="authenticationManager"
+		class="org.acegisecurity.providers.ProviderManager">
+		<property name="providers">
+			<list>
+				<ref local="authenticationRepository" />
+			</list>
+		</property>
+	</bean>
+
+
+	<security:authentication-repository id="authenticationRepository" />
+
+	<bean id="userDetailsService"
+		class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+	</bean>
+
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName">
+			<value>org.hsqldb.jdbcDriver</value>
+		</property>
+		<property name="url">
+			<value>jdbc:hsqldb:mem:test</value>
+			<!-- <value>jdbc:hsqldb:hsql://localhost/acl</value> -->
+		</property>
+		<property name="username">
+			<value>sa</value>
+		</property>
+		<property name="password">
+			<value></value>
+		</property>
+	</bean>
+</beans>

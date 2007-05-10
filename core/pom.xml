@@ -7,13 +7,14 @@
     <artifactId>acegi-security-parent</artifactId>
     <version>1.1-SNAPSHOT</version>
   </parent>
+  <packaging>jar</packaging>
   <artifactId>acegi-security</artifactId>
   <name>Acegi Security System for Spring</name>
 
   <scm>
-    <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core</connection>
-    <developerConnection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core</developerConnection>
-    <url>http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/core/</url>
+    <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core</connection>
+    <developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core</developerConnection>
+    <url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/core/</url>
   </scm>
 
   <dependencies>
@@ -36,9 +37,9 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>ehcache</groupId>
+      <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
-      <version>1.1</version>
+      <version>1.2.4</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -127,7 +128,7 @@
   </dependencies>
 
   <build>
-    <resources>
+    <resources><!--
       <resource>
         <directory>${basedir}/../</directory>
         <targetPath>META-INF</targetPath>
@@ -145,6 +146,22 @@
         <filtering>false</filtering>
       </resource>
       <resource>
+        <directory>${basedir}/src/main/resources/org/acegisecurity/config</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>spring.handlers</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/resources/org/acegisecurity/config</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>spring.schemas</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+      --><resource>
         <directory>${basedir}/src/main/resources</directory>
         <targetPath>/</targetPath>
         <includes>

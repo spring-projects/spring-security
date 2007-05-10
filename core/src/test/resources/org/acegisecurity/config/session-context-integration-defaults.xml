@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd 
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/beans/spring-util-2.0.xsd
+	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+
+	<!-- http://www.springframework.org/schema/security file:/Users/vpuri/interface21/acegisecurity/trunk/acegisecurity/core/src/main/resources/org/acegisecurity/config/spring-security-2.0.xsd -->
+	<!-- http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd" -->
+
+	<!-- ======================== AUTHENTICATION ======================= -->
+
+	<!-- sessionCreation defaults to ifRequired(true) always(true) never(false) . -->
+	<security:session-context-integration id="httpSessionContextIntegrationFilter" sessionCreation="never"	/>
+
+	<!-- The rules are:
+		AuthenticationManager interface is implemented by ProviderManager
+		So if you have any auto-detection, create a ProviderManager definition
+		If ProviderManager.setProvider(List) is never called, auto-detect all AuthenticationProviders from app ctx, using Ordered to resolve their order
+		Every authentication mechanism OR provider must start with security:authentication-something
+		Use appropriate attrs and elements depending on provider or mechanism
+	-->
+	
+	
+	<!-- Case 1 	
+	<security:authentication-repository id="id" repositoryBeanRef="userDetails">
+		<security:salt-source
+			saltSourceBeanRef="beanRefOfAnExternalEncoder" />
+		  or allow it to be written inline as an inner bean 
+		<security:password-encoder
+			encoder="md5|md5Hex|sha|shaHex|custom"
+			encoderBeanRef="beanRefOfAnExternalEncoder" />
+		 same story here, inner beans allowed 
+	</security:authentication-repository>
+	
+	<bean id="userDetails" class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
+      <property name="dataSource"><ref bean="dataSource"/></property>
+    </bean>
+    
+     Case 2: autodetect userDetails
+    <security:authentication-repository id="id">
+		<security:salt-source
+			saltSourceBeanRef="beanRefOfAnExternalEncoder" />
+		  or allow it to be written inline as an inner bean 
+		<security:password-encoder
+			encoder="md5|md5Hex|sha|shaHex|custom"
+			encoderBeanRef="beanRefOfAnExternalEncoder" />
+		 same story here, inner beans allowed 
+	</security:authentication-repository>
+	
+	 Case 3: inner beans 
+	<security:authentication-repository id="id"
+		ref="userDetails">
+		<security:salt-source propertyName="propertyValue" />
+		  or allow it to be written inline as an inner bean 
+		<security:password-encoder encoder="md5" />
+		 same story here, inner beans allowed 
+	</security:authentication-repository>
+--></beans>
+
