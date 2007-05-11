@@ -27,6 +27,7 @@ import org.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
 
+import org.springframework.core.Ordered;
 import org.springframework.dao.DataAccessException;
 
 import org.springframework.util.Assert;
@@ -38,13 +39,15 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
+public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider implements Ordered {
+	
     //~ Instance fields ================================================================================================
 
     private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
     private SaltSource saltSource;
     private UserDetailsService userDetailsService;
     private boolean includeDetailsObject = true;
+    private int order = -1; // default: same as non-Ordered
 
     //~ Methods ========================================================================================================
 
@@ -95,7 +98,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
             throw new AuthenticationServiceException(
                 "UserDetailsService returned null, which is an interface contract violation");
         }
-
         return loadedUser;
     }
 
@@ -131,4 +133,14 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
     public void setIncludeDetailsObject(boolean includeDetailsObject) {
         this.includeDetailsObject = includeDetailsObject;
     }
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	public int getOrder() {
+		return order ;
+	}
+	
+	
 }

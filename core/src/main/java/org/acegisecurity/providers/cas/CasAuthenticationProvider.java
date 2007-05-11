@@ -35,6 +35,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.Ordered;
 
 import org.springframework.util.Assert;
 
@@ -49,7 +50,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class CasAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
+public class CasAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware, Ordered {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(CasAuthenticationProvider.class);
@@ -62,10 +63,19 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
     private StatelessTicketCache statelessTicketCache;
     private String key;
     private TicketValidator ticketValidator;
+    private int order = -1; // default: same as non-Ordered
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	public void afterPropertiesSet() throws Exception {
         Assert.notNull(this.casAuthoritiesPopulator, "A casAuthoritiesPopulator must be set");
         Assert.notNull(this.ticketValidator, "A ticketValidator must be set");
         Assert.notNull(this.casProxyDecider, "A casProxyDecider must be set");

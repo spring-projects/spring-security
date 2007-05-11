@@ -28,6 +28,7 @@ import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.Ordered;
 import org.springframework.dao.DataAccessException;
 import org.springframework.util.Assert;
 
@@ -37,7 +38,8 @@ import org.springframework.util.Assert;
  * @author Scott McCrory
  * @version $Id: SiteminderAuthenticationProvider.java 1582 2006-07-15 15:18:51Z smccrory $
  */
-public class SiteminderAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
+public class SiteminderAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider implements Ordered {
+	
 
     /**
      * Our logging object
@@ -50,6 +52,8 @@ public class SiteminderAuthenticationProvider extends AbstractUserDetailsAuthent
      * Our user details service (which does the real work of checking the user against a back-end user store).
      */
     private UserDetailsService userDetailsService;
+    
+    private int order = -1; // default: same as non-Ordered
 
     //~ Methods ========================================================================================================
 
@@ -128,5 +132,13 @@ public class SiteminderAuthenticationProvider extends AbstractUserDetailsAuthent
     public void setUserDetailsService(final UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
+
+	public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
 
 }

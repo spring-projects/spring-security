@@ -14,8 +14,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 	<!-- ======================== AUTHENTICATION ======================= -->
 
 	<!-- makes the filter, but does little else, as it auto-detects everything -->
-	<security:authentication-remember-me-filter id="rememberMeFilter"
-		rememberMeServicesBeanRef="rememberMeServices" />
+	<security:authentication-remember-me-filter id="rememberMeFilter" rememberMeServicesBeanRef="rememberMeServices" />
 
 	<!-- services should auto-detect UserDetails from app ctx if principalRepository was not specified; -->
 	<!-- key is optional; if unspecified, in the NamespaceHandler pick a rnd int and use for all unspecified key properties for acegi beans -->
@@ -29,17 +28,24 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 		If ProviderManager.setProvider(List) is never called, auto-detect all AuthenticationProviders from app ctx, using Ordered to resolve their order
 		Every authentication mechanism OR provider must start with security:authentication-something
 		Use appropriate attrs and elements depending on provider or mechanism
-	-->
-	<bean id="authenticationManager"
+		-->
+		
+	<security:authentication-mechanism id="authenticationManager">	
+			<security:authentication-jdbc ref="authenticationRepository"/>			
+	</security:authentication-mechanism>
+
+	
+	<!--<bean id="authenticationManager"
 		class="org.acegisecurity.providers.ProviderManager">
-		<property name="providers">
+		  make it optional, if not supplied autodetect all auth-providers from app ctx, using Ordered to resolve their order 
+		 <property name="providers">
 			<list>
 				<ref local="authenticationRepository" />
 			</list>
 		</property>
-	</bean>
-
-
+	</bean>	
+	
+	--><!-- dao authentication provider -->
 	<security:authentication-repository id="authenticationRepository" />
 
 	<bean id="userDetailsService"

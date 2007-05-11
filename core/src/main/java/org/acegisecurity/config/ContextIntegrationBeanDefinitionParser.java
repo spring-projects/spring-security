@@ -34,13 +34,13 @@ public class ContextIntegrationBeanDefinitionParser extends AbstractSingleBeanDe
 	private static final String NEVER = "never";
 
 	
-	@Override
+	
 	protected Class getBeanClass(Element element) {
 		return HttpSessionContextIntegrationFilter.class;
 	}
 	
 	
-	@Override
+
 	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 		
 		NamedNodeMap attributes = element.getAttributes();

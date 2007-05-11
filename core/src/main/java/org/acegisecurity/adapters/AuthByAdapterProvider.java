@@ -27,6 +27,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.Ordered;
 
 import org.springframework.util.Assert;
 
@@ -38,15 +39,24 @@ import org.springframework.util.Assert;
  * <code>AuthByAdapterProvider</code>-configured key.</p>
  *  <P>If the key does not match, a <code>BadCredentialsException</code> is thrown.</p>
  */
-public class AuthByAdapterProvider implements InitializingBean, AuthenticationProvider, MessageSourceAware {
+public class AuthByAdapterProvider implements InitializingBean, AuthenticationProvider, MessageSourceAware, Ordered {
     //~ Instance fields ================================================================================================
 
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private String key;
+    private int order = -1; // default: same as non-Ordered
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	public void afterPropertiesSet() throws Exception {
         Assert.notNull(key, "A Key is required and should match that configured for the adapters");
         Assert.notNull(messages, "A message source must be set");
     }

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
-import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -19,16 +18,13 @@ import org.w3c.dom.Element;
  *
  *@since
  */
-public class RememberMeFilterBeanDefinitionParser extends AbstractBeanDefinitionParser implements
-		BeanDefinitionParser {
+public class RememberMeFilterBeanDefinitionParser extends AbstractBeanDefinitionParser  {
 
 	private static final String REMEMBER_ME_SERVICES_REF = "rememberMeServicesBeanRef";
 	
 	private static final String REMEMBER_ME_SERVICES = "rememberMeServices";
 
-	/**
-	 * 
-	 */
+	
 	protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
 		Assert.notNull(parserContext, "ParserContext must not be null");
 		
@@ -45,5 +41,9 @@ public class RememberMeFilterBeanDefinitionParser extends AbstractBeanDefinition
 		} 
 		return rememberMeFilterBeanDef;
 	}
+	
+	
+	
+	
 
 }

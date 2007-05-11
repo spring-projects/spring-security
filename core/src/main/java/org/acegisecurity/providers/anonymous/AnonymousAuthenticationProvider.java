@@ -19,18 +19,14 @@ import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
-
 import org.acegisecurity.providers.AuthenticationProvider;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
+import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
 
@@ -40,7 +36,7 @@ import org.springframework.util.Assert;
  * {@link org.acegisecurity.providers.anonymous.AnonymousAuthenticationToken#getKeyHash()} must match this class'
  * {@link #getKey()}.</p>
  */
-public class AnonymousAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
+public class AnonymousAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware, Ordered {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(AnonymousAuthenticationProvider.class);
@@ -49,10 +45,19 @@ public class AnonymousAuthenticationProvider implements AuthenticationProvider, 
 
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private String key;
+    private int order = -1; // default: same as non-Ordered
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	public void afterPropertiesSet() throws Exception {
         Assert.hasLength(key, "A Key is required");
         Assert.notNull(this.messages, "A message source must be set");
     }

@@ -30,6 +30,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.Ordered;
 
 import org.springframework.util.Assert;
 
@@ -40,7 +41,7 @@ import org.springframework.util.Assert;
  * {@link org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken#getKeyHash()} must match this class'
  * {@link #getKey()}.</p>
  */
-public class RememberMeAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
+public class RememberMeAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware, Ordered {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(RememberMeAuthenticationProvider.class);
@@ -49,10 +50,19 @@ public class RememberMeAuthenticationProvider implements AuthenticationProvider,
 
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private String key;
+    private int order = -1; // default: same as non-Ordered
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	public void afterPropertiesSet() throws Exception {
         Assert.hasLength(key);
         Assert.notNull(this.messages, "A message source must be set");
     }

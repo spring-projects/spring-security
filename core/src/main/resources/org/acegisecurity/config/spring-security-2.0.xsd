@@ -123,6 +123,38 @@
 		<xsd:attribute name="principalRepositoryBeanRef" type="xsd:string"
 			use="optional" />
 	</xsd:complexType>
+	
+	
+	<xsd:element name="authentication-mechanism"
+		type="AuthenticationManager" />
+
+	<xsd:complexType name="AuthenticationManager">
+		<xsd:sequence>
+			<xsd:element ref="authentication-jdbc" minOccurs="0" maxOccurs="1"/>
+			<xsd:element ref="authentication-ldap" minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:ID">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[
+	The unique identifier for a bean.
+				]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	
+	<xsd:element name="authentication-jdbc">
+		<xsd:complexType>
+			<xsd:attribute name="ref" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="authentication-ldap">
+		<xsd:complexType>
+			<xsd:attribute name="ref" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
 
 
 

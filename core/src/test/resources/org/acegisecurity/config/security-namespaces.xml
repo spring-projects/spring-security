@@ -66,8 +66,8 @@
 	we will call setOrder(2) such that this app effectively will use somehing with a higher order as the app-wide default -->
 	<security:authentication-basic id="id" realmName="Spring Security Application" entryPointOrder="2"/>
 	
-	<!-- This is used if they want an out-of-the-bx UserDetails; if they write their own, this goes away and they wire a legacy bean definition and then the various
-	beans depending on a UserDetails will auto-detect it at runtime OR provide a way of setUserDetails(UserDetails) if to specified explicitly.
+	<!-- This is used if they want an out-of-the-bx UserDetailsService; if they write their own, this goes away and they wire a legacy bean definition and then the various
+	beans depending on a UserDetailsService will auto-detect it at runtime OR provide a way of setUserDetailsService(UserDetailsService) if to specified explicitly.
 	If they fail to provide a repository, the security-autodetect will set one up for them with a few basic in-memory users and pwds -->
 	<security:principal-repository id="id">
 		<security:ldap x="you can do the attributes and suitable nested elements"/>
