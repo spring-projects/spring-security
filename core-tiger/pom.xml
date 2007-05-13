@@ -9,9 +9,9 @@
   <name>Acegi Security System for Spring - Java 5 (Tiger)</name>
 
   <scm>
-    <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core-tiger</connection>
-    <developerConnection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core-tiger</developerConnection>
-    <url>http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/core-tiger/</url>
+    <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core-tiger</connection>
+    <developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core-tiger</developerConnection>
+    <url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/core-tiger/</url>
   </scm>
 
   <dependencies>
@@ -23,7 +23,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-aop</artifactId>
-      <version>1.2.7</version>
+      <version>2.0.4</version>
     </dependency>
   </dependencies>
 

@@ -19,6 +19,7 @@ public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
 	 * '<code>context-integration</code>', ' and '<code></code>' elements.
 	 */
 	public void init() {
+		registerBeanDefinitionParser("principal-repository", new PrincipalRepositoryBeanDefinitionParser());
 		registerBeanDefinitionParser("session-context-integration", new ContextIntegrationBeanDefinitionParser());
 		registerBeanDefinitionParser("authentication-repository", new AuthenticationRepositoryBeanDefinitionParser());
 		registerBeanDefinitionParser("authentication-mechanism", new AuthenticationMechanismBeanDefinitionParser());

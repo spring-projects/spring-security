@@ -12,9 +12,9 @@
 
   <!-- repeated here to avoid appending the artifactId -->
   <scm>
-    <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</connection>
-    <developerConnection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</developerConnection>
-    <url>http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/</url>
+    <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</connection>
+    <developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</developerConnection>
+    <url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/</url>
   </scm>
 
   <dependencies>

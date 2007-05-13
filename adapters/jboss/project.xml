@@ -6,9 +6,9 @@
   <name>Acegi Security System for Spring - JBoss adapter</name>
   <siteDirectory>/home/groups/a/ac/acegisecurity/htdocs/multiproject/acegi-security-jboss</siteDirectory>
   <repository>
-    <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</connection>
-    <developerConnection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</developerConnection>
-    <url>http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/adapters/jboss/</url>
+    <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</connection>
+    <developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</developerConnection>
+    <url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/adapters/jboss/</url>
   </repository>
   <dependencies>
     <dependency>

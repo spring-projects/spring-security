@@ -8,9 +8,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class RememberMeBeanDefinitionParserTest extends TestCase {
 	
 	public void testRememberMeDefaults() {
-		ApplicationContext context = new ClassPathXmlApplicationContext("org/acegisecurity/config/remember-me-defaults.xml");
-		
-		
+		ApplicationContext context = new ClassPathXmlApplicationContext("org/acegisecurity/config/principal-defaults.xml");
 	}
 
 }

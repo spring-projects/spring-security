@@ -10,7 +10,13 @@
   </parent>
   <artifactId>acegi-security-sample-annotations</artifactId>
   <name>Acegi Security System for Spring - Annotations sample</name>
-  <dependencies>
+   <dependencies>
+      <dependency>
+      <groupId>org.acegisecurity</groupId>
+      <artifactId>acegi-security-tiger</artifactId>
+      <version>${project.version}</version>
+      <type>jar</type>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

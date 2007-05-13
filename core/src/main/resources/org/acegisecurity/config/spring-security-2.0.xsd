@@ -101,10 +101,10 @@
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="rememberMeServicesBeanRef" type="xsd:string"
-			use="optional" />
+		<xsd:attribute name="rememberMeServicesBeanRef"
+			type="xsd:string" use="optional" />
 	</xsd:complexType>
-	
+
 	<xsd:element name="authentication-remember-me-services"
 		type="RememberMeServices" />
 
@@ -118,20 +118,21 @@
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="key" type="xsd:string"
-			use="optional" />
-		<xsd:attribute name="principalRepositoryBeanRef" type="xsd:string"
-			use="optional" />
+		<xsd:attribute name="key" type="xsd:string" use="optional" />
+		<xsd:attribute name="principalRepositoryBeanRef"
+			type="xsd:string" use="optional" />
 	</xsd:complexType>
-	
-	
+
+
 	<xsd:element name="authentication-mechanism"
 		type="AuthenticationManager" />
 
 	<xsd:complexType name="AuthenticationManager">
 		<xsd:sequence>
-			<xsd:element ref="authentication-jdbc" minOccurs="0" maxOccurs="1"/>
-			<xsd:element ref="authentication-ldap" minOccurs="0" maxOccurs="1"/>
+			<xsd:element ref="authentication-jdbc" minOccurs="0"
+				maxOccurs="1" />
+			<xsd:element ref="authentication-ldap" minOccurs="0"
+				maxOccurs="1" />
 		</xsd:sequence>
 		<xsd:attribute name="id" type="xsd:ID">
 			<xsd:annotation>
@@ -143,16 +144,55 @@
 			</xsd:annotation>
 		</xsd:attribute>
 	</xsd:complexType>
-	
+
 	<xsd:element name="authentication-jdbc">
 		<xsd:complexType>
-			<xsd:attribute name="ref" type="xsd:string"/>
+			<xsd:attribute name="ref" type="xsd:string" />
 		</xsd:complexType>
 	</xsd:element>
-	
+
 	<xsd:element name="authentication-ldap">
 		<xsd:complexType>
-			<xsd:attribute name="ref" type="xsd:string"/>
+			<xsd:attribute name="ref" type="xsd:string" />
+		</xsd:complexType>
+	</xsd:element>
+
+
+	<xsd:element name="principal-repository"
+		type="PrincipalRepository" />
+
+	<xsd:complexType name="PrincipalRepository">
+		<xsd:sequence>
+			<xsd:element ref="jdbc" minOccurs="0"
+				maxOccurs="1" />
+			<xsd:element ref="ldap" minOccurs="0"
+				maxOccurs="1" />
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:ID">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[
+	The unique identifier for a bean.
+				]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:element name="jdbc">
+		<xsd:complexType>
+			<xsd:attribute name="dataSourceBeanRef" type="xsd:string" />
+			<xsd:attribute name="authoritiesByUsernameQuery" type="xsd:string" use="optional"/>
+			<xsd:attribute name="jdbcTemplateRef" type="xsd:string" use="optional"/>
+			<xsd:attribute name="rolePrefix" type="xsd:string" use="optional"/>
+			<xsd:attribute name="usernameBasedPrimaryKey" type="xsd:boolean" use="optional"/>
+			<xsd:attribute name="usersByUsernameQuery" type="xsd:string" use="optional"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="ldap">
+		<xsd:complexType>
+			<xsd:attribute name="not-yet-defined" type="xsd:string" />
 		</xsd:complexType>
 	</xsd:element>
 

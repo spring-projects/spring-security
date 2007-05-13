@@ -6,8 +6,8 @@
   <name>Acegi Security System for Spring</name>
   <groupId>acegi-security-doc</groupId>
   <repository>
-    <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</connection>
-    <url>http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/doc/</url>
+    <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</connection>
+    <url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/doc/</url>
   </repository>
   <dependencies>
     <!-- docbook -->

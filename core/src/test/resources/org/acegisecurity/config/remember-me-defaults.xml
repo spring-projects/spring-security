@@ -29,7 +29,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 		Every authentication mechanism OR provider must start with security:authentication-something
 		Use appropriate attrs and elements depending on provider or mechanism
 		-->
-		
+	<!-- make it optional, if not supplied autodetect all auth-providers from app ctx, using Ordered to resolve their order  -->
 	<security:authentication-mechanism id="authenticationManager">	
 			<security:authentication-jdbc ref="authenticationRepository"/>			
 	</security:authentication-mechanism>
@@ -37,18 +37,20 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 	
 	<!--<bean id="authenticationManager"
 		class="org.acegisecurity.providers.ProviderManager">
-		  make it optional, if not supplied autodetect all auth-providers from app ctx, using Ordered to resolve their order 
+		  
 		 <property name="providers">
 			<list>
 				<ref local="authenticationRepository" />
 			</list>
 		</property>
-	</bean>	
+	</bean>-->
 	
-	--><!-- dao authentication provider -->
+	<!-- dao authentication provider -->
 	<security:authentication-repository id="authenticationRepository" />
+	
 
-	<bean id="userDetailsService"
+
+	<bean id="userDetailsService" 
 		class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
 		<property name="dataSource">
 			<ref bean="dataSource" />

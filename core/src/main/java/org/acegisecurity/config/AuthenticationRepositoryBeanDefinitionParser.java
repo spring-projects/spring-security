@@ -113,7 +113,7 @@ public class AuthenticationRepositoryBeanDefinitionParser extends AbstractBeanDe
 				repositoryBeanDef.getPropertyValues().addPropertyValue(property, new RuntimeBeanReference(reference));
 			}
 			else {
-				doSetInnerBeanDefinitions(repositoryBeanDef, element);
+				doSetInnerBeanDefinitions(repositoryBeanDef, element,property);
 			}
 	}
 
@@ -121,8 +121,9 @@ public class AuthenticationRepositoryBeanDefinitionParser extends AbstractBeanDe
 	 * 
 	 * @param repositoryBeanDef
 	 * @param element
+	 * @param property 
 	 */
-	private void doSetInnerBeanDefinitions(RootBeanDefinition repositoryBeanDef, Element element) {
+	private void doSetInnerBeanDefinitions(RootBeanDefinition repositoryBeanDef, Element element, String property) {
 		NodeList children = element.getChildNodes();
 		for (int i = 0, n = children.getLength(); i < n; i++) {
 			Node node = children.item(i);
@@ -133,15 +134,15 @@ public class AuthenticationRepositoryBeanDefinitionParser extends AbstractBeanDe
 
 				if (SYSTEM_WIDE_SALT_SOURCE.equals(node.getLocalName())) {
 					innerBeanDefinition = createSystemWideSaltSource(childElement);
-					repositoryBeanDef.getPropertyValues().addPropertyValue("saltSource", innerBeanDefinition);
+					repositoryBeanDef.getPropertyValues().addPropertyValue(property, innerBeanDefinition);
 				}
 				else if (REFLECTION_SALT_SOURCE.equals(node.getLocalName())) {
 					innerBeanDefinition = createReflectionSaltSource(childElement);
-					repositoryBeanDef.getPropertyValues().addPropertyValue("saltSource", innerBeanDefinition);
+					repositoryBeanDef.getPropertyValues().addPropertyValue(property, innerBeanDefinition);
 				}
 				if (PASSWORD_ENCODER.equals(node.getLocalName())) {
 					RootBeanDefinition passwordEncoderInnerBeanDefinition = createPasswordEncoder(childElement);
-					repositoryBeanDef.getPropertyValues().addPropertyValue("passwordEncoder", passwordEncoderInnerBeanDefinition);
+					repositoryBeanDef.getPropertyValues().addPropertyValue(property, passwordEncoderInnerBeanDefinition);
 				}
 			}
 		}

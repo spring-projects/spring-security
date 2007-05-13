@@ -11,5 +11,32 @@
   <artifactId>acegi-security-sample-attributes</artifactId>
   <name>Acegi Security System for Spring - Attributes sample</name>
   <dependencies>
+ <dependency>
+      <groupId>xdoclet</groupId>
+      <artifactId>xjavadoc</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-attributes</groupId>
+      <artifactId>commons-attributes-compiler</artifactId>
+      <version>2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-attributes</groupId>
+      <artifactId>commons-attributes-api</artifactId>
+      <version>2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-attributes</groupId>
+      <artifactId>commons-attributes-plugin</artifactId>
+      <version>2.1</version>
+      <type>plugin</type>
+    </dependency>
+
   </dependencies>
 </project>

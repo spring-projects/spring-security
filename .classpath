@@ -8,8 +8,6 @@
 	<classpathentry kind="src" path="samples/dms/src/main/resources"/>
 	<classpathentry kind="src" path="samples/dms/src/main/java"/>
 	<classpathentry kind="src" path="samples/dms/src/test/resources"/>
-	<classpathentry kind="src" path="sandbox/other/src/main/java"/>
-	<classpathentry kind="src" path="sandbox/other/src/test/java"/>
 	<classpathentry kind="src" path="samples/contacts/src/main/java"/>
 	<classpathentry kind="src" path="samples/contacts/src/main/resources"/>
 	<classpathentry kind="src" path="samples/contacts/src/test/java"/>
@@ -36,8 +34,8 @@
 	<classpathentry kind="src" path="adapters/resin/src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="MAVEN_REPO/com.caucho/jars/resin-3.0.9.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-1.2.8.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-mock-1.2.8.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-2.0.4.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-mock-2.0.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/aopalliance/jars/aopalliance-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/aspectj/jars/aspectjrt-1.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/cas/jars/casclient-2.0.11.jar"/>
@@ -53,7 +51,7 @@
 	<classpathentry kind="var" path="MAVEN_REPO/jboss/jars/jboss-common-3.2.3.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jboss/jars/jbosssx-3.2.3.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/ehcache/jars/ehcache-1.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/net.sf.ehcache/jars/ehcache-1.2.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/javax.servlet/jars/jsp-api-2.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0.3.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.6.1.jar" sourcepath="DIST_BASE/commons-beanutils-1.6.1-src/src/java"/>
@@ -72,8 +70,8 @@
 	<classpathentry kind="var" path="MAVEN_REPO/jdbm/jars/jdbm-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/regexp/jars/regexp-1.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.slf4j/jars/slf4j-log4j12-1.0-rc5.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.server/jars/apacheds-core-1.0-RC1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.server/jars/apacheds-core-shared-1.0-RC1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.server/jars/apacheds-core-1.0.0.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.server/jars/apacheds-core-shared-1.0.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.shared/jars/shared-asn1-0.9.5.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.shared/jars/shared-ldap-0.9.5.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/antlr/jars/antlr-2.7.2.jar"/>
