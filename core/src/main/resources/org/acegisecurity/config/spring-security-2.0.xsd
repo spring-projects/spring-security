@@ -183,7 +183,7 @@
 		<xsd:complexType>
 			<xsd:attribute name="dataSourceBeanRef" type="xsd:string" />
 			<xsd:attribute name="authoritiesByUsernameQuery" type="xsd:string" use="optional"/>
-			<xsd:attribute name="jdbcTemplateRef" type="xsd:string" use="optional"/>
+			<xsd:attribute name="jdbcTemplateBeanRef" type="xsd:string" use="optional"/>
 			<xsd:attribute name="rolePrefix" type="xsd:string" use="optional"/>
 			<xsd:attribute name="usernameBasedPrimaryKey" type="xsd:boolean" use="optional"/>
 			<xsd:attribute name="usersByUsernameQuery" type="xsd:string" use="optional"/>

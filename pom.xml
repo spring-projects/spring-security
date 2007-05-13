@@ -461,6 +461,7 @@
 				<scope>runtime</scope>
 			</dependency>
 		</dependencies>
+		
 	</dependencyManagement>
 	<properties>
 		<spring.version>2.0.4</spring.version>
