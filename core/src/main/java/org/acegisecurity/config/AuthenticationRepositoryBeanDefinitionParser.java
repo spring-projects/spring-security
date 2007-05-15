@@ -25,7 +25,7 @@ import org.w3c.dom.NodeList;
  */
 public class AuthenticationRepositoryBeanDefinitionParser extends AbstractBeanDefinitionParser   {
 
-//	~ Instance fields ================================================================================================
+	//	~ Instance fields ================================================================================================
 
 	private static final String REPOSITORY_BEAN_REF = "repositoryBeanRef";
 
@@ -49,7 +49,7 @@ public class AuthenticationRepositoryBeanDefinitionParser extends AbstractBeanDe
 	
 	
 	
-//	~ Method ================================================================================================
+	//	~ Method ================================================================================================
 	/**
 	 * TODO: Document Me !!!
 	 */

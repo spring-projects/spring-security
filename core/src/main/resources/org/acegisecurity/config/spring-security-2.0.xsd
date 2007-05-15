@@ -3,9 +3,10 @@
 <xsd:schema xmlns="http://www.springframework.org/schema/security"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	targetNamespace="http://www.springframework.org/schema/security"
+	xmlns:util="http://www.springframework.org/schema/util"
 	elementFormDefault="qualified" attributeFormDefault="unqualified">
 
-
+	<xsd:import namespace="http://www.springframework.org/schema/util" />
 
 	<xsd:element name="session-context-integration">
 		<xsd:complexType>
@@ -157,17 +158,41 @@
 		</xsd:complexType>
 	</xsd:element>
 
+	<xsd:element name="logout-support" type="LogoutFilter" />
 
-	<xsd:element name="principal-repository"
-		type="PrincipalRepository" />
+	<xsd:complexType name="LogoutFilter">
+		<!-- <xsd:all>
+			<xsd:element name="clear-context" minOccurs="0" maxOccurs="1">
+			<xsd:complexType>
+			<xsd:attribute name="invalidateHttpSession"
+			type="xsd:boolean" default="true" use="optional" />
+			</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="clear-remember-me" minOccurs="0" maxOccurs="1">>
+			<xsd:complexType>
+			<xsd:attribute name="rememberMeServicesBeanRef"
+			type="xsd:string" use="optional" />
+			</xsd:complexType>
+			</xsd:element>
+			</xsd:all> -->
+		<!-- Write other attributes -->
+		<xsd:attribute name="id" type="xsd:ID" />
+		<xsd:attribute name="redirectAfterLogoutUrl" type="xsd:string"
+			default="/" />
+		<xsd:attribute name="logoutUrl" type="xsd:string"
+			default="/logout" />
+	</xsd:complexType>
+
+	<xsd:element name="principal-repository" type="PrincipalRepository" />
 
 	<xsd:complexType name="PrincipalRepository">
-		<xsd:sequence>
-			<xsd:element ref="jdbc" minOccurs="0"
-				maxOccurs="1" />
-			<xsd:element ref="ldap" minOccurs="0"
-				maxOccurs="1" />
-		</xsd:sequence>
+		<xsd:choice>
+			<xsd:element ref="jdbc" minOccurs="0" maxOccurs="1" />
+			<xsd:element ref="ldap" minOccurs="0" maxOccurs="1" />
+			<xsd:element ref="properties" minOccurs="0" maxOccurs="1" />
+			<xsd:element ref="user-definition" minOccurs="0"
+				maxOccurs="unbounded" />
+		</xsd:choice>
 		<xsd:attribute name="id" type="xsd:ID">
 			<xsd:annotation>
 				<xsd:documentation>
@@ -182,13 +207,19 @@
 	<xsd:element name="jdbc">
 		<xsd:complexType>
 			<xsd:attribute name="dataSourceBeanRef" type="xsd:string" />
-			<xsd:attribute name="authoritiesByUsernameQuery" type="xsd:string" use="optional"/>
-			<xsd:attribute name="jdbcTemplateBeanRef" type="xsd:string" use="optional"/>
-			<xsd:attribute name="rolePrefix" type="xsd:string" use="optional"/>
-			<xsd:attribute name="usernameBasedPrimaryKey" type="xsd:boolean" use="optional"/>
-			<xsd:attribute name="usersByUsernameQuery" type="xsd:string" use="optional"/>
+			<xsd:attribute name="authoritiesByUsernameQuery"
+				type="xsd:string" use="optional" />
+			<xsd:attribute name="jdbcTemplateBeanRef" type="xsd:string"
+				use="optional" />
+			<xsd:attribute name="rolePrefix" type="xsd:string"
+				use="optional" />
+			<xsd:attribute name="usernameBasedPrimaryKey"
+				type="xsd:boolean" use="optional" />
+			<xsd:attribute name="usersByUsernameQuery" type="xsd:string"
+				use="optional" />
 		</xsd:complexType>
 	</xsd:element>
+
 
 	<xsd:element name="ldap">
 		<xsd:complexType>
@@ -196,7 +227,38 @@
 		</xsd:complexType>
 	</xsd:element>
 
+	<xsd:element name="properties">
+		<xsd:complexType>
+			<xsd:attribute name="resource" type="xsd:string" />
+		</xsd:complexType>
+	</xsd:element>
 
+	<xsd:element name="user-definition">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="granted-authority" minOccurs="0"
+					maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:attribute name="authority"
+							type="xsd:string" use="required" />
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="granted-authority-ref" minOccurs="0"
+					maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:attribute name="authorityBeanRef"
+							type="xsd:string" use="required" />
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+			<xsd:attribute name="username" type="xsd:string"
+				use="required" />
+			<xsd:attribute name="password" type="xsd:string" />
+			<xsd:attribute name="enabled" type="xsd:boolean" />
+			<xsd:anyAttribute namespace="##local"
+				processContents="strict" />
+		</xsd:complexType>
+	</xsd:element>
 
 
 	<xsd:element name="authentication-repository"

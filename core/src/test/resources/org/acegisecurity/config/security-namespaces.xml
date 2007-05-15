@@ -72,7 +72,7 @@
 	<security:principal-repository id="id">
 		<security:ldap x="you can do the attributes and suitable nested elements"/>
 		<security:jdbc x="you can do the attributes and suitable nested elements"/>
-		<security:properties resource="resourceStringToPropertiesFile"> <!-- if they specify a resource attrib, that means throw exception if they nest some user-definition data) -->
+		<security:properties location="resourceStringToPropertiesFile"> <!-- if they specify a resource attrib, that means throw exception if they nest some user-definition data) -->
 			<security:user-definition username="ben" password="nottellingYou" enabled="true" it="more stuff if you want">
 				<security:granted-authority authority="ROLE_ANONYMOUS"/>
 				<ref bean="fooBarAuthority"/>

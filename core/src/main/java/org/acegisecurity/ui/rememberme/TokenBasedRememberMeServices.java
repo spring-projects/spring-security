@@ -15,35 +15,29 @@
 
 package org.acegisecurity.ui.rememberme;
 
-import org.acegisecurity.Authentication;
-
-import org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
-
-import org.acegisecurity.ui.AuthenticationDetailsSource;
-import org.acegisecurity.ui.AuthenticationDetailsSourceImpl;
-import org.acegisecurity.ui.logout.LogoutHandler;
-
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UserDetailsService;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
-import org.springframework.web.bind.RequestUtils;
-
 import java.util.Date;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.acegisecurity.Authentication;
+import org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
+import org.acegisecurity.ui.AuthenticationDetailsSource;
+import org.acegisecurity.ui.AuthenticationDetailsSourceImpl;
+import org.acegisecurity.ui.logout.LogoutHandler;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.Ordered;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.RequestUtils;
 
 
 /**
@@ -88,7 +82,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class TokenBasedRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler {
+public class TokenBasedRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler, Ordered {
     //~ Static fields/initializers =====================================================================================
 
     public static final String ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY = "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE";
@@ -103,6 +97,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
     private UserDetailsService userDetailsService;
     private long tokenValiditySeconds = 1209600; // 14 days
     private boolean alwaysRemember = false;
+    private int order = Integer.MAX_VALUE; //~ default
 
     //~ Methods ========================================================================================================
 
@@ -354,4 +349,13 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
     public void setAlwaysRemember(boolean alwaysRemember) {
         this.alwaysRemember = alwaysRemember;
     }
+
+	public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
 }

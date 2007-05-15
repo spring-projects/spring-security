@@ -25,6 +25,7 @@ public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
 		registerBeanDefinitionParser("authentication-mechanism", new AuthenticationMechanismBeanDefinitionParser());
 		registerBeanDefinitionParser("authentication-remember-me-services", new RememberMeServicesBeanDefinitionParser());
 		registerBeanDefinitionParser("authentication-remember-me-filter", new RememberMeFilterBeanDefinitionParser());
+		registerBeanDefinitionParser("logout-support", new LogoutFilterBeanDefinitionParser());
 	}
 
 }

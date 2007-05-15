@@ -3,9 +3,6 @@
  */
 package org.acegisecurity.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.acegisecurity.providers.ProviderManager;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -28,7 +25,7 @@ import org.w3c.dom.NodeList;
 public class AuthenticationMechanismBeanDefinitionParser extends AbstractBeanDefinitionParser implements
 		BeanDefinitionParser {
 
-	private static final Object AUTHENTICATION_JDBC = "authentication-jdbc";
+	private static final String AUTHENTICATION_JDBC = "authentication-jdbc";
 
 	private static final String REF = "ref";
 
