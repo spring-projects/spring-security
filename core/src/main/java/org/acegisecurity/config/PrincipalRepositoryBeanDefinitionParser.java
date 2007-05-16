@@ -140,7 +140,7 @@ public class PrincipalRepositoryBeanDefinitionParser extends AbstractBeanDefinit
 		// properties element
 		RootBeanDefinition defintion = new RootBeanDefinition(PropertiesFactoryBean.class);
 		String propertyValue = ele.getAttribute(RESOURCE);
-		defintion.getPropertyValues().addPropertyValue(RESOURCE, propertyValue);
+		defintion.getPropertyValues().addPropertyValue("location", propertyValue);
 		defintion.setSource(parserContext.extractSource(ele));
 		return parserContext.getReaderContext().registerWithGeneratedName(defintion);
 	}
