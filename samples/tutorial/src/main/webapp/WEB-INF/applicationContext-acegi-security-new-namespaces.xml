@@ -6,7 +6,7 @@
 	xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd 
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/beans/spring-util-2.0.xsd
-	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+	http://www.springframework.org/schema/security file:/Users/vpuri/interface21/acegisecurity/trunk/acegisecurity/core/src/main/resources/org/acegisecurity/config/spring-security-2.0.xsd">
 
 	<!--
 		- A simple "base bones" Acegi Security configuration.
@@ -20,10 +20,8 @@
 		- declared in the application context in the same order. Collaborators
 		- required by those filters are placed at the end of the file.
 		-
-		- $Id$
+		- $Id: applicationContext-acegi-security.xml 1513 2006-05-29 13:32:12Z benalex $
 	-->
-
-
 
 	<bean id="filterChainProxy"
 		class="org.acegisecurity.util.FilterChainProxy">
@@ -50,7 +48,7 @@
 		id="rememberMeServices" key="someValue" />
 
 
-	<bean id="securityContextLogoutHandler"
+	<bean id="SecurityContextLogoutHandler"
 		class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler" />
 
 	<!--  the URLs are all mandatory and have no defaults (well, except authenticationUrl) -->
@@ -62,7 +60,7 @@
 	<security:authentication-mechanism id="authenticationManager" />
 
 	<!-- dao authentication provider "authenticationRepository" -->
-	<security:authentication-repository id="daoAuthenticationProvider" />
+	<security:authentication-repository id="daoAuthenticationProvider" repositoryBeanRef="userDetailsService"/>
 
 	<bean id="securityContextHolderAwareRequestFilter"
 		class="org.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter" />
@@ -84,6 +82,13 @@
 		<security:entry-point
 			entryPointBeanRef="authenticationEntryPoint" />
 	</security:exception-translation>
+	
+	
+	<!-- UserDetailsService is the most commonly frequently Acegi Security interface implemented by end users -->
+
+	<security:principal-repository id="userDetailsService">
+		<security:properties resource="/WEB-INF/users.properties" />
+	</security:principal-repository>
 
 
 	<bean id="authenticationEntryPoint"
@@ -127,24 +132,6 @@
 		</property>
 	</bean>
 
-
-	<!--<bean id="authenticationManager"
-		class="org.acegisecurity.providers.ProviderManager">
-		<property name="providers">
-		<list>
-		<ref local="daoAuthenticationProvider" />
-		<bean
-		class="org.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider">
-		<property name="key" value="changeThis" />
-		</bean>
-		<bean
-		class="org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider">
-		<property name="key" value="changeThis" />
-		</bean>
-		</list>
-		</property>
-		</bean>-->
-
 	<bean id="userCache"
 		class="org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
 		<property name="cache">
@@ -158,13 +145,6 @@
 			</bean>
 		</property>
 	</bean>
-
-
-	<!-- UserDetailsService is the most commonly frequently Acegi Security interface implemented by end users -->
-
-	<security:principal-repository id="userDetailsService">
-		<security:properties resource="/WEB-INF/users.properties" />
-	</security:principal-repository>
 
 
 	<!-- This bean is optional; it isn't used by any other bean as it only listens and logs -->
