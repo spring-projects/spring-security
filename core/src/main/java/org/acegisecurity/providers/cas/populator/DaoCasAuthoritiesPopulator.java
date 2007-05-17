@@ -43,7 +43,7 @@ public class DaoCasAuthoritiesPopulator implements CasAuthoritiesPopulator, Init
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.userDetailsService, "An authenticationDao must be set");
+        Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
     }
 
     public UserDetails getUserDetails(String casUserId)
