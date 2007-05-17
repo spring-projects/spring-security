@@ -14,10 +14,13 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 	<!-- If LogoutFilter does not have setHandlers populated, introspect app ctx for LogoutHandlers, using Ordered (if present, otherwise assume Integer.MAX_VALUE) -->
 	<!-- The logoutUrl and redirectAfterLogout are both optional and default to that shown -->
 	<security:logout-support id="logoutFilter"
-		redirectAfterLogoutUrl="/" logoutUrl="/logout"/>
+		redirectAfterLogoutUrl="/" logoutUrl="/logout" />
 
 	<security:authentication-remember-me-services
 		id="rememberMeServices" key="someValue" />
+
+	<bean id="SecurityContextLogoutHandler"
+		class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler" />
 
 	<security:principal-repository id="userDetailsService">
 		<security:user-definition username="vishal"
