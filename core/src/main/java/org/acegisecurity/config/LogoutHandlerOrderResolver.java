@@ -68,20 +68,22 @@ public class LogoutHandlerOrderResolver implements BeanFactoryPostProcessor {
 			RootBeanDefinition definition = (RootBeanDefinition) beanFactory.getBeanDefinition(names[i]);
 
 			if (Ordered.class.isAssignableFrom(definition.getBeanClass())) {
-				definition.getPropertyValues().addPropertyValue("order", getOrder(definition.getBeanClass()));
-				list.add(definition);
+				definition.getPropertyValues().addPropertyValue("order", new Integer(getOrder(definition.getBeanClass())));
+			} else {
+				definition.getPropertyValues().addPropertyValue("order", new Integer(Integer.MAX_VALUE));
 			}
+			list.add(definition);
 		}
 		Collections.sort(list, new OrderComparator());
 		return list;
 	}
-
+	
 	private int getOrder(Class clazz) {
 		if (clazz.getName().equals(TokenBasedRememberMeServices.class.getName())) {
-			return 0;
+			return 100;
 		}
 		if (clazz.getName().equals(SecurityContextLogoutHandler.class.getName())) {
-			return 1;
+			return 200;
 		}
 		return Integer.MAX_VALUE;
 	}

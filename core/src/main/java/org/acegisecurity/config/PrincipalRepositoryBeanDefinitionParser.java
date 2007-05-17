@@ -197,10 +197,10 @@ public class PrincipalRepositoryBeanDefinitionParser extends AbstractBeanDefinit
 		String propertyValue = element.getAttribute(ENABLED);
 		if (StringUtils.hasText(propertyValue)) {
 			if (propertyValue.equals("true")) {
-				userAttribute.setEnabled(Boolean.TRUE);
+				userAttribute.setEnabled(true);
 			}
 			else {
-				userAttribute.setEnabled(Boolean.FALSE);
+				userAttribute.setEnabled(false);
 			}
 		}
 	}
