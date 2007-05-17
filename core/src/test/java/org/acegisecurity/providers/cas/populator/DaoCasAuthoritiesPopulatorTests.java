@@ -63,7 +63,7 @@ public class DaoCasAuthoritiesPopulatorTests extends TestCase {
             populator.afterPropertiesSet();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("An authenticationDao must be set", expected.getMessage());
+            assertEquals("A UserDetailsService must be set", expected.getMessage());
         }
     }
 
