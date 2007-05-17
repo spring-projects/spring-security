@@ -15,8 +15,6 @@
 
 package org.acegisecurity;
 
-import org.acegisecurity.ui.AuthenticationEntryPoint;
-
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -25,6 +23,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.acegisecurity.ui.AuthenticationEntryPoint;
+import org.springframework.core.Ordered;
+
 
 /**
  * Performs a HTTP redirect to the constructor-indicated URL.
@@ -32,14 +33,23 @@ import javax.servlet.http.HttpServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class MockAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class MockAuthenticationEntryPoint implements AuthenticationEntryPoint, Ordered {
     //~ Instance fields ================================================================================================
 
     private String url;
+    private int order = Integer.MAX_VALUE; // ~ default
 
     //~ Constructors ===================================================================================================
 
-    public MockAuthenticationEntryPoint(String url) {
+    public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	public MockAuthenticationEntryPoint(String url) {
         this.url = url;
     }
 
