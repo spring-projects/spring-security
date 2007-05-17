@@ -124,6 +124,103 @@
 			type="xsd:string" use="optional" />
 	</xsd:complexType>
 
+	<!-- Logout Filter -->
+	<xsd:element name="logout-support" type="LogoutFilter" />
+
+	<xsd:complexType name="LogoutFilter">
+		<!-- Write other attributes -->
+		<xsd:attribute name="id" type="xsd:ID" />
+		<xsd:attribute name="redirectAfterLogoutUrl" type="xsd:string"
+			default="/" />
+		<xsd:attribute name="logoutUrl" type="xsd:string"
+			default="/logout" />
+	</xsd:complexType>
+
+	<!-- Exception Translation Filter -->
+	<xsd:element name="exception-translation"
+		type="ExceptionTranslation" />
+
+	<xsd:complexType name="ExceptionTranslation">
+		<xsd:all>
+			<xsd:element ref="entry-point" maxOccurs="1" />
+			<xsd:element ref="access-denied" maxOccurs="1"
+				minOccurs="0" />
+		</xsd:all>
+		<xsd:attribute name="id" type="xsd:ID">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[
+	The unique identifier for a bean.
+				]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:element name="entry-point">
+		<xsd:complexType>
+			<xsd:attribute name="entryPointBeanRef" type="xsd:string" />
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="access-denied">
+		<xsd:complexType>
+			<xsd:attribute name="accessDeniedUrl" type="xsd:string"
+				use="optional" />
+			<xsd:attribute name="accessDeniedBeanRef" type="xsd:string"
+				use="optional" />
+		</xsd:complexType>
+	</xsd:element>
+
+	<!-- AuthenticationProcessigFilter -->
+	<xsd:element name="authentication-form"
+		type="AuthenticationProcessingFilter" />
+
+	<xsd:complexType name="AuthenticationProcessingFilter">
+		<xsd:attribute name="id" type="xsd:ID">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[
+	The unique identifier for a bean.
+				]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="authenticationUrl" type="xsd:string"
+			use="required">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[
+	The URL destination that this filter intercepts and processes (usually something like
+     /login) 
+				]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="defaultTargetUrl" type="xsd:string"
+			use="required">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[
+	Where to redirect the browser to if authentication is successful but ACEGI_SAVED_REQUEST_KEY is
+     null
+				]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="errorFormUrl" type="xsd:string"
+			use="required">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[
+	Where to redirect the browser to if authentication fails.
+				]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+
 
 	<xsd:element name="authentication-mechanism"
 		type="AuthenticationManager" />
@@ -158,30 +255,10 @@
 		</xsd:complexType>
 	</xsd:element>
 
-	<xsd:element name="logout-support" type="LogoutFilter" />
 
-	<xsd:complexType name="LogoutFilter">
-		<!-- <xsd:all>
-			<xsd:element name="clear-context" minOccurs="0" maxOccurs="1">
-			<xsd:complexType>
-			<xsd:attribute name="invalidateHttpSession"
-			type="xsd:boolean" default="true" use="optional" />
-			</xsd:complexType>
-			</xsd:element>
-			<xsd:element name="clear-remember-me" minOccurs="0" maxOccurs="1">>
-			<xsd:complexType>
-			<xsd:attribute name="rememberMeServicesBeanRef"
-			type="xsd:string" use="optional" />
-			</xsd:complexType>
-			</xsd:element>
-			</xsd:all> -->
-		<!-- Write other attributes -->
-		<xsd:attribute name="id" type="xsd:ID" />
-		<xsd:attribute name="redirectAfterLogoutUrl" type="xsd:string"
-			default="/" />
-		<xsd:attribute name="logoutUrl" type="xsd:string"
-			default="/logout" />
-	</xsd:complexType>
+
+
+
 
 	<xsd:element name="principal-repository" type="PrincipalRepository" />
 
@@ -338,6 +415,8 @@
 			<xsd:enumeration value="false" />
 		</xsd:restriction>
 	</xsd:simpleType>
+
+
 
 	<xsd:simpleType name="encoders">
 		<xsd:restriction base="xsd:NMTOKEN">

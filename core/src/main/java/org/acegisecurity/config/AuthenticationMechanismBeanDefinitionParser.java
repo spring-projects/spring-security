@@ -44,7 +44,7 @@ public class AuthenticationMechanismBeanDefinitionParser extends AbstractBeanDef
 
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
 				Element childElement = (Element) node;
-				providerExists = true;
+				this.providerExists = true;
 
 				if (AUTHENTICATION_JDBC.equals(node.getLocalName())) {
 					String attribute = childElement.getAttribute(REF);
@@ -60,7 +60,7 @@ public class AuthenticationMechanismBeanDefinitionParser extends AbstractBeanDef
 
 		}
 
-		if (!providerExists) {
+		if (!this.providerExists) {
 			RootBeanDefinition rootBeanDefinition = new RootBeanDefinition(AuthenticationProviderOrderResolver.class);
 			BeanDefinitionHolder beanDefinitionHolder = new BeanDefinitionHolder(rootBeanDefinition,
 					"providerOrderResolver");

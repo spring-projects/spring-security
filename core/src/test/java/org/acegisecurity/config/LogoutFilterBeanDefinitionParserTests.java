@@ -14,7 +14,7 @@ import junit.framework.TestCase;
  */
 public class LogoutFilterBeanDefinitionParserTests extends TestCase {
 	
-	public void testXX(){
+	public void testLogoutFilter(){
 		ApplicationContext context = new ClassPathXmlApplicationContext("org/acegisecurity/config/logout-filter-with-handlers.xml");
 	}
 

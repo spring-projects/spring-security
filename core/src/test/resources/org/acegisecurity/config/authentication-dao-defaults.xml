@@ -15,14 +15,8 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 	<!--  autocreate userDetailsService with dataSource(search in ctx) injected -->
 
 	<security:authentication-repository id="authenticationRepository">
-		<!--<security:salt-source>
-			<security:system-wide systemWideSalt="12345" />
-		</security:salt-source>
-		--><security:password-encoder encoderBeanRef="passwordEncoder"/>
-		<!-- OR <security:password-encoder>
-				<security:encoder method="md5"/>
-		</security:password-encoder>
-	--></security:authentication-repository>
+		<security:password-encoder encoderBeanRef="passwordEncoder" />
+	</security:authentication-repository>
 
 	<bean id="userDetailsService"
 		class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">

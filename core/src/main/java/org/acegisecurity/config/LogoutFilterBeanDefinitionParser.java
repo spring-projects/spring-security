@@ -4,9 +4,6 @@
 package org.acegisecurity.config;
 
 import org.acegisecurity.ui.logout.LogoutFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
@@ -34,9 +31,7 @@ public class LogoutFilterBeanDefinitionParser extends AbstractBeanDefinitionPars
 		// add the properties
 		RootBeanDefinition definition = new RootBeanDefinition(LogoutFilter.class);
 		setConstructorArgumentIfAvailable(0, element, REDIRECT_AFTER_LOGOUT_URL, "logoutSuccessUrl", definition);
-		// setPropertyIfAvailable(element,
-		// element.getAttribute(REDIRECT_AFTER_LOGOUT_URL), "logoutSuccessUrl",
-		// definition);
+		
 		setPropertyIfAvailable(element, LOGOUT_URL, "filterProcessesUrl", definition);
 
 		// register BFPP to check if LogoutFilter does not have setHandlers
