@@ -15,23 +15,21 @@
 
 package org.acegisecurity.ui.digestauth;
 
-import org.acegisecurity.AuthenticationException;
-
-import org.acegisecurity.ui.AuthenticationEntryPoint;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.InitializingBean;
-
 import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
+
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.ui.AuthenticationEntryPoint;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.Ordered;
 
 
 /**
@@ -45,7 +43,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class DigestProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
+public class DigestProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(DigestProcessingFilterEntryPoint.class);
@@ -55,10 +53,19 @@ public class DigestProcessingFilterEntryPoint implements AuthenticationEntryPoin
     private String key;
     private String realmName;
     private int nonceValiditySeconds = 300;
+    private int order = Integer.MAX_VALUE; // ~ default
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	public void afterPropertiesSet() throws Exception {
         if ((realmName == null) || "".equals(realmName)) {
             throw new IllegalArgumentException("realmName must be specified");
         }

@@ -15,18 +15,17 @@
 
 package org.acegisecurity.ui.basicauth;
 
-import org.acegisecurity.AuthenticationException;
-
-import org.acegisecurity.ui.AuthenticationEntryPoint;
-
-import org.springframework.beans.factory.InitializingBean;
-
 import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
+
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.ui.AuthenticationEntryPoint;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.Ordered;
 
 
 /**
@@ -39,14 +38,23 @@ import javax.servlet.http.HttpServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
+public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered {
     //~ Instance fields ================================================================================================
 
     private String realmName;
+    private int order = Integer.MAX_VALUE; // ~ default
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+    public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	public void afterPropertiesSet() throws Exception {
         if ((realmName == null) || "".equals(realmName)) {
             throw new IllegalArgumentException("realmName must be specified");
         }

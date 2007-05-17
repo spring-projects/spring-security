@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.Ordered;
 
 import org.springframework.util.Assert;
 
@@ -56,7 +57,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Omri Spector
  * @version $Id$
  */
-public class AuthenticationProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
+public class AuthenticationProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(AuthenticationProcessingFilterEntryPoint.class);
@@ -68,10 +69,11 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
     private String loginFormUrl;
     private boolean forceHttps = false;
     private boolean serverSideRedirect = false;
+    private int order = Integer.MAX_VALUE; // ~ default
 
     //~ Methods ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() throws Exception {
         Assert.hasLength(loginFormUrl, "loginFormUrl must be specified");
         Assert.notNull(portMapper, "portMapper must be specified");
         Assert.notNull(portResolver, "portResolver must be specified");
@@ -221,5 +223,14 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
     public void setServerSideRedirect(boolean serverSideRedirect) {
         this.serverSideRedirect = serverSideRedirect;
     }
+    
+
+    public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
 
 }
