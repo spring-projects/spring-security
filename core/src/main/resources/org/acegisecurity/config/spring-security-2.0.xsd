@@ -125,16 +125,26 @@
 	</xsd:complexType>
 
 	<!-- Logout Filter -->
-	<xsd:element name="logout-support" type="LogoutFilter" />
+	<xsd:element name="logout-support">
+		<xsd:complexType>
+			<!-- Write other attributes -->
+			<xsd:attribute name="id" type="xsd:ID">
+				<xsd:annotation>
+					<xsd:documentation>
+						<![CDATA[
+	The unique identifier for a bean.
+				]]>
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="redirectAfterLogoutUrl"
+				type="xsd:string" default="/" />
+			<xsd:attribute name="logoutUrl" type="xsd:string"
+				default="/logout" />
+				<xsd:anyAttribute namespace="##other" processContents="lax"/>
+		</xsd:complexType>
+	</xsd:element>
 
-	<xsd:complexType name="LogoutFilter">
-		<!-- Write other attributes -->
-		<xsd:attribute name="id" type="xsd:ID" />
-		<xsd:attribute name="redirectAfterLogoutUrl" type="xsd:string"
-			default="/" />
-		<xsd:attribute name="logoutUrl" type="xsd:string"
-			default="/logout" />
-	</xsd:complexType>
 
 	<!-- Exception Translation Filter -->
 	<xsd:element name="exception-translation"

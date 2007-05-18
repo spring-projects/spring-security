@@ -42,10 +42,11 @@
 
 	<!-- If LogoutFilter does not have setHandlers populated, introspect app ctx for LogoutHandlers, using Ordered (if present, otherwise assume Integer.MAX_VALUE) -->
 	<!-- The logoutUrl and redirectAfterLogout are both optional and default to that shown -->
-	<security:logout-support id="logoutFilter" redirectAfterLogoutUrl="/index.jsp" logoutUrl="/j_acegi_logout"/>
+	<security:logout-support id="logoutFilter"
+		redirectAfterLogoutUrl="/index.jsp" logoutUrl="/j_acegi_logout" />
 
 	<security:authentication-remember-me-services
-		id="rememberMeServices" key="someValue" principalRepositoryBeanRef="userDetailsService"/>
+		id="rememberMeServices" key="someValue" />
 
 
 	<bean id="securityContextLogoutHandler"
@@ -60,8 +61,8 @@
 	<security:authentication-mechanism id="authenticationManager" />
 
 	<!-- dao authentication provider "authenticationRepository" -->
-	<security:authentication-repository id="daoAuthenticationProvider" repositoryBeanRef="userDetailsService"/>
-	
+	<security:authentication-repository id="daoAuthenticationProvider" />
+
 
 	<!-- UserDetailsService is the most commonly frequently Acegi Security interface implemented by end users -->
 	<security:principal-repository id="userDetailsService">
@@ -72,7 +73,8 @@
 		class="org.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter" />
 
 	<!-- makes the filter, but does little else, as it auto-detects everything -->
-	<security:authentication-remember-me-filter id="rememberMeProcessingFilter" />
+	<security:authentication-remember-me-filter
+		id="rememberMeProcessingFilter" />
 
 	<bean id="anonymousProcessingFilter"
 		class="org.acegisecurity.providers.anonymous.AnonymousProcessingFilter">
