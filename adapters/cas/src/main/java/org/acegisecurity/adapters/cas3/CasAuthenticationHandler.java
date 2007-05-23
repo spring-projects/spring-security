@@ -67,7 +67,7 @@ public final class CasAuthenticationHandler extends AbstractUsernamePasswordAuth
             this.authenticationManager.authenticate(authenticationRequest);
         } catch (final org.acegisecurity.AuthenticationException e) {
             if (log.isDebugEnabled()) {
-                log.debug("Authentication request for " + credentials.getUsername() + "failed: " + e.toString());
+                log.debug("Authentication request for " + credentials.getUsername() + " failed: " + e.toString(), e);
             }
 
             return false;
