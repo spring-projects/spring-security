@@ -143,7 +143,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
     public void afterPropertiesSet() throws Exception {
         checkIfValidList(this.providers);
         Assert.notNull(this.messages, "A message source must be set");
-        doAddExtraDefaultExceptionMappings(DEFAULT_EXCEPTION_MAPPINGS);
+        doAddExtraDefaultExceptionMappings(exceptionMappings);
     }
 
     private void checkIfValidList(List listToCheck) {
