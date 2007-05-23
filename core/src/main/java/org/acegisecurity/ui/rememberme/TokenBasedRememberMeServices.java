@@ -285,6 +285,11 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
             username = successfulAuthentication.getPrincipal().toString();
             password = successfulAuthentication.getCredentials().toString();
         }
+        
+        // If unable to find a username and password, just abort as TokenBasedRememberMeServices unable to construct a valid token in this case
+        if (!StringUtils.hasLength(username) || !StringUtils.hasLength(password)) {
+        	return;
+        }
 
         Assert.hasLength(username);
         Assert.hasLength(password);
