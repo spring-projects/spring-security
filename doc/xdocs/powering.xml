@@ -11,6 +11,7 @@
     <li><b><a href="http://www.ja-sig.org/products/cas/">JA-SIG CAS</a></b>: Single Sign On system.<br></br><br></br></li>
     <li><b><a href="http://www3.ca.com/Solutions/Product.asp?ID=5262">SiteMinder</a></b>: Single Sign On system.<br></br><br></br></li>
   </ul></subsection><subsection name="Open Source Projects"><ul>
+    <li><b><a href="http://www.opennms.org/">OpenNMS</a></b>: An open source network management platform <a href="http://www.opennms.org/index.php/Acegi_Security_and_LDAP">Integration details</a>.<br></br><br></br></li>
     <li><b><a href="http://appfuse.org/">AppFuse</a></b>: Helps jump-start application development. <a href="http://raibledesigns.com/wiki/Wiki.jsp?page=AppFuseSecurity">Integration details</a>.<br></br><br></br></li>
     <li><b><a href="http://www.andromda.org">AndroMDA</a></b>: Code generation framework that uses model driven architecture (MDA). <a href="http://team.andromda.org/docs/andromda-spring-cartridge/howto8.html">Integration details</a>.<br></br><br></br></li>
     <li><b><a href="http://mule.codehaus.org/">Mule</a></b>: Enterprise service bus (ESB) messaging framework. <a href="http://mule.codehaus.org/Acegi+Security">Integration details</a>.<br></br><br></br></li>
