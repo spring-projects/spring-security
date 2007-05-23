@@ -17,10 +17,8 @@ package org.acegisecurity.event.authentication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-
 import org.springframework.util.ClassUtils;
 
 
@@ -35,12 +33,19 @@ public class LoggerListener implements ApplicationListener {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(LoggerListener.class);
-
+    
+    /** If set to true, {@link InteractiveAuthenticationSuccessEvent} will be logged (defaults to true) */
+    private boolean logInteractiveAuthenticationSuccessEvents = true;
+    
     //~ Methods ========================================================================================================
 
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof AbstractAuthenticationEvent) {
             AbstractAuthenticationEvent authEvent = (AbstractAuthenticationEvent) event;
+            
+            if (!logInteractiveAuthenticationSuccessEvents && authEvent instanceof InteractiveAuthenticationSuccessEvent) {
+            	return;
+            }
 
             if (logger.isWarnEnabled()) {
                 String message = "Authentication event " + ClassUtils.getShortName(authEvent.getClass()) + ": "
@@ -56,4 +61,13 @@ public class LoggerListener implements ApplicationListener {
             }
         }
     }
+
+	public boolean isLogInteractiveAuthenticationSuccessEvents() {
+		return logInteractiveAuthenticationSuccessEvents;
+	}
+
+	public void setLogInteractiveAuthenticationSuccessEvents(
+			boolean logInteractiveAuthenticationSuccessEvents) {
+		this.logInteractiveAuthenticationSuccessEvents = logInteractiveAuthenticationSuccessEvents;
+	}
 }
