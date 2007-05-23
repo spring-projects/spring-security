@@ -33,6 +33,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.MessageSourceAccessor;
 
 import org.springframework.util.Assert;
@@ -120,7 +121,7 @@ public class BasicAclEntryAfterInvocationProvider implements AfterInvocationProv
                     throw new AccessDeniedException(messages.getMessage(
                             "BasicAclEntryAfterInvocationProvider.noPermission",
                             new Object[] {authentication.getName(), returnedObject},
-                            "Authentication {0} has NO permissions at all to the domain object {1}"));
+                            "Authentication {0} has NO permissions at all to the domain object {1}", LocaleContextHolder.getLocale()));
                 }
 
                 for (int i = 0; i < acls.length; i++) {
@@ -147,7 +148,7 @@ public class BasicAclEntryAfterInvocationProvider implements AfterInvocationProv
                         "BasicAclEntryAfterInvocationProvider.insufficientPermission",
                         new Object[] {authentication.getName(), returnedObject},
                         "Authentication {0} has ACL permissions to the domain object, "
-                        + "but not the required ACL permission to the domain object {1}"));
+                        + "but not the required ACL permission to the domain object {1}", LocaleContextHolder.getLocale()));
             }
         }
 
