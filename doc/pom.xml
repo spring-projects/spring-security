@@ -6,9 +6,11 @@
   <parent>
     <groupId>org.acegisecurity</groupId>
     <artifactId>acegi-security-parent</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
   </parent>
   <artifactId>acegi-security-doc</artifactId>
+  <name>Acegi Security System for Spring - Documentation</name>
+  <packaging>pom</packaging>
 
   <!-- repeated here to avoid appending the artifactId -->
   <scm>
@@ -19,14 +21,14 @@
 
   <dependencies>
   </dependencies>
-
 <!--
+	There is an unresolved bug in the Maven DocBook support; see http://jira.codehaus.org/browse/MOJO-775 (BPA 23-May-07)
   <build>
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>docbook-maven-plugin</artifactId>
-        <version>1.0.0-alpha-2-SNAPSHOT</version>
+        <version>1.0.0-alpha-1</version>
         <configuration>
           <sourceDirectory>${basedir}/docbook</sourceDirectory>
         </configuration>
@@ -41,5 +43,6 @@
       </plugin>
     </plugins>
   </build>
--->
+  -->
+
 </project>

@@ -2,15 +2,15 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.acegisecurity</groupId>
+		<artifactId>acegi-security-samples</artifactId>
+		<version>1.0.4-SNAPSHOT</version>
+	</parent>
 	<groupId>org.acegisecurity</groupId>
 	<artifactId>acegi-security-samples-tutorial</artifactId>
 	<packaging>war</packaging>
 	<name>acegi-security-samples-tutorial</name>
-	<parent>
-		<groupId>org.acegisecurity</groupId>
-		<artifactId>acegi-security-samples</artifactId>
-		<version>1.1-SNAPSHOT</version>
-	</parent>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>org.acegisecurity</groupId>
 			<artifactId>acegi-security</artifactId>
-			<version>1.1-SNAPSHOT</version>
+			<version>1.0.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>

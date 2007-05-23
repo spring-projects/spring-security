@@ -3,12 +3,12 @@
   <parent>
     <groupId>org.acegisecurity</groupId>
     <artifactId>acegi-security-sandbox</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.4-SNAPSHOT</version>
   </parent>
   <artifactId>acegi-security-webwork</artifactId>
   <name>Acegi Security System for Spring - Webwork support</name>
   <description>Acegi Security System for Spring - Support for WebWork 2</description>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.3-SNAPSHOT</version>
 
   <scm>
     <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/sandbox/webwork</connection>
