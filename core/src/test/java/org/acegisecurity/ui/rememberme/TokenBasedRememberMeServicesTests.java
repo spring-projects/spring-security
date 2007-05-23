@@ -363,7 +363,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
 
         Cookie cookie = response.getCookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(cookie);
-        assertEquals(60 * 60 * 24 * 365 * 5, cookie.getMaxAge()); // 5 years
+        assertEquals(services.getTokenValiditySeconds(), cookie.getMaxAge());
         assertTrue(Base64.isArrayByteBase64(cookie.getValue().getBytes()));
         assertTrue(new Date().before(new Date(determineExpiryTimeFromBased64EncodedToken(cookie.getValue()))));
     }
@@ -383,7 +383,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
 
         Cookie cookie = response.getCookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY);
         assertNotNull(cookie);
-        assertEquals(60 * 60 * 24 * 365 * 5, cookie.getMaxAge()); // 5 years
+        assertEquals(services.getTokenValiditySeconds(), cookie.getMaxAge());
         assertTrue(Base64.isArrayByteBase64(cookie.getValue().getBytes()));
         assertTrue(new Date().before(new Date(determineExpiryTimeFromBased64EncodedToken(cookie.getValue()))));
     }

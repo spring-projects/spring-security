@@ -292,7 +292,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
         String signatureValue = DigestUtils.md5Hex(username + ":" + expiryTime + ":" + password + ":" + key);
         String tokenValue = username + ":" + expiryTime + ":" + signatureValue;
         String tokenValueBase64 = new String(Base64.encodeBase64(tokenValue.getBytes()));
-        response.addCookie(makeValidCookie(expiryTime, tokenValueBase64, request));
+        response.addCookie(makeValidCookie(tokenValueBase64, request, tokenValiditySeconds));
 
         if (logger.isDebugEnabled()) {
             logger.debug("Added remember-me cookie for user '" + username
@@ -313,9 +313,9 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
         return cookie;
     }
 
-    protected Cookie makeValidCookie(long expiryTime, String tokenValueBase64, HttpServletRequest request) {
+    protected Cookie makeValidCookie(String tokenValueBase64, HttpServletRequest request, long maxAge) {
         Cookie cookie = new Cookie(ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY, tokenValueBase64);
-        cookie.setMaxAge(60 * 60 * 24 * 365 * 5); // 5 years
+        cookie.setMaxAge(new Long(maxAge).intValue());
         cookie.setPath(StringUtils.hasLength(request.getContextPath()) ? request.getContextPath() : "/");
 
         return cookie;
