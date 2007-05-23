@@ -21,16 +21,16 @@
 
   <dependencies>
   </dependencies>
-<!--
-	There is an unresolved bug in the Maven DocBook support; see http://jira.codehaus.org/browse/MOJO-775 (BPA 23-May-07)
+
   <build>
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>docbook-maven-plugin</artifactId>
-        <version>1.0.0-alpha-1</version>
+        <version>1.0.0-alpha-2-SNAPSHOT</version>
         <configuration>
           <sourceDirectory>${basedir}/docbook</sourceDirectory>
+          <!-- <resourceDirectory>${basedir}/docbook</resourceDirectory> -->
         </configuration>
         <executions>
           <execution>
@@ -43,6 +43,16 @@
       </plugin>
     </plugins>
   </build>
-  -->
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>codehaus.org</id>
+      <name>Maven Central Development Plugin Repository</name>
+      <url>http://snapshots.repository.codehaus.org</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </pluginRepository>
+  </pluginRepositories>
 
 </project>
