@@ -118,6 +118,10 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
             if (ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY.equals(cookies[i].getName())) {
                 String cookieValue = cookies[i].getValue();
 
+                for (int j = 0; j < cookieValue.length() % 4; j++) {
+                    cookieValue = cookieValue + "=";
+                } 
+                
                 if (Base64.isArrayByteBase64(cookieValue.getBytes())) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Remember-me cookie detected");
