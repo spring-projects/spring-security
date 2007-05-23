@@ -92,7 +92,7 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
                         logger.debug("Return object is not applicable for this provider, skipping");
                     }
 
-                    return null;
+                    return returnedObject;
                 }
 
                 if (hasPermission(authentication, returnedObject)) {
