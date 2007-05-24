@@ -78,6 +78,21 @@ public class DaoAuthenticationProviderTests extends TestCase {
         }
     }
 
+    public void testReceivedBadCredentialsWhenCredentialsNotProvided() {
+    	// Test related to SEC-434
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(new MockAuthenticationDaoUserMarissa());
+        provider.setUserCache(new MockUserCache());
+
+    	UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken("marissa", null);
+    	try {
+    		provider.authenticate(authenticationToken); // null pointer exception
+    		fail("Expected BadCredenialsException");
+    	} catch (BadCredentialsException expected) {
+    		assertTrue(true);
+    	}
+    }
+    
     public void testAuthenticateFailsIfAccountExpired() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("peter", "opal");
 

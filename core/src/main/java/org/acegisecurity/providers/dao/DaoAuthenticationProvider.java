@@ -59,9 +59,17 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         if (this.saltSource != null) {
             salt = this.saltSource.getSalt(userDetails);
         }
+        
+        if (authentication.getCredentials() == null) {
+            throw new BadCredentialsException(messages.getMessage(
+                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
+                    includeDetailsObject ? userDetails : null);
+        }
+        
+        String presentedPassword = authentication.getCredentials() == null ? "" : authentication.getCredentials().toString();
 
         if (!passwordEncoder.isPasswordValid(
-                userDetails.getPassword(), authentication.getCredentials().toString(), salt)) {
+                userDetails.getPassword(), presentedPassword, salt)) {
             throw new BadCredentialsException(messages.getMessage(
                     "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
                     includeDetailsObject ? userDetails : null);
