@@ -139,6 +139,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
         // Check the SecurityContextHolder is null, even though an exception was thrown during chain
         assertEquals(new SecurityContextImpl(), SecurityContextHolder.getContext());
+        assertNull("Should have cleared FILTER_APPLIED", request.getAttribute(HttpSessionContextIntegrationFilter.FILTER_APPLIED));
     }
 
     public void testExistingContextContentsCopiedIntoContextHolderFromSessionAndChangesToContextCopiedBackToSession()

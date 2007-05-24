@@ -102,7 +102,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
 	protected static final Log logger = LogFactory.getLog(HttpSessionContextIntegrationFilter.class);
 
-	private static final String FILTER_APPLIED = "__acegi_session_integration_filter_applied";
+	static final String FILTER_APPLIED = "__acegi_session_integration_filter_applied";
 
 	public static final String ACEGI_SECURITY_CONTEXT_KEY = "ACEGI_SECURITY_CONTEXT";
 
@@ -192,12 +192,14 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
 			ServletException {
+		boolean filterApplied = false;
 		if ((request != null) && (request.getAttribute(FILTER_APPLIED) != null)) {
 			// ensure that filter is only applied once per request
 			chain.doFilter(request, response);
 		}
 		else {
 			if (request != null) {
+				filterApplied = true;
 				request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 			}
 
@@ -351,6 +353,10 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 					}
 				}
 
+				if (filterApplied) {
+					request.removeAttribute(FILTER_APPLIED);
+				}
+				
 				// Remove SecurityContextHolder contents
 				SecurityContextHolder.clearContext();
 
