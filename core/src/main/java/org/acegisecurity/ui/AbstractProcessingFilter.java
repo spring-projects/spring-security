@@ -310,6 +310,10 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
             uri = uri.substring(0, pathParamIndex);
         }
 
+        if ("".equals(request.getContextPath())) {
+        	return uri.endsWith(filterProcessesUrl);
+        }
+        
         return uri.endsWith(request.getContextPath() + filterProcessesUrl);
     }
 
