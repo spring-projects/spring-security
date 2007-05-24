@@ -73,7 +73,7 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     //~ Constructors ===================================================================================================
 
     public SavedRequestAwareWrapper(HttpServletRequest request, PortResolver portResolver) {
-        super(request);
+        super(request,portResolver);
 
         HttpSession session = request.getSession(false);
 

@@ -22,6 +22,7 @@ import org.acegisecurity.AuthenticationTrustResolverImpl;
 import org.acegisecurity.context.SecurityContextHolder;
 
 import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.util.PortResolver;
 
 import java.security.Principal;
 
@@ -46,7 +47,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 
     //~ Constructors ===================================================================================================
 
-    public SecurityContextHolderAwareRequestWrapper(HttpServletRequest request) {
+    public SecurityContextHolderAwareRequestWrapper(HttpServletRequest request, PortResolver portResolver) {
         super(request);
     }
 
