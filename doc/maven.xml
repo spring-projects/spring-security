@@ -133,7 +133,7 @@ The procedure to generate an official release ZIP is:
 
 	1. cd ACEGI_SECURITY/docs
 	2. maven clean multiproject:clean multiproject:artifact
-	3. maven multiproject:site
+	3. maven -Dmaven.jar.override=on -Dmaven.jar.clover-ant=1.3.3_0 multiproject:site
 	4. maven acegizip
 	5. check ACEGI_SECURITY/target/*.zip looks correct
 	6. maven site:sshdeploy
