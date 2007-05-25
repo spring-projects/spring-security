@@ -68,7 +68,7 @@ public interface MutableAcl extends Acl {
      *
      * @param newParent the new parent
      */
-    void setParent(MutableAcl newParent);
+    void setParent(Acl newParent);
 
     void updateAce(Serializable aceId, Permission permission)
         throws NotFoundException;

@@ -335,7 +335,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         this.owner = newOwner;
     }
 
-    public void setParent(MutableAcl newParent) {
+    public void setParent(Acl newParent) {
         aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
         Assert.notNull(newParent, "New Parent required");
         Assert.isTrue(!newParent.equals(this), "Cannot be the parent of yourself");
