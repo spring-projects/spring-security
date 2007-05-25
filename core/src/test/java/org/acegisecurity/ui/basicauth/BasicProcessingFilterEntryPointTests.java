@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.DisabledException;
 
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -69,14 +70,15 @@ public class BasicProcessingFilterEntryPointTests extends TestCase {
 
     public void testNormalOperation() throws Exception {
         BasicProcessingFilterEntryPoint ep = new BasicProcessingFilterEntryPoint();
+        
         ep.setRealmName("hello");
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/some_path");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-
-        ep.afterPropertiesSet();
+        
+        //ep.afterPropertiesSet();
 
         String msg = "These are the jokes kid";
         ep.commence(request, response, new DisabledException(msg));

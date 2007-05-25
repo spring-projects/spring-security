@@ -16,6 +16,7 @@
 package org.acegisecurity.ui.basicauth;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -24,8 +25,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.ui.AuthenticationEntryPoint;
+import org.acegisecurity.util.OrderedUtils;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.Ordered;
+import org.springframework.util.Assert;
 
 
 /**
@@ -38,11 +43,13 @@ import org.springframework.core.Ordered;
  * @author Ben Alex
  * @version $Id$
  */
-public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered {
+public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered, ApplicationContextAware {
     //~ Instance fields ================================================================================================
 
+	private static final int DEFAULT_ORDER = Integer.MAX_VALUE;
     private String realmName;
-    private int order = Integer.MAX_VALUE; // ~ default
+    private int order = DEFAULT_ORDER;
+    private ApplicationContext applicationContext;
 
     //~ Methods ========================================================================================================
 
@@ -55,9 +62,10 @@ public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint
 	}
 
 	public void afterPropertiesSet() throws Exception {
-        if ((realmName == null) || "".equals(realmName)) {
-            throw new IllegalArgumentException("realmName must be specified");
-        }
+		Assert.hasText(realmName, "realmName must be specified");
+		if (order == DEFAULT_ORDER) {
+			OrderedUtils.copyOrderFromOtherClass(BasicProcessingFilter.class, applicationContext, this, true);
+		}
     }
 
     public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
@@ -74,4 +82,8 @@ public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint
     public void setRealmName(String realmName) {
         this.realmName = realmName;
     }
+
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+	}
 }
