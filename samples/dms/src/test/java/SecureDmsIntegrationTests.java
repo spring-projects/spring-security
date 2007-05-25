@@ -1,14 +1,4 @@
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.acls.Acl;
 import org.acegisecurity.acls.AclService;
-import org.acegisecurity.acls.objectidentity.ObjectIdentity;
-import org.acegisecurity.acls.objectidentity.ObjectIdentityImpl;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-
-import sample.dms.AbstractElement;
-import sample.dms.Directory;
 
 
 

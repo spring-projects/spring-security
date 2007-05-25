@@ -18,8 +18,6 @@ package org.acegisecurity.ui.basicauth;
 import junit.framework.TestCase;
 
 import org.acegisecurity.DisabledException;
-
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 

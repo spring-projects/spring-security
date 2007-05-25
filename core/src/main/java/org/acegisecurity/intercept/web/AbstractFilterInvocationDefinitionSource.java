@@ -17,9 +17,6 @@ package org.acegisecurity.intercept.web;
 
 import org.acegisecurity.ConfigAttributeDefinition;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 
 /**
  * Abstract implementation of <Code>FilterInvocationDefinitionSource</code>.

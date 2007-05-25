@@ -16,7 +16,6 @@
 package org.acegisecurity.ui.basicauth;
 
 import java.io.IOException;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
