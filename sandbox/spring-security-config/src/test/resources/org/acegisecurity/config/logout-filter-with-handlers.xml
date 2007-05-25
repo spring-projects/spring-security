@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd 
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/beans/spring-util-2.0.xsd
+http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+
+	<!-- http://www.springframework.org/schema/security file:/Users/vpuri/interface21/acegisecurity/trunk/acegisecurity/core/src/main/resources/org/acegisecurity/config/spring-security-2.0.xsd -->
+	<!-- http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd" -->
+
+	<!-- If LogoutFilter does not have setHandlers populated, introspect app ctx for LogoutHandlers, using Ordered (if present, otherwise assume Integer.MAX_VALUE) -->
+	<!-- The logoutUrl and redirectAfterLogout are both optional and default to that shown -->
+	<security:logout-support id="logoutFilter" logoutUrl="/logout" redirectAfterLogoutUrl="/"/>
+	
+	
+	
+	<security:authentication-remember-me-services
+		id="rememberMeServices" key="someValue" />
+
+	<bean id="SecurityContextLogoutHandler"
+		class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler" />
+
+	<security:principal-repository id="userDetailsService">
+		<security:user-definition username="vishal"
+			password="nottellingya" enabled="true">
+			<security:granted-authority authority="ROLE_YO" />
+			<security:granted-authority authority="ROLE_YOYO" />
+			<!-- TODO: <security:granted-authority-ref authorityBeanRef="fooBarAuthority"/>-->
+		</security:user-definition>
+	</security:principal-repository>
+</beans>

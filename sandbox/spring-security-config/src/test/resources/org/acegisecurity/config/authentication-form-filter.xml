@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd 
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/beans/spring-util-2.0.xsd
+http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+
+	<!-- http://www.springframework.org/schema/security file:/Users/vpuri/interface21/acegisecurity/trunk/acegisecurity/core/src/main/resources/org/acegisecurity/config/spring-security-2.0.xsd -->
+	<!-- http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd" -->
+
+
+	<!--  the URLs are all mandatory and have no defaults (well, except authenticationUrl) -->
+	<security:authentication-form id="authenticationProcessinFilter"
+		authenticationUrl="/login" defaultTargetUrl="/login.html"
+		errorFormUrl="error.html" />
+
+	<!-- make it optional, if not supplied autodetect all auth-providers from app ctx, using Ordered to resolve their order  -->
+	<security:authentication-mechanism id="authenticationManager">
+		<security:authentication-jdbc ref="authenticationRepository"/>
+	</security:authentication-mechanism>
+
+	<!-- dao authentication provider -->
+	<security:authentication-repository id="authenticationRepository" repositoryBeanRef="userDetailsService"/>
+
+	<security:authentication-remember-me-services
+		id="rememberMeServices" key="someValue" />
+
+	<bean id="userDetailsService"
+		class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+	</bean>
+
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName">
+			<value>org.hsqldb.jdbcDriver</value>
+		</property>
+		<property name="url">
+			<value>jdbc:hsqldb:mem:test</value>
+			<!-- <value>jdbc:hsqldb:hsql://localhost/acl</value> -->
+		</property>
+		<property name="username">
+			<value>sa</value>
+		</property>
+		<property name="password">
+			<value></value>
+		</property>
+	</bean>
+
+
+</beans>
+
