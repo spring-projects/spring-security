@@ -33,7 +33,7 @@ public abstract class OrderedUtils {
 		Assert.notNull(sourceClass, "Source class required");
 		Assert.notNull(applicationContext, "ApplicationContext required");
 		Assert.notNull(destinationObject, "Destination object required");
-		Assert.isAssignable(Ordered.class, sourceClass, "Source class " + sourceClass + " must be assignable to Ordered");
+		Assert.isTrue(Ordered.class.isAssignableFrom(sourceClass), "Source class " + sourceClass + " must be assignable to Ordered");
 		Map map = applicationContext.getBeansOfType(sourceClass);
 		if (map.size() == 0) {
 			return false;
