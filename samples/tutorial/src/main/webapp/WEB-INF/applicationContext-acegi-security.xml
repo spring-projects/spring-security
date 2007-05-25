@@ -1,31 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:security="http://www.springframework.org/schema/security"
-	xmlns:util="http://www.springframework.org/schema/util"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd 
-	http://www.springframework.org/schema/util http://www.springframework.org/schema/beans/spring-util-2.0.xsd
-	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+<!--
+  - A simple "base bones" Acegi Security configuration.
+  -
+  - The sample includes the "popular" features that people tend to use.
+  - Specifically, form authentication, remember-me, and anonymous processing.
+  - Other features aren't setup, as these can be added later by inserting
+  - the relevant XML fragments as specified in the Reference Guide.
+  -
+  - To assist new users, the filters specified in the FilterChainProxy are
+  - declared in the application context in the same order. Collaborators
+  - required by those filters are placed at the end of the file.
+  -
+  - $Id$
+  -->
 
-	<!--
-		- A simple "base bones" Acegi Security configuration.
-		-
-		- The sample includes the "popular" features that people tend to use.
-		- Specifically, form authentication, remember-me, and anonymous processing.
-		- Other features aren't setup, as these can be added later by inserting
-		- the relevant XML fragments as specified in the Reference Guide.
-		-
-		- To assist new users, the filters specified in the FilterChainProxy are
-		- declared in the application context in the same order. Collaborators
-		- required by those filters are placed at the end of the file.
-		-
-		- $Id$
-	-->
+<beans>
 
-
-	<bean id="filterChainProxy"
-		class="org.acegisecurity.util.FilterChainProxy">
+	<bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
 		<property name="filterInvocationDefinitionSource">
 			<value>
 				CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -35,89 +28,61 @@
 		</property>
 	</bean>
 
-	<!-- sessionCreation defaults to ifRequired(true) always(true) never(false) . -->
-	<security:session-context-integration
-		id="httpSessionContextIntegrationFilter" sessionCreation="ifRequired" />
+	<bean id="httpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter"/>
 
-
-	<!-- If LogoutFilter does not have setHandlers populated, introspect app ctx for LogoutHandlers, using Ordered (if present, otherwise assume Integer.MAX_VALUE) -->
-	<!-- The logoutUrl and redirectAfterLogout are both optional and default to that shown -->
-	<security:logout-support id="logoutFilter"
-		redirectAfterLogoutUrl="/index.jsp" logoutUrl="/j_acegi_logout" />
-
-	<security:authentication-remember-me-services
-		id="rememberMeServices" key="someValue" />
-
-
-	<bean id="securityContextLogoutHandler"
-		class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler" />
-
-	<!--  the URLs are all mandatory and have no defaults (well, except authenticationUrl) -->
-	<security:authentication-form id="authenticationProcessingFilter"
-		authenticationUrl="/j_acegi_security_check" defaultTargetUrl="/"
-		errorFormUrl="/acegilogin.jsp?login_error=1" />
-
-	<!-- make it optional, if not supplied autodetect all auth-providers from app ctx, using Ordered to resolve their order  -->
-	<security:authentication-mechanism id="authenticationManager" />
-
-	<!-- dao authentication provider "authenticationRepository" -->
-	<security:authentication-repository id="daoAuthenticationProvider" />
-
-
-	<!-- UserDetailsService is the most commonly frequently Acegi Security interface implemented by end users -->
-	<security:principal-repository id="userDetailsService">
-		<security:properties resource="/WEB-INF/users.properties" />
-	</security:principal-repository>
-
-	<bean id="securityContextHolderAwareRequestFilter"
-		class="org.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter" />
-
-	<!-- makes the filter, but does little else, as it auto-detects everything -->
-	<security:authentication-remember-me-filter
-		id="rememberMeProcessingFilter" />
-
-	<bean id="anonymousProcessingFilter"
-		class="org.acegisecurity.providers.anonymous.AnonymousProcessingFilter">
-		<property name="key" value="changeThis" />
-		<property name="userAttribute"
-			value="anonymousUser,ROLE_ANONYMOUS" />
+	<bean id="logoutFilter" class="org.acegisecurity.ui.logout.LogoutFilter">
+		<constructor-arg value="/index.jsp"/> <!-- URL redirected to after logout -->
+		<constructor-arg>
+			<list>
+				<ref bean="rememberMeServices"/>
+				<bean class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler"/>
+			</list>
+		</constructor-arg>
 	</bean>
 
-	<!-- Basically accessDeniedUrl is optional, we if unspecified impl will auto-detect any AccessDeniedHandler in ctx and use it; 
-		alternately if there are > 1 such handlers, we can nominate the one to use via accessDeniedBeanRef; provide nested elements for
-		other props; i do not mind if you move the access denied stuff to a sub-element -->
-	<security:exception-translation id="exceptionTranslationFilter">
-		<security:entry-point
-			entryPointBeanRef="authenticationEntryPoint" />
-	</security:exception-translation>
+	<bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
+		<property name="authenticationManager" ref="authenticationManager"/>
+		<property name="authenticationFailureUrl" value="/acegilogin.jsp?login_error=1"/>
+		<property name="defaultTargetUrl" value="/"/>
+		<property name="filterProcessesUrl" value="/j_acegi_security_check"/>
+		<property name="rememberMeServices" ref="rememberMeServices"/>
+	</bean>
+   
+	<bean id="securityContextHolderAwareRequestFilter" class="org.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter"/>
 
-
-	<bean id="authenticationEntryPoint"
-		class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
-		<property name="loginFormUrl" value="/acegilogin.jsp" />
-		<property name="forceHttps" value="false" />
+	<bean id="rememberMeProcessingFilter" class="org.acegisecurity.ui.rememberme.RememberMeProcessingFilter">
+		<property name="authenticationManager" ref="authenticationManager"/>
+		<property name="rememberMeServices" ref="rememberMeServices"/>
 	</bean>
 
-
-	<bean id="accessDeniedHandler"
-		class="org.acegisecurity.ui.AccessDeniedHandlerImpl">
-		<property name="errorPage" value="/accessDenied.jsp" />
+	<bean id="anonymousProcessingFilter" class="org.acegisecurity.providers.anonymous.AnonymousProcessingFilter">
+		<property name="key" value="changeThis"/>
+		<property name="userAttribute" value="anonymousUser,ROLE_ANONYMOUS"/>
 	</bean>
 
+	<bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
+		<property name="authenticationEntryPoint">
+			<bean class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+				<property name="loginFormUrl" value="/acegilogin.jsp"/>
+				<property name="forceHttps" value="false"/>
+			</bean>
+		</property>
+		<property name="accessDeniedHandler">
+			<bean class="org.acegisecurity.ui.AccessDeniedHandlerImpl">
+				<property name="errorPage" value="/accessDenied.jsp"/>
+			</bean>
+		</property>
+	</bean>
 
-	<bean id="filterInvocationInterceptor"
-		class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
-		<property name="authenticationManager"
-			ref="authenticationManager" />
+	<bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
+		<property name="authenticationManager" ref="authenticationManager"/>
 		<property name="accessDecisionManager">
 			<bean class="org.acegisecurity.vote.AffirmativeBased">
-				<property name="allowIfAllAbstainDecisions"
-					value="false" />
+				<property name="allowIfAllAbstainDecisions" value="false"/>
 				<property name="decisionVoters">
 					<list>
-						<bean class="org.acegisecurity.vote.RoleVoter" />
-						<bean
-							class="org.acegisecurity.vote.AuthenticatedVoter" />
+						<bean class="org.acegisecurity.vote.RoleVoter"/>
+						<bean class="org.acegisecurity.vote.AuthenticatedVoter"/>
 					</list>
 				</property>
 			</bean>
@@ -133,40 +98,51 @@
 		</property>
 	</bean>
 
+	<bean id="rememberMeServices" class="org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices">
+		<property name="userDetailsService" ref="userDetailsService"/>
+		<property name="key" value="changeThis"/>
+	</bean>
 
-	<!--<bean id="authenticationManager"
-		class="org.acegisecurity.providers.ProviderManager">
+	<bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
 		<property name="providers">
-		<list>
-		<ref local="daoAuthenticationProvider" />
-		<bean
-		class="org.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider">
-		<property name="key" value="changeThis" />
-		</bean>
-		<bean
-		class="org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider">
-		<property name="key" value="changeThis" />
-		</bean>
-		</list>
+			<list>
+				<ref local="daoAuthenticationProvider"/>
+				<bean class="org.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider">
+					<property name="key" value="changeThis"/>
+				</bean>
+				<bean class="org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider">
+					<property name="key" value="changeThis"/>
+				</bean>
+			</list>
 		</property>
-		</bean>-->
+	</bean>
 
-	<bean id="userCache"
-		class="org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
-		<property name="cache">
-			<bean
-				class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-				<property name="cacheManager">
-					<bean
-						class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" />
+	<bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
+		<property name="userDetailsService" ref="userDetailsService"/>
+		<property name="userCache">
+			<bean class="org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
+				<property name="cache">
+					<bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+						<property name="cacheManager">
+							<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+						</property>
+						<property name="cacheName" value="userCache"/>
+					</bean>
 				</property>
-				<property name="cacheName" value="userCache" />
+			</bean>
+		</property>
+	</bean>
+
+	<!-- UserDetailsService is the most commonly frequently Acegi Security interface implemented by end users -->
+	<bean id="userDetailsService" class="org.acegisecurity.userdetails.memory.InMemoryDaoImpl">
+		<property name="userProperties">
+			<bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+				<property name="location" value="/WEB-INF/users.properties"/>
 			</bean>
 		</property>
 	</bean>
 
 	<!-- This bean is optional; it isn't used by any other bean as it only listens and logs -->
-	<bean id="loggerListener"
-		class="org.acegisecurity.event.authentication.LoggerListener" />
+	<bean id="loggerListener" class="org.acegisecurity.event.authentication.LoggerListener"/>
 
 </beans>
