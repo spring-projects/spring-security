@@ -177,7 +177,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
      *         each <code>Filter</code> that actually exists in application context, even if a given
      *         <code>Filter</code> is defined multiples times by the <code>FilterInvocationDefinitionSource</code>)
      */
-    private Filter[] obtainAllDefinedFilters() {
+    protected Filter[] obtainAllDefinedFilters() {
         Iterator cads = this.filterInvocationDefinitionSource.getConfigAttributeDefinitions();
         Set list = new LinkedHashSet();
 
