@@ -112,14 +112,12 @@ public class SessionRegistryImpl implements SessionRegistry,
         }
     }
 
-    public void registerNewSession(String sessionId, Object principal)
-        throws SessionAlreadyUsedException {
+    public synchronized void registerNewSession(String sessionId, Object principal) {
         Assert.hasText(sessionId, "SessionId required as per interface contract");
         Assert.notNull(principal, "Principal required as per interface contract");
 
         if (getSessionInformation(sessionId) != null) {
-            throw new SessionAlreadyUsedException("Session " + sessionId
-                + " is already is use");
+            removeSessionInformation(sessionId);
         }
 
         sessionIds.put(sessionId,

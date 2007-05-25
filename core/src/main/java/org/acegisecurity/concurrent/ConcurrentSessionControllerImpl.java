@@ -140,7 +140,6 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
         Object principal = SessionRegistryUtils.obtainPrincipalFromAuthentication(authentication);
         String sessionId = SessionRegistryUtils.obtainSessionIdFromAuthentication(authentication);
 
-        sessionRegistry.removeSessionInformation(sessionId);
         sessionRegistry.registerNewSession(sessionId, principal);
     }
 
