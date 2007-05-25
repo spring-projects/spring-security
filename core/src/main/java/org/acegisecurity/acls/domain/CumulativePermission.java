@@ -56,8 +56,12 @@ public class CumulativePermission implements Permission {
 
         return (this.mask == rhs.getMask());
     }
+    
+	public int hashCode() {
+		return this.mask;
+	}
 
-    public int getMask() {
+	public int getMask() {
         return this.mask;
     }
 

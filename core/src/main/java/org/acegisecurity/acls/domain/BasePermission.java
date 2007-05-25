@@ -161,4 +161,8 @@ public final class BasePermission implements Permission {
     public String toString() {
         return "BasePermission[" + getPattern() + "=" + mask + "]";
     }
+    
+	public int hashCode() {
+		return this.mask;
+	}
 }
