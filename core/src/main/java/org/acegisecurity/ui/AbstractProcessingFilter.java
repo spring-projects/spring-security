@@ -153,6 +153,11 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
      * to be updated before the browser redirect will be sent. Defaults to an 8 Kb buffer.
      */
     private int bufferSize = 8 * 1024;
+    
+    /**
+     * If true, causes any redirection URLs to be calculated minus the protocol and context path (defaults to false).
+     */
+    private boolean useRelativeContext = false;
 
     //~ Methods ========================================================================================================
 
@@ -326,13 +331,28 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 
     protected void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
         throws IOException {
+        String finalUrl;
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            url = request.getContextPath() + url;
+            if (useRelativeContext) {
+                finalUrl = url;
+            } else {
+                finalUrl = request.getContextPath() + url;
+            }
+        } else if (useRelativeContext) {
+            // Calculate the relative URL from the fully qualifed URL, minus the protocol and base context.
+            int len = request.getContextPath().length();
+            int index = url.indexOf(request.getContextPath()) + len;
+            finalUrl = url.substring(index);
+            if (finalUrl.length() > 1 && finalUrl.charAt(0) == '/') {
+                finalUrl = finalUrl.substring( 1 );
+            }
+        } else {
+            finalUrl = url;
         }
 
         Assert.isTrue(!response.isCommitted(), "Response already committed; the authentication mechanism must be able to modify buffer size");
         response.setBufferSize(bufferSize);
-        response.sendRedirect(response.encodeRedirectURL(url));
+        response.sendRedirect(response.encodeRedirectURL(finalUrl));
     }
 
     public void setAlwaysUseDefaultTargetUrl(boolean alwaysUseDefaultTargetUrl) {
@@ -455,5 +475,9 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 
 	public void setBufferSize(int bufferSize) {
 		this.bufferSize = bufferSize;
+	}
+
+	public void setUseRelativeContext(boolean useRelativeContext) {
+		this.useRelativeContext = useRelativeContext;
 	}
 }
