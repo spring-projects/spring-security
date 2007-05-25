@@ -131,6 +131,7 @@ First check the following are valid build properties:
 
 The procedure to generate an official release ZIP is:
 
+    0. In the core and core-tiger, do a maven clean then jar:install
 	1. cd ACEGI_SECURITY/docs
 	2. maven clean multiproject:clean multiproject:artifact
 	3. maven -Dmaven.jar.override=on -Dmaven.jar.clover-ant=1.3.3_0 multiproject:site
