@@ -394,13 +394,8 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
             logger.debug("Updated SecurityContextHolder to contain the following Authentication: '" + authResult + "'");
         }
 
-        // Don't attempt to obtain the url from the saved request if alwaysUsedefaultTargetUrl is set
-        String targetUrl = alwaysUseDefaultTargetUrl ? null : obtainFullRequestUrl(request);
-
-        if (targetUrl == null) {
-            targetUrl = getDefaultTargetUrl();
-        }
-
+        String targetUrl = determineTargetUrl(request);
+        
         if (logger.isDebugEnabled()) {
             logger.debug("Redirecting to target URL from HTTP Session (or default): " + targetUrl);
         }
@@ -415,6 +410,17 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
         }
 
         sendRedirect(request, response, targetUrl);
+    }
+    
+    protected String determineTargetUrl(HttpServletRequest request) {
+        // Don't attempt to obtain the url from the saved request if alwaysUsedefaultTargetUrl is set
+        String targetUrl = alwaysUseDefaultTargetUrl ? null : obtainFullRequestUrl(request);
+
+        if (targetUrl == null) {
+            targetUrl = getDefaultTargetUrl();
+        }
+
+        return targetUrl;
     }
 
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
