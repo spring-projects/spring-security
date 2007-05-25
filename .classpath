@@ -34,8 +34,8 @@
 	<classpathentry kind="src" path="adapters/resin/src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="MAVEN_REPO/com.caucho/jars/resin-3.0.9.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-2.0.4.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-mock-2.0.4.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-1.2.9.jar" sourcepath="/MAVEN_REPO/org.springframework/src/spring-1.2.9-sources.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-mock-1.2.9.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/aopalliance/jars/aopalliance-1.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/aspectj/jars/aspectjrt-1.2.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/cas/jars/casclient-2.0.11.jar"/>
