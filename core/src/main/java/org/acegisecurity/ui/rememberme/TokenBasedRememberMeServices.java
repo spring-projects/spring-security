@@ -98,12 +98,14 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
     private long tokenValiditySeconds = 1209600; // 14 days
     private boolean alwaysRemember = false;
     private int order = Integer.MAX_VALUE; //~ default
+    private String cookieName = ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(key);
         Assert.hasLength(parameter);
+        Assert.hasLength(cookieName);
         Assert.notNull(userDetailsService);
     }
 
@@ -115,7 +117,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
         }
 
         for (int i = 0; i < cookies.length; i++) {
-            if (ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY.equals(cookies[i].getName())) {
+            if (cookieName.equals(cookies[i].getName())) {
                 String cookieValue = cookies[i].getValue();
 
                 for (int j = 0; j < cookieValue.length() % 4; j++) {
@@ -315,7 +317,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
     }
 
     protected Cookie makeCancelCookie(HttpServletRequest request) {
-        Cookie cookie = new Cookie(ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY, null);
+        Cookie cookie = new Cookie(cookieName, null);
         cookie.setMaxAge(0);
         cookie.setPath(StringUtils.hasLength(request.getContextPath()) ? request.getContextPath() : "/");
 
@@ -323,7 +325,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
     }
 
     protected Cookie makeValidCookie(String tokenValueBase64, HttpServletRequest request, long maxAge) {
-        Cookie cookie = new Cookie(ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY, tokenValueBase64);
+        Cookie cookie = new Cookie(cookieName, tokenValueBase64);
         cookie.setMaxAge(new Long(maxAge).intValue());
         cookie.setPath(StringUtils.hasLength(request.getContextPath()) ? request.getContextPath() : "/");
 
@@ -343,7 +345,11 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
         this.parameter = parameter;
     }
 
-    public void setTokenValiditySeconds(long tokenValiditySeconds) {
+    public void setCookieName(String cookieName) {
+		this.cookieName = cookieName;
+	}
+
+	public void setTokenValiditySeconds(long tokenValiditySeconds) {
         this.tokenValiditySeconds = tokenValiditySeconds;
     }
 
