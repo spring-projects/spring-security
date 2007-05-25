@@ -106,7 +106,7 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean, App
             if (rememberMeAuth != null) {
                 // Attempt authenticaton via AuthenticationManager
                 try {
-                    authenticationManager.authenticate(rememberMeAuth);
+                	rememberMeAuth = authenticationManager.authenticate(rememberMeAuth);
 
                     // Store to SecurityContextHolder
                     SecurityContextHolder.getContext().setAuthentication(rememberMeAuth);
