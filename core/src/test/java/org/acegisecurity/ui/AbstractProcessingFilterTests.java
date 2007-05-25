@@ -177,6 +177,7 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         assertEquals("/mycontext/accountExpired.jsp", response.getRedirectedUrl());
         assertNull(SecurityContextHolder.getContext().getAuthentication());
+        assertEquals(8*1024, response.getBufferSize());
     }
 
     public void testFilterProcessesUrlVariationsRespected()
@@ -203,6 +204,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        assertEquals(8*1024, response.getBufferSize());
     }
 
     public void testGettersSetters() {
@@ -286,6 +288,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        assertEquals(8*1024, response.getBufferSize());
     }
 
     public void testStartupDetectsInvalidAuthenticationFailureUrl()
@@ -371,6 +374,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        assertEquals(8*1024, response.getBufferSize());
 
         // Now try again but this time have filter deny access
         // Setup our HTTP request
@@ -436,6 +440,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response, chain);
         assertEquals(makeSavedRequestForUrl().getFullRequestUrl(), response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+        assertEquals(8*1024, response.getBufferSize());
     }
 
     /**

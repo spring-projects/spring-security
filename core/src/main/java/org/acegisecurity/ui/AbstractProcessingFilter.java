@@ -146,6 +146,13 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
      * certain environment (eg Tapestry). Defaults to <code>false</code>.
      */
     private boolean continueChainBeforeSuccessfulAuthentication = false;
+    
+    /**
+     * Specifies the buffer size to use in the event of a directory. A buffer size is used to ensure the
+     * response is not written back to the client immediately. This provides a way for the <code>HttpSession</code>
+     * to be updated before the browser redirect will be sent. Defaults to an 8 Kb buffer.
+     */
+    private int bufferSize = 8 * 1024;
 
     //~ Methods ========================================================================================================
 
@@ -323,6 +330,8 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
             url = request.getContextPath() + url;
         }
 
+        Assert.isTrue(!response.isCommitted(), "Response already committed; the authentication mechanism must be able to modify buffer size");
+        response.setBufferSize(bufferSize);
         response.sendRedirect(response.encodeRedirectURL(url));
     }
 
@@ -437,4 +446,8 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
         // Required due to SEC-310
         return authenticationDetailsSource;
     }
+
+	public void setBufferSize(int bufferSize) {
+		this.bufferSize = bufferSize;
+	}
 }
