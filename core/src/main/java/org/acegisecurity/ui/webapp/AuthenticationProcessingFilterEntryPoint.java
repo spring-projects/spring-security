@@ -79,9 +79,22 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
         Assert.notNull(portResolver, "portResolver must be specified");
     }
 
+	/**
+	 * Allows subclasses to modify the login form URL that should be applicable for a given request.
+	 * 
+	 * @param request the request
+	 * @param response the response
+	 * @param exception the exception
+	 * @return the URL (cannot be null or empty; defaults to {@link #getLoginFormUrl()})
+	 */
+	protected String determineUrlToUseForThisRequest(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) {
+		return getLoginFormUrl();
+	}
+	
     public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
         throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse resp = (HttpServletResponse) response;
         String scheme = request.getScheme();
         String serverName = request.getServerName();
         int serverPort = portResolver.getServerPort(request);
@@ -116,6 +129,8 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
             
         }
   
+    	String loginForm = determineUrlToUseForThisRequest(req, resp, authException);
+    	
         if ( serverSideRedirect ) {
 
             if ( doForceHttps ) {
@@ -132,12 +147,12 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
             } else {
 
                 if (logger.isDebugEnabled()) {
-                  logger.debug("Server side forward to: " + loginFormUrl);
+                  logger.debug("Server side forward to: " + loginForm);
                 }
 
-                RequestDispatcher dispatcher = req.getRequestDispatcher( loginFormUrl );
+                RequestDispatcher dispatcher = req.getRequestDispatcher(loginForm);
 
-                dispatcher.forward( request, response );
+                dispatcher.forward(request, response);
                 
                 return;
 
@@ -148,12 +163,12 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
             if ( doForceHttps ) {
 
                 redirectUrl = "https://" + serverName + ((includePort) ? (":" + httpsPort) : "") + contextPath
-                    + loginFormUrl;
+                    + loginForm;
 
             } else {
 
                 redirectUrl = scheme + "://" + serverName + ((includePort) ? (":" + serverPort) : "") + contextPath
-                  + loginFormUrl;
+                  + loginForm;
 
             }
         }
