@@ -14,6 +14,12 @@
     <li><b><a href="http://www.vorburger.ch/blog1/2006/10/propagating-acegis-security-context-in.html">Propagating Acegi Security's Context in a WSS UsernameToken SOAP Header via XFire using WSS4J</a></b>:
 		Thanks to Michael Vorburger.<br></br><br></br>
 	</li>
+    <li><b><a href="http://www.ibm.com/developerworks/java/library/j-acegi1/index.html">DeveloperWorks Series on Using Acegi Security</a></b>:
+		A 3-part series by Bilal Siddiqui.<br></br><br></br>
+	</li>
+    <li><b><a href="http://alexfletcher.typepad.com/all_bets_off/2006/02/what_acegi_mean.html">What Acegi Means to the Enterprise</a></b>:
+		A blog entry by Alex Fletcher.<br></br><br></br>
+	</li>
     <li><b><a href="http://jroller.com/page/sjivan?entry=ajax_based_login_using_aceci">AJAX-based login via Acegi Security</a></b>:
 		Sanjiv Jivan offers a way of approaching AJAX login.<br></br><br></br>
 	</li>
