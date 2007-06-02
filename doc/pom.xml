@@ -30,7 +30,6 @@
         <version>1.0.0-alpha-2-SNAPSHOT</version>
         <configuration>
           <sourceDirectory>${basedir}/docbook</sourceDirectory>
-          <!-- <resourceDirectory>${basedir}/docbook</resourceDirectory> -->
         </configuration>
         <executions>
           <execution>
