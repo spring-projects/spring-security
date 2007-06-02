@@ -21,7 +21,7 @@
 
   <dependencies>
   </dependencies>
-
+<!--
   <build>
     <plugins>
       <plugin>
@@ -54,5 +54,5 @@
       </releases>
     </pluginRepository>
   </pluginRepositories>
-
+-->
 </project>
