@@ -3,16 +3,16 @@
 	<parent>
 		<groupId>org.acegisecurity</groupId>
 		<artifactId>acegi-security-parent</artifactId>
-		<version>1.0.4</version>
+		<version>1.0.5-SNAPSHOT</version>
 	</parent>
 	<packaging>jar</packaging>
 	<artifactId>acegi-security</artifactId>
 	<name>Acegi Security System for Spring</name>
 
 	<scm>
-		<connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/acegi-security-1.0.4-maven2/core</connection>
-		<developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/acegi-security-1.0.4-maven2/core</developerConnection>
-		<url>https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/acegi-security-1.0.4-maven2core</url>
+		<connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core</connection>
+		<developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core</developerConnection>
+		<url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/core/</url>
 	</scm>
 
 	<dependencies>

@@ -3,15 +3,15 @@
   <parent>
     <groupId>org.acegisecurity</groupId>
     <artifactId>acegi-security-parent</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
   </parent>
   <artifactId>acegi-security-tiger</artifactId>
   <name>Acegi Security System for Spring - Java 5 (Tiger)</name>
 
   <scm>
-    <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/acegi-security-1.0.4-maven2/core-tiger</connection>
-    <developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/acegi-security-1.0.4-maven2/core-tiger</developerConnection>
-    <url>https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/acegi-security-1.0.4-maven2core-tiger</url>
+    <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core-tiger</connection>
+    <developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core-tiger</developerConnection>
+    <url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/core-tiger/</url>
   </scm>
 
   <dependencies>

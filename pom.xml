@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.acegisecurity</groupId>
 	<artifactId>acegi-security-parent</artifactId>
-	<version>1.0.4</version>
+	<version>1.0.5-SNAPSHOT</version>
 	<name>Acegi Security System for Spring - Parent</name>
 	<packaging>pom</packaging>
 
@@ -33,9 +33,9 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/acegi-security-1.0.4-maven2</connection>
-		<developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/acegi-security-1.0.4-maven2</developerConnection>
-		<url>https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/acegi-security-1.0.4-maven2</url>
+		<connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</connection>
+		<developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</developerConnection>
+		<url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/</url>
 	</scm>
 
 	<issueManagement>

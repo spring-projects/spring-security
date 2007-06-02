@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.acegisecurity</groupId>
     <artifactId>acegi-security-parent</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
   </parent>
   <artifactId>acegi-security-doc</artifactId>
   <name>Acegi Security System for Spring - Documentation</name>
@@ -11,9 +11,9 @@
 
   <!-- repeated here to avoid appending the artifactId -->
   <scm>
-    <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/acegi-security-1.0.4-maven2</connection>
-    <developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/acegi-security-1.0.4-maven2</developerConnection>
-    <url>https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/tags/acegi-security-1.0.4-maven2</url>
+    <connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</connection>
+    <developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</developerConnection>
+    <url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/</url>
   </scm>
 
   <dependencies>
