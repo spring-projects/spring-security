@@ -1,0 +1,70 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.acegisecurity</groupId>
+        <artifactId>acegi-security-sandbox</artifactId>
+        <version>1.0.4-SNAPSHOT</version>
+    </parent>
+    <artifactId>acegi-security-portlet</artifactId>
+    <name>Acegi Security System for Spring - Portlet support</name>
+    <description>Acegi Security System for Spring - Support for JSR-168 Portlets</description>
+    <version>0.1-SNAPSHOT</version>
+
+    <repositories>
+        <repository>
+            <id>AcegiMaven</id>
+            <name>Acegi 3rd party repository</name>
+            <url>http://acegisecurity.sourceforge.net/maven</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <scm>
+        <connection>scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/sandbox/portlet
+        </connection>
+        <developerConnection>
+            scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/sandbox/portlet
+        </developerConnection>
+        <url>http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/sandbox/portlet/</url>
+    </scm>
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>javax.portlet</groupId>
+          <artifactId>portlet-api</artifactId>
+          <version>1.0</version>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-dao</artifactId>
+          <version>2.0.4</version>
+        </dependency>
+        <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-portlet</artifactId>
+          <version>2.0.4</version>
+        </dependency>
+        <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-mock</artifactId>
+          <version>2.0.4</version>
+          <optional>true</optional>
+        </dependency>
+        <dependency>
+          <groupId>net.sf.ehcache</groupId>
+          <artifactId>ehcache</artifactId>
+          <version>1.2.4</version>
+        </dependency>
+    </dependencies>
+
+</project>
