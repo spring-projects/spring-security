@@ -46,7 +46,7 @@ import org.w3c.dom.Element;
  * </p>
  * 
  * @author Vishal Puri
- * @since
+ * @version 
  * @see {@link org.acegisecurity.ui.ExceptionTranslationFilter}
  * @see {@link org.acegisecurity.ui.AccessDeniedHandler}
  */
