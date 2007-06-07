@@ -18,12 +18,18 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 	<security:exception-translation id="exceptionTranslationFilter">
 		<security:entry-point
 			entryPointBeanRef="authenticationProcessingFilterEntryPoint" />
+		<!--<security:access-denied accessDeniedBeanRef="theBeanToUse" />-->
 	</security:exception-translation>
 
 	<bean id="theBeanToUse"
 		class="org.acegisecurity.ui.AccessDeniedHandlerImpl">
 		<property name="errorPage" value="/accessDenied.jsp" />
-		</bean>
+	</bean>
+
+	<!--<bean id="anotherBeanToUse"
+		class="org.acegisecurity.ui.AccessDeniedHandlerImpl">
+		<property name="errorPage" value="/accessDenied.jsp" />
+		</bean>-->
 		
 	<bean id="authenticationProcessingFilterEntryPoint"
 		class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">

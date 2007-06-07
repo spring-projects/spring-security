@@ -16,7 +16,6 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 		alternately if there are > 1 such handlers, we can nominate the one to use via accessDeniedBeanRef; provide nested elements for
 		other props; i do not mind if you move the access denied stuff to a sub-element -->
 	<security:exception-translation id="exceptionTranslationFilter">
-		<security:access-denied accessDeniedBeanRef="theBeanToUse" />
 		<security:entry-point
 			entryPointBeanRef="authenticationProcessingFilterEntryPoint" />
 	</security:exception-translation>

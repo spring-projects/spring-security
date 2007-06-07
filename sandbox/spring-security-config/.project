@@ -5,11 +5,9 @@
   <buildSpec>
     <buildCommand>
       <name>org.eclipse.jdt.core.javabuilder</name>
-      <arguments/>
     </buildCommand>
     <buildCommand>
       <name>org.eclipse.wst.validation.validationbuilder</name>
-      <arguments/>
     </buildCommand>
   </buildSpec>
   <natures>
