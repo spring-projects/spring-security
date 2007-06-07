@@ -15,13 +15,40 @@ import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 /**
- * Basically accessDeniedUrl is optional, we if unspecified impl will
- * auto-detect any AccessDeniedHandler in ctx and use it; alternately if there
- * are > 1 such handlers, we can nominate the one to use via
- * accessDeniedBeanRef;
+ * <p>
+ * This class parses the <security:exception-translation /> tag and creates the
+ * bean defintion for <code>ExceptionTranslationFilter</code>.</br> The
+ * '&lt;security:access-denied .. /&gt;' tag is optional and if not specified
+ * <code>ExceptionTranslationFilter</code> <br/> will autodetect the instance
+ * of <code>AccessDeniedHandler</code>; alternately if there are > 1 such
+ * handlers, <br/>we can nominate the one to use via 'accessDeniedBeanRef'.
+ * </p>
  * 
- * @author vpuri
+ * <p>
+ * The 'entryPointBeanRef' and 'accessDeniedBeanRef' can be specified as
+ * attributes or inner bean definitions. <br/> See following sample showing both
+ * ways.
+ * </p>
+ * 
+ * <p>
+ * Sample: <d1>
+ * <dt> &lt;security:exception-translation id="exceptionTranslationFilter"&gt;
+ * </dt>
+ * <dd> &lt;security:entry-point
+ * entryPointBeanRef="authenticationProcessingFilterEntryPoint" /&gt; </dd>
+ * <dd> &lt;security:access-denied accessDeniedBeanRef="theBeanToUse" /&gt;
+ * </dd>
+ * <dt>&lt;/security:exception-translation&gt;</dt>
+ * </d1> or <d1>
+ * <dt> &lt;security:exception-translation id="exceptionTranslationFilter"
+ * entryPointBeanRef="ref" accessDeniedBeanRef="ref" /&gt;</dt>
+ * </d1>
+ * </p>
+ * 
+ * @author Vishal Puri
  * @since
+ * @see {@link org.acegisecurity.ui.ExceptionTranslationFilter}
+ * @see {@link org.acegisecurity.ui.AccessDeniedHandler}
  */
 public class ExceptionTranslationFilterBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
@@ -30,10 +57,10 @@ public class ExceptionTranslationFilterBeanDefinitionParser extends AbstractBean
 	private static final String ACCESS_DENIED_REF = "accessDeniedBeanRef";
 
 	private static final String ACCESS_DENIED_URL = "accessDeniedUrl";
-	
+
 	private static final String ENTRY_POINT = "entry-point";
-	
-	private static final String ENTRY_POINT_REF ="entryPointBeanRef";
+
+	private static final String ENTRY_POINT_REF = "entryPointBeanRef";
 
 	protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
 
@@ -42,10 +69,10 @@ public class ExceptionTranslationFilterBeanDefinitionParser extends AbstractBean
 		// add handler
 		Element accessDeniedElement = DomUtils.getChildElementByTagName(element, ACCESS_DENIED);
 		setAccessDeniedHandlerProperty(parserContext, exceptionFilterDef, accessDeniedElement);
-		
+
 		Element entryPointElement = DomUtils.getChildElementByTagName(element, ENTRY_POINT);
 		setEntryPointProperty(exceptionFilterDef, entryPointElement);
-		
+
 		return exceptionFilterDef;
 	}
 
@@ -57,10 +84,11 @@ public class ExceptionTranslationFilterBeanDefinitionParser extends AbstractBean
 	}
 
 	/**
-	 * 
+	 * Resolves are reference to 'accessDeniedHandler' property.
 	 * @param parserContext
-	 * @param repositoryBeanDef
-	 * @param element
+	 * @param exceptionFilterDef The ExceptionFilter BeanDefinition
+	 * @param accessDeniedElement The inner tag for accessDeniedHandler
+	 * property.
 	 */
 	private void setAccessDeniedHandlerProperty(ParserContext parserContext, RootBeanDefinition exceptionFilterDef,
 			Element accessDeniedElement) {
@@ -68,29 +96,21 @@ public class ExceptionTranslationFilterBeanDefinitionParser extends AbstractBean
 			setBeanReferenceOrInnerBeanDefinitions(exceptionFilterDef, accessDeniedElement, "accessDeniedHandler",
 					accessDeniedElement.getAttribute(ACCESS_DENIED_REF));
 		}
-		else {
-			// register BFPP to check if handler exist in application context,
-			// if > 1 throw error saying ref should be specified as there are
-			// more than one
-			RootBeanDefinition accessDeniedHandlerLocatorBeanDef = new RootBeanDefinition(
-					AccessDeniedHandlerBeanDefinitionLocator.class);
-			parserContext.getReaderContext().registerWithGeneratedName(accessDeniedHandlerLocatorBeanDef);
-		}
 	}
 
 	/**
+	 * Add property if it's specified as an attribute or inner tag.
 	 * 
-	 * @param repositoryBeanDef
-	 * @param element
-	 * @param property
-	 * @param reference
+	 * @param exceptionFilterDef The ExceptionFilter BeanDefinition
+	 * @param element The inner bean element
+	 * @param property The property to add
+	 * @param beanRef The bean reference to resolve.
 	 */
-	private void setBeanReferenceOrInnerBeanDefinitions(RootBeanDefinition exceptionFilterDef,
-			Element element, String property, String beanRef) {
+	private void setBeanReferenceOrInnerBeanDefinitions(RootBeanDefinition exceptionFilterDef, Element element,
+			String property, String beanRef) {
 		// check for encoderBeanRef attribute
 		if (StringUtils.hasLength(beanRef)) {
-			exceptionFilterDef.getPropertyValues().addPropertyValue(property,
-					new RuntimeBeanReference(beanRef));
+			exceptionFilterDef.getPropertyValues().addPropertyValue(property, new RuntimeBeanReference(beanRef));
 		}
 		else {
 			doSetInnerBeanDefinitions(exceptionFilterDef, element, property);
@@ -98,10 +118,10 @@ public class ExceptionTranslationFilterBeanDefinitionParser extends AbstractBean
 	}
 
 	/**
-	 * 
-	 * @param repositoryBeanDef
-	 * @param element
-	 * @param property
+	 * Add property specified as an inner bean definition.
+	 * @param exceptionFilterDef The ExceptionFilter BeanDefinition
+	 * @param element The inner bean element
+	 * @param property The property to add
 	 */
 	private void doSetInnerBeanDefinitions(RootBeanDefinition exceptionFilterDef, Element accessDeniedElement,
 			String property) {
@@ -111,6 +131,12 @@ public class ExceptionTranslationFilterBeanDefinitionParser extends AbstractBean
 
 	}
 
+	/**
+	 * @param element
+	 * @param attribute
+	 * @param property
+	 * @param definition
+	 */
 	private void setPropertyIfAvailable(Element element, String attribute, String property,
 			RootBeanDefinition definition) {
 		String propertyValue = element.getAttribute(attribute);
