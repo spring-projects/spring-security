@@ -3,10 +3,7 @@
 <xsd:schema xmlns="http://www.springframework.org/schema/security"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	targetNamespace="http://www.springframework.org/schema/security"
-	xmlns:util="http://www.springframework.org/schema/util"
 	elementFormDefault="qualified" attributeFormDefault="unqualified">
-
-	<xsd:import namespace="http://www.springframework.org/schema/util" />
 
 	<xsd:element name="session-context-integration">
 		<xsd:complexType>
