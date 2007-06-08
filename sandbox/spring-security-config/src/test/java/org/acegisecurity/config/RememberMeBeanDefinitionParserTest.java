@@ -7,6 +7,7 @@ import org.acegisecurity.providers.dao.DaoAuthenticationProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+//TODO: fix test name
 public class RememberMeBeanDefinitionParserTest extends TestCase {
 	
 	public void testParserDefaults() {

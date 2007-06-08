@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
 /**
+ * Parses 
  * @author vpuri
  *
  */
@@ -30,9 +31,6 @@ public class RememberMeServicesBeanDefinitionParser extends AbstractBeanDefiniti
 	 */
 	private static final String KEY = "key";
 
-	/**
-	 * 
-	 */
 	protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
 		Assert.notNull(parserContext, "ParserContext must not be null");		
 		
@@ -51,11 +49,6 @@ public class RememberMeServicesBeanDefinitionParser extends AbstractBeanDefiniti
 			rememberMeServicesBeanDef.getPropertyValues().addPropertyValue(USER_DETAILS_SERVICE_PROPERTY,
 					new RuntimeBeanReference(rememberMeServicesRef));
 		}  
-		else {
-			// register a bean definition parse
-			RootBeanDefinition configurer = new RootBeanDefinition(RemeberMeServicesDependenciesConfigurer.class);
-			parserContext.getReaderContext().registerWithGeneratedName(configurer);
-		}
 		return rememberMeServicesBeanDef;
 	}
 

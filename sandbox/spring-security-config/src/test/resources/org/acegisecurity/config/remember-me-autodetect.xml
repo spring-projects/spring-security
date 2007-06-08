@@ -19,8 +19,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 	<!-- services should auto-detect UserDetails from app ctx if principalRepository was not specified; -->
 	<!-- key is optional; if unspecified, in the NamespaceHandler pick a rnd int and use for all unspecified key properties for acegi beans -->
 	<security:authentication-remember-me-services
-		id="rememberMeServices" key="someValue"
-		principalRepositoryBeanRef="userDetailsService" />
+		id="rememberMeServices" key="someValue" />
 
 	<!-- The rules are:
 		AuthenticationManager interface is implemented by ProviderManager
