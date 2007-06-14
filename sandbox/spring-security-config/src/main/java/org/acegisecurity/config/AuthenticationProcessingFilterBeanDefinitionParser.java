@@ -3,6 +3,7 @@
  */
 package org.acegisecurity.config;
 
+import org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices;
 import org.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -39,10 +40,10 @@ public class AuthenticationProcessingFilterBeanDefinitionParser extends Abstract
 		setPropertyIfAvailable(element, ERROR_FORM_URL, "authenticationFailureUrl", definition);
 		setPropertyIfAvailable(element, DEFAULT_TARGET_URL, "defaultTargetUrl", definition);
 
-		// register BFPP to re-unite all other collaborators
-		RootBeanDefinition postProcessor = new RootBeanDefinition(
-				AuthenticationProcessingFilterDependenciesConfigurer.class);
-		parserContext.getReaderContext().registerWithGeneratedName(postProcessor);
+		// register BFPP to wire all other collaborators
+//		RootBeanDefinition postProcessor = new RootBeanDefinition(
+//				AuthenticationProcessingFilterDependenciesConfigurer.class);
+//		parserContext.getReaderContext().registerWithGeneratedName(postProcessor);
 
 		return definition;
 	}
@@ -53,6 +54,18 @@ public class AuthenticationProcessingFilterBeanDefinitionParser extends Abstract
 		if (StringUtils.hasText(propertyValue)) {
 			definition.getPropertyValues().addPropertyValue(property, propertyValue);
 		}
+	}
+
+	protected static RootBeanDefinition createBeandefinitionWithDefaults() {
+		RootBeanDefinition definition = new RootBeanDefinition(AuthenticationProcessingFilter.class);
+		definition.getPropertyValues().addPropertyValue("authenticationManager",
+				AuthenticationMechanismBeanDefinitionParser.createBeanDefinitionWithDefaults());
+		definition.getPropertyValues().addPropertyValue("rememberMeServices",
+				RememberMeServicesBeanDefinitionParser.doCreateBeanDefintionWithDefaults());
+		/* TODO: There should not be any defaults for these urls ?!?! */
+		definition.getPropertyValues().addPropertyValue("authenticationFailureUrl", "/acegilogin.jsp?login_error=1");
+		definition.getPropertyValues().addPropertyValue("defaultTargetUrl", "/");
+		return definition;
 	}
 
 }

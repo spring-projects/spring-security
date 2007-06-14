@@ -4,12 +4,16 @@
 package org.acegisecurity.config;
 
 import java.lang.reflect.Field;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.acegisecurity.AuthenticationManager;
 import org.acegisecurity.context.HttpSessionContextIntegrationFilter;
 import org.acegisecurity.ui.logout.LogoutFilter;
 import org.acegisecurity.ui.logout.LogoutHandler;
+import org.acegisecurity.ui.rememberme.RememberMeServices;
+import org.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -43,21 +47,34 @@ public class AutoConfigBeanDefinitionParserTests extends TestCase {
 		assertFalse(filter.isForceEagerSessionCreation());
 		assertFalse(filter.isCloneFromHttpSession());
 	}
+	
 
-	public void testLogoutFilterDefinitionCreatedWithDefaults() throws Exception{
+	public void testLogoutFilterDefinitionCreatedWithDefaults() throws Exception {
 		String[] names = bf.getBeanNamesForType(LogoutFilter.class);
 		assertEquals(1, names.length);
 		LogoutFilter filter = (LogoutFilter) context.getBean(names[0]);
 		assertNotNull(filter);
-		Field logoutSuccessUrl = makeAccessibleAndGetFieldByName(filter.getClass().getDeclaredFields(), "logoutSuccessUrl");
+		Field logoutSuccessUrl = makeAccessibleAndGetFieldByName(filter.getClass().getDeclaredFields(),
+				"logoutSuccessUrl");
 		String value = (String) logoutSuccessUrl.get(filter);
 		assertEquals("/", value);
 		Field handlers = makeAccessibleAndGetFieldByName(filter.getClass().getDeclaredFields(), "handlers");
 		assertNotNull(handlers);
-		LogoutHandler[] handlersArray = (LogoutHandler[])handlers.get(filter);
+		LogoutHandler[] handlersArray = (LogoutHandler[]) handlers.get(filter);
 		assertEquals(2, handlersArray.length);
 	}
-	
+
+	public void testExceptionTranslationFilterCreatedwithDefaults() throws Exception {
+		Map map = bf.getBeansOfType(AuthenticationProcessingFilter.class);
+		AuthenticationProcessingFilter filter = (AuthenticationProcessingFilter) map.values().iterator().next();
+		AuthenticationManager authMgr = filter.getAuthenticationManager();
+		assertNotNull(authMgr);
+		RememberMeServices remMeServices = filter.getRememberMeServices();
+		assertNotNull(remMeServices);
+		assertEquals("/acegilogin.jsp?login_error=1",filter.getAuthenticationFailureUrl());
+		assertEquals( "/",filter.getDefaultTargetUrl());
+	}
+
 	private Field makeAccessibleAndGetFieldByName(Field[] declaredFields, String name) {
 		Field field = null;
 		for (int i = 0, n = declaredFields.length; i < n; i++) {

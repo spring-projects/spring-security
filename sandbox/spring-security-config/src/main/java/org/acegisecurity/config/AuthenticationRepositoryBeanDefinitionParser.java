@@ -10,6 +10,7 @@ import org.acegisecurity.providers.encoding.Md5PasswordEncoder;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -184,6 +185,11 @@ public class AuthenticationRepositoryBeanDefinitionParser extends AbstractBeanDe
 		definition.getPropertyValues().addPropertyValue("systemWideSalt",
 				saltSourceTypeElement.getAttribute("systemWideSalt"));
 		return definition;
+	}
+	
+	protected static RootBeanDefinition createBeanDefinitionWithDefaults() {
+		RootBeanDefinition repositoryBeanDef = new RootBeanDefinition(DaoAuthenticationProvider.class);
+		return repositoryBeanDef;
 	}
 
 }

@@ -26,8 +26,13 @@ public class AutoConfigBeanDefinitionParser  implements BeanDefinitionParser {
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		createAndRegisterBeanDefinitionForHttpSessionContextIntegrationFilter(parserContext);
 		createAndRegisterBeanDefinitionForLogoutFilter(parserContext);
-		
+		createAndRegisterBeanDefinitionForAuthenticationProcessingFilter(parserContext);
 		return null;
+	}
+
+	private void createAndRegisterBeanDefinitionForAuthenticationProcessingFilter(ParserContext parserContext) {
+		RootBeanDefinition defintion = AuthenticationProcessingFilterBeanDefinitionParser.createBeandefinitionWithDefaults();
+		registerBeanDefinition(parserContext, defintion);
 	}
 
 	private void createAndRegisterBeanDefinitionForLogoutFilter(ParserContext parserContext) {
