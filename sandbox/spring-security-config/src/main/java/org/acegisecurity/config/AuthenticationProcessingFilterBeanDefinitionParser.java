@@ -40,11 +40,6 @@ public class AuthenticationProcessingFilterBeanDefinitionParser extends Abstract
 		setPropertyIfAvailable(element, ERROR_FORM_URL, "authenticationFailureUrl", definition);
 		setPropertyIfAvailable(element, DEFAULT_TARGET_URL, "defaultTargetUrl", definition);
 
-		// register BFPP to wire all other collaborators
-//		RootBeanDefinition postProcessor = new RootBeanDefinition(
-//				AuthenticationProcessingFilterDependenciesConfigurer.class);
-//		parserContext.getReaderContext().registerWithGeneratedName(postProcessor);
-
 		return definition;
 	}
 
