@@ -18,6 +18,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 	<security:exception-translation id="exceptionTranslationFilter">
 		<security:entry-point
 			entryPointBeanRef="authenticationProcessingFilterEntryPoint" />
+			<security:access-denied accessDeniedBeanRef="theBeanToUse" />
 	</security:exception-translation>
 
 	<bean id="theBeanToUse"

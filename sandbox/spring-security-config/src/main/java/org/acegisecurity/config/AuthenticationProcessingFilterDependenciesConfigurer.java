@@ -21,23 +21,22 @@ public class AuthenticationProcessingFilterDependenciesConfigurer implements Bea
 	// ================================================================================================
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
-		String [] authenticationProcessingFilter = beanFactory.getBeanNamesForType(AuthenticationProcessingFilter.class);
-		
-		RootBeanDefinition def = (RootBeanDefinition)beanFactory.getBeanDefinition(authenticationProcessingFilter[0]);
-		
-		String[] remServiceNames = beanFactory.getBeanNamesForType(RememberMeServices.class);
-		
-		RootBeanDefinition rememberMeServices = (RootBeanDefinition) beanFactory.getBeanDefinition(remServiceNames[0]);
+		String[] authenticationProcessingFilter = beanFactory.getBeanNamesForType(AuthenticationProcessingFilter.class);
 
-		if (remServiceNames.length > 0)
-			def.getPropertyValues()
-					.addPropertyValue("rememberMeServices", rememberMeServices);
+		RootBeanDefinition def = (RootBeanDefinition) beanFactory.getBeanDefinition(authenticationProcessingFilter[0]);
+
+		String[] remServiceNames = beanFactory.getBeanNamesForType(RememberMeServices.class);
+
+		if (remServiceNames.length > 0) {
+			def.getPropertyValues().addPropertyValue("rememberMeServices",
+					(RootBeanDefinition) beanFactory.getBeanDefinition(remServiceNames[0]));
+		}
 
 		String[] authManager = beanFactory.getBeanNamesForType(AuthenticationManager.class);
-		
-		RootBeanDefinition authenticationManager = (RootBeanDefinition) beanFactory.getBeanDefinition(authManager[0]);
-		
+
+		RootBeanDefinition authenticationMechanism = (RootBeanDefinition) beanFactory.getBeanDefinition(authManager[0]);
+
 		if (authManager.length > 0)
-			def.getPropertyValues().addPropertyValue("authenticationManager", authenticationManager);
+			def.getPropertyValues().addPropertyValue("authenticationManager", authenticationMechanism);
 	}
 }

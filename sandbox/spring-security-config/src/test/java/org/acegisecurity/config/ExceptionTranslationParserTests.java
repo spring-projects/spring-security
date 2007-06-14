@@ -22,12 +22,12 @@ import org.springframework.util.ReflectionUtils;
 
 public class ExceptionTranslationParserTests extends TestCase {
 
-	public void OFFtestParsingBeanReferences() {
+	public void testParsingBeanReferences() {
 		ApplicationContext context = new ClassPathXmlApplicationContext(
 				"org/acegisecurity/config/exception-translation-beanref.xml");
 		ConfigurableListableBeanFactory factory = (ConfigurableListableBeanFactory) context
 				.getAutowireCapableBeanFactory();
-		String[] beanNames = factory.getBeanNamesForType(Filter.class);
+		String[] beanNames = factory.getBeanNamesForType(ExceptionTranslationFilter.class);
 		assertEquals(1, beanNames.length);
 		RootBeanDefinition def = (RootBeanDefinition) factory.getBeanDefinition(beanNames[0]);
 		assertEquals(ExceptionTranslationFilter.class.getName(), def.getBeanClassName());
@@ -40,7 +40,7 @@ public class ExceptionTranslationParserTests extends TestCase {
 		assertEquals(entryPoint.getValue(), new RuntimeBeanReference("authenticationProcessingFilterEntryPoint"));
 	}
 
-	public void OFFtestRuntimeBeanDependencies() {
+	public void testRuntimeBeanDependencies() {
 		ApplicationContext context = new ClassPathXmlApplicationContext(
 				"org/acegisecurity/config/exception-translation-beanref.xml");
 		ExceptionTranslationFilter filter = (ExceptionTranslationFilter) context.getBean("exceptionTranslationFilter");
