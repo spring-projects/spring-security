@@ -1,7 +1,4 @@
-/**
- * 
- */
-package org.acegisecurity.config;
+ package org.acegisecurity.config;
 
 import junit.framework.TestCase;
 

@@ -4,7 +4,10 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	targetNamespace="http://www.springframework.org/schema/security"
 	elementFormDefault="qualified" attributeFormDefault="unqualified">
-
+	
+	
+	<xsd:element name="autoconfig"/>
+	
 	<xsd:element name="session-context-integration">
 		<xsd:complexType>
 			<xsd:attribute name="id" type="xsd:ID">

@@ -70,13 +70,6 @@ public class AuthenticationRepositoryBeanDefinitionParser extends AbstractBeanDe
 			repositoryBeanDef.getPropertyValues().addPropertyValue(USER_DETAILS_SERVICE,
 					new RuntimeBeanReference(userDetailsRef));
 		}
-		else {
-			// autodetect userDetailsService from App Context
-			RootBeanDefinition depConfigurer = new RootBeanDefinition(
-					AuthenticationRepositoryDependenciesConfigurer.class);
-			BeanDefinitionHolder holder = new BeanDefinitionHolder(depConfigurer, parserContext.getReaderContext().generateBeanName(depConfigurer));
-			registerBeanDefinition(holder, parserContext.getRegistry());
-		}
 		return repositoryBeanDef;
 	}
 

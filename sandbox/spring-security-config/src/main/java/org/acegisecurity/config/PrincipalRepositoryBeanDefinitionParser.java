@@ -28,16 +28,17 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/**   
+/**
  * @author vpuri
  * 
  */
 public class PrincipalRepositoryBeanDefinitionParser extends AbstractBeanDefinitionParser implements
 		BeanDefinitionParser {
-	
-	//	~ Static fields/initializers =====================================================================================
 
-    private static final Log logger = LogFactory.getLog(PrincipalRepositoryBeanDefinitionParser.class);
+	// ~ Static fields/initializers
+	// =====================================================================================
+
+	private static final Log logger = LogFactory.getLog(PrincipalRepositoryBeanDefinitionParser.class);
 
 	// ~ Instance fields
 	// ================================================================================================
@@ -76,15 +77,15 @@ public class PrincipalRepositoryBeanDefinitionParser extends AbstractBeanDefinit
 	private static final String GRANTED_AUTHORITY_REF = "granted-authority-ref";
 
 	private static final String AUTHORITY = "authority";
-	
-	private static final String AUTHORITY_BEAN_REF="authorityBeanRef";
+
+	private static final String AUTHORITY_BEAN_REF = "authorityBeanRef";
 
 	// ~ Method
 	// ================================================================================================
 	/**
 	 * 
 	 */
-	
+
 	protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
 		NodeList userDetailsServiceChildren = element.getChildNodes();
 		RootBeanDefinition userDetailsServiceDefinition = null;
@@ -95,7 +96,6 @@ public class PrincipalRepositoryBeanDefinitionParser extends AbstractBeanDefinit
 				Element ele = (Element) userDetailsService;
 				userDetailsServiceDefinition = parseUserDetailsServiceJdbcDefinition(ele);
 				userDetailsServiceDefinition.setSource(parserContext.extractSource(element));
-				parserContext.getReaderContext().registerWithGeneratedName(userDetailsServiceDefinition);
 			}
 			if (PROPERTIES.equals(userDetailsService.getLocalName())
 					&& userDetailsService.getNodeType() == Node.ELEMENT_NODE) {
@@ -105,7 +105,6 @@ public class PrincipalRepositoryBeanDefinitionParser extends AbstractBeanDefinit
 				userDetailsServiceDefinition.getPropertyValues().addPropertyValue(USER_PROPERTIES,
 						new RuntimeBeanReference(createPropertiesBeanDefinition(ele, parserContext)));
 				userDetailsServiceDefinition.setSource(parserContext.extractSource(element));
-				parserContext.getReaderContext().registerWithGeneratedName(userDetailsServiceDefinition);
 			}
 			if (USER_DEFINITION.equals(userDetailsService.getLocalName())
 					&& userDetailsService.getNodeType() == Node.ELEMENT_NODE) {
@@ -133,7 +132,6 @@ public class PrincipalRepositoryBeanDefinitionParser extends AbstractBeanDefinit
 		userMap.addUser(user);
 		definition.getPropertyValues().addPropertyValue("userMap", userMap);
 		return definition;
-
 	}
 
 	private String createPropertiesBeanDefinition(Element ele, ParserContext parserContext) {

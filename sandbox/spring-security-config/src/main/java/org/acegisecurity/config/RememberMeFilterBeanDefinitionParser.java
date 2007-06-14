@@ -41,9 +41,4 @@ public class RememberMeFilterBeanDefinitionParser extends AbstractBeanDefinition
 		} 
 		return rememberMeFilterBeanDef;
 	}
-	
-	
-	
-	
-
 }
