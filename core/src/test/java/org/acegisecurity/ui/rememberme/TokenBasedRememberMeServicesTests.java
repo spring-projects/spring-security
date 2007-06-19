@@ -94,7 +94,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
         services.setKey("key");
         services.setUserDetailsService(new MockAuthenticationDao(null, true));
-        services.afterPropertiesSet();
+        //services.afterPropertiesSet();
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("dc");
@@ -114,7 +114,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
         services.setKey("key");
         services.setUserDetailsService(new MockAuthenticationDao(null, true));
-        services.afterPropertiesSet();
+        //services.afterPropertiesSet();
 
         Cookie cookie = new Cookie("unrelated_cookie", "foobar");
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -137,7 +137,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
         services.setKey("key");
         services.setUserDetailsService(new MockAuthenticationDao(user, false));
-        services.afterPropertiesSet();
+       // services.afterPropertiesSet();
 
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis() - 1000000, "someone", "password", "key"));
@@ -163,7 +163,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
         services.setKey("key");
         services.setUserDetailsService(new MockAuthenticationDao(user, false));
-        services.afterPropertiesSet();
+        //services.afterPropertiesSet();
 
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
                 new String(Base64.encodeBase64("x".getBytes())));
@@ -188,7 +188,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
         services.setKey("key");
         services.setUserDetailsService(new MockAuthenticationDao(user, false));
-        services.afterPropertiesSet();
+       //services.afterPropertiesSet();
 
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
                 "NOT_BASE_64_ENCODED");
@@ -214,7 +214,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
         services.setKey("key");
         services.setUserDetailsService(new MockAuthenticationDao(user, false));
-        services.afterPropertiesSet();
+        //services.afterPropertiesSet();
 
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis() + 1000000, "someone", "password",
@@ -241,7 +241,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
         services.setKey("key");
         services.setUserDetailsService(new MockAuthenticationDao(user, false));
-        services.afterPropertiesSet();
+        //services.afterPropertiesSet();
 
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
                 new String(Base64.encodeBase64("username:NOT_A_NUMBER:signature".getBytes())));
@@ -263,7 +263,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
         services.setKey("key");
         services.setUserDetailsService(new MockAuthenticationDao(null, true));
-        services.afterPropertiesSet();
+        //services.afterPropertiesSet();
 
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis() + 1000000, "someone", "password", "key"));
@@ -288,7 +288,7 @@ public class TokenBasedRememberMeServicesTests extends TestCase {
         TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
         services.setKey("key");
         services.setUserDetailsService(new MockAuthenticationDao(user, false));
-        services.afterPropertiesSet();
+       // services.afterPropertiesSet();
 
         Cookie cookie = new Cookie(TokenBasedRememberMeServices.ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis() + 1000000, "someone", "password", "key"));

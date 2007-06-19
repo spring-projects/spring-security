@@ -75,11 +75,11 @@ public class ContextIntegrationBeanDefinitionParser extends AbstractSingleBeanDe
 			builder.addPropertyValue(ALLOW_SESSION_CREATION, Boolean.FALSE);
 		}
 		else {
-			doCreateBeanDefinitionWithDefaults();
+			createBeanDefinitionWithDefaults();
 		}
 	}
 
-	protected static RootBeanDefinition doCreateBeanDefinitionWithDefaults() {
+	protected static RootBeanDefinition createBeanDefinitionWithDefaults() {
 		RootBeanDefinition definition = new RootBeanDefinition(HttpSessionContextIntegrationFilter.class);
 		definition.getPropertyValues().addPropertyValue(ALLOW_SESSION_CREATION, Boolean.TRUE);
 		return definition;

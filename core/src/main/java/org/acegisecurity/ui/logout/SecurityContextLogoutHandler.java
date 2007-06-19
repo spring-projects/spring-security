@@ -44,7 +44,9 @@ public class SecurityContextLogoutHandler implements LogoutHandler, Ordered {
 
 	private boolean invalidateHttpSession = true;
 
-	private int order = Integer.MAX_VALUE; //~ default
+	private int DEFAULT_ORDER = Integer.MAX_VALUE; // ~ default
+
+	private int order = DEFAULT_ORDER;
 
 	/**
 	 * Requires the request to be passed in.

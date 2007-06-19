@@ -26,14 +26,18 @@ import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEv
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 
 import org.springframework.util.Assert;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -64,7 +68,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class RememberMeProcessingFilter implements Filter, InitializingBean, ApplicationEventPublisherAware {
+public class RememberMeProcessingFilter implements Filter, InitializingBean, ApplicationEventPublisherAware, ApplicationContextAware {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(RememberMeProcessingFilter.class);
@@ -75,12 +79,59 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean, App
     private AuthenticationManager authenticationManager;
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
 
+	private ApplicationContext applicationContext;
+
+	private boolean isSetAuthenticationManagerInvoked = false;
+
+	private boolean isSetRememberMeServicesInvoked = false;
+
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(rememberMeServices, "RememberMeServices required");
-        Assert.notNull(authenticationManager, "AuthenticationManager required");
-    }
+    	if (!isSetAuthenticationManagerInvoked) {
+			autoDetectAuthenticationManager();
+		}
+		if (!isSetRememberMeServicesInvoked ) {
+			autoDetectRememberMeServices();
+		}
+		Assert.notNull(authenticationManager, "authenticationManager must be specified");
+		Assert.notNull(this.rememberMeServices);
+	}
+
+	private void autoDetectRememberMeServices() {
+		if (applicationContext != null) {
+			Map map = applicationContext.getBeansOfType(RememberMeServices.class);
+			if (map.size() > 0) {
+				setRememberMeServices((RememberMeServices) map.values().iterator().next());
+			}      
+		}
+	}
+
+	/**
+	 * Introspects the <code>Applicationcontext</code> for the single instance
+	 * of <code>AuthenticationManager</code>. If found invoke
+	 * setAuthenticationManager method by providing the found instance of
+	 * authenticationManager as a method parameter. If more than one instance of
+	 * <code>AuthenticationManager</code> is found, the method throws
+	 * <code>IllegalStateException</code>.
+	 * 
+	 * @param applicationContext to locate the instance
+	 */
+	private void autoDetectAuthenticationManager() {
+		if (applicationContext != null) {
+			Map map = applicationContext.getBeansOfType(AuthenticationManager.class);
+			if (map.size() > 1) {
+				throw new IllegalArgumentException(
+						"More than one AuthenticationManager beans detected please refer to the one using "
+								+ " [ authenticationManager  ] " + "property");
+			}
+			else if (map.size() == 1) {
+				setAuthenticationManager((AuthenticationManager) map.values().iterator().next());
+			}
+		}
+
+	}
+    
 
     /**
      * Does nothing - we rely on IoC lifecycle services instead.
@@ -167,4 +218,9 @@ public class RememberMeProcessingFilter implements Filter, InitializingBean, App
     public void setRememberMeServices(RememberMeServices rememberMeServices) {
         this.rememberMeServices = rememberMeServices;
     }
+
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext=applicationContext;
+	}
+    
 }

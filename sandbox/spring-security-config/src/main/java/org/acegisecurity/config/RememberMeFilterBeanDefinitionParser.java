@@ -29,10 +29,6 @@ public class RememberMeFilterBeanDefinitionParser extends AbstractBeanDefinition
 		Assert.notNull(parserContext, "ParserContext must not be null");
 		
 		RootBeanDefinition rememberMeFilterBeanDef = new RootBeanDefinition(RememberMeProcessingFilter.class);
-		
-		// detect all the required dependencies and autowire them by type
-		rememberMeFilterBeanDef.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_AUTODETECT);
-		
 		// check if rememberMeServicesBeanRef is defined and if it's specified use its referred bean
 		String rememberMeServicesRef = element.getAttribute(REMEMBER_ME_SERVICES_REF);
 		if (StringUtils.hasLength(rememberMeServicesRef)) {
@@ -40,5 +36,11 @@ public class RememberMeFilterBeanDefinitionParser extends AbstractBeanDefinition
 					new RuntimeBeanReference(rememberMeServicesRef));
 		} 
 		return rememberMeFilterBeanDef;
+	}
+	
+	protected static RootBeanDefinition createBeanDefinitionWithDefaults(ParserContext parserContext, RootBeanDefinition authenticationManager) {
+		RootBeanDefinition definition= new RootBeanDefinition(RememberMeProcessingFilter.class);
+		definition.getPropertyValues().addPropertyValue("authenticationManager",authenticationManager);
+		return definition;
 	}
 }

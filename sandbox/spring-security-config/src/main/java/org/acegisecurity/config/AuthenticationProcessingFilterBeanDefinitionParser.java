@@ -5,6 +5,7 @@ package org.acegisecurity.config;
 
 import org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices;
 import org.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
@@ -51,15 +52,19 @@ public class AuthenticationProcessingFilterBeanDefinitionParser extends Abstract
 		}
 	}
 
-	protected static RootBeanDefinition createBeandefinitionWithDefaults() {
+	protected static RootBeanDefinition createBeandefinitionWithDefaults(ParserContext parserContext, RootBeanDefinition authenticationManager, RootBeanDefinition rememberMeServices) {
 		RootBeanDefinition definition = new RootBeanDefinition(AuthenticationProcessingFilter.class);
-		definition.getPropertyValues().addPropertyValue("authenticationManager",
-				AuthenticationMechanismBeanDefinitionParser.createBeanDefinitionWithDefaults());
-		definition.getPropertyValues().addPropertyValue("rememberMeServices",
-				RememberMeServicesBeanDefinitionParser.doCreateBeanDefintionWithDefaults());
+		definition.getPropertyValues().addPropertyValue("authenticationManager",authenticationManager);
+		definition.getPropertyValues().addPropertyValue("rememberMeServices",rememberMeServices);
+//		RootBeanDefinition beanDefinition = AuthenticationMechanismBeanDefinitionParser.createAndRegisterBeanDefinitionWithDefaults(parserContext);
+//		definition.getPropertyValues().addPropertyValue("authenticationManager",
+//				parserContext.getReaderContext().getRegistry().getBeanDefinition(beanDefinition.getBeanClassName()));
+//		definition.getPropertyValues().addPropertyValue("rememberMeServices",
+//				RememberMeServicesBeanDefinitionParser.createAndRegisterBeanDefintionWithDefaults(parserContext));
 		/* TODO: There should not be any defaults for these urls ?!?! */
 		definition.getPropertyValues().addPropertyValue("authenticationFailureUrl", "/acegilogin.jsp?login_error=1");
 		definition.getPropertyValues().addPropertyValue("defaultTargetUrl", "/");
+		
 		return definition;
 	}
 

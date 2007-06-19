@@ -25,26 +25,8 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 		<security:properties
 			resource="classpath:org/acegisecurity/config/user.properties" />
 	</security:principal-repository>
-
-	<!--<bean id="methodSecurityInterceptor" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
-		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
-		<property name="accessDecisionManager">
-		<bean class="org.acegisecurity.vote.AffirmativeBased">
-		<property name="allowIfAllAbstainDecisions" value="false"/>
-		<property name="decisionVoters">
-		<list>
-		<bean class="org.acegisecurity.vote.RoleVoter"/>
-		<bean class="org.acegisecurity.vote.AuthenticatedVoter"/>
-		</list>
-		</property>
-		</bean>
-		</property>
-		<property name="objectDefinitionSource">
-		<value>
-		org.springframework.samples.petclinic.Clinic.*=IS_AUTHENTICATED_REMEMBERED
-		org.springframework.samples.petclinic.Clinic.storeVisit=ROLE_SUPERVISOR
-		</value>
-		</property>
-		</bean>
-	-->
+	
+	<bean id="bankService" class="org.acegisecurity.BankServiceImpl"/>
+	
+	
 </beans>

@@ -80,14 +80,15 @@ public class AuthenticationMechanismBeanDefinitionParser extends AbstractBeanDef
 	 * Creates a default bean definition.
 	 * @return
 	 */
-	protected static RootBeanDefinition createBeanDefinitionWithDefaults() {
-		RootBeanDefinition authMechanismBeanDef = new RootBeanDefinition(ProviderManager.class);
+	protected static RootBeanDefinition createAndRegisterBeanDefinitionWithDefaults(ParserContext parserContext) {
+		RootBeanDefinition beanDefinition = new RootBeanDefinition(ProviderManager.class);
 		ManagedList providers = new ManagedList();
 		// create authentication-repository (DaoAuthenticationProvider) and add that to list
 		RootBeanDefinition authRepo = AuthenticationRepositoryBeanDefinitionParser.createBeanDefinitionWithDefaults();
 		providers.add(authRepo);
-		authMechanismBeanDef.getPropertyValues().addPropertyValue("providers", providers);
-		return authMechanismBeanDef;
+		beanDefinition.getPropertyValues().addPropertyValue("providers", providers);
+		parserContext.getReaderContext().registerWithGeneratedName(beanDefinition);
+		return beanDefinition;
 	}
 	
 }

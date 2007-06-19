@@ -15,140 +15,192 @@
 
 package org.acegisecurity.providers.dao;
 
+import java.util.Map;
+
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationServiceException;
 import org.acegisecurity.BadCredentialsException;
-
 import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
-
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
-
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.Ordered;
 import org.springframework.dao.DataAccessException;
-
 import org.springframework.util.Assert;
 
-
 /**
- * An {@link AuthenticationProvider} implementation that retrieves user details from an {@link UserDetailsService}.
- *
+ * An {@link AuthenticationProvider} implementation that retrieves user details
+ * from an {@link UserDetailsService}.
+ * 
  * @author Ben Alex
- * @version $Id$
+ * @version $Id: DaoAuthenticationProvider.java 1857 2007-05-24 00:47:12Z
+ * benalex $
  */
-public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider implements Ordered {
-	
-    //~ Instance fields ================================================================================================
+public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider implements
+		ApplicationContextAware, Ordered {
 
-    private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
-    private SaltSource saltSource;
-    private UserDetailsService userDetailsService;
-    private boolean includeDetailsObject = true;
-    private int order = -1; // default: same as non-Ordered
+	// ~ Instance fields
+	// ================================================================================================
 
-    //~ Methods ========================================================================================================
+	private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
 
-    protected void additionalAuthenticationChecks(UserDetails userDetails,
-        UsernamePasswordAuthenticationToken authentication)
-        throws AuthenticationException {
-        Object salt = null;
+	private SaltSource saltSource;
 
-        if (this.saltSource != null) {
-            salt = this.saltSource.getSalt(userDetails);
-        }
-        
-        if (authentication.getCredentials() == null) {
-            throw new BadCredentialsException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
-                    includeDetailsObject ? userDetails : null);
-        }
-        
-        String presentedPassword = authentication.getCredentials() == null ? "" : authentication.getCredentials().toString();
+	private UserDetailsService userDetailsService;
 
-        if (!passwordEncoder.isPasswordValid(
-                userDetails.getPassword(), presentedPassword, salt)) {
-            throw new BadCredentialsException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
-                    includeDetailsObject ? userDetails : null);
-        }
-    }
+	private boolean includeDetailsObject = true;
 
-    protected void doAfterPropertiesSet() throws Exception {
-        Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
-    }
+	private int DEFAULT_RDER = Integer.MAX_VALUE; // default: same as
 
-    public PasswordEncoder getPasswordEncoder() {
-        return passwordEncoder;
-    }
+	// non-Ordered
 
-    public SaltSource getSaltSource() {
-        return saltSource;
-    }
+	private int order = DEFAULT_RDER;
 
-    public UserDetailsService getUserDetailsService() {
-        return userDetailsService;
-    }
+	private boolean isSetUserDetailsServiceInvoked;
 
-    protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
-        throws AuthenticationException {
-        UserDetails loadedUser;
+	private ApplicationContext applicationContext;
 
-        try {
-            loadedUser = this.getUserDetailsService().loadUserByUsername(username);
-        } catch (DataAccessException repositoryProblem) {
-            throw new AuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);
-        }
+	// ~ Methods
+	// ========================================================================================================
 
-        if (loadedUser == null) {
-            throw new AuthenticationServiceException(
-                "UserDetailsService returned null, which is an interface contract violation");
-        }
-        return loadedUser;
-    }
+	protected void additionalAuthenticationChecks(UserDetails userDetails,
+			UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+		Object salt = null;
 
-    /**
-     * Sets the PasswordEncoder instance to be used to encode and validate passwords. If not set, {@link
-     * PlaintextPasswordEncoder} will be used by default.
-     *
-     * @param passwordEncoder The passwordEncoder to use
-     */
-    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
+		if (this.saltSource != null) {
+			salt = this.saltSource.getSalt(userDetails);
+		}
 
-    /**
-     * The source of salts to use when decoding passwords. <code>null</code> is a valid value, meaning the
-     * <code>DaoAuthenticationProvider</code> will present <code>null</code> to the relevant
-     * <code>PasswordEncoder</code>.
-     *
-     * @param saltSource to use when attempting to decode passwords via the <code>PasswordEncoder</code>
-     */
-    public void setSaltSource(SaltSource saltSource) {
-        this.saltSource = saltSource;
-    }
+		if (authentication.getCredentials() == null) {
+			throw new BadCredentialsException(messages.getMessage(
+					"AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
+					includeDetailsObject ? userDetails : null);
+		}
 
-    public void setUserDetailsService(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
+		String presentedPassword = authentication.getCredentials() == null ? "" : authentication.getCredentials()
+				.toString();
 
-    public boolean isIncludeDetailsObject() {
-        return includeDetailsObject;
-    }
+		if (!passwordEncoder.isPasswordValid(userDetails.getPassword(), presentedPassword, salt)) {
+			throw new BadCredentialsException(messages.getMessage(
+					"AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
+					includeDetailsObject ? userDetails : null);
+		}
+	}
 
-    public void setIncludeDetailsObject(boolean includeDetailsObject) {
-        this.includeDetailsObject = includeDetailsObject;
-    }
+	protected void doAfterPropertiesSet() throws Exception {
+		if (!isSetUserDetailsServiceInvoked) {
+			autoDetectAnyUserDetailsServiceAndUseIt(this.applicationContext);
+		}
+		Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
+	}
+
+	/**
+	 * Introspects the <code>Applicationcontext</code> for the single instance
+	 * of {@link AccessDeniedHandler}. If found invoke
+	 * setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) method by
+	 * providing the found instance of accessDeniedHandler as a method
+	 * parameter. If more than one instance of <code>AccessDeniedHandler</code>
+	 * is found, the method throws <code>IllegalStateException</code>.
+	 * 
+	 * @param applicationContext to locate the instance
+	 */
+	private void autoDetectAnyUserDetailsServiceAndUseIt(ApplicationContext applicationContext) {
+		if (applicationContext != null) {
+			Map map = applicationContext.getBeansOfType(UserDetailsService.class);
+
+			if (map.size() > 1) {
+				throw new IllegalArgumentException(
+						"More than one UserDetailsService beans detected please refer to the one using "
+								+ " [ principalRepositoryBeanRef  ] " + "attribute");
+			}
+			else if (map.size() == 1) {
+				setUserDetailsService((UserDetailsService) map.values().iterator().next());
+			}
+		}
+	}
+
+	public PasswordEncoder getPasswordEncoder() {
+		return passwordEncoder;
+	}
+
+	public SaltSource getSaltSource() {
+		return saltSource;
+	}
+
+	public UserDetailsService getUserDetailsService() {
+		return userDetailsService;
+	}
+
+	protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
+			throws AuthenticationException {
+		UserDetails loadedUser;
+
+		try {
+			loadedUser = this.getUserDetailsService().loadUserByUsername(username);
+		}
+		catch (DataAccessException repositoryProblem) {
+			throw new AuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);
+		}
+
+		if (loadedUser == null) {
+			throw new AuthenticationServiceException(
+					"UserDetailsService returned null, which is an interface contract violation");
+		}
+		return loadedUser;
+	}
+
+	/**
+	 * Sets the PasswordEncoder instance to be used to encode and validate
+	 * passwords. If not set, {@link PlaintextPasswordEncoder} will be used by
+	 * default.
+	 * 
+	 * @param passwordEncoder The passwordEncoder to use
+	 */
+	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+		this.passwordEncoder = passwordEncoder;
+	}
+
+	/**
+	 * The source of salts to use when decoding passwords. <code>null</code>
+	 * is a valid value, meaning the <code>DaoAuthenticationProvider</code>
+	 * will present <code>null</code> to the relevant
+	 * <code>PasswordEncoder</code>.
+	 * 
+	 * @param saltSource to use when attempting to decode passwords via the
+	 * <code>PasswordEncoder</code>
+	 */
+	public void setSaltSource(SaltSource saltSource) {
+		this.saltSource = saltSource;
+	}
+
+	public void setUserDetailsService(UserDetailsService userDetailsService) {
+		isSetUserDetailsServiceInvoked = true;
+		this.userDetailsService = userDetailsService;
+	}
+
+	public boolean isIncludeDetailsObject() {
+		return includeDetailsObject;
+	}
+
+	public void setIncludeDetailsObject(boolean includeDetailsObject) {
+		this.includeDetailsObject = includeDetailsObject;
+	}
 
 	public void setOrder(int order) {
 		this.order = order;
 	}
 
 	public int getOrder() {
-		return order ;
+		return order;
 	}
-	
-	
+
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext = applicationContext;
+	}
+
 }

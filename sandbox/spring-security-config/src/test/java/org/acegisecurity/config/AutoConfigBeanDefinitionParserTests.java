@@ -10,8 +10,11 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.AuthenticationManager;
 import org.acegisecurity.context.HttpSessionContextIntegrationFilter;
+import org.acegisecurity.intercept.method.MethodDefinitionSource;
+import org.acegisecurity.intercept.method.aopalliance.MethodDefinitionSourceAdvisor;
 import org.acegisecurity.ui.logout.LogoutFilter;
 import org.acegisecurity.ui.logout.LogoutHandler;
+import org.acegisecurity.ui.rememberme.RememberMeProcessingFilter;
 import org.acegisecurity.ui.rememberme.RememberMeServices;
 import org.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -47,7 +50,6 @@ public class AutoConfigBeanDefinitionParserTests extends TestCase {
 		assertFalse(filter.isForceEagerSessionCreation());
 		assertFalse(filter.isCloneFromHttpSession());
 	}
-	
 
 	public void testLogoutFilterDefinitionCreatedWithDefaults() throws Exception {
 		String[] names = bf.getBeanNamesForType(LogoutFilter.class);
@@ -71,8 +73,23 @@ public class AutoConfigBeanDefinitionParserTests extends TestCase {
 		assertNotNull(authMgr);
 		RememberMeServices remMeServices = filter.getRememberMeServices();
 		assertNotNull(remMeServices);
-		assertEquals("/acegilogin.jsp?login_error=1",filter.getAuthenticationFailureUrl());
-		assertEquals( "/",filter.getDefaultTargetUrl());
+		assertEquals("/acegilogin.jsp?login_error=1", filter.getAuthenticationFailureUrl());
+		assertEquals("/", filter.getDefaultTargetUrl());
+	}
+
+	public void testRememberMePRocessingFilterCreatedWithDefaults() {
+		Map map = bf.getBeansOfType(RememberMeProcessingFilter.class);
+		RememberMeProcessingFilter filter = (RememberMeProcessingFilter) map.values().iterator().next();
+	}
+
+	public void testMethodDefinitionSourceAdvisorCreatedWithDefaults() throws Exception {
+		Map map = bf.getBeansOfType(MethodDefinitionSourceAdvisor.class);
+		assertEquals(1, map.size());
+		MethodDefinitionSourceAdvisor advisor = (MethodDefinitionSourceAdvisor) map.values().iterator().next();
+		Field transactionAttributeSource = makeAccessibleAndGetFieldByName(advisor.getClass().getDeclaredFields(), "transactionAttributeSource");
+		assertNotNull(transactionAttributeSource);
+		assertTrue(transactionAttributeSource.get(advisor) instanceof MethodDefinitionSource);
+
 	}
 
 	private Field makeAccessibleAndGetFieldByName(Field[] declaredFields, String name) {
@@ -85,4 +102,5 @@ public class AutoConfigBeanDefinitionParserTests extends TestCase {
 		}
 		return field;
 	}
+
 }

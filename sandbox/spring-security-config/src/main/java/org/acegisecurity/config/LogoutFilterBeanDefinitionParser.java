@@ -92,13 +92,13 @@ public class LogoutFilterBeanDefinitionParser extends AbstractBeanDefinitionPars
 	 * @param isAutoconfig
 	 * @return definition
 	 */
-	protected static RootBeanDefinition doCreateBeanDefinitionWithDefaults() {
+	protected static RootBeanDefinition createBeanDefinitionWithDefaults(RootBeanDefinition rememberMeServices) {
 		RootBeanDefinition definition = new RootBeanDefinition(LogoutFilter.class);
 		definition.getConstructorArgumentValues().addIndexedArgumentValue(0, REDIRECT_AFTER_LOGOUT_URL_VALUE);
 		// create BeanDefinitions for LogoutHandlers
 		// (TokenBasedRememberMeServices) and (SecuritycontextLogoutHandler)
 		ManagedList handlers = new ManagedList();
-		RootBeanDefinition rememberMeServices = RememberMeServicesBeanDefinitionParser.doCreateBeanDefintionWithDefaults();
+		//RootBeanDefinition rememberMeServices = RememberMeServicesBeanDefinitionParser.doCreateBeanDefintionWithDefaults();
 		handlers.add(rememberMeServices);
 		handlers.add(new RootBeanDefinition(SecurityContextLogoutHandler.class));
 		definition.getConstructorArgumentValues().addIndexedArgumentValue(1, handlers);

@@ -15,15 +15,6 @@
 
 package org.acegisecurity.ui.logout;
 
-import org.acegisecurity.Authentication;
-
-import org.acegisecurity.context.SecurityContextHolder;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.util.Assert;
-
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -35,130 +26,163 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.acegisecurity.Authentication;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.util.Assert;
 
 /**
- * Logs a principal out.<p>Polls a series of {@link LogoutHandler}s. The handlers should be specified in the order
- * they are required. Generally you will want to call logout handlers <code>TokenBasedRememberMeServices</code> and
- * <code>SecurityContextLogoutHandler</code> (in that order).</p>
- *  <p>After logout, the URL specified by {@link #logoutSuccessUrl} will be shown.</p>
- *  <p><b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the {@link
- * org.acegisecurity.util.FilterToBeanProxy}.</p>
- *
+ * Logs a principal out.
+ * <p>
+ * Polls a series of {@link LogoutHandler}s. The handlers should be specified
+ * in the order they are required. Generally you will want to call logout
+ * handlers <code>TokenBasedRememberMeServices</code> and
+ * <code>SecurityContextLogoutHandler</code> (in that order).
+ * </p>
+ * <p>
+ * After logout, the URL specified by {@link #logoutSuccessUrl} will be shown.
+ * </p>
+ * <p>
+ * <b>Do not use this class directly.</b> Instead configure
+ * <code>web.xml</code> to use the {@link
+ * org.acegisecurity.util.FilterToBeanProxy}.
+ * </p>
+ * 
  * @author Ben Alex
  * @version $Id$
  */
-public class LogoutFilter implements Filter {
-    //~ Static fields/initializers =====================================================================================
+public class LogoutFilter implements Filter, ApplicationContextAware {
+	// ~ Static fields/initializers
+	// =====================================================================================
 
-    private static final Log logger = LogFactory.getLog(LogoutFilter.class);
+	private static final Log logger = LogFactory.getLog(LogoutFilter.class);
 
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private String filterProcessesUrl = "/j_acegi_logout";
-    private String logoutSuccessUrl;
-    private LogoutHandler[] handlers;
+	private String filterProcessesUrl = "/j_acegi_logout";
 
-    //~ Constructors ===================================================================================================
+	private String logoutSuccessUrl;
 
-    public LogoutFilter(String logoutSuccessUrl, LogoutHandler[] handlers) {
-        Assert.hasText(logoutSuccessUrl, "LogoutSuccessUrl required");
-        Assert.notEmpty(handlers, "LogoutHandlers are required");
-        this.logoutSuccessUrl = logoutSuccessUrl;
-        this.handlers = handlers;
-    }
+	private LogoutHandler[] handlers;
 
-    //~ Methods ========================================================================================================
+	private ApplicationContext applicationContext;
 
-    /**
-     * Not used. Use IoC container lifecycle methods instead.
-     */
-    public void destroy() {}
+	// ~ Constructors
+	// ===================================================================================================
 
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-        throws IOException, ServletException {
-        if (!(request instanceof HttpServletRequest)) {
-            throw new ServletException("Can only process HttpServletRequest");
-        }
+	public LogoutFilter(String logoutSuccessUrl, LogoutHandler[] handlers) {
+		Assert.hasText(logoutSuccessUrl, "LogoutSuccessUrl required");
+		Assert.notEmpty(handlers, "LogoutHandlers are required");
+		this.logoutSuccessUrl = logoutSuccessUrl;
+		this.handlers = handlers;
+	}
 
-        if (!(response instanceof HttpServletResponse)) {
-            throw new ServletException("Can only process HttpServletResponse");
-        }
+	// ~ Methods
+	// ========================================================================================================
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
+	/**
+	 * Not used. Use IoC container lifecycle methods instead.
+	 */
+	public void destroy() {
+	}
 
-        if (requiresLogout(httpRequest, httpResponse)) {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+			ServletException {
+		if (!(request instanceof HttpServletRequest)) {
+			throw new ServletException("Can only process HttpServletRequest");
+		}
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Logging out user '" + auth + "' and redirecting to logout page");
-            }
+		if (!(response instanceof HttpServletResponse)) {
+			throw new ServletException("Can only process HttpServletResponse");
+		}
 
-            for (int i = 0; i < handlers.length; i++) {
-                handlers[i].logout(httpRequest, httpResponse, auth);
-            }
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+		HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-            sendRedirect(httpRequest, httpResponse, logoutSuccessUrl);
+		if (requiresLogout(httpRequest, httpResponse)) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-            return;
-        }
+			if (logger.isDebugEnabled()) {
+				logger.debug("Logging out user '" + auth + "' and redirecting to logout page");
+			}
 
-        chain.doFilter(request, response);
-    }
+			for (int i = 0; i < handlers.length; i++) {
+				handlers[i].logout(httpRequest, httpResponse, auth);
+			}
 
-    /**
-     * Not used. Use IoC container lifecycle methods instead.
-     *
-     * @param arg0 ignored
-     *
-     * @throws ServletException ignored
-     */
-    public void init(FilterConfig arg0) throws ServletException {}
+			sendRedirect(httpRequest, httpResponse, logoutSuccessUrl);
 
-    /**
-     * Allow subclasses to modify when a logout should tak eplace.
-     *
-     * @param request the request
-     * @param response the response
-     *
-     * @return <code>true</code> if logout should occur, <code>false</code> otherwise
-     */
-    protected boolean requiresLogout(HttpServletRequest request, HttpServletResponse response) {
-        String uri = request.getRequestURI();
-        int pathParamIndex = uri.indexOf(';');
+			return;
+		}
 
-        if (pathParamIndex > 0) {
-            // strip everything after the first semi-colon
-            uri = uri.substring(0, pathParamIndex);
-        }
+		chain.doFilter(request, response);
+	}
 
-        if ("".equals(request.getContextPath())) {
-        	return uri.endsWith(filterProcessesUrl);
-        }
-        
-        return uri.endsWith(request.getContextPath() + filterProcessesUrl);
-    }
+	/**
+	 * Not used. Use IoC container lifecycle methods instead.
+	 * 
+	 * @param arg0 ignored
+	 * 
+	 * @throws ServletException ignored
+	 */
+	public void init(FilterConfig arg0) throws ServletException {
+	}
 
-    /**
-     * Allow subclasses to modify the redirection message.
-     *
-     * @param request the request
-     * @param response the response
-     * @param url the URL to redirect to
-     *
-     * @throws IOException in the event of any failure
-     */
-    protected void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
-        throws IOException {
-        if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            url = request.getContextPath() + url;
-        }
+	/**
+	 * Allow subclasses to modify when a logout should tak eplace.
+	 * 
+	 * @param request the request
+	 * @param response the response
+	 * 
+	 * @return <code>true</code> if logout should occur, <code>false</code>
+	 * otherwise
+	 */
+	protected boolean requiresLogout(HttpServletRequest request, HttpServletResponse response) {
+		String uri = request.getRequestURI();
+		int pathParamIndex = uri.indexOf(';');
 
-        response.sendRedirect(response.encodeRedirectURL(url));
-    }
+		if (pathParamIndex > 0) {
+			// strip everything after the first semi-colon
+			uri = uri.substring(0, pathParamIndex);
+		}
 
-    public void setFilterProcessesUrl(String filterProcessesUrl) {
-        Assert.hasText(filterProcessesUrl, "FilterProcessesUrl required");
-        this.filterProcessesUrl = filterProcessesUrl;
-    }
+		if ("".equals(request.getContextPath())) {
+			return uri.endsWith(filterProcessesUrl);
+		}
+
+		return uri.endsWith(request.getContextPath() + filterProcessesUrl);
+	}
+
+	/**
+	 * Allow subclasses to modify the redirection message.
+	 * 
+	 * @param request the request
+	 * @param response the response
+	 * @param url the URL to redirect to
+	 * 
+	 * @throws IOException in the event of any failure
+	 */
+	protected void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
+			throws IOException {
+		if (!url.startsWith("http://") && !url.startsWith("https://")) {
+			url = request.getContextPath() + url;
+		}
+
+		response.sendRedirect(response.encodeRedirectURL(url));
+	}
+
+	public void setFilterProcessesUrl(String filterProcessesUrl) {
+		Assert.hasText(filterProcessesUrl, "FilterProcessesUrl required");
+		this.filterProcessesUrl = filterProcessesUrl;
+	}
+
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext = applicationContext;
+	}
+
 }

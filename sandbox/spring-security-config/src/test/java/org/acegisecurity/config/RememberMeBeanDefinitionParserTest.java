@@ -16,5 +16,4 @@ public class RememberMeBeanDefinitionParserTest extends TestCase {
 		assertEquals(1, mgr.getProviders().size());
 		assertTrue(mgr.getProviders().get(0) instanceof DaoAuthenticationProvider);
 	}
-
 }

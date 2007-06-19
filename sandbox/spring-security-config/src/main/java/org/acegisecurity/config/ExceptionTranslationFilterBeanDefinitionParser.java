@@ -5,6 +5,7 @@ package org.acegisecurity.config;
 
 import org.acegisecurity.ui.AccessDeniedHandlerImpl;
 import org.acegisecurity.ui.ExceptionTranslationFilter;
+import org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -46,7 +47,7 @@ import org.w3c.dom.Element;
  * </p>
  * 
  * @author Vishal Puri
- * @version 
+ * @version
  * @see {@link org.acegisecurity.ui.ExceptionTranslationFilter}
  * @see {@link org.acegisecurity.ui.AccessDeniedHandler}
  */
@@ -61,6 +62,10 @@ public class ExceptionTranslationFilterBeanDefinitionParser extends AbstractBean
 	private static final String ENTRY_POINT = "entry-point";
 
 	private static final String ENTRY_POINT_REF = "entryPointBeanRef";
+
+	private static final String LOGIN_FORM_URL = "loginFormUrl";
+
+	private static final String LOGIN_FORM_URL_VALUE = "/acegilogin.jsp";
 
 	protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
 
@@ -143,5 +148,30 @@ public class ExceptionTranslationFilterBeanDefinitionParser extends AbstractBean
 		if (StringUtils.hasText(propertyValue)) {
 			definition.getPropertyValues().addPropertyValue(property, propertyValue);
 		}
+	}
+
+	/**
+	 * Creates <code>BeanDefintion</code> for
+	 * <code>ExceptionTranslationFilter</code> with it's default properties.
+	 * @return beanDefinition The bean defintion configured with default
+	 * properties
+	 */
+	protected static RootBeanDefinition createBeanDefinitionWithDefaults() {
+		RootBeanDefinition beanDefinition = new RootBeanDefinition(ExceptionTranslationFilter.class);
+		beanDefinition.getPropertyValues().addPropertyValue("authenticationEntryPoint",
+				createBeanDefintionForAuthenticationProcessingFilterEntryPoint());
+		return beanDefinition;
+	}
+
+	/**
+	 * Creates <code>BeanDefintion</code> for
+	 * <code>AuthenticationProcessingFilterEntryPoint</code> with it's default
+	 * properties.
+	 * @return beanDefinition The bean defintion configured with default
+	 */
+	protected static RootBeanDefinition createBeanDefintionForAuthenticationProcessingFilterEntryPoint() {
+		RootBeanDefinition beanDefinition = new RootBeanDefinition(AuthenticationProcessingFilterEntryPoint.class);
+		beanDefinition.getPropertyValues().addPropertyValue(LOGIN_FORM_URL, LOGIN_FORM_URL_VALUE);
+		return beanDefinition;
 	}
 }

@@ -72,10 +72,11 @@ public class RememberMeServicesBeanDefinitionParser extends AbstractBeanDefiniti
 		return rememberMeServicesBeanDef;
 	}
 	
-	protected static RootBeanDefinition doCreateBeanDefintionWithDefaults(){
-		RootBeanDefinition definition = new RootBeanDefinition(TokenBasedRememberMeServices.class);
-		definition.getPropertyValues().addPropertyValue(KEY, "key");
-		return definition;
+	protected static RootBeanDefinition createAndRegisterBeanDefintionWithDefaults(ParserContext parserContext){
+		RootBeanDefinition beanDefinition = new RootBeanDefinition(TokenBasedRememberMeServices.class);
+		beanDefinition.getPropertyValues().addPropertyValue(KEY, "key");
+		parserContext.getReaderContext().registerWithGeneratedName(beanDefinition);
+		return beanDefinition;
 	}
 
 }
