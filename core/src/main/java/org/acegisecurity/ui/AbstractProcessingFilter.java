@@ -27,7 +27,6 @@ import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEv
 import org.acegisecurity.ui.rememberme.NullRememberMeServices;
 import org.acegisecurity.ui.rememberme.RememberMeServices;
 import org.acegisecurity.ui.savedrequest.SavedRequest;
-import org.acegisecurity.userdetails.UserDetailsService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -565,7 +564,7 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 			logger.debug("Updated SecurityContextHolder to contain null Authentication");
 		}
 
-		String failureUrl = exceptionMappings.getProperty(failed.getClass().getName(), authenticationFailureUrl);
+		String failureUrl = determineFailureUrl(request, failed);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Authentication request failed: " + failed.toString());
@@ -584,7 +583,11 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 		sendRedirect(request, response, failureUrl);
 	}
 
-	public AuthenticationDetailsSource getAuthenticationDetailsSource() {
+    protected String determineFailureUrl(HttpServletRequest request, AuthenticationException failed) {
+        return exceptionMappings.getProperty(failed.getClass().getName(), authenticationFailureUrl);
+    }
+
+    public AuthenticationDetailsSource getAuthenticationDetailsSource() {
 		// Required due to SEC-310
 		return authenticationDetailsSource;
 	}
