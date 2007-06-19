@@ -1,16 +1,17 @@
-<?xml version="1.0"?><project>
-  <parent>
-    <artifactId>acegi-security-sandbox</artifactId>
-    <groupId>org.acegisecurity</groupId>
-    <version>1.0.5-SNAPSHOT</version>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.acegisecurity</groupId>
-  <artifactId>spring-security-config</artifactId>
-  <name>spring-security-config</name>
-  <version>2.0.0-M1</version>
-  <url>http://maven.apache.org</url>
- <dependencies>
+<?xml version="1.0"?>
+<project>
+	<parent>
+		<artifactId>acegi-security-sandbox</artifactId>
+		<groupId>org.acegisecurity</groupId>
+		<version>1.0.5-SNAPSHOT</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.acegisecurity</groupId>
+	<artifactId>spring-security-config</artifactId>
+	<name>spring-security-config</name>
+	<version>2.0.0-M1</version>
+	<url>http://maven.apache.org</url>
+	<dependencies>
 		<dependency>
 			<groupId>org.acegisecurity</groupId>
 			<artifactId>acegi-security-tiger</artifactId>
@@ -124,4 +125,28 @@
 			<artifactId>log4j</artifactId>
 		</dependency>
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<configuration>
+					<targetJdk>1.5</targetJdk>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
+
 </project>
