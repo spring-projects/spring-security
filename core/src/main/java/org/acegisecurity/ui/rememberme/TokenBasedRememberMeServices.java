@@ -105,11 +105,10 @@ import org.springframework.web.bind.RequestUtils;
  * @version $Id: TokenBasedRememberMeServices.java 1871 2007-05-25 03:12:49Z
  * benalex $
  */
-public class TokenBasedRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler, Ordered, ApplicationContextAware {
+public class TokenBasedRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler, Ordered,
+		ApplicationContextAware {
 	// ~ Static fields/initializers
 	// =====================================================================================
-
-	
 
 	public static final String ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY = "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE";
 
@@ -149,13 +148,14 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 		Assert.hasLength(key);
 		Assert.hasLength(parameter);
 		Assert.hasLength(cookieName);
-		Assert.notNull(applicationContext, "ApplicationContext required");
-		if (!isSetUserDetailsServiceInvoked) {
-			autoDetectAnyUserDetailsServiceAndUseIt(applicationContext);
+		if (applicationContext != null) {
+			if (!isSetUserDetailsServiceInvoked) {
+				autoDetectAndUseAnyUserDetailsService(applicationContext);
+			}
 		}
 		Assert.notNull(userDetailsService);
 	}
-	
+
 	/**
 	 * Introspects the <code>Applicationcontext</code> for the single instance
 	 * of {@link AccessDeniedHandler}. If found invoke
@@ -166,7 +166,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 	 * 
 	 * @param applicationContext to locate the instance
 	 */
-	private void autoDetectAnyUserDetailsServiceAndUseIt(ApplicationContext applicationContext) {
+	private void autoDetectAndUseAnyUserDetailsService(ApplicationContext applicationContext) {
 		Map map = applicationContext.getBeansOfType(UserDetailsService.class);
 		if (map.size() > 1) {
 			throw new IllegalArgumentException(
@@ -177,7 +177,6 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 			setUserDetailsService((UserDetailsService) map.values().iterator().next());
 		}
 	}
-		
 
 	public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
 		Cookie[] cookies = request.getCookies();
@@ -208,6 +207,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 					String[] cookieTokens = StringUtils.delimitedListToStringArray(cookieAsPlainText, ":");
 
 					if (cookieTokens.length == 3) {
+
 						long tokenExpiryTime;
 
 						try {
@@ -221,8 +221,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 							return null;
 						}
 
-						// Check it has not expired
-						if (tokenExpiryTime < System.currentTimeMillis()) {
+						if (isTokenExpired(tokenExpiryTime)) {
 							cancelCookie(request, response, "Cookie token[1] has expired (expired on '"
 									+ new Date(tokenExpiryTime) + "'; current time is '" + new Date() + "')");
 
@@ -232,25 +231,15 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 						// Check the user exists
 						// Defer lookup until after expiry time checked, to
 						// possibly avoid expensive lookup
-						UserDetails userDetails;
+						UserDetails userDetails = loadUserDetails(request, response, cookieTokens);
 
-						try {
-							userDetails = this.userDetailsService.loadUserByUsername(cookieTokens[0]);
-						}
-						catch (UsernameNotFoundException notFound) {
+						if (userDetails == null) {
 							cancelCookie(request, response, "Cookie token[0] contained username '" + cookieTokens[0]
 									+ "' but was not found");
-
 							return null;
 						}
 
-						// Immediately reject if the user is not allowed to
-						// login
-						if (!userDetails.isAccountNonExpired() || !userDetails.isCredentialsNonExpired()
-								|| !userDetails.isEnabled()) {
-							cancelCookie(request, response, "Cookie token[0] contained username '" + cookieTokens[0]
-									+ "' but account has expired, credentials have expired, or user is disabled");
-
+						if (!isValidUserDetails(request, response, userDetails, cookieTokens)) {
 							return null;
 						}
 
@@ -264,8 +253,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 						// (as if the token is valid, it will cause
 						// SecurityContextHolder population, whilst
 						// if invalid, will cause the cookie to be cancelled)
-						String expectedTokenSignature = DigestUtils.md5Hex(userDetails.getUsername() + ":"
-								+ tokenExpiryTime + ":" + userDetails.getPassword() + ":" + this.key);
+						String expectedTokenSignature = makeTokenSignature(tokenExpiryTime, userDetails);
 
 						if (!expectedTokenSignature.equals(cookieTokens[2])) {
 							cancelCookie(request, response, "Cookie token[2] contained signature '" + cookieTokens[2]
@@ -304,7 +292,55 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 		return null;
 	}
 
-	private void cancelCookie(HttpServletRequest request, HttpServletResponse response, String reasonForLog) {
+	/**
+	 * @param tokenExpiryTime
+	 * @param userDetails
+	 * @return
+	 */
+	protected String makeTokenSignature(long tokenExpiryTime, UserDetails userDetails) {
+		String expectedTokenSignature = DigestUtils.md5Hex(userDetails.getUsername() + ":" + tokenExpiryTime + ":"
+				+ userDetails.getPassword() + ":" + this.key);
+		return expectedTokenSignature;
+	}
+
+	protected boolean isValidUserDetails(HttpServletRequest request, HttpServletResponse response,
+			UserDetails userDetails, String[] cookieTokens) {
+		// Immediately reject if the user is not allowed to
+		// login
+		if (!userDetails.isAccountNonExpired() || !userDetails.isCredentialsNonExpired() || !userDetails.isEnabled()) {
+			cancelCookie(request, response, "Cookie token[0] contained username '" + cookieTokens[0]
+					+ "' but account has expired, credentials have expired, or user is disabled");
+
+			return false;
+		}
+		return true;
+	}
+
+	protected UserDetails loadUserDetails(HttpServletRequest request, HttpServletResponse response,
+			String[] cookieTokens) {
+		UserDetails userDetails = null;
+
+		try {
+			userDetails = this.userDetailsService.loadUserByUsername(cookieTokens[0]);
+		}
+		catch (UsernameNotFoundException notFound) {
+			cancelCookie(request, response, "Cookie token[0] contained username '" + cookieTokens[0]
+					+ "' but was not found");
+
+			return null;
+		}
+		return userDetails;
+	}
+
+	protected boolean isTokenExpired(long tokenExpiryTime) {
+		// Check it has not expired
+		if (tokenExpiryTime < System.currentTimeMillis()) {
+			return true;
+		}
+		return false;
+	}
+
+	protected void cancelCookie(HttpServletRequest request, HttpServletResponse response, String reasonForLog) {
 		if ((reasonForLog != null) && logger.isDebugEnabled()) {
 			logger.debug("Cancelling cookie for reason: " + reasonForLog);
 		}
@@ -356,17 +392,8 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 		Assert.notNull(successfulAuthentication.getPrincipal());
 		Assert.notNull(successfulAuthentication.getCredentials());
 
-		String username;
-		String password;
-
-		if (successfulAuthentication.getPrincipal() instanceof UserDetails) {
-			username = ((UserDetails) successfulAuthentication.getPrincipal()).getUsername();
-			password = ((UserDetails) successfulAuthentication.getPrincipal()).getPassword();
-		}
-		else {
-			username = successfulAuthentication.getPrincipal().toString();
-			password = successfulAuthentication.getCredentials().toString();
-		}
+		String username = retrieveUserName(successfulAuthentication);
+		String password = retrievePassword(successfulAuthentication);
 
 		// If unable to find a username and password, just abort as
 		// TokenBasedRememberMeServices unable to construct a valid token in
@@ -374,9 +401,6 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 		if (!StringUtils.hasLength(username) || !StringUtils.hasLength(password)) {
 			return;
 		}
-
-		Assert.hasLength(username);
-		Assert.hasLength(password);
 
 		long expiryTime = System.currentTimeMillis() + (tokenValiditySeconds * 1000);
 
@@ -398,6 +422,28 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 		cancelCookie(request, response, "Logout of user "
 				+ (authentication == null ? "Unknown" : authentication.getName()));
+	}
+
+	protected String retrieveUserName(Authentication successfulAuthentication) {
+		if (isInstanceOfUserDetails(successfulAuthentication)) {
+			return ((UserDetails) successfulAuthentication.getPrincipal()).getUsername();
+		}
+		else {
+			return successfulAuthentication.getPrincipal().toString();
+		}
+	}
+
+	protected String retrievePassword(Authentication successfulAuthentication) {
+		if (isInstanceOfUserDetails(successfulAuthentication)) {
+			return ((UserDetails) successfulAuthentication.getPrincipal()).getPassword();
+		}
+		else {
+			return successfulAuthentication.getCredentials().toString();
+		}
+	}
+
+	private boolean isInstanceOfUserDetails(Authentication authentication) {
+		return authentication.getPrincipal() instanceof UserDetails;
 	}
 
 	protected Cookie makeCancelCookie(HttpServletRequest request) {
@@ -459,7 +505,11 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext=applicationContext;
+		this.applicationContext = applicationContext;
+	}
+
+	public String getCookieName() {
+		return cookieName;
 	}
 
 }

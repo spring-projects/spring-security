@@ -127,7 +127,8 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  * 
  * @author Ben Alex
- * @version $Id$
+ * @version $Id: AbstractProcessingFilter.java 1909 2007-06-19 04:08:19Z
+ * vishalpuri $
  */
 public abstract class AbstractProcessingFilter implements Filter, InitializingBean, ApplicationEventPublisherAware,
 		MessageSourceAware, ApplicationContextAware {
@@ -224,12 +225,15 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 		Assert.notNull(this.rememberMeServices);
 	}
 
+	/**
+	 * Use the first autodetected instance of <code>RememberMeServices</code>
+	 */
 	private void autoDetectRememberMeServices() {
 		if (applicationContext != null) {
 			Map map = applicationContext.getBeansOfType(RememberMeServices.class);
 			if (map.size() > 0) {
 				setRememberMeServices((RememberMeServices) map.values().iterator().next());
-			}      
+			}
 		}
 	}
 
