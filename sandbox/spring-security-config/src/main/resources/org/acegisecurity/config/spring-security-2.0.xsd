@@ -3,11 +3,13 @@
 <xsd:schema xmlns="http://www.springframework.org/schema/security"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	targetNamespace="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans"
 	elementFormDefault="qualified" attributeFormDefault="unqualified">
-	
-	
-	<xsd:element name="autoconfig"/>
-	
+
+	<xsd:import namespace="http://www.springframework.org/schema/beans" />
+
+	<xsd:element name="autoconfig" />
+
 	<xsd:element name="session-context-integration">
 		<xsd:complexType>
 			<xsd:attribute name="id" type="xsd:ID">
@@ -88,13 +90,14 @@
 	<xsd:element name="authentication-remember-me-filter"
 		type="RememberMeFilter">
 		<xsd:annotation>
-				<xsd:documentation source="org.acegisecurity.ui.rememberme.RememberMeProcessingFilter">
-					<![CDATA[
+			<xsd:documentation
+				source="org.acegisecurity.ui.rememberme.RememberMeProcessingFilter">
+				<![CDATA[
 	makes the filter, but does little else, as it auto-detects everything
 				]]>
-				</xsd:documentation>
-			</xsd:annotation>
-		</xsd:element>
+			</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
 
 	<xsd:complexType name="RememberMeFilter">
 		<xsd:attribute name="id" type="xsd:ID">
@@ -289,12 +292,61 @@
 				]]>
 			</xsd:documentation>
 		</xsd:annotation>
+
 		<xsd:complexType>
-			<xsd:attribute name="ref" type="xsd:string">
+	 
+			<xsd:sequence>
+				<xsd:element name="property">
+					<xsd:complexType>
+						<xsd:complexContent>
+							<xsd:extension base="beans:propertyType"></xsd:extension>
+						</xsd:complexContent>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+
+			<xsd:attribute name="ldapUrl" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation>
 						<![CDATA[
-	A short-cut alternative to a nested "<ref bean='...'/>" element.
+	The LDAP url of the server (and root context) to connect to.
+					]]>
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="managerDn" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+						<![CDATA[
+	The LDAP url of the server (and root context) to connect to.
+					]]>
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="managerPassword" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+						<![CDATA[
+	The manager user's password.
+					]]>
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="groupSearchBase" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+						<![CDATA[
+	
+					]]>
+					</xsd:documentation>
+				</xsd:annotation>
+			</xsd:attribute>
+			<xsd:attribute name="groupRoleAttribute"
+				type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>
+						<![CDATA[
+	
 					]]>
 					</xsd:documentation>
 				</xsd:annotation>
@@ -471,6 +523,7 @@
 			<xsd:enumeration value="custom" />
 		</xsd:restriction>
 	</xsd:simpleType>
+
 
 
 

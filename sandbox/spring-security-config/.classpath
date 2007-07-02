@@ -7,7 +7,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1.jar" sourcepath="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/cas/casclient/2.0.11/casclient-2.0.11.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-beans/2.0.4/spring-beans-2.0.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-beans/2.0.4/spring-beans-2.0.4.jar" sourcepath="/spring"/>
 	<classpathentry kind="var" path="M2_REPO/jdbm/jdbm/1.0/jdbm-1.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/directory/shared/shared-asn1/0.9.5.3/shared-asn1-0.9.5.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-support/2.0.4/spring-support-2.0.4.jar"/>
@@ -39,6 +39,6 @@
 	<classpathentry kind="var" path="M2_REPO/org/acegisecurity/acegi-security/1.0.5-SNAPSHOT/acegi-security-1.0.5-SNAPSHOT.jar" sourcepath="M2_REPO/org/acegisecurity/acegi-security/1.0.5-SNAPSHOT/acegi-security-1.0.5-SNAPSHOT-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/directory/server/apacheds-core-shared/1.0.0/apacheds-core-shared-1.0.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/net/sf/ehcache/ehcache/1.2.4/ehcache-1.2.4.jar" sourcepath="M2_REPO/net/sf/ehcache/ehcache/1.2.4/ehcache-1.2.4-sources.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-core/2.0.4/spring-core-2.0.4.jar" sourcepath="/spring"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-core/2.0.4/spring-core-2.0.4.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

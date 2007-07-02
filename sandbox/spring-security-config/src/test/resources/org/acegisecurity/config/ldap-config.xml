@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd  	
+	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+
+	<!-- http://www.springframework.org/schema/security file:/Users/vpuri/interface21/acegisecurity/trunk/acegisecurity/core/src/main/resources/org/acegisecurity/config/spring-security-2.0.xsd -->
+	<!-- http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd" -->
+
+	<!-- make it optional, if not supplied autodetect all auth-providers from app ctx, using Ordered to resolve their order  -->
+	<security:authentication-mechanism id="authenticationManager">
+		<security:authentication-ldap 
+			ldapUrl="ldap://monkeymachine:389/dc=acegisecurity,dc=org"
+			managerDn="cn=manager,dc=acegisecurity,dc=org"
+			managerPassword="password" groupSearchBase="ou=groups"
+			groupRoleAttribute="ou">
+			<security:property name="userDnPatterns">
+				<list>
+					<value>uid={0},ou=people</value>
+				</list>
+			</security:property>
+		</security:authentication-ldap>
+	</security:authentication-mechanism>
+
+
+	<!--<bean id="initialDirContextFactory"
+		class="org.acegisecurity.ldap.DefaultInitialDirContextFactory">
+		<constructor-arg
+		value="ldap://monkeymachine:389/dc=acegisecurity,dc=org" />
+		<property name="managerDn">
+		<value>cn=manager,dc=acegisecurity,dc=org</value>
+		</property>
+		<property name="managerPassword">
+		<value>password</value>
+		</property>
+		</bean>
+		
+		<bean id="ldapAuthProvider"
+		class="org.acegisecurity.providers.ldap.LdapAuthenticationProvider">
+		<constructor-arg>
+		<bean
+		class="org.acegisecurity.providers.ldap.authenticator.BindAuthenticator">
+		<constructor-arg>
+		<ref local="initialDirContextFactory" />
+		</constructor-arg>
+		<property name="userDnPatterns">
+		<list>
+		<value>uid={0},ou=people</value>
+		</list>
+		</property>
+		</bean>
+		</constructor-arg>
+		<constructor-arg>
+		<bean
+		class="org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
+		<constructor-arg>
+		<ref local="initialDirContextFactory" />
+		</constructor-arg>
+		<constructor-arg>
+		<value>ou=groups</value>
+		</constructor-arg>
+		<property name="groupRoleAttribute">
+		<value>ou</value>
+		</property>
+		</bean>
+		</constructor-arg>
+		</bean>
+	-->
+
+</beans>
