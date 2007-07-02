@@ -167,7 +167,7 @@ public class OpenIDLoginInitiationServlet extends HttpServlet {
         } else {
             // send the user the redirect url to proceed with OpenID authentication
             try {
-                String redirect = consumer.beginConsumption(req, id);
+                String redirect = consumer.beginConsumption(req, id, req.getRequestURL().toString());
                 logger.debug("Redirecting to: " + redirect);
                 res.sendRedirect(redirect);
             } catch (OpenIDConsumerException oice) {

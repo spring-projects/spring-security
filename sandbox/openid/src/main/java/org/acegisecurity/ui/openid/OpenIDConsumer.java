@@ -22,41 +22,15 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * An interface for OpenID library implementations
  *
+ * @author Ray Krueger
  * @author Robin Bramley, Opsera Ltd
- *
  */
 public interface OpenIDConsumer {
-    //~ Methods ========================================================================================================
 
-    /**
-     * Start the authentication process
-     *
-     * @param req
-     * @param identityUrl
-     *
-     * @return redirection URL
-     *
-     * @throws OpenIDConsumerException
-     */
-    public String beginConsumption(HttpServletRequest req, String identityUrl)
-        throws OpenIDConsumerException;
+    public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl)
+            throws OpenIDConsumerException;
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param req
-     *
-     * @return
-     *
-     * @throws OpenIDConsumerException
-     */
     public OpenIDAuthenticationToken endConsumption(HttpServletRequest req)
-        throws OpenIDConsumerException;
+            throws OpenIDConsumerException;
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param returnToUrl
-     */
-    public void setReturnToUrl(String returnToUrl);
 }

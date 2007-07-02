@@ -50,6 +50,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
      */
     public Authentication authenticate(Authentication authentication)
         throws AuthenticationException {
+
         if (!supports(authentication.getClass())) {
             return null;
         }
@@ -99,10 +100,6 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
      * @see org.acegisecurity.providers.AuthenticationProvider#supports(java.lang.Class)
      */
     public boolean supports(Class authentication) {
-        if (OpenIDAuthenticationToken.class.isAssignableFrom(authentication)) {
-            return true;
-        } else {
-            return false;
-        }
+        return OpenIDAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

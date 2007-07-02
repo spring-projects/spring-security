@@ -66,7 +66,7 @@ public class JanRainOpenIDConsumer implements OpenIDConsumer, InitializingBean {
     /* (non-Javadoc)
      * @see org.acegisecurity.ui.openid.OpenIDConsumer#beginConsumption(java.lang.String)
      */
-    public String beginConsumption(HttpServletRequest req, String identityUrl)
+    public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl)
         throws OpenIDConsumerException {
         // fetch/create a session Map for the consumer's use
         HttpSession session = req.getSession();
@@ -103,7 +103,7 @@ public class JanRainOpenIDConsumer implements OpenIDConsumer, InitializingBean {
             cp = cp.substring(1) + "/";
         }
 
-        String returnTo = trustRoot + cp + returnToUrl;
+        String returnTo = trustRoot + cp + this.returnToUrl;
 
         // send the user the redirect url to proceed with OpenID authentication
         return ar.redirectUrl(trustRoot, returnTo);

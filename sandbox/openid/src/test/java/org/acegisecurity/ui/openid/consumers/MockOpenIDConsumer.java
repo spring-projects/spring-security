@@ -38,7 +38,7 @@ public class MockOpenIDConsumer implements OpenIDConsumer {
     /* (non-Javadoc)
      * @see org.acegisecurity.ui.openid.OpenIDConsumer#beginConsumption(javax.servlet.http.HttpServletRequest, java.lang.String)
      */
-    public String beginConsumption(HttpServletRequest req, String identityUrl)
+    public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl)
         throws OpenIDConsumerException {
         return redirectUrl;
     }
