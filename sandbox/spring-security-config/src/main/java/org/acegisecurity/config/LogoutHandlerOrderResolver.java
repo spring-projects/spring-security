@@ -70,10 +70,10 @@ public class LogoutHandlerOrderResolver implements BeanFactoryPostProcessor {
 			if (definition.hasBeanClass()) {
 				if (Ordered.class.isAssignableFrom(definition.getBeanClass())) {
 					definition.getPropertyValues().addPropertyValue("order",
-							new Integer(getOrder(definition.getBeanClass())));
+							Integer.valueOf(getOrder(definition.getBeanClass())));
 				}
 				else {
-					definition.getPropertyValues().addPropertyValue("order", new Integer(Integer.MAX_VALUE));
+					definition.getPropertyValues().addPropertyValue("order", Integer.valueOf(Integer.MAX_VALUE));
 				}
 			}
 			list.add(definition);

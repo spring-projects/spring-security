@@ -14,29 +14,43 @@ import org.w3c.dom.Element;
  * 
  */
 public class BeanDefinitionParserUtils {
+	// ~ Constructor
+	// ================================================================================================
+
 	/**
 	 * Prevents instantiation
 	 */
 	private BeanDefinitionParserUtils() {
 	}
 
+	// ~ Method
+	// ================================================================================================
+
 	public static void setConstructorArgumentIfAvailable(int index, Element element, String attribute,
 			boolean isRunTimeBeanReference, RootBeanDefinition definition) {
 		String propertyValue = element.getAttribute(attribute);
 		if (StringUtils.hasText(propertyValue)) {
-			if(!isRunTimeBeanReference){
+			if (!isRunTimeBeanReference) {
 				definition.getConstructorArgumentValues().addIndexedArgumentValue(index, propertyValue);
-			} else {
-				definition.getConstructorArgumentValues().addIndexedArgumentValue(index, new RuntimeBeanNameReference(propertyValue));
+			}
+			else {
+				definition.getConstructorArgumentValues().addIndexedArgumentValue(index,
+						new RuntimeBeanNameReference(propertyValue));
 			}
 		}
 	}
 
 	public static void setPropertyIfAvailable(Element element, String attribute, String property,
-			RootBeanDefinition definition) {
+			boolean isRunTimeBeanReference, RootBeanDefinition definition) {
 		String propertyValue = element.getAttribute(attribute);
 		if (StringUtils.hasText(propertyValue)) {
-			definition.getPropertyValues().addPropertyValue(property, propertyValue);
+			if (!isRunTimeBeanReference) {
+				definition.getPropertyValues().addPropertyValue(property, propertyValue);
+			}
+			else {
+				definition.getPropertyValues().addPropertyValue(property, new RuntimeBeanNameReference(propertyValue));
+			}
+
 		}
 	}
 }

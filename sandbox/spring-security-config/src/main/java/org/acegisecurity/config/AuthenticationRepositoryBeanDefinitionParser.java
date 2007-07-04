@@ -27,8 +27,8 @@ import org.w3c.dom.NodeList;
  */
 public class AuthenticationRepositoryBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
-	// ~ Instance fields
-	// ================================================================================================
+	// ~ Static fields
+	// =====================================================================================
 
 	private static final String REPOSITORY_BEAN_REF = "repositoryBeanRef";
 
@@ -50,14 +50,12 @@ public class AuthenticationRepositoryBeanDefinitionParser extends AbstractBeanDe
 
 	// ~ Method
 	// ================================================================================================
-	/**
-	 * TODO: Document Me !!!
-	 */
+
 	public AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
 		Assert.notNull(parserContext, "ParserContext must not be null");
 
 		RootBeanDefinition repositoryBeanDef = new RootBeanDefinition(DaoAuthenticationProvider.class);
-		
+
 		// check if saltSource is defined
 		Element saltSourceEle = DomUtils.getChildElementByTagName(element, SALT_SOURCE_ELEMENT);
 		setSaltSourceProperty(repositoryBeanDef, saltSourceEle);
@@ -186,7 +184,7 @@ public class AuthenticationRepositoryBeanDefinitionParser extends AbstractBeanDe
 				saltSourceTypeElement.getAttribute("systemWideSalt"));
 		return definition;
 	}
-	
+
 	protected static RootBeanDefinition createBeanDefinitionWithDefaults() {
 		RootBeanDefinition repositoryBeanDef = new RootBeanDefinition(DaoAuthenticationProvider.class);
 		return repositoryBeanDef;

@@ -294,7 +294,7 @@
 		</xsd:annotation>
 
 		<xsd:complexType>
-	 
+
 			<xsd:sequence>
 				<xsd:element name="property">
 					<xsd:complexType>
@@ -503,6 +503,64 @@
 			</xsd:annotation>
 		</xsd:attribute>
 	</xsd:attributeGroup>
+
+	<xsd:element name="authorization-http-url"
+		type="AuthorizationHttpUrlType">
+		<xsd:annotation>
+			<xsd:documentation>
+				<![CDATA[
+				Specify security:uri-patterns in order of processing; each pattern must specify EITHER a 
+				regularExpression OR a path, but not both and ALL patterns in the url-mapping MUST be of the 
+				SAME type (ie cannot mix a regular expression and Ant Path) - exception will be thrown if tried
+				]]>
+			</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+
+	<xsd:complexType name="AuthorizationHttpUrlType">
+		<xsd:sequence minOccurs="1" maxOccurs="1">
+			<xsd:element name="url-mapping" type="UrlMappingType"></xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:ID">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[
+	The unique identifier for a bean.
+				]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:complexType name="UrlMappingType">
+		<xsd:sequence minOccurs="1" maxOccurs="unbounded">
+			<xsd:element name="uri-pattern" type="UriPatternType" />
+		</xsd:sequence>
+		<xsd:attribute name="source" type="xsd:string" default="xml" />
+		<xsd:attribute name="sourceBeanId" type="xsd:string">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[
+	Reference to an external ObjectDefinitionSource.
+				]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:complexType name="UriPatternType">
+		<xsd:sequence minOccurs="1" maxOccurs="unbounded">
+			<xsd:element name="configuration-attribute"
+				type="ConfigurationAttributeType" />
+		</xsd:sequence>
+		<xsd:attribute name="path" type="xsd:string" use="optional"/>
+		<xsd:attribute name="regularExpression" type="xsd:string" use="optional"/>
+	</xsd:complexType>
+
+	<xsd:complexType name="ConfigurationAttributeType">
+		<xsd:attribute name="attribute" type="xsd:string" />
+	</xsd:complexType>
+
 
 	<!-- simple internal types -->
 	<xsd:simpleType name="defaultable-boolean">

@@ -23,6 +23,9 @@ import org.w3c.dom.NamedNodeMap;
  */
 public class ContextIntegrationBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
+	// ~ Static fields/initializers
+	// =====================================================================================
+
 	private static final String HTTP_SESSION_CONTEXT_INTEGRATION = "session-context-integration";
 
 	private static final String SESSION_CREATION = "sessionCreation";
@@ -35,7 +38,8 @@ public class ContextIntegrationBeanDefinitionParser extends AbstractSingleBeanDe
 
 	private static final String ALLOW_SESSION_CREATION = "allowSessionCreation";
 
-	private BeanDefinitionBuilder builder;
+	// ~ Methods
+	// ========================================================================================================
 
 	protected Class getBeanClass(Element element) {
 		return HttpSessionContextIntegrationFilter.class;

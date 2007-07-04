@@ -12,7 +12,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 	<!-- http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd" -->
 
 	<!-- ======================== AUTHENTICATION ======================= -->
-
+	
 	<!-- makes the filter, but does little else, as it auto-detects everything -->
 	<security:authentication-remember-me-filter id="rememberMeFilter" />
 

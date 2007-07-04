@@ -39,11 +39,17 @@ import org.w3c.dom.Element;
  */
 public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 
+	// ~ instance fields
+	// ================================================================================================
+
 	private RootBeanDefinition authenticationManager;
 
 	private RootBeanDefinition rememberMeServices;
 
 	private ManagedList decisionVoters = new ManagedList();
+
+	// ~ Method
+	// ================================================================================================
 
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		// authentication manager

@@ -49,8 +49,8 @@ public class AuthenticationMechanismBeanDefinitionParser extends AbstractBeanDef
 	// ================================================================================================
 
 	private static final String AUTHENTICATION_JDBC = "authentication-jdbc";
-	
-	private static final String AUTHENTICATION_LDAP="authentication-ldap";
+
+	private static final String AUTHENTICATION_LDAP = "authentication-ldap";
 
 	private static final String REF = "ref";
 
@@ -76,7 +76,8 @@ public class AuthenticationMechanismBeanDefinitionParser extends AbstractBeanDef
 						// create a beandefinition
 						providers.add(new RuntimeBeanReference(attribute));
 					}
-				} else if (AUTHENTICATION_LDAP.equals(node.getLocalName())){
+				}
+				else if (AUTHENTICATION_LDAP.equals(node.getLocalName())) {
 					providers.add(createLdapAuthencticationProviderBeanDefinition(childElement, parserContext));
 				}
 			}
@@ -114,16 +115,17 @@ public class AuthenticationMechanismBeanDefinitionParser extends AbstractBeanDef
 		Assert.notNull(property);
 		parserContext.getDelegate().parsePropertyElement(property, bindAuthenticator);
 		bindAuthenticator.getConstructorArgumentValues().addIndexedArgumentValue(0, initialDirContextFactory);
-		
+
 		// LdapAuthenticator
 		ldapAuthProvider.getConstructorArgumentValues().addIndexedArgumentValue(0, bindAuthenticator);
 
 		ldapAuthoritiesPopulator.getConstructorArgumentValues().addIndexedArgumentValue(0, initialDirContextFactory);
 		BeanDefinitionParserUtils.setConstructorArgumentIfAvailable(1, element, "groupSearchBase", false,
 				ldapAuthoritiesPopulator);
-		BeanDefinitionParserUtils.setPropertyIfAvailable(element, "groupRoleAttribute", "groupRoleAttribute", ldapAuthoritiesPopulator);
-		
-		//LdapAuthoritiesPopulator
+		BeanDefinitionParserUtils.setPropertyIfAvailable(element, "groupRoleAttribute", "groupRoleAttribute", false,
+				ldapAuthoritiesPopulator);
+
+		// LdapAuthoritiesPopulator
 		ldapAuthProvider.getConstructorArgumentValues().addIndexedArgumentValue(1, ldapAuthoritiesPopulator);
 
 		return ldapAuthProvider;
@@ -134,10 +136,10 @@ public class AuthenticationMechanismBeanDefinitionParser extends AbstractBeanDef
 		RootBeanDefinition initialDirContextFactory = new RootBeanDefinition(DefaultInitialDirContextFactory.class);
 		BeanDefinitionParserUtils.setConstructorArgumentIfAvailable(0, element, "ldapUrl", false,
 				initialDirContextFactory);
-		BeanDefinitionParserUtils.setPropertyIfAvailable(element, "managerDn", "managerDn", initialDirContextFactory);
-		BeanDefinitionParserUtils.setPropertyIfAvailable(element, "managerPassword", "managerPassword",
+		BeanDefinitionParserUtils.setPropertyIfAvailable(element, "managerDn", "managerDn", false,
+				initialDirContextFactory);
+		BeanDefinitionParserUtils.setPropertyIfAvailable(element, "managerPassword", "managerPassword", false,
 				initialDirContextFactory);
 		return initialDirContextFactory;
 	}
-
 }

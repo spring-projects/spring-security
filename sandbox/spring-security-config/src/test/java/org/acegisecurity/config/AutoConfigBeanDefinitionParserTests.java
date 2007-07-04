@@ -30,7 +30,7 @@ public class AutoConfigBeanDefinitionParserTests extends TestCase {
 
 	private ApplicationContext context;
 
-	ConfigurableListableBeanFactory bf;
+	private ConfigurableListableBeanFactory bf;
 
 	// ~ Methods
 	// ========================================================================================================
@@ -89,7 +89,6 @@ public class AutoConfigBeanDefinitionParserTests extends TestCase {
 		Field transactionAttributeSource = makeAccessibleAndGetFieldByName(advisor.getClass().getDeclaredFields(), "transactionAttributeSource");
 		assertNotNull(transactionAttributeSource);
 		assertTrue(transactionAttributeSource.get(advisor) instanceof MethodDefinitionSource);
-
 	}
 
 	private Field makeAccessibleAndGetFieldByName(Field[] declaredFields, String name) {

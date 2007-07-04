@@ -28,6 +28,7 @@ public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
 		registerBeanDefinitionParser("logout-support", new LogoutFilterBeanDefinitionParser());
 		registerBeanDefinitionParser("exception-translation", new ExceptionTranslationFilterBeanDefinitionParser());
 		registerBeanDefinitionParser("authentication-form", new AuthenticationProcessingFilterBeanDefinitionParser());
+		registerBeanDefinitionParser("authorization-http-url", new FilterSecurityInterceptorBeanDefinitionParser());
 		registerBeanDefinitionParser("autoconfig", new AutoConfigBeanDefinitionParser());
 	}
 

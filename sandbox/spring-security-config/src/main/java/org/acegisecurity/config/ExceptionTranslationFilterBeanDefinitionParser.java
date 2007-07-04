@@ -53,6 +53,9 @@ import org.w3c.dom.Element;
  */
 public class ExceptionTranslationFilterBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
+	// ~ Static fields
+	// =====================================================================================
+
 	private static final String ACCESS_DENIED = "access-denied";
 
 	private static final String ACCESS_DENIED_REF = "accessDeniedBeanRef";
@@ -66,6 +69,9 @@ public class ExceptionTranslationFilterBeanDefinitionParser extends AbstractBean
 	private static final String LOGIN_FORM_URL = "loginFormUrl";
 
 	private static final String LOGIN_FORM_URL_VALUE = "/acegilogin.jsp";
+
+	// ~ Method
+	// ================================================================================================
 
 	protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
 

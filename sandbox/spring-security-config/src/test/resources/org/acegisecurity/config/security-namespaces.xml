@@ -1,4 +1,4 @@
- <?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -36,7 +36,8 @@
 		superclass AbstractAccessDecisionManager requires refactoring so if no setProvider(List) given, it introspects app ctx for all AccessDecisionVoters
 		and uses their Ordered interface to apply them; if one doesn't implement Ordered, assume it is Integer.MAX_VALUE -->
 	<security:authorization-manager id="id"
-		strategy="consensus|unanimous|affirmative" />t
+		strategy="consensus|unanimous|affirmative" />
+	t
 
 	<!-- ======================== AUTHENTICATION ======================= -->
 
@@ -90,7 +91,7 @@
 			x="you can do the attributes and suitable nested elements" />
 		<security:properties
 			location="resourceStringToPropertiesFile">
-<!-- if they specify a resource attrib, that means throw exception if they nest some user-definition data) -->
+			<!-- if they specify a resource attrib, that means throw exception if they nest some user-definition data) -->
 			<security:user-definition username="ben"
 				password="nottellingYou" enabled="true"
 				it="more stuff if you want">
@@ -129,13 +130,15 @@
 
 	<!--  any kind of ACL support is out of scope; frankly it is too hard for 1.1.0 -->
 
-	<!-- ensure element name is not overlapping with portlet or spring web flow or tapestry URI patterns, as this filter is incompatible with them -->
+	<!-- ensure element name is not overlapping with portlet or spring web flow or tapestry URI patterns, 
+		as this filter is incompatible with them -->
 	<security:authorization-http-url>
 		<security:url-mapping
 			source="xml - the default and no other options"
 			sourceBeanId="referenceToTheirObjectDefinitionSource">
-			<!-- Specify security:uri-patterns in order of processing; each pattern must specify EITHER a regularExpression OR a path, but not both
-				and ALL patterns in the url-mapping MUST be of the SAME type (ie cannot mix a regular expression and Ant Path) - give exception if tried -->
+			<!-- Specify security:uri-patterns in order of processing; each pattern must specify EITHER a 
+			regularExpression OR a path, but not both and ALL patterns in the url-mapping MUST be of the 
+			SAME type (ie cannot mix a regular expression and Ant Path) - give exception if tried -->
 			<security:uri-pattern path="/index.jsp"
 				regularExpression="whatever">
 				<security:configuration-attribute attribute="ROLE_A" />

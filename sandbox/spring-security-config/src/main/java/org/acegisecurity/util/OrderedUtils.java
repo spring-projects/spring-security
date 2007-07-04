@@ -13,6 +13,7 @@ import org.springframework.util.ReflectionUtils;
  * {@link Ordered} interface.
  * 
  * @author Ben Alex
+ * @author Vishal Puri
  */
 public abstract class OrderedUtils {
 	/**
@@ -59,7 +60,7 @@ public abstract class OrderedUtils {
 		Assert.notNull(destinationObject, "Destination object required");
 		Method m = ReflectionUtils.findMethod(destinationObject.getClass(), "setOrder", new Class[] {int.class});
 		Assert.notNull(m, "Method setOrder(int) not found on " + destinationObject.getClass());
-		ReflectionUtils.invokeMethod(m, destinationObject, new Object[] {new Integer(sourceObject.getOrder())});
+		ReflectionUtils.invokeMethod(m, destinationObject, new Object[] { Integer.valueOf((sourceObject.getOrder()))});
 	}
 	
 }
