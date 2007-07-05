@@ -1,22 +1,17 @@
 package org.acegisecurity.config;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
+import org.acegisecurity.AccessDecisionManager;
 import org.acegisecurity.intercept.web.FilterInvocationDefinitionDecorator;
 import org.acegisecurity.intercept.web.FilterInvocationDefinitionSourceMapping;
 import org.acegisecurity.intercept.web.FilterSecurityInterceptor;
 import org.acegisecurity.intercept.web.PathBasedFilterInvocationDefinitionMap;
 import org.acegisecurity.intercept.web.RegExpBasedFilterInvocationDefinitionMap;
 import org.acegisecurity.util.BeanDefinitionParserUtils;
-import org.acegisecurity.vote.AffirmativeBased;
-import org.acegisecurity.vote.AuthenticatedVoter;
-import org.acegisecurity.vote.RoleVoter;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -50,7 +45,7 @@ public class FilterSecurityInterceptorBeanDefinitionParser extends AbstractBeanD
 			ParserContext parserContext) {
 		RootBeanDefinition filterInvocationInterceptor = new RootBeanDefinition(FilterSecurityInterceptor.class);
 
-		RootBeanDefinition accessDecisionManager = createAccessDecisionManagerAffirmativeBased();
+		RootBeanDefinition accessDecisionManager = AuthorizationManagerBeanDefinitionParser.createAccessDecisionManagerAffirmativeBased();
 		filterInvocationInterceptor.getPropertyValues()
 				.addPropertyValue("accessDecisionManager", accessDecisionManager);
 
@@ -155,16 +150,6 @@ public class FilterSecurityInterceptorBeanDefinitionParser extends AbstractBeanD
 		return filterInvocationInterceptor;
 	}
 
-	protected static RootBeanDefinition createAccessDecisionManagerAffirmativeBased() {
-		ManagedList decisionVoters = new ManagedList();
-		RootBeanDefinition accessDecisionManager = new RootBeanDefinition(AffirmativeBased.class);
-		accessDecisionManager.getPropertyValues().addPropertyValue("allowIfAllAbstainDecisions", Boolean.FALSE);
-		RootBeanDefinition authenticatedVoter = new RootBeanDefinition(AuthenticatedVoter.class);
-		RootBeanDefinition roleVoter = new RootBeanDefinition(RoleVoter.class);
-		decisionVoters.add(authenticatedVoter);
-		decisionVoters.add(roleVoter);
-		accessDecisionManager.getPropertyValues().addPropertyValue("decisionVoters", decisionVoters);
-		return accessDecisionManager;
-	}
+	
 
 }

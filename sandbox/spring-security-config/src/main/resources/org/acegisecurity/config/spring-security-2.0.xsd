@@ -560,7 +560,33 @@
 	<xsd:complexType name="ConfigurationAttributeType">
 		<xsd:attribute name="attribute" type="xsd:string" />
 	</xsd:complexType>
-
+	
+	<xsd:element name="authorization-manager" type="AuthorizationManagerType"/>
+	
+	<xsd:complexType name="AuthorizationManagerType">
+		<xsd:sequence>
+			<xsd:element name="role-voter" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="authenticated-voter" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:ID">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[
+	The unique identifier for a bean.
+				]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="strategy" type="response" default="affirmative"/>
+	</xsd:complexType>
+	
+	<xsd:simpleType name="response">
+		<xsd:restriction base="xsd:NMTOKEN">
+			<xsd:enumeration value="consensus" />
+			<xsd:enumeration value="unanimous" />
+			<xsd:enumeration value="affirmative" />
+		</xsd:restriction>
+	</xsd:simpleType>
 
 	<!-- simple internal types -->
 	<xsd:simpleType name="defaultable-boolean">

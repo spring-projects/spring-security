@@ -37,7 +37,7 @@
 		and uses their Ordered interface to apply them; if one doesn't implement Ordered, assume it is Integer.MAX_VALUE -->
 	<security:authorization-manager id="id"
 		strategy="consensus|unanimous|affirmative" />
-	t
+
 
 	<!-- ======================== AUTHENTICATION ======================= -->
 

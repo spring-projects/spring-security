@@ -32,28 +32,41 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
-
 /**
- * Used by the <code>SecurityEnforcementFilter</code> to commence authentication via the {@link
- * BasicProcessingFilter}.<P>Once a user agent is authenticated using BASIC authentication, logout requires that
- * the browser be closed or an unauthorized (401) header be sent. The simplest way of achieving the latter is to call
- * the {@link #commence(ServletRequest, ServletResponse, AuthenticationException)} method below. This will indicate to
- * the browser its credentials are no longer authorized, causing it to prompt the user to login again.</p>
- *
+ * Used by the <code>SecurityEnforcementFilter</code> to commence
+ * authentication via the {@link BasicProcessingFilter}.
+ * <P>
+ * Once a user agent is authenticated using BASIC authentication, logout
+ * requires that the browser be closed or an unauthorized (401) header be sent.
+ * The simplest way of achieving the latter is to call the
+ * {@link #commence(ServletRequest, ServletResponse, AuthenticationException)}
+ * method below. This will indicate to the browser its credentials are no longer
+ * authorized, causing it to prompt the user to login again.
+ * </p>
+ * 
  * @author Ben Alex
- * @version $Id: BasicProcessingFilterEntryPoint.java 1822 2007-05-17 12:20:16Z vishalpuri $
+ * @version $Id: BasicProcessingFilterEntryPoint.java 1822 2007-05-17 12:20:16Z
+ * vishalpuri $
  */
-public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered, ApplicationContextAware {
-    //~ Instance fields ================================================================================================
-
+public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered,
+		ApplicationContextAware {
+	// ~ Static fields/initializers
+	// =====================================================================================
 	private static final int DEFAULT_ORDER = Integer.MAX_VALUE;
-    private String realmName;
-    private int order = DEFAULT_ORDER;
-    private ApplicationContext applicationContext;
 
-    //~ Methods ========================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    public int getOrder() {
+	private String realmName;
+
+	private int order = DEFAULT_ORDER;
+
+	private ApplicationContext applicationContext;
+
+	// ~ Methods
+	// ========================================================================================================
+
+	public int getOrder() {
 		return order;
 	}
 
@@ -66,22 +79,22 @@ public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint
 		if (order == DEFAULT_ORDER) {
 			OrderedUtils.copyOrderFromOtherClass(BasicProcessingFilter.class, applicationContext, this, true);
 		}
-    }
+	}
 
-    public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
-        throws IOException, ServletException {
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-        httpResponse.addHeader("WWW-Authenticate", "Basic realm=\"" + realmName + "\"");
-        httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
-    }
+	public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
+			throws IOException, ServletException {
+		HttpServletResponse httpResponse = (HttpServletResponse) response;
+		httpResponse.addHeader("WWW-Authenticate", "Basic realm=\"" + realmName + "\"");
+		httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+	}
 
-    public String getRealmName() {
-        return realmName;
-    }
+	public String getRealmName() {
+		return realmName;
+	}
 
-    public void setRealmName(String realmName) {
-        this.realmName = realmName;
-    }
+	public void setRealmName(String realmName) {
+		this.realmName = realmName;
+	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
