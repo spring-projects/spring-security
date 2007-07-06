@@ -3,8 +3,13 @@
  */
 package org.acegisecurity.config;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
+import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
@@ -142,6 +147,15 @@ public class PrincipalRepositoryBeanDefinitionParser extends AbstractBeanDefinit
 		defintion.setSource(parserContext.extractSource(ele));
 		return parserContext.getReaderContext().registerWithGeneratedName(defintion);
 	}
+	
+	protected static RootBeanDefinition createSampleUsersUsingProperties() {
+		// properties element
+		RootBeanDefinition defintion = new RootBeanDefinition(PropertiesFactoryBean.class);
+		String location = "classpath:org/acegisecurity/config/user.properties";
+		defintion.getPropertyValues().addPropertyValue("location", location);
+		return defintion;
+	}
+	
 
 	/**
 	 * 

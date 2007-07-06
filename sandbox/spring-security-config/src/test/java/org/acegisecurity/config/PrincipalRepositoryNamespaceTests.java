@@ -1,4 +1,4 @@
- package org.acegisecurity.config;
+package org.acegisecurity.config;
 
 import junit.framework.TestCase;
 
@@ -9,13 +9,14 @@ import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.memory.InMemoryDaoImpl;
 import org.acegisecurity.userdetails.memory.UserMap;
 import org.springframework.beans.PropertyValue;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
- * @author vpuri
+ * @author Vishal Puri
  * 
  */
 public class PrincipalRepositoryNamespaceTests extends TestCase {
@@ -60,4 +61,5 @@ public class PrincipalRepositoryNamespaceTests extends TestCase {
 		assertEquals(new GrantedAuthorityImpl("ROLE_YO"), users.getUser("vishal").getAuthorities()[0]);
 		assertEquals(new GrantedAuthorityImpl("ROLE_YOYO"), users.getUser("vishal").getAuthorities()[1]);
 	}
+
 }

@@ -12,9 +12,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 	<import resource="remember-me-defaults.xml" />
 
 	<security:authorization-http-url id="authorizationhttp">
-		<security:url-mapping
-			source="xml - the default and no other options"
-			sourceBeanId="referenceToTheirObjectDefinitionSource">
+		<security:url-mapping source="xml">
 			<!-- Specify security:uri-patterns in order of processing; each pattern must specify EITHER a 
 				regularExpression OR a path, but not both and ALL patterns in the url-mapping MUST be of the 
 				SAME type (ie cannot mix a regular expression and Ant Path) - give exception if tried -->
@@ -22,8 +20,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 				<security:configuration-attribute attribute="ROLE_A" />
 				<security:configuration-attribute attribute="ROLE_B" />
 			</security:uri-pattern>
-			<security:uri-pattern 
-				regularExpression="whatever">
+			<security:uri-pattern regularExpression="whatever">
 				<security:configuration-attribute attribute="ROLE_A" />
 			</security:uri-pattern>
 		</security:url-mapping>

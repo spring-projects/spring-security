@@ -553,20 +553,24 @@
 			<xsd:element name="configuration-attribute"
 				type="ConfigurationAttributeType" />
 		</xsd:sequence>
-		<xsd:attribute name="path" type="xsd:string" use="optional"/>
-		<xsd:attribute name="regularExpression" type="xsd:string" use="optional"/>
+		<xsd:attribute name="path" type="xsd:string" use="optional" />
+		<xsd:attribute name="regularExpression" type="xsd:string"
+			use="optional" />
 	</xsd:complexType>
 
 	<xsd:complexType name="ConfigurationAttributeType">
 		<xsd:attribute name="attribute" type="xsd:string" />
 	</xsd:complexType>
-	
-	<xsd:element name="authorization-manager" type="AuthorizationManagerType"/>
-	
+
+	<xsd:element name="authorization-manager"
+		type="AuthorizationManagerType" />
+
 	<xsd:complexType name="AuthorizationManagerType">
 		<xsd:sequence>
-			<xsd:element name="role-voter" type="xsd:string" minOccurs="0" maxOccurs="1"/>
-			<xsd:element name="authenticated-voter" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="role-voter" type="xsd:string"
+				minOccurs="0" maxOccurs="1" />
+			<xsd:element name="authenticated-voter" type="xsd:string"
+				minOccurs="0" maxOccurs="1" />
 		</xsd:sequence>
 		<xsd:attribute name="id" type="xsd:ID">
 			<xsd:annotation>
@@ -577,14 +581,81 @@
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="strategy" type="response" default="affirmative"/>
+		<xsd:attribute name="strategy" type="response"
+			default="affirmative" />
 	</xsd:complexType>
-	
+
+	<!-- Authorization JointPoint -->
+	<xsd:element name="authorization-joinpoint"
+		type="AuthorizationJointPointType">
+		<xsd:annotation>
+			<xsd:documentation>
+				<![CDATA[
+				
+				]]>
+			</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+
+	<xsd:complexType name="AuthorizationJointPointType">
+		<xsd:sequence minOccurs="1" maxOccurs="1">
+			<xsd:element name="url-mapping"
+				type="JointPointMappingType">
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:ID">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[
+	The unique identifier for a bean.
+				]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="springAop" type="xsd:boolean"
+			use="optional" />
+		<xsd:attribute name="aspectj" type="xsd:boolean" use="optional" />
+	</xsd:complexType>
+
+	<xsd:complexType name="JointPointMappingType">
+		<xsd:sequence minOccurs="1" maxOccurs="unbounded">
+			<xsd:element name="method-pattern" type="MethodPatternType" />
+		</xsd:sequence>
+		<xsd:attribute name="source" type="MethodInterceptorType"
+			default="xml" />
+		<xsd:attribute name="sourceBeanId" type="xsd:string">
+			<xsd:annotation>
+				<xsd:documentation>
+					<![CDATA[
+	Reference to an external ObjectDefinitionSource.
+				]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:complexType name="MethodPatternType">
+		<xsd:sequence minOccurs="1" maxOccurs="unbounded">
+			<xsd:element name="configuration-attribute"
+				type="ConfigurationAttributeType" />
+		</xsd:sequence>
+		<xsd:attribute name="type" type="xsd:string" />
+	</xsd:complexType>
+
 	<xsd:simpleType name="response">
 		<xsd:restriction base="xsd:NMTOKEN">
 			<xsd:enumeration value="consensus" />
 			<xsd:enumeration value="unanimous" />
 			<xsd:enumeration value="affirmative" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="MethodInterceptorType">
+		<xsd:restriction base="xsd:NMTOKEN">
+			<xsd:enumeration value="xml" />
+			<xsd:enumeration value="attributes" />
+			<xsd:enumeration value="annotations" />
+			<xsd:enumeration value="custom" />
 		</xsd:restriction>
 	</xsd:simpleType>
 

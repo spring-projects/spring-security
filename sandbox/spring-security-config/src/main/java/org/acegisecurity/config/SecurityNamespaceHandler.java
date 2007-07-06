@@ -30,6 +30,7 @@ public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
 		registerBeanDefinitionParser("authentication-form", new AuthenticationProcessingFilterBeanDefinitionParser());
 		registerBeanDefinitionParser("authorization-manager", new AuthorizationManagerBeanDefinitionParser());
 		registerBeanDefinitionParser("authorization-http-url", new FilterSecurityInterceptorBeanDefinitionParser());
+		registerBeanDefinitionParser("authorization-joinpoint", new AuthorizationMethodBeanDefinitionParser());
 		registerBeanDefinitionParser("autoconfig", new AutoConfigBeanDefinitionParser());
 	}
 

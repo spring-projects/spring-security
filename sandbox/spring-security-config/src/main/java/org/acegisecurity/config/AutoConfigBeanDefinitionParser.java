@@ -4,9 +4,10 @@
 package org.acegisecurity.config;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.acegisecurity.AuthenticationManager;
 import org.acegisecurity.annotation.SecurityAnnotationAttributes;
 import org.acegisecurity.intercept.method.MethodDefinitionAttributes;
 import org.acegisecurity.intercept.method.aopalliance.MethodDefinitionSourceAdvisor;
@@ -16,6 +17,8 @@ import org.acegisecurity.intercept.web.FilterInvocationDefinitionSourceMapping;
 import org.acegisecurity.intercept.web.FilterSecurityInterceptor;
 import org.acegisecurity.intercept.web.PathBasedFilterInvocationDefinitionMap;
 import org.acegisecurity.runas.RunAsManagerImpl;
+import org.acegisecurity.userdetails.memory.InMemoryDaoImpl;
+import org.acegisecurity.util.BeanDefinitionParserUtils;
 import org.acegisecurity.vote.AffirmativeBased;
 import org.acegisecurity.vote.AuthenticatedVoter;
 import org.acegisecurity.vote.RoleVoter;
@@ -27,6 +30,7 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -73,12 +77,14 @@ public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 
 		// filter security interceptor
 		createAndRegisterBeanDefinitionForFilterSecurityInterceptor(parserContext, authenticationManager);
+
+		// create userDetailsService
 		return null;
 	}
 
 	private void createAndRegisterBeanDefintionForSecurityContextHolderAwareRequestFilter(ParserContext parserContext) {
 		RootBeanDefinition beanDefinition = new RootBeanDefinition(SecurityContextHolderAwareRequestFilter.class);
-		registerBeanDefinition(parserContext, beanDefinition);
+		BeanDefinitionParserUtils.registerBeanDefinition(parserContext, beanDefinition);
 	}
 
 	/**
@@ -120,7 +126,7 @@ public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 		source.setMappings(mappings);
 		filterInvocationInterceptor.getPropertyValues().addPropertyValue("objectDefinitionSource",
 				source.getDecorated());
-		registerBeanDefinition(parserContext, filterInvocationInterceptor);
+		BeanDefinitionParserUtils.registerBeanDefinition(parserContext, filterInvocationInterceptor);
 	}
 
 	private RootBeanDefinition createAccessDecisionManagerAffirmativeBased() {
@@ -133,7 +139,8 @@ public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private void createAndRegisterDefaultAdvisorAutoProxyCreator(ParserContext parserContext) {
-		registerBeanDefinition(parserContext, new RootBeanDefinition(DefaultAdvisorAutoProxyCreator.class));
+		BeanDefinitionParserUtils.registerBeanDefinition(parserContext, new RootBeanDefinition(
+				DefaultAdvisorAutoProxyCreator.class));
 	}
 
 	private void createAndRegisterBeanDefinitinoForMethodDefinitionSourceAdvisor(ParserContext parserContext,
@@ -142,21 +149,16 @@ public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 
 		RootBeanDefinition securityInterceptor = createMethodSecurityInterceptor(authenticationManager);
 		methodSecurityAdvisor.getConstructorArgumentValues().addIndexedArgumentValue(0, securityInterceptor);
-		registerBeanDefinition(parserContext, methodSecurityAdvisor);
+		BeanDefinitionParserUtils.registerBeanDefinition(parserContext, methodSecurityAdvisor);
 
 	}
 
 	private RootBeanDefinition createAccessDecisionManagerUnanimousBased() {
 		RootBeanDefinition accessDecisionManager = new RootBeanDefinition(UnanimousBased.class);
 		accessDecisionManager.getPropertyValues().addPropertyValue("allowIfAllAbstainDecisions", Boolean.FALSE);
-		RootBeanDefinition roleVoter = createRoleVoter();
-		decisionVoters.add(roleVoter);
+		decisionVoters.add(new RootBeanDefinition(RoleVoter.class));
 		accessDecisionManager.getPropertyValues().addPropertyValue("decisionVoters", decisionVoters);
 		return accessDecisionManager;
-	}
-
-	private RootBeanDefinition createRoleVoter() {
-		return new RootBeanDefinition(RoleVoter.class);
 	}
 
 	private RootBeanDefinition createMethodSecurityInterceptor(RootBeanDefinition authenticationManager) {
@@ -190,43 +192,34 @@ public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private void createAndRegisterBeanDefinitionForExceptionTranslationFilter(ParserContext parserContext) {
-		registerBeanDefinition(parserContext, ExceptionTranslationFilterBeanDefinitionParser
+		BeanDefinitionParserUtils.registerBeanDefinition(parserContext, ExceptionTranslationFilterBeanDefinitionParser
 				.createBeanDefinitionWithDefaults());
 	}
 
 	private void createAndRegisterBeanDefinitionForRememberMeProcessingFilter(ParserContext parserContext,
 			RootBeanDefinition authenticationManager) {
-		registerBeanDefinition(parserContext, RememberMeFilterBeanDefinitionParser.createBeanDefinitionWithDefaults(
-				parserContext, authenticationManager));
+		BeanDefinitionParserUtils.registerBeanDefinition(parserContext, RememberMeFilterBeanDefinitionParser
+				.createBeanDefinitionWithDefaults(parserContext, authenticationManager));
 	}
 
 	private void createAndRegisterBeanDefinitionForAuthenticationProcessingFilter(ParserContext parserContext,
 			RootBeanDefinition authenticationManager, RootBeanDefinition rememberMeServices) {
 		RootBeanDefinition defintion = AuthenticationProcessingFilterBeanDefinitionParser
 				.createBeandefinitionWithDefaults(parserContext, authenticationManager, rememberMeServices);
-		registerBeanDefinition(parserContext, defintion);
+		BeanDefinitionParserUtils.registerBeanDefinition(parserContext, defintion);
 	}
 
 	private void createAndRegisterBeanDefinitionForLogoutFilter(ParserContext parserContext,
 			RootBeanDefinition rememberMeServices) {
 		RootBeanDefinition defintion = LogoutFilterBeanDefinitionParser
 				.createBeanDefinitionWithDefaults(rememberMeServices);
-		registerBeanDefinition(parserContext, defintion);
+		BeanDefinitionParserUtils.registerBeanDefinition(parserContext, defintion);
 	}
 
 	private void createAndRegisterBeanDefinitionForHttpSessionContextIntegrationFilter(ParserContext parserContext) {
 		RootBeanDefinition defintion = ContextIntegrationBeanDefinitionParser.createBeanDefinitionWithDefaults();
-		registerBeanDefinition(parserContext, defintion);
+		BeanDefinitionParserUtils.registerBeanDefinition(parserContext, defintion);
 		// retrieveBeanDefinition(parserContext, o)
-	}
-
-	/**
-	 * @param parserContext
-	 * @param defintion
-	 */
-	private void registerBeanDefinition(ParserContext parserContext, RootBeanDefinition defintion) {
-		parserContext.getRegistry().registerBeanDefinition(
-				parserContext.getReaderContext().generateBeanName(defintion), defintion);
 	}
 
 	/**
@@ -247,7 +240,4 @@ public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 		return null;
 	}
 
-	private Class ss(Object o) {
-		return o.getClass();
-	}
 }

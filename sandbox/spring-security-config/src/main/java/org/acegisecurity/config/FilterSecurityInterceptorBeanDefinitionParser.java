@@ -26,6 +26,8 @@ import org.w3c.dom.Node;
  * 
  */
 public class FilterSecurityInterceptorBeanDefinitionParser extends AbstractBeanDefinitionParser {
+	// ~ static initializers
+	// ================================================================================================
 
 	private static final String OBJECT_DEFINITION_SOURCE_PROPERTY = "objectDefinitionSource";
 
@@ -37,6 +39,9 @@ public class FilterSecurityInterceptorBeanDefinitionParser extends AbstractBeanD
 
 	private static final String CONFIGURATION_ATTRIB_ATTRIBUTE = "attribute";
 
+	// ~ Methods
+	// ================================================================================================
+
 	protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
 		return createBeanDefinitionForFilterSecurityInterceptor(element, parserContext);
 	}
@@ -45,7 +50,8 @@ public class FilterSecurityInterceptorBeanDefinitionParser extends AbstractBeanD
 			ParserContext parserContext) {
 		RootBeanDefinition filterInvocationInterceptor = new RootBeanDefinition(FilterSecurityInterceptor.class);
 
-		RootBeanDefinition accessDecisionManager = AuthorizationManagerBeanDefinitionParser.createAccessDecisionManagerAffirmativeBased();
+		RootBeanDefinition accessDecisionManager = AuthorizationManagerBeanDefinitionParser
+				.createAccessDecisionManagerAffirmativeBased();
 		filterInvocationInterceptor.getPropertyValues()
 				.addPropertyValue("accessDecisionManager", accessDecisionManager);
 
@@ -56,8 +62,12 @@ public class FilterSecurityInterceptorBeanDefinitionParser extends AbstractBeanD
 		Element firstChild = DomUtils.getChildElementByTagName(element, "url-mapping");
 		// if 'url-mapping' element is defined
 		if (firstChild != null) {
-			BeanDefinitionParserUtils.setPropertyIfAvailable(firstChild, OBJECT_DEFINITION_SOURCE_REF_ATTRIBUTE,
-					OBJECT_DEFINITION_SOURCE_PROPERTY, true/* RuntimeBeanReference */, filterInvocationInterceptor);
+
+			if (BeanDefinitionParserUtils.setPropertyIfAvailable(firstChild, OBJECT_DEFINITION_SOURCE_REF_ATTRIBUTE,
+					OBJECT_DEFINITION_SOURCE_PROPERTY, true/* RuntimeBeanReference */, filterInvocationInterceptor)) {
+				return filterInvocationInterceptor;
+			}
+
 			// get 'uri-pattern' or 'path' attribute. not both can be specified
 			// together
 			List uriPatternElements = DomUtils.getChildElementsByTagName(firstChild, "uri-pattern");
@@ -118,8 +128,8 @@ public class FilterSecurityInterceptorBeanDefinitionParser extends AbstractBeanD
 				mapping.setUrl(url);
 				// get child elements 'configuration-attribute'
 				List configAttributes = DomUtils.getChildElementsByTagName(uriPattern, "configuration-attribute");
-			
-				 for (Iterator iter = configAttributes.iterator(); iter.hasNext();) {
+
+				for (Iterator iter = configAttributes.iterator(); iter.hasNext();) {
 					Element configAttribute = (Element) iter.next();
 					String configAttributeValue = configAttribute.getAttribute(CONFIGURATION_ATTRIB_ATTRIBUTE);
 					mapping.addConfigAttribute(configAttributeValue);
@@ -145,11 +155,9 @@ public class FilterSecurityInterceptorBeanDefinitionParser extends AbstractBeanD
 
 		mappings.add(mapping);
 		source.setMappings(mappings);
-		filterInvocationInterceptor.getPropertyValues().addPropertyValue("objectDefinitionSource",
+		filterInvocationInterceptor.getPropertyValues().addPropertyValue(OBJECT_DEFINITION_SOURCE_PROPERTY,
 				source.getDecorated());
 		return filterInvocationInterceptor;
 	}
-
-	
 
 }

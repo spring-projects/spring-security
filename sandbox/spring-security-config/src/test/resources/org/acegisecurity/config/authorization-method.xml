@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd 
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/beans/spring-util-2.0.xsd
+	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
+
+	<!-- http://www.springframework.org/schema/security file:/Users/vpuri/interface21/acegisecurity/trunk/acegisecurity/core/src/main/resources/org/acegisecurity/config/spring-security-2.0.xsd -->
+	<!-- http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd" -->
+
+	<!-- 
+		the source refers to use of the relevant concete ObjectDefinitionSource; 
+		user can alternately specify their own instance and refer to it
+		via the sourceBeanId property; in that case they must specify "custom"; 
+		if unspecified, it means it's described as nested elements using the
+		security:method-pattern element, and you will therefore create it via 
+		the MethodDefinitionSourceEditor (that is what the default source=xml means, too)
+		For aspectj and springAop, that means create a MethodSecurityInterceptor and 
+		AspectJSecurityInterceptor bean definition respectively (in the case of
+		springAop, also create a MethodDefinitionSourceAdvisor); defaults to 
+		springAop=true, aspectJ=false 
+	-->
+	<import resource="remember-me-defaults.xml" />
+	<import resource="authorization-manager.xml"/>
+
+	<security:authorization-joinpoint id="methodInterceptor"
+		springAop="true" >
+		<security:url-mapping source="xml">
+			<security:method-pattern
+				type="org.acegisecurity.BankServiceImpl.listAccounts">
+				<security:configuration-attribute attribute="ROLE_A" />
+			</security:method-pattern>
+		</security:url-mapping>
+	</security:authorization-joinpoint>
+
+
+	<!-- 
+		<bean id="methodSecurity" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
+		<property name="validateConfigAttributes"><value>true</value></property>
+		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+		<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
+		<property name="runAsManager"><ref bean="runAsManager"/></property>
+		<property name="afterInvocationManager"><ref bean="afterInvocationManager"/></property>
+		<property name="objectDefinitionSource">
+		<value>
+		org.acegisecurity.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
+		org.acegisecurity.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
+		</value>
+		</property>
+		</bean> 
+	-->
+
+</beans>
