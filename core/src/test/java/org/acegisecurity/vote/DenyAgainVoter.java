@@ -18,45 +18,64 @@ package org.acegisecurity.vote;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
+import org.springframework.core.Ordered;
 
 import java.util.Iterator;
 
-
 /**
- * Implementation of an {@link AccessDecisionVoter} for unit testing.<p>If the {@link
- * ConfigAttribute#getAttribute()} has a value of <code>DENY_AGAIN_FOR_SURE</code>, the voter will vote to deny
- * access.</p>
- *  <p>All comparisons are case sensitive.</p>
- *
+ * Implementation of an {@link AccessDecisionVoter} for unit testing.
+ * <p>
+ * If the {@link ConfigAttribute#getAttribute()} has a value of
+ * <code>DENY_AGAIN_FOR_SURE</code>, the voter will vote to deny access.
+ * </p>
+ * <p>
+ * All comparisons are case sensitive.
+ * </p>
+ * 
  * @author Ben Alex
  * @version $Id$
  */
-public class DenyAgainVoter implements AccessDecisionVoter {
-    //~ Methods ========================================================================================================
+public class DenyAgainVoter implements AccessDecisionVoter, Ordered {
+	public static int DEFAULT_ORDER = Ordered.LOWEST_PRECEDENCE;
 
-    public boolean supports(ConfigAttribute attribute) {
-        if ("DENY_AGAIN_FOR_SURE".equals(attribute.getAttribute())) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+	private int order = DEFAULT_ORDER;
 
-    public boolean supports(Class clazz) {
-        return true;
-    }
+	// ~ Methods
+	// ========================================================================================================
 
-    public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config) {
-        Iterator iter = config.getConfigAttributes();
+	public boolean supports(ConfigAttribute attribute) {
+		if ("DENY_AGAIN_FOR_SURE".equals(attribute.getAttribute())) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 
-        while (iter.hasNext()) {
-            ConfigAttribute attribute = (ConfigAttribute) iter.next();
+	public boolean supports(Class clazz) {
+		return true;
+	}
 
-            if (this.supports(attribute)) {
-                return ACCESS_DENIED;
-            }
-        }
+	public int vote(Authentication authentication, Object object, ConfigAttributeDefinition config) {
+		Iterator iter = config.getConfigAttributes();
 
-        return ACCESS_ABSTAIN;
-    }
+		while (iter.hasNext()) {
+			ConfigAttribute attribute = (ConfigAttribute) iter.next();
+
+			if (this.supports(attribute)) {
+				return ACCESS_DENIED;
+			}
+		}
+
+		return ACCESS_ABSTAIN;
+	}
+	
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	public int getOrder() {
+		return order;
+	}
+
 }

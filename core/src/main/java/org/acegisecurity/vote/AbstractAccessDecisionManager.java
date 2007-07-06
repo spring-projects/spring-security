@@ -15,126 +15,159 @@
 
 package org.acegisecurity.vote;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.acegisecurity.AccessDecisionManager;
 import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.ConfigAttribute;
-
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-
+import org.springframework.core.OrderComparator;
+import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
-import java.util.Iterator;
-import java.util.List;
-
-
 /**
- * Abstract implementation of {@link AccessDecisionManager}.<p>Handles configuration of a bean context defined list
- * of  {@link AccessDecisionVoter}s and the access control behaviour if all  voters abstain from voting (defaults to
- * deny access).</p>
+ * Abstract implementation of {@link AccessDecisionManager}.
+ * <p>
+ * Handles configuration of a bean context defined list of
+ * {@link AccessDecisionVoter}s and the access control behaviour if all voters
+ * abstain from voting (defaults to deny access).
+ * </p>
  */
 public abstract class AbstractAccessDecisionManager implements AccessDecisionManager, InitializingBean,
-    MessageSourceAware {
-    //~ Instance fields ================================================================================================
+		MessageSourceAware, ApplicationContextAware {
+	// ~ Instance fields
+	// ================================================================================================
 
-    private List decisionVoters;
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
-    private boolean allowIfAllAbstainDecisions = false;
+	private List decisionVoters;
 
-    //~ Methods ========================================================================================================
+	protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
 
-    public void afterPropertiesSet() throws Exception {
-        checkIfValidList(this.decisionVoters);
-        Assert.notNull(this.messages, "A message source must be set");
-    }
+	private boolean allowIfAllAbstainDecisions = false;
 
-    protected final void checkAllowIfAllAbstainDecisions() {
-        if (!this.isAllowIfAllAbstainDecisions()) {
-            throw new AccessDeniedException(messages.getMessage("AbstractAccessDecisionManager.accessDenied",
-                    "Access is denied"));
-        }
-    }
+	private boolean isSetDecisionVotersInvoked = false;
 
-    private void checkIfValidList(List listToCheck) {
-        if ((listToCheck == null) || (listToCheck.size() == 0)) {
-            throw new IllegalArgumentException("A list of AccessDecisionVoters is required");
-        }
-    }
+	private ApplicationContext applicationContext;
 
-    public List getDecisionVoters() {
-        return this.decisionVoters;
-    }
+	// ~ Methods
+	// ========================================================================================================
 
-    public boolean isAllowIfAllAbstainDecisions() {
-        return allowIfAllAbstainDecisions;
-    }
+	public void afterPropertiesSet() throws Exception {
+		if (!isSetDecisionVotersInvoked) {
+			autoDetectVoters();
+		}
+		Assert.notEmpty(this.decisionVoters, "A list of AccessDecisionVoters is required");
+		Assert.notNull(this.messages, "A message source must be set");
+	}
 
-    public void setAllowIfAllAbstainDecisions(boolean allowIfAllAbstainDecisions) {
-        this.allowIfAllAbstainDecisions = allowIfAllAbstainDecisions;
-    }
+	private void autoDetectVoters() {
+		Map map = this.applicationContext.getBeansOfType(AccessDecisionVoter.class);
+		List list = new ArrayList();
+		for(Iterator it = map.values().iterator(); it.hasNext();) {
+			list.add((it.next()));
+		}
+		Collections.sort(list, new OrderComparator());
+		setDecisionVoters(list);
+	}
 
-    public void setDecisionVoters(List newList) {
-        checkIfValidList(newList);
+	protected final void checkAllowIfAllAbstainDecisions() {
+		if (!this.isAllowIfAllAbstainDecisions()) {
+			throw new AccessDeniedException(messages.getMessage("AbstractAccessDecisionManager.accessDenied",
+					"Access is denied"));
+		}
+	}
 
-        Iterator iter = newList.iterator();
+	public List getDecisionVoters() {
+		return this.decisionVoters;
+	}
 
-        while (iter.hasNext()) {
-            Object currentObject = null;
+	public boolean isAllowIfAllAbstainDecisions() {
+		return allowIfAllAbstainDecisions;
+	}
 
-            try {
-                currentObject = iter.next();
+	public void setAllowIfAllAbstainDecisions(boolean allowIfAllAbstainDecisions) {
+		this.allowIfAllAbstainDecisions = allowIfAllAbstainDecisions;
+	}
 
-                AccessDecisionVoter attemptToCast = (AccessDecisionVoter) currentObject;
-            } catch (ClassCastException cce) {
-                throw new IllegalArgumentException("AccessDecisionVoter " + currentObject.getClass().getName()
-                    + " must implement AccessDecisionVoter");
-            }
-        }
+	public void setDecisionVoters(List newList) {
+		isSetDecisionVotersInvoked = true;
+		Assert.notEmpty(newList);
 
-        this.decisionVoters = newList;
-    }
+		Iterator iter = newList.iterator();
 
-    public void setMessageSource(MessageSource messageSource) {
-        this.messages = new MessageSourceAccessor(messageSource);
-    }
+		while (iter.hasNext()) {
+			Object currentObject = null;
 
-    public boolean supports(ConfigAttribute attribute) {
-        Iterator iter = this.decisionVoters.iterator();
+			try {
+				currentObject = iter.next();
 
-        while (iter.hasNext()) {
-            AccessDecisionVoter voter = (AccessDecisionVoter) iter.next();
+				AccessDecisionVoter attemptToCast = (AccessDecisionVoter) currentObject;
+			}
+			catch (ClassCastException cce) {
+				throw new IllegalArgumentException("AccessDecisionVoter " + currentObject.getClass().getName()
+						+ " must implement AccessDecisionVoter");
+			}
+		}
 
-            if (voter.supports(attribute)) {
-                return true;
-            }
-        }
+		this.decisionVoters = newList;
+	}
 
-        return false;
-    }
+	public void setMessageSource(MessageSource messageSource) {
+		this.messages = new MessageSourceAccessor(messageSource);
+	}
 
-    /**
-     * Iterates through all <code>AccessDecisionVoter</code>s and ensures each can support the presented class.<p>If
-     * one or more voters cannot support the presented class, <code>false</code> is returned.</p>
-     *
-     * @param clazz DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
-    public boolean supports(Class clazz) {
-        Iterator iter = this.decisionVoters.iterator();
+	public boolean supports(ConfigAttribute attribute) {
+		Iterator iter = this.decisionVoters.iterator();
 
-        while (iter.hasNext()) {
-            AccessDecisionVoter voter = (AccessDecisionVoter) iter.next();
+		while (iter.hasNext()) {
+			AccessDecisionVoter voter = (AccessDecisionVoter) iter.next();
 
-            if (!voter.supports(clazz)) {
-                return false;
-            }
-        }
+			if (voter.supports(attribute)) {
+				return true;
+			}
+		}
 
-        return true;
-    }
+		return false;
+	}
+
+	/**
+	 * Iterates through all <code>AccessDecisionVoter</code>s and ensures
+	 * each can support the presented class.
+	 * <p>
+	 * If one or more voters cannot support the presented class,
+	 * <code>false</code> is returned.
+	 * </p>
+	 * 
+	 * @param clazz DOCUMENT ME!
+	 * 
+	 * @return DOCUMENT ME!
+	 */
+	public boolean supports(Class clazz) {
+		Iterator iter = this.decisionVoters.iterator();
+
+		while (iter.hasNext()) {
+			AccessDecisionVoter voter = (AccessDecisionVoter) iter.next();
+
+			if (!voter.supports(clazz)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext = applicationContext;
+	}
+
 }
