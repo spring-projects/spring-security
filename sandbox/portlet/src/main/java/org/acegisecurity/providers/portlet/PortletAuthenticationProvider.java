@@ -17,6 +17,7 @@
 package org.acegisecurity.providers.portlet;
 
 import java.security.Principal;
+import java.util.Map;
 
 import javax.portlet.PortletRequest;
 
@@ -130,19 +131,26 @@ public class PortletAuthenticationProvider
 		// build the resulting successful authentication token
 		PortletAuthenticationToken result = new PortletAuthenticationToken(
 				user, authentication.getCredentials(), user.getAuthorities());
+		result.setAuthenticated(true);
 
 		// see if the detail property on the request is the PortletRequest
 		if (authentication.getDetails() instanceof PortletRequest) {
-			// place the USER_INFO map into the details property of the result
+			// if available, place the USER_INFO map into the details property of the result
 			PortletRequest request = (PortletRequest)authentication.getDetails();
-			result.setDetails(request.getAttribute(PortletRequest.USER_INFO));
+			Map userInfo = null;
+			try {
+				userInfo = (Map)request.getAttribute(PortletRequest.USER_INFO);
+			} catch (Exception e) {
+				logger.warn("unable to retrieve USER_INFO map from portlet request", e);
+			}
+			result.setDetails(userInfo);
 		} else {
 			// copy any other details information forward
 			result.setDetails(authentication.getDetails());
 		}
 
 		if (logger.isDebugEnabled())
-			logger.debug("portlet authentication succeeded: " + authentication);
+			logger.debug("portlet authentication succeeded: " + result);
 
 		return result;
 	}

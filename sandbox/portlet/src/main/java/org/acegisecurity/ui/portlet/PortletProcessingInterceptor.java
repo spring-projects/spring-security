@@ -206,7 +206,12 @@ public class PortletProcessingInterceptor implements
 
 		// last try entries in USER_INFO if any attributes were defined
 		if (this.userNameAttributes != null) {
-			Map userInfo = (Map)request.getAttribute(PortletRequest.USER_INFO);
+			Map userInfo = null;
+			try {
+				userInfo = (Map)request.getAttribute(PortletRequest.USER_INFO);
+			} catch (Exception e) {
+				logger.warn("unable to retrieve USER_INFO map from portlet request", e);
+			}
 			if (userInfo != null) {
 			    Iterator i = this.userNameAttributes.iterator();
 			    while(i.hasNext()) {

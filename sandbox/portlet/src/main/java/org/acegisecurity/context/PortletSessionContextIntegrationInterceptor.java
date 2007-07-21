@@ -223,14 +223,6 @@ public class PortletSessionContextIntegrationInterceptor
 	private boolean preHandle(PortletRequest request, PortletResponse response,
 			Object handler) throws Exception {
 
-		// make sure the holder is clear
-		if (SecurityContextHolder.getContext() != null) {
-			if (logger.isWarnEnabled())
-				logger.warn("SecurityContextHolder should have been null but contained: '"
-					+ SecurityContextHolder.getContext() + "'; setting to null now");
-			SecurityContextHolder.clearContext();
-		}
-
 		PortletSession portletSession = null;
 		boolean portletSessionExistedAtStartOfRequest = false;
 
