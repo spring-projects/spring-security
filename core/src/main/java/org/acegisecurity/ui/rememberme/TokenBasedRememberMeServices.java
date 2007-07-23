@@ -119,7 +119,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 	// ~ Instance fields
 	// ================================================================================================
 
-	private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
+	protected AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
 
 	private String key;
 
@@ -127,7 +127,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 
 	private UserDetailsService userDetailsService;
 
-	private long tokenValiditySeconds = 1209600; // 14 days
+	protected long tokenValiditySeconds = 1209600; // 14 days
 
 	private boolean alwaysRemember = false;
 
