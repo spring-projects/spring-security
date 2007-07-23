@@ -34,7 +34,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
-
 /**
  * Base implementation of {@link org.acegisecurity.concurrent.SessionRegistry}
  * which also listens for {@link
@@ -47,113 +46,123 @@ import javax.servlet.http.HttpSession;
  * <code>web.xml</code> so that this class is notified of sessions that
  * expire.
  * </p>
- *
+ * 
  * @author Ben Alex
- * @version $Id${date}
+ * @version $Id: SessionRegistryImpl.java 1862 2007-05-25 01:38:42Z benalex
+ *          ${date}
  */
 public class SessionRegistryImpl implements SessionRegistry,
-    ApplicationListener {
-    //~ Instance fields ========================================================
+		ApplicationListener {
+	// ~ Instance fields
+	// ========================================================
 
-    private Map principals = Collections.synchronizedMap(new HashMap()); // <principal:Object,SessionIdSet>
-    private Map sessionIds = Collections.synchronizedMap(new HashMap()); // <sessionId:Object,SessionInformation>
+	private Map principals = Collections.synchronizedMap(new HashMap()); // <principal:Object,SessionIdSet>
+	private Map sessionIds = Collections.synchronizedMap(new HashMap()); // <sessionId:Object,SessionInformation>
 
-    //~ Methods ================================================================
+	// ~ Methods
+	// ================================================================
 
-    public Object[] getAllPrincipals() {
-        return principals.keySet().toArray();
-    }
+	public Object[] getAllPrincipals() {
+		return principals.keySet().toArray();
+	}
 
-    public SessionInformation[] getAllSessions(Object principal,
-        boolean includeExpiredSessions) {
-        Set sessionsUsedByPrincipal = (Set) principals.get(principal);
+	public SessionInformation[] getAllSessions(Object principal,
+			boolean includeExpiredSessions) {
+		Set sessionsUsedByPrincipal = (Set) principals.get(principal);
+		if (sessionsUsedByPrincipal == null) {
+			return null;
+		}
 
-        if (sessionsUsedByPrincipal == null) {
-            return null;
-        }
+		List list = new ArrayList();
 
-        List list = new ArrayList();
-        Iterator iter = sessionsUsedByPrincipal.iterator();
+		synchronized (sessionsUsedByPrincipal) {
+			for (Iterator iter = sessionsUsedByPrincipal.iterator(); iter
+					.hasNext();) {
+				String sessionId = (String) iter.next();
+				SessionInformation sessionInformation = getSessionInformation(sessionId);
 
-        while (iter.hasNext()) {
-            synchronized (sessionsUsedByPrincipal) {
-                String sessionId = (String) iter.next();
-                SessionInformation sessionInformation = getSessionInformation(sessionId);
+				if (includeExpiredSessions || !sessionInformation.isExpired()) {
+					list.add(sessionInformation);
+				}
+			}
+		}
 
-                if (includeExpiredSessions || !sessionInformation.isExpired()) {
-                    list.add(sessionInformation);
-                }
-            }
-        }
+		return (SessionInformation[]) list.toArray(new SessionInformation[] {});
+	}
 
-        return (SessionInformation[]) list.toArray(new SessionInformation[] {});
-    }
+	public SessionInformation getSessionInformation(String sessionId) {
+		Assert.hasText(sessionId,
+				"SessionId required as per interface contract");
 
-    public SessionInformation getSessionInformation(String sessionId) {
-        Assert.hasText(sessionId, "SessionId required as per interface contract");
+		return (SessionInformation) sessionIds.get(sessionId);
+	}
 
-        return (SessionInformation) sessionIds.get(sessionId);
-    }
+	public void onApplicationEvent(ApplicationEvent event) {
+		if (event instanceof HttpSessionDestroyedEvent) {
+			String sessionId = ((HttpSession) event.getSource()).getId();
+			removeSessionInformation(sessionId);
+		}
+	}
 
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof HttpSessionDestroyedEvent) {
-            String sessionId = ((HttpSession) event.getSource()).getId();
-            removeSessionInformation(sessionId);
-        }
-    }
+	public void refreshLastRequest(String sessionId) {
+		Assert.hasText(sessionId,
+				"SessionId required as per interface contract");
 
-    public void refreshLastRequest(String sessionId) {
-        Assert.hasText(sessionId, "SessionId required as per interface contract");
+		SessionInformation info = getSessionInformation(sessionId);
 
-        SessionInformation info = getSessionInformation(sessionId);
+		if (info != null) {
+			info.refreshLastRequest();
+		}
+	}
 
-        if (info != null) {
-            info.refreshLastRequest();
-        }
-    }
+	public synchronized void registerNewSession(String sessionId,
+			Object principal) {
+		Assert.hasText(sessionId,
+				"SessionId required as per interface contract");
+		Assert.notNull(principal,
+				"Principal required as per interface contract");
 
-    public synchronized void registerNewSession(String sessionId, Object principal) {
-        Assert.hasText(sessionId, "SessionId required as per interface contract");
-        Assert.notNull(principal, "Principal required as per interface contract");
+		if (getSessionInformation(sessionId) != null) {
+			removeSessionInformation(sessionId);
+		}
 
-        if (getSessionInformation(sessionId) != null) {
-            removeSessionInformation(sessionId);
-        }
+		sessionIds.put(sessionId, new SessionInformation(principal, sessionId,
+				new Date()));
 
-        sessionIds.put(sessionId,
-            new SessionInformation(principal, sessionId, new Date()));
+		Set sessionsUsedByPrincipal = (Set) principals.get(principal);
 
-        Set sessionsUsedByPrincipal = (Set) principals.get(principal);
+		if (sessionsUsedByPrincipal == null) {
+			sessionsUsedByPrincipal = Collections
+					.synchronizedSet(new HashSet());
+		}
 
-        if (sessionsUsedByPrincipal == null) {
-            sessionsUsedByPrincipal = Collections.synchronizedSet(new HashSet());
-        }
+		sessionsUsedByPrincipal.add(sessionId);
 
-        sessionsUsedByPrincipal.add(sessionId);
+		principals.put(principal, sessionsUsedByPrincipal);
+	}
 
-        principals.put(principal, sessionsUsedByPrincipal);
-    }
+	public void removeSessionInformation(String sessionId) {
+		Assert.hasText(sessionId,
+				"SessionId required as per interface contract");
 
-    public void removeSessionInformation(String sessionId) {
-        Assert.hasText(sessionId, "SessionId required as per interface contract");
+		SessionInformation info = getSessionInformation(sessionId);
 
-        SessionInformation info = getSessionInformation(sessionId);
+		if (info != null) {
+			sessionIds.remove(sessionId);
 
-        if (info != null) {
-            sessionIds.remove(sessionId);
+			Set sessionsUsedByPrincipal = (Set) principals.get(info
+					.getPrincipal());
 
-            Set sessionsUsedByPrincipal = (Set) principals.get(info.getPrincipal());
+			if (sessionsUsedByPrincipal != null) {
+				synchronized (sessionsUsedByPrincipal) {
+					sessionsUsedByPrincipal.remove(sessionId);
 
-            if (sessionsUsedByPrincipal != null) {
-                synchronized (sessionsUsedByPrincipal) {
-                    sessionsUsedByPrincipal.remove(sessionId);
-
-                    if (sessionsUsedByPrincipal.size() == 0) {
-                        // No need to keep object in principals Map anymore 
-                        principals.remove(info.getPrincipal());
-                    }
-                }
-            }
-        }
-    }
+					if (sessionsUsedByPrincipal.size() == 0) {
+						// No need to keep object in principals Map anymore
+						principals.remove(info.getPrincipal());
+					}
+				}
+			}
+		}
+	}
 }
