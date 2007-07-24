@@ -47,7 +47,7 @@
 		<property name="filterProcessesUrl" value="/j_acegi_security_check"/>
 		<property name="rememberMeServices" ref="rememberMeServices"/>
 	</bean>
-   
+
 	<bean id="securityContextHolderAwareRequestFilter" class="org.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter"/>
 
 	<bean id="rememberMeProcessingFilter" class="org.acegisecurity.ui.rememberme.RememberMeProcessingFilter">
@@ -119,18 +119,6 @@
 
 	<bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
 		<property name="userDetailsService" ref="userDetailsService"/>
-		<property name="userCache">
-			<bean class="org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
-				<property name="cache">
-					<bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-						<property name="cacheManager">
-							<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
-						</property>
-						<property name="cacheName" value="userCache"/>
-					</bean>
-				</property>
-			</bean>
-		</property>
 	</bean>
 
 	<!-- UserDetailsService is the most commonly frequently Acegi Security interface implemented by end users -->
