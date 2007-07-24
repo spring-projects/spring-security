@@ -20,11 +20,18 @@
 			<artifactId>acegi-security</artifactId>
 			<version>1.0.5-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache</artifactId>
-			<version>1.2.4</version>
-		</dependency>
 	</dependencies>
-	
+
+    <build>
+        <plugins>
+           <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>maven-jetty-plugin</artifactId>
+                <configuration>
+                <contextPath>/tutorial</contextPath>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
