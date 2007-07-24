@@ -38,136 +38,125 @@ import org.springframework.util.Assert;
 
 /**
  * Abstract implementation of {@link AccessDecisionManager}.
- * <p>
+ * <p/>
  * Handles configuration of a bean context defined list of
  * {@link AccessDecisionVoter}s and the access control behaviour if all voters
  * abstain from voting (defaults to deny access).
  * </p>
  */
 public abstract class AbstractAccessDecisionManager implements AccessDecisionManager, InitializingBean,
-		MessageSourceAware, ApplicationContextAware {
-	// ~ Instance fields
-	// ================================================================================================
+        MessageSourceAware, ApplicationContextAware {
+    // ~ Instance fields
+    // ================================================================================================
 
-	private List decisionVoters;
+    private List decisionVoters;
 
-	protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
 
-	private boolean allowIfAllAbstainDecisions = false;
+    private boolean allowIfAllAbstainDecisions = false;
 
-	private boolean isSetDecisionVotersInvoked = false;
+    private ApplicationContext applicationContext;
 
-	private ApplicationContext applicationContext;
+    // ~ Methods
+    // ========================================================================================================
 
-	// ~ Methods
-	// ========================================================================================================
+    public void afterPropertiesSet() throws Exception {
+        if (decisionVoters == null || decisionVoters.isEmpty()) {
+            autoDetectVoters();
+        }
+        Assert.notEmpty(this.decisionVoters, "A list of AccessDecisionVoters is required");
+        Assert.notNull(this.messages, "A message source must be set");
+    }
 
-	public void afterPropertiesSet() throws Exception {
-		if (!isSetDecisionVotersInvoked) {
-			autoDetectVoters();
-		}
-		Assert.notEmpty(this.decisionVoters, "A list of AccessDecisionVoters is required");
-		Assert.notNull(this.messages, "A message source must be set");
+    private void autoDetectVoters() {
+        Assert.notNull(applicationContext, "Auto-detection of voters requires an application context");
+        Map map = this.applicationContext.getBeansOfType(AccessDecisionVoter.class);
+        List list = new ArrayList();
+
+        for (Iterator it = map.values().iterator(); it.hasNext();) {
+            list.add((it.next()));
+        }
+        Collections.sort(list, new OrderComparator());
+        setDecisionVoters(list);
+    }
+
+    protected final void checkAllowIfAllAbstainDecisions() {
+        if (!this.isAllowIfAllAbstainDecisions()) {
+            throw new AccessDeniedException(messages.getMessage("AbstractAccessDecisionManager.accessDenied",
+                    "Access is denied"));
+        }
+    }
+
+    public List getDecisionVoters() {
+        return this.decisionVoters;
+    }
+
+    public boolean isAllowIfAllAbstainDecisions() {
+        return allowIfAllAbstainDecisions;
+    }
+
+    public void setAllowIfAllAbstainDecisions(boolean allowIfAllAbstainDecisions) {
+        this.allowIfAllAbstainDecisions = allowIfAllAbstainDecisions;
+    }
+
+    public void setDecisionVoters(List newList) {
+        Assert.notEmpty(newList);
+
+        Iterator iter = newList.iterator();
+
+        while (iter.hasNext()) {
+            Object currentObject = iter.next();
+            Assert.isInstanceOf(AccessDecisionVoter.class, currentObject, "AccessDecisionVoter " + currentObject.getClass().getName()
+                    + " must implement AccessDecisionVoter");
+        }
+
+        this.decisionVoters = newList;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        this.messages = new MessageSourceAccessor(messageSource);
+    }
+
+    public boolean supports(ConfigAttribute attribute) {
+        Iterator iter = this.decisionVoters.iterator();
+
+        while (iter.hasNext()) {
+            AccessDecisionVoter voter = (AccessDecisionVoter) iter.next();
+
+            if (voter.supports(attribute)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Iterates through all <code>AccessDecisionVoter</code>s and ensures
+     * each can support the presented class.
+     * <p/>
+     * If one or more voters cannot support the presented class,
+     * <code>false</code> is returned.
+     * </p>
+     *
+     * @param clazz DOCUMENT ME!
+     * @return DOCUMENT ME!
+     */
+    public boolean supports(Class clazz) {
+        Iterator iter = this.decisionVoters.iterator();
+
+        while (iter.hasNext()) {
+            AccessDecisionVoter voter = (AccessDecisionVoter) iter.next();
+
+            if (!voter.supports(clazz)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
 	}
-
-	private void autoDetectVoters() {
-		Map map = this.applicationContext.getBeansOfType(AccessDecisionVoter.class);
-		List list = new ArrayList();
-		for(Iterator it = map.values().iterator(); it.hasNext();) {
-			list.add((it.next()));
-		}
-		Collections.sort(list, new OrderComparator());
-		setDecisionVoters(list);
-	}
-
-	protected final void checkAllowIfAllAbstainDecisions() {
-		if (!this.isAllowIfAllAbstainDecisions()) {
-			throw new AccessDeniedException(messages.getMessage("AbstractAccessDecisionManager.accessDenied",
-					"Access is denied"));
-		}
-	}
-
-	public List getDecisionVoters() {
-		return this.decisionVoters;
-	}
-
-	public boolean isAllowIfAllAbstainDecisions() {
-		return allowIfAllAbstainDecisions;
-	}
-
-	public void setAllowIfAllAbstainDecisions(boolean allowIfAllAbstainDecisions) {
-		this.allowIfAllAbstainDecisions = allowIfAllAbstainDecisions;
-	}
-
-	public void setDecisionVoters(List newList) {
-		isSetDecisionVotersInvoked = true;
-		Assert.notEmpty(newList);
-
-		Iterator iter = newList.iterator();
-
-		while (iter.hasNext()) {
-			Object currentObject = null;
-
-			try {
-				currentObject = iter.next();
-
-				AccessDecisionVoter attemptToCast = (AccessDecisionVoter) currentObject;
-			}
-			catch (ClassCastException cce) {
-				throw new IllegalArgumentException("AccessDecisionVoter " + currentObject.getClass().getName()
-						+ " must implement AccessDecisionVoter");
-			}
-		}
-
-		this.decisionVoters = newList;
-	}
-
-	public void setMessageSource(MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
-	}
-
-	public boolean supports(ConfigAttribute attribute) {
-		Iterator iter = this.decisionVoters.iterator();
-
-		while (iter.hasNext()) {
-			AccessDecisionVoter voter = (AccessDecisionVoter) iter.next();
-
-			if (voter.supports(attribute)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Iterates through all <code>AccessDecisionVoter</code>s and ensures
-	 * each can support the presented class.
-	 * <p>
-	 * If one or more voters cannot support the presented class,
-	 * <code>false</code> is returned.
-	 * </p>
-	 * 
-	 * @param clazz DOCUMENT ME!
-	 * 
-	 * @return DOCUMENT ME!
-	 */
-	public boolean supports(Class clazz) {
-		Iterator iter = this.decisionVoters.iterator();
-
-		while (iter.hasNext()) {
-			AccessDecisionVoter voter = (AccessDecisionVoter) iter.next();
-
-			if (!voter.supports(clazz)) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
-	}
-
 }
