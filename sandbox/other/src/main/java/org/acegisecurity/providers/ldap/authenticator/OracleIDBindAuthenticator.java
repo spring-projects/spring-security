@@ -45,7 +45,7 @@ public class OracleIDBindAuthenticator extends BindAuthenticator {
     protected void handleBindException(String userDn, String username, Throwable exception) {
         int errorCode = parseOracleErrorCode(exception.getMessage());
 
-        if(errorCode > 0) {
+        if (errorCode > 0) {
             switch (errorCode) {
                 case 9000:
                     throw new PasswordExpiredException("Password has expired. Please contact an administrator.");
@@ -67,7 +67,7 @@ public class OracleIDBindAuthenticator extends BindAuthenticator {
     private int parseOracleErrorCode(String msg) {
         Matcher matcher = oidErrorMsgPattern.matcher(msg);
 
-        if(matcher.matches()) {
+        if (matcher.matches()) {
             String code = matcher.group(2);
 
             return Integer.parseInt(code);
