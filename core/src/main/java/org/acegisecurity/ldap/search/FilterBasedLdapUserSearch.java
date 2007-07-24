@@ -79,7 +79,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
     //~ Constructors ===================================================================================================
 
     public FilterBasedLdapUserSearch(String searchBase, String searchFilter,
-        InitialDirContextFactory initialDirContextFactory) {
+            InitialDirContextFactory initialDirContextFactory) {
         Assert.notNull(initialDirContextFactory, "initialDirContextFactory must not be null");
         Assert.notNull(searchFilter, "searchFilter must not be null.");
         Assert.notNull(searchBase, "searchBase must not be null (an empty string is acceptable).");
@@ -106,10 +106,8 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
      * @throws UsernameNotFoundException if no matching entry is found.
      */
     public LdapUserDetails searchForUser(String username) {
-        DirContext ctx = initialDirContextFactory.newInitialDirContext();
-
         if (logger.isDebugEnabled()) {
-            logger.debug("Searching for user '" + username + "', in context " + ctx + ", with user search "
+            logger.debug("Searching for user '" + username + "', with user search "
                 + this.toString());
         }
 
@@ -167,7 +165,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
         sb.append("[ searchFilter: '").append(searchFilter).append("', ");
         sb.append("searchBase: '").append(searchBase).append("'");
         sb.append(", scope: ")
-          .append((searchControls.getSearchScope() == SearchControls.SUBTREE_SCOPE) ? "subtree" : "single-level, ");
+          .append(searchControls.getSearchScope() == SearchControls.SUBTREE_SCOPE ? "subtree" : "single-level, ");
         sb.append("searchTimeLimit: ").append(searchControls.getTimeLimit());
         sb.append("derefLinkFlag: ").append(searchControls.getDerefLinkFlag()).append(" ]");
 

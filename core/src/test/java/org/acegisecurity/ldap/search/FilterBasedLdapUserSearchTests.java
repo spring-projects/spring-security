@@ -42,7 +42,6 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
     }
 
     public FilterBasedLdapUserSearchTests() {
-        super();
     }
 
     //~ Methods ========================================================================================================
