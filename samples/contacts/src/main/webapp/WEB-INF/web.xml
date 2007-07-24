@@ -4,15 +4,13 @@
 <!--
   - Contacts web application
   -
-  - web.xml for "x509" artifact only.
-  -
-  - $Id$
+  - $Id: web.xml 1741 2006-11-14 03:18:42Z benalex $
   -->
 
 <web-app>
 
     <display-name>Contacts Sample Application</display-name>
-    
+
 	<!--
 	  - Location of the XML file that defines the root application context
 	  - Applied by ContextLoaderListener.
@@ -25,21 +23,36 @@
 			classpath:applicationContext-common-authorization.xml
 		</param-value>
 	</context-param>
-<!--	
+
+
+	<!--
+	     Required for CAS ProxyTicketReceptor servlet. This is the
+	     URL to CAS' "proxy" actuator, where a PGT and TargetService can
+	     be presented to obtain a new proxy ticket. THIS CAN BE
+	     REMOVED IF THE APPLICATION DOESN'T NEED TO ACT AS A PROXY
+	  -->
+
+    <context-param>
+        <param-name>edu.yale.its.tp.cas.proxyUrl</param-name>
+        <param-value>http://localhost:8433/cas/proxy</param-value>
+    </context-param>
+
+   <!-- Nothing below here needs to be modified -->
+
 	<context-param>
 		<param-name>log4jConfigLocation</param-name>
 		<param-value>/WEB-INF/classes/log4j.properties</param-value>
 	</context-param>
--->
 
-    <filter>
+
+   <filter>
         <filter-name>Acegi Filter Chain Proxy</filter-name>
         <filter-class>org.acegisecurity.util.FilterToBeanProxy</filter-class>
         <init-param>
             <param-name>targetClass</param-name>
             <param-value>org.acegisecurity.util.FilterChainProxy</param-value>
         </init-param>
-    </filter>
+   </filter>
 
     <filter-mapping>
       <filter-name>Acegi Filter Chain Proxy</filter-name>
@@ -48,17 +61,26 @@
 
 	<!--
 	  - Loads the root application context of this web app at startup.
-	  - The application context is then available via 
+	  - The application context is then available via
 	  - WebApplicationContextUtils.getWebApplicationContext(servletContext).
     -->
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
-<!--
-    <listener>
+
+	<listener>
 		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
 	</listener>
-	-->
+
+    <!--
+        The HttpSessionEventPublisher will publish
+        HttpSessionCreatedEvent and HttpSessionDestroyedEvent
+        to the WebApplicationContext
+ -->
+    <listener>
+        <listener-class>org.acegisecurity.ui.session.HttpSessionEventPublisher</listener-class>
+    </listener>
+
   <!--
 	- Provides core MVC application controller. See contacts-servlet.xml.
     -->
@@ -81,7 +103,7 @@
     	<servlet-name>contacts</servlet-name>
     	<url-pattern>*.htm</url-pattern>
  	</servlet-mapping>
-  
+
 	<servlet-mapping>
 		<servlet-name>remoting</servlet-name>
 		<url-pattern>/remoting/*</url-pattern>
@@ -91,9 +113,14 @@
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
 
-  	<taglib>
+	<error-page>
+		<error-code>403</error-code>
+		<location>/error.html</location>
+	</error-page>
+
+    <taglib>
       <taglib-uri>/spring</taglib-uri>
       <taglib-location>/WEB-INF/spring.tld</taglib-location>
   	</taglib>
-    
+
 </web-app>

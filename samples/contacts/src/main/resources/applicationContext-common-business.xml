@@ -11,38 +11,29 @@
 
 <beans>
 
-    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName">
-            <value>org.hsqldb.jdbcDriver</value>
-        </property>
-        <property name="url">
-            <value>jdbc:hsqldb:mem:test</value>
-            <!-- <value>jdbc:hsqldb:hsql://localhost/acl</value> -->
-        </property>
-        <property name="username">
-            <value>sa</value>
-        </property>
-        <property name="password">
-            <value></value>
-        </property>
-    </bean>
-	
+  <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+      <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+      <property name="url" value="jdbc:hsqldb:mem:test"/> <!-- <value>jdbc:hsqldb:hsql://localhost/acl</value> -->
+      <property name="username" value="sa"/>
+      <property name="password" value=""/>
+  </bean>
+
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource"><ref local="dataSource"/></property>
 	</bean>
-	
+
 	<bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
-    	<property name="transactionManager"><ref bean="transactionManager"/></property>
+    <property name="transactionManager"><ref local="transactionManager"/></property>
 		<property name="transactionAttributeSource">
-			<value>
-				sample.contact.ContactManager.create=PROPAGATION_REQUIRED
-				sample.contact.ContactManager.getAllRecipients=PROPAGATION_REQUIRED,readOnly
-				sample.contact.ContactManager.getAll=PROPAGATION_REQUIRED,readOnly
-				sample.contact.ContactManager.getById=PROPAGATION_REQUIRED,readOnly
-				sample.contact.ContactManager.delete=PROPAGATION_REQUIRED
-				sample.contact.ContactManager.deletePermission=PROPAGATION_REQUIRED
-				sample.contact.ContactManager.addPermission=PROPAGATION_REQUIRED
-			</value>
+      <value>
+        sample.contact.ContactManager.create=PROPAGATION_REQUIRED
+        sample.contact.ContactManager.getAllRecipients=PROPAGATION_REQUIRED,readOnly
+        sample.contact.ContactManager.getAll=PROPAGATION_REQUIRED,readOnly
+        sample.contact.ContactManager.getById=PROPAGATION_REQUIRED,readOnly
+        sample.contact.ContactManager.delete=PROPAGATION_REQUIRED
+        sample.contact.ContactManager.deletePermission=PROPAGATION_REQUIRED
+        sample.contact.ContactManager.addPermission=PROPAGATION_REQUIRED
+      </value>
 		</property>
 	</bean>
 
@@ -51,25 +42,25 @@
 	   <property name="mutableAclService" ref="aclService"/>
 	   <property name="platformTransactionManager" ref="transactionManager"/>
    </bean>
-   
-   <bean id="contactDao" class="sample.contact.ContactDaoSpring">
-	   <property name="dataSource"><ref local="dataSource"/></property>
-   </bean>
 
    <bean id="contactManager" class="org.springframework.aop.framework.ProxyFactoryBean">
-      <property name="proxyInterfaces"><value>sample.contact.ContactManager</value></property>
-      <property name="interceptorNames">
-         <list>
-            <idref local="transactionInterceptor"/>
-            <idref bean="contactManagerSecurity"/>
-            <idref local="contactManagerTarget"/>
-         </list>
-      </property>
+     <property name="proxyInterfaces" value="sample.contact.ContactManager"/>
+     <property name="interceptorNames">
+       <list>
+         <idref local="transactionInterceptor"/>
+         <idref bean="contactManagerSecurity"/>
+         <idref local="contactManagerTarget"/>
+       </list>
+     </property>
    </bean>
 
    <bean id="contactManagerTarget" class="sample.contact.ContactManagerBackend">
-	   <property name="contactDao"><ref local="contactDao"/></property>
-	   <property name="mutableAclService"><ref bean="aclService"/></property>
+	   <property name="contactDao">
+       <bean class="sample.contact.ContactDaoSpring">
+	       <property name="dataSource"><ref local="dataSource"/></property>
+       </bean>
+     </property>
+     <property name="mutableAclService" ref="aclService"/>
    </bean>
 
 </beans>

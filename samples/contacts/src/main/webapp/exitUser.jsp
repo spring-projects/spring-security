@@ -25,16 +25,16 @@
       <table>
         <tr><td>Current User:</td><td>
 
-         <% 
+         <%
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			if (auth != null) { %>
-			
+
 			<%= auth.getPrincipal().toString() %>
-			
+
 		<% } %>
-		
-			
-         
+
+
+
          </td></tr>
         <tr><td colspan='2'><input name="exit" type="submit" value="Exit"></td></tr>
       </table>

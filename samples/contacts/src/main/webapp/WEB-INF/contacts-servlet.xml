@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+  - Application context definition for "contacts" DispatcherServlet.
+  -
+  - $Id: contacts-servlet.xml 1754 2006-11-17 02:01:21Z benalex $
+  -->
+
+<beans>
+
+	<!-- ========================== WEB DEFINITIONS ======================= -->
+
+  <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property name="basename" value="messages"/>
+  </bean>
+
+  <bean id="publicIndexController" class="sample.contact.PublicIndexController">
+    <property name="contactManager" ref="contactManager"/>
+  </bean>
+
+  <bean id="secureIndexController" class="sample.contact.SecureIndexController">
+    <property name="contactManager" ref="contactManager"/>
+  </bean>
+
+  <bean id="secureDeleteController" class="sample.contact.DeleteController">
+    <property name="contactManager" ref="contactManager"/>
+  </bean>
+
+  <bean id="adminPermissionController" class="sample.contact.AdminPermissionController">
+    <property name="contactManager" ref="contactManager"/>
+    <property name="aclService" ref="aclService"/>
+  </bean>
+
+  <bean id="deletePermissionController" class="sample.contact.DeletePermissionController">
+    <property name="contactManager" ref="contactManager"/>
+    <property name="aclService" ref="aclService"/>
+  </bean>
+
+  <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+    <property name="mappings">
+      <props>
+        <prop key="/hello.htm">publicIndexController</prop>
+        <prop key="/secure/add.htm">secureAddForm</prop>
+        <prop key="/secure/index.htm">secureIndexController</prop>
+        <prop key="/secure/del.htm">secureDeleteController</prop>
+        <prop key="/secure/adminPermission.htm">adminPermissionController</prop>
+        <prop key="/secure/deletePermission.htm">deletePermissionController</prop>
+        <prop key="/secure/addPermission.htm">addPermissionForm</prop>
+      </props>
+    </property>
+  </bean>
+
+  <bean id="secureAddForm" class="sample.contact.WebContactAddController">
+    <property name="sessionForm" value="true"/>
+    <property name="commandName" value="webContact"/>
+    <property name="commandClass" value="sample.contact.WebContact"/>
+    <property name="validator">
+      <bean id="addValidator" class="sample.contact.WebContactValidator"/>
+    </property>
+    <property name="formView" value="add"/>
+    <property name="successView" value="index.htm"/>
+    <property name="contactManager" ref="contactManager"/>
+  </bean>
+
+  <bean id="addPermissionForm" class="sample.contact.AddPermissionController">
+    <property name="sessionForm" value="true"/>
+    <property name="commandName" value="addPermission"/>
+    <property name="commandClass" value="sample.contact.AddPermission"/>
+    <property name="validator">
+      <bean id="addPermissionValidator" class="sample.contact.AddPermissionValidator"/>
+    </property>
+    <property name="formView" value="addPermission"/>
+    <property name="successView" value="index.htm"/>
+    <property name="contactManager" ref="contactManager"/>
+  </bean>
+
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"/>
+		<property name="suffix" value=".jsp"/>
+	</bean>
+
+</beans>

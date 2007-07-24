@@ -7,7 +7,7 @@
   -
   - Only used by "filter" artifact.
   -
-  - $Id$
+  - $Id: applicationContext-acegi-security.xml 1425 2006-04-28 06:43:50Z benalex $
   -->
 
 <beans>
@@ -21,7 +21,7 @@
          <value>
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 		    PATTERN_TYPE_APACHE_ANT
-            /**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor,switchUserProcessingFilter
+            /**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,switchUserProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
          </value>
       </property>
     </bean>
@@ -46,12 +46,12 @@
 
    <bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
       <property name="userDetailsService"><ref local="jdbcDaoImpl"/></property>
-      <property name="userCache"><ref local="userCache"/></property>
+<!--      <property name="userCache"><ref local="userCache"/></property> -->
       <property name="passwordEncoder"><ref local="passwordEncoder"/></property>
    </bean>
-
+<!--
    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
-    
+
    <bean id="userCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
       <property name="cacheManager">
          <ref local="cacheManager"/>
@@ -60,11 +60,11 @@
          <value>userCache</value>
       </property>
    </bean>
-   
+
    <bean id="userCache" class="org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
       <property name="cache"><ref local="userCacheBackend"/></property>
    </bean>
-
+-->
    <!-- Automatically receives AuthenticationEvent messages -->
    <bean id="loggerListener" class="org.acegisecurity.event.authentication.LoggerListener"/>
 
@@ -98,11 +98,11 @@
       <property name="userDetailsService"><ref local="jdbcDaoImpl"/></property>
       <property name="key"><value>springRocks</value></property>
    </bean>
-   
+
    <bean id="rememberMeAuthenticationProvider" class="org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider">
       <property name="key"><value>springRocks</value></property>
    </bean>
-   
+
    <bean id="logoutFilter" class="org.acegisecurity.ui.logout.LogoutFilter">
       <constructor-arg value="/index.jsp"/> <!-- URL redirected to after logout -->
       <constructor-arg>
@@ -112,7 +112,7 @@
          </list>
       </constructor-arg>
    </bean>
-   
+
    <bean id="securityContextHolderAwareRequestFilter" class="org.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter"/>
 
    <!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
@@ -199,7 +199,7 @@
       </property>
    </bean>
 
-   <!-- Filter used to switch the user context. Note: the switch and exit url must be secured 
+   <!-- Filter used to switch the user context. Note: the switch and exit url must be secured
         based on the role granted the ability to 'switch' to another user -->
    <!-- In this example 'marissa' has ROLE_SUPERVISOR that can switch to regular ROLE_USER(s) -->
    <bean id="switchUserProcessingFilter" class="org.acegisecurity.ui.switchuser.SwitchUserProcessingFilter">
@@ -207,6 +207,6 @@
 	  <property name="switchUserUrl"><value>/j_acegi_switch_user</value></property>
 	  <property name="exitUserUrl"><value>/j_acegi_exit_user</value></property>
 	  <property name="targetUrl"><value>/acegi-security-sample-contacts-filter/secure/index.htm</value></property>
-   </bean>    
+   </bean>
 
 </beans>

@@ -7,7 +7,7 @@
   -
   - Only used by "ldap" artifact.
   -
-  - $Id$
+  - $Id: applicationContext-acegi-security.xml 1468 2006-05-20 17:50:51Z luke_t $
   -->
 
 <beans>
@@ -37,9 +37,9 @@
    </bean>
 
    <bean id="initialDirContextFactory" class="org.acegisecurity.ldap.DefaultInitialDirContextFactory">
-     <constructor-arg value="ldap://monkeymachine:389/dc=acegisecurity,dc=org"/>
-     <property name="managerDn"><value>cn=manager,dc=acegisecurity,dc=org</value></property>
-     <property name="managerPassword"><value>acegisecurity</value></property>
+     <constructor-arg value="ldap://monkeymachine.co.uk:389/dc=acegisecurity,dc=org"/>
+     <property name="managerDn" value="cn=manager,dc=acegisecurity,dc=org" />
+     <property name="managerPassword" value="acegisecurity"/>
    </bean>
 
    <bean id="ldapAuthenticationProvider" class="org.acegisecurity.providers.ldap.LdapAuthenticationProvider">
@@ -115,28 +115,28 @@
 			  </value>
 		  </property>
 	 </bean>
-	
+
 	<!-- BASIC Regular Expression Syntax (for beginners):
-	     
+
 	     \A means the start of the string (ie the beginning of the URL)
 	     \Z means the end of the string (ie the end of the URL)
 	     .  means any single character
 	     *  means null or any number of repetitions of the last expression (so .* means zero or more characters)
-	     
+
 	     Some examples:
-	     
+
 	     Expression:   \A/my/directory/.*\Z
 	     Would match:    /my/directory/
 	                     /my/directory/hello.html
-	     
+
 	     Expression:   \A/.*\Z
 	     Would match:    /hello.html
 	                     /
-	     
+
 	     Expression:   \A/.*/secret.html\Z
 	     Would match:    /some/directory/secret.html
 	                     /another/secret.html
 	     Not match:      /anothersecret.html (missing required /)
-	-->    
+	-->
 
 </beans>

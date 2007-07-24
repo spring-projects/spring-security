@@ -15,13 +15,13 @@
    layer bean has a number of secured (protected) and public (unprotected)
    methods.</li>
 <li><b>Web request security</b>. The <code>/secure</code> URI path is protected
-   by Acegi Security from principals not holding the 
+   by Acegi Security from principals not holding the
    <code>ROLE_USER</code> granted authority.</li>
 <li><b>Security unaware application objects</b>. None of the objects
    are aware of the security being implemented by Acegi Security. *</li>
 <li><b>Security taglib usage</b>. All of the JSPs use Acegi Security's
    taglib to evaluate security information. *</li>
-<li><b>Fully declarative security</b>. Every capability is configured in 
+<li><b>Fully declarative security</b>. Every capability is configured in
    the application context using standard Acegi Security classes. *</li>
 <li><b>Database-sourced security data</b>. All of the user, role and ACL
    information is obtained from an in-memory JDBC-compliant database.</li>

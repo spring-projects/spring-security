@@ -7,7 +7,7 @@
   -
   - Only used by "x509" artifact.
   -
-  - $Id$
+  - $Id: applicationContext-acegi-security.xml 1409 2006-04-26 23:36:03Z benalex $
   -->
 
 <beans>
@@ -87,7 +87,7 @@
 
 
 	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
-	
+
 	<!-- Enabled by default for X.509 (obviously) -->
 	<bean id="channelProcessingFilter" class="org.acegisecurity.securechannel.ChannelProcessingFilter">
 		<property name="channelDecisionManager"><ref local="channelDecisionManager"/></property>
@@ -148,24 +148,24 @@
 			</value>
 		</property>
 	</bean>
-	
+
 	<!-- BASIC Regular Expression Syntax (for beginners):
-	     
+
 	     \A means the start of the string (ie the beginning of the URL)
 	     \Z means the end of the string (ie the end of the URL)
 	     .  means any single character
 	     *  means null or any number of repetitions of the last expression (so .* means zero or more characters)
-	     
+
 	     Some examples:
-	     
+
 	     Expression:   \A/my/directory/.*\Z
 	     Would match:    /my/directory/
 	                     /my/directory/hello.html
-	     
+
 	     Expression:   \A/.*\Z
 	     Would match:    /hello.html
 	                     /
-	     
+
 	     Expression:   \A/.*/secret.html\Z
 	     Would match:    /some/directory/secret.html
 	                     /another/secret.html

@@ -3,12 +3,12 @@
 
 <!--
   - Contacts web application
-  - $Id$
+  - $Id: remoting-servlet.xml 469 2004-11-20 05:28:20Z benalex $
   -->
 <beans>
 
 	<!-- RMI exporter for the ContactManager -->
-	<!-- This could just as easily have been in 
+	<!-- This could just as easily have been in
 		 applicationContext-common-business.xml, because it doesn't rely on
 		 DispatcherServlet or indeed any other HTTP services. It's in this
 		 application context simply for logical placement with other

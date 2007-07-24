@@ -7,48 +7,47 @@
   -
   - Only used by "cas" artifact.
   -
-  - $Id$
+  - $Id: applicationContext-acegi-security.xml 1409 2006-04-26 23:36:03Z benalex $
   -->
 
 <beans>
 
    <!-- ======================== FILTER CHAIN ======================= -->
 
-	<bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
-      <property name="filterInvocationDefinitionSource">
-         <value>
-		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-		    PATTERN_TYPE_APACHE_ANT
-            /**=channelProcessingFilter,httpSessionContextIntegrationFilter,logoutFilter,casProcessingFilter,basicProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
-         </value>
-      </property>
-    </bean>
+  <bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
+    <property name="filterInvocationDefinitionSource">
+      <value>
+        CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+        PATTERN_TYPE_APACHE_ANT
+        /**=channelProcessingFilter,httpSessionContextIntegrationFilter,logoutFilter,casProcessingFilter,basicProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
+      </value>
+    </property>
+  </bean>
 
-   <!-- ======================== AUTHENTICATION ======================= -->
+  <!-- ======================== AUTHENTICATION ======================= -->
 
-   <bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
-      <property name="providers">
-         <list>
-		    <ref local="casAuthenticationProvider"/>
-         </list>
-      </property>
-   </bean>
+  <bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
+    <property name="providers">
+      <list>
+        <ref local="casAuthenticationProvider"/>
+      </list>
+    </property>
+  </bean>
 
-   <bean id="jdbcDaoImpl" class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
-      <property name="dataSource"><ref bean="dataSource"/></property>
-   </bean>
+  <bean id="jdbcDaoImpl" class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
+    <property name="dataSource" ref="dataSource"/>
+  </bean>
 
-   <bean id="basicProcessingFilter" class="org.acegisecurity.ui.basicauth.BasicProcessingFilter">
-      <property name="authenticationManager"><ref local="authenticationManager"/></property>
-      <property name="authenticationEntryPoint"><ref local="basicProcessingFilterEntryPoint"/></property>
-   </bean>
+  <bean id="basicProcessingFilter" class="org.acegisecurity.ui.basicauth.BasicProcessingFilter">
+    <property name="authenticationManager"><ref local="authenticationManager"/></property>
+    <property name="authenticationEntryPoint"><ref local="basicProcessingFilterEntryPoint"/></property>
+  </bean>
 
-   <bean id="basicProcessingFilterEntryPoint" class="org.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
-      <property name="realmName"><value>Contacts Realm</value></property>
-   </bean>
+  <bean id="basicProcessingFilterEntryPoint" class="org.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
+    <property name="realmName"><value>Contacts Realm</value></property>
+  </bean>
 
-   <bean id="httpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter">
-   </bean>
+  <bean id="httpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter"/>
 
 	<bean id="casAuthenticationProvider" class="org.acegisecurity.providers.cas.CasAuthenticationProvider">
 		<property name="casAuthoritiesPopulator"><ref local="casAuthoritiesPopulator"/></property>
@@ -59,23 +58,19 @@
 	</bean>
 
 	<bean id="casProxyTicketValidator" class="org.acegisecurity.providers.cas.ticketvalidator.CasProxyTicketValidator">
-		<property name="casValidate"><value>https://localhost:8443/cas/proxyValidate</value></property>
-		<property name="proxyCallbackUrl"><value>https://localhost:8443/contacts-cas/casProxy/receptor</value></property>
+		<property name="casValidate" value="https://localhost:8443/cas/proxyValidate"/>
+		<property name="proxyCallbackUrl" value="https://localhost:8443/contacts-cas/casProxy/receptor"/>
 		<property name="serviceProperties"><ref local="serviceProperties"/></property>
         <!-- <property name="trustStore"><value>/some/path/to/your/lib/security/cacerts</value></property> -->
 	</bean>
 
-    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
-    
-    <bean id="ticketCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-       <property name="cacheManager">
-          <ref local="cacheManager"/>
-       </property>
-       <property name="cacheName">
-          <value>ticketCache</value>
-       </property>
-    </bean>
-   
+  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+
+  <bean id="ticketCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+    <property name="cacheManager"><ref local="cacheManager"/></property>
+    <property name="cacheName" value="ticketCache"/>
+  </bean>
+
 	<bean id="statelessTicketCache" class="org.acegisecurity.providers.cas.cache.EhCacheBasedTicketCache">
       <property name="cache"><ref local="ticketCacheBackend"/></property>
 	</bean>
@@ -84,12 +79,11 @@
 		<property name="userDetailsService"><ref local="jdbcDaoImpl"/></property>
 	</bean>
 
-	<bean id="casProxyDecider" class="org.acegisecurity.providers.cas.proxy.RejectProxyTickets">
-	</bean>
+	<bean id="casProxyDecider" class="org.acegisecurity.providers.cas.proxy.RejectProxyTickets"/>
 
 	<bean id="serviceProperties" class="org.acegisecurity.ui.cas.ServiceProperties">
-		<property name="service"><value>https://localhost:8443/contacts-cas/j_acegi_cas_security_check</value></property>
-		<property name="sendRenew"><value>false</value></property>
+		<property name="service" value="https://localhost:8443/contacts-cas/j_acegi_cas_security_check"/>
+		<property name="sendRenew" value="false"/>
 	</bean>
 
 	<!-- note logout has little impact, due to CAS reauthentication functionality (it will cause a refresh of the authentication though) -->
@@ -104,7 +98,7 @@
 
 
 	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
-	
+
 	<!-- Enabled by default for CAS, as a CAS deployment uses HTTPS -->
 	<bean id="channelProcessingFilter" class="org.acegisecurity.securechannel.ChannelProcessingFilter">
 		<property name="channelDecisionManager"><ref local="channelDecisionManager"/></property>
@@ -112,7 +106,7 @@
 			<value>
 			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 				\A/secure/.*\Z=REQUIRES_SECURE_CHANNEL
-				\A/j_acegi_cas_security_check.*\Z=REQUIRES_SECURE_CHANNEL	
+				\A/j_acegi_cas_security_check.*\Z=REQUIRES_SECURE_CHANNEL
 				\A.*\Z=REQUIRES_INSECURE_CHANNEL
 			</value>
 		</property>
@@ -171,24 +165,24 @@
 			</value>
 		</property>
 	</bean>
-	
+
 	<!-- BASIC Regular Expression Syntax (for beginners):
-	     
+
 	     \A means the start of the string (ie the beginning of the URL)
 	     \Z means the end of the string (ie the end of the URL)
 	     .  means any single character
 	     *  means null or any number of repetitions of the last expression (so .* means zero or more characters)
-	     
+
 	     Some examples:
-	     
+
 	     Expression:   \A/my/directory/.*\Z
 	     Would match:    /my/directory/
 	                     /my/directory/hello.html
-	     
+
 	     Expression:   \A/.*\Z
 	     Would match:    /hello.html
 	                     /
-	     
+
 	     Expression:   \A/.*/secret.html\Z
 	     Would match:    /some/directory/secret.html
 	                     /another/secret.html
