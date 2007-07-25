@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.web.util.WebUtils;
 
 /**
  * Populates the {@link SecurityContextHolder} with information obtained from
@@ -94,13 +95,15 @@ import org.springframework.util.ReflectionUtils;
  * @author Ben Alex
  * @author Patrick Burleson
  * @version $Id: HttpSessionContextIntegrationFilter.java 1784 2007-02-24
- * 21:00:24Z luke_t $
+ *          21:00:24Z luke_t $
  */
-public class HttpSessionContextIntegrationFilter implements InitializingBean, Filter {
+public class HttpSessionContextIntegrationFilter implements InitializingBean,
+		Filter {
 	// ~ Static fields/initializers
 	// =====================================================================================
 
-	protected static final Log logger = LogFactory.getLog(HttpSessionContextIntegrationFilter.class);
+	protected static final Log logger = LogFactory
+			.getLog(HttpSessionContextIntegrationFilter.class);
 
 	static final String FILTER_APPLIED = "__acegi_session_integration_filter_applied";
 
@@ -172,13 +175,16 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 	// ========================================================================================================
 
 	public void afterPropertiesSet() throws Exception {
-		if ((this.context == null) || (!SecurityContext.class.isAssignableFrom(this.context))) {
-			throw new IllegalArgumentException("context must be defined and implement SecurityContext "
-					+ "(typically use org.acegisecurity.context.SecurityContextImpl; existing class is " + this.context
-					+ ")");
+		if ((this.context == null)
+				|| (!SecurityContext.class.isAssignableFrom(this.context))) {
+			throw new IllegalArgumentException(
+					"context must be defined and implement SecurityContext "
+							+ "(typically use org.acegisecurity.context.SecurityContextImpl; existing class is "
+							+ this.context + ")");
 		}
 
-		if ((forceEagerSessionCreation == true) && (allowSessionCreation == false)) {
+		if ((forceEagerSessionCreation == true)
+				&& (allowSessionCreation == false)) {
 			throw new IllegalArgumentException(
 					"If using forceEagerSessionCreation, you must set allowSessionCreation to also be true");
 		}
@@ -190,59 +196,60 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 	public void destroy() {
 	}
 
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
-			ServletException {
+	public void doFilter(ServletRequest request, ServletResponse response,
+			FilterChain chain) throws IOException, ServletException {
 		boolean filterApplied = false;
 		if ((request != null) && (request.getAttribute(FILTER_APPLIED) != null)) {
 			// ensure that filter is only applied once per request
+			System.out.println("Filter already applied so moving on");
 			chain.doFilter(request, response);
-		}
-		else {
-			if (request != null) {
-				filterApplied = true;
-				request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
-			}
-
+		} else {
 			HttpSession httpSession = null;
 			boolean httpSessionExistedAtStartOfRequest = false;
 
 			try {
-				httpSession = ((HttpServletRequest) request).getSession(forceEagerSessionCreation);
-			}
-			catch (IllegalStateException ignored) {
+				httpSession = ((HttpServletRequest) request)
+						.getSession(forceEagerSessionCreation);
+			} catch (IllegalStateException ignored) {
 			}
 
 			if (httpSession != null) {
 				httpSessionExistedAtStartOfRequest = true;
 
-				Object contextFromSessionObject = httpSession.getAttribute(ACEGI_SECURITY_CONTEXT_KEY);
+				Object contextFromSessionObject = httpSession
+						.getAttribute(ACEGI_SECURITY_CONTEXT_KEY);
 
 				if (contextFromSessionObject != null) {
 					// Clone if required (see SEC-356)
 					if (cloneFromHttpSession) {
-						Assert.isInstanceOf(Cloneable.class, contextFromSessionObject,
-								"Context must implement Clonable and provide a Object.clone() method");
+						Assert
+								.isInstanceOf(Cloneable.class,
+										contextFromSessionObject,
+										"Context must implement Clonable and provide a Object.clone() method");
 						try {
-							Method m = contextFromSessionObject.getClass().getMethod("clone", new Class[] {});
+							Method m = contextFromSessionObject.getClass()
+									.getMethod("clone", new Class[] {});
 							if (!m.isAccessible()) {
 								m.setAccessible(true);
 							}
-							contextFromSessionObject = m.invoke(contextFromSessionObject, new Object[] {});
-						}
-						catch (Exception ex) {
+							contextFromSessionObject = m.invoke(
+									contextFromSessionObject, new Object[] {});
+						} catch (Exception ex) {
 							ReflectionUtils.handleReflectionException(ex);
 						}
 					}
 
 					if (contextFromSessionObject instanceof SecurityContext) {
 						if (logger.isDebugEnabled()) {
-							logger.debug("Obtained from ACEGI_SECURITY_CONTEXT a valid SecurityContext and "
-									+ "set to SecurityContextHolder: '" + contextFromSessionObject + "'");
+							logger
+									.debug("Obtained from ACEGI_SECURITY_CONTEXT a valid SecurityContext and "
+											+ "set to SecurityContextHolder: '"
+											+ contextFromSessionObject + "'");
 						}
 
-						SecurityContextHolder.setContext((SecurityContext) contextFromSessionObject);
-					}
-					else {
+						SecurityContextHolder
+								.setContext((SecurityContext) contextFromSessionObject);
+					} else {
 						if (logger.isWarnEnabled()) {
 							logger
 									.warn("ACEGI_SECURITY_CONTEXT did not contain a SecurityContext but contained: '"
@@ -255,24 +262,27 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
 						SecurityContextHolder.setContext(generateNewContext());
 					}
-				}
-				else {
+				} else {
 					if (logger.isDebugEnabled()) {
-						logger.debug("HttpSession returned null object for ACEGI_SECURITY_CONTEXT - new "
-								+ "SecurityContext instance associated with SecurityContextHolder");
+						logger
+								.debug("HttpSession returned null object for ACEGI_SECURITY_CONTEXT - new "
+										+ "SecurityContext instance associated with SecurityContextHolder");
 					}
 
 					SecurityContextHolder.setContext(generateNewContext());
 				}
-			}
-			else {
+
+			} else {
 				if (logger.isDebugEnabled()) {
-					logger.debug("No HttpSession currently exists - new SecurityContext instance "
-							+ "associated with SecurityContextHolder");
+					logger
+							.debug("No HttpSession currently exists - new SecurityContext instance "
+									+ "associated with SecurityContextHolder");
 				}
 
 				SecurityContextHolder.setContext(generateNewContext());
 			}
+
+			// end synch
 
 			// Make the HttpSession null, as we want to ensure we don't keep
 			// a reference to the HttpSession laying around in case the
@@ -280,35 +290,38 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 			httpSession = null;
 
 			// Proceed with chain
-			int contextWhenChainProceeded = SecurityContextHolder.getContext().hashCode();
+			int contextWhenChainProceeded = SecurityContextHolder.getContext()
+					.hashCode();
 
 			try {
+				filterApplied = true;
+				request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 				chain.doFilter(request, response);
-			}
-			catch (IOException ioe) {
+			} catch (IOException ioe) {
 				throw ioe;
-			}
-			catch (ServletException se) {
+			} catch (ServletException se) {
+
 				throw se;
-			}
-			finally {
+			} finally {
 				// do clean up, even if there was an exception
 				// Store context back to HttpSession
 				try {
-					httpSession = ((HttpServletRequest) request).getSession(false);
-				}
-				catch (IllegalStateException ignored) {
+					httpSession = ((HttpServletRequest) request)
+							.getSession(false);
+				} catch (IllegalStateException ignored) {
 				}
 
 				if ((httpSession == null) && httpSessionExistedAtStartOfRequest) {
 					if (logger.isDebugEnabled()) {
-						logger.debug("HttpSession is now null, but was not null at start of request; "
-								+ "session was invalidated, so do not create a new session");
+						logger
+								.debug("HttpSession is now null, but was not null at start of request; "
+										+ "session was invalidated, so do not create a new session");
 					}
 				}
 
 				// Generate a HttpSession only if we need to
-				if ((httpSession == null) && !httpSessionExistedAtStartOfRequest) {
+				if ((httpSession == null)
+						&& !httpSessionExistedAtStartOfRequest) {
 					if (!allowSessionCreation) {
 						if (logger.isDebugEnabled()) {
 							logger
@@ -317,23 +330,24 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 											+ "(because the allowSessionCreation property is false) - SecurityContext thus not "
 											+ "stored for next request");
 						}
-					}
-					else if (!contextObject.equals(SecurityContextHolder.getContext())) {
+					} else if (!contextObject.equals(SecurityContextHolder
+							.getContext())) {
 						if (logger.isDebugEnabled()) {
-							logger.debug("HttpSession being created as SecurityContextHolder contents are non-default");
+							logger
+									.debug("HttpSession being created as SecurityContextHolder contents are non-default");
 						}
 
 						try {
-							httpSession = ((HttpServletRequest) request).getSession(true);
+							httpSession = ((HttpServletRequest) request)
+									.getSession(true);
+						} catch (IllegalStateException ignored) {
 						}
-						catch (IllegalStateException ignored) {
-						}
-					}
-					else {
+					} else {
 						if (logger.isDebugEnabled()) {
 							logger
 									.debug("HttpSession is null, but SecurityContextHolder has not changed from default: ' "
-											+ SecurityContextHolder.getContext()
+											+ SecurityContextHolder
+													.getContext()
 											+ "'; not creating HttpSession or storing SecurityContextHolder contents");
 						}
 					}
@@ -345,36 +359,39 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 				// actually changed (see JIRA SEC-37)
 				if ((httpSession != null)
 						&& (SecurityContextHolder.getContext().hashCode() != contextWhenChainProceeded)) {
-					httpSession.setAttribute(ACEGI_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+					httpSession.setAttribute(ACEGI_SECURITY_CONTEXT_KEY,
+							SecurityContextHolder.getContext());
 
 					if (logger.isDebugEnabled()) {
-						logger.debug("SecurityContext stored to HttpSession: '" + SecurityContextHolder.getContext()
-								+ "'");
+						logger.debug("SecurityContext stored to HttpSession: '"
+								+ SecurityContextHolder.getContext() + "'");
 					}
 				}
 
 				if (filterApplied) {
 					request.removeAttribute(FILTER_APPLIED);
 				}
-				
+
 				// Remove SecurityContextHolder contents
 				SecurityContextHolder.clearContext();
 
 				if (logger.isDebugEnabled()) {
-					logger.debug("SecurityContextHolder set to new context, as request processing completed");
+					logger
+							.debug("SecurityContextHolder set to new context, as request processing completed");
 				}
+
 			}
+
 		}
+
 	}
 
 	public SecurityContext generateNewContext() throws ServletException {
 		try {
 			return (SecurityContext) this.context.newInstance();
-		}
-		catch (InstantiationException ie) {
+		} catch (InstantiationException ie) {
 			throw new ServletException(ie);
-		}
-		catch (IllegalAccessException iae) {
+		} catch (IllegalAccessException iae) {
 			throw new ServletException(iae);
 		}
 	}
@@ -386,9 +403,11 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 	/**
 	 * Does nothing. We use IoC container lifecycle services instead.
 	 * 
-	 * @param filterConfig ignored
+	 * @param filterConfig
+	 *            ignored
 	 * 
-	 * @throws ServletException ignored
+	 * @throws ServletException
+	 *             ignored
 	 */
 	public void init(FilterConfig filterConfig) throws ServletException {
 	}
