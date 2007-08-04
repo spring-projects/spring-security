@@ -8,7 +8,7 @@
     </parent>
     <artifactId>acegi-security-portlet</artifactId>
     <name>Acegi Security System for Spring - Portlet support</name>
-    <description>Acegi Security System for Spring - Support for JSR-168 Portlets</description>
+    <description>Acegi Security System for Spring - Support for JSR 168 Portlets</description>
     <version>0.1-SNAPSHOT</version>
 
     <repositories>

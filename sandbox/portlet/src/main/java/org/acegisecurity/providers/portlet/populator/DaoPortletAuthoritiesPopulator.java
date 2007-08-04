@@ -38,7 +38,7 @@ public class DaoPortletAuthoritiesPopulator
 
 	//~ Instance fields ================================================================================================
 
-    private UserDetailsService userDetailsService;
+	private UserDetailsService userDetailsService;
 
 	//~ Methods ========================================================================================================
 

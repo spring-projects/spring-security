@@ -33,9 +33,10 @@ import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
 
 /**
- * Populates the portlet authorities via role information from the portlet container.
+ * <p>Populates the portlet authorities via role information from the portlet container.
  * Primarily it uses the <code>PortletRequest.isUserInRole(role)</code> method to
- * check if the user is in a list of configured roles.
+ * check if the user is in a list of configured roles.</p>
+ *
  * <p>This bean has the following configurable properties:</p>
  * <ul>
  *     <li><code>rolesToCheck</code> : A list of strings containing names of roles to check.
@@ -43,9 +44,15 @@ import org.acegisecurity.userdetails.UserDetails;
  *         of the portlet descriptor in the portlet.xml file.</li>
  *     <li><code>rolePrefix</code> : The prefix to be added onto each role name that as it is
  *         added to the list of authorities.  The default value is 'ROLE_'.</li>
- *     <li><code>userRole</code> : The role that all authenticated users will automatically be
- *         granted.  The default value is 'ROLE_USER'.</li>
+ *     <li><code>userRole</code> : The authority that all authenticated users will automatically
+ *         be granted.  The default value is 'ROLE_USER'.  Set this to null to avoid having any
+ *         value automatically populated.</li>
  * </ul>
+ *
+ * <p>This populator depends on finding the <code>PortletRequest<code> when calling the
+ * {@link Authentication#getDetails()} method on the object passed to
+ * {@link #getUserDetails(Authentication)}.  If not, it will throw an
+ * {@link AuthenticationServiceException}.
  *
  * @author John A. Lewis
  * @since 2.0
@@ -56,14 +63,14 @@ public class ContainerPortletAuthoritiesPopulator
 
 	//~ Static fields/initializers =====================================================================================
 
-	private static final String defaultRolePrefix = "ROLE_";
-	private static final String defaultUserRole = "ROLE_USER";
+	public static final String DEFAULT_ROLE_PREFIX = "ROLE_";
+	public static final String DEFAULT_USER_ROLE = "ROLE_USER";
 
 	//~ Instance fields ================================================================================================
 
-    private List rolesToCheck;
-    private String rolePrefix = defaultRolePrefix;
-    private String userRole = defaultUserRole;
+	private List rolesToCheck;
+	private String rolePrefix = DEFAULT_ROLE_PREFIX;
+	private String userRole = DEFAULT_USER_ROLE;
 
 	//~ Methods ========================================================================================================
 
@@ -77,7 +84,7 @@ public class ContainerPortletAuthoritiesPopulator
 		// see if we can load authorities from the portlet request
 		Object details = authentication.getDetails();
 		if (!(details instanceof PortletRequest)) {
-			throw new AuthenticationServiceException("expected getDetails() to return the PortletRequest object");
+			throw new AuthenticationServiceException("expected Authentication.getDetails() to return a PortletRequest");
 		}
 		GrantedAuthority[] authorities = loadGrantedAuthorities((PortletRequest)details);
 
@@ -89,7 +96,8 @@ public class ContainerPortletAuthoritiesPopulator
 
 		// start the list and add the standard user role
 		ArrayList authorities = new ArrayList();
-		authorities.add(new GrantedAuthorityImpl(getUserRole()));
+		if (this.userRole != null && this.userRole.length() > 0)
+			authorities.add(new GrantedAuthorityImpl(getUserRole()));
 
 		// iterate through the configured list of roles to check (if there is one)
 		if (this.rolesToCheck != null) {
@@ -104,7 +112,7 @@ public class ContainerPortletAuthoritiesPopulator
 			}
 		}
 
-        // return the array of GrantedAuthority objects
+		// return the array of GrantedAuthority objects
 		return (GrantedAuthority[])authorities.toArray(new GrantedAuthority[authorities.size()]);
 	}
 

@@ -34,7 +34,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 /**
- * <p>Processes a JSR-168 Portlet authentication request.  The request will typically
+ * <p>Processes a JSR 168 Portlet authentication request.  The request will typically
  * originate from {@link org.acegisecurity.ui.portlet.PortletProcessingInterceptor}.</p>
  *
  * <p>Be aware that this provider is trusting the portal and portlet container to handle

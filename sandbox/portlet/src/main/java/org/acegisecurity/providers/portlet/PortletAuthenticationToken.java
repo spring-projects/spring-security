@@ -20,7 +20,7 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 
 /**
- * <code>Authentication</code> implementation for JSR-168 Portlet authentication.  <p>The
+ * <code>Authentication</code> implementation for JSR 168 Portlet authentication.  <p>The
  * corresponding authentication provider is  {@link PortletAuthenticationProvider}.</p>
  *
  * @author John A. Lewis

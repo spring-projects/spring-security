@@ -17,6 +17,7 @@
 package org.acegisecurity.ui.portlet;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
+import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
@@ -52,8 +54,8 @@ import org.springframework.web.portlet.ModelAndView;
  * {@link Authentication} object will be placed into the <code>SecurityContext</code>, which
  * is guaranteed to have already been created by an earlier interceptor.  If authentication
  * fails, the <code>AuthenticationException</code> will be placed into the
- * <code>PortletSession</code> with the attribute defined by
- * {@link AbstractProcessingFilter#ACEGI_SECURITY_LAST_EXCEPTION_KEY}.</p>
+ * <code>APPLICATION_SCOPE</code> of the <code>PortletSession</code> with the attribute defined
+ * by {@link AbstractProcessingFilter#ACEGI_SECURITY_LAST_EXCEPTION_KEY}.</p>
  *
  *  <p>Some portals do not properly provide the identity of the current user via the
  * <code>getRemoteUser()</code> or <code>getUserPrincipal()</code> methods of the
@@ -167,7 +169,9 @@ public class PortletProcessingInterceptor implements
 				if (logger.isDebugEnabled())
 					logger.debug("Authentication failed - updating ContextHolder to contain null Authentication");
 				ctx.setAuthentication(null);
-				request.getPortletSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY, failed);
+				request.getPortletSession().setAttribute(
+						AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY,
+						failed, PortletSession.APPLICATION_SCOPE);
 				onUnsuccessfulAuthentication(request, response, failed);
 			}
 		}
@@ -177,7 +181,7 @@ public class PortletProcessingInterceptor implements
 
 	/**
 	 * This method attempts to extract a principal from the portlet request.
-	 * According to the JSR-168 spec, the <code>PortletRequest<code> should return the name
+	 * According to the JSR 168 spec, the <code>PortletRequest<code> should return the name
 	 * of the user in the <code>getRemoteUser()</code> method.  It should also provide a
 	 * <code>java.security.Principal</code> object from the <code>getUserPrincipal()</code>
 	 * method.  We will first try these to come up with a valid username.
@@ -186,22 +190,25 @@ public class PortletProcessingInterceptor implements
 	 * property has been populated, then we will search through the <code>USER_INFO<code>
 	 * map from the request to see if we can find a valid username.
 	 * <p>This method can be overridden by subclasses to provide special handling
-	 * for portals with weak support for the JSR-168 spec.</p>
+	 * for portals with weak support for the JSR 168 spec.</p>
 	 * @param request the portlet request object
 	 * @return the determined principal object, or null if none found
 	 */
 	protected Object getPrincipalFromRequest(PortletRequest request) {
 
 		// first try getRemoteUser()
-		Object principal = request.getRemoteUser();
-		if (principal != null) {
-			return principal;
+		String remoteUser = request.getRemoteUser();
+		if (remoteUser != null) {
+			return remoteUser;
 		}
 
 		// next try getUserPrincipal()
-		principal = request.getUserPrincipal();
-		if (principal != null) {
-			return principal;
+		Principal userPrincipal = request.getUserPrincipal();
+		if (userPrincipal != null) {
+			String userPrincipalName = userPrincipal.getName();
+			if (userPrincipalName != null) {
+				return userPrincipalName;
+			}
 		}
 
 		// last try entries in USER_INFO if any attributes were defined
@@ -213,9 +220,9 @@ public class PortletProcessingInterceptor implements
 				logger.warn("unable to retrieve USER_INFO map from portlet request", e);
 			}
 			if (userInfo != null) {
-			    Iterator i = this.userNameAttributes.iterator();
-			    while(i.hasNext()) {
-					principal = (String)userInfo.get(i.next());
+				Iterator i = this.userNameAttributes.iterator();
+				while(i.hasNext()) {
+					Object principal = (String)userInfo.get(i.next());
 					if (principal != null) {
 						return principal;
 					}
@@ -231,13 +238,13 @@ public class PortletProcessingInterceptor implements
 	 * This method attempts to extract a credentials from the portlet request.
 	 * We are trusting the portal framework to authenticate the user, so all
 	 * we are really doing is trying to put something intelligent in here to
-	 * indicate the user is authenticated.  According to the JSR-168 spec,
+	 * indicate the user is authenticated.  According to the JSR 168 spec,
 	 * PortletRequest.getAuthType() should return a non-null value if the
 	 * user is authenticated and should be null if not authenticated. So we
 	 * will use this as the credentials and the token will be trusted as
 	 * authenticated if the credentials are not null.
 	 * <p>This method can be overridden by subclasses to provide special handling
-	 * for portals with weak support for the JSR-168 spec.  If that is done,
+	 * for portals with weak support for the JSR 168 spec.  If that is done,
 	 * be sure the value is non-null for authenticated users and null for
 	 * non-authenticated users.</p>
 	 * @param request the portlet request object
@@ -255,28 +262,28 @@ public class PortletProcessingInterceptor implements
 	 * @throws AuthenticationException to indicate that authentication attempt is not valid and should be terminated
 	 * @throws IOException
 	 */
-    protected void onPreAuthentication(PortletRequest request, PortletResponse response)
-    	throws AuthenticationException, IOException {}
+	protected void onPreAuthentication(PortletRequest request, PortletResponse response)
+		throws AuthenticationException, IOException {}
 
-    /**
-     * Callback for custom processing after a successful authentication attempt.
-     * @param request the portlet request that was authenticated
-     * @param response the portlet response that was authenticated
-     * @param authResult the resulting Authentication object
-     * @throws IOException
-     */
-    protected void onSuccessfulAuthentication(PortletRequest request, PortletResponse response, Authentication authResult)
-    	throws IOException {}
+	/**
+	 * Callback for custom processing after a successful authentication attempt.
+	 * @param request the portlet request that was authenticated
+	 * @param response the portlet response that was authenticated
+	 * @param authResult the resulting Authentication object
+	 * @throws IOException
+	 */
+	protected void onSuccessfulAuthentication(PortletRequest request, PortletResponse response, Authentication authResult)
+		throws IOException {}
 
-    /**
-     * Callback for custom processing after an unsuccessful authentication attempt.
-     * @param request the portlet request that failed authentication
-     * @param response the portlet response that failed authentication
-     * @param failed the AuthenticationException that occurred
-     * @throws IOException
-     */
-    protected void onUnsuccessfulAuthentication(PortletRequest request, PortletResponse response, AuthenticationException failed)
-    	throws IOException {}
+	/**
+	 * Callback for custom processing after an unsuccessful authentication attempt.
+	 * @param request the portlet request that failed authentication
+	 * @param response the portlet response that failed authentication
+	 * @param failed the AuthenticationException that occurred
+	 * @throws IOException
+	 */
+	protected void onUnsuccessfulAuthentication(PortletRequest request, PortletResponse response, AuthenticationException failed)
+		throws IOException {}
 
 
 	public AuthenticationManager getAuthenticationManager() {
