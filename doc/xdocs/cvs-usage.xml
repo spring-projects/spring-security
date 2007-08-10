@@ -1,17 +1,32 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<document><properties><title>CVS usage</title></properties><body><section name="CVS instructions for all modules"><p>This instructions are general, check the module documentation if you need concrete instructions. </p><p><em>modulename</em> can be for example:</p><ul>
-  <li>acegisecurity <em>(this will check out all modules) </em></li>
-  <li>acegisecurity/core/</li>
-  <li>acegisecurity/adapters/cas</li>
-</ul><subsection name="Web Access"><p>
-          <a href="http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/">http://svn.sourceforge.net/viewcvs.cgi/acegisecurity/</a>
-</p></subsection><subsection name="Anonymous Access with Maven"><p> This project's CVS repository can be checked out through anonymous (pserver) CVS with the following instruction on a single line. </p><source>maven scm:checkout-project
-    -Dmaven.scm.method=svn
-    -Dmaven.scm.svn.module=modulename
-    -Dmaven.scm.svn.root=scm:svn:https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity
-    -Dmaven.scm.checkout.dir=acegisecurity
-</source></subsection><subsection name="Anonymous SVN Access"><p>
-          This project's SVN repository can be checked out through anonymous
-          SVN with the following instruction set.
-</p><p>
-          svn co https://svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</p></subsection><subsection name="Nightly Snapshots"><p>If you'd prefer not to use SVN directly, please see our <a href="downloads.html">downloads page</a> for nightly snapshots.</p></subsection></section></body></document>
+<document>
+    <properties>
+        <title>Subversion Usage</title>
+    </properties>
+    <body>
+        <section name="Accessing the Source">
+            <subsection name="Web Access">
+                <p>
+                    You can browse the source tree directly via
+                    <a href="http://acegisecurity.svn.sourceforge.net/viewvc/acegisecurity/">
+                        http://acegisecurity.svn.sourceforge.net/viewvc/acegisecurity/
+                    </a>
+                </p>
+            </subsection>
+            <subsection name="Subversion Command-Line Access">
+                <p>
+                    The code can be checked out anonymously with the following command:
+                </p>
+                <p>
+                    svn co http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity
+                </p>
+
+            </subsection>
+            <subsection name="Nightly Snapshots">
+                <p>If you'd prefer not to use subversion directly, please see our <a href="downloads.html">downloads page</a>
+                    for nightly snapshots.
+                </p>
+            </subsection>
+        </section>
+    </body>
+</document>
