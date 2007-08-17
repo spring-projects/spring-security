@@ -40,8 +40,9 @@ import javax.naming.directory.SearchControls;
 
 /**
  * The default strategy for obtaining user role information from the directory.
- * <p>It obtains roles by performing a search for "groups" the user is a member of.
- * </p>
+ *
+ * <p>It obtains roles by performing a search for "groups" the user is a member of.</p>
+ *
  * <p>A typical group search scenario would be where each group/role is specified using the <tt>groupOfNames</tt>
  * (or <tt>groupOfUniqueNames</tt>) LDAP objectClass and the user's DN is listed in the <tt>member</tt> (or
  * <tt>uniqueMember</tt>) attribute to indicate that they should be assigned that role. The following LDIF sample has
@@ -57,8 +58,10 @@ import javax.naming.directory.SearchControls;
  * <p>The group search is performed within a DN specified by the <tt>groupSearchBase</tt> property, which should
  * be relative to the root DN of its <tt>InitialDirContextFactory</tt>. If the search base is null, group searching is
  * disabled. The filter used in the search is defined by the <tt>groupSearchFilter</tt> property, with the filter
- * argument {0} being the full DN of the user. You can also specify which attribute defines the role name by setting
+ * argument {0} being the full DN of the user. You can also optionally use the parameter {1}, which will be substituted
+ * with the username. You can also specify which attribute defines the role name by setting
  * the <tt>groupRoleAttribute</tt> property (the default is "cn").</p>
+ *
  * <p>The configuration below shows how the group search might be performed with the above schema.
  * <pre>
  * &lt;bean id="ldapAuthoritiesPopulator"
