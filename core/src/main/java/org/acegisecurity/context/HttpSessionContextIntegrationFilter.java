@@ -201,7 +201,6 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean,
 		boolean filterApplied = false;
 		if ((request != null) && (request.getAttribute(FILTER_APPLIED) != null)) {
 			// ensure that filter is only applied once per request
-			System.out.println("Filter already applied so moving on");
 			chain.doFilter(request, response);
 		} else {
 			HttpSession httpSession = null;
