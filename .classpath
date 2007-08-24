@@ -12,10 +12,6 @@
 	<classpathentry kind="src" path="samples/contacts/src/main/resources"/>
 	<classpathentry kind="src" path="samples/contacts/src/test/java"/>
 	<classpathentry kind="src" path="samples/contacts/src/test/resources"/>
-	<classpathentry kind="src" path="samples/acegifier/src/main/java"/>
-	<classpathentry kind="src" path="samples/acegifier/src/main/resources"/>
-	<classpathentry kind="src" path="samples/acegifier/src/test/java"/>
-	<classpathentry kind="src" path="samples/acegifier/src/test/resources"/>
 	<classpathentry kind="src" path="samples/attributes/src/main/java"/>
 	<classpathentry kind="src" path="samples/attributes/src/main/resources"/>
 	<classpathentry kind="src" path="samples/attributes/src/test/java"/>
