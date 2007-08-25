@@ -78,5 +78,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/commons-attributes/jars/commons-attributes-api-2.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
 	<classpathentry kind="var" path="M2_REPO/postgresql/postgresql/8.1-407.jdbc3/postgresql-8.1-407.jdbc3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-ldap/1.1.2/spring-ldap-1.1.2.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>
