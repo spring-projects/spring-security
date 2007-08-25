@@ -32,10 +32,8 @@ import org.acegisecurity.util.PortResolverImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 import org.springframework.util.Assert;
 
@@ -95,7 +93,7 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id: ExceptionTranslationFilter.java 1496 2006-05-23 13:38:33Z
  * benalex $
  */
-public class ExceptionTranslationFilter implements Filter, InitializingBean, ApplicationContextAware {
+public class ExceptionTranslationFilter implements Filter, InitializingBean {
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -114,18 +112,6 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean, App
 
 	private boolean createSessionAllowed = true;
 
-	/*
-	 * applicationContext will be inject as a part of the contract of
-	 * ApplicationContextAware interface
-	 */
-	private ApplicationContext applicationContext;
-
-	/*
-	 * boolean field to track if setter for accessDeniedHandler is invoked. If
-	 * invoked the default value changes to true
-	 */
-	private boolean isSetAcessDeniedHandlerInvoked = false;
-
 	// ~ Methods
 	// ========================================================================================================
 
@@ -133,14 +119,6 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean, App
 		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint must be specified");
 		Assert.notNull(portResolver, "portResolver must be specified");
 		Assert.notNull(authenticationTrustResolver, "authenticationTrustResolver must be specified");
-
-		// autodetect AccessDeniedHandler instance in the applicationcontext if
-		// it wasn't injected.
-		if (!isSetAcessDeniedHandlerInvoked) {
-			if (applicationContext != null) {
-				autoDetectAnyAccessDeniedHandlerAndUseIt(applicationContext);
-			}
-		}
 	}
 
 	/**
@@ -301,7 +279,6 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean, App
 	public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
 		Assert.notNull(accessDeniedHandler, "AccessDeniedHandler required");
 		this.accessDeniedHandler = accessDeniedHandler;
-		this.isSetAcessDeniedHandlerInvoked = true;
 	}
 
 	public void setAuthenticationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint) {
@@ -319,9 +296,4 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean, App
 	public void setPortResolver(PortResolver portResolver) {
 		this.portResolver = portResolver;
 	}
-
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
-
 }

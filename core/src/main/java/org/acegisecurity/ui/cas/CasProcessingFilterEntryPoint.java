@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.ui.AuthenticationEntryPoint;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
 
@@ -42,22 +41,13 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered{
+public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
     //~ Instance fields ================================================================================================
 
     private ServiceProperties serviceProperties;
     private String loginUrl;
-    private int order = Integer.MAX_VALUE; // ~ default
 
     //~ Methods ========================================================================================================
-
-    public int getOrder() {
-		return order;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
 
 	public void afterPropertiesSet() throws Exception {
         Assert.hasLength(this.loginUrl, "loginUrl must be specified");

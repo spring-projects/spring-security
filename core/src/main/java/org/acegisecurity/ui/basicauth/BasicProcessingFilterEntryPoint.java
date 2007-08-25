@@ -24,11 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.ui.AuthenticationEntryPoint;
-import org.acegisecurity.util.OrderedUtils;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
 
@@ -42,29 +38,15 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered, ApplicationContextAware {
+public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
     //~ Instance fields ================================================================================================
 
-	private static final int DEFAULT_ORDER = Integer.MAX_VALUE;
     private String realmName;
-    private int order = DEFAULT_ORDER;
-    private ApplicationContext applicationContext;
 
     //~ Methods ========================================================================================================
 
-    public int getOrder() {
-		return order;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
-
 	public void afterPropertiesSet() throws Exception {
 		Assert.hasText(realmName, "realmName must be specified");
-		if (order == DEFAULT_ORDER) {
-			OrderedUtils.copyOrderFromOtherClass(BasicProcessingFilter.class, applicationContext, this, true);
-		}
     }
 
     public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
@@ -82,7 +64,4 @@ public class BasicProcessingFilterEntryPoint implements AuthenticationEntryPoint
         this.realmName = realmName;
     }
 
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
 }

@@ -26,7 +26,6 @@ import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.ui.AuthenticationEntryPoint;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.Ordered;
 
 /**
  * In the X.509 authentication case (unlike CAS, for example) the certificate
@@ -47,27 +46,14 @@ import org.springframework.core.Ordered;
  * 
  * @see org.acegisecurity.ui.ExceptionTranslationFilter
  */
-public class X509ProcessingFilterEntryPoint implements AuthenticationEntryPoint, Ordered {
+public class X509ProcessingFilterEntryPoint implements AuthenticationEntryPoint {
 	// ~ Static fields/initializers
 	// =====================================================================================
 
 	private static final Log logger = LogFactory.getLog(X509ProcessingFilterEntryPoint.class);
 
-	// ~ instance fields
-	// =====================================================================================
-	
-	private int order = Integer.MAX_VALUE; // ~ default
-
 	// ~ Methods
 	// ========================================================================================================
-
-	public int getOrder() {
-		return order;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
 
 	/**
 	 * Returns a 403 error code to the client.

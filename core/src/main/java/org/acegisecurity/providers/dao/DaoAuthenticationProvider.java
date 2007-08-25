@@ -26,10 +26,7 @@ import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.Ordered;
 import org.springframework.dao.DataAccessException;
 import org.springframework.util.Assert;
 
@@ -41,8 +38,7 @@ import org.springframework.util.Assert;
  * @version $Id: DaoAuthenticationProvider.java 1857 2007-05-24 00:47:12Z
  * benalex $
  */
-public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider implements
-		ApplicationContextAware, Ordered {
+public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
 	// ~ Instance fields
 	// ================================================================================================
@@ -54,16 +50,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	private UserDetailsService userDetailsService;
 
 	private boolean includeDetailsObject = true;
-
-	private int DEFAULT_RDER = Integer.MAX_VALUE; // default: same as
-
-	// non-Ordered
-
-	private int order = DEFAULT_RDER;
-
-	private boolean isSetUserDetailsServiceInvoked;
-
-	private ApplicationContext applicationContext;
 
 	// ~ Methods
 	// ========================================================================================================
@@ -93,9 +79,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	}
 
 	protected void doAfterPropertiesSet() throws Exception {
-		if (!isSetUserDetailsServiceInvoked) {
-			autoDetectAnyUserDetailsServiceAndUseIt(this.applicationContext);
-		}
 		Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
 	}
 
@@ -179,7 +162,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	}
 
 	public void setUserDetailsService(UserDetailsService userDetailsService) {
-		isSetUserDetailsServiceInvoked = true;
 		this.userDetailsService = userDetailsService;
 	}
 
@@ -189,18 +171,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
 	public void setIncludeDetailsObject(boolean includeDetailsObject) {
 		this.includeDetailsObject = includeDetailsObject;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
-
-	public int getOrder() {
-		return order;
-	}
-
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
 	}
 
 }

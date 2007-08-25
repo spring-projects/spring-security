@@ -33,7 +33,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.core.Ordered;
 
 import org.springframework.util.Assert;
 
@@ -47,7 +46,7 @@ import java.security.cert.X509Certificate;
  * @author Luke Taylor
  * @version $Id$
  */
-public class X509AuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware, Ordered {
+public class X509AuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(X509AuthenticationProvider.class);
@@ -57,17 +56,8 @@ public class X509AuthenticationProvider implements AuthenticationProvider, Initi
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     private X509AuthoritiesPopulator x509AuthoritiesPopulator;
     private X509UserCache userCache = new NullX509UserCache();
-    private int order = -1; // default: same as non-Ordered
 
     //~ Methods ========================================================================================================
-
-    public int getOrder() {
-		return order;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
 
 	public void afterPropertiesSet() throws Exception {
         Assert.notNull(userCache, "An x509UserCache must be set");

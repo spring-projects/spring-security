@@ -15,25 +15,17 @@
 
 package org.acegisecurity.vote;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.acegisecurity.AccessDecisionManager;
 import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.ConfigAttribute;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.core.OrderComparator;
-import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
 /**
@@ -45,7 +37,7 @@ import org.springframework.util.Assert;
  * </p>
  */
 public abstract class AbstractAccessDecisionManager implements AccessDecisionManager, InitializingBean,
-        MessageSourceAware, ApplicationContextAware {
+        MessageSourceAware {
     // ~ Instance fields
     // ================================================================================================
 
@@ -55,29 +47,12 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
 
     private boolean allowIfAllAbstainDecisions = false;
 
-    private ApplicationContext applicationContext;
-
     // ~ Methods
     // ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        if (decisionVoters == null || decisionVoters.isEmpty()) {
-            autoDetectVoters();
-        }
         Assert.notEmpty(this.decisionVoters, "A list of AccessDecisionVoters is required");
         Assert.notNull(this.messages, "A message source must be set");
-    }
-
-    private void autoDetectVoters() {
-        Assert.notNull(applicationContext, "Auto-detection of voters requires an application context");
-        Map map = this.applicationContext.getBeansOfType(AccessDecisionVoter.class);
-        List list = new ArrayList();
-
-        for (Iterator it = map.values().iterator(); it.hasNext();) {
-            list.add((it.next()));
-        }
-        Collections.sort(list, new OrderComparator());
-        setDecisionVoters(list);
     }
 
     protected final void checkAllowIfAllAbstainDecisions() {
@@ -155,8 +130,4 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
 
         return true;
     }
-
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-	}
 }

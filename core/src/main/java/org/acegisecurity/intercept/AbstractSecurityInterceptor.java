@@ -39,11 +39,8 @@ import org.acegisecurity.runas.NullRunAsManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -55,7 +52,6 @@ import org.springframework.util.Assert;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -121,7 +117,7 @@ import java.util.Set;
  * luke_t $
  */
 public abstract class AbstractSecurityInterceptor implements InitializingBean, ApplicationEventPublisherAware,
-		MessageSourceAware, ApplicationContextAware {
+		MessageSourceAware {
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -147,12 +143,6 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 	private boolean rejectPublicInvocations = false;
 
 	private boolean validateConfigAttributes = true;
-
-	private boolean isSetAuthenticationManagerInvoked = false;
-
-	private boolean isSetAccessDecisionManagerInvoked = false;
-
-	private ApplicationContext applicationContext;
 
 	// ~ Methods
 	// ========================================================================================================
@@ -206,14 +196,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
 		Assert.notNull(this.messages, "A message source must be set");
 
-		if (!isSetAuthenticationManagerInvoked) {
-			autoDetectAuthenticationManager();
-		}
 		Assert.notNull(this.authenticationManager, "An AuthenticationManager is required");
 
-		if (!isSetAccessDecisionManagerInvoked) {
-			autoDetectAccessDecisionManager();
-		}
 		Assert.notNull(this.accessDecisionManager, "An AccessDecisionManager is required");
 
 		Assert.notNull(this.runAsManager, "A RunAsManager is required");
@@ -265,47 +249,6 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
 			logger.info("Validated configuration attributes");
 		}
-	}
-
-	/**
-	 * Introspects the <code>Applicationcontext</code> for the single instance
-	 * of <code>AccessDecisionManager</code>. If more than one instance of
-	 * <code>AccessDecisionManager</code> is found, the method uses the first
-	 * one detected.
-	 * 
-	 * @param applicationContext to locate the instance
-	 */
-	private void autoDetectAccessDecisionManager() {
-		if (applicationContext != null) {
-			Map map = applicationContext.getBeansOfType(AccessDecisionManager.class);
-			if (map.size() > 0)
-				setAccessDecisionManager((AccessDecisionManager) map.values().iterator().next());
-		}
-	}
-
-	/**
-	 * Introspects the <code>Applicationcontext</code> for the single instance
-	 * of <code>AuthenticationManager</code>. If found invoke
-	 * setAuthenticationManager method by providing the found instance of
-	 * authenticationManager as a method parameter. If more than one instance of
-	 * <code>AuthenticationManager</code> is found, the method throws
-	 * <code>IllegalStateException</code>.
-	 * 
-	 * @param applicationContext to locate the instance
-	 */
-	private void autoDetectAuthenticationManager() {
-		if (applicationContext != null) {
-			Map map = applicationContext.getBeansOfType(AuthenticationManager.class);
-			if (map.size() > 1) {
-				throw new IllegalArgumentException(
-						"More than one AuthenticationManager beans detected please refer to the one using "
-								+ " [ authenticationManager  ] " + "property");
-			}
-			else if (map.size() == 1) {
-				setAuthenticationManager((AuthenticationManager) map.values().iterator().next());
-			}
-		}
-
 	}
 
 	protected InterceptorStatusToken beforeInvocation(Object object) {
@@ -479,7 +422,6 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 	public abstract ObjectDefinitionSource obtainObjectDefinitionSource();
 
 	public void setAccessDecisionManager(AccessDecisionManager accessDecisionManager) {
-		isSetAccessDecisionManagerInvoked = true;
 		this.accessDecisionManager = accessDecisionManager;
 	}
 
@@ -509,7 +451,6 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 	}
 
 	public void setAuthenticationManager(AuthenticationManager newManager) {
-		isSetAuthenticationManagerInvoked = true;
 		this.authenticationManager = newManager;
 	}
 
@@ -550,9 +491,5 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 		if (this.eventPublisher != null) {
 			this.eventPublisher.publishEvent(event);
 		}
-	}
-
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
 	}
 }

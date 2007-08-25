@@ -41,7 +41,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
-import org.springframework.core.Ordered;
 import org.springframework.core.io.Resource;
 
 import org.springframework.util.Assert;
@@ -142,7 +141,7 @@ import javax.security.auth.login.LoginException;
  * @version $Id$
  */
 public class JaasAuthenticationProvider implements AuthenticationProvider, InitializingBean, ApplicationContextAware,
-    ApplicationListener, Ordered {
+    ApplicationListener {
     //~ Static fields/initializers =====================================================================================
 
     protected static final Log log = LogFactory.getLog(JaasAuthenticationProvider.class);
@@ -155,17 +154,8 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Initi
     private String loginContextName = "ACEGI";
     private AuthorityGranter[] authorityGranters;
     private JaasAuthenticationCallbackHandler[] callbackHandlers;
-    private int order = -1; // default: same as non-Ordered
 
     //~ Methods ========================================================================================================
-
-    public int getOrder() {
-		return order;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
 
 	public void afterPropertiesSet() throws Exception {
         Assert.notNull(loginConfig, "loginConfig must be set on " + getClass());

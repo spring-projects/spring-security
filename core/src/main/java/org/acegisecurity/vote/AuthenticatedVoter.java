@@ -21,7 +21,6 @@ import org.acegisecurity.AuthenticationTrustResolverImpl;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
 
-import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
 import java.util.Iterator;
@@ -42,20 +41,16 @@ import java.util.Iterator;
  * @author Ben Alex
  * @version $Id$
  */
-public class AuthenticatedVoter implements AccessDecisionVoter, Ordered {
+public class AuthenticatedVoter implements AccessDecisionVoter {
     //~ Static fields/initializers =====================================================================================
 
     public static final String IS_AUTHENTICATED_FULLY = "IS_AUTHENTICATED_FULLY";
     public static final String IS_AUTHENTICATED_REMEMBERED = "IS_AUTHENTICATED_REMEMBERED";
     public static final String IS_AUTHENTICATED_ANONYMOUSLY = "IS_AUTHENTICATED_ANONYMOUSLY";
-    public static int DEFAULT_ORDER = Ordered.LOWEST_PRECEDENCE;
     //~ Instance fields ================================================================================================
 
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
     
-    private int order = DEFAULT_ORDER;
-    
-
     //~ Methods ========================================================================================================
 
     private boolean isFullyAuthenticated(Authentication authentication) {
@@ -124,13 +119,4 @@ public class AuthenticatedVoter implements AccessDecisionVoter, Ordered {
 
         return result;
     }
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
-
-	public int getOrder() {
-		return order;
-	}
-
 }

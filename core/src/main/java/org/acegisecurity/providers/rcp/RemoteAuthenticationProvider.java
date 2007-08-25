@@ -23,7 +23,6 @@ import org.acegisecurity.providers.AuthenticationProvider;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.core.Ordered;
 
 import org.springframework.util.Assert;
 
@@ -44,21 +43,12 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class RemoteAuthenticationProvider implements AuthenticationProvider, InitializingBean, Ordered {
+public class RemoteAuthenticationProvider implements AuthenticationProvider, InitializingBean {
     //~ Instance fields ================================================================================================
 
     private RemoteAuthenticationManager remoteAuthenticationManager;
-    private int order = -1; // default: same as non-Ordered
 
     //~ Methods ========================================================================================================
-
-    public int getOrder() {
-		return order;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
 
 	public void afterPropertiesSet() throws Exception {
         Assert.notNull(this.remoteAuthenticationManager, "remoteAuthenticationManager is mandatory");

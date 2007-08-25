@@ -28,7 +28,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.core.Ordered;
 
 import org.springframework.util.Assert;
 
@@ -64,7 +63,7 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Id: AuthenticationProcessingFilterEntryPoint.java 1873 2007-05-25
  * 03:21:17Z benalex $
  */
-public class AuthenticationProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered {
+public class AuthenticationProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -82,10 +81,6 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
 	private boolean forceHttps = false;
 
 	private boolean serverSideRedirect = false;
-
-	private int DEFAULT_ORDER = Integer.MAX_VALUE;// ~ default
-
-	private int order = DEFAULT_ORDER;
 
 	// ~ Methods
 	// ========================================================================================================
@@ -265,14 +260,6 @@ public class AuthenticationProcessingFilterEntryPoint implements AuthenticationE
 	 */
 	public void setServerSideRedirect(boolean serverSideRedirect) {
 		this.serverSideRedirect = serverSideRedirect;
-	}
-
-	public int getOrder() {
-		return order;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
 	}
 
 }

@@ -32,7 +32,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import org.springframework.core.Ordered;
 import org.springframework.dao.DataAccessException;
 
 
@@ -114,7 +113,7 @@ import org.springframework.dao.DataAccessException;
  * @see org.acegisecurity.providers.ldap.authenticator.BindAuthenticator
  * @see org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator
  */
-public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider implements Ordered {
+public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(LdapAuthenticationProvider.class);
@@ -124,17 +123,8 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     private LdapAuthenticator authenticator;
     private LdapAuthoritiesPopulator authoritiesPopulator;
     private boolean includeDetailsObject = true;
-    private int order = -1; // default: same as non-Ordered
 
     //~ Constructors ===================================================================================================
-
-    public int getOrder() {
-		return order;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
 
 	/**
      * Create an initialized instance to the values passed as arguments

@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.providers.rememberme.RememberMeAuthenticationToken;
 import org.acegisecurity.ui.AccessDeniedHandler;
-import org.acegisecurity.ui.AccessDeniedHandlerImpl;
 import org.acegisecurity.ui.AuthenticationDetailsSource;
 import org.acegisecurity.ui.AuthenticationDetailsSourceImpl;
 import org.acegisecurity.ui.logout.LogoutHandler;
@@ -36,11 +35,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.RequestUtils;
@@ -105,8 +101,7 @@ import org.springframework.web.bind.RequestUtils;
  * @version $Id: TokenBasedRememberMeServices.java 1871 2007-05-25 03:12:49Z
  * benalex $
  */
-public class TokenBasedRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler, Ordered,
-		ApplicationContextAware {
+public class TokenBasedRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler {
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -133,13 +128,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 
 	private static final int DEFAULT_ORDER = Integer.MAX_VALUE; // ~ default
 
-	private int order = DEFAULT_ORDER;
-
 	private String cookieName = ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
-
-	private boolean isSetUserDetailsServiceInvoked = false;
-
-	private ApplicationContext applicationContext;
 
 	// ~ Methods
 	// ========================================================================================================
@@ -148,11 +137,6 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 		Assert.hasLength(key);
 		Assert.hasLength(parameter);
 		Assert.hasLength(cookieName);
-		if (applicationContext != null) {
-			if (!isSetUserDetailsServiceInvoked) {
-				autoDetectAndUseAnyUserDetailsService(applicationContext);
-			}
-		}
 		Assert.notNull(userDetailsService);
 	}
 
@@ -485,7 +469,6 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 
 	public void setUserDetailsService(UserDetailsService userDetailsService) {
 		this.userDetailsService = userDetailsService;
-		this.isSetUserDetailsServiceInvoked = true;
 	}
 
 	public boolean isAlwaysRemember() {
@@ -494,18 +477,6 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 
 	public void setAlwaysRemember(boolean alwaysRemember) {
 		this.alwaysRemember = alwaysRemember;
-	}
-
-	public int getOrder() {
-		return order;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
-
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
 	}
 
 	public String getCookieName() {

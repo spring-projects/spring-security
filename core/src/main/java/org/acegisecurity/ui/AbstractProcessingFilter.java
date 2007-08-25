@@ -31,11 +31,8 @@ import org.acegisecurity.ui.savedrequest.SavedRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
@@ -46,7 +43,6 @@ import org.springframework.util.Assert;
 
 import java.io.IOException;
 
-import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.Filter;
@@ -131,7 +127,7 @@ import javax.servlet.http.HttpServletResponse;
  * vishalpuri $
  */
 public abstract class AbstractProcessingFilter implements Filter, InitializingBean, ApplicationEventPublisherAware,
-		MessageSourceAware, ApplicationContextAware {
+		MessageSourceAware {
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -202,12 +198,6 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 	 */
 	private boolean useRelativeContext = false;
 
-	private ApplicationContext applicationContext;
-
-	private boolean isSetAuthenticationManagerInvoked = false;
-
-	private boolean isSetRememberMeServicesInvoked = false;
-
 	// ~ Methods
 	// ========================================================================================================
 
@@ -215,51 +205,8 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 		Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
 		Assert.hasLength(defaultTargetUrl, "defaultTargetUrl must be specified");
 		Assert.hasLength(authenticationFailureUrl, "authenticationFailureUrl must be specified");
-		if (!isSetAuthenticationManagerInvoked) {
-			autoDetectAuthenticationManager();
-		}
-		if (!isSetRememberMeServicesInvoked) {
-			autoDetectRememberMeServices();
-		}
 		Assert.notNull(authenticationManager, "authenticationManager must be specified");
 		Assert.notNull(this.rememberMeServices);
-	}
-
-	/**
-	 * Use the first autodetected instance of <code>RememberMeServices</code>
-	 */
-	private void autoDetectRememberMeServices() {
-		if (applicationContext != null) {
-			Map map = applicationContext.getBeansOfType(RememberMeServices.class);
-			if (map.size() > 0) {
-				setRememberMeServices((RememberMeServices) map.values().iterator().next());
-			}
-		}
-	}
-
-	/**
-	 * Introspects the <code>Applicationcontext</code> for the single instance
-	 * of <code>AuthenticationManager</code>. If found invoke
-	 * setAuthenticationManager method by providing the found instance of
-	 * authenticationManager as a method parameter. If more than one instance of
-	 * <code>AuthenticationManager</code> is found, the method throws
-	 * <code>IllegalStateException</code>.
-	 * 
-	 * @param applicationContext to locate the instance
-	 */
-	private void autoDetectAuthenticationManager() {
-		if (applicationContext != null) {
-			Map map = applicationContext.getBeansOfType(AuthenticationManager.class);
-			if (map.size() > 1) {
-				throw new IllegalArgumentException(
-						"More than one AuthenticationManager beans detected please refer to the one using "
-								+ " [ authenticationManager  ] " + "property");
-			}
-			else if (map.size() == 1) {
-				setAuthenticationManager((AuthenticationManager) map.values().iterator().next());
-			}
-		}
-
 	}
 
 	/**
@@ -602,10 +549,6 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 
 	public void setUseRelativeContext(boolean useRelativeContext) {
 		this.useRelativeContext = useRelativeContext;
-	}
-
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
 	}
 
 }

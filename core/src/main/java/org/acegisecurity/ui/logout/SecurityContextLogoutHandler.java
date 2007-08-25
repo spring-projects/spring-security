@@ -18,7 +18,6 @@ package org.acegisecurity.ui.logout;
 import org.acegisecurity.Authentication;
 
 import org.acegisecurity.context.SecurityContextHolder;
-import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,15 +37,11 @@ import javax.servlet.http.HttpSession;
  * @version $Id: SecurityContextLogoutHandler.java 1784 2007-02-24 21:00:24Z
  * luke_t $
  */
-public class SecurityContextLogoutHandler implements LogoutHandler, Ordered {
+public class SecurityContextLogoutHandler implements LogoutHandler {
 	// ~ Methods
 	// ========================================================================================================
 
 	private boolean invalidateHttpSession = true;
-
-	private int DEFAULT_ORDER = Integer.MAX_VALUE; // ~ default
-
-	private int order = DEFAULT_ORDER;
 
 	/**
 	 * Requires the request to be passed in.
@@ -80,14 +75,6 @@ public class SecurityContextLogoutHandler implements LogoutHandler, Ordered {
 	 */
 	public void setInvalidateHttpSession(boolean invalidateHttpSession) {
 		this.invalidateHttpSession = invalidateHttpSession;
-	}
-
-	public int getOrder() {
-		return order;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
 	}
 
 }

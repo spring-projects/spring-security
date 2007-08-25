@@ -15,12 +15,11 @@
 
 package org.acegisecurity.vote;
 
+import java.util.Iterator;
+
 import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
-import org.springframework.core.Ordered;
-
-import java.util.Iterator;
 
 /**
  * <p>
@@ -55,17 +54,11 @@ import java.util.Iterator;
  * @author colin sampaleanu
  * @version $Id$
  */
-public class RoleVoter implements AccessDecisionVoter, Ordered {
-	// ~ Static fields/initializers
-	// =====================================================================================
-	public static int DEFAULT_ORDER = Ordered.LOWEST_PRECEDENCE;
-
+public class RoleVoter implements AccessDecisionVoter {
 	// ~ Instance fields
 	// ================================================================================================
 
 	private String rolePrefix = "ROLE_";
-
-	private int order = DEFAULT_ORDER;
 
 	// ~ Methods
 	// ========================================================================================================
@@ -126,13 +119,4 @@ public class RoleVoter implements AccessDecisionVoter, Ordered {
 
 		return result;
 	}
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
-
-	public int getOrder() {
-		return order;
-	}
-
 }

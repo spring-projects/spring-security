@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.acegisecurity.ui.AuthenticationEntryPoint;
-import org.springframework.core.Ordered;
 
 
 /**
@@ -33,21 +32,12 @@ import org.springframework.core.Ordered;
  * @author Ben Alex
  * @version $Id$
  */
-public class MockAuthenticationEntryPoint implements AuthenticationEntryPoint, Ordered {
+public class MockAuthenticationEntryPoint implements AuthenticationEntryPoint {
     //~ Instance fields ================================================================================================
 
     private String url;
-    private int order = Integer.MAX_VALUE; // ~ default
 
     //~ Constructors ===================================================================================================
-
-    public int getOrder() {
-		return order;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
 
 	public MockAuthenticationEntryPoint(String url) {
         this.url = url;

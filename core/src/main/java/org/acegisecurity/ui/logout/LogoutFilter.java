@@ -30,9 +30,6 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
 
 /**
@@ -55,7 +52,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class LogoutFilter implements Filter, ApplicationContextAware {
+public class LogoutFilter implements Filter {
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -69,8 +66,6 @@ public class LogoutFilter implements Filter, ApplicationContextAware {
 	private String logoutSuccessUrl;
 
 	private LogoutHandler[] handlers;
-
-	private ApplicationContext applicationContext;
 
 	// ~ Constructors
 	// ===================================================================================================
@@ -179,10 +174,6 @@ public class LogoutFilter implements Filter, ApplicationContextAware {
 	public void setFilterProcessesUrl(String filterProcessesUrl) {
 		Assert.hasText(filterProcessesUrl, "FilterProcessesUrl required");
 		this.filterProcessesUrl = filterProcessesUrl;
-	}
-
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
 	}
 
 }

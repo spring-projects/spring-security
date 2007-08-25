@@ -39,7 +39,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
 
@@ -73,7 +72,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @version $Id$
  */
-public class BasicProcessingFilter implements Filter, InitializingBean, Ordered {
+public class BasicProcessingFilter implements Filter, InitializingBean {
     //~ Static fields/initializers =====================================================================================
 
 	private static final Log logger = LogFactory.getLog(BasicProcessingFilter.class);
@@ -85,7 +84,6 @@ public class BasicProcessingFilter implements Filter, InitializingBean, Ordered 
     private AuthenticationManager authenticationManager;
     private RememberMeServices rememberMeServices;
     private boolean ignoreFailure = false;
-    private int order;
 
     //~ Methods ========================================================================================================
 
@@ -229,11 +227,4 @@ public class BasicProcessingFilter implements Filter, InitializingBean, Ordered 
         this.rememberMeServices = rememberMeServices;
     }
 
-	public int getOrder() {
-		return order;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
 }

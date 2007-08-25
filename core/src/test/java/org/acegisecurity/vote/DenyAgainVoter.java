@@ -18,7 +18,6 @@ package org.acegisecurity.vote;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.ConfigAttribute;
 import org.acegisecurity.ConfigAttributeDefinition;
-import org.springframework.core.Ordered;
 
 import java.util.Iterator;
 
@@ -35,11 +34,7 @@ import java.util.Iterator;
  * @author Ben Alex
  * @version $Id$
  */
-public class DenyAgainVoter implements AccessDecisionVoter, Ordered {
-	public static int DEFAULT_ORDER = Ordered.LOWEST_PRECEDENCE;
-
-	private int order = DEFAULT_ORDER;
-
+public class DenyAgainVoter implements AccessDecisionVoter {
 	// ~ Methods
 	// ========================================================================================================
 
@@ -70,12 +65,4 @@ public class DenyAgainVoter implements AccessDecisionVoter, Ordered {
 		return ACCESS_ABSTAIN;
 	}
 	
-	public void setOrder(int order) {
-		this.order = order;
-	}
-
-	public int getOrder() {
-		return order;
-	}
-
 }
