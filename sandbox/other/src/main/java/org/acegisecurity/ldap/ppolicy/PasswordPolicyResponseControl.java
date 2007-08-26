@@ -77,6 +77,18 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 
     //~ Constructors ===================================================================================================
 
+    /**
+     * Decodes the Ber encoded control data. The ASN.1 value of the control data is:<pre>
+     *    PasswordPolicyResponseValue ::= SEQUENCE {       warning [0] CHOICE {
+     *           timeBeforeExpiration [0] INTEGER (0 .. maxInt),
+     *           graceAuthNsRemaining [1] INTEGER (0 .. maxInt) } OPTIONAL,       error   [1] ENUMERATED {
+     *           passwordExpired             (0),          accountLocked               (1),
+     *           changeAfterReset            (2),          passwordModNotAllowed       (3),
+     *           mustSupplyOldPassword       (4),          insufficientPasswordQuality (5),
+     *           passwordTooShort            (6),          passwordTooYoung            (7),
+     *           passwordInHistory           (8) } OPTIONAL }</pre>
+     *
+     */    
     public PasswordPolicyResponseControl(byte[] encodedValue) {
         this.encodedValue = encodedValue;
 
@@ -111,19 +123,6 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
         return errorCode;
     }
 
-    /**
-     * Decodes the Ber encoded control data. The ASN.1 value of the control data is:<pre>
-     *    PasswordPolicyResponseValue ::= SEQUENCE {       warning [0] CHOICE {
-     *           timeBeforeExpiration [0] INTEGER (0 .. maxInt),
-     *           graceAuthNsRemaining [1] INTEGER (0 .. maxInt) } OPTIONAL,       error   [1] ENUMERATED {
-     *           passwordExpired             (0),          accountLocked               (1),
-     *           changeAfterReset            (2),          passwordModNotAllowed       (3),
-     *           mustSupplyOldPassword       (4),          insufficientPasswordQuality (5),
-     *           passwordTooShort            (6),          passwordTooYoung            (7),
-     *           passwordInHistory           (8) } OPTIONAL }</pre>
-     *
-     * @return DOCUMENT ME!
-     */
     /**
      * Returns the graceLoginsRemaining.
      *
@@ -207,7 +206,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
     }
 
     //~ Inner Classes ==================================================================================================
-
+    
     /**
      * Decoder based on Netscape ldapsdk library
      */

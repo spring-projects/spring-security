@@ -40,11 +40,6 @@
       <version>4.1</version>
     </dependency>
     <dependency>
-      <groupId>net.sf.ldaptemplate</groupId>
-      <artifactId>ldaptemplate</artifactId>
-      <version>1.0.1</version>
-    </dependency>
-    <dependency>
       <groupId>org.samba.jcifs</groupId>
       <artifactId>jcifs</artifactId>
       <version>1.2.6</version>
