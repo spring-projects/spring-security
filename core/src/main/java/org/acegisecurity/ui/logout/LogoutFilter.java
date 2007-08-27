@@ -133,8 +133,15 @@ public class LogoutFilter implements Filter {
         int pathParamIndex = uri.indexOf(';');
 
         if (pathParamIndex > 0) {
-            // strip everything after the first semi-colon
+            // strip everything from the first semi-colon
             uri = uri.substring(0, pathParamIndex);
+        }
+
+        int queryParamIndex = uri.indexOf('?');
+
+        if (queryParamIndex > 0) {
+            // strip everything from the first question mark
+            uri = uri.substring(0, queryParamIndex);
         }
 
         if ("".equals(request.getContextPath())) {
