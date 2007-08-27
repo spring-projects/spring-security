@@ -27,7 +27,7 @@ import org.acegisecurity.BadCredentialsException;
 public class UsernameNotFoundException extends BadCredentialsException {
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructs a <code>UsernameNotFoundException</code> with the specified
      * message.
      *
@@ -37,7 +37,18 @@ public class UsernameNotFoundException extends BadCredentialsException {
         super(msg);
     }
 
-/**
+    /**
+     * Constructs a <code>UsernameNotFoundException</code>, making use of the <tt>extraInformation</tt>
+     * property of the superclass.
+     *
+     * @param msg the detail message
+     * @param extraInformation additional information such as the username.
+     */
+    public UsernameNotFoundException(String msg, Object extraInformation) {
+        super(msg, extraInformation);
+    }
+
+    /**
      * Constructs a <code>UsernameNotFoundException</code> with the specified
      * message and root cause.
      *
