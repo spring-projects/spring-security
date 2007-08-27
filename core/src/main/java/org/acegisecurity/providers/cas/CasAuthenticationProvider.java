@@ -70,7 +70,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         Assert.notNull(this.ticketValidator, "A ticketValidator must be set");
         Assert.notNull(this.casProxyDecider, "A casProxyDecider must be set");
         Assert.notNull(this.statelessTicketCache, "A statelessTicketCache must be set");
-        Assert.notNull(this.key, "A Key is required so CasAuthenticationProvider can identify tokens it previously authenticated");
+        Assert.hasText(this.key, "A Key is required so CasAuthenticationProvider can identify tokens it previously authenticated");
         Assert.notNull(this.messages, "A message source must be set");
     }
 
