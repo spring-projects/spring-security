@@ -25,10 +25,10 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.util.Assert;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.Map;
 
 
 /**
@@ -57,7 +57,7 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
 
     //~ Instance fields ================================================================================================
 
-    private HashMap labelMap = null;
+    private Map labelMap = null;
     private String attributeIndicatingLabeledOperation = null;
     private boolean allowAccessIfNoAttributesAreLabeled = true;
 
@@ -136,7 +136,7 @@ public class LabelBasedAclVoter extends AbstractAclVoter {
      * @param labelMap a map structured as in the above example.
      *
      */
-    public void setLabelMap(HashMap labelMap) {
+    public void setLabelMap(Map labelMap) {
         this.labelMap = labelMap;
     }
 

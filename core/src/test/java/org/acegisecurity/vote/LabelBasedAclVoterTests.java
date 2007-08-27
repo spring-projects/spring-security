@@ -28,8 +28,7 @@ import java.util.List;
 
 
 /**
- * 
-DOCUMENT ME!
+ *
  *
  * @author Greg Turnquist
  * @version $Id$
@@ -47,10 +46,6 @@ public class LabelBasedAclVoterTests extends AbstractDependencyInjectionSpringCo
 
     public SampleService getSampleService() {
         return sampleService;
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(LabelBasedAclVoterTests.class);
     }
 
     public void setSampleService(SampleService sampleService) {
