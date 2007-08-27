@@ -4,7 +4,7 @@
 
 <!--
  * ========================================================================
- * 
+ *
  * Copyright 2004 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * ========================================================================
 -->
 <book>
@@ -27,7 +27,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>1.0.4</releaseinfo>
+    <releaseinfo>1.0.5</releaseinfo>
 
     <authorgroup>
       <author>
@@ -479,7 +479,7 @@ if (obj instanceof UserDetails) {
         <literal>ROLE_HR_SUPERVISOR</literal>. These roles are later on
         configured for web authorization, method authorization and domain
         object authorization. Other parts of Acegi Security are capable of
-        interpreting these authorities, and expect them to be present. 
+        interpreting these authorities, and expect them to be present.
         <literal>GrantedAuthority</literal> objects are usually loaded by
         the <literal>UserDetailsService</literal>.</para>
 
@@ -1068,6 +1068,19 @@ if (obj instanceof UserDetails) {
         any servlet container lifecycle invocations are not delegated through
         to <literal>FilterChainProxy</literal>.</para>
 
+        <para>You can also omit a URI pattern from the filter chain by using
+        the token <literal>#NONE#</literal> on the right-hand side of the
+        <literal>&lt;URI Pattern&gt; = &lt;Filter Chain&gt;</literal> expression. For example, using
+         the example above, if you wanted to exclude the <filename>/webservices</filename>
+         location completely, you would modify the corresponding line in the bean declaration to be
+        <programlisting>
+/webServices/**=#NONE#
+        </programlisting>
+          Note that anything matching this path will then have no authentication
+          or authorization services applied and will be freely accessible.
+        </para>
+
+
         <para>The order that filters are defined in <literal>web.xml</literal>
         is very important. Irrespective of which filters you are actually
         using, the order of the <literal>&lt;filter-mapping&gt;</literal>s
@@ -1230,7 +1243,7 @@ if (obj instanceof UserDetails) {
       CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
       \A/secure/.*\Z=REQUIRES_SECURE_CHANNEL
       \A/acegilogin.jsp.*\Z=REQUIRES_SECURE_CHANNEL
-      \A/j_acegi_security_check.*\Z=REQUIRES_SECURE_CHANNEL	
+      \A/j_acegi_security_check.*\Z=REQUIRES_SECURE_CHANNEL
       \A.*\Z=REQUIRES_INSECURE_CHANNEL
     &lt;/value&gt;
   &lt;/property&gt;
@@ -1918,7 +1931,7 @@ if (obj instanceof UserDetails) {
     &lt;value&gt;classpath:/ehcache-failsafe.xml&lt;/value&gt;
   &lt;/property&gt;
 &lt;/bean&gt;
-    
+
 &lt;bean id="userCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean"&gt;
   &lt;property name="cacheManager"&gt;
     &lt;ref local="cacheManager"/&gt;
@@ -1927,7 +1940,7 @@ if (obj instanceof UserDetails) {
     &lt;value&gt;userCache&lt;/value&gt;
   &lt;/property&gt;
 &lt;/bean&gt;
-   
+
 &lt;bean id="userCache" class="org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache"&gt;
   &lt;property name="cache"&gt;&lt;ref local="userCacheBackend"/&gt;&lt;/property&gt;
 &lt;/bean&gt;        </programlisting></para>
@@ -2774,7 +2787,7 @@ key:              A private key to prevent modification of the remember-me token
   &lt;property name="userDetailsService"&gt;&lt;ref local="jdbcDaoImpl"/&gt;&lt;/property&gt;
   &lt;property name="key"&gt;&lt;value&gt;springRocks&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
-   
+
 &lt;bean id="rememberMeAuthenticationProvider" class="org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider"&gt;
   &lt;property name="key"&gt;&lt;value&gt;springRocks&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
@@ -3126,7 +3139,7 @@ key:              A private key to prevent modification of the remember-me token
 
         <para>A typical configuration, using some of the beans we've discussed
         above, might look like this: <programlisting>
-    &lt;bean id="initialDirContextFactory" 
+    &lt;bean id="initialDirContextFactory"
             class="org.acegisecurity.ldap.DefaultInitialDirContextFactory"&gt;
       &lt;constructor-arg value="ldap://monkeymachine:389/dc=acegisecurity,dc=org"/&gt;
       &lt;property name="managerDn"&gt;&lt;value&gt;cn=manager,dc=acegisecurity,dc=org&lt;/value&gt;&lt;/property&gt;
@@ -3143,13 +3156,13 @@ key:              A private key to prevent modification of the remember-me token
       &lt;/constructor-arg&gt;
       &lt;constructor-arg index="2"&gt;
         &lt;ref local="initialDirContextFactory" /&gt;
-      &lt;/constructor-arg&gt;            
+      &lt;/constructor-arg&gt;
       &lt;property name="searchSubtree"&gt;
         &lt;value&gt;true&lt;/value&gt;
-      &lt;/property&gt;            
-    &lt;/bean&gt;            
-            
-    &lt;bean id="ldapAuthProvider" 
+      &lt;/property&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id="ldapAuthProvider"
             class="org.acegisecurity.providers.ldap.LdapAuthenticationProvider"&gt;
       &lt;constructor-arg&gt;
         &lt;bean class="org.acegisecurity.providers.ldap.authenticator.BindAuthenticator"&gt;
@@ -3165,7 +3178,7 @@ key:              A private key to prevent modification of the remember-me token
         &lt;/bean&gt;
       &lt;/constructor-arg&gt;
     &lt;/bean&gt;
-  
+
           </programlisting> This would set up the provider to access an LDAP
         server with URL
         <literal>ldap://monkeymachine:389/dc=acegisecurity,dc=org</literal>.
@@ -3620,7 +3633,7 @@ key:              A private key to prevent modification of the remember-me token
 					&lt;bean class="org.jasig.cas.authentication.principal.HttpBasedServiceCredentialsToPrincipalResolver" /&gt;
 				&lt;/list&gt;
 			&lt;/property&gt;
-	
+
 			&lt;property name="authenticationHandlers"&gt;
 				&lt;list&gt;
 					&lt;bean class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler" /&gt;
@@ -3630,8 +3643,8 @@ key:              A private key to prevent modification of the remember-me token
 				&lt;/list&gt;
 			&lt;/property&gt;
 		&lt;/bean&gt;
-		
-		
+
+
 		&lt;bean id="inMemoryDaoImpl" class="org.acegisecurity.userdetails.memory.InMemoryDaoImpl"&gt;
 	  		&lt;property name="userMap"&gt;
 				&lt;value&gt;
@@ -3642,11 +3655,11 @@ key:              A private key to prevent modification of the remember-me token
 				&lt;/value&gt;
 			&lt;/property&gt;
 		&lt;/bean&gt;
-		
+
 		&lt;bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
 	     	&lt;property name="userDetailsService"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
 		&lt;/bean&gt;
-	
+
 		&lt;bean id="acegiAuthenticationManager" class="org.acegisecurity.providers.ProviderManager"&gt;
 			&lt;property name="providers"&gt;
 			  &lt;list&gt;
@@ -3655,7 +3668,7 @@ key:              A private key to prevent modification of the remember-me token
 			&lt;/property&gt;
 		&lt;/bean&gt;
 	&lt;/beans&gt;
-	
+
         </programlisting>
 
           <para>Note the granted authorities are ignored by CAS because it has
@@ -3663,7 +3676,7 @@ key:              A private key to prevent modification of the remember-me token
           applications. CAS is only concerned with username and passwords (and
           the enabled/disabled status).</para>
 
-          <para>Copy <literal>acegi-security.jar</literal> and 
+          <para>Copy <literal>acegi-security.jar</literal> and
           <literal>acegi-security-cas.jar</literal> files into
           <literal>/localPlugins/lib</literal>. Now use the <literal>ant
           war</literal> task in the <literal>build.xml</literal> in the
@@ -3721,7 +3734,7 @@ key:              A private key to prevent modification of the remember-me token
 
 &lt;bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter"&gt;
   &lt;property name="authenticationEntryPoint"&gt;&lt;ref local="casProcessingFilterEntryPoint"/&gt;&lt;/property&gt;
-&lt;/bean&gt;          
+&lt;/bean&gt;
 
 &lt;bean id="casProcessingFilterEntryPoint" class="org.acegisecurity.ui.cas.CasProcessingFilterEntryPoint"&gt;
   &lt;property name="loginUrl"&gt;&lt;value&gt;https://localhost:8443/cas/login&lt;/value&gt;&lt;/property&gt;
@@ -3733,7 +3746,7 @@ key:              A private key to prevent modification of the remember-me token
         <para>You will also need to add the
         <literal>CasProcessingFilter</literal> to web.xml:</para>
 
-        <para><programlisting>          
+        <para><programlisting>
 &lt;filter&gt;
   &lt;filter-name&gt;Acegi CAS Processing Filter&lt;/filter-name&gt;
   &lt;filter-class&gt;org.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
@@ -3798,7 +3811,7 @@ key:              A private key to prevent modification of the remember-me token
     &lt;value&gt;classpath:/ehcache-failsafe.xml&lt;/value&gt;
   &lt;/property&gt;
 &lt;/bean&gt;
-    
+
 &lt;bean id="ticketCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean"&gt;
   &lt;property name="cacheManager"&gt;
     &lt;ref local="cacheManager"/&gt;
@@ -3807,7 +3820,7 @@ key:              A private key to prevent modification of the remember-me token
     &lt;value&gt;ticketCache&lt;/value&gt;
   &lt;/property&gt;
 &lt;/bean&gt;
-   
+
 &lt;bean id="statelessTicketCache" class="org.acegisecurity.providers.cas.cache.EhCacheBasedTicketCache"&gt;
   &lt;property name="cache"&gt;&lt;ref local="ticketCacheBackend"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
@@ -4110,7 +4123,7 @@ key:              A private key to prevent modification of the remember-me token
         file so that it contains a new entry under the
         <literal>&lt;Policy&gt;</literal> section:</para>
 
-        <para><programlisting> 
+        <para><programlisting>
 &lt;application-policy name = "SpringPoweredRealm"&gt;
    &lt;authentication&gt;
       &lt;login-module code = "org.acegisecurity.adapters.jboss.JbossAcegiLoginModule"
@@ -4120,7 +4133,7 @@ key:              A private key to prevent modification of the remember-me token
      &lt;/login-module&gt;
    &lt;/authentication&gt;
 &lt;/application-policy&gt;
-        
+
         </programlisting></para>
 
         <para>Copy <literal>acegisecurity.xml</literal> into
@@ -5224,7 +5237,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 
   private AspectJSecurityInterceptor securityInterceptor;
 
-  pointcut domainObjectInstanceExecution(): target(PersistableEntity) 
+  pointcut domainObjectInstanceExecution(): target(PersistableEntity)
              &amp;&amp; execution(public * *(..)) &amp;&amp; !within(DomainObjectInstanceSecurityAspect);
 
   Object around(): domainObjectInstanceExecution() {
@@ -5270,7 +5283,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         declaration which achieves this is shown below:</para>
 
         <programlisting>
-&lt;bean id="domainObjectInstanceSecurityAspect" 
+&lt;bean id="domainObjectInstanceSecurityAspect"
     class="org.acegisecurity.samples.aspectj.DomainObjectInstanceSecurityAspect"
     factory-method="aspectOf"&gt;
   &lt;property name="securityInterceptor"&gt;&lt;ref bean="aspectJSecurityInterceptor"/&gt;&lt;/property&gt;
@@ -5322,7 +5335,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
   &lt;property name="loginFormUrl"&gt;&lt;value&gt;/acegilogin.jsp&lt;/value&gt;&lt;/property&gt;
   &lt;property name="forceHttps"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
-      
+
 &lt;bean id="filterSecurityInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
