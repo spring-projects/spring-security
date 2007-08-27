@@ -4669,7 +4669,7 @@ public boolean supports(Class clazz);</programlisting></para>
 
         <para>Like many other parts of Acegi Security,
         <literal>AfterInvocationManager</literal> has a single concrete
-        implementation, <literal>AfterInvocationProvider</literal>, which
+        implementation, <literal>AfterInvocationProviderManager</literal>, which
         polls a list of <literal>AfterInvocationProvider</literal>s. Each
         <literal>AfterInvocationProvider</literal> is allowed to modify the
         return object or throw an <literal>AccessDeniedException</literal>.
