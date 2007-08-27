@@ -14,9 +14,9 @@
  */
 package org.acegisecurity.acls.jdbc;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Ehcache;
 
 import org.acegisecurity.acls.MutableAcl;
 import org.acegisecurity.acls.objectidentity.ObjectIdentity;
@@ -35,11 +35,11 @@ import java.io.Serializable;
 public class EhCacheBasedAclCache implements AclCache {
     //~ Instance fields ================================================================================================
 
-    private Cache cache;
+    private Ehcache cache;
 
     //~ Constructors ===================================================================================================
 
-    public EhCacheBasedAclCache(Cache cache) {
+    public EhCacheBasedAclCache(Ehcache cache) {
         Assert.notNull(cache, "Cache required");
         this.cache = cache;
     }

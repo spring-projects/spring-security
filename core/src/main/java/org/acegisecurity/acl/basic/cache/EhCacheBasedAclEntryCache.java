@@ -15,9 +15,9 @@
 
 package org.acegisecurity.acl.basic.cache;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Ehcache;
 
 import org.acegisecurity.acl.basic.AclObjectIdentity;
 import org.acegisecurity.acl.basic.BasicAclEntry;
@@ -47,16 +47,12 @@ public class EhCacheBasedAclEntryCache implements BasicAclEntryCache, Initializi
 
     //~ Instance fields ================================================================================================
 
-    private Cache cache;
+    private Ehcache cache;
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.notNull(cache, "cache mandatory");
-    }
-
-    public Cache getCache() {
-        return cache;
     }
 
     public BasicAclEntry[] getEntriesFromCache(AclObjectIdentity aclObjectIdentity) {
@@ -101,7 +97,11 @@ public class EhCacheBasedAclEntryCache implements BasicAclEntryCache, Initializi
         cache.remove(aclObjectIdentity);
     }
 
-    public void setCache(Cache cache) {
+    public Ehcache getCache() {
+        return cache;
+    }
+
+    public void setCache(Ehcache cache) {
         this.cache = cache;
     }
 }

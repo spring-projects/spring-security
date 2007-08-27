@@ -17,7 +17,7 @@ package org.acegisecurity.providers.dao.cache;
 
 import junit.framework.TestCase;
 
-import net.sf.ehcache.Cache;
+import net.sf.ehcache.Ehcache;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
@@ -38,7 +38,6 @@ public class EhCacheBasedUserCacheTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public EhCacheBasedUserCacheTests() {
-        super();
     }
 
     public EhCacheBasedUserCacheTests(String arg0) {
@@ -47,19 +46,15 @@ public class EhCacheBasedUserCacheTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    private Cache getCache() {
+    private Ehcache getCache() {
         ApplicationContext ctx = MockApplicationContext.getContext();
 
-        return (Cache) ctx.getBean("eHCacheBackend");
+        return (Ehcache) ctx.getBean("eHCacheBackend");
     }
 
     private User getUser() {
         return new User("john", "password", true, true, true, true,
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(EhCacheBasedUserCacheTests.class);
     }
 
     public final void setUp() throws Exception {
@@ -94,7 +89,7 @@ public class EhCacheBasedUserCacheTests extends TestCase {
             assertTrue(true);
         }
 
-        Cache myCache = getCache();
+        Ehcache myCache = getCache();
         cache.setCache(myCache);
         assertEquals(myCache, cache.getCache());
     }

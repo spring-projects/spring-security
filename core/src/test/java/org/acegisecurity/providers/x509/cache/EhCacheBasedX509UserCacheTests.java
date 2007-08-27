@@ -17,7 +17,7 @@ package org.acegisecurity.providers.x509.cache;
 
 import junit.framework.TestCase;
 
-import net.sf.ehcache.Cache;
+import net.sf.ehcache.Ehcache;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
@@ -41,7 +41,6 @@ public class EhCacheBasedX509UserCacheTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public EhCacheBasedX509UserCacheTests() {
-        super();
     }
 
     public EhCacheBasedX509UserCacheTests(String arg0) {
@@ -50,10 +49,10 @@ public class EhCacheBasedX509UserCacheTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    private Cache getCache() {
+    private Ehcache getCache() {
         ApplicationContext ctx = MockApplicationContext.getContext();
 
-        return (Cache) ctx.getBean("eHCacheBackend");
+        return (Ehcache) ctx.getBean("eHCacheBackend");
     }
 
     private UserDetails getUser() {

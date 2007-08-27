@@ -15,9 +15,9 @@
 
 package org.acegisecurity.providers.dao.cache;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Ehcache;
 
 import org.acegisecurity.providers.dao.UserCache;
 
@@ -47,7 +47,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
 
     //~ Instance fields ================================================================================================
 
-    private Cache cache;
+    private Ehcache cache;
 
     //~ Methods ========================================================================================================
 
@@ -55,7 +55,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
         Assert.notNull(cache, "cache mandatory");
     }
 
-    public Cache getCache() {
+    public Ehcache getCache() {
         return cache;
     }
 
@@ -101,7 +101,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
         cache.remove(username);
     }
 
-    public void setCache(Cache cache) {
+    public void setCache(Ehcache cache) {
         this.cache = cache;
     }
 }

@@ -15,9 +15,9 @@
 
 package org.acegisecurity.providers.cas.cache;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Ehcache;
 
 import org.acegisecurity.providers.cas.CasAuthenticationToken;
 import org.acegisecurity.providers.cas.StatelessTicketCache;
@@ -45,7 +45,7 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
 
     //~ Instance fields ================================================================================================
 
-    private Cache cache;
+    private Ehcache cache;
 
     //~ Methods ========================================================================================================
 
@@ -73,7 +73,7 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
         }
     }
 
-    public Cache getCache() {
+    public Ehcache getCache() {
         return cache;
     }
 
@@ -99,7 +99,7 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
         cache.remove(serviceTicket);
     }
 
-    public void setCache(Cache cache) {
+    public void setCache(Ehcache cache) {
         this.cache = cache;
     }
 }

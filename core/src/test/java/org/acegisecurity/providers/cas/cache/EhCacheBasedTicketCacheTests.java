@@ -17,7 +17,7 @@ package org.acegisecurity.providers.cas.cache;
 
 import junit.framework.TestCase;
 
-import net.sf.ehcache.Cache;
+import net.sf.ehcache.Ehcache;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
@@ -43,7 +43,6 @@ public class EhCacheBasedTicketCacheTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public EhCacheBasedTicketCacheTests() {
-        super();
     }
 
     public EhCacheBasedTicketCacheTests(String arg0) {
@@ -52,10 +51,10 @@ public class EhCacheBasedTicketCacheTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    private Cache getCache() {
+    private Ehcache getCache() {
         ApplicationContext ctx = MockApplicationContext.getContext();
 
-        return (Cache) ctx.getBean("eHCacheBackend");
+        return (Ehcache) ctx.getBean("eHCacheBackend");
     }
 
     private CasAuthenticationToken getToken() {
@@ -68,10 +67,6 @@ public class EhCacheBasedTicketCacheTests extends TestCase {
         return new CasAuthenticationToken("key", user, "ST-0-ER94xMJmn6pha35CQRoZ",
             new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")}, user,
             proxyList, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(EhCacheBasedTicketCacheTests.class);
     }
 
     public final void setUp() throws Exception {
@@ -106,7 +101,7 @@ public class EhCacheBasedTicketCacheTests extends TestCase {
             assertTrue(true);
         }
 
-        Cache myCache = getCache();
+        Ehcache myCache = getCache();
         cache.setCache(myCache);
         assertEquals(myCache, cache.getCache());
     }

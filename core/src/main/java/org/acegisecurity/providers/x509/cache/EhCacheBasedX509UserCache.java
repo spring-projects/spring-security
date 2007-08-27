@@ -15,9 +15,9 @@
 
 package org.acegisecurity.providers.x509.cache;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Ehcache;
 
 import org.acegisecurity.providers.x509.X509UserCache;
 
@@ -50,7 +50,7 @@ public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBea
 
     //~ Instance fields ================================================================================================
 
-    private Cache cache;
+    private Ehcache cache;
 
     //~ Methods ========================================================================================================
 
@@ -102,7 +102,7 @@ public class EhCacheBasedX509UserCache implements X509UserCache, InitializingBea
         cache.remove(userCert);
     }
 
-    public void setCache(Cache cache) {
+    public void setCache(Ehcache cache) {
         this.cache = cache;
     }
 }

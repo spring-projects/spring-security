@@ -17,7 +17,7 @@ package org.acegisecurity.acl.basic.cache;
 
 import junit.framework.TestCase;
 
-import net.sf.ehcache.Cache;
+import net.sf.ehcache.Ehcache;
 
 import org.acegisecurity.MockApplicationContext;
 
@@ -56,14 +56,10 @@ public class EhCacheBasedAclEntryCacheTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    private Cache getCache() {
+    private Ehcache getCache() {
         ApplicationContext ctx = MockApplicationContext.getContext();
 
-        return (Cache) ctx.getBean("eHCacheBackend");
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(EhCacheBasedAclEntryCacheTests.class);
+        return (Ehcache) ctx.getBean("eHCacheBackend");
     }
 
     public final void setUp() throws Exception {
@@ -99,7 +95,7 @@ public class EhCacheBasedAclEntryCacheTests extends TestCase {
             assertTrue(true);
         }
 
-        Cache myCache = getCache();
+        Ehcache myCache = getCache();
         cache.setCache(myCache);
         assertEquals(myCache, cache.getCache());
     }
