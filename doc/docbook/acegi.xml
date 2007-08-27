@@ -478,8 +478,8 @@ if (obj instanceof UserDetails) {
         <literal>ROLE_HR_SUPERVISOR</literal>. These roles are later on
         configured for web authorization, method authorization and domain
         object authorization. Other parts of Acegi Security are capable of
-        interpreting these authorities, and expect them to be present. You
-        will usually return <literal>GrantedAuthority</literal> objects from
+        interpreting these authorities, and expect them to be present. 
+        <literal>GrantedAuthority</literal> objects are usually loaded by
         the <literal>UserDetailsService</literal>.</para>
 
         <para>Usually the <literal>GrantedAuthority</literal> objects are
