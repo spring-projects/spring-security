@@ -427,9 +427,6 @@
 							http://logging.apache.org/log4j/docs/api/
 						</link>
 						<link>
-							http://jakarta.apache.org/regexp/apidocs/
-						</link>
-						<link>
 							http://jakarta.apache.org/velocity/api/
 						</link>
 						<link>
@@ -459,10 +456,6 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>taglist-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>clirr-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</reporting>
