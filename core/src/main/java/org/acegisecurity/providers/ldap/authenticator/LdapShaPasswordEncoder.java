@@ -29,7 +29,8 @@ import java.security.MessageDigest;
 
 /**
  * A version of {@link ShaPasswordEncoder} which supports Ldap SHA and SSHA (salted-SHA) encodings. The values are
- * base-64 encoded and have the label "{SHA}" (or "{SSHA}") prepended to the encoded hash.
+ * base-64 encoded and have the label "{SHA}" (or "{SSHA}") prepended to the encoded hash. These can be made lower-case
+ * in the encoded password, if required, by setting the <tt>forceLowerCasePrefix</tt> property to true.
  *
  * @author Luke Taylor
  * @version $Id$
@@ -40,7 +41,12 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
     /** The number of bytes in a SHA hash */
     private static final int SHA_LENGTH = 20;
     private static final String SSHA_PREFIX = "{SSHA}";
+    private static final String SSHA_PREFIX_LC = SSHA_PREFIX.toLowerCase();
     private static final String SHA_PREFIX = "{SHA}";
+    private static final String SHA_PREFIX_LC = SHA_PREFIX.toLowerCase();
+
+    //~ Instance fields ================================================================================================
+    private boolean forceLowerCasePrefix;
 
     //~ Constructors ===================================================================================================
 
@@ -76,7 +82,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
         try {
             sha = MessageDigest.getInstance("SHA");
         } catch (java.security.NoSuchAlgorithmException e) {
-            throw new LdapDataAccessException("No SHA implementation available!");
+            throw new LdapDataAccessException("No SHA implementation available!", e);
         }
 
         sha.update(rawPass.getBytes());
@@ -88,7 +94,15 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 
         byte[] hash = combineHashAndSalt(sha.digest(), (byte[]) salt);
 
-        return ((salt == null) ? SHA_PREFIX : SSHA_PREFIX) + new String(Base64.encodeBase64(hash));
+        String prefix;
+
+        if (salt == null) {
+            prefix = forceLowerCasePrefix ? SHA_PREFIX_LC : SHA_PREFIX;
+        } else {
+            prefix = forceLowerCasePrefix ? SSHA_PREFIX_LC : SSHA_PREFIX;
+        }
+
+        return prefix + new String(Base64.encodeBase64(hash));
     }
 
     private byte[] extractSalt(String encPass) {
@@ -106,19 +120,28 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
      * Checks the validity of an unencoded password against an encoded one in the form
      * "{SSHA}sQuQF8vj8Eg2Y1hPdh3bkQhCKQBgjhQI".
      *
-     * @param encPass the SSHA or SHA encoded password
+     * @param encPass the actual SSHA or SHA encoded password
      * @param rawPass unencoded password to be verified.
      * @param salt ignored. If the format is SSHA the salt bytes will be extracted from the encoded password.
      *
-     * @return true if they match.
+     * @return true if they match (independent of the case of the prefix).
      */
     public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-        if (encPass.startsWith(SSHA_PREFIX)) {
+        String encPassWithoutPrefix;
+
+        if (encPass.startsWith(SSHA_PREFIX) || encPass.startsWith(SSHA_PREFIX_LC)) {
+            encPassWithoutPrefix = encPass.substring(6);
             salt = extractSalt(encPass);
         } else {
+            encPassWithoutPrefix = encPass.substring(5);
             salt = null;
         }
 
-        return encPass.equals(encodePassword(rawPass, salt));
+        // Compare the encoded passwords without the prefix
+        return encodePassword(rawPass, salt).endsWith(encPassWithoutPrefix);
+    }
+
+    public void setForceLowerCasePrefix(boolean forceLowerCasePrefix) {
+        this.forceLowerCasePrefix = forceLowerCasePrefix;
     }
 }
