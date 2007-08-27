@@ -11,13 +11,11 @@
  <name>acegi-security-samples</name>
  <modules>
 <!--
-   <module>acegifier</module>
    <module>annotations</module>
    <module>attributes</module>
-   <module>contacts</module>
-   <module>contacts-tiger</module>
    <module>dms</module>
 -->
+   <module>contacts</module>
    <module>tutorial</module>
  </modules>
 </project>
