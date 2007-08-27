@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+               "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+
 <!--
  * ========================================================================
  * 
@@ -376,10 +377,10 @@
         <literal>ThreadLocal</literal> to store these details, which means
         that the security context is always available to methods in the same
         thread of execution, even if the security context is not explicitly
-        passed around as an argument those methods. Using a
+        passed around as an argument to those methods. Using a
         <literal>ThreadLocal</literal> in this way is quite safe if care is
         taken to clear the thread after the present principal's request is
-        processed. Of course, Acegi Security takes care of for you
+        processed. Of course, Acegi Security takes care of this for you
         automatically so there is no need to worry about it.</para>
 
         <para>Some applications aren't entirely suitable for using a
@@ -460,7 +461,7 @@ if (obj instanceof UserDetails) {
         <literal>SecurityContextHolder</literal>. The good news is that we
         provide a number of <literal>UserDetailsService</literal>
         implementations, including one that uses an in-memory map and another
-        that uses JDBC. Most users tends to write their own, though, with such
+        that uses JDBC. Most users tend to write their own, though, with such
         implementations often simply sitting on top of an existing Data Access
         Object (DAO) that represents their employees, customers, or other
         users of the enterprise application. Remember the advantage that
@@ -585,7 +586,7 @@ if (obj instanceof UserDetails) {
           <listitem>
             <para>As you're not presently authenticated, the server sends back
             a response indicating that you must authenticate. The response
-            will either be a HTTP response code, or a redirect to a particular
+            will either be an HTTP response code, or a redirect to a particular
             web page.</para>
           </listitem>
 
@@ -599,8 +600,8 @@ if (obj instanceof UserDetails) {
 
           <listitem>
             <para>The browser will send back a response to the server. This
-            will either be a HTTP POST containing the contents of the form
-            that you filled out, or a HTTP header containing your
+            will either be an HTTP POST containing the contents of the form
+            that you filled out, or an HTTP header containing your
             authentication details.</para>
           </listitem>
 
@@ -616,7 +617,7 @@ if (obj instanceof UserDetails) {
             authentication process will be retried. Hopefully you've
             authenticated with sufficient granted authorities to access the
             protected resource. If you have sufficient access, the request
-            will be successful. Otherwise, you'll receive back a HTTP error
+            will be successful. Otherwise, you'll receive back an HTTP error
             code 403, which means "forbidden".</para>
           </listitem>
         </orderedlist>
@@ -653,21 +654,21 @@ if (obj instanceof UserDetails) {
         three.</para>
 
         <para>After your browser decides to submit your authentication
-        credentials (either as a HTTP form post or HTTP header) there needs to
+        credentials (either as an HTTP form post or HTTP header) there needs to
         be something on the server that "collects" these authentication
         details. By now we're at step six in the above list. In Acegi Security
-        was have a special name for the function of collecting authentication
+        we have a special name for the function of collecting authentication
         details from a user agent (usually a web browser), and that name is
         "authentication mechanism". After the authentication details are
         collected from the user agent, an "<literal>Authentication</literal>
         request" object is built and then presented to an
-        AuthenticationProvider.</para>
+        <interfacename>AuthenticationProvider</interfacename>.</para>
 
         <para>The last played in the Acegi Security authentication process is
         an <literal>AuthenticationProvider</literal>. Quite simply, it is
         responsible for taking an <literal>Authentication</literal> request
         object and deciding whether or not it is valid. The provider will
-        either throw an exception, or return a fully populated
+        either throw an exception or return a fully populated
         <literal>Authentication</literal> object. Remember our good friends,
         <literal>UserDetails</literal> and
         <literal>UserDetailsService</literal>? If not, head back to the
@@ -714,7 +715,7 @@ if (obj instanceof UserDetails) {
         filter (or equivalent) that reads the third-party user information
         from a location, build an Acegi Security-specific Authentication
         object, and put it onto the SecurityContextHolder. It's quite easy to
-        do this, and a fully-supported integration approach.</para>
+        do this, and it is a fully-supported integration approach.</para>
       </sect1>
 
       <sect1 id="secure-objects">
@@ -753,7 +754,7 @@ if (obj instanceof UserDetails) {
         authorization on the services layer.</para>
 
         <para>Acegi Security uses the term "secure object" to refer to any
-        object that can have security applies to it. Each secure object
+        object that can have security applied to it. Each secure object
         supported by Acegi Security has its own class, which is a subclass of
         <literal>AbstractSecurityInterceptor</literal>. Importantly, by the
         time the <literal>AbstractSecurityInterceptor</literal> is run, the
@@ -767,8 +768,8 @@ if (obj instanceof UserDetails) {
         present request. A "configuration attribute" can be thought of as a
         String that has special meaning to the classes used by
         <literal>AbstractSecurityInterceptor</literal>. They're normally
-        configured against your AbstractSecurityInterceptor using XML. Anyway,
-        the <literal>AbstractSecurityInterceptor</literal> will ask an
+        configured against your <literal>AbstractSecurityInterceptor</literal>
+        using XML. Anyway, the <literal>AbstractSecurityInterceptor</literal> will ask an
         <literal>AccessDecisionManager</literal> "here's the configuration
         attributes, here's the current <literal>Authentication</literal>
         object, and here's details of the current request - is this particular
@@ -1133,7 +1134,7 @@ if (obj instanceof UserDetails) {
 
           <listitem>
             <para><literal>ExceptionTranslationFilter</literal>, to catch any
-            Acegi Security exceptions so that either a HTTP error response can
+            Acegi Security exceptions so that either an HTTP error response can
             be returned or an appropriate
             <literal>AuthenticationEntryPoint</literal> can be launched</para>
           </listitem>
@@ -1189,8 +1190,8 @@ if (obj instanceof UserDetails) {
         request. This means the <literal>jsessionid</literal> is never sent
         across an insecure channel. You will need to ensure your
         <literal>web.xml</literal>-defined
-        <literal>&lt;welcome-file&gt;</literal> points to a HTTPS location,
-        and the application never directs the user to a HTTP location. Acegi
+        <literal>&lt;welcome-file&gt;</literal> points to an HTTPS location,
+        and the application never directs the user to an HTTP location. Acegi
         Security provides a solution to assist with the latter.</para>
       </sect1>
 
@@ -1333,7 +1334,7 @@ if (obj instanceof UserDetails) {
         designed to handle authenticated requests. The latter therefore has
         access to the granted authorities of the authenticated principal. In
         addition, problems detected by a <literal>ChannelProcessor</literal>
-        will generally cause a HTTP/HTTPS redirection so its requirements can
+        will generally cause an HTTP/HTTPS redirection so its requirements can
         be met, whilst problems detected by an
         <literal>AccessDecisionVoter</literal> will ultimately result in an
         <literal>AccessDeniedException</literal> (depending on the governing
@@ -1431,7 +1432,7 @@ if (obj instanceof UserDetails) {
 
         <para>The above declarations will cause every web request to be passed
         through to Acegi Security's FilterChainProxy. As explained in the
-        filters section of this reference guide, the FilterChainProxy is a
+        filters section of this reference guide, the <classname>FilterChainProxy</classname> is a
         generally-useful class that enables web requests to be passed to
         different filters based on the URL patterns. Those delegated filters
         are managed inside the application context, so they can benefit from
@@ -1480,7 +1481,7 @@ if (obj instanceof UserDetails) {
         <para>Recall that
         <literal>HttpSessionContextIntegrationFilter</literal> keeps the
         contents of the <literal>SecurityContext</literal> between invocations
-        inside a HTTP session. This means the authentication mechanisms are
+        inside an HTTP session. This means the authentication mechanisms are
         only used once, being when the principal initially tries to
         authenticate. The rest of the time the authentication mechanisms sit
         there and silently pass the request through to the next filter in the
@@ -1512,10 +1513,10 @@ if (obj instanceof UserDetails) {
         <literal>AuthenticationManager</literal>?". We haven't explored it
         before, but we have discussed the concept of an
         <literal>AuthenticationProvider</literal>. Quite simply, an
-        AuthenticationManager is responsible for passing requests through a
+        <interfacename>AuthenticationManager</interfacename> is responsible for passing requests through a
         chain of AuthenticationProviders. It's a little like the filter chain
         we discussed earlier, although there are some differences. There is
-        only one AuthenticationManager implementation shipped with Acegi
+        only one <interfacename>AuthenticationManager</interfacename> implementation shipped with Acegi
         Security, so let's look at how it's configured for the example we're
         using in this chapter:</para>
 
@@ -1576,7 +1577,7 @@ if (obj instanceof UserDetails) {
         <literal>ProviderManager</literal>, your last step is to configure an
         <literal>AuthenticationEntryPoint</literal>. Recall that earlier we
         discussed the role of <literal>ExceptionTranslationFilter</literal>,
-        which is used when HTTP-based requests should receive back a HTTP
+        which is used when HTTP-based requests should receive back an HTTP
         header or HTTP redirect in order to start authentication. Continuing
         on with our earlier example:</para>
 
@@ -1699,7 +1700,7 @@ if (obj instanceof UserDetails) {
           in the second or any subsequent token. Any remaining tokens are
           treated as granted authorities, which are created as
           <literal>GrantedAuthorityImpl</literal> objects (this is just for
-          your reference - most application don't need custom
+          your reference - most applications don't need custom
           <literal>GrantedAuthority</literal> implementations, so using the
           default implementation in this manner is just fine). Note that if a
           user has no password and/or no granted authorities, the user will
@@ -1750,7 +1751,7 @@ if (obj instanceof UserDetails) {
           be used as indicated in <literal>dbinit.txt</literal>. You can
           download this file from the Acegi Security web site.</para>
 
-          <para>If you default schema is unsuitable for your needs,
+          <para>If your default schema is unsuitable for your needs,
           <literal>JdbcDaoImpl</literal> provides two properties that allow
           customisation of the SQL statements. You may also subclass the
           <literal>JdbcDaoImpl</literal> if further customisation is
@@ -1786,7 +1787,7 @@ if (obj instanceof UserDetails) {
         <para>In addition, you will need to add the
         <literal>org.acegisecurity.concurrent.ConcurrentSessionFilter</literal>
         to your <literal>FilterChainProxy</literal>. The
-        ConcurrentSessionFilter requires two properties,
+        <classname>ConcurrentSessionFilter</classname> requires two properties,
         <literal>sessionRegistry</literal>, which generally points to an
         instance of <literal>SessionRegistryImpl</literal>, and
         <literal>expiredUrl</literal>, which points to the page to display
@@ -2387,7 +2388,7 @@ public boolean supports(Class clazz);</programlisting></para>
         Authentication is an attractive approach to authentication, because it
         is very widely deployed in user agents and implementation is extremely
         simple (it's just a Base64 encoding of the username:password,
-        specified in a HTTP header).</para>
+        specified in an HTTP header).</para>
       </sect1>
 
       <sect1 id="basic-config">
@@ -3376,7 +3377,7 @@ key:              A private key to prevent modification of the remember-me token
             implementation. Acegi Security includes one implementation, the
             <literal>CasProxyTicketValidator</literal>. This implementation a
             ticket validation class included in the CAS client library. The
-            <literal>CasProxyTicketValidator</literal> makes a HTTPS request
+            <literal>CasProxyTicketValidator</literal> makes an HTTPS request
             to the CAS server in order to validate the service ticket. The
             <literal>CasProxyTicketValidator</literal> may also include a
             proxy callback URL, which is included in this example:
@@ -3582,7 +3583,7 @@ key:              A private key to prevent modification of the remember-me token
           your servlet container.</para>
 
           <para>Note CAS heavily relies on HTTPS. You can't even test the
-          system without a HTTPS certificate. Whilst you should refer to your
+          system without an HTTPS certificate. Whilst you should refer to your
           web container's documentation on setting up HTTPS, if you need some
           additional help or a test certificate you might like to check the
           <literal>samples/contacts/etc/ssl</literal> directory</para>
@@ -3671,7 +3672,7 @@ key:              A private key to prevent modification of the remember-me token
           deployment to your servlet container.</para>
 
           <para>Note CAS heavily relies on HTTPS. You can't even test the
-          system without a HTTPS certificate. Whilst you should refer to your
+          system without an HTTPS certificate. Whilst you should refer to your
           web container's documentation on setting up HTTPS, if you need some
           additional help or a test certificate you might like to check the
           CAS documentation on setting up SSL:
