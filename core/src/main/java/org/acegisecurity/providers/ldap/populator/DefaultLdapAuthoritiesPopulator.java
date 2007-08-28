@@ -40,10 +40,11 @@ import javax.naming.directory.SearchControls;
 
 /**
  * The default strategy for obtaining user role information from the directory.
- *
+ * <p/>
  * <p>It obtains roles by performing a search for "groups" the user is a member of.</p>
- *
- * <p>A typical group search scenario would be where each group/role is specified using the <tt>groupOfNames</tt>
+ * <p/>
+ * <p/>
+ * A typical group search scenario would be where each group/role is specified using the <tt>groupOfNames</tt>
  * (or <tt>groupOfUniqueNames</tt>) LDAP objectClass and the user's DN is listed in the <tt>member</tt> (or
  * <tt>uniqueMember</tt>) attribute to indicate that they should be assigned that role. The following LDIF sample has
  * the groups stored under the DN <tt>ou=groups,dc=acegisecurity,dc=org</tt> and a group called "developers" with
@@ -55,13 +56,14 @@ import javax.naming.directory.SearchControls;
  * member: uid=ben,ou=people,dc=acegisecurity,dc=orgmember: uid=marissa,ou=people,dc=acegisecurity,dc=orgou: developer
  * </pre>
  * </p>
- * <p>The group search is performed within a DN specified by the <tt>groupSearchBase</tt> property, which should
+ * <p/>
+ * The group search is performed within a DN specified by the <tt>groupSearchBase</tt> property, which should
  * be relative to the root DN of its <tt>InitialDirContextFactory</tt>. If the search base is null, group searching is
  * disabled. The filter used in the search is defined by the <tt>groupSearchFilter</tt> property, with the filter
  * argument {0} being the full DN of the user. You can also optionally use the parameter {1}, which will be substituted
  * with the username. You can also specify which attribute defines the role name by setting
  * the <tt>groupRoleAttribute</tt> property (the default is "cn").</p>
- *
+ * <p/>
  * <p>The configuration below shows how the group search might be performed with the above schema.
  * <pre>
  * &lt;bean id="ldapAuthoritiesPopulator"
@@ -76,7 +78,11 @@ import javax.naming.directory.SearchControls;
  * &lt;/bean>
  * </pre>
  * A search for roles for user "uid=ben,ou=people,dc=acegisecurity,dc=org" would return the single granted authority
- * "ROLE_DEVELOPER".</p>
+ * "ROLE_DEVELOPER".
+ * </p>
+ * <p/>
+ * The single-level search is performed by default. Setting the <tt>searchSubTree</tt> property to true will enable
+ * a search of the entire subtree under <tt>groupSearchBase</tt>.
  *
  * @author Luke Taylor
  * @version $Id$
@@ -88,10 +94,14 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
     //~ Instance fields ================================================================================================
 
-    /** A default role which will be assigned to all authenticated users if set */
+    /**
+     * A default role which will be assigned to all authenticated users if set
+     */
     private GrantedAuthority defaultRole = null;
 
-    /** An initial context factory is only required if searching for groups is required. */
+    /**
+     * An initial context factory is only required if searching for groups is required.
+     */
     private InitialDirContextFactory initialDirContextFactory = null;
     private LdapTemplate ldapTemplate;
 
@@ -101,16 +111,24 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      */
     private SearchControls searchControls = new SearchControls();
 
-    /** The ID of the attribute which contains the role name for a group */
+    /**
+     * The ID of the attribute which contains the role name for a group
+     */
     private String groupRoleAttribute = "cn";
 
-    /** The base DN from which the search for group membership should be performed */
+    /**
+     * The base DN from which the search for group membership should be performed
+     */
     private String groupSearchBase = null;
 
-    /** The pattern to be used for the user search. {0} is the user's DN */
+    /**
+     * The pattern to be used for the user search. {0} is the user's DN
+     */
     private String groupSearchFilter = "(member={0})";
 
-    /** Attributes of the User's LDAP Object that contain role name information. */
+    /**
+     * Attributes of the User's LDAP Object that contain role name information.
+     */
 
 //    private String[] userRoleAttributes = null;
     private String rolePrefix = "ROLE_";
@@ -123,8 +141,8 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * set as a property.
      *
      * @param initialDirContextFactory supplies the contexts used to search for user roles.
-     * @param groupSearchBase if this is an empty string the search will be performed from the root DN of the
-     * context factory.
+     * @param groupSearchBase          if this is an empty string the search will be performed from the root DN of the
+     *                                 context factory.
      */
     public DefaultLdapAuthoritiesPopulator(InitialDirContextFactory initialDirContextFactory, String groupSearchBase) {
         this.setInitialDirContextFactory(initialDirContextFactory);
@@ -137,7 +155,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * This method should be overridden if required to obtain any additional
      * roles for the given user (on top of those obtained from the standard
      * search implemented by this class).
-     *
      *
      * @param ldapUser the user who's roles are required
      * @return the extra roles which will be merged with those returned by the group search
@@ -152,7 +169,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * the supplied LdapUserDetails object.
      *
      * @param userDetails the user who's authorities are required
-     *
      * @return the set of roles granted to the user.
      */
     public final GrantedAuthority[] getGrantedAuthorities(LdapUserDetails userDetails) {
@@ -206,11 +222,11 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
         if (logger.isDebugEnabled()) {
             logger.debug("Searching for roles for user '" + username + "', DN = " + "'" + userDn + "', with filter "
-                + groupSearchFilter + " in search base '" + getGroupSearchBase() + "'");
+                    + groupSearchFilter + " in search base '" + getGroupSearchBase() + "'");
         }
 
         Set userRoles = ldapTemplate.searchForSingleAttributeValues(getGroupSearchBase(), groupSearchFilter,
-                new String[] {userDn, username}, groupRoleAttribute);
+                new String[]{userDn, username}, groupRoleAttribute);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Roles from search: " + userRoles);
@@ -234,12 +250,10 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     /**
      * Searches for groups the user is a member of.
      *
-     * @param userDn the user's distinguished name.
+     * @param userDn         the user's distinguished name.
      * @param userAttributes the retrieved user's attributes (unused by default).
-     *
      * @return the set of roles obtained from a group membership search, or null if <tt>groupSearchBase</tt> has been
      *         set.
-     *
      * @deprecated Subclasses should implement <tt>getAdditionalRoles</tt> instead.
      */
     protected Set getGroupMembershipRoles(String userDn, Attributes userAttributes) {
@@ -267,14 +281,14 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * Set the group search base (name to search under)
      *
      * @param groupSearchBase if this is an empty string the search will be performed from the root DN of the context
-     * factory.
+     *                        factory.
      */
     private void setGroupSearchBase(String groupSearchBase) {
         Assert.notNull(groupSearchBase, "The groupSearchBase (name to search under), must not be null.");
         this.groupSearchBase = groupSearchBase;
         if (groupSearchBase.length() == 0) {
             logger.info("groupSearchBase is empty. Searches will be performed from the root: "
-                + getInitialDirContextFactory().getRootDn());
+                    + getInitialDirContextFactory().getRootDn());
         }
     }
 
@@ -311,6 +325,11 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         this.rolePrefix = rolePrefix;
     }
 
+    /**
+     * If set to true, a subtree scope search will be performed. If false a single-level search is used.
+     *
+     * @param searchSubtree set to true to enable searching of the entire tree below the <tt>groupSearchBase</tt>.
+     */
     public void setSearchSubtree(boolean searchSubtree) {
         int searchScope = searchSubtree ? SearchControls.SUBTREE_SCOPE : SearchControls.ONELEVEL_SCOPE;
         searchControls.setSearchScope(searchScope);

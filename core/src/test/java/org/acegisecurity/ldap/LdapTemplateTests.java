@@ -22,8 +22,6 @@ import javax.naming.directory.DirContext;
 
 
 /**
- * 
- *
  * @author Luke Taylor
  * @version $Id$
  */
@@ -67,22 +65,24 @@ public class LdapTemplateTests extends AbstractLdapServerTestCase {
     public void testNamingExceptionIsTranslatedCorrectly() {
         try {
             template.execute(new LdapCallback() {
-                    public Object doInDirContext(DirContext dirContext)
+                public Object doInDirContext(DirContext dirContext)
                         throws NamingException {
-                        throw new NamingException();
-                    }
-                });
+                    throw new NamingException();
+                }
+            });
             fail("Expected LdapDataAccessException on NamingException");
-        } catch (LdapDataAccessException expected) {}
+        } catch (LdapDataAccessException expected) {
+        }
     }
 
     public void testSearchForSingleAttributeValues() {
         String param = "uid=ben,ou=people,dc=acegisecurity,dc=org";
 
-        Set values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "ou");
+        Set values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[]{param}, "ou");
 
-        assertEquals("Expected 2 results from search", 2, values.size());
+        assertEquals("Expected 3 results from search", 3, values.size());
         assertTrue(values.contains("developer"));
         assertTrue(values.contains("manager"));
+        assertTrue(values.contains("submanager"));
     }
 }

@@ -64,7 +64,7 @@ public class LdapTestServer {
 
     //~ Methods ========================================================================================================
 
-    public void createGroup(String cn, String ou, String[] memberDns) {
+    public void createGroup(String cn, String groupContext, String ou, String[] memberDns) {
         Attributes group = new BasicAttributes("cn", cn);
         Attribute members = new BasicAttribute("member");
         Attribute orgUnit = new BasicAttribute("ou", ou);
@@ -82,7 +82,8 @@ public class LdapTestServer {
         group.put(orgUnit);
 
         try {
-            serverContext.createSubcontext("cn=" + cn + ",ou=groups", group);
+            DirContext ctx = serverContext.createSubcontext("cn=" + cn + "," + groupContext, group);
+            System.out.println("Created group " + ctx.getNameInNamespace());
         } catch (NameAlreadyBoundException ignore) {
 //            System.out.println(" group " + cn + " already exists.");
         } catch (NamingException ne) {
@@ -122,7 +123,7 @@ public class LdapTestServer {
         ou.put(objectClass);
 
         try {
-            serverContext.createSubcontext("ou=" + name, ou);
+            serverContext.createSubcontext(name, ou);
         } catch (NameAlreadyBoundException ignore) {
             //           System.out.println(" ou " + name + " already exists.");
         } catch (NamingException ne) {
@@ -188,16 +189,19 @@ public class LdapTestServer {
     }
 
     private void initTestData() {
-        createOu("people");
-        createOu("groups");
+        createOu("ou=people");
+        createOu("ou=groups");
+        createOu("ou=subgroups,ou=groups");
+
         createUser("bob", "Bob Hamilton", "bobspassword");
         createUser("ben", "Ben Alex", "{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=");
 
-        String[] developers = new String[] {
+        String[] developers = new String[]{
                 "uid=ben,ou=people,dc=acegisecurity,dc=org", "uid=bob,ou=people,dc=acegisecurity,dc=org"
-            };
-        createGroup("developers", "developer", developers);
-        createGroup("managers", "manager", new String[] {developers[0]});
+        };
+        createGroup("developers", "ou=groups", "developer", developers);
+        createGroup("managers", "ou=groups", "manager", new String[]{developers[0]});
+        createGroup("submanagers", "ou=subgroups,ou=groups", "submanager", new String[]{developers[0]});
     }
 
     public static void main(String[] args) {
@@ -243,11 +247,13 @@ public class LdapTestServer {
         }
     }
 
-    /** Recursively deletes a directory */
+    /**
+     * Recursively deletes a directory
+     */
     private boolean deleteDir(File dir) {
         if (dir.isDirectory()) {
             String[] children = dir.list();
-            for (int i=0; i<children.length; i++) {
+            for (int i = 0; i < children.length; i++) {
                 boolean success = deleteDir(new File(dir, children[i]));
                 if (!success) {
                     return false;

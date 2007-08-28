@@ -23,13 +23,14 @@ import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.naming.directory.BasicAttributes;
 
 
 /**
- * 
-DOCUMENT ME!
+ * DOCUMENT ME!
  *
  * @author Luke Taylor
  * @version $Id$
@@ -63,7 +64,8 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
 //        GrantedAuthority[] authorities =
 //                populator.getGrantedAuthorities(user.createUserDetails());
 //        assertEquals("User should have three roles", 3, authorities.length);
-//    }
+
+    //    }
     public void testDefaultRoleIsAssignedWhenSet() {
         DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(),
                 "ou=groups");
@@ -118,6 +120,48 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
 
         GrantedAuthority[] authorities = populator.getGrantedAuthorities(user.createUserDetails());
         assertEquals("Should have 1 role", 1, authorities.length);
-        assertTrue(authorities[0].equals("ROLE_MANAGER"));
+        assertEquals("ROLE_MANAGER", authorities[0].getAuthority());
     }
+
+    public void testSubGroupRolesAreNotFoundByDefault() {
+        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(),
+                "ou=groups");
+        populator.setGroupRoleAttribute("ou");
+        populator.setConvertToUpperCase(true);
+
+        LdapUserDetailsImpl.Essence user = new LdapUserDetailsImpl.Essence();
+        user.setUsername("manager");
+        user.setDn("uid=ben,ou=people,dc=acegisecurity,dc=org");
+
+        GrantedAuthority[] authorities = populator.getGrantedAuthorities(user.createUserDetails());
+        assertEquals("Should have 2 roles", 2, authorities.length);
+        Set roles = new HashSet(2);
+        roles.add(authorities[0].getAuthority());
+        roles.add(authorities[1].getAuthority());
+        assertTrue(roles.contains("ROLE_MANAGER"));
+        assertTrue(roles.contains("ROLE_DEVELOPER"));
+    }
+
+    public void testSubGroupRolesAreFoundWhenSubtreeSearchIsEnabled() {
+        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(),
+                "ou=groups");
+        populator.setGroupRoleAttribute("ou");
+        populator.setConvertToUpperCase(true);
+        populator.setSearchSubtree(true);
+
+        LdapUserDetailsImpl.Essence user = new LdapUserDetailsImpl.Essence();
+        user.setUsername("manager");
+        user.setDn("uid=ben,ou=people,dc=acegisecurity,dc=org");
+
+        GrantedAuthority[] authorities = populator.getGrantedAuthorities(user.createUserDetails());
+        assertEquals("Should have 3 roles", 3, authorities.length);
+        Set roles = new HashSet(3);
+        roles.add(authorities[0].getAuthority());
+        roles.add(authorities[1].getAuthority());
+        roles.add(authorities[2].getAuthority());
+        assertTrue(roles.contains("ROLE_MANAGER"));
+        assertTrue(roles.contains("ROLE_DEVELOPER"));
+        assertTrue(roles.contains("ROLE_SUBMANAGER"));
+    }
+
 }

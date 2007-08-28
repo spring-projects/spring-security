@@ -23,8 +23,6 @@ import java.util.Hashtable;
 
 
 /**
- *
- *
  * @author Luke Taylor
  * @version $Id$
  */
@@ -36,7 +34,7 @@ public abstract class AbstractLdapServerTestCase extends TestCase {
     protected static final String MANAGER_PASSWORD = "acegisecurity";
 
     // External server config
-//    private static final String PROVIDER_URL = "ldap://monkeymachine:389/"+ROOT_DN;
+//    private static final String PROVIDER_URL = "ldap://gorille:389/"+ROOT_DN;
 //    private static final String CONTEXT_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
 //    private static final Hashtable EXTRA_ENV = new Hashtable();
 
@@ -52,7 +50,8 @@ public abstract class AbstractLdapServerTestCase extends TestCase {
 
     //~ Constructors ===================================================================================================
 
-    protected AbstractLdapServerTestCase() {}
+    protected AbstractLdapServerTestCase() {
+    }
 
     protected AbstractLdapServerTestCase(String string) {
         super(string);
@@ -64,7 +63,8 @@ public abstract class AbstractLdapServerTestCase extends TestCase {
         return idf;
     }
 
-    protected void onSetUp() {}
+    protected void onSetUp() {
+    }
 
     public final void setUp() {
         idf = new DefaultInitialDirContextFactory(PROVIDER_URL);
