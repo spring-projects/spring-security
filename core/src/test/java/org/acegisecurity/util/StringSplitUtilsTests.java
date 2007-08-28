@@ -32,6 +32,7 @@ public class StringSplitUtilsTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     // ===========================================================
+
     public StringSplitUtilsTests() {
         super();
     }
@@ -43,6 +44,7 @@ public class StringSplitUtilsTests extends TestCase {
     //~ Methods ========================================================================================================
 
     // ================================================================
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(StringSplitUtilsTests.class);
     }
@@ -57,7 +59,7 @@ public class StringSplitUtilsTests extends TestCase {
         assertEquals("Contacts Realm", headerMap.get("realm"));
         assertEquals("MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==", headerMap.get("nonce"));
         assertEquals("/acegi-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4",
-            headerMap.get("uri"));
+                headerMap.get("uri"));
         assertEquals("38644211cf9ac3da63ab639807e2baff", headerMap.get("response"));
         assertEquals("auth", headerMap.get("qop"));
         assertEquals("00000004", headerMap.get("nc"));
@@ -74,7 +76,7 @@ public class StringSplitUtilsTests extends TestCase {
         assertEquals("\"Contacts Realm\"", headerMap.get("realm"));
         assertEquals("\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\"", headerMap.get("nonce"));
         assertEquals("\"/acegi-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\"",
-            headerMap.get("uri"));
+                headerMap.get("uri"));
         assertEquals("\"38644211cf9ac3da63ab639807e2baff\"", headerMap.get("response"));
         assertEquals("auth", headerMap.get("qop"));
         assertEquals("00000004", headerMap.get("nc"));
@@ -84,7 +86,7 @@ public class StringSplitUtilsTests extends TestCase {
 
     public void testSplitEachArrayElementAndCreateMapReturnsNullIfArrayEmptyOrNull() {
         assertNull(StringSplitUtils.splitEachArrayElementAndCreateMap(null, "=", "\""));
-        assertNull(StringSplitUtils.splitEachArrayElementAndCreateMap(new String[] {}, "=", "\""));
+        assertNull(StringSplitUtils.splitEachArrayElementAndCreateMap(new String[]{}, "=", "\""));
     }
 
     public void testSplitNormalOperation() {
@@ -136,5 +138,15 @@ public class StringSplitUtilsTests extends TestCase {
 
         // only guarantees to split at FIRST delimiter, not EACH delimiter
         assertEquals(2, StringSplitUtils.split("18|marissa|foo|bar", "|").length);
+    }
+
+
+    public void testAuthorizationHeaderWithCommasIsSplitCorrectly() {
+        String header = "Digest username=\"hamilton,bob\", realm=\"bobs,ok,realm\", nonce=\"the,nonce\", " +
+                "uri=\"the,Uri\", response=\"the,response,Digest\", qop=theqop, nc=thenc, cnonce=\"the,cnonce\"";
+
+        String[] parts = StringSplitUtils.splitIgnoringQuotes(header, ',');
+
+        assertEquals(8, parts.length);
     }
 }

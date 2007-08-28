@@ -20,6 +20,8 @@ import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -29,6 +31,9 @@ import java.util.Map;
  * @version $Id$
  */
 public final class StringSplitUtils {
+    //~ Static fields/initializers =====================================================================================
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
+
     //~ Constructors ===================================================================================================
 
     private StringSplitUtils() {
@@ -40,12 +45,10 @@ public final class StringSplitUtils {
      * Splits a <code>String</code> at the first instance of the delimiter.<p>Does not include the delimiter in
      * the response.</p>
      *
-     * @param toSplit the string to split
+     * @param toSplit   the string to split
      * @param delimiter to split the string up with
-     *
      * @return a two element array with index 0 being before the delimiter, and index 1 being after the delimiter
      *         (neither element includes the delimiter)
-     *
      * @throws IllegalArgumentException if an argument was invalid
      */
     public static String[] split(String toSplit, String delimiter) {
@@ -65,7 +68,7 @@ public final class StringSplitUtils {
         String beforeDelimiter = toSplit.substring(0, offset);
         String afterDelimiter = toSplit.substring(offset + 1);
 
-        return new String[] {beforeDelimiter, afterDelimiter};
+        return new String[]{beforeDelimiter, afterDelimiter};
     }
 
     /**
@@ -74,11 +77,10 @@ public final class StringSplitUtils {
      * then generated, with the left of the delimiter providing the key, and the right of the delimiter providing the
      * value.<p>Will trim both the key and value before adding to the <code>Map</code>.</p>
      *
-     * @param array the array to process
-     * @param delimiter to split each element using (typically the equals symbol)
+     * @param array            the array to process
+     * @param delimiter        to split each element using (typically the equals symbol)
      * @param removeCharacters one or more characters to remove from each element prior to attempting the split
-     *        operation (typically the quotation mark symbol) or <code>null</code> if no removal should occur
-     *
+     *                         operation (typically the quotation mark symbol) or <code>null</code> if no removal should occur
      * @return a <code>Map</code> representing the array contents, or <code>null</code> if the array to process was
      *         null or empty
      */
@@ -133,6 +135,60 @@ public final class StringSplitUtils {
             return "";
         }
         return str.substring(pos + separator.length());
+    }
+
+    /**
+     * Splits a given string on the given separator character, skips the contents of quoted substrings
+     * when looking for separators.
+     * Introduced for use in DigestProcessingFilter (see SEC-506).
+     * <p/>
+     * This was copied and modified from commons-lang StringUtils
+     */
+    public static String[] splitIgnoringQuotes(String str, char separatorChar) {
+        if (str == null) {
+            return null;
+        }
+
+        int len = str.length();
+
+        if (len == 0) {
+            return EMPTY_STRING_ARRAY;
+        }
+
+        List list = new ArrayList();
+        int i = 0;
+        int start = 0;
+        boolean match = false;
+
+        while (i < len) {
+            if (str.charAt(i) == '"') {
+                i++;
+                while (i < len) {
+                    if (str.charAt(i) == '"') {
+                        i++;
+                        break;
+                    }
+                    i++;
+                }
+                match = true;
+                continue;
+            }
+            if (str.charAt(i) == separatorChar) {
+                if (match) {
+                    list.add(str.substring(start, i));
+                    match = false;
+                }
+                start = ++i;
+                continue;
+            }
+            match = true;
+            i++;
+        }
+        if (match) {
+            list.add(str.substring(start, i));
+        }
+
+        return (String[]) list.toArray(new String[list.size()]);
     }
 
 }
