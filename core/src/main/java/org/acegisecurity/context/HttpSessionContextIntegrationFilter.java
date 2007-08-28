@@ -209,7 +209,23 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
         boolean httpSessionExistedAtStartOfRequest = httpSession != null;
 
-        populateSecurityContextFromSession(httpSession);
+        SecurityContext contextFromSession = extractSecurityContextFromSession(httpSession);
+
+        // This is the only block in this class in which SecurityContextHolder.setContext() is called
+        if (contextFromSession != null) {
+            SecurityContextHolder.setContext(contextFromSession);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Obtained a valid SecurityContext from ACEGI_SECURITY_CONTEXT and "
+                        + "set to SecurityContextHolder: '" + contextFromSession + "'");
+            }
+        } else {
+            SecurityContextHolder.setContext(generateNewContext());
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("New SecurityContext instance associated with SecurityContextHolder");
+            }
+        }
 
         // Make the HttpSession null, as we want to ensure we don't keep
         // a reference to the HttpSession laying around in case the
@@ -217,7 +233,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         httpSession = null;
 
         // Proceed with chain
-        int contextWhenChainProceeded = SecurityContextHolder.getContext().hashCode();
+        int contextHashWhenChainProceeded = SecurityContextHolder.getContext().hashCode();
 
         request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 
@@ -231,7 +247,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         finally {
             // do clean up, even if there was an exception
             // Store context back to HttpSession
-            storeSecurityContextInSession(request, httpSessionExistedAtStartOfRequest, contextWhenChainProceeded);
+            storeSecurityContextInSession(request, httpSessionExistedAtStartOfRequest, contextHashWhenChainProceeded);
 
             request.removeAttribute(FILTER_APPLIED);
 
@@ -245,23 +261,23 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
     }
 
     /**
-     * Extracts the security context from the session (if available) and sets it on SecurityContextHolder.
+     * Extracts the security context from the session (if available) and returns it.
      * <p/>
      * If the session is null, the context object is null or the context object stored in the session
-     * is not an instance of SecurityContext it will generate a new empty context and store this.
+     * is not an instance of SecurityContext it will return null.
+     * <p/>
+     * If <tt>cloneFromHttpSession</tt> is set to true, it will attempt to clone the context object
+     * and return the cloned instance.
      *
      * @param httpSession the session obtained from the request.
      */
-    private void populateSecurityContextFromSession(HttpSession httpSession) throws ServletException {
+    private SecurityContext extractSecurityContextFromSession(HttpSession httpSession) {
         if (httpSession == null) {
             if (logger.isDebugEnabled()) {
-                logger.debug("No HttpSession currently exists - new SecurityContext instance "
-                        + "associated with SecurityContextHolder");
+                logger.debug("No HttpSession currently exists");
             }
 
-            SecurityContextHolder.setContext(generateNewContext());
-
-            return;
+            return null;
         }
 
         // Session exists, so try to obtain a context from it.
@@ -270,13 +286,10 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
         if (contextFromSessionObject == null) {
             if (logger.isDebugEnabled()) {
-                logger.debug("HttpSession returned null object for ACEGI_SECURITY_CONTEXT - new "
-                        + "SecurityContext instance associated with SecurityContextHolder");
+                logger.debug("HttpSession returned null object for ACEGI_SECURITY_CONTEXT");
             }
 
-            SecurityContextHolder.setContext(generateNewContext());
-
-            return;
+            return null;
         }
 
         // We now have the security context object from the session.
@@ -297,26 +310,21 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
             }
         }
 
-        if (contextFromSessionObject instanceof SecurityContext) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Obtained from ACEGI_SECURITY_CONTEXT a valid SecurityContext and "
-                        + "set to SecurityContextHolder: '" + contextFromSessionObject + "'");
-            }
-
-            SecurityContextHolder.setContext((SecurityContext) contextFromSessionObject);
-        } else {
+        if (!(contextFromSessionObject instanceof SecurityContext)) {
             if (logger.isWarnEnabled()) {
-                logger
-                        .warn("ACEGI_SECURITY_CONTEXT did not contain a SecurityContext but contained: '"
-                                + contextFromSessionObject
-                                + "'; are you improperly modifying the HttpSession directly "
-                                + "(you should always use SecurityContextHolder) or using the HttpSession attribute "
-                                + "reserved for this class? - new SecurityContext instance associated with "
-                                + "SecurityContextHolder");
+                logger.warn("ACEGI_SECURITY_CONTEXT did not contain a SecurityContext but contained: '"
+                        + contextFromSessionObject
+                        + "'; are you improperly modifying the HttpSession directly "
+                        + "(you should always use SecurityContextHolder) or using the HttpSession attribute "
+                        + "reserved for this class?");
             }
 
-            SecurityContextHolder.setContext(generateNewContext());
+            return null;
         }
+
+        // Everything OK. The only non-null return from this method.
+
+        return (SecurityContext) contextFromSessionObject;
     }
 
     private void storeSecurityContextInSession(ServletRequest request,
