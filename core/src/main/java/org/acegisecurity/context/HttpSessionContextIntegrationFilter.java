@@ -219,25 +219,24 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
             contextBeforeChainExecution = generateNewContext();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("New SecurityContext instance associated with SecurityContextHolder");
+                logger.debug("New SecurityContext instance will be associated with SecurityContextHolder");
             }
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug("Obtained a valid SecurityContext from ACEGI_SECURITY_CONTEXT and "
-                        + "set to SecurityContextHolder: '" + contextBeforeChainExecution + "'");
+                logger.debug("Obtained a valid SecurityContext from ACEGI_SECURITY_CONTEXT to "
+                        + "associate with SecurityContextHolder: '" + contextBeforeChainExecution + "'");
             }
         }
 
         int contextHashBeforeChainExecution = contextBeforeChainExecution.hashCode();
-
-        // This is the only place in this class where SecurityContextHolder.setContext() is called
-        SecurityContextHolder.setContext(contextBeforeChainExecution);
-
         request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 
         // Proceed with chain
 
         try {
+            // This is the only place in this class where SecurityContextHolder.setContext() is called
+            SecurityContextHolder.setContext(contextBeforeChainExecution);
+
             chain.doFilter(request, response);
         }
         finally {
