@@ -218,7 +218,6 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
         // Proceed with chain
         int contextWhenChainProceeded = SecurityContextHolder.getContext().hashCode();
-        boolean filterApplied = true;
 
         request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 
@@ -234,9 +233,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
             // Store context back to HttpSession
             storeSecurityContextInSession(request, httpSessionExistedAtStartOfRequest, contextWhenChainProceeded);
 
-            if (filterApplied) {
-                request.removeAttribute(FILTER_APPLIED);
-            }
+            request.removeAttribute(FILTER_APPLIED);
 
             // Remove SecurityContextHolder contents
             SecurityContextHolder.clearContext();
