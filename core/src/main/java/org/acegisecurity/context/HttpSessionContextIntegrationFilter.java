@@ -93,12 +93,10 @@ import org.springframework.util.ReflectionUtils;
  *
  * @author Ben Alex
  * @author Patrick Burleson
- * @version $Id: HttpSessionContextIntegrationFilter.java 1784 2007-02-24
- *          21:00:24Z luke_t $
+ * @version $Id$
  */
 public class HttpSessionContextIntegrationFilter implements InitializingBean, Filter {
-    // ~ Static fields/initializers
-    // =====================================================================================
+    //~ Static fields/initializers =====================================================================================
 
     protected static final Log logger = LogFactory.getLog(HttpSessionContextIntegrationFilter.class);
 
@@ -106,8 +104,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
     public static final String ACEGI_SECURITY_CONTEXT_KEY = "ACEGI_SECURITY_CONTEXT";
 
-    // ~ Instance fields
-    // ================================================================================================
+    //~ Instance fields ================================================================================================
 
     private Class context = SecurityContextImpl.class;
 
@@ -168,8 +165,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         this.contextObject = generateNewContext();
     }
 
-    // ~ Methods
-    // ========================================================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         if ((this.context == null) || (!SecurityContext.class.isAssignableFrom(this.context))) {
@@ -178,7 +174,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
                     + ")");
         }
 
-        if ((forceEagerSessionCreation == true) && (allowSessionCreation == false)) {
+        if (forceEagerSessionCreation && !allowSessionCreation) {
             throw new IllegalArgumentException(
                     "If using forceEagerSessionCreation, you must set allowSessionCreation to also be true");
         }
