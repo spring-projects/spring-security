@@ -209,33 +209,33 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
         boolean httpSessionExistedAtStartOfRequest = httpSession != null;
 
-        SecurityContext contextFromSession = extractSecurityContextFromSession(httpSession);
+        SecurityContext contextBeforeChainExecution = extractSecurityContextFromSession(httpSession);
 
-        // This is the only block in this class in which SecurityContextHolder.setContext() is called
-        if (contextFromSession != null) {
-            SecurityContextHolder.setContext(contextFromSession);
+        // Make the HttpSession null, as we don't want to keep a reference to it lying
+        // around in case chain.doFilter() invalidates it.
+        httpSession = null;
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Obtained a valid SecurityContext from ACEGI_SECURITY_CONTEXT and "
-                        + "set to SecurityContextHolder: '" + contextFromSession + "'");
-            }
-        } else {
-            SecurityContextHolder.setContext(generateNewContext());
+        if (contextBeforeChainExecution == null) {
+            contextBeforeChainExecution = generateNewContext();
 
             if (logger.isDebugEnabled()) {
                 logger.debug("New SecurityContext instance associated with SecurityContextHolder");
             }
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Obtained a valid SecurityContext from ACEGI_SECURITY_CONTEXT and "
+                        + "set to SecurityContextHolder: '" + contextBeforeChainExecution + "'");
+            }
         }
 
-        // Make the HttpSession null, as we want to ensure we don't keep
-        // a reference to the HttpSession laying around in case the
-        // chain.doFilter() invalidates it.
-        httpSession = null;
+        int contextHashBeforeChainExecution = contextBeforeChainExecution.hashCode();
 
-        // Proceed with chain
-        int contextHashWhenChainProceeded = SecurityContextHolder.getContext().hashCode();
+        // This is the only place in this class where SecurityContextHolder.setContext() is called
+        SecurityContextHolder.setContext(contextBeforeChainExecution);
 
         request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
+
+        // Proceed with chain        
 
         try {
             chain.doFilter(request, response);
@@ -245,6 +245,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
             throw se;
         }
         finally {
+            // This is the only place in this class where SecurityContextHolder.getContext() is called
             SecurityContext contextAfterChainExecution = SecurityContextHolder.getContext();
 
             // Crucial removal of SecurityContextHolder contents - do this before anything else.
@@ -253,7 +254,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
             request.removeAttribute(FILTER_APPLIED);
 
             storeSecurityContextInSession(contextAfterChainExecution, request,
-                    httpSessionExistedAtStartOfRequest, contextHashWhenChainProceeded);
+                    httpSessionExistedAtStartOfRequest, contextHashBeforeChainExecution);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("SecurityContextHolder now cleared, as request processing completed");
