@@ -36,7 +36,6 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public PathBasedFilterDefinitionMapTests() {
-        super();
     }
 
     public PathBasedFilterDefinitionMapTests(String arg0) {
@@ -59,7 +58,6 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
     public void testLookupNotRequiringExactMatchSuccessIfNotMatching() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
         map.setConvertUrlToLowercaseBeforeComparison(true);
-        assertTrue(map.isConvertUrlToLowercaseBeforeComparison());
 
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
@@ -71,10 +69,26 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         assertEquals(def, response);
     }
 
+    /**
+     * SEC-501
+     */
+    public void testLookupNotRequiringExactMatchSucceedsIfSecureUrlPathContainsUpperCase() {
+        PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
+        map.setConvertUrlToLowercaseBeforeComparison(true);
+
+        ConfigAttributeDefinition def = new ConfigAttributeDefinition();
+        def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
+        map.addSecureUrl("/SeCuRE/super/**", def);
+
+        FilterInvocation fi = createFilterinvocation("/secure/super/somefile.html");
+
+        ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
+        assertEquals(def, response);
+    }
+
+
     public void testLookupRequiringExactMatchFailsIfNotMatching() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
-        assertFalse(map.isConvertUrlToLowercaseBeforeComparison());
-
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         map.addSecureUrl("/secure/super/**", def);
@@ -87,13 +101,11 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
 
     public void testLookupRequiringExactMatchIsSuccessful() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
-        assertFalse(map.isConvertUrlToLowercaseBeforeComparison());
-
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
-        map.addSecureUrl("/secure/super/**", def);
+        map.addSecureUrl("/SeCurE/super/**", def);
 
-        FilterInvocation fi = createFilterinvocation("/secure/super/somefile.html");
+        FilterInvocation fi = createFilterinvocation("/SeCurE/super/somefile.html");
 
         ConfigAttributeDefinition response = map.lookupAttributes(fi.getRequestUrl());
         assertEquals(def, response);
@@ -101,8 +113,6 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
 
     public void testLookupRequiringExactMatchWithAdditionalSlashesIsSuccessful() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
-        assertFalse(map.isConvertUrlToLowercaseBeforeComparison());
-
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         map.addSecureUrl("/someAdminPage.html**", def);
@@ -113,11 +123,11 @@ public class PathBasedFilterDefinitionMapTests extends TestCase {
         assertEquals(def, response); // see SEC-161 (it should truncate after ? sign)
     }
 
-    /** Check fixes for SEC-321 */
+    /**
+     * Check fixes for SEC-321
+     */
     public void testExtraQuestionMarkStillMatches() {
         PathBasedFilterInvocationDefinitionMap map = new PathBasedFilterInvocationDefinitionMap();
-        assertFalse(map.isConvertUrlToLowercaseBeforeComparison());
-
         ConfigAttributeDefinition def = new ConfigAttributeDefinition();
         def.addConfigAttribute(new SecurityConfig("ROLE_ONE"));
         map.addSecureUrl("/someAdminPage.html*", def);

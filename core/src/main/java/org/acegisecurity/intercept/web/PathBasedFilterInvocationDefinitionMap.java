@@ -34,17 +34,17 @@ import java.util.Vector;
  * Maintains a <code>List</code> of <code>ConfigAttributeDefinition</code>s associated with different HTTP request
  * URL Apache Ant path-based patterns.<p>Apache Ant path expressions are used to match a HTTP request URL against a
  * <code>ConfigAttributeDefinition</code>.</p>
- *  <p>The order of registering the Ant paths using the {@link #addSecureUrl(String, ConfigAttributeDefinition)} is
+ * <p>The order of registering the Ant paths using the {@link #addSecureUrl(String,ConfigAttributeDefinition)} is
  * very important. The system will identify the <b>first</b>  matching path for a given HTTP URL. It will not proceed
  * to evaluate later paths if a match has already been found. Accordingly, the most specific paths should be
  * registered first, with the most general paths registered last.</p>
- *  <p>If no registered paths match the HTTP URL, <code>null</code> is returned.</p>
+ * <p>If no registered paths match the HTTP URL, <code>null</code> is returned.</p>
  *
  * @author Ben Alex
  * @version $Id$
  */
 public class PathBasedFilterInvocationDefinitionMap extends AbstractFilterInvocationDefinitionSource
-    implements FilterInvocationDefinition {
+        implements FilterInvocationDefinition {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(PathBasedFilterInvocationDefinitionMap.class);
@@ -58,6 +58,12 @@ public class PathBasedFilterInvocationDefinitionMap extends AbstractFilterInvoca
     //~ Methods ========================================================================================================
 
     public void addSecureUrl(String antPath, ConfigAttributeDefinition attr) {
+        // SEC-501: If using lower case comparison, we should convert the paths to lower case
+        // as any upper case characters included by mistake will prevent the URL from ever being matched.
+        if (convertUrlToLowercaseBeforeComparison) {
+            antPath = antPath.toLowerCase();
+        }
+
         requestMap.add(new EntryHolder(antPath, attr));
 
         if (logger.isDebugEnabled()) {
@@ -110,7 +116,7 @@ public class PathBasedFilterInvocationDefinitionMap extends AbstractFilterInvoca
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Candidate is: '" + url + "'; pattern is " + entryHolder.getAntPath() + "; matched="
-                    + matched);
+                        + matched);
             }
 
             if (matched) {
