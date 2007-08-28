@@ -232,62 +232,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         finally {
             // do clean up, even if there was an exception
             // Store context back to HttpSession
-            try {
-                httpSession = ((HttpServletRequest) request).getSession(false);
-            }
-            catch (IllegalStateException ignored) {
-            }
-
-            if ((httpSession == null) && httpSessionExistedAtStartOfRequest) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("HttpSession is now null, but was not null at start of request; "
-                            + "session was invalidated, so do not create a new session");
-                }
-            }
-
-            // Generate a HttpSession only if we need to
-            if ((httpSession == null) && !httpSessionExistedAtStartOfRequest) {
-                if (!allowSessionCreation) {
-                    if (logger.isDebugEnabled()) {
-                        logger
-                                .debug("The HttpSession is currently null, and the "
-                                        + "HttpSessionContextIntegrationFilter is prohibited from creating an HttpSession "
-                                        + "(because the allowSessionCreation property is false) - SecurityContext thus not "
-                                        + "stored for next request");
-                    }
-                } else if (!contextObject.equals(SecurityContextHolder.getContext())) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("HttpSession being created as SecurityContextHolder contents are non-default");
-                    }
-
-                    try {
-                        httpSession = ((HttpServletRequest) request).getSession(true);
-                    }
-                    catch (IllegalStateException ignored) {
-                    }
-                } else {
-                    if (logger.isDebugEnabled()) {
-                        logger
-                                .debug("HttpSession is null, but SecurityContextHolder has not changed from default: ' "
-                                        + SecurityContextHolder.getContext()
-                                        + "'; not creating HttpSession or storing SecurityContextHolder contents");
-                    }
-                }
-            }
-
-            // If HttpSession exists, store current
-            // SecurityContextHolder contents but only if
-            // SecurityContext has
-            // actually changed (see JIRA SEC-37)
-            if ((httpSession != null)
-                    && (SecurityContextHolder.getContext().hashCode() != contextWhenChainProceeded)) {
-                httpSession.setAttribute(ACEGI_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("SecurityContext stored to HttpSession: '" + SecurityContextHolder.getContext()
-                            + "'");
-                }
-            }
+            storeSecurityContextInSession(request, httpSessionExistedAtStartOfRequest, contextWhenChainProceeded);
 
             if (filterApplied) {
                 request.removeAttribute(FILTER_APPLIED);
@@ -364,6 +309,68 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
             }
 
             SecurityContextHolder.setContext(generateNewContext());
+        }
+    }
+
+    private void storeSecurityContextInSession(ServletRequest request,
+                                               boolean httpSessionExistedAtStartOfRequest,
+                                               int contextWhenChainProceeded) {
+        HttpSession httpSession = null;
+        try {
+            httpSession = ((HttpServletRequest) request).getSession(false);
+        }
+        catch (IllegalStateException ignored) {
+        }
+
+        if ((httpSession == null) && httpSessionExistedAtStartOfRequest) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("HttpSession is now null, but was not null at start of request; "
+                        + "session was invalidated, so do not create a new session");
+            }
+        }
+
+        // Generate a HttpSession only if we need to
+        if ((httpSession == null) && !httpSessionExistedAtStartOfRequest) {
+            if (!allowSessionCreation) {
+                if (logger.isDebugEnabled()) {
+                    logger
+                            .debug("The HttpSession is currently null, and the "
+                                    + "HttpSessionContextIntegrationFilter is prohibited from creating an HttpSession "
+                                    + "(because the allowSessionCreation property is false) - SecurityContext thus not "
+                                    + "stored for next request");
+                }
+            } else if (!contextObject.equals(SecurityContextHolder.getContext())) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("HttpSession being created as SecurityContextHolder contents are non-default");
+                }
+
+                try {
+                    httpSession = ((HttpServletRequest) request).getSession(true);
+                }
+                catch (IllegalStateException ignored) {
+                }
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger
+                            .debug("HttpSession is null, but SecurityContextHolder has not changed from default: ' "
+                                    + SecurityContextHolder.getContext()
+                                    + "'; not creating HttpSession or storing SecurityContextHolder contents");
+                }
+            }
+        }
+
+        // If HttpSession exists, store current
+        // SecurityContextHolder contents but only if
+        // SecurityContext has
+        // actually changed (see JIRA SEC-37)
+        if ((httpSession != null)
+                && (SecurityContextHolder.getContext().hashCode() != contextWhenChainProceeded)) {
+            httpSession.setAttribute(ACEGI_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("SecurityContext stored to HttpSession: '" + SecurityContextHolder.getContext()
+                        + "'");
+            }
         }
     }
 
