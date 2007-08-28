@@ -192,7 +192,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
-        if ((request != null) && (request.getAttribute(FILTER_APPLIED) != null)) {
+        if (request.getAttribute(FILTER_APPLIED) != null) {
             // ensure that filter is only applied once per request
             chain.doFilter(request, response);
 
@@ -235,14 +235,10 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
         request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 
-        // Proceed with chain        
+        // Proceed with chain
 
         try {
             chain.doFilter(request, response);
-        } catch (IOException ioe) {
-            throw ioe;
-        } catch (ServletException se) {
-            throw se;
         }
         finally {
             // This is the only place in this class where SecurityContextHolder.getContext() is called
