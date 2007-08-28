@@ -209,7 +209,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
         boolean httpSessionExistedAtStartOfRequest = httpSession != null;
 
-        SecurityContext contextBeforeChainExecution = extractSecurityContextFromSession(httpSession);
+        SecurityContext contextBeforeChainExecution = readSecurityContextFromSession(httpSession);
 
         // Make the HttpSession null, as we don't want to keep a reference to it lying
         // around in case chain.doFilter() invalidates it.
@@ -259,7 +259,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
     }
 
     /**
-     * Extracts the security context from the session (if available) and returns it.
+     * Gets the security context from the session (if available) and returns it.
      * <p/>
      * If the session is null, the context object is null or the context object stored in the session
      * is not an instance of SecurityContext it will return null.
@@ -269,7 +269,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
      *
      * @param httpSession the session obtained from the request.
      */
-    private SecurityContext extractSecurityContextFromSession(HttpSession httpSession) {
+    private SecurityContext readSecurityContextFromSession(HttpSession httpSession) {
         if (httpSession == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("No HttpSession currently exists");
