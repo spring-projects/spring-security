@@ -15,7 +15,7 @@ Subversion Usage
 
 +----------------------------------------------------------------------------------------------------------------------+
 
-          svn co https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity
+          svn co http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk/
 
 +----------------------------------------------------------------------------------------------------------------------+
 

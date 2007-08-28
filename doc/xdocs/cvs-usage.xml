@@ -18,12 +18,13 @@
                     The code can be checked out anonymously with the following command:
                 </p>
                 <p>
-                    svn co http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity
+                    svn co http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk/
                 </p>
 
             </subsection>
             <subsection name="Nightly Snapshots">
-                <p>If you'd prefer not to use subversion directly, please see our <a href="downloads.html">downloads page</a>
+                <p>If you'd prefer not to use subversion directly, please see our
+                    <a href="downloads.html">downloads page</a>
                     for nightly snapshots.
                 </p>
             </subsection>
