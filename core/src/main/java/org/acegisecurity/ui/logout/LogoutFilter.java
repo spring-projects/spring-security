@@ -173,4 +173,8 @@ public class LogoutFilter implements Filter {
         Assert.hasText(filterProcessesUrl, "FilterProcessesUrl required");
         this.filterProcessesUrl = filterProcessesUrl;
     }
+
+    protected String getFilterProcessesUrl() {
+        return filterProcessesUrl;
+    }
 }
