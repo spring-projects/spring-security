@@ -19,7 +19,7 @@
 	</li>
 	
 	<li>
-	Please make your commit comments informative, yet not too detailed. Detailed comments are ideally placed in the JIRA task. In the case of a contribution by a non-developer, please use the SVN commits to reflect who provided the contribution and add that person's name to /project.xml in the contributors section. If the contributors section does not list the name of someone who has contributed accepted code, please add them or let me know so that I can do so.<br></br><br></br>
+	Please make your commit comments informative, yet not too detailed. Detailed comments are ideally placed in the JIRA task. In the case of a contribution by a non-developer, please use the SVN commits to reflect who provided the contribution and add that person's name to /pom.xml in the contributors section. If the contributors section does not list the name of someone who has contributed accepted code, please add them or let me know so that I can do so.<br></br><br></br>
 	</li>
 	
 	<li>
@@ -27,7 +27,7 @@
 	</li>
 	
 	<li>
-	Please make sure /docs/xdocs/changes.xml has a reference to JIRA for the upcoming release version.  You don't need to add the name of contributors to /doc/xdocs/changes.xml, as acknowledgement is already provided via /project.xml, source code @author tags, the SVN commit message, and typically a JIRA task.<br></br><br></br>
+	Please make sure /docs/xdocs/changes.xml has a reference to JIRA for the upcoming release version.  You don't need to add the name of contributors to /doc/xdocs/changes.xml, as acknowledgement is already provided via /pom.xml, source code @author tags, the SVN commit message, and typically a JIRA task.<br></br><br></br>
 	</li>
 	
 	<li>
@@ -47,7 +47,7 @@
 	</li>
 	
 	<li>
-	Never check in code if the unit tests fail. This means, at minimum, successfully running "maven test:test" from /core. Always name your unit test classes so they end in "*Tests" - this ensures that Maven picks them up. If there is code in SVN which you didn't write and it is breaking the unit tests, please correct it yourself - don't leave SVN "broken" whilst waiting for the responsible developer to address it (the delay causes confusing and long-running threads on the list and forum). You can always rollback to the previous working version if in doubt of how the class works (just remember to comment the commit appropriately and let the author know).<br></br><br></br>
+	Never check in code if the unit tests fail. This means, at minimum, successfully running "mvn test" from /core. Always name your unit test classes so they end in "*Tests" - this ensures that Maven picks them up. If there is code in SVN which you didn't write and it is breaking the unit tests, please correct it yourself - don't leave SVN "broken" whilst waiting for the responsible developer to address it (the delay causes confusing and long-running threads on the list and forum). You can always rollback to the previous working version if in doubt of how the class works (just remember to comment the commit appropriately and let the author know).<br></br><br></br>
 	</li>
 	
 	<li>
