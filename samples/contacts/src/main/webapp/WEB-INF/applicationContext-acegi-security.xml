@@ -18,11 +18,11 @@
 	      of "httpSessionContextIntegrationFilter" in the list below -->
 	<bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
       <property name="filterInvocationDefinitionSource">
-         <value>
+         <value><![CDATA[
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 		    PATTERN_TYPE_APACHE_ANT
             /**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,switchUserProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
-         </value>
+         ]]></value>
       </property>
     </bean>
 
@@ -123,13 +123,13 @@
    <bean id="channelProcessingFilter" class="org.acegisecurity.securechannel.ChannelProcessingFilter">
       <property name="channelDecisionManager"><ref local="channelDecisionManager"/></property>
       <property name="filterInvocationDefinitionSource">
-         <value>
+         <value><![CDATA[
 			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 				\A/secure/.*\Z=REQUIRES_SECURE_CHANNEL
 				\A/acegilogin.jsp.*\Z=REQUIRES_SECURE_CHANNEL
 				\A/j_acegi_security_check.*\Z=REQUIRES_SECURE_CHANNEL
 				\A.*\Z=REQUIRES_INSECURE_CHANNEL
-         </value>
+         ]]></value>
       </property>
    </bean>
 
@@ -185,7 +185,7 @@
       <property name="authenticationManager"><ref bean="authenticationManager"/></property>
       <property name="accessDecisionManager"><ref local="httpRequestAccessDecisionManager"/></property>
       <property name="objectDefinitionSource">
-         <value>
+         <value><![CDATA[
 			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 			    PATTERN_TYPE_APACHE_ANT
 			    /index.jsp=ROLE_ANONYMOUS,ROLE_USER
@@ -195,7 +195,7 @@
 			    /j_acegi_switch_user=ROLE_SUPERVISOR
 			    /acegilogin.jsp*=ROLE_ANONYMOUS,ROLE_USER
 				/**=ROLE_USER
-         </value>
+         ]]></value>
       </property>
    </bean>
 

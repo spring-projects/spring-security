@@ -20,11 +20,11 @@
 
 	<bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
 		<property name="filterInvocationDefinitionSource">
-			<value>
+			<value><![CDATA[
 				CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 				PATTERN_TYPE_APACHE_ANT
 				/**=httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
-			</value>
+			]]></value>
 		</property>
 	</bean>
 
@@ -88,13 +88,13 @@
 			</bean>
 		</property>
 		<property name="objectDefinitionSource">
-			<value>
+			<value><![CDATA[
 				CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 				PATTERN_TYPE_APACHE_ANT
 				/secure/extreme/**=ROLE_SUPERVISOR
 				/secure/**=IS_AUTHENTICATED_REMEMBERED
 				/**=IS_AUTHENTICATED_ANONYMOUSLY
-			</value>
+			]]></value>
 		</property>
 	</bean>
 
