@@ -36,10 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.*;
 
 import org.springframework.core.io.Resource;
 
@@ -140,20 +137,20 @@ import javax.security.auth.login.LoginException;
  * @author Ray Krueger
  * @version $Id$
  */
-public class JaasAuthenticationProvider implements AuthenticationProvider, InitializingBean, ApplicationContextAware,
-    ApplicationListener {
+public class JaasAuthenticationProvider implements AuthenticationProvider, ApplicationEventPublisherAware,
+        InitializingBean, ApplicationListener {
     //~ Static fields/initializers =====================================================================================
 
     protected static final Log log = LogFactory.getLog(JaasAuthenticationProvider.class);
 
     //~ Instance fields ================================================================================================
 
-    private ApplicationContext context;
     private LoginExceptionResolver loginExceptionResolver = new DefaultLoginExceptionResolver();
     private Resource loginConfig;
     private String loginContextName = "ACEGI";
     private AuthorityGranter[] authorityGranters;
     private JaasAuthenticationCallbackHandler[] callbackHandlers;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     //~ Methods ========================================================================================================
 
@@ -246,10 +243,9 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Initi
      *
      * @param loginConfig URL to Jaas login configuration
      *
-     * @throws IOException DOCUMENT ME!
+     * @throws IOException if there is a problem reading the config resource.
      */
-    protected void configureJaas(Resource loginConfig)
-        throws IOException {
+    protected void configureJaas(Resource loginConfig) throws IOException {
         configureJaasUsingLoop();
     }
 
@@ -257,7 +253,6 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Initi
      * Loops through the login.config.url.1,login.config.url.2 properties looking for the login configuration.
      * If it is not set, it will be set to the last available login.config.url.X property.
      *
-     * @throws IOException DOCUMENT ME!
      */
     private void configureJaasUsingLoop() throws IOException {
         String loginConfigUrl = loginConfig.getURL().toString();
@@ -282,10 +277,6 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Initi
             log.debug("Setting security property [" + key + "] to: " + loginConfigUrl);
             Security.setProperty(key, loginConfigUrl);
         }
-    }
-
-    public ApplicationContext getApplicationContext() {
-        return context;
     }
 
     /**
@@ -375,7 +366,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Initi
      * @param ase The {@link AcegiSecurityException} that caused the failure
      */
     protected void publishFailureEvent(UsernamePasswordAuthenticationToken token, AcegiSecurityException ase) {
-        getApplicationContext().publishEvent(new JaasAuthenticationFailedEvent(token, ase));
+        applicationEventPublisher.publishEvent(new JaasAuthenticationFailedEvent(token, ase));
     }
 
     /**
@@ -385,12 +376,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Initi
      * @param token The {@link UsernamePasswordAuthenticationToken} being processed
      */
     protected void publishSuccessEvent(UsernamePasswordAuthenticationToken token) {
-        getApplicationContext().publishEvent(new JaasAuthenticationSuccessEvent(token));
-    }
-
-    public void setApplicationContext(ApplicationContext applicationContext)
-        throws BeansException {
-        this.context = applicationContext;
+        applicationEventPublisher.publishEvent(new JaasAuthenticationSuccessEvent(token));
     }
 
     /**
@@ -443,6 +429,14 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Initi
 
     public boolean supports(Class aClass) {
         return UsernamePasswordAuthenticationToken.class.isAssignableFrom(aClass);
+    }
+
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
+    }
+
+    protected ApplicationEventPublisher getApplicationEventPublisher() {
+        return applicationEventPublisher;
     }
 
     //~ Inner Classes ==================================================================================================

@@ -99,7 +99,7 @@ public class JaasAuthenticationProviderTests extends TestCase {
 
     public void testDetectsMissingLoginConfig() throws Exception {
         JaasAuthenticationProvider myJaasProvider = new JaasAuthenticationProvider();
-        myJaasProvider.setApplicationContext(context);
+        myJaasProvider.setApplicationEventPublisher(context);
         myJaasProvider.setAuthorityGranters(jaasProvider.getAuthorityGranters());
         myJaasProvider.setCallbackHandlers(jaasProvider.getCallbackHandlers());
         myJaasProvider.setLoginContextName(jaasProvider.getLoginContextName());
@@ -114,7 +114,7 @@ public class JaasAuthenticationProviderTests extends TestCase {
 
     public void testDetectsMissingLoginContextName() throws Exception {
         JaasAuthenticationProvider myJaasProvider = new JaasAuthenticationProvider();
-        myJaasProvider.setApplicationContext(context);
+        myJaasProvider.setApplicationEventPublisher(context);
         myJaasProvider.setAuthorityGranters(jaasProvider.getAuthorityGranters());
         myJaasProvider.setCallbackHandlers(jaasProvider.getCallbackHandlers());
         myJaasProvider.setLoginConfig(jaasProvider.getLoginConfig());
@@ -185,8 +185,8 @@ public class JaasAuthenticationProviderTests extends TestCase {
         assertNull("Failure event was fired", eventCheck.failedEvent);
     }
 
-    public void testGetApplicationContext() throws Exception {
-        assertNotNull(jaasProvider.getApplicationContext());
+    public void testGetApplicationEventPublisher() throws Exception {
+        assertNotNull(jaasProvider.getApplicationEventPublisher());
     }
 
     public void testLoginExceptionResolver() {
