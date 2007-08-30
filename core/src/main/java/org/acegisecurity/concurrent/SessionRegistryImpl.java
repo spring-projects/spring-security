@@ -36,20 +36,16 @@ import javax.servlet.http.HttpSession;
 
 /**
  * Base implementation of {@link org.acegisecurity.concurrent.SessionRegistry}
- * which also listens for {@link
- * org.acegisecurity.ui.session.HttpSessionDestroyedEvent}s published in the
- * Spring application context.
+ * which also listens for {@link org.acegisecurity.ui.session.HttpSessionDestroyedEvent}s
+ * published in the Spring application context.
  * 
  * <p>
- * NB: It is important that you register the {@link
- * org.acegisecurity.ui.session.HttpSessionEventPublisher} in
- * <code>web.xml</code> so that this class is notified of sessions that
- * expire.
+ * NB: It is important that you register the {@link org.acegisecurity.ui.session.HttpSessionEventPublisher} in
+ * <code>web.xml</code> so that this class is notified of sessions that expire.
  * </p>
  * 
  * @author Ben Alex
- * @version $Id: SessionRegistryImpl.java 1862 2007-05-25 01:38:42Z benalex
- *          ${date}
+ * @version $Id$
  */
 public class SessionRegistryImpl implements SessionRegistry,
 		ApplicationListener {
@@ -76,8 +72,7 @@ public class SessionRegistryImpl implements SessionRegistry,
 		List list = new ArrayList();
 
 		synchronized (sessionsUsedByPrincipal) {
-			for (Iterator iter = sessionsUsedByPrincipal.iterator(); iter
-					.hasNext();) {
+			for (Iterator iter = sessionsUsedByPrincipal.iterator(); iter.hasNext();) {
 				String sessionId = (String) iter.next();
 				SessionInformation sessionInformation = getSessionInformation(sessionId);
 
@@ -91,8 +86,7 @@ public class SessionRegistryImpl implements SessionRegistry,
 	}
 
 	public SessionInformation getSessionInformation(String sessionId) {
-		Assert.hasText(sessionId,
-				"SessionId required as per interface contract");
+		Assert.hasText(sessionId, "SessionId required as per interface contract");
 
 		return (SessionInformation) sessionIds.get(sessionId);
 	}
@@ -105,8 +99,7 @@ public class SessionRegistryImpl implements SessionRegistry,
 	}
 
 	public void refreshLastRequest(String sessionId) {
-		Assert.hasText(sessionId,
-				"SessionId required as per interface contract");
+		Assert.hasText(sessionId, "SessionId required as per interface contract");
 
 		SessionInformation info = getSessionInformation(sessionId);
 
@@ -115,12 +108,9 @@ public class SessionRegistryImpl implements SessionRegistry,
 		}
 	}
 
-	public synchronized void registerNewSession(String sessionId,
-			Object principal) {
-		Assert.hasText(sessionId,
-				"SessionId required as per interface contract");
-		Assert.notNull(principal,
-				"Principal required as per interface contract");
+	public synchronized void registerNewSession(String sessionId, Object principal) {
+		Assert.hasText(sessionId, "SessionId required as per interface contract");
+		Assert.notNull(principal, "Principal required as per interface contract");
 
 		if (getSessionInformation(sessionId) != null) {
 			removeSessionInformation(sessionId);
@@ -132,8 +122,7 @@ public class SessionRegistryImpl implements SessionRegistry,
 		Set sessionsUsedByPrincipal = (Set) principals.get(principal);
 
 		if (sessionsUsedByPrincipal == null) {
-			sessionsUsedByPrincipal = Collections
-					.synchronizedSet(new HashSet());
+			sessionsUsedByPrincipal = Collections.synchronizedSet(new HashSet());
 		}
 
 		sessionsUsedByPrincipal.add(sessionId);
@@ -142,16 +131,14 @@ public class SessionRegistryImpl implements SessionRegistry,
 	}
 
 	public void removeSessionInformation(String sessionId) {
-		Assert.hasText(sessionId,
-				"SessionId required as per interface contract");
+		Assert.hasText(sessionId, "SessionId required as per interface contract");
 
 		SessionInformation info = getSessionInformation(sessionId);
 
 		if (info != null) {
-			sessionIds.remove(sessionId);
+		    sessionIds.remove(sessionId);
 
-			Set sessionsUsedByPrincipal = (Set) principals.get(info
-					.getPrincipal());
+			Set sessionsUsedByPrincipal = (Set) principals.get(info.getPrincipal());
 
 			if (sessionsUsedByPrincipal != null) {
 				synchronized (sessionsUsedByPrincipal) {
