@@ -47,25 +47,22 @@ import javax.servlet.http.HttpSession;
  * @author Ben Alex
  * @version $Id$
  */
-public class SessionRegistryImpl implements SessionRegistry,
-		ApplicationListener {
-	// ~ Instance fields
-	// ========================================================
+public class SessionRegistryImpl implements SessionRegistry, ApplicationListener {
+	// ~ Instance fields ===============================================================================================
 
 	private Map principals = Collections.synchronizedMap(new HashMap()); // <principal:Object,SessionIdSet>
 	private Map sessionIds = Collections.synchronizedMap(new HashMap()); // <sessionId:Object,SessionInformation>
 
-	// ~ Methods
-	// ================================================================
+	// ~ Methods =======================================================================================================
 
 	public Object[] getAllPrincipals() {
 		return principals.keySet().toArray();
 	}
 
-	public SessionInformation[] getAllSessions(Object principal,
-			boolean includeExpiredSessions) {
+	public SessionInformation[] getAllSessions(Object principal, boolean includeExpiredSessions) {
 		Set sessionsUsedByPrincipal = (Set) principals.get(principal);
-		if (sessionsUsedByPrincipal == null) {
+
+        if (sessionsUsedByPrincipal == null) {
 			return null;
 		}
 
@@ -116,8 +113,7 @@ public class SessionRegistryImpl implements SessionRegistry,
 			removeSessionInformation(sessionId);
 		}
 
-		sessionIds.put(sessionId, new SessionInformation(principal, sessionId,
-				new Date()));
+		sessionIds.put(sessionId, new SessionInformation(principal, sessionId, new Date()));
 
 		Set sessionsUsedByPrincipal = (Set) principals.get(principal);
 
