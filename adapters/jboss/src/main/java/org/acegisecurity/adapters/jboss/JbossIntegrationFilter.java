@@ -18,6 +18,8 @@ package org.acegisecurity.adapters.jboss;
 import org.acegisecurity.Authentication;
 
 import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.context.HttpSessionContextIntegrationFilter;
+import org.acegisecurity.context.SecurityContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,10 +45,10 @@ import javax.servlet.ServletResponse;
 
 
 /**
- * Populates a {@link org.acegisecurity.context.security.SecureContext} from JBoss'
- * <code>java:comp/env/security/subject</code>.<p>This filter <b>never</b> preserves the
- * <code>Authentication</code> on the <code>ContextHolder</code> - it is replaced every request.</p>
- *  <p>See {@link HttpSessionContextIntegrationFilter} for further information.</p>
+ * Populates a {@link SecurityContext} from JBoss' <code>java:comp/env/security/subject</code>.
+ * <p>This filter <b>never</b> preserves the <code>Authentication</code> on the <code>ContextHolder</code> -
+ * it is replaced every request.</p>
+ * <p>See {@link HttpSessionContextIntegrationFilter} for further information.</p>
  *
  * @author Ben Alex
  * @version $Id$
