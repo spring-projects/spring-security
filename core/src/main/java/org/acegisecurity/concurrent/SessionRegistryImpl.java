@@ -79,6 +79,10 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 				String sessionId = (String) iter.next();
 				SessionInformation sessionInformation = getSessionInformation(sessionId);
 
+                if (sessionInformation == null) {
+                    continue;
+                }
+
                 if (includeExpiredSessions || !sessionInformation.isExpired()) {
 					list.add(sessionInformation);
 				}
@@ -111,7 +115,7 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 		}
 	}
 
-	public void registerNewSession(String sessionId, Object principal) {
+	public synchronized void registerNewSession(String sessionId, Object principal) {
 		Assert.hasText(sessionId, "SessionId required as per interface contract");
 		Assert.notNull(principal, "Principal required as per interface contract");
 
@@ -143,7 +147,7 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 
 		if (info != null) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Removing " + sessionId + " from set of registered sessions");
+                logger.debug("Removing session " + sessionId + " from set of registered sessions");
             }
             sessionIds.remove(sessionId);
 
@@ -152,7 +156,7 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
             if (sessionsUsedByPrincipal != null) {
 				synchronized (sessionsUsedByPrincipal) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Removing " + sessionId + " from principal's set of registered sessions");
+                        logger.debug("Removing session " + sessionId + " from principal's set of registered sessions");
                     }
 
 					sessionsUsedByPrincipal.remove(sessionId);
