@@ -18,6 +18,7 @@ package org.acegisecurity.providers.x509.populator;
 import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.AuthenticationServiceException;
 
 import org.acegisecurity.providers.x509.X509AuthoritiesPopulator;
 
@@ -79,8 +80,7 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator, In
         }
     }
 
-    public UserDetails getUserDetails(X509Certificate clientCert)
-        throws AuthenticationException {
+    public UserDetails getUserDetails(X509Certificate clientCert) throws AuthenticationException {
         String subjectDN = clientCert.getSubjectDN().getName();
         PatternMatcher matcher = new Perl5Matcher();
 
@@ -97,7 +97,14 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator, In
 
         String userName = match.group(1);
 
-        return this.userDetailsService.loadUserByUsername(userName);
+        UserDetails user = this.userDetailsService.loadUserByUsername(userName);
+
+        if (user == null) {
+            throw new AuthenticationServiceException(
+                "UserDetailsService returned null, which is an interface contract violation");
+        }
+
+        return user;
     }
 
     public void setMessageSource(MessageSource messageSource) {
@@ -106,9 +113,10 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator, In
 
     /**
      * Sets the regular expression which will by used to extract the user name from the certificate's Subject
-     * DN.<p>It should contain a single group; for example the default expression "CN=(.?)," matches the common
+     * DN.
+     * <p>It should contain a single group; for example the default expression "CN=(.?)," matches the common
      * name field. So "CN=Jimi Hendrix, OU=..." will give a user name of "Jimi Hendrix".</p>
-     *  <p>The matches are case insensitive. So "emailAddress=(.?)," will match "EMAILADDRESS=jimi@hendrix.org,
+     * <p>The matches are case insensitive. So "emailAddress=(.?)," will match "EMAILADDRESS=jimi@hendrix.org,
      * CN=..." giving a user name "jimi@hendrix.org"</p>
      *
      * @param subjectDNRegex the regular expression to find in the subject

@@ -43,7 +43,6 @@ public class DaoX509AuthoritiesPopulatorTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public DaoX509AuthoritiesPopulatorTests() {
-        super();
     }
 
     public DaoX509AuthoritiesPopulatorTests(String arg0) {
