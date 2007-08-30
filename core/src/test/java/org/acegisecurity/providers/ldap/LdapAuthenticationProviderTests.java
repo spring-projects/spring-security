@@ -47,7 +47,6 @@ public class LdapAuthenticationProviderTests extends TestCase {
     }
 
     public LdapAuthenticationProviderTests() {
-        super();
     }
 
     //~ Methods ========================================================================================================
@@ -86,8 +85,7 @@ public class LdapAuthenticationProviderTests extends TestCase {
     }
 
     public void testEmptyPasswordIsRejected() {
-        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
-                new MockAuthoritiesPopulator());
+        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator());
         try {
             ldapProvider.retrieveUser("jen", new UsernamePasswordAuthenticationToken("jen", ""));
             fail("Expected BadCredentialsException for empty password");
@@ -114,6 +112,14 @@ public class LdapAuthenticationProviderTests extends TestCase {
         assertTrue(authorities.contains("ROLE_FROM_POPULATOR"));
 
         ldapProvider.additionalAuthenticationChecks(user, authRequest);
+    }
+
+    public void testUseWithNullAuthoritiesPopulatorReturnsCorrectRole() {
+        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator());
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
+        UserDetails user = ldapProvider.retrieveUser("bob", authRequest);
+        assertEquals(1, user.getAuthorities().length);
+        assertEquals("ROLE_FROM_ENTRY", user.getAuthorities()[0].getAuthority());
     }
 
     //~ Inner Classes ==================================================================================================

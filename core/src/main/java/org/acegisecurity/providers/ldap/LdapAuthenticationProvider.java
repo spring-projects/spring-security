@@ -19,6 +19,7 @@ import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.AuthenticationServiceException;
+import org.acegisecurity.ldap.LdapDataAccessException;
 
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.dao.AbstractUserDetailsAuthenticationProvider;
@@ -126,8 +127,8 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
 
     //~ Constructors ===================================================================================================
 
-	/**
-     * Create an initialized instance to the values passed as arguments
+    /**
+     * Create an instance with the supplied authenticator and authorities populator implementations.
      *
      * @param authenticator the authentication strategy (bind, password comparison, etc)
      *          to be used by this provider for authenticating users.
@@ -138,6 +139,17 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         this.setAuthenticator(authenticator);
         this.setAuthoritiesPopulator(authoritiesPopulator);
     }
+
+    /**
+     * Creates an instance with the supplied authenticator and a null authorities populator.
+     * In this case, the authorities must be mapped from the user context.
+     *
+     * @param authenticator the authenticator strategy.
+     */
+    public LdapAuthenticationProvider(LdapAuthenticator authenticator) {
+        this.setAuthenticator(authenticator);
+        this.setAuthoritiesPopulator(new NullAuthoritiesPopulator());
+    }    
 
     //~ Methods ========================================================================================================
 
@@ -234,4 +246,13 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     public void setIncludeDetailsObject(boolean includeDetailsObject) {
         this.includeDetailsObject = includeDetailsObject;
     }
+
+    //~ Inner Classes ==================================================================================================
+
+    private static class NullAuthoritiesPopulator implements LdapAuthoritiesPopulator {
+        public GrantedAuthority[] getGrantedAuthorities(LdapUserDetails userDetails) throws LdapDataAccessException {
+            return new GrantedAuthority[0];
+        }
+    }
 }
+
