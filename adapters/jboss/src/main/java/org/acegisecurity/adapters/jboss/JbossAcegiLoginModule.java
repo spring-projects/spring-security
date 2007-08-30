@@ -15,6 +15,11 @@
 
 package org.acegisecurity.adapters.jboss;
 
+import org.apache.commons.lang.ArrayUtils;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.acegisecurity.AccountExpiredException;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
@@ -75,8 +80,8 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
     }
 
     protected Group[] getRoleSets() throws LoginException {
-        SimpleGroup roles = new SimpleGroup("Roles");
-        Group[] roleSets = {roles};
+        Group roles = new SimpleGroup("Roles");
+        Group callerPrincipalGroup = new SimpleGroup("CallerPrincipal");
 
         if (this.identity instanceof Authentication) {
             Authentication user = (Authentication) this.identity;
@@ -86,7 +91,9 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
             }
         }
 
-        return roleSets;
+        callerPrincipalGroup.addMember(getIdentity());
+
+        return new Group[] {roles, callerPrincipalGroup};
     }
 
     protected String[] getUsernameAndPassword() throws LoginException {

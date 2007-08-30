@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.acegisecurity.adapters.PrincipalAcegiUserToken;
 
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.SimpleGroup;
 
 import java.io.IOException;
 
@@ -27,6 +28,7 @@ import java.security.Principal;
 import java.security.acl.Group;
 
 import java.util.Properties;
+import java.util.Enumeration;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -318,11 +320,23 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         assertTrue(adapter.login());
 
         Group[] result = adapter.getRoleSets();
-        assertEquals(1, result.length); // SimpleGroup called "Roles"
+        // Expect Roles and CallerPrincipal groups.
+        assertEquals(2, result.length);
 
         Group roles = result[0];
         assertTrue(roles.isMember(new SimplePrincipal("ROLE_TELLER")));
         assertTrue(roles.isMember(new SimplePrincipal("ROLE_SUPERVISOR")));
+
+        Group callerPrincipalGroup = result[1];
+        // check the name
+        assertTrue(callerPrincipalGroup.equals(new SimpleGroup("CallerPrincipal")));
+        Enumeration members = callerPrincipalGroup.members();
+        assertTrue("CallerPrincipal group must have exactly one member", members.hasMoreElements());
+        Principal principal = (Principal) members.nextElement();
+        if (!(principal instanceof PrincipalAcegiUserToken)) {
+            fail("Should have returned PrincipalAcegiUserToken");
+        }
+        assertTrue("CallerPrincipal group must have exactly one member", !members.hasMoreElements());
     }
 
     //~ Inner Classes ==================================================================================================
@@ -337,7 +351,6 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         }
 
         private MockCallbackHandler() {
-            super();
         }
 
         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
