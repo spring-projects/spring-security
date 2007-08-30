@@ -292,7 +292,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         }
     }
 
-    private String getGroupSearchBase() {
+    protected String getGroupSearchBase() {
         return groupSearchBase;
     }
 
