@@ -18,6 +18,7 @@ package org.acegisecurity.concurrent;
 import org.springframework.util.Assert;
 
 import java.util.Date;
+import java.io.Serializable;
 
 
 /**
@@ -32,7 +33,7 @@ import java.util.Date;
  * @author Ben Alex
  * @version $Id$
  */
-public class SessionInformation {
+public class SessionInformation implements Serializable {
     //~ Instance fields ================================================================================================
 
     private Date lastRequest;
@@ -50,8 +51,6 @@ public class SessionInformation {
         this.sessionId = sessionId;
         this.lastRequest = lastRequest;
     }
-
-    private SessionInformation() {}
 
     //~ Methods ========================================================================================================
 
