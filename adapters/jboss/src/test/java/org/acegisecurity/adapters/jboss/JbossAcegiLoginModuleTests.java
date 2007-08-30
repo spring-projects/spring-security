@@ -320,23 +320,12 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         assertTrue(adapter.login());
 
         Group[] result = adapter.getRoleSets();
-        // Expect Roles and CallerPrincipal groups.
-        assertEquals(2, result.length);
+        // Expect Roles group.
+        assertEquals(1, result.length);
 
         Group roles = result[0];
         assertTrue(roles.isMember(new SimplePrincipal("ROLE_TELLER")));
         assertTrue(roles.isMember(new SimplePrincipal("ROLE_SUPERVISOR")));
-
-        Group callerPrincipalGroup = result[1];
-        // check the name
-        assertTrue(callerPrincipalGroup.equals(new SimpleGroup("CallerPrincipal")));
-        Enumeration members = callerPrincipalGroup.members();
-        assertTrue("CallerPrincipal group must have exactly one member", members.hasMoreElements());
-        Principal principal = (Principal) members.nextElement();
-        if (!(principal instanceof PrincipalAcegiUserToken)) {
-            fail("Should have returned PrincipalAcegiUserToken");
-        }
-        assertTrue("CallerPrincipal group must have exactly one member", !members.hasMoreElements());
     }
 
     //~ Inner Classes ==================================================================================================
@@ -348,9 +337,6 @@ public class JbossAcegiLoginModuleTests extends TestCase {
         public MockCallbackHandler(String username, String password) {
             this.username = username;
             this.password = password;
-        }
-
-        private MockCallbackHandler() {
         }
 
         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
