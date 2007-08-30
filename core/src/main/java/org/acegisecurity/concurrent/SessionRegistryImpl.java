@@ -21,6 +21,8 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 import org.springframework.util.Assert;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,17 +40,21 @@ import javax.servlet.http.HttpSession;
  * Base implementation of {@link org.acegisecurity.concurrent.SessionRegistry}
  * which also listens for {@link org.acegisecurity.ui.session.HttpSessionDestroyedEvent}s
  * published in the Spring application context.
- * 
+ *
  * <p>
  * NB: It is important that you register the {@link org.acegisecurity.ui.session.HttpSessionEventPublisher} in
  * <code>web.xml</code> so that this class is notified of sessions that expire.
  * </p>
- * 
+ *
  * @author Ben Alex
  * @version $Id$
  */
 public class SessionRegistryImpl implements SessionRegistry, ApplicationListener {
-	// ~ Instance fields ===============================================================================================
+    //~ Static fields/initializers =====================================================================================
+
+    protected static final Log logger = LogFactory.getLog(SessionRegistryImpl.class);
+
+    // ~ Instance fields ===============================================================================================
 
 	private Map principals = Collections.synchronizedMap(new HashMap()); // <principal:Object,SessionIdSet>
 	private Map sessionIds = Collections.synchronizedMap(new HashMap()); // <sessionId:Object,SessionInformation>
@@ -68,12 +74,12 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 
 		List list = new ArrayList();
 
-		synchronized (sessionsUsedByPrincipal) {
+        synchronized (sessionsUsedByPrincipal) {
 			for (Iterator iter = sessionsUsedByPrincipal.iterator(); iter.hasNext();) {
 				String sessionId = (String) iter.next();
 				SessionInformation sessionInformation = getSessionInformation(sessionId);
 
-				if (includeExpiredSessions || !sessionInformation.isExpired()) {
+                if (includeExpiredSessions || !sessionInformation.isExpired()) {
 					list.add(sessionInformation);
 				}
 			}
@@ -105,17 +111,21 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 		}
 	}
 
-	public synchronized void registerNewSession(String sessionId, Object principal) {
+	public void registerNewSession(String sessionId, Object principal) {
 		Assert.hasText(sessionId, "SessionId required as per interface contract");
 		Assert.notNull(principal, "Principal required as per interface contract");
 
-		if (getSessionInformation(sessionId) != null) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Registering session " + sessionId +", for principal " + principal);
+        }
+
+        if (getSessionInformation(sessionId) != null) {
 			removeSessionInformation(sessionId);
 		}
 
-		sessionIds.put(sessionId, new SessionInformation(principal, sessionId, new Date()));
+        sessionIds.put(sessionId, new SessionInformation(principal, sessionId, new Date()));
 
-		Set sessionsUsedByPrincipal = (Set) principals.get(principal);
+        Set sessionsUsedByPrincipal = (Set) principals.get(principal);
 
 		if (sessionsUsedByPrincipal == null) {
 			sessionsUsedByPrincipal = Collections.synchronizedSet(new HashSet());
@@ -132,17 +142,27 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 		SessionInformation info = getSessionInformation(sessionId);
 
 		if (info != null) {
-		    sessionIds.remove(sessionId);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Removing " + sessionId + " from set of registered sessions");
+            }
+            sessionIds.remove(sessionId);
 
-			Set sessionsUsedByPrincipal = (Set) principals.get(info.getPrincipal());
+            Set sessionsUsedByPrincipal = (Set) principals.get(info.getPrincipal());
 
-			if (sessionsUsedByPrincipal != null) {
+            if (sessionsUsedByPrincipal != null) {
 				synchronized (sessionsUsedByPrincipal) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Removing " + sessionId + " from principal's set of registered sessions");
+                    }
+
 					sessionsUsedByPrincipal.remove(sessionId);
 
 					if (sessionsUsedByPrincipal.size() == 0) {
 						// No need to keep object in principals Map anymore
-						principals.remove(info.getPrincipal());
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Removing principal " + info.getPrincipal() + " from registry");
+                        }
+                        principals.remove(info.getPrincipal());
 					}
 				}
 			}
