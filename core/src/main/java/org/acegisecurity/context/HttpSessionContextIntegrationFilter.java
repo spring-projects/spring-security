@@ -25,6 +25,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
@@ -50,8 +52,7 @@ import org.springframework.util.ReflectionUtils;
  * <code>HttpSession</code> for whatever reason, a fresh
  * <code>SecurityContext</code> will be created and used instead. The created
  * object will be of the instance defined by the {@link #setContext(Class)}
- * method (which defaults to {@link
- * org.acegisecurity.context.SecurityContextImpl}.
+ * method (which defaults to {@link org.acegisecurity.context.SecurityContextImpl}.
  * </p>
  * <p/>
  * No <code>HttpSession</code> will be created by this filter if one does not
@@ -93,6 +94,9 @@ import org.springframework.util.ReflectionUtils;
  *
  * @author Ben Alex
  * @author Patrick Burleson
+ * @author Luke Taylor
+ * @author Martin Algesten
+ *
  * @version $Id$
  */
 public class HttpSessionContextIntegrationFilter implements InitializingBean, Filter {
@@ -180,12 +184,6 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         }
     }
 
-    /**
-     * Does nothing. We use IoC container lifecycle services instead.
-     */
-    public void destroy() {
-    }
-
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
         if (request.getAttribute(FILTER_APPLIED) != null) {
@@ -227,13 +225,21 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         int contextHashBeforeChainExecution = contextBeforeChainExecution.hashCode();
         request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 
+        // Create a wrapper that will eagerly update the session with the security context
+        // if anything in the chain does a sendError() or sendRedirect().
+        // See SEC-398
+
+        OnRedirectUpdateSessionResponseWrapper responseWrapper =
+                new OnRedirectUpdateSessionResponseWrapper( (HttpServletResponse)response, request,
+                    httpSessionExistedAtStartOfRequest, contextHashBeforeChainExecution );
+
         // Proceed with chain
 
         try {
             // This is the only place in this class where SecurityContextHolder.setContext() is called
             SecurityContextHolder.setContext(contextBeforeChainExecution);
 
-            chain.doFilter(request, response);
+            chain.doFilter(request, responseWrapper);
         }
         finally {
             // This is the only place in this class where SecurityContextHolder.getContext() is called
@@ -244,8 +250,13 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
             request.removeAttribute(FILTER_APPLIED);
 
-            storeSecurityContextInSession(contextAfterChainExecution, request,
-                    httpSessionExistedAtStartOfRequest, contextHashBeforeChainExecution);
+            // storeSecurityContextInSession() might already be called by the response wrapper
+            // if something in the chain called sendError() or sendRedirect(). This ensures we only call it
+            // once per request.
+            if ( !responseWrapper.isSessionUpdateDone() ) {
+              storeSecurityContextInSession(contextAfterChainExecution, request,
+                      httpSessionExistedAtStartOfRequest, contextHashBeforeChainExecution);
+            }
 
             if (logger.isDebugEnabled()) {
                 logger.debug("SecurityContextHolder now cleared, as request processing completed");
@@ -331,7 +342,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
      * @param httpSessionExistedAtStartOfRequest indicates whether there was a session in place before the
      *        filter chain executed. If this is true, and the session is found to be null, this indicates that it was
      *        invalidated during the request and a new session will now be created.
-     * @param contextHashWhenChainProceeded the hashcode of the context before the filter chain executed.
+     * @param contextHashBeforeChainExecution the hashcode of the context before the filter chain executed.
      *        The context will only be stored if it has a different hashcode, indicating that the context changed
      *        during the request.
      *
@@ -339,7 +350,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
     private void storeSecurityContextInSession(SecurityContext securityContext,
                                                ServletRequest request,
                                                boolean httpSessionExistedAtStartOfRequest,
-                                               int contextHashWhenChainProceeded) {
+                                               int contextHashBeforeChainExecution) {
         HttpSession httpSession = null;
 
         try {
@@ -386,7 +397,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
         // If HttpSession exists, store current SecurityContextHolder contents but only if
         // the SecurityContext has actually changed (see JIRA SEC-37)
-        if (httpSession != null && securityContext.hashCode() != contextHashWhenChainProceeded) {
+        if (httpSession != null && securityContext.hashCode() != contextHashBeforeChainExecution) {
             httpSession.setAttribute(ACEGI_SECURITY_CONTEXT_KEY, securityContext);
 
             if (logger.isDebugEnabled()) {
@@ -407,10 +418,6 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         }
     }
 
-    public Class getContext() {
-        return context;
-    }
-
     /**
      * Does nothing. We use IoC container lifecycle services instead.
      *
@@ -420,23 +427,118 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
     public void init(FilterConfig filterConfig) throws ServletException {
     }
 
-    public boolean isAllowSessionCreation() {
-        return allowSessionCreation;
+    /**
+     * Does nothing. We use IoC container lifecycle services instead.
+     */
+    public void destroy() {
     }
 
-    public boolean isForceEagerSessionCreation() {
-        return forceEagerSessionCreation;
+    public boolean isAllowSessionCreation() {
+        return allowSessionCreation;
     }
 
     public void setAllowSessionCreation(boolean allowSessionCreation) {
         this.allowSessionCreation = allowSessionCreation;
     }
 
+    public Class getContext() {
+        return context;
+    }
+
     public void setContext(Class secureContext) {
         this.context = secureContext;
+    }
+
+    public boolean isForceEagerSessionCreation() {
+        return forceEagerSessionCreation;
     }
 
     public void setForceEagerSessionCreation(boolean forceEagerSessionCreation) {
         this.forceEagerSessionCreation = forceEagerSessionCreation;
     }
+
+
+    //~ Inner Classes ==================================================================================================    
+
+    /**
+     * Wrapper that is applied to every request to update the <code>HttpSession<code> with
+     * the <code>SecurityContext</code> when a <code>sendError()</code> or <code>sendRedirect</code>
+     * happens. See SEC-398. The class contains the fields needed to call
+     * <code>storeSecurityContextInSession()</code>
+     */
+    private class OnRedirectUpdateSessionResponseWrapper extends HttpServletResponseWrapper {
+
+        ServletRequest request;
+        boolean httpSessionExistedAtStartOfRequest;
+        int contextHashBeforeChainExecution;
+
+        // Used to ensure storeSecurityContextInSession() is only
+        // called once.
+        boolean sessionUpdateDone = false;
+
+        /**
+         * Takes the parameters required to call <code>storeSecurityContextInSession()</code> in
+         * addition to the response object we are wrapping.
+         * @see HttpSessionContextIntegrationFilter#storeSecurityContextInSession(SecurityContext, ServletRequest, boolean, int)
+         */
+        public OnRedirectUpdateSessionResponseWrapper(HttpServletResponse response,
+                                                      ServletRequest request,
+                                                      boolean httpSessionExistedAtStartOfRequest,
+                                                      int contextHashBeforeChainExecution) {
+            super(response);
+            this.request = request;
+            this.httpSessionExistedAtStartOfRequest = httpSessionExistedAtStartOfRequest;
+            this.contextHashBeforeChainExecution = contextHashBeforeChainExecution;
+        }
+
+        /**
+         * Makes sure the session is updated before calling the
+         * superclass <code>sendError()</code>
+         */
+        public void sendError(int sc) throws IOException {
+            doSessionUpdate();
+            super.sendError(sc);
+        }
+
+        /**
+         * Makes sure the session is updated before calling the
+         * superclass <code>sendError()</code>
+         */
+        public void sendError(int sc, String msg) throws IOException {
+            doSessionUpdate();
+            super.sendError(sc, msg);
+        }
+
+        /**
+         * Makes sure the session is updated before calling the
+         * superclass <code>sendRedirect()</code>
+         */
+        public void sendRedirect(String location) throws IOException {
+            doSessionUpdate();
+            super.sendRedirect(location);
+        }
+
+        /**
+         * Calls <code>storeSecurityContextInSession()</code>
+         */
+        private void doSessionUpdate() {
+            if (sessionUpdateDone) {
+                return;
+            }
+            SecurityContext securityContext = SecurityContextHolder.getContext();
+            storeSecurityContextInSession(securityContext, request,
+                    httpSessionExistedAtStartOfRequest, contextHashBeforeChainExecution);
+            sessionUpdateDone = true;
+        }
+
+        /**
+         * Tells if the response wrapper has called
+         * <code>storeSecurityContextInSession()</code>.
+         */
+        public boolean isSessionUpdateDone() {
+            return sessionUpdateDone;
+        }
+
+    }
+
 }
