@@ -188,7 +188,7 @@ public class SessionRegistryImplMultithreadedTests extends TestCase {
                 if (sessions.length > 0) {
                     finished = false;
                     String sessionId = (String) sessions[0];
-                    System.out.println(name + ": removing " + sessionId);
+//                    System.out.println(name + ": removing " + sessionId);
                     try {
                         sessionregistry.removeSessionInformation(sessionId);
 
