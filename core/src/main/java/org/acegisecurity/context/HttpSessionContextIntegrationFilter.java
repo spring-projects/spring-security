@@ -184,8 +184,15 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         }
     }
 
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException,
             ServletException {
+
+        Assert.isInstanceOf(HttpServletRequest.class, req, "ServletRequest must be an instance of HttpServletRequest");
+        Assert.isInstanceOf(HttpServletResponse.class, res, "ServletResponse must be an instance of HttpServletResponse");
+
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
+
         if (request.getAttribute(FILTER_APPLIED) != null) {
             // ensure that filter is only applied once per request
             chain.doFilter(request, response);
@@ -196,7 +203,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         HttpSession httpSession = null;
 
         try {
-            httpSession = ((HttpServletRequest) request).getSession(forceEagerSessionCreation);
+            httpSession = request.getSession(forceEagerSessionCreation);
         }
         catch (IllegalStateException ignored) {
         }
@@ -230,7 +237,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         // See SEC-398
 
         OnRedirectUpdateSessionResponseWrapper responseWrapper =
-                new OnRedirectUpdateSessionResponseWrapper( (HttpServletResponse)response, request,
+                new OnRedirectUpdateSessionResponseWrapper( response, request,
                     httpSessionExistedAtStartOfRequest, contextHashBeforeChainExecution );
 
         // Proceed with chain
@@ -348,13 +355,13 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
      *
      */
     private void storeSecurityContextInSession(SecurityContext securityContext,
-                                               ServletRequest request,
+                                               HttpServletRequest request,
                                                boolean httpSessionExistedAtStartOfRequest,
                                                int contextHashBeforeChainExecution) {
         HttpSession httpSession = null;
 
         try {
-            httpSession = ((HttpServletRequest) request).getSession(false);
+            httpSession = request.getSession(false);
         }
         catch (IllegalStateException ignored) {
         }
@@ -381,7 +388,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
                     }
 
                     try {
-                        httpSession = ((HttpServletRequest) request).getSession(true);
+                        httpSession = request.getSession(true);
                     }
                     catch (IllegalStateException ignored) {
                     }
@@ -468,7 +475,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
      */
     private class OnRedirectUpdateSessionResponseWrapper extends HttpServletResponseWrapper {
 
-        ServletRequest request;
+        HttpServletRequest request;
         boolean httpSessionExistedAtStartOfRequest;
         int contextHashBeforeChainExecution;
 
@@ -482,7 +489,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
          * @see HttpSessionContextIntegrationFilter#storeSecurityContextInSession(SecurityContext, ServletRequest, boolean, int)
          */
         public OnRedirectUpdateSessionResponseWrapper(HttpServletResponse response,
-                                                      ServletRequest request,
+                                                      HttpServletRequest request,
                                                       boolean httpSessionExistedAtStartOfRequest,
                                                       int contextHashBeforeChainExecution) {
             super(response);
