@@ -61,12 +61,13 @@
 			</url>
 		</snapshotRepository>
 		<site>
-			<id>sourceforge.net</id>
-			<name>Acegi Website at Sourceforge</name>
-            <!--<url>file:///Users/luke/acegisite/</url>-->
-            <url>
-				scp://shell.sourceforge.net/home/groups/a/ac/acegisecurity/htdocs/maven2
-			</url>
+			<id>local</id>
+			<name>Local Site Directory</name>
+            <!--
+            This variable is set by the build release script. You can also set it on the command line if
+            you are running maven directly. e.g. mvn site -DsiteDirectory=file:///home/joe/mysite
+            -->
+            <url>${siteDirectory}</url>
         </site>
 	</distributionManagement>
 
@@ -431,7 +432,9 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>cobertura-maven-plugin</artifactId>
-			</plugin>
+                <!-- Version 2.1 reports 100% coverage for everything. Nice but not very practical -->
+                <version>2.0</version>
+            </plugin>
 
             <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
