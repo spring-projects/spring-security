@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project name="Acegi Security Core">
+
+    <body>
+        <menu ref="parent"/>
+        <menu ref="reports"/>
+    </body>
+
+</project>
+
+
