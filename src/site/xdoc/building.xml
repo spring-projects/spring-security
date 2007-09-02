@@ -6,10 +6,10 @@
 
     <subsection name="Checking Out from Subversion (SVN)">
 
-        <p>This project uses <a href="http://maven.apache.org">Maven</a> as project manager
+    <p>This project uses <a href="http://maven.apache.org">Maven</a> as project manager
 	and build tool.	We recommend you to install Maven 2.0.5 or greater before trying
-	the following. <b>Note there are workarounds at the bottom of this page.</b></p><p>To checkout Acegi Security from SVN, see our
-  <a href="cvs-usage.html">CVS Usage</a> page.</p>
+	the following.</p><p>To checkout Acegi Security from SVN, see our
+    <a href="cvs-usage.html">SVN Usage</a> page.</p>
 
     </subsection>
 
