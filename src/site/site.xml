@@ -22,11 +22,12 @@
 
 <project name="Acegi Security">
   <bannerLeft>
-    <name>Acegi Security</name>
+    <name>Acegi Security on Sourceforge</name>
     <src>http://sourceforge.net/sflogo.php?group_id=104215&amp;type=5</src>
-    <href>http://acegisecurity.sourceforge.net</href>
+    <href>http://sourceforge.net/projects/acegisecurity</href>
   </bannerLeft>
   <bannerRight>
+    <src>Acegi Security</src>
     <src>http://acegisecurity.org/logo.gif</src>
     <href>http://acegisecurity.org/</href>
   </bannerRight>
@@ -37,14 +38,13 @@
     </links>
 
     <menu name="Overview">
-      <item name="Home" href="/"/>
       <item name="Building with Maven" href="building.html"/>
       <item name="Downloads" href="downloads.html"/>
     </menu>
 
     <menu name="Documentation">
       <item name="Suggested Steps" href="suggested.html"/>
-      <item name="Reference Guide" href="docbook/acegi.html"/>
+      <item name="Reference Guide" href="reference.html"/>
       <item name="Sample SQL Schema" href="dbinit.txt"/>
       <item name="FAQ" href="faq.html"/>
       <item name="Petclinic Tutorial" href="petclinic-tutorial.html"/>
@@ -55,28 +55,13 @@
       <item name="Upgrading to 0.9.0" href="upgrade/upgrade-080-090.html"/>
       <item name="Upgrading to 0.8.0" href="upgrade/upgrade-070-080.html"/>
       <item name="Core JavaDocs" href="acegi-security/apidocs/index.html" target="_blank"/>
-      <item name="Contacts HTTPS" href="acegi-security-sample-contacts/ssl/howto.txt"/>
+      <item name="Contacts HTTPS" href="acegi-security-samples/acegi-security-sample-contacts/ssl/howto.txt"/>
       <item name="Project Policies" href="policies.html"/>
       <item name="Acegi Security JIRA" href="http://opensource.atlassian.com/projects/spring/secure/BrowseProject.jspa?id=10040"/>
-      <item name="Blog" href="http://blog.springframework.com/ben.alex/"/>
+      <item name="Core Reports" href="acegi-security/index.html"/>
     </menu>
 
-    <menu name="Projects">
-      <item name="Core Framework" href="acegi-security/index.html"/>
-      <item name="CAS Adapter" href="acegi-security-cas/index.html"/>
-      <item name="Catalina Adapter" href="acegi-security-adapters/acegi-security-catalina/index.html"/>
-      <item name="JBoss Adapter" href="acegi-security-adapters/acegi-security-jboss/index.html"/>
-      <item name="Jetty Adapter" href="acegi-security-adapters/acegi-security-jetty/index.html"/>
-      <item name="Resin Adapter" href="acegi-security-adapters/acegi-security-resin/index.html"/>
-    </menu>
-
-<!--
-    <menu name="Samples">
-      <item name="Contacts" href="acegi-security-sample-contacts/index.html"/>
-      <item name="Attributes" href="acegi-security-sample-attributes/index.html"/>
-    </menu>
--->
-    <menu name="" type="footer">
+    <menu name="Links" type="footer">
       <item name="Spring Framework" href="http://www.springframework.org/" img="http://www.springframework.org/buttons/spring_white.png"/>
     </menu>
 

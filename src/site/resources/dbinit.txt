@@ -1,4 +1,4 @@
---- $Id$
+--- $Id: dbinit.txt 1729 2006-11-12 23:03:16Z benalex $
 
 --- Sample Hypersonic SQL compatible schema and data
 ---
@@ -61,7 +61,7 @@ CREATE TABLE acl_permission (
 --- Mask integer 14 = read and write and create permissions
 
 ---------------------------------------------------------------------
---- *** INHERITED RIGHTS FOR DIFFERENT INSTANCES AND RECIPIENTS *** 
+--- *** INHERITED RIGHTS FOR DIFFERENT INSTANCES AND RECIPIENTS ***
 --- INSTANCE  RECIPIENT         PERMISSION(S) (COMMENT #INSTANCE)
 ---------------------------------------------------------------------
 ---    1      ROLE_SUPERVISOR   Administer

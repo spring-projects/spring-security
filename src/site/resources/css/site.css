@@ -1,0 +1,41 @@
+
+#poweredBy {
+  visibility: hidden;
+}
+
+#leftColumn {
+  border: none;
+  background-color: white;
+}
+
+h2 {
+  padding: 4px 4px 4px 6px;
+  border: none;
+  color: black;
+  background-color: white;
+  font-weight:normal;
+  font-size: large;
+  text-align: center;
+}
+h3 {
+  padding: 4px 4px 4px 6px;
+  border: none;
+  color: black;
+  background-color: white;
+  font-weight: normal;
+  font-size: large;
+}
+h4 {
+  padding: 4px 4px 4px 6px;
+  border: none;
+  background-color: white;
+  color: black;
+  font-weight: normal;
+  font-size: large;
+}
+
+h5 {
+  padding: 4px 4px 4px 6px;
+  background-color: white;
+  color: black;
+}

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+    <properties><title>Building</title></properties>
+    <body>
+    <section name="Building Acegi Security System">
+
+    <subsection name="Checking Out from Subversion (SVN)">
+
+        <p>This project uses <a href="http://maven.apache.org">Maven</a> as project manager
+	and build tool.	We recommend you to install Maven 2.0.5 or greater before trying
+	the following. <b>Note there are workarounds at the bottom of this page.</b></p><p>To checkout Acegi Security from SVN, see our
+  <a href="cvs-usage.html">CVS Usage</a> page.</p>
+
+    </subsection>
+
+    <subsection name="Quick Build"><p>Often people reading this document just want to see if Acegi Security will work
+	for their projects. They want to deploy a sample application, and that's about it
+	(after all, all the reference documentation can be read online at
+	<a href="http://acegisecurity.org">http://acegisecurity.org</a>).
+	In this case, execute:</p>
+    <ol>
+	<pre>cd $ACEGI_SECURITY/core (or cd %ACEGI_SECURITY%/core on Windows)</pre>
+	<pre>mvn install</pre>
+	<pre>cd $ACEGI_SECURITY/samples/contacts</pre>
+	<pre>mvn package</pre>
+    <pre>mvn jetty:run</pre>
+    </ol>
+
+    <p>This should build main framework library, build the sample application and run the "contacts" sample application
+       using the maven jetty plugin. You should then be able to point your browser at
+       <a href="http://localhost:8080/contacts/">http://localhost:8080/contacts/</a> to use the application.
+    </p>
+
+</subsection>
+
+</section>
+
+</body>
+
+</document>

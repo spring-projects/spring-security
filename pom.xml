@@ -3,15 +3,17 @@
 	<groupId>org.acegisecurity</groupId>
 	<artifactId>acegi-security-parent</artifactId>
 	<version>1.0.5-SNAPSHOT</version>
-	<name>Acegi Security System for Spring - Parent</name>
+	<name>Acegi Security</name>
 	<packaging>pom</packaging>
 
 	<modules>
 		<module>core</module>
-		<module>core-tiger</module>
-		<module>adapters</module>
+        <module>core-tiger</module>
+        <module>adapters</module>
 		<module>samples</module>
-		<module>doc</module>
+<!--
+        <module>doc</module>
+-->
 	</modules>
 
 	<description>Acegi Security System for Spring</description>
@@ -61,10 +63,11 @@
 		<site>
 			<id>sourceforge.net</id>
 			<name>Acegi Website at Sourceforge</name>
-			<url>
+            <!--<url>file:///Users/luke/acegisite/</url>-->
+            <url>
 				scp://shell.sourceforge.net/home/groups/a/ac/acegisecurity/htdocs/maven2
 			</url>
-		</site>
+        </site>
 	</distributionManagement>
 
 	<repositories>
@@ -86,9 +89,19 @@
 				<enabled>false</enabled>
 			</releases>
 		</repository>
-	</repositories>
+    </repositories>
 
-	<mailingLists>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>agilejava.com</id>
+            <url>http://agilejava.com/maven/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <mailingLists>
 		<mailingList>
 			<name>Acegi Developer List</name>
 			<subscribe>
@@ -366,9 +379,25 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
-				<version>2.0-beta-5</version>
+				<version>2.0-BETA-5</version>
 			</plugin>
-		</plugins>
+            <plugin>
+                <groupId>com.agilejava.docbkx</groupId>
+                <artifactId>docbkx-maven-plugin</artifactId>
+                <version>2.0.6</version>
+                <dependencies>
+                    <dependency>
+                    <groupId>org.docbook</groupId>
+                    <artifactId>docbook-xml</artifactId>
+                    <version>4.4</version>
+                    <scope>runtime</scope>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <targetDirectory>${basedir}/target/site/guide</targetDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
 	</build>
 
 	<reporting>
@@ -382,7 +411,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jxr-plugin</artifactId>
 			</plugin>
-			<plugin>
+<!--
+            <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<configuration>
@@ -391,18 +421,22 @@
 					</configLocation>
 				</configuration>
 			</plugin>
-			<plugin>
+-->
+<!--
+            <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
 			</plugin>
+-->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>cobertura-maven-plugin</artifactId>
 			</plugin>
-			<plugin>
+
+            <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<configuration>
+                <configuration>
 					<links>
 						<link>
 							http://java.sun.com/j2se/1.5.0/docs/api
@@ -457,7 +491,7 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>taglist-maven-plugin</artifactId>
 			</plugin>
-		</plugins>
+        </plugins>
 	</reporting>
 
 	<dependencyManagement>
