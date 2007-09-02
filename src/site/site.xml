@@ -27,7 +27,7 @@
     <href>http://sourceforge.net/projects/acegisecurity</href>
   </bannerLeft>
   <bannerRight>
-    <src>Acegi Security</src>
+    <name>Acegi Security</name>
     <src>http://acegisecurity.org/logo.gif</src>
     <href>http://acegisecurity.org/</href>
   </bannerRight>
