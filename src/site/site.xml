@@ -59,7 +59,7 @@
       <item name="Project Policies" href="policies.html"/>
       <item name="Acegi Security JIRA" href="http://opensource.atlassian.com/projects/spring/secure/BrowseProject.jspa?id=10040"/>
       <item name="Support Forum" href="http://forum.springframework.org/forumdisplay.php?f=33"/>
-      <item name="Core Reports" href="acegi-security/index.html"/>
+      <item name="Core Reports" href="acegi-security/project-reports.html"/>
     </menu>
 
     <menu name="Links" type="footer">
