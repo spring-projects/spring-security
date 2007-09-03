@@ -28,7 +28,7 @@
   </bannerLeft>
   <bannerRight>
     <name>Acegi Security</name>
-    <src>http://acegisecurity.org/logo.gif</src>
+    <src>images/logo.gif</src>
     <href>http://acegisecurity.org/</href>
   </bannerRight>
 
@@ -58,12 +58,17 @@
       <item name="Contacts HTTPS" href="acegi-security-samples/acegi-security-sample-contacts/ssl/howto.txt"/>
       <item name="Project Policies" href="policies.html"/>
       <item name="Acegi Security JIRA" href="http://opensource.atlassian.com/projects/spring/secure/BrowseProject.jspa?id=10040"/>
+      <item name="Support Forum" href="http://forum.springframework.org/forumdisplay.php?f=33"/>
       <item name="Core Reports" href="acegi-security/index.html"/>
     </menu>
 
     <menu name="Links" type="footer">
       <item name="Spring Framework" href="http://www.springframework.org/" img="http://www.springframework.org/buttons/spring_white.png"/>
     </menu>
-
+<!--
+    <poweredBy>
+        <logo name="Spring" href="http://docs.codehaus.org/display/JETTY/Jetty+Powered" img="./images/small_powered_by.gif"/>
+    </poweredBy>
+-->
   </body>
 </project>
