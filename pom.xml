@@ -444,45 +444,32 @@
 						<link>
 							http://java.sun.com/j2se/1.5.0/docs/api
 						</link>
+                        <link>
+                            http://www.springframework.org/docs/api/
+                        </link>
 						<link>
-							http://jakarta.apache.org/commons/dbcp/apidocs/
+							http://commons.apache.org/dbcp/apidocs/
 						</link>
 						<link>
-							http://jakarta.apache.org/commons/fileupload/apidocs/
+							http://commons.apache.org/httpclient/apidocs/
 						</link>
 						<link>
-							http://jakarta.apache.org/commons/httpclient/apidocs/
+							http://commons.apache.org/pool/apidocs/
+						</link>
+                        <link>
+                            http://commons.apache.org/lang/api/
+                        </link>
+                        <link>
+                            http://commons.apache.org/codec/apidocs/
+                        </link>
+                        <link>
+                            http://commons.apache.org/collections/apidocs/
+                        </link>
+						<link>
+							http://velocity.apache.org/engine/releases/velocity-1.5/apidocs/
 						</link>
 						<link>
-							http://jakarta.apache.org/commons/logging/api/
-						</link>
-						<link>
-							http://jakarta.apache.org/commons/pool/apidocs/
-						</link>
-						<link>http://www.junit.org/junit/javadoc/</link>
-						<link>
-							http://logging.apache.org/log4j/docs/api/
-						</link>
-						<link>
-							http://jakarta.apache.org/velocity/api/
-						</link>
-						<link>
-							http://www.springframework.org/docs/api/
-						</link>
-						<link>
-							http://jakarta.apache.org/commons/lang/api/
-						</link>
-						<link>
-							http://developer.ja-sig.org/projects/cas/multiproject/cas-server/apidocs/
-						</link>
-						<link>
-							http://jakarta.apache.org/commons/codec/apidocs/
-						</link>
-						<link>
-							http://jakarta.apache.org/commons/collections/api/
-						</link>
-						<link>
-							http://jakarta.apache.org/commons/logging/apidocs/
+							http://developer.ja-sig.org/projects/cas/cas-server-core/cas-server/cas-server-core/apidocs/
 						</link>
 						<link>
 							http://tomcat.apache.org/tomcat-5.0-doc/servletapi/
@@ -501,12 +488,22 @@
 		<dependencies>
 			<dependency>
 				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
 				<artifactId>spring-mock</artifactId>
 				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-remoting</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-web</artifactId>
 				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
@@ -530,7 +527,7 @@
 
 	</dependencyManagement>
 	<properties>
-		<spring.version>2.0.4</spring.version>
+		<spring.version>1.2.9</spring.version>
 	</properties>
 
 </project>
