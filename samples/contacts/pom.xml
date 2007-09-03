@@ -49,7 +49,7 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>jstl</groupId>
+      <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
       <version>1.0</version>
       <scope>runtime</scope>
