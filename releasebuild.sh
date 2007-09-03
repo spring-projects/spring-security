@@ -44,6 +44,15 @@ then
   exit 1;
 fi
 
+# Patch the module site files to point to the correct css file
+
+pushd $RELEASE_DIR/site
+
+find . -name "*.html" -maxdepth 2 -mindepth 2 | xargs perl -i -p -e 's#\./css/site\.css#\.\./css/site\.css#'
+
+popd
+
+
 
 # Assemble the required jar files
 
