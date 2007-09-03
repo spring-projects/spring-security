@@ -4,8 +4,18 @@
 }
 
 #leftColumn {
+  margin: 30px 0 0 5px;
   border: none;
   background-color: white;
+}
+
+#navcolumn li {
+    line-height: 1.5em;
+    font-size: 0.95em;
+}
+
+#navcolumn h5 {
+  font-size: 0.95em;
 }
 
 h2 {
