@@ -131,7 +131,7 @@ Key Features
         anywhere you like.
 
     * <<Event support:>> Building upon Spring's
-        <code>ApplicationEvent</code> services, you can write your own listeners
+        <<<ApplicationEvent>>> services, you can write your own listeners
         for authentication-related events, along with authorisation-related events.
 		This enables you to implement account lockout and audit log systems, with
 		complete decoupling from Acegi Security code.
