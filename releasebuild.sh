@@ -87,7 +87,7 @@ pushd $RELEASE_DIR/site
 
 find . -name "*.html" -maxdepth 2 -mindepth 2 | xargs perl -i -p -e 's#\./css/#\.\./css/#;' \
    -e 's/Maven Surefire Report/Unit Tests/;' \
-   -e 's/Cobertura Test Coverage/Test Coverage/;'
+   -e 's/Cobertura Test Coverage/Test Coverage/;' \
    -e 's/A successful project.*greatly appreciated\.//;' 
 
 
@@ -96,8 +96,8 @@ popd
 
 # Assemble the required jar files
 
-find . -name "*${RELEASE_VERSION}.jar" | grep -v WEB-INF | xargs -J % -n 1  cp % $RELEASE_DIR
-find . -name "*${RELEASE_VERSION}.war" | xargs -J % -n 1  cp % $RELEASE_DIR
+find . -name "*${RELEASE_VERSION}.jar" | grep -v WEB-INF | xargs -I % -n 1  cp % $RELEASE_DIR
+find . -name "*${RELEASE_VERSION}.war" | xargs -I % -n 1  cp % $RELEASE_DIR
 
 # Should be 9 archives - core, core-tiger, the adapters (cas, jboss, resin, jetty, catalina), tutorial and contacts wars.
 
