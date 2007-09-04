@@ -812,8 +812,14 @@ if (obj instanceof UserDetails) {
               <imagedata align="center"
                          fileref="images/SecurityInterception.gif"
                          format="GIF" />
-            </imageobject>
 
+            </imageobject>
+            <imageobject role="fo">
+              <imagedata align="center"
+                         fileref="images/SecurityInterception.gif"
+                         format="GIF" />
+
+            </imageobject>
             <caption>
               <para>Figure 1: The key "secure object" model</para>
             </caption>
@@ -4671,7 +4677,7 @@ public boolean supports(Class clazz);</programlisting></para>
         implementations.</para>
 
         <para><mediaobject>
-            <imageobject role="html">
+            <imageobject>
               <imagedata align="center" fileref="images/AfterInvocation.gif"
                          format="GIF" />
             </imageobject>

@@ -137,11 +137,6 @@
 			<timezone>+10</timezone>
 		</developer>
 		<developer>
-			<name>Francois Beausoleil</name>
-			<id>fbos</id>
-			<email>fbos at users.sourceforge.net</email>
-		</developer>
-		<developer>
 			<name>Colin Sampaleanu</name>
 			<id>colins</id>
 			<email>colinml1 at exis.com</email>
@@ -155,7 +150,7 @@
 		<developer>
 			<name>Luke Taylor</name>
 			<id>luke_t</id>
-			<email>luke at monkeymachine.ltd.uk</email>
+			<email>luke_t at users.sourceforge.net</email>
 			<organization>
 				Monkey Machine Ltd. (http://monkeymachine.ltd.uk)
 			</organization>
@@ -177,15 +172,11 @@
 			<email>markstg at users.sourceforge.net</email>
 		</developer>
 		<developer>
-			<name>Vishal Puri</name>
-			<id>vishalpuri</id>
-			<email>vishalpuri at users.sourceforge.net</email>
-			<organization>
-				Interface21 Pty Limited (http://www.interface21.com)
-			</organization>
-			<timezone>+10</timezone>
+			<name>John A. Lewis</name>
+			<id>johnalewis</id>
+			<email>johnalewis at users.sourceforge.net</email>
 		</developer>
-	</developers>
+    </developers>
 
 	<contributors>
 		<contributor>
@@ -198,6 +189,9 @@
 			<name>Patrick Burleson</name>
 		</contributor>
 		<contributor>
+			<name>Francois Beausoleil</name>
+		</contributor>
+        <contributor>
 			<name>Wesley Hall</name>
 		</contributor>
 		<contributor>
@@ -236,7 +230,16 @@
 		<contributor>
 			<name>Robin Bramley</name>
 		</contributor>
-	</contributors>
+        <contributor>
+            <name>Robert Sanders</name>
+        </contributor>
+        <contributor>
+            <name>Vishal Puri</name>
+        </contributor>
+        <contributor>
+            <name>Martin Algesten</name>
+        </contributor>
+    </contributors>
 
 	<dependencies>
 		<dependency>
@@ -386,6 +389,52 @@
                 <groupId>com.agilejava.docbkx</groupId>
                 <artifactId>docbkx-maven-plugin</artifactId>
                 <version>2.0.6</version>
+                <executions>
+                    <execution>
+                        <id>build-singlehtml-doc</id>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>generate-html</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>${docbook.source}</sourceDirectory>
+                            <targetDirectory>${docbook.target}</targetDirectory>
+                            <inputs>springsecurity.xml</inputs>
+                            <chunkedOutput>false</chunkedOutput>
+<!--
+                            <htmlStylesheet>css/spring-security-docbook.css</htmlStylesheet>
+                            <htmlCustomization>
+                                ${docbook.source}/resources/xsl/spring-security-docbook-html.xsl
+                            </htmlCustomization>
+-->
+                            <postProcess>
+                                <copy todir="${docbook.target}/images">
+                                    <fileset dir="${docbook.source}/images">
+                                        <include name="*.png"/>
+                                        <include name="*.gif"/>
+                                        <include name="*.jpg"/>
+                                    </fileset>
+                                </copy>
+                            </postProcess>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>build-pdf-doc</id>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>generate-pdf</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>${docbook.source}</sourceDirectory>
+                            <targetDirectory>${docbook.target}</targetDirectory>
+                            <inputs>springsecurity.xml</inputs>
+                            <imgSrcPath>${docbook.source}/</imgSrcPath>
+                            <admonGraphicsPath>${docbook.source}/resources/images/admons/</admonGraphicsPath>
+                            <foCustomization>${docbook.source}/resources/xsl/spring-security-docbook-fopdf.xsl
+                            </foCustomization>
+                        </configuration>
+                    </execution>
+                </executions>
                 <dependencies>
                     <dependency>
                     <groupId>org.docbook</groupId>
@@ -394,9 +443,6 @@
                     <scope>runtime</scope>
                     </dependency>
                 </dependencies>
-                <configuration>
-                    <targetDirectory>${basedir}/target/site/guide</targetDirectory>
-                </configuration>
             </plugin>
         </plugins>
 	</build>
@@ -421,12 +467,6 @@
 						acegi_checkstyle.xml
 					</configLocation>
 				</configuration>
-			</plugin>
--->
-<!--
-            <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
 			</plugin>
 -->
 			<plugin>
@@ -528,6 +568,8 @@
 	</dependencyManagement>
 	<properties>
 		<spring.version>1.2.9</spring.version>
-	</properties>
+        <docbook.source>${basedir}/src/docbkx</docbook.source>
+        <docbook.target>${basedir}/target/site/guide</docbook.target>
+    </properties>
 
 </project>
