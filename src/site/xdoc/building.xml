@@ -27,7 +27,8 @@
     </ol>
 
     <p>This should build main framework library, build the sample application and run the "contacts" sample application
-       using the maven jetty plugin. You should then be able to point your browser at
+       using the maven jetty plugin (JDK 1.5 or later is required to run the Jetty plugin).
+       You should then be able to point your browser at
        <a href="http://localhost:8080/contacts/">http://localhost:8080/contacts/</a> to use the application.
     </p>
 
