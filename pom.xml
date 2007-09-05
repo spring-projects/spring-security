@@ -11,9 +11,6 @@
         <module>core-tiger</module>
         <module>adapters</module>
 		<module>samples</module>
-<!--
-        <module>doc</module>
--->
 	</modules>
 
 	<description>Acegi Security System for Spring</description>
