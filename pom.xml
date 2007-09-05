@@ -385,6 +385,7 @@
 				<artifactId>maven-site-plugin</artifactId>
 				<version>2.0-beta-5</version>
 			</plugin>
+
             <plugin>
                 <groupId>com.agilejava.docbkx</groupId>
                 <artifactId>docbkx-maven-plugin</artifactId>
@@ -521,6 +522,22 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>taglist-maven-plugin</artifactId>
 			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.0.1</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>dependencies</report>
+                            <report>project-team</report>
+                            <report>mailing-list</report>
+                            <report>issue-tracking</report>
+                            <report>license</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
         </plugins>
 	</reporting>
 
