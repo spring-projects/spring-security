@@ -4,16 +4,9 @@
   released JARs, a copy of all documentation, and two WAR artifacts. The two WAR artifacts
   are from the Contacts Sample and the Tutorial Sample application. The Tutorial Sample
   consists of a "bare bones" configuration that will get you up and running quickly, whereas
-  the Contacts Sample illustrates more advanced features.</p><p>Please note that in order to reduce download size, we only include in the
-  release ZIP one of the WAR artifacts produced by the Contacts Sample application.
-  The WAR artifact we include is suitable for standalone deployment (specifically, it
-  does not require a CAS server, container adapter, X509 or LDAP setup). The official release ZIP
-  therefore probably contains what you need, especially if you're initially
-  evaluating the project. If you wish to deploy the other WAR artifacts produced by
-  the Contacts Sample application (ie those that target CAS, container adapters, X509 or LDAP usage),
-  you will need to build Acegi Security from source.
+  the Contacts Sample illustrates more advanced features.</p>
 
-  </p><p>The acegi-security-xx-src.zip is intended for use with IDEs. It does not contain the
+  <p>The acegi-security-xx-src.zip is intended for use with IDEs. It does not contain the
   files needed to compile Acegi Security. It also does not contain the sources to the
   sample applications. If you need any of these files, please download from SVN.</p><subsection name="Official Releases"><p>The official release ZIP files are available from the
   <a href="http://sourceforge.net/project/showfiles.php?group_id=104215">Sourceforge File Release System</a>.</p></subsection><subsection name="Maven Dependencies"><p>The Acegi Security JARs are also available via the
