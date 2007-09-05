@@ -113,7 +113,7 @@ fi
 #
 ########################################################################################################################
 
-pushd $RELEASE_DIR/site
+pushd $SITE_DIR
 
 find . -name "*.html" -maxdepth 2 -mindepth 2 | xargs perl -i -p -e 's#\./css/#\.\./css/#;' \
    -e 's/Maven Surefire Report/Unit Tests/;' \
