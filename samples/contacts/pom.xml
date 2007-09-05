@@ -8,7 +8,7 @@
     <artifactId>acegi-security-samples</artifactId>
     <version>1.0.5-SNAPSHOT</version>
   </parent>
-  <artifactId>acegi-security-sample-contacts</artifactId>
+  <artifactId>acegi-security-samples-contacts</artifactId>
   <name>Acegi Security System for Spring - Contacts sample</name>
   <packaging>war</packaging>
 
