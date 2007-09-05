@@ -23,7 +23,7 @@
 #     and commit them.
 # 14. Upload the site to acegisecurity.org (or wherever).
 # 15. scp the release archives to shell.sf.net. Check md5 matches to make sure transfer was OK.
-# 16. ftp them to the sourceforge upload server, uploads.sourceforge.net.  
+# 16. ftp them to the sourceforge upload server, uploads.sourceforge.net.
 #
 #
 
