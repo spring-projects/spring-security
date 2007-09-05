@@ -7,17 +7,18 @@
 # 1. Do clean check out of source from svn.
 # 2. Switch to 1.4 JVM and run 'mvn test' from core directory.
 # 3. Set the version number in the pom.xml files of all the module
+# 3a. If doing a release rather than snapshot build, run "find . -name pom.xml | xargs grep SNAPSHOT" and make sure
+#     there are no snapshot dependencies.
 # 4. Set the correct spring version number in the pom.xml.
 # 4a Set the same version number in this script
 # 5. Commit the source with the changed version numbers and note the revision number.
 # 6. Run this script to generate the artifacts and web site in the 'release' directory.
-# 7. Copy the zip archives and unpack them to check the contents.
+# 7. Copy the archives and unpack them to check the contents.
+# 7a. The archives are tar archives. Create zip versions from the contents and check the paths are Ok.
 # 8. Check the site looks Ok.
 # 9. Check the reference guide links in the site are valid and that images are shown and paths in HTML are relative.
 # 10. Deploy the contacts and tutorial sample apps in a web container and check they work.
 # 11. Upload the site to acegisecurity.org (or wherever).
-# 12. Sign the zip archives using PGP.
-# 13. 
 #
 #
 
@@ -30,9 +31,12 @@
 
 RELEASE_VERSION=1.0.5-SNAPSHOT
 
+# Project Name. Used for creating the archives.
+PROJECT_NAME=acegi-security
+
 PROJ_DIR=`pwd`;
-RELEASE_DIR=$PROJ_DIR/release-$RELEASE_VERSION
-SITE_DIR=$RELEASE_DIR/site
+RELEASE_DIR=$PROJ_DIR/$PROJECT_NAME-$RELEASE_VERSION
+SITE_DIR=$RELEASE_DIR/docs
 
 echo "** Project directory is $PROJ_DIR"
 
@@ -151,6 +155,23 @@ popd
 
 ########################################################################################################################
 #
-# Build the release zip archives.
+# Build the release archives.
 #
 ########################################################################################################################
+
+# Get rid of mac DS_Store files.
+
+find . -name .DS_Store -exec rm "{}" ";"
+
+cp notice.txt readme.txt license.txt $RELEASE_DIR
+
+# Create main archive
+
+ls $RELEASE_DIR | grep -v sha | grep -v md5 | xargs tar -cjf $PROJECT_NAME-$RELEASE_VERSION.tar.bz2 -C $RELEASE_DIR
+
+# Create source archive
+
+tar --exclude='*/.svn' -cjf $PROJECT_NAME-$RELEASE_VERSION-src.tar.bz2 notice.txt src-readme.txt license.txt -C core/src/main/java/ org
+
+
+
