@@ -4,24 +4,28 @@
 #
 # Release Process.
 #
-# 1. Do clean check out of source from svn.
-# 2. Switch to 1.4 JVM and run 'mvn test' from core directory.
-# 3. Set the version number in the pom.xml files of all the module
+# 1.  Do clean check out of source from svn and note revision number.
+# 2.  Switch to 1.4 JVM and run 'mvn test' from core directory.
+# 3.  Set the version number in the pom.xml files of all the module.
 # 3a. If doing a release rather than snapshot build, run "find . -name pom.xml | xargs grep SNAPSHOT" and make sure
-#     there are no snapshot dependencies.
-# 4. Set the correct spring version number in the pom.xml.
-# 4a Set the same version number in this script
-# 5. Commit the source with the changed version numbers and note the revision number.
-# 6. Run this script to generate the artifacts and web site in the 'release' directory.
-# 7. Copy the archives and unpack them to check the contents.
-# 7a. The archives are tar archives. Create zip versions from the contents and check the paths are Ok.
-# 8. Check the site looks Ok.
-# 9. Check the reference guide links in the site are valid and that images are shown and paths in HTML are relative.
+#     there are no important snapshot dependencies.
+# 3b. Set the same version number in this script.
+# 4.  Set the correct spring version number in the pom.xml.
+# 5.  Run this script to generate the artifacts and web site in the 'release' directory.
+# 6.  Copy the archives and unpack them to check the contents.
+# 7.  The archives are tar archives. Create zip versions from the contents and check the internal paths are Ok.
+# 8.  Check the site looks Ok.
+# 9.  Check the reference guide links in the site are valid and that images are shown and paths in HTML are relative.
 # 10. Deploy the contacts and tutorial sample apps in a web container and check they work.
-# 11. Upload the site to acegisecurity.org (or wherever).
+# 11. Check there have been no further commits since checkout (svn update). If there have, go to 1.
+# 12. Commit the source with the changed version numbers and note the revision number (should be 'build revision' + 1).
+# 13. Update the pom file versions to the appropriate snapshot version, do a grep to make sure none have been missed
+#     and commit them.
+# 14. Upload the site to acegisecurity.org (or wherever).
+# 15. scp the release archives to shell.sf.net. Check md5 matches to make sure transfer was OK.
+# 16. ftp them to the sourceforge upload server, uploads.sourceforge.net.  
 #
 #
-
 
 ########################################################################################################################
 #
@@ -46,12 +50,13 @@ echo "** Building from revision $SVN_REV"
 
 ########################################################################################################################
 #
-# Create the release directory if it doesn't already exist
+# Create the release directory
 #
 ########################################################################################################################
 
 if [[ -e $RELEASE_DIR ]]
 then
+   echo "Deleting $RELEASE_DIR."
    rm -Rf $RELEASE_DIR
 fi
 
