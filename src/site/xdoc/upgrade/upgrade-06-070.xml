@@ -1,11 +1,5 @@
-<html>
-<head>
-<title>Acegi Security - Upgrading from version 0.6 to 0.7</title>
-</head>
-<body>
-<h1>Upgrading from 0.6 to 0.7.0</h1>
-
-<p>
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document><properties><title>Acegi Security - Upgrading from version 0.6 to 0.7</title></properties><body><section name="Upgrading from 0.6 to 0.7.0"><p>
 The following should help most casual users of the project update their
 applications:
 <ul>
@@ -56,5 +50,6 @@ be correct.
 	Note the "cache" property is now required, and the old internally-managed
 	cache properties have been removed.</li>
 </ul>
-</body>
-</html>
+
+
+</p></section></body></document>
