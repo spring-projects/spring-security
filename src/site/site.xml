@@ -64,6 +64,7 @@
 
     <menu name="Links" type="footer">
       <item name="Spring Framework" href="http://www.springframework.org/" img="http://www.springframework.org/buttons/spring_white.png"/>
+      <item name="Interface21" href="http://www.interface21.com/" />
     </menu>
 <!--
     <poweredBy>
