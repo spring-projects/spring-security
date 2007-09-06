@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.acegisecurity</groupId>
         <artifactId>acegi-security-sandbox</artifactId>
-        <version>1.0.5</version>
+        <version>1.0.6-SNAPSHOT</version>
     </parent>
     <artifactId>acegi-security-openid</artifactId>
     <name>Acegi Security System for Spring - OpenID support</name>

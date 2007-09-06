@@ -33,7 +33,7 @@
 #
 ########################################################################################################################
 
-RELEASE_VERSION=1.0.5
+RELEASE_VERSION=1.0.6-SNAPSHOT
 
 # Project Name. Used for creating the archives.
 PROJECT_NAME=acegi-security
