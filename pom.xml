@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.acegisecurity</groupId>
 	<artifactId>acegi-security-parent</artifactId>
-	<version>1.0.5-SNAPSHOT</version>
+	<version>1.0.5</version>
 	<name>Acegi Security</name>
 	<packaging>pom</packaging>
 

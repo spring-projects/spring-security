@@ -3,11 +3,11 @@
  <parent>
    <groupId>org.acegisecurity</groupId>
    <artifactId>acegi-security-parent</artifactId>
-   <version>1.0.5-SNAPSHOT</version>
+   <version>1.0.5</version>
  </parent>
  <groupId>org.acegisecurity</groupId>
  <artifactId>acegi-security-samples</artifactId>
- <name>Acegi Security Samples</name>    
+ <name>Acegi Security Samples</name>
  <packaging>pom</packaging>
  <modules>
 <!--
