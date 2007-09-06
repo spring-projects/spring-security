@@ -120,10 +120,12 @@ fi
 
 pushd $SITE_DIR
 
-find . -maxdepth 3 -mindepth 2 -name "*.html" | xargs perl -i -p -e 's#\./css/#\.\./css/#;' \
+find . -maxdepth 2 -mindepth 2 -name "*.html" | xargs perl -i -p -e 's#\./css/#\.\./css/#;' \
    -e 's/Maven Surefire Report/Unit Tests/;' \
    -e 's/Cobertura Test Coverage/Test Coverage/;' \
    -e 's/A successful project.*greatly appreciated\.//;'
+
+find . -maxdepth 3 -mindepth 3 -name "*.html" | xargs perl -i -p -e 's#\./css/#\.\./\.\./css/#;'
 
 popd
 
