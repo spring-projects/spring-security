@@ -29,28 +29,27 @@
 	<classpathentry kind="src" path="adapters/resin/src/main/java"/>
 	<classpathentry kind="src" path="adapters/resin/src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="MAVEN_REPO/com.caucho/jars/resin-3.0.9.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-1.2.9.jar" sourcepath="/MAVEN_REPO/org.springframework/src/spring-1.2.9-sources.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-mock-1.2.9.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/aopalliance/jars/aopalliance-1.0.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/aspectj/jars/aspectjrt-1.2.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/cas/jars/casclient-2.0.11.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/cas/jars/cas-2.0.12.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/commons-codec/jars/commons-codec-1.3.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/commons-collections/jars/commons-collections-3.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/hsqldb/jars/hsqldb-1.8.0.4.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/oro/jars/oro-2.0.8.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/javax.servlet/jars/servlet-api-2.4.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/tomcat/jars/catalina-4.1.9.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/jetty/jars/org.mortbay.jetty-4.2.22.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/jboss/jars/jboss-common-3.2.3.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/jboss/jars/jbosssx-3.2.3.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/net.sf.ehcache/jars/ehcache-1.2.4.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/javax.servlet/jars/jsp-api-2.0.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.0.3.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/commons-beanutils/jars/commons-beanutils-1.6.1.jar" sourcepath="DIST_BASE/commons-beanutils-1.6.1-src/src/java"/>
+	<classpathentry kind="var" path="M2_REPO/com/caucho/resin/3.0.9/resin-3.0.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-core/1.2.9/spring-core-1.2.9.jar" sourcepath="/M2_REPO/org.springframework/src/spring-1.2.9-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-mock/1.2.9/spring-mock-1.2.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/aspectj/aspectjrt/1.2/aspectjrt-1.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/cas/casclient/2.0.11/casclient-2.0.11.jar"/>
+	<classpathentry kind="var" path="M2_REPO/cas/cas/2.0.12/cas-2.0.12.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-codec/commons-codec/1.3/commons-codec-1.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/hsqldb/hsqldb/1.8.0.4/hsqldb-1.8.0.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/oro/oro/2.0.8/oro-2.0.8.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/tomcat/catalina/4.1.9/catalina-4.1.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/jetty/org.mortbay.jetty/4.2.22/org.mortbay.jetty-4.2.22.jar"/>
+	<classpathentry kind="var" path="M2_REPO/jboss/jboss-common/3.2.3/jboss-common-3.2.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/jboss/jbosssx/3.2.3/jbosssx-3.2.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/net/sf/ehcache/ehcache/1.2.4/ehcache-1.2.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/servlet/jsp-api/2.0/jsp-api-2.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.2.2.ga/hibernate-3.2.2.ga.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-beanutils/commons-beanutils/1.7.0/commons-beanutils-1.7.0.jar" sourcepath="DIST_BASE/commons-beanutils-1.6.1-src/src/java"/>
 	<classpathentry kind="src" path="samples/contacts-tiger/src/main/java"/>
 	<classpathentry kind="src" path="core-tiger/src/main/java"/>
 	<classpathentry kind="src" path="core-tiger/src/main/resources"/>
@@ -59,25 +58,34 @@
 	<classpathentry kind="src" path="samples/annotations/src/main/java"/>
 	<classpathentry kind="src" path="samples/annotations/src/main/resources"/>
 	<classpathentry kind="src" path="samples/annotations/src/test/java"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.samba.jcifs/jars/jcifs-1.2.6.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/dom4j/jars/dom4j-1.6.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xercesImpl-2.6.2.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/jmock/jars/jmock-1.0.1.jar" sourcepath="MAVEN_REPO/jmock/distributions/jmock-1.0.1-src.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/jdbm/jars/jdbm-1.0.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/regexp/jars/regexp-1.2.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.slf4j/jars/slf4j-log4j12-1.0-rc5.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.server/jars/apacheds-core-1.0.0.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.server/jars/apacheds-core-shared-1.0.0.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.shared/jars/shared-asn1-0.9.5.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.apache.directory.shared/jars/shared-ldap-0.9.5.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/antlr/jars/antlr-2.7.2.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/ldapsdk/jars/ldapsdk-4.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/cas/jars/cas-server-3.0.4.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/net.sourceforge.retroweaver/jars/retroweaver-1.0fcs.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/taglibs/jars/standard-1.0.6.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/commons-attributes/jars/commons-attributes-api-2.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/xerces/xercesImpl/2.6.2/xercesImpl-2.6.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/jmock/jmock/1.0.1/jmock-1.0.1.jar" sourcepath="M2_REPO/jmock/distributions/jmock-1.0.1-src.jar"/>
+	<classpathentry kind="var" path="M2_REPO/jdbm/jdbm/1.0/jdbm-1.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/regexp/regexp/1.3/regexp-1.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/slf4j/jcl104-over-slf4j/1.1.0/jcl104-over-slf4j-1.1.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/directory/server/apacheds-core/1.0.0/apacheds-core-1.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/directory/server/apacheds-core-shared/1.0.0/apacheds-core-shared-1.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/directory/shared/shared-asn1/0.9.5.3/shared-asn1-0.9.5.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/directory/shared/shared-ldap/0.9.5.3/shared-ldap-0.9.5.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.2/antlr-2.7.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/cas/cas-server/3.0.4/cas-server-3.0.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/net/sourceforge/retroweaver/retroweaver/1.0fcs/retroweaver-1.0fcs.jar"/>
+	<classpathentry kind="var" path="M2_REPO/taglibs/standard/1.0.6/standard-1.0.6.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-attributes/commons-attributes-api/2.1/commons-attributes-api-2.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.9/log4j-1.2.9.jar"/>
 	<classpathentry kind="var" path="M2_REPO/postgresql/postgresql/8.1-407.jdbc3/postgresql-8.1-407.jdbc3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-ldap/1.1.2/spring-ldap-1.1.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.1.0/slf4j-api-1.1.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-log4j12/1.1.0/slf4j-log4j12-1.1.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-dao/1.2.9/spring-dao-1.2.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-jdbc/1.2.9/spring-jdbc-1.2.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-remoting/1.2.9/spring-remoting-1.2.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-support/1.2.9/spring-support-1.2.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-web/1.2.9/spring-web-1.2.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-context/1.2.9/spring-context-1.2.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-aop/1.2.9/spring-aop-1.2.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-beans/1.2.9/spring-beans-1.2.9.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-webmvc/1.2.9/spring-webmvc-1.2.9.jar"/>
 	<classpathentry kind="output" path="target/eclipseclasses"/>
 </classpath>
