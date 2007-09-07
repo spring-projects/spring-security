@@ -18,10 +18,13 @@ package org.acegisecurity.userdetails.ldap;
 import org.acegisecurity.GrantedAuthority;
 
 import org.springframework.util.Assert;
+import org.springframework.ldap.support.DirContextOperations;
+import org.springframework.ldap.support.DirContextAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Iterator;
 
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
@@ -30,10 +33,14 @@ import javax.naming.ldap.Control;
 
 /**
  * A UserDetails implementation which is used internally by the Ldap services. It also contains the user's
- * distinguished name and a set of attributes that have been retrieved from the Ldap server.<p>An instance may be
- * created as the result of a search, or when user information is retrieved during authentication.</p>
- *  <p>An instance of this class will be used by the <tt>LdapAuthenticationProvider</tt> to construct the final
- * user details object that it returns.</p>
+ * distinguished name and a set of attributes that have been retrieved from the Ldap server.
+ * <p>
+ * An instance may be created as the result of a search, or when user information is retrieved during authentication.
+ * </p>
+ * <p>
+ * An instance of this class will be used by the <tt>LdapAuthenticationProvider</tt> to construct the final user details
+ * object that it returns.
+ * </p>
  *
  * @author Luke Taylor
  * @version $Id$
@@ -41,7 +48,6 @@ import javax.naming.ldap.Control;
 public class LdapUserDetailsImpl implements LdapUserDetails {
     //~ Static fields/initializers =====================================================================================
 
-    private static final long serialVersionUID = 1L;
     private static final GrantedAuthority[] NO_AUTHORITIES = new GrantedAuthority[0];
     private static final Control[] NO_CONTROLS = new Control[0];
 
@@ -110,10 +116,14 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
      * Variation of essence pattern. Used to create mutable intermediate object
      */
     public static class Essence {
-        private LdapUserDetailsImpl instance = createTarget();
+        protected LdapUserDetailsImpl instance = createTarget();
         private List mutableAuthorities = new ArrayList();
 
-        public Essence() {}
+        public Essence() { }
+
+        public Essence(DirContextOperations ctx) {
+            setDn(ctx.getDn().toString());
+        }
 
         public Essence(LdapUserDetails copyMe) {
             setDn(copyMe.getDn());
@@ -128,14 +138,27 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
             setAuthorities(copyMe.getAuthorities());
         }
 
-        LdapUserDetailsImpl createTarget() {
+        protected LdapUserDetailsImpl createTarget() {
             return new LdapUserDetailsImpl();
         }
 
-        public Essence addAuthority(GrantedAuthority a) {
-            mutableAuthorities.add(a);
+        /** Adds the authority to the list, unless it is already there, in which case it is ignored */
+        public void addAuthority(GrantedAuthority a) {
+            if(!hasAuthority(a)) {
+                mutableAuthorities.add(a);
+            }
+        }
 
-            return this;
+        private boolean hasAuthority(GrantedAuthority a) {
+            Iterator authorities = mutableAuthorities.iterator();
+
+            while(authorities.hasNext()) {
+                GrantedAuthority authority = (GrantedAuthority) authorities.next();
+                if(authority.equals(a)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public LdapUserDetails createUserDetails() {
@@ -155,62 +178,44 @@ public class LdapUserDetailsImpl implements LdapUserDetails {
             return (GrantedAuthority[]) mutableAuthorities.toArray(new GrantedAuthority[0]);
         }
 
-        public Essence setAccountNonExpired(boolean accountNonExpired) {
+        public void setAccountNonExpired(boolean accountNonExpired) {
             instance.accountNonExpired = accountNonExpired;
-
-            return this;
         }
 
-        public Essence setAccountNonLocked(boolean accountNonLocked) {
+        public void setAccountNonLocked(boolean accountNonLocked) {
             instance.accountNonLocked = accountNonLocked;
-
-            return this;
         }
 
-        public Essence setAttributes(Attributes attributes) {
+        public void setAttributes(Attributes attributes) {
             instance.attributes = attributes;
-
-            return this;
         }
 
-        public Essence setAuthorities(GrantedAuthority[] authorities) {
+        public void setAuthorities(GrantedAuthority[] authorities) {
             mutableAuthorities = new ArrayList(Arrays.asList(authorities));
-
-            return this;
         }
 
         public void setControls(Control[] controls) {
             instance.controls = controls;
         }
 
-        public Essence setCredentialsNonExpired(boolean credentialsNonExpired) {
+        public void setCredentialsNonExpired(boolean credentialsNonExpired) {
             instance.credentialsNonExpired = credentialsNonExpired;
-
-            return this;
         }
 
-        public Essence setDn(String dn) {
+        public void setDn(String dn) {
             instance.dn = dn;
-
-            return this;
         }
 
-        public Essence setEnabled(boolean enabled) {
+        public void setEnabled(boolean enabled) {
             instance.enabled = enabled;
-
-            return this;
         }
 
-        public Essence setPassword(String password) {
+        public void setPassword(String password) {
             instance.password = password;
-
-            return this;
         }
 
-        public Essence setUsername(String username) {
+        public void setUsername(String username) {
             instance.username = username;
-
-            return this;
         }
     }
 }

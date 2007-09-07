@@ -24,6 +24,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.util.Assert;
+import org.springframework.ldap.ContextMapper;
+import org.springframework.ldap.UncategorizedLdapException;
+import org.springframework.ldap.AttributesIntegrityViolationException;
+import org.springframework.ldap.support.DirContextAdapter;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -37,10 +41,11 @@ import javax.naming.directory.Attributes;
  * @author Luke Taylor
  * @version $Id$
  */
-public class LdapUserDetailsMapper implements LdapEntryMapper {
+public class LdapUserDetailsMapper implements ContextMapper {
     //~ Instance fields ================================================================================================
 
     private final Log logger = LogFactory.getLog(LdapUserDetailsMapper.class);
+//    private String usernameAttributeName = "uid";
     private String passwordAttributeName = "userPassword";
     private String rolePrefix = "ROLE_";
     private String[] roleAttributes = null;
@@ -48,42 +53,45 @@ public class LdapUserDetailsMapper implements LdapEntryMapper {
 
     //~ Methods ========================================================================================================
 
-    public Object mapAttributes(String dn, Attributes attributes)
-        throws NamingException {
+    public Object mapFromContext(Object ctxObj) {
+        Assert.isInstanceOf(DirContextAdapter.class, ctxObj, "Can only map from DirContextAdapter instances");
+
+        DirContextAdapter ctx = (DirContextAdapter)ctxObj;
+        String dn = ctx.getNameInNamespace();
+
+        logger.debug("Mapping user details from context with DN: " + dn);
+
         LdapUserDetailsImpl.Essence essence = new LdapUserDetailsImpl.Essence();
-
         essence.setDn(dn);
-        essence.setAttributes(attributes);
+        essence.setAttributes(ctx.getAttributes());
 
-        Attribute passwordAttribute = attributes.get(passwordAttributeName);
+        Attribute passwordAttribute = ctx.getAttributes().get(passwordAttributeName);
 
         if (passwordAttribute != null) {
             essence.setPassword(mapPassword(passwordAttribute));
         }
 
+//        essence.setUsername(mapUsername(ctx));
+
         // Map the roles
         for (int i = 0; (roleAttributes != null) && (i < roleAttributes.length); i++) {
-            Attribute roleAttribute = attributes.get(roleAttributes[i]);
+            String[] rolesForAttribute = ctx.getStringAttributes(roleAttributes[i]);
 
-            if (roleAttribute == null) {
+            if (rolesForAttribute == null) {
                 logger.debug("Couldn't read role attribute '" + roleAttributes[i] + "' for user " + dn);
                 continue;
             }
 
-            NamingEnumeration attributeRoles = roleAttribute.getAll();
-
-            while (attributeRoles.hasMore()) {
-                GrantedAuthority authority = createAuthority(attributeRoles.next());
+            for (int j = 0; j < rolesForAttribute.length; j++) {
+                GrantedAuthority authority = createAuthority(rolesForAttribute[j]);
 
                 if (authority != null) {
                     essence.addAuthority(authority);
-                } else {
-                    logger.debug("Failed to create an authority value from attribute with Id: "
-                            + roleAttribute.getID());
                 }
             }
         }
 
+        //return essence.createUserDetails();
         return essence;
     }
 
@@ -94,8 +102,14 @@ public class LdapUserDetailsMapper implements LdapEntryMapper {
      * @param passwordAttribute the attribute instance containing the password
      * @return a String representation of the password.
      */
-    protected String mapPassword(Attribute passwordAttribute) throws NamingException {
-        Object retrievedPassword = passwordAttribute.get();
+    protected String mapPassword(Attribute passwordAttribute) {
+        Object retrievedPassword = null;
+
+        try {
+            retrievedPassword = passwordAttribute.get();
+        } catch (NamingException e) {
+            throw new UncategorizedLdapException("Failed to get password attribute", e);
+        }
 
         if (!(retrievedPassword instanceof String)) {
             // Assume it's binary
@@ -105,6 +119,24 @@ public class LdapUserDetailsMapper implements LdapEntryMapper {
         return (String) retrievedPassword;
 
     }
+
+//    protected String mapUsername(DirContextAdapter ctx) {
+//        Attribute usernameAttribute = ctx.getAttributes().get(usernameAttributeName);
+//        String username;
+//
+//        if (usernameAttribute == null) {
+//            throw new AttributesIntegrityViolationException(
+//                    "Failed to get attribute " + usernameAttributeName + " from context");
+//        }
+//
+//        try {
+//            username = (String) usernameAttribute.get();
+//        } catch (NamingException e) {
+//            throw new UncategorizedLdapException("Failed to get username from attribute " + usernameAttributeName, e);
+//        }
+//
+//        return username;
+//    }
 
     /**
      * Creates a GrantedAuthority from a role attribute. Override to customize
@@ -148,10 +180,15 @@ public class LdapUserDetailsMapper implements LdapEntryMapper {
         this.passwordAttributeName = passwordAttributeName;
     }
 
+
+//    public void setUsernameAttributeName(String usernameAttributeName) {
+//        this.usernameAttributeName = usernameAttributeName;
+//    }
+
     /**
      * The names of any attributes in the user's  entry which represent application
      * roles. These will be converted to <tt>GrantedAuthority</tt>s and added to the
-     * list in the returned LdapUserDetails object.
+     * list in the returned LdapUserDetails object. The attribute values must be Strings by default.
      *
      * @param roleAttributes the names of the role attributes.
      */
