@@ -79,28 +79,7 @@
 				<enabled>false</enabled>
 			</releases>
 		</repository>
-		<repository>
-			<id>apache.org</id>
-			<name>Apache snapshot repository</name>
-			<url>http://svn.apache.org/maven-snapshot-repository</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-		</repository>
     </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>agilejava.com</id>
-            <url>http://agilejava.com/maven/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
 
     <mailingLists>
 		<mailingList>
