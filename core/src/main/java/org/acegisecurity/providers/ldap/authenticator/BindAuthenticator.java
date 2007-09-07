@@ -25,7 +25,10 @@ import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.ldap.ContextSource;
+import org.springframework.dao.DataAccessException;
 
+import javax.naming.directory.DirContext;
 import java.util.Iterator;
 
 
@@ -81,7 +84,8 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
     }
 
     private LdapUserDetails bindWithDn(String userDn, String username, String password) {
-        LdapTemplate template = new LdapTemplate(getInitialDirContextFactory(), userDn, password);
+        LdapTemplate template = new LdapTemplate(
+                new BindWithSpecificDnContextSource(getInitialDirContextFactory(), userDn, password));
 
         try {
             LdapUserDetailsImpl.Essence user = (LdapUserDetailsImpl.Essence) template.retrieveEntry(userDn,
@@ -108,4 +112,26 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
             logger.debug("Failed to bind as " + userDn + ": " + cause);
         }
     }
+
+    private class BindWithSpecificDnContextSource implements ContextSource {
+        private InitialDirContextFactory ctxFactory;
+        private String userDn;
+        private String password;
+
+
+        public BindWithSpecificDnContextSource(InitialDirContextFactory ctxFactory, String userDn, String password) {
+            this.ctxFactory = ctxFactory;
+            this.userDn = userDn;
+            this.password = password;
+        }
+
+        public DirContext getReadOnlyContext() throws DataAccessException {
+            return ctxFactory.newInitialDirContext(userDn, password);
+        }
+
+        public DirContext getReadWriteContext() throws DataAccessException {
+            return getReadOnlyContext();
+        }
+    }
+
 }

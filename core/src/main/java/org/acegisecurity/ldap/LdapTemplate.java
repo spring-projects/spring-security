@@ -20,6 +20,11 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.ldap.ContextSource;
+import org.springframework.ldap.ContextExecutor;
+import org.springframework.ldap.ContextMapper;
+import org.springframework.ldap.support.DirContextAdapter;
+import org.springframework.ldap.support.DistinguishedName;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,50 +41,33 @@ import javax.naming.directory.SearchResult;
 
 
 /**
- * LDAP equivalent of the Spring JdbcTemplate class.<p>This is mainly intended to simplify Ldap access within Acegi
- * Security's LDAP-related services.</p>
+ * LDAP equivalent of the Spring JdbcTemplate class.
+ * <p>
+ * This is mainly intended to simplify Ldap access within Acegi Security's LDAP-related services.
+ * </p>
  *
  * @author Ben Alex
  * @author Luke Taylor
  */
-public class LdapTemplate {
+public class LdapTemplate extends org.springframework.ldap.LdapTemplate {
     //~ Static fields/initializers =====================================================================================
 
     public static final String[] NO_ATTRS = new String[0];
 
     //~ Instance fields ================================================================================================
 
-    private InitialDirContextFactory dirContextFactory;
     private NamingExceptionTranslator exceptionTranslator = new LdapExceptionTranslator();
 
     /** Default search controls */
     private SearchControls searchControls = new SearchControls();
-    private String password = null;
-    private String principalDn = null;
 
     //~ Constructors ===================================================================================================
 
-    public LdapTemplate(InitialDirContextFactory dirContextFactory) {
-        Assert.notNull(dirContextFactory, "An InitialDirContextFactory is required");
-        this.dirContextFactory = dirContextFactory;
+    public LdapTemplate(ContextSource contextSource) {
+        Assert.notNull(contextSource, "ContextSource cannot be null");
+        setContextSource(contextSource);
 
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-    }
-
-/**
-     *
-     * @param dirContextFactory the source of DirContexts
-     * @param userDn the user name to authenticate as when obtaining new contexts
-     * @param password the user's password
-     */
-    public LdapTemplate(InitialDirContextFactory dirContextFactory, String userDn, String password) {
-        this(dirContextFactory);
-
-        Assert.hasLength(userDn, "userDn must not be null or empty");
-        Assert.notNull(password, "password cannot be null");
-
-        this.principalDn = userDn;
-        this.password = password;
     }
 
     //~ Methods ========================================================================================================
@@ -96,9 +84,9 @@ public class LdapTemplate {
     public boolean compare(final String dn, final String attributeName, final Object value) {
         final String comparisonFilter = "(" + attributeName + "={0})";
 
-        class LdapCompareCallback implements LdapCallback {
-            public Object doInDirContext(DirContext ctx)
-                throws NamingException {
+        class LdapCompareCallback implements ContextExecutor {
+
+            public Object executeWithContext(DirContext ctx) throws NamingException {
                 SearchControls ctls = new SearchControls();
                 ctls.setReturningAttributes(NO_ATTRS);
                 ctls.setSearchScope(SearchControls.OBJECT_SCOPE);
@@ -111,30 +99,28 @@ public class LdapTemplate {
             }
         }
 
-        Boolean matches = (Boolean) execute(new LdapCompareCallback());
+        Boolean matches = (Boolean) executeReadOnly(new LdapCompareCallback());
 
         return matches.booleanValue();
     }
 
-    public Object execute(LdapCallback callback) throws DataAccessException {
-        DirContext ctx = null;
-
-        try {
-            ctx = (principalDn == null) ? dirContextFactory.newInitialDirContext()
-                                        : dirContextFactory.newInitialDirContext(principalDn, password);
-
-            return callback.doInDirContext(ctx);
-        } catch (NamingException exception) {
-            throw exceptionTranslator.translate("LdapCallback", exception);
-        } finally {
-            LdapUtils.closeContext(ctx);
-        }
-    }
+//    public Object execute(LdapCallback callback) throws DataAccessException {
+//        DirContext ctx = null;
+//
+//        try {
+//            ctx = dirContextFactory.getReadOnlyContext();
+//
+//            return callback.doInDirContext(ctx);
+//        } catch (NamingException exception) {
+//            throw exceptionTranslator.translate("LdapCallback", exception);
+//        } finally {
+//            LdapUtils.closeContext(ctx);
+//        }
+//    }
 
     public boolean nameExists(final String dn) {
-        Boolean exists = (Boolean) execute(new LdapCallback() {
-                public Object doInDirContext(DirContext ctx)
-                    throws NamingException {
+        Boolean exists = (Boolean) executeReadOnly(new ContextExecutor() {
+                public Object executeWithContext(DirContext ctx) throws NamingException {
                     try {
                         Object obj = ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
                         if (obj instanceof Context) {
@@ -161,12 +147,17 @@ public class LdapTemplate {
      *
      * @return the object created by the mapper
      */
-    public Object retrieveEntry(final String dn, final LdapEntryMapper mapper, final String[] attributesToRetrieve) {
-        return execute(new LdapCallback() {
-                public Object doInDirContext(DirContext ctx)
-                    throws NamingException {
-                    return mapper.mapAttributes(dn,
-                        ctx.getAttributes(LdapUtils.getRelativeName(dn, ctx), attributesToRetrieve));
+    public Object retrieveEntry(final String dn, final ContextMapper mapper, final String[] attributesToRetrieve) {
+
+        return executeReadOnly(new ContextExecutor() {
+                public Object executeWithContext(DirContext ctx) throws NamingException {
+                    Attributes attrs = ctx.getAttributes(LdapUtils.getRelativeName(dn, ctx), attributesToRetrieve);
+
+                    // Object object = ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
+
+                    DirContextAdapter ctxAdapter = new DirContextAdapter(attrs, new DistinguishedName(dn));
+
+                    return mapper.mapFromContext(ctxAdapter);
                 }
             });
     }
@@ -185,8 +176,8 @@ public class LdapTemplate {
      */
     public Set searchForSingleAttributeValues(final String base, final String filter, final Object[] params,
         final String attributeName) {
-        class SingleAttributeSearchCallback implements LdapCallback {
-            public Object doInDirContext(DirContext ctx)
+        class SingleAttributeSearchCallback implements ContextExecutor {
+            public Object executeWithContext(DirContext ctx)
                 throws NamingException {
                 Set unionOfValues = new HashSet();
 
@@ -224,7 +215,7 @@ public class LdapTemplate {
             }
         }
 
-        return (Set) execute(new SingleAttributeSearchCallback());
+        return (Set) executeReadOnly(new SingleAttributeSearchCallback());
     }
 
     /**
@@ -242,10 +233,12 @@ public class LdapTemplate {
      *         result.
      */
     public Object searchForSingleEntry(final String base, final String filter, final Object[] params,
-        final LdapEntryMapper mapper) {
-        return execute(new LdapCallback() {
-                public Object doInDirContext(DirContext ctx)
+        final ContextMapper mapper) {
+
+        return executeReadOnly(new ContextExecutor() {
+                public Object executeWithContext(DirContext ctx)
                     throws NamingException {
+
                     NamingEnumeration results = ctx.search(base, filter, params, searchControls);
 
                     if (!results.hasMore()) {
@@ -274,7 +267,10 @@ public class LdapTemplate {
                         dn.append(nameInNamespace);
                     }
 
-                    return mapper.mapAttributes(dn.toString(), searchResult.getAttributes());
+                    DirContextAdapter ctxAdapter = new DirContextAdapter(
+                            searchResult.getAttributes(), new DistinguishedName(dn.toString()));
+
+                    return mapper.mapFromContext(ctxAdapter);
                 }
             });
     }

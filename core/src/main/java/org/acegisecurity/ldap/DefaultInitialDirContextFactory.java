@@ -26,6 +26,10 @@ import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 
 import org.springframework.util.Assert;
+import org.springframework.ldap.ContextSource;
+import org.springframework.ldap.UncategorizedLdapException;
+import org.springframework.ldap.support.DefaultDirObjectFactory;
+import org.springframework.dao.DataAccessException;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -49,12 +53,12 @@ import javax.naming.directory.InitialDirContext;
  * The Sun JNDI provider also supports lists of space-separated URLs, each of which will be tried in turn until a
  * connection is obtained.
  * </p>
- * <p>To obtain an initial context, the client calls the <tt>newInitialDirContext</tt> method. There are two
+ *  <p>To obtain an initial context, the client calls the <tt>newInitialDirContext</tt> method. There are two
  * signatures - one with no arguments and one which allows binding with a specific username and password.
  * </p>
- * <p>The no-args version will bind anonymously unless a manager login has been configured using the properties
+ *  <p>The no-args version will bind anonymously unless a manager login has been configured using the properties
  * <tt>managerDn</tt> and <tt>managerPassword</tt>, in which case it will bind as the manager user.</p>
- * <p>Connection pooling is enabled by default for anonymous or manager connections, but not when binding as a
+ *  <p>Connection pooling is enabled by default for anonymous or manager connections, but not when binding as a
  * specific user.</p>
  *
  * @author Robert Sanders
@@ -64,7 +68,7 @@ import javax.naming.directory.InitialDirContext;
  * @see <a href="http://java.sun.com/products/jndi/tutorial/ldap/connect/pool.html">The Java tutorial's guide to LDAP
  *      connection pooling</a>
  */
-public class DefaultInitialDirContextFactory implements InitialDirContextFactory, MessageSourceAware {
+public class DefaultInitialDirContextFactory implements InitialDirContextFactory, MessageSourceAware, ContextSource {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(DefaultInitialDirContextFactory.class);
@@ -85,6 +89,8 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
      * "com.sun.jndi.ldap.LdapCtxFactory"; you <b>should not</b> need to set this unless you have unusual needs.
      */
     private String initialContextFactory = "com.sun.jndi.ldap.LdapCtxFactory";
+
+    private String dirObjectFactoryClass = DefaultDirObjectFactory.class.getName();
 
     /**
      * If your LDAP server does not allow anonymous searches then you will need to provide a "manager" user's
@@ -186,11 +192,11 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
             }
 
             if (ne instanceof CommunicationException) {
-                throw new LdapDataAccessException(messages.getMessage(
+                throw new UncategorizedLdapException(messages.getMessage(
                         "DefaultIntitalDirContextFactory.communicationFailure", "Unable to connect to LDAP server"), ne);
             }
 
-            throw new LdapDataAccessException(messages.getMessage(
+            throw new UncategorizedLdapException(messages.getMessage(
                     "DefaultIntitalDirContextFactory.unexpectedException",
                     "Failed to obtain InitialDirContext due to unexpected exception"), ne);
         }
@@ -258,7 +264,21 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
         env.put(Context.SECURITY_PRINCIPAL, username);
         env.put(Context.SECURITY_CREDENTIALS, password);
 
+        if(dirObjectFactoryClass != null) {
+            env.put(Context.OBJECT_FACTORIES, dirObjectFactoryClass);
+        }
+
         return connect(env);
+    }
+
+    /** Spring LDAP <tt>ContextSource</tt> method */
+    public DirContext getReadOnlyContext() throws DataAccessException {
+        return newInitialDirContext();
+    }
+
+    /** Spring LDAP <tt>ContextSource</tt> method */
+    public DirContext getReadWriteContext() throws DataAccessException {
+        return newInitialDirContext();
     }
 
     public void setAuthenticationType(String authenticationType) {
@@ -320,5 +340,9 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
     public void setUseLdapContext(boolean useLdapContext) {
         this.useLdapContext = useLdapContext;
+    }
+
+    public void setDirObjectFactory(String dirObjectFactory) {
+        this.dirObjectFactoryClass = dirObjectFactory;
     }
 }

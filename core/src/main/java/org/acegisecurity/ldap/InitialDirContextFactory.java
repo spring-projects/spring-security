@@ -15,6 +15,8 @@
 
 package org.acegisecurity.ldap;
 
+import org.springframework.ldap.ContextSource;
+
 import javax.naming.directory.DirContext;
 
 
@@ -26,7 +28,7 @@ import javax.naming.directory.DirContext;
  * @author Luke Taylor
  * @version $Id$
  */
-public interface InitialDirContextFactory {
+public interface InitialDirContextFactory extends ContextSource {
     //~ Methods ========================================================================================================
 
     /**

@@ -106,4 +106,6 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
 
 //        assertEquals("uid=ben,ou=people,dc=acegisecurity,dc=org", ben.getDn());
     }
+
+    // TODO: Add test with non-uid username
 }

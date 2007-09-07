@@ -15,12 +15,12 @@
 
 package org.acegisecurity.ldap;
 
+import org.springframework.dao.DataAccessException;
+
 import javax.naming.directory.DirContext;
 
 
 /**
- * 
-DOCUMENT ME!
  *
  * @author Luke Taylor
  * @version $Id$
@@ -28,8 +28,8 @@ DOCUMENT ME!
 public class MockInitialDirContextFactory implements InitialDirContextFactory {
     //~ Instance fields ================================================================================================
 
-    DirContext ctx;
-    String baseDn;
+    private DirContext ctx;
+    private String baseDn;
 
     //~ Constructors ===================================================================================================
 
@@ -49,6 +49,14 @@ public class MockInitialDirContextFactory implements InitialDirContextFactory {
     }
 
     public DirContext newInitialDirContext(String username, String password) {
+        return ctx;
+    }
+
+    public DirContext getReadOnlyContext() throws DataAccessException {
+        return ctx;
+    }
+
+    public DirContext getReadWriteContext() throws DataAccessException {
         return ctx;
     }
 }

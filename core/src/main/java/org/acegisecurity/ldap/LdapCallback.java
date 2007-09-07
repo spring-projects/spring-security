@@ -22,6 +22,9 @@ import javax.naming.directory.DirContext;
 /**
  * Callback object for use with LdapTemplate.
  *
+ * @deprecated use spring-ldap ContextExecutor instead.
+ * @TODO: Delete before 2.0 release
+ *
  * @author Ben Alex
  */
 public interface LdapCallback {

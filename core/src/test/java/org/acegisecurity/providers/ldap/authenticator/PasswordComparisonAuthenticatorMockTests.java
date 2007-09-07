@@ -26,8 +26,6 @@ import javax.naming.directory.DirContext;
 
 
 /**
- * 
-DOCUMENT ME!
  *
  * @author Luke Taylor
  * @version $Id$
@@ -46,15 +44,16 @@ public class PasswordComparisonAuthenticatorMockTests extends MockObjectTestCase
 
         // Get the mock to return an empty attribute set
         mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=acegisecurity,dc=org"));
-        mockCtx.expects(once()).method("lookup").with(eq("cn=Bob,ou=people")).will(returnValue(true));
-        mockCtx.expects(once()).method("getAttributes").with(eq("cn=Bob,ou=people"), NULL)
+        mockCtx.expects(once()).method("lookup").with(eq("cn=Bob, ou=people")).will(returnValue(true));
+        mockCtx.expects(once()).method("getAttributes").with(eq("cn=Bob, ou=people"), NULL)
                .will(returnValue(new BasicAttributes()));
 
         // Setup a single return value (i.e. success)
         Attributes searchResults = new BasicAttributes("", null);
-        mockCtx.expects(once()).method("search")
-               .with(eq("cn=Bob,ou=people"), eq("(userPassword={0})"), NOT_NULL, NOT_NULL)
-               .will(returnValue(searchResults.getAll()));
+        mockCtx.expects(once())
+                .method("search")
+                .with(eq("cn=Bob, ou=people"), eq("(userPassword={0})"), NOT_NULL, NOT_NULL)
+                .will(returnValue(searchResults.getAll()));
         mockCtx.expects(atLeastOnce()).method("close");
         authenticator.authenticate("Bob", "bobspassword");
     }

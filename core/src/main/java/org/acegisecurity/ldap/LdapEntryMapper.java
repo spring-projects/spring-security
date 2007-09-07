@@ -24,6 +24,7 @@ import javax.naming.directory.Attributes;
  * a set of attributes retrieved from a directory entry.
  *
  * @author Luke Taylor
+ * @deprecated in favour of Spring LDAP ContextMapper
  * @version $Id$
  */
 public interface LdapEntryMapper {

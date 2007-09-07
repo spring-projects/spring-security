@@ -19,6 +19,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.util.Assert;
+import org.springframework.ldap.support.DistinguishedName;
+import org.springframework.ldap.support.DirContextAdapter;
 
 import java.io.UnsupportedEncodingException;
 
@@ -45,6 +47,10 @@ public final class LdapUtils {
     //~ Methods ========================================================================================================
 
     public static void closeContext(Context ctx) {
+        if(ctx instanceof DirContextAdapter) {
+            return;
+        }
+
         try {
             if (ctx != null) {
                 ctx.close();
@@ -55,9 +61,10 @@ public final class LdapUtils {
     }
 
     /**
-     * Obtains the part of a DN relative to a supplied base context.<p>If the DN is
-     * "cn=bob,ou=people,dc=acegisecurity,dc=org" and the base context name is "ou=people,dc=acegisecurity,dc=org" it
-     * would return "cn=bob".</p>
+     * Obtains the part of a DN relative to a supplied base context.
+     * <p>If the DN is "cn=bob,ou=people,dc=acegisecurity,dc=org" and the base context name is
+     * "ou=people,dc=acegisecurity,dc=org" it would return "cn=bob".
+     * </p>
      *
      * @param fullDn the DN
      * @param baseCtx the context to work out the name relative to.
@@ -67,23 +74,43 @@ public final class LdapUtils {
      * @throws NamingException any exceptions thrown by the context are propagated.
      */
     public static String getRelativeName(String fullDn, Context baseCtx)
-        throws NamingException {
+            throws NamingException {
+
         String baseDn = baseCtx.getNameInNamespace();
 
         if (baseDn.length() == 0) {
             return fullDn;
         }
 
-        if (baseDn.equals(fullDn)) {
+        DistinguishedName base = new DistinguishedName(baseDn);
+        DistinguishedName full = new DistinguishedName(fullDn);
+
+        if(base.equals(full)) {
             return "";
         }
 
-        int index = fullDn.lastIndexOf(baseDn);
+        Assert.isTrue(full.startsWith(base), "Full DN does not start with base DN");
 
-        Assert.isTrue(index > 0, "Context base DN is not contained in the full DN");
+        full.removeFirst(base);
 
-        // remove the base name and preceding comma.
-        return fullDn.substring(0, index - 1);
+        return full.toString();
+    }
+
+    /**
+     * Gets the full dn of a name by prepending the name of the context it is relative to.
+     * If the name already contains the base name, it is returned unaltered.
+     */
+    public static DistinguishedName getFullDn(DistinguishedName dn, Context baseCtx)
+            throws NamingException {
+        DistinguishedName baseDn = new DistinguishedName(baseCtx.getNameInNamespace());
+
+        if(dn.contains(baseDn)) {
+            return dn;
+        }
+
+        baseDn.append(dn);
+
+        return baseDn;
     }
 
     public static byte[] getUtf8Bytes(String s) {
@@ -92,6 +119,27 @@ public final class LdapUtils {
         } catch (UnsupportedEncodingException e) {
             // Should be impossible since UTF-8 is required by all implementations
             throw new IllegalStateException("Failed to convert string to UTF-8 bytes. Shouldn't be possible");
+        }
+    }
+
+    public static String getUtf8BytesAsString(byte[] utf8) {
+        try {
+            return new String(utf8, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // Should be impossible since UTF-8 is required by all implementations
+            throw new IllegalStateException("Failed to convert string to UTF-8 bytes. Shouldn't be possible");
+        }
+    }
+
+    public static String convertPasswordToString(Object passObj) {
+        Assert.notNull(passObj, "Password object to convert must not be null");
+
+        if(passObj instanceof byte[]) {
+            return getUtf8BytesAsString((byte[])passObj);
+        } else if (passObj instanceof String) {
+            return (String)passObj;
+        } else {
+            throw new IllegalArgumentException("Password object was not a String or byte array.");
         }
     }
 
@@ -136,7 +184,7 @@ public final class LdapUtils {
     }
 
     // removed for 1.3 compatibility
-/**
+    /**
      * Parses the supplied LDAP URL.
      * @param url the URL (e.g. <tt>ldap://monkeymachine:11389/dc=acegisecurity,dc=org</tt>).
      * @return the URI object created from the URL

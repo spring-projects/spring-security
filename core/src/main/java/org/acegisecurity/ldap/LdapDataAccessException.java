@@ -22,6 +22,7 @@ import org.springframework.dao.DataAccessException;
  * Used to wrap unexpected NamingExceptions while accessing the LDAP server or for other LDAP-related data problems
  * such as data we can't handle.
  *
+ * @deprecated Spring LDAP classes are now used instead.
  * @author Luke Taylor
  * @version $Id$
  */

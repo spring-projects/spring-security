@@ -30,9 +30,6 @@ import javax.naming.directory.DirContext;
  * @version $Id$
  */
 public class LdapUtilsTests extends MockObjectTestCase {
-    //~ Instance fields ================================================================================================
-
-    private final LdapDataAccessException tempCoverageBoost = new LdapDataAccessException("");
 
     //~ Methods ========================================================================================================
 
@@ -61,6 +58,16 @@ public class LdapUtilsTests extends MockObjectTestCase {
 
         assertEquals("cn=jane,dc=acegisecurity,dc=org",
             LdapUtils.getRelativeName("cn=jane,dc=acegisecurity,dc=org", (Context) mockCtx.proxy()));
+    }
+
+    public void testGetRelativeNameWorksWithArbitrarySpaces()
+        throws Exception {
+        Mock mockCtx = mock(DirContext.class);
+
+        mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=acegisecurity,dc = org"));
+
+        assertEquals("cn=jane smith",
+            LdapUtils.getRelativeName("cn=jane smith, dc = acegisecurity , dc=org", (Context) mockCtx.proxy()));
     }
 
     public void testRootDnsAreParsedFromUrlsCorrectly() {

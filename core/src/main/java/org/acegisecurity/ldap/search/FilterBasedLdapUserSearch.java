@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 
 import org.springframework.util.Assert;
+import org.springframework.ldap.ContextSource;
 
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
@@ -51,7 +52,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 
     //~ Instance fields ================================================================================================
 
-    private InitialDirContextFactory initialDirContextFactory;
+    private ContextSource initialDirContextFactory;
     private LdapUserDetailsMapper userDetailsMapper = new LdapUserDetailsMapper();
 
     /**
@@ -72,7 +73,6 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
      *  <ul>
      *      <li>(uid={0}) - this would search for a username match on the uid attribute.</li>
      *  </ul>
-     *  TODO: more examples.
      */
     private String searchFilter;
 
@@ -116,9 +116,14 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
         template.setSearchControls(searchControls);
 
         try {
-            LdapUserDetailsImpl.Essence user = (LdapUserDetailsImpl.Essence) template.searchForSingleEntry(searchBase,
-                    searchFilter, new String[] {username}, userDetailsMapper);
+
+            LdapUserDetailsImpl.Essence user = (LdapUserDetailsImpl.Essence) template.searchForSingleEntry(
+                    searchBase, searchFilter, new String[] {username}, userDetailsMapper);
+
             user.setUsername(username);
+//            if (!username.equals(user.getUsername())) {
+//                logger.debug("Search returned user object with different username: " + user.getUsername());
+//            }
 
             return user.createUserDetails();
         } catch (IncorrectResultSizeDataAccessException notFound) {

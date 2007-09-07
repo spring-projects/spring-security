@@ -15,6 +15,9 @@
 
 package org.acegisecurity.ldap;
 
+import org.springframework.ldap.ContextExecutor;
+import org.springframework.ldap.UncategorizedLdapException;
+
 import java.util.Set;
 
 import javax.naming.NamingException;
@@ -64,21 +67,19 @@ public class LdapTemplateTests extends AbstractLdapServerTestCase {
 
     public void testNamingExceptionIsTranslatedCorrectly() {
         try {
-            template.execute(new LdapCallback() {
-                public Object doInDirContext(DirContext dirContext)
-                        throws NamingException {
-                    throw new NamingException();
-                }
-            });
-            fail("Expected LdapDataAccessException on NamingException");
-        } catch (LdapDataAccessException expected) {
-        }
+            template.executeReadOnly(new ContextExecutor() {
+                    public Object executeWithContext(DirContext dirContext) throws NamingException {
+                        throw new NamingException();
+                    }
+                });
+            fail("Expected UncategorizedLdapException on NamingException");
+        } catch (UncategorizedLdapException expected) {}
     }
 
     public void testSearchForSingleAttributeValues() {
         String param = "uid=ben,ou=people,dc=acegisecurity,dc=org";
 
-        Set values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[]{param}, "ou");
+        Set values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "ou");
 
         assertEquals("Expected 3 results from search", 3, values.size());
         assertTrue(values.contains("developer"));

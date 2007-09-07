@@ -17,6 +17,8 @@ package org.acegisecurity.ldap;
 
 import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.BadCredentialsException;
+import org.springframework.ldap.UncategorizedLdapException;
+import org.springframework.ldap.support.DirContextAdapter;
 
 import java.util.Hashtable;
 
@@ -112,7 +114,7 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapServerTest
         try {
             idf.newInitialDirContext();
             fail("Connection succeeded unexpectedly");
-        } catch (LdapDataAccessException expected) {}
+        } catch (UncategorizedLdapException expected) {}
     }
 
     public void testEnvironment() {

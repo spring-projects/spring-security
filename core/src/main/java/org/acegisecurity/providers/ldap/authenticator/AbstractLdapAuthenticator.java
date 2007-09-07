@@ -18,7 +18,6 @@ package org.acegisecurity.providers.ldap.authenticator;
 import org.acegisecurity.AcegiMessageSource;
 
 import org.acegisecurity.ldap.InitialDirContextFactory;
-import org.acegisecurity.ldap.LdapEntryMapper;
 import org.acegisecurity.ldap.LdapUserSearch;
 
 import org.acegisecurity.providers.ldap.LdapAuthenticator;
@@ -32,6 +31,7 @@ import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 
 import org.springframework.util.Assert;
+import org.springframework.ldap.ContextMapper;
 
 import java.text.MessageFormat;
 
@@ -72,15 +72,14 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 
     /**
      * Create an initialized instance to the {@link InitialDirContextFactory} provided.
-     * 
+     *
      * @param initialDirContextFactory
      */
     public AbstractLdapAuthenticator(InitialDirContextFactory initialDirContextFactory) {
         this.setInitialDirContextFactory(initialDirContextFactory);
     }
 
-    // ~ Methods
-    // ========================================================================================================
+    //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.isTrue((userDnFormat != null) || (userSearch != null),
@@ -89,7 +88,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 
     /**
      * Set the {@link InitialDirContextFactory} and initialize this instance from its data.
-     * 
+     *
      * @param initialDirContextFactory
      */
     private void setInitialDirContextFactory(InitialDirContextFactory initialDirContextFactory) {
@@ -111,7 +110,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
         return userAttributes;
     }
 
-    protected LdapEntryMapper getUserDetailsMapper() {
+    protected ContextMapper getUserDetailsMapper() {
         return userDetailsMapper;
     }
 
