@@ -20,6 +20,8 @@ import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.context.SecurityContextHolder;
 import org.springframework.ldap.LdapTemplate;
 import org.springframework.ldap.support.DirContextAdapter;
 import org.springframework.ldap.support.DistinguishedName;
@@ -82,6 +84,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapServerTestCase {
         template.unbind("cn=clowns,ou=testgroups");
         template.unbind("ou=testgroups");
 
+        SecurityContextHolder.clearContext();
     }
 
     public void testLoadUserByUsernameReturnsCorrectData() {
@@ -149,5 +152,28 @@ public class LdapUserDetailsManagerTests extends AbstractLdapServerTestCase {
 
         // Check that no authorities are left
         assertEquals(0, mgr.getUserAuthorities(mgr.buildDn("don"), "don").length);
+    }
+
+    public void testPasswordChangeSucceeds() {
+        InetOrgPerson.Essence p = new InetOrgPerson.Essence();
+        p.setCn(new String[] {"John Yossarian"});
+        p.setSn("Yossarian");
+        p.setUid("john");
+        p.setPassword("yossarianspassword");
+        p.setAuthorities(TEST_AUTHORITIES);
+
+        mgr.createUser(p.createUserDetails());
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("john", "yossarianspassword", TEST_AUTHORITIES));
+
+        mgr.changePassword("yossarianspassword", "yossariansnewpassword");
+
+        
+
+
+
+
+
     }
 }

@@ -18,7 +18,7 @@ package org.acegisecurity.providers.ldap.authenticator;
 import org.acegisecurity.BadCredentialsException;
 
 import org.acegisecurity.ldap.InitialDirContextFactory;
-import org.acegisecurity.ldap.LdapTemplate;
+import org.acegisecurity.ldap.SpringSecurityLdapTemplate;
 
 import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
@@ -84,7 +84,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
     }
 
     private LdapUserDetails bindWithDn(String userDn, String username, String password) {
-        LdapTemplate template = new LdapTemplate(
+        SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(
                 new BindWithSpecificDnContextSource(getInitialDirContextFactory(), userDn, password));
 
         try {

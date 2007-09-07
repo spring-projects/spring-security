@@ -18,7 +18,7 @@ package org.acegisecurity.providers.ldap.authenticator;
 import org.acegisecurity.BadCredentialsException;
 
 import org.acegisecurity.ldap.InitialDirContextFactory;
-import org.acegisecurity.ldap.LdapTemplate;
+import org.acegisecurity.ldap.SpringSecurityLdapTemplate;
 import org.acegisecurity.ldap.LdapUtils;
 
 import org.acegisecurity.providers.encoding.PasswordEncoder;
@@ -76,7 +76,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 
         Iterator dns = getUserDns(username).iterator();
 
-        LdapTemplate ldapTemplate = new LdapTemplate(getInitialDirContextFactory());
+        SpringSecurityLdapTemplate ldapTemplate = new SpringSecurityLdapTemplate(getInitialDirContextFactory());
 
         while (dns.hasNext() && (user == null)) {
             final String userDn = (String) dns.next();

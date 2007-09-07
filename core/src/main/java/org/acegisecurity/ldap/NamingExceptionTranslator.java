@@ -22,6 +22,7 @@ import javax.naming.NamingException;
 
 /**
  * @author Luke Taylor
+ * @deprecated Spring ldap is used instead.
  * @version $Id$
  */
 public interface NamingExceptionTranslator {

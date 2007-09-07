@@ -49,7 +49,7 @@ import javax.naming.directory.SearchResult;
  * @author Ben Alex
  * @author Luke Taylor
  */
-public class LdapTemplate extends org.springframework.ldap.LdapTemplate {
+public class SpringSecurityLdapTemplate extends org.springframework.ldap.LdapTemplate {
     //~ Static fields/initializers =====================================================================================
 
     public static final String[] NO_ATTRS = new String[0];
@@ -63,7 +63,7 @@ public class LdapTemplate extends org.springframework.ldap.LdapTemplate {
 
     //~ Constructors ===================================================================================================
 
-    public LdapTemplate(ContextSource contextSource) {
+    public SpringSecurityLdapTemplate(ContextSource contextSource) {
         Assert.notNull(contextSource, "ContextSource cannot be null");
         setContextSource(contextSource);
 

@@ -16,7 +16,7 @@
 package org.acegisecurity.ldap.search;
 
 import org.acegisecurity.ldap.InitialDirContextFactory;
-import org.acegisecurity.ldap.LdapTemplate;
+import org.acegisecurity.ldap.SpringSecurityLdapTemplate;
 import org.acegisecurity.ldap.LdapUserSearch;
 
 import org.acegisecurity.userdetails.UsernameNotFoundException;
@@ -32,7 +32,6 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.util.Assert;
 import org.springframework.ldap.ContextSource;
 
-import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 
 
@@ -111,7 +110,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
                 + this.toString());
         }
 
-        LdapTemplate template = new LdapTemplate(initialDirContextFactory);
+        SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(initialDirContextFactory);
 
         template.setSearchControls(searchControls);
 

@@ -19,7 +19,7 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 
 import org.acegisecurity.ldap.InitialDirContextFactory;
-import org.acegisecurity.ldap.LdapTemplate;
+import org.acegisecurity.ldap.SpringSecurityLdapTemplate;
 
 import org.acegisecurity.providers.ldap.LdapAuthoritiesPopulator;
 
@@ -103,7 +103,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * An initial context factory is only required if searching for groups is required.
      */
     private InitialDirContextFactory initialDirContextFactory = null;
-    private LdapTemplate ldapTemplate;
+    private SpringSecurityLdapTemplate ldapTemplate;
 
     /**
      * Controls used to determine whether group searches should be performed over the full sub-tree from the
@@ -273,7 +273,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         Assert.notNull(initialDirContextFactory, "InitialDirContextFactory must not be null");
         this.initialDirContextFactory = initialDirContextFactory;
 
-        ldapTemplate = new LdapTemplate(initialDirContextFactory);
+        ldapTemplate = new SpringSecurityLdapTemplate(initialDirContextFactory);
         ldapTemplate.setSearchControls(searchControls);
     }
 

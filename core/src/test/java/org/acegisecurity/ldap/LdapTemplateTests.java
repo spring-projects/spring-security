@@ -31,14 +31,14 @@ import javax.naming.directory.DirContext;
 public class LdapTemplateTests extends AbstractLdapServerTestCase {
     //~ Instance fields ================================================================================================
 
-    private LdapTemplate template;
+    private SpringSecurityLdapTemplate template;
 
     //~ Methods ========================================================================================================
 
     protected void onSetUp() {
         getInitialCtxFactory().setManagerDn(MANAGER_USER);
         getInitialCtxFactory().setManagerPassword(MANAGER_PASSWORD);
-        template = new LdapTemplate(getInitialCtxFactory());
+        template = new SpringSecurityLdapTemplate(getInitialCtxFactory());
     }
 
     public void testCompareOfCorrectByteValueSucceeds() {

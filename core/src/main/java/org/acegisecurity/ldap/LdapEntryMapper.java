@@ -20,7 +20,7 @@ import javax.naming.directory.Attributes;
 
 
 /**
- * A mapper for use with {@link LdapTemplate}. Creates a customized object from
+ * A mapper for use with {@link SpringSecurityLdapTemplate}. Creates a customized object from
  * a set of attributes retrieved from a directory entry.
  *
  * @author Luke Taylor
