@@ -41,7 +41,7 @@
                     The Acegi Security JARs are also available via the
                     <a
                         href="http://repo1.maven.org/maven2/org/acegisecurity">
-                        iBiblio Maven Repository
+                        Central Maven Repository
                     </a>
                     .
                 </p>
