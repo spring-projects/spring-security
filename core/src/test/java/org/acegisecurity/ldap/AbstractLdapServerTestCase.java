@@ -70,6 +70,7 @@ public abstract class AbstractLdapServerTestCase extends TestCase {
         idf = new DefaultInitialDirContextFactory(PROVIDER_URL);
         idf.setInitialContextFactory(CONTEXT_FACTORY);
         idf.setExtraEnvVars(EXTRA_ENV);
+        idf.setUseLdapContext(true);
 
         onSetUp();
     }
