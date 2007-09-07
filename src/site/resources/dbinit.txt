@@ -1,4 +1,4 @@
---- $Id: dbinit.txt 1729 2006-11-12 23:03:16Z benalex $
+--- $Id$
 
 --- Sample Hypersonic SQL compatible schema and data
 ---
