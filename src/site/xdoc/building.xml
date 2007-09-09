@@ -17,17 +17,16 @@
 	for their projects. They want to deploy a sample application, and that's about it
 	(after all, all the reference documentation can be read online at
 	<a href="http://acegisecurity.org">http://acegisecurity.org</a>).
-	In this case, execute:</p>
+    Assuming you've already checked out the code from subversion, start up a command prompt and
+    execute the following commands from the directory containing the project source:</p>
     <ol>
-	<pre>cd $ACEGI_SECURITY/core (or cd %ACEGI_SECURITY%/core on Windows)</pre>
 	<pre>mvn install</pre>
-	<pre>cd $ACEGI_SECURITY/samples/contacts</pre>
-	<pre>mvn package</pre>
+	<pre>cd samples/contacts</pre>
     <pre>mvn jetty:run</pre>
     </ol>
 
-    <p>This should build main framework library, build the sample application and run the "contacts" sample application
-       using the maven jetty plugin (JDK 1.5 or later is required to run the Jetty plugin).
+    <p>This should build the framework lirary jars, install them to your local maven repository and run the "contacts"
+       sample application using the maven jetty plugin (JDK 1.5 or later is required to run the Jetty plugin).
        You should then be able to point your browser at
        <a href="http://localhost:8080/contacts/">http://localhost:8080/contacts/</a> to use the application.
     </p>
