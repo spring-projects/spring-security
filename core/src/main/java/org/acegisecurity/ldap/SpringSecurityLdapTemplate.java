@@ -20,11 +20,11 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import org.springframework.ldap.ContextSource;
-import org.springframework.ldap.ContextExecutor;
-import org.springframework.ldap.ContextMapper;
-import org.springframework.ldap.support.DirContextAdapter;
-import org.springframework.ldap.support.DistinguishedName;
+import org.springframework.ldap.core.ContextExecutor;
+import org.springframework.ldap.core.ContextSource;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.ContextMapper;
+import org.springframework.ldap.core.DistinguishedName;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -49,7 +49,7 @@ import javax.naming.directory.SearchResult;
  * @author Ben Alex
  * @author Luke Taylor
  */
-public class SpringSecurityLdapTemplate extends org.springframework.ldap.LdapTemplate {
+public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.LdapTemplate {
     //~ Static fields/initializers =====================================================================================
 
     public static final String[] NO_ATTRS = new String[0];

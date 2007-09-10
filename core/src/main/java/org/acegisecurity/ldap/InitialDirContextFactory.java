@@ -15,7 +15,7 @@
 
 package org.acegisecurity.ldap;
 
-import org.springframework.ldap.ContextSource;
+import org.springframework.ldap.core.ContextSource;
 
 import javax.naming.directory.DirContext;
 

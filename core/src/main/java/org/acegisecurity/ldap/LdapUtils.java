@@ -19,8 +19,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.util.Assert;
-import org.springframework.ldap.support.DistinguishedName;
-import org.springframework.ldap.support.DirContextAdapter;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DistinguishedName;
 
 import java.io.UnsupportedEncodingException;
 

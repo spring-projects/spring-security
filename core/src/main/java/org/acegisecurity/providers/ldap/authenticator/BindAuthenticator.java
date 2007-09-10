@@ -25,8 +25,8 @@ import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.ldap.ContextSource;
 import org.springframework.dao.DataAccessException;
+import org.springframework.ldap.core.ContextSource;
 
 import javax.naming.directory.DirContext;
 import java.util.Iterator;

@@ -17,7 +17,8 @@ package org.acegisecurity.providers.ldap.authenticator;
 
 import org.acegisecurity.BadCredentialsException;
 
-import org.acegisecurity.ldap.AbstractLdapServerTestCase;
+import org.acegisecurity.ldap.AbstractLdapIntegrationTests;
+import org.acegisecurity.ldap.InitialDirContextFactory;
 
 import org.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
 
@@ -33,33 +34,33 @@ import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
  * @author Luke Taylor
  * @version $Id$
  */
-public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTestCase {
+public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegrationTests {
     //~ Instance fields ================================================================================================
 
     private PasswordComparisonAuthenticator authenticator;
 
     //~ Methods ========================================================================================================
 
-    public void onSetUp() {
-        getInitialCtxFactory().setManagerDn(MANAGER_USER);
-        getInitialCtxFactory().setManagerPassword(MANAGER_PASSWORD);
-        authenticator = new PasswordComparisonAuthenticator(getInitialCtxFactory());
+    public void onSetUp() throws Exception {
+        super.onSetUp();
+        authenticator = new PasswordComparisonAuthenticator((InitialDirContextFactory) getContextSource());
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
     }
 
-    public void tearDown() {
+    public void onTearDown() throws Exception {
+        super.onTearDown();
         // com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
     }
 
     public void testAllAttributesAreRetrivedByDefault() {
-        LdapUserDetails user = authenticator.authenticate("Bob", "bobspassword");
+        LdapUserDetails user = authenticator.authenticate("bob", "bobspassword");
         //System.out.println(user.getAttributes().toString());
         assertEquals("User should have 5 attributes", 5, user.getAttributes().size());
     }
 
     public void testFailedSearchGivesUserNotFoundException()
         throws Exception {
-        authenticator = new PasswordComparisonAuthenticator(getInitialCtxFactory());
+        authenticator = new PasswordComparisonAuthenticator((InitialDirContextFactory) getContextSource());
         assertTrue("User DN matches shouldn't be available", authenticator.getUserDns("Bob").isEmpty());
         authenticator.setUserSearch(new MockUserSearch(null));
         authenticator.afterPropertiesSet();
@@ -82,7 +83,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
         } catch (BadCredentialsException expected) {}
     }
 
-/*
+
    public void testLdapPasswordCompareFailsWithWrongPassword() {
        // Don't retrieve the password
        authenticator.setUserAttributes(new String[] {"cn", "sn"});
@@ -92,7 +93,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
        } catch(BadCredentialsException expected) {
        }
    }
- */
+
     public void testLocalPasswordComparisonSucceedsWithCorrectPassword() {
         LdapUserDetails user = authenticator.authenticate("Bob", "bobspassword");
         // check username is retrieved.
@@ -105,35 +106,28 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
         authenticator.authenticate("Bob", "bobspassword");
     }
 
-    public void testOnlySpecifiedAttributesAreRetrieved()
-        throws Exception {
+    public void testOnlySpecifiedAttributesAreRetrieved() throws Exception {
         authenticator.setUserAttributes(new String[] {"userPassword"});
         authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
 
         LdapUserDetails user = authenticator.authenticate("Bob", "bobspassword");
         assertEquals("Should have retrieved 1 attribute (userPassword)", 1, user.getAttributes().size());
-
-//        assertEquals("Bob Hamilton", user.getAttributes().get("cn").get());
-//        assertEquals("bob", user.getAttributes().get("uid").get());
     }
 
-    /*
-       public void testLdapCompareSucceedsWithCorrectPassword() {
-           // Don't retrieve the password
-           authenticator.setUserAttributes(new String[] {"cn"});
-           // Bob has a plaintext password.
-           authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
-           authenticator.authenticate("bob", "bobspassword");
-       }
-       public void testLdapCompareSucceedsWithShaEncodedPassword() {
-           authenticator = new PasswordComparisonAuthenticator();
-           authenticator.setInitialDirContextFactory(dirCtxFactory);
-           authenticator.setUserDnPatterns("uid={0},ou=people");
-           // Don't retrieve the password
-           authenticator.setUserAttributes(new String[] {"cn"});
-           authenticator.authenticate("ben", "benspassword");
-       }
-     */
+   public void testLdapCompareSucceedsWithCorrectPassword() {
+       // Don't retrieve the password
+       authenticator.setUserAttributes(new String[] {"cn"});
+       // Bob has a plaintext password.
+       authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
+       authenticator.authenticate("bob", "bobspassword");
+   }
+
+   public void testLdapCompareSucceedsWithShaEncodedPassword() {
+       // Don't retrieve the password
+       authenticator.setUserAttributes(new String[] {"cn"});
+       authenticator.authenticate("ben", "benspassword");
+   }
+
     public void testPasswordEncoderCantBeNull() {
         try {
             authenticator.setPasswordEncoder(null);
@@ -150,16 +144,15 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapServerTest
         LdapUserDetails bob = authenticator.authenticate("bob", "bob");
     }
 
-/*
    public void testLdapCompareWithDifferentPasswordAttributeSucceeds() {
        authenticator.setUserAttributes(new String[] {"cn"});
        authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
        authenticator.setPasswordAttributeName("uid");
        authenticator.authenticate("bob", "bob");
    }
- */
+
     public void testWithUserSearch() {
-        authenticator = new PasswordComparisonAuthenticator(getInitialCtxFactory());
+        authenticator = new PasswordComparisonAuthenticator((InitialDirContextFactory) getContextSource());
         assertTrue("User DN matches shouldn't be available", authenticator.getUserDns("Bob").isEmpty());
 
         LdapUserDetailsImpl.Essence userEssence = new LdapUserDetailsImpl.Essence();

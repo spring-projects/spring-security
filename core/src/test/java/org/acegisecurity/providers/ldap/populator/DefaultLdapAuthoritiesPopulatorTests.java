@@ -17,14 +17,13 @@ package org.acegisecurity.providers.ldap.populator;
 
 import org.acegisecurity.GrantedAuthority;
 
-import org.acegisecurity.ldap.AbstractLdapServerTestCase;
+import org.acegisecurity.ldap.AbstractLdapIntegrationTests;
+import org.acegisecurity.ldap.InitialDirContextFactory;
 
 import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Map;
-import java.util.HashMap;
 
 import javax.naming.directory.BasicAttributes;
 
@@ -35,12 +34,15 @@ import javax.naming.directory.BasicAttributes;
  * @author Luke Taylor
  * @version $Id$
  */
-public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTestCase {
+public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegrationTests {
+    private DefaultLdapAuthoritiesPopulator populator;
     //~ Methods ========================================================================================================
 
-    public void onSetUp() {
-        getInitialCtxFactory().setManagerDn(MANAGER_USER);
-        getInitialCtxFactory().setManagerPassword(MANAGER_PASSWORD);
+    protected void onSetUp() throws Exception {
+        super.onSetUp();
+
+        populator = new DefaultLdapAuthoritiesPopulator((InitialDirContextFactory) getContextSource(), "ou=groups");
+
     }
 
 //    public void testUserAttributeMappingToRoles() {
@@ -67,8 +69,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
 
     //    }
     public void testDefaultRoleIsAssignedWhenSet() {
-        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(),
-                "ou=groups");
+
         populator.setDefaultRole("ROLE_USER");
 
         LdapUserDetailsImpl.Essence user = new LdapUserDetailsImpl.Essence();
@@ -82,8 +83,6 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
     }
 
     public void testGroupSearchReturnsExpectedRoles() {
-        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(),
-                "ou=groups");
         populator.setRolePrefix("ROLE_");
         populator.setGroupRoleAttribute("ou");
         populator.setSearchSubtree(true);
@@ -108,8 +107,6 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
     }
 
     public void testUseOfUsernameParameterReturnsExpectedRoles() {
-        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(),
-                "ou=groups");
         populator.setGroupRoleAttribute("ou");
         populator.setConvertToUpperCase(true);
         populator.setGroupSearchFilter("(ou={1})");
@@ -124,8 +121,6 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
     }
 
     public void testSubGroupRolesAreNotFoundByDefault() {
-        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(),
-                "ou=groups");
         populator.setGroupRoleAttribute("ou");
         populator.setConvertToUpperCase(true);
 
@@ -143,8 +138,6 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapServerTest
     }
 
     public void testSubGroupRolesAreFoundWhenSubtreeSearchIsEnabled() {
-        DefaultLdapAuthoritiesPopulator populator = new DefaultLdapAuthoritiesPopulator(getInitialCtxFactory(),
-                "ou=groups");
         populator.setGroupRoleAttribute("ou");
         populator.setConvertToUpperCase(true);
         populator.setSearchSubtree(true);

@@ -31,7 +31,7 @@ import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 
 import org.springframework.util.Assert;
-import org.springframework.ldap.ContextMapper;
+import org.springframework.ldap.core.ContextMapper;
 
 import java.text.MessageFormat;
 

@@ -18,7 +18,6 @@ package org.acegisecurity.ldap;
 import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.BadCredentialsException;
 import org.springframework.ldap.UncategorizedLdapException;
-import org.springframework.ldap.support.DirContextAdapter;
 
 import java.util.Hashtable;
 
@@ -32,15 +31,16 @@ import javax.naming.directory.DirContext;
  * @author Luke Taylor
  * @version $Id$
  */
-public class DefaultInitialDirContextFactoryTests extends AbstractLdapServerTestCase {
+public class DefaultInitialDirContextFactoryTests extends AbstractLdapIntegrationTests {
     //~ Instance fields ================================================================================================
 
     DefaultInitialDirContextFactory idf;
 
     //~ Methods ========================================================================================================
 
-    public void onSetUp() {
-        idf = getInitialCtxFactory();
+    public void onSetUp() throws Exception {
+        super.onSetUp();
+        idf = getInitialDirContextFactory();
         idf.setMessageSource(new AcegiMessageSource());
     }
 
@@ -65,9 +65,8 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapServerTest
         assertEquals("", idf.getRootDn());
     }
 
-    public void testBindAsManagerFailsIfNoPasswordSet()
-        throws Exception {
-        idf.setManagerDn(MANAGER_USER);
+    public void testBindAsManagerFailsIfNoPasswordSet() throws Exception {
+        idf.setManagerDn("uid=bob,ou=people,dc=acegisecurity,dc=org");
 
         DirContext ctx = null;
 
@@ -83,8 +82,8 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapServerTest
     }
 
     public void testBindAsManagerSucceeds() throws Exception {
-        idf.setManagerPassword(MANAGER_PASSWORD);
-        idf.setManagerDn(MANAGER_USER);
+        idf.setManagerPassword("bobspassword");
+        idf.setManagerDn("uid=bob,ou=people,dc=acegisecurity,dc=org");
 
         DirContext ctx = idf.newInitialDirContext();
 // Can't rely on this property being there with embedded server
@@ -92,8 +91,7 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapServerTest
         ctx.close();
     }
 
-    public void testConnectionAsSpecificUserSucceeds()
-        throws Exception {
+    public void testConnectionAsSpecificUserSucceeds() throws Exception {
         DirContext ctx = idf.newInitialDirContext("uid=Bob,ou=people,dc=acegisecurity,dc=org", "bobspassword");
         // We don't want pooling for specific users.
         // assertNull(ctx.getEnvironment().get("com.sun.jndi.ldap.connect.pool"));
@@ -148,7 +146,7 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapServerTest
 
     public void testInvalidPasswordCausesBadCredentialsException()
         throws Exception {
-        idf.setManagerDn(MANAGER_USER);
+        idf.setManagerDn("uid=bob,ou=people,dc=acegisecurity,dc=org");
         idf.setManagerPassword("wrongpassword");
 
         DirContext ctx = null;

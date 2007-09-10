@@ -15,8 +15,8 @@
 
 package org.acegisecurity.ldap.search;
 
-import org.acegisecurity.ldap.AbstractLdapServerTestCase;
 import org.acegisecurity.ldap.DefaultInitialDirContextFactory;
+import org.acegisecurity.ldap.AbstractLdapIntegrationTests;
 
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.acegisecurity.userdetails.ldap.LdapUserDetails;
@@ -30,26 +30,16 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
  * @author Luke Taylor
  * @version $Id$
  */
-public class FilterBasedLdapUserSearchTests extends AbstractLdapServerTestCase {
+public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests {
     //~ Instance fields ================================================================================================
 
     private DefaultInitialDirContextFactory dirCtxFactory;
 
-    //~ Constructors ===================================================================================================
-
-    public FilterBasedLdapUserSearchTests(String string) {
-        super(string);
-    }
-
-    public FilterBasedLdapUserSearchTests() {
-    }
-
     //~ Methods ========================================================================================================
 
-    public void onSetUp() {
-        dirCtxFactory = getInitialCtxFactory();
-        dirCtxFactory.setManagerDn(MANAGER_USER);
-        dirCtxFactory.setManagerPassword(MANAGER_PASSWORD);
+    public void onSetUp() throws Exception {
+        super.onSetUp();
+        dirCtxFactory = (DefaultInitialDirContextFactory) getContextSource();
     }
 
     public void testBasicSearch() {

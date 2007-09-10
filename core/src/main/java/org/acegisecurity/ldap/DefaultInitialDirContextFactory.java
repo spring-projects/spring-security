@@ -26,9 +26,9 @@ import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 
 import org.springframework.util.Assert;
-import org.springframework.ldap.ContextSource;
 import org.springframework.ldap.UncategorizedLdapException;
-import org.springframework.ldap.support.DefaultDirObjectFactory;
+import org.springframework.ldap.core.ContextSource;
+import org.springframework.ldap.core.support.DefaultDirObjectFactory;
 import org.springframework.dao.DataAccessException;
 
 import java.util.Hashtable;

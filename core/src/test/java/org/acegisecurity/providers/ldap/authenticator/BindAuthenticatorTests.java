@@ -19,7 +19,8 @@ import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthorityImpl;
 
-import org.acegisecurity.ldap.AbstractLdapServerTestCase;
+import org.acegisecurity.ldap.AbstractLdapIntegrationTests;
+import org.acegisecurity.ldap.InitialDirContextFactory;
 
 import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
@@ -32,7 +33,7 @@ import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
  * @author Luke Taylor
  * @version $Id$
  */
-public class BindAuthenticatorTests extends AbstractLdapServerTestCase {
+public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
     //~ Instance fields ================================================================================================
 
     private BindAuthenticator authenticator;
@@ -40,7 +41,7 @@ public class BindAuthenticatorTests extends AbstractLdapServerTestCase {
     //~ Methods ========================================================================================================
 
     public void onSetUp() {
-        authenticator = new BindAuthenticator(getInitialCtxFactory());
+        authenticator = new BindAuthenticator((InitialDirContextFactory) getContextSource());
         authenticator.setMessageSource(new AcegiMessageSource());
     }
 
@@ -95,6 +96,6 @@ public class BindAuthenticatorTests extends AbstractLdapServerTestCase {
 
     public void testUserDnPatternReturnsCorrectDn() {
         authenticator.setUserDnPatterns(new String[] {"cn={0},ou=people"});
-        assertEquals("cn=Joe,ou=people," + getInitialCtxFactory().getRootDn(), authenticator.getUserDns("Joe").get(0));
+        assertEquals("cn=Joe,ou=people," + ((InitialDirContextFactory)getContextSource()).getRootDn(), authenticator.getUserDns("Joe").get(0));
     }
 }

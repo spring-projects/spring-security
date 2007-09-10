@@ -15,8 +15,8 @@
 
 package org.acegisecurity.ldap;
 
-import org.springframework.ldap.ContextExecutor;
 import org.springframework.ldap.UncategorizedLdapException;
+import org.springframework.ldap.core.ContextExecutor;
 
 import java.util.Set;
 
@@ -28,17 +28,16 @@ import javax.naming.directory.DirContext;
  * @author Luke Taylor
  * @version $Id$
  */
-public class LdapTemplateTests extends AbstractLdapServerTestCase {
+public class LdapTemplateTests extends AbstractLdapIntegrationTests {
     //~ Instance fields ================================================================================================
 
     private SpringSecurityLdapTemplate template;
 
     //~ Methods ========================================================================================================
 
-    protected void onSetUp() {
-        getInitialCtxFactory().setManagerDn(MANAGER_USER);
-        getInitialCtxFactory().setManagerPassword(MANAGER_PASSWORD);
-        template = new SpringSecurityLdapTemplate(getInitialCtxFactory());
+    protected void onSetUp() throws Exception {
+        super.onSetUp();
+        template = new SpringSecurityLdapTemplate(getContextSource());
     }
 
     public void testCompareOfCorrectByteValueSucceeds() {

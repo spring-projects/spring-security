@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	This context automatically starts the Apache Directory Server
+	and sets up the test data
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+	<!-- JNDI environment variable -->
+	<bean id="environment"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="java.naming.security.authentication">
+					simple
+				</prop>
+				<prop key="java.naming.security.principal">
+					${userDn}
+				</prop>
+				<prop key="java.naming.security.credentials">
+					${password}
+				</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!--
+		Note the non-standard port, in order to leave 389 unused, thus
+		making it easier for the integration tests requiring OpenLDAP.
+	-->
+	<bean id="configuration" class="org.apache.directory.server.configuration.MutableServerStartupConfiguration">
+    	<property name="ldapPort" value="3900" />
+        <property name="contextPartitionConfigurations">
+      		<set>
+                <bean class="org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration">
+                    <property name="name" value="acegisecurity" />
+                    <property name="suffix" value="dc=acegisecurity,dc=org" />
+                    <property name="contextEntry">
+                        <value>
+                            objectClass: top
+                            objectClass: domain
+                            objectClass: extensibleObject
+                            dc: acegisecurity
+                        </value>
+                    </property>
+                </bean>
+      		</set>
+    	</property>
+	</bean>
+
+	<bean id="configEnvHelper" class="org.acegisecurity.ldap.ConfigEnvHelper">
+		<constructor-arg ref="environment" />
+		<constructor-arg ref="configuration" />
+	</bean>
+
+	<bean name="serverContext" class="javax.naming.InitialContext">
+		<constructor-arg>
+	    	<bean class="org.springframework.beans.factory.config.PropertyPathFactoryBean">
+            	<property name="targetObject" ref="configEnvHelper" />
+             	<property name="propertyPath" value="env" />
+           	</bean>
+        </constructor-arg>
+	</bean>
+
+	<bean name="ldapServerManager" class="org.acegisecurity.ldap.LdapServerManager">
+		<property name="contextSource" ref="contextSource" />
+	 </bean>
+
+	 <!-- Custom editors required to launch ApacheDS -->
+  	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+    	<property name="customEditors">
+      		<map>
+        		<entry key="javax.naming.directory.Attributes">
+          			<bean class="org.apache.directory.server.core.configuration.AttributesPropertyEditor"/>
+        		</entry>
+      		</map>
+   		</property>
+  	</bean>
+</beans>

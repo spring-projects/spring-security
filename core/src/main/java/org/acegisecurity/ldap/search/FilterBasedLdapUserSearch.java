@@ -30,7 +30,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 
 import org.springframework.util.Assert;
-import org.springframework.ldap.ContextSource;
+
+import org.springframework.ldap.core.ContextSource;
 
 import javax.naming.directory.SearchControls;
 
