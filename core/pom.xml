@@ -10,9 +10,9 @@
 	<name>Acegi Security Core</name>
 
 	<scm>
-		<connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core</connection>
-		<developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity/core</developerConnection>
-		<url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/core/</url>
+		<connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk/core</connection>
+		<developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk/core</developerConnection>
+		<url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/spring-security/trunk/core/</url>
 	</scm>
 
 	<dependencies>

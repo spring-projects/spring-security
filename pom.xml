@@ -33,9 +33,9 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</connection>
-		<developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/trunk/acegisecurity</developerConnection>
-		<url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/trunk/acegisecurity/</url>
+		<connection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk</connection>
+		<developerConnection>scm:svn:https://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/trunk</developerConnection>
+		<url>http://acegisecurity.svn.sourceforge.net/viewcvs.cgi/acegisecurity/spring-security/trunk/</url>
 	</scm>
 
 	<issueManagement>
