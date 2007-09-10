@@ -46,6 +46,16 @@ public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint, 
 
     private ServiceProperties serviceProperties;
     private String loginUrl;
+    
+    /**
+     * Determines whether the Service URL should include the session id for the specific user.  As of CAS 3.0.5, the
+     * session id will automatically be stripped.  However, older versions of CAS (i.e. CAS 2), do not automatically
+     * strip the session identifier (this is a bug on the part of the older server implementations), so an option to
+     * disable the session encoding is provided for backwards compatibility.
+     * 
+     * By default, encoding is enabled.
+     */
+    private boolean encodeServiceUrlWithSessionId = true;
 
     //~ Methods ========================================================================================================
 
@@ -59,7 +69,7 @@ public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint, 
         throws IOException, ServletException {
         final HttpServletRequest request = (HttpServletRequest) servletRequest;
         final HttpServletResponse response = (HttpServletResponse) servletResponse;
-        final String urlEncodedService = response.encodeURL(this.serviceProperties.getService());
+        final String urlEncodedService = this.encodeServiceUrlWithSessionId ? response.encodeURL(this.serviceProperties.getService()) : this.serviceProperties.getService();
 
         final StringBuffer buffer = new StringBuffer(255);
 
@@ -93,5 +103,9 @@ public class CasProcessingFilterEntryPoint implements AuthenticationEntryPoint, 
 
     public void setServiceProperties(final ServiceProperties serviceProperties) {
         this.serviceProperties = serviceProperties;
+    }
+    
+    public void setEncodeServiceUrlWithSessionId(final boolean encodeServiceUrlWithSessionId) {
+    	this.encodeServiceUrlWithSessionId = encodeServiceUrlWithSessionId;
     }
 }
