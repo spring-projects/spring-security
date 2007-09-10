@@ -10,7 +10,8 @@
 		<module>core</module>
         <module>core-tiger</module>
         <module>adapters</module>
-		<module>samples</module>
+		<module>portlet</module>
+        <module>samples</module>
 	</modules>
 
 	<description>Acegi Security System for Spring</description>
@@ -79,6 +80,11 @@
 				<enabled>false</enabled>
 			</releases>
 		</repository>
+        <repository>
+            <id>spring-milestone</id>
+            <name>Springframework Maven Milestone Repository</name>
+            <url>http://s3.amazonaws.com/maven.springframework.org/milestone</url>
+        </repository>
     </repositories>
 
     <mailingLists>
