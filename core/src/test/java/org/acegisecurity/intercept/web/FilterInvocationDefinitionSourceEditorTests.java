@@ -25,6 +25,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.util.Iterator;
+import java.util.regex.PatternSyntaxException;
 
 
 /**
@@ -38,7 +39,6 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public FilterInvocationDefinitionSourceEditorTests() {
-        super();
     }
 
     public FilterInvocationDefinitionSourceEditorTests(String arg0) {
@@ -47,20 +47,11 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(FilterInvocationDefinitionSourceEditorTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testConvertUrlToLowercaseDefaultSettingUnchangedByEditor() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText("\\A/secure/super.*\\Z=ROLE_WE_DONT_HAVE\r\n\\A/secure/.*\\Z=ROLE_SUPERVISOR,ROLE_TELLER");
 
-        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor
-            .getValue();
+        RegExpBasedFilterInvocationDefinitionMap map = (RegExpBasedFilterInvocationDefinitionMap) editor.getValue();
         assertFalse(map.isConvertUrlToLowercaseBeforeComparison());
     }
 
@@ -137,14 +128,13 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
         assertEquals(0, map.getMapSize());
     }
 
-    public void testInvalidRegularExpressionsDetected()
-        throws Exception {
+    public void testInvalidRegularExpressionsDetected() throws Exception {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
 
         try {
             editor.setAsText("*=SOME_ROLE");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("Malformed regular expression: *", expected.getMessage());
+            fail("Expected PatternSyntaxException");
+        } catch (PatternSyntaxException expected) {
         }
     }
 
@@ -284,7 +274,7 @@ public class FilterInvocationDefinitionSourceEditorTests extends TestCase {
 
         assertEquals(expected, returned);
     }
-    
+
     public void testWhitespaceAndCommentsAndLinesWithoutEqualsSignsAreIgnored() {
         FilterInvocationDefinitionSourceEditor editor = new FilterInvocationDefinitionSourceEditor();
         editor.setAsText(

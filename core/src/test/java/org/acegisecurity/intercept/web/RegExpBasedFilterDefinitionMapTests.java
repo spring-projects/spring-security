@@ -36,7 +36,6 @@ public class RegExpBasedFilterDefinitionMapTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public RegExpBasedFilterDefinitionMapTests() {
-        super();
     }
 
     public RegExpBasedFilterDefinitionMapTests(String arg0) {
@@ -44,14 +43,6 @@ public class RegExpBasedFilterDefinitionMapTests extends TestCase {
     }
 
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(RegExpBasedFilterDefinitionMapTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testConvertUrlToLowercaseIsFalseByDefault() {
         RegExpBasedFilterInvocationDefinitionMap map = new RegExpBasedFilterInvocationDefinitionMap();

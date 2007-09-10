@@ -28,13 +28,6 @@ import org.acegisecurity.userdetails.UserDetailsService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.PatternMatcher;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
-
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.context.MessageSource;
@@ -44,6 +37,9 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.util.Assert;
 
 import java.security.cert.X509Certificate;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.regex.MatchResult;
 
 
 /**
@@ -70,32 +66,24 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator, In
         Assert.notNull(userDetailsService, "An authenticationDao must be set");
         Assert.notNull(this.messages, "A message source must be set");
 
-        Perl5Compiler compiler = new Perl5Compiler();
-
-        try {
-            subjectDNPattern = compiler.compile(subjectDNRegex,
-                    Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.CASE_INSENSITIVE_MASK);
-        } catch (MalformedPatternException mpe) {
-            throw new IllegalArgumentException("Malformed regular expression: " + subjectDNRegex);
-        }
+        subjectDNPattern = Pattern.compile(subjectDNRegex, Pattern.CASE_INSENSITIVE);
     }
 
     public UserDetails getUserDetails(X509Certificate clientCert) throws AuthenticationException {
         String subjectDN = clientCert.getSubjectDN().getName();
-        PatternMatcher matcher = new Perl5Matcher();
 
-        if (!matcher.contains(subjectDN, subjectDNPattern)) {
+        Matcher matcher = subjectDNPattern.matcher(subjectDN);
+
+        if (!matcher.find()) {
             throw new BadCredentialsException(messages.getMessage("DaoX509AuthoritiesPopulator.noMatching",
                     new Object[] {subjectDN}, "No matching pattern was found in subjectDN: {0}"));
         }
 
-        MatchResult match = matcher.getMatch();
-
-        if (match.groups() != 2) { // 2 = 1 + the entire match
+        if (matcher.groupCount() != 1) {
             throw new IllegalArgumentException("Regular expression must contain a single group ");
         }
 
-        String userName = match.group(1);
+        String userName = matcher.group(1);
 
         UserDetails user = this.userDetailsService.loadUserByUsername(userName);
 

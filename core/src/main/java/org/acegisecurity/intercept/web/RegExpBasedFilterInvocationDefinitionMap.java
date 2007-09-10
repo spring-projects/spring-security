@@ -20,17 +20,13 @@ import org.acegisecurity.ConfigAttributeDefinition;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.PatternMatcher;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 
 /**
@@ -57,21 +53,13 @@ public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvo
 
     //~ Methods ========================================================================================================
 
-    public void addSecureUrl(String perl5RegExp, ConfigAttributeDefinition attr) {
-        Pattern compiledPattern;
-        Perl5Compiler compiler = new Perl5Compiler();
+    public void addSecureUrl(String regExp, ConfigAttributeDefinition attr) {
+        Pattern pattern = Pattern.compile(regExp);
 
-        try {
-            compiledPattern = compiler.compile(perl5RegExp, Perl5Compiler.READ_ONLY_MASK);
-        } catch (MalformedPatternException mpe) {
-            throw new IllegalArgumentException("Malformed regular expression: " + perl5RegExp);
-        }
-
-        requestMap.add(new EntryHolder(compiledPattern, attr));
+        requestMap.add(new EntryHolder(pattern, attr));
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Added regular expression: " + compiledPattern.getPattern().toString() + "; attributes: "
-                + attr);
+            logger.debug("Added regular expression: " + regExp + "; attributes: " + attr);
         }
     }
 
@@ -96,8 +84,6 @@ public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvo
     }
 
     public ConfigAttributeDefinition lookupAttributes(String url) {
-        PatternMatcher matcher = new Perl5Matcher();
-
         Iterator iter = requestMap.iterator();
 
         if (isConvertUrlToLowercaseBeforeComparison()) {
@@ -111,10 +97,12 @@ public class RegExpBasedFilterInvocationDefinitionMap extends AbstractFilterInvo
         while (iter.hasNext()) {
             EntryHolder entryHolder = (EntryHolder) iter.next();
 
-            boolean matched = matcher.matches(url, entryHolder.getCompiledPattern());
+            Matcher matcher = entryHolder.getCompiledPattern().matcher(url);
+
+            boolean matched = matcher.matches();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Candidate is: '" + url + "'; pattern is " + entryHolder.getCompiledPattern().getPattern()
+                logger.debug("Candidate is: '" + url + "'; pattern is " + entryHolder.getCompiledPattern()
                     + "; matched=" + matched);
             }
 
