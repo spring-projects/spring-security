@@ -18,21 +18,16 @@ package org.acegisecurity.userdetails.ldap;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.GrantedAuthority;
 
-import org.acegisecurity.ldap.LdapEntryMapper;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.util.Assert;
-import org.springframework.ldap.ContextMapper;
 import org.springframework.ldap.UncategorizedLdapException;
-import org.springframework.ldap.AttributesIntegrityViolationException;
-import org.springframework.ldap.support.DirContextAdapter;
+import org.springframework.ldap.core.ContextMapper;
+import org.springframework.ldap.core.DirContextAdapter;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 
 /**

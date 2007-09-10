@@ -14,9 +14,12 @@
  */
 package org.acegisecurity.userdetails.ldap;
 
-import org.springframework.ldap.support.DirContextOperations;
-import org.springframework.ldap.support.DirContextAdapter;
+
 import org.springframework.util.Assert;
+
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
+
 import org.acegisecurity.ldap.LdapUtils;
 
 import java.util.List;

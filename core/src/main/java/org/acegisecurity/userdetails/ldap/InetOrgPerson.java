@@ -14,8 +14,9 @@
  */
 package org.acegisecurity.userdetails.ldap;
 
-import org.springframework.ldap.support.DirContextOperations;
-import org.springframework.ldap.support.DirContextAdapter;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
+
 
 /**
  * UserDetails implementation whose properties are based on a subset of the

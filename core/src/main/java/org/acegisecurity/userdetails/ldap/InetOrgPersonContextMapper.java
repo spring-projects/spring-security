@@ -16,8 +16,8 @@ package org.acegisecurity.userdetails.ldap;
 
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.GrantedAuthority;
-import org.springframework.ldap.support.DirContextOperations;
-import org.springframework.ldap.support.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.util.Assert;
 
 

@@ -21,23 +21,34 @@ import org.acegisecurity.ldap.LdapUtils;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.Authentication;
+import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.util.Assert;
-import org.springframework.ldap.support.DistinguishedName;
-import org.springframework.ldap.support.DirContextAdapter;
-import org.springframework.ldap.LdapTemplate;
-import org.springframework.ldap.AttributesMapper;
-import org.springframework.ldap.ContextSource;
-import org.springframework.ldap.ContextExecutor;
-import org.springframework.ldap.SearchExecutor;
-import org.springframework.ldap.EntryNotFoundException;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.AttributesMapper;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.ContextSource;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.ContextExecutor;
+import org.springframework.ldap.core.SearchExecutor;
+import org.springframework.ldap.core.AttributesMapperCallbackHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.naming.*;
 import javax.naming.ldap.LdapContext;
-import javax.naming.directory.*;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.NameNotFoundException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.SearchControls;
+
 import java.util.*;
 
 /**
@@ -150,9 +161,6 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
         String username = authentication.getName();
 
-
-
-
         logger.debug("Changing password for user '"+ username);
 
         final DistinguishedName dn = buildDn(username);
@@ -172,7 +180,11 @@ public class LdapUserDetailsManager implements UserDetailsManager {
                 ctx.removeFromEnvironment("com.sun.jndi.ldap.connect.pool");
                 ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, LdapUtils.getFullDn(dn, ctx).toUrl());
                 ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, oldPassword);
-                ctx.reconnect(null);
+                try {
+                    ctx.reconnect(null);
+                } catch (javax.naming.AuthenticationException e) {
+                    throw new BadCredentialsException("Authentication for password change failed.");
+                }
 
                 ctx.modifyAttributes(dn, passwordChange);
 
@@ -199,8 +211,8 @@ public class LdapUserDetailsManager implements UserDetailsManager {
             }
         };
 
-        LdapTemplate.AttributesMapperCallbackHandler roleCollector =
-                template.new AttributesMapperCallbackHandler(roleMapper);
+        AttributesMapperCallbackHandler roleCollector =
+                new AttributesMapperCallbackHandler(roleMapper);
 
         template.search(se, roleCollector);
         List authorities = roleCollector.getList();
@@ -277,7 +289,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
                 LdapUtils.closeContext((Context) obj);
             }
             return true;
-        } catch(EntryNotFoundException e) {
+        } catch(org.springframework.ldap.NameNotFoundException e) {
             return false;
         }
     }
@@ -402,13 +414,14 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
     /**
      * This class allows us to set the <tt>updateMode</tt> property of DirContextAdapter when updating existing users.
+     * TODO: No longer needed as of Ldap 1.2.
      */
     private static class UserContext extends DirContextAdapter {
         public UserContext(Attributes pAttrs, Name dn) {
             super(pAttrs, dn);
         }
 
-        protected void setUpdateMode(boolean mode) {
+        public void setUpdateMode(boolean mode) {
             super.setUpdateMode(mode);
         }
     }

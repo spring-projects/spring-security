@@ -14,36 +14,32 @@
  */
 package org.acegisecurity.userdetails.ldap;
 
-import org.acegisecurity.ldap.AbstractLdapServerTestCase;
-import org.acegisecurity.ldap.LdapUtils;
+import org.acegisecurity.ldap.SpringSecurityLdapTemplate;
+import org.acegisecurity.ldap.AbstractLdapIntegrationTests;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.context.SecurityContextHolder;
-import org.springframework.ldap.LdapTemplate;
-import org.springframework.ldap.support.DirContextAdapter;
-import org.springframework.ldap.support.DistinguishedName;
-import org.springframework.dao.DataAccessException;
 
-import javax.naming.directory.DirContext;
-import java.util.List;
-import java.util.Iterator;
+import org.springframework.ldap.core.DirContextAdapter;
 
 /**
  * @author Luke Taylor
  * @version $Id$
  */
-public class LdapUserDetailsManagerTests extends AbstractLdapServerTestCase {
+public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
     private static final GrantedAuthority[] TEST_AUTHORITIES = new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_CLOWNS"),
                 new GrantedAuthorityImpl("ROLE_ACROBATS")};
     private LdapUserDetailsManager mgr;
-    private LdapTemplate template;
+    private SpringSecurityLdapTemplate template;
 
-    protected void onSetUp() {
-        mgr = new LdapUserDetailsManager(getInitialCtxFactory());
-        template = new LdapTemplate(getInitialCtxFactory());
+    protected void onSetUp() throws Exception {
+        super.onSetUp();
+        mgr = new LdapUserDetailsManager(getContextSource());
+        template = new SpringSecurityLdapTemplate(getContextSource());
         DirContextAdapter ctx = new DirContextAdapter();
 
         ctx.setAttributeValue("objectclass", "organizationalUnit");
@@ -57,10 +53,11 @@ public class LdapUserDetailsManagerTests extends AbstractLdapServerTestCase {
 
         group.setAttributeValue("objectclass", "groupOfNames");
         group.setAttributeValue("cn", "clowns");
-        template.bind("cn=clowns,ou=testgroups", ctx, null);
+        group.setAttributeValue("member", "cn=nobody,ou=testpeople,dc=acegisecurity,dc=org");
+        template.bind("cn=clowns,ou=testgroups", group, null);
 
         group.setAttributeValue("cn", "acrobats");
-        template.bind("cn=acrobats,ou=testgroups", ctx, null);
+        template.bind("cn=acrobats,ou=testgroups", group, null);
 
         mgr.setUserDnBase("ou=testpeople");
         mgr.setGroupSearchBase("ou=testgroups");
@@ -70,21 +67,20 @@ public class LdapUserDetailsManagerTests extends AbstractLdapServerTestCase {
     }
 
 
-    protected void tearDown() throws Exception {
-        Iterator people = template.list("ou=testpeople").iterator();
+    protected void onTearDown() throws Exception {
+//        Iterator people = template.list("ou=testpeople").iterator();
 
-        DirContext rootCtx = new DirContextAdapter(new DistinguishedName(getInitialCtxFactory().getRootDn()));
+//        DirContext rootCtx = new DirContextAdapter(new DistinguishedName(getInitialCtxFactory().getRootDn()));
+//
+//        while(people.hasNext()) {
+//            template.unbind((String) people.next() + ",ou=testpeople");
+//        }
 
-        while(people.hasNext()) {
-            template.unbind(LdapUtils.getRelativeName((String) people.next(), rootCtx));
-        }
-
-        template.unbind("ou=testpeople");
-        template.unbind("cn=acrobats,ou=testgroups");
-        template.unbind("cn=clowns,ou=testgroups");
-        template.unbind("ou=testgroups");
+        template.unbind("ou=testpeople",true);
+        template.unbind("ou=testgroups",true);
 
         SecurityContextHolder.clearContext();
+        super.onTearDown();
     }
 
     public void testLoadUserByUsernameReturnsCorrectData() {
@@ -154,26 +150,43 @@ public class LdapUserDetailsManagerTests extends AbstractLdapServerTestCase {
         assertEquals(0, mgr.getUserAuthorities(mgr.buildDn("don"), "don").length);
     }
 
-    public void testPasswordChangeSucceeds() {
+    public void testPasswordChangeWithCorrectOldPasswordSucceeds() {
         InetOrgPerson.Essence p = new InetOrgPerson.Essence();
         p.setCn(new String[] {"John Yossarian"});
         p.setSn("Yossarian");
-        p.setUid("john");
+        p.setUid("johnyossarian");
         p.setPassword("yossarianspassword");
         p.setAuthorities(TEST_AUTHORITIES);
 
         mgr.createUser(p.createUserDetails());
 
         SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken("john", "yossarianspassword", TEST_AUTHORITIES));
+                new UsernamePasswordAuthenticationToken("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
 
         mgr.changePassword("yossarianspassword", "yossariansnewpassword");
 
-        
+        assertTrue(template.compare("uid=johnyossarian,ou=testpeople,dc=acegisecurity,dc=org",
+                "userPassword", "yossariansnewpassword"));
+    }
 
+    public void testPasswordChangeWithWrongOldPasswordFails() {
+        InetOrgPerson.Essence p = new InetOrgPerson.Essence();
+        p.setCn(new String[] {"John Yossarian"});
+        p.setSn("Yossarian");
+        p.setUid("johnyossarian");
+        p.setPassword("yossarianspassword");
+        p.setAuthorities(TEST_AUTHORITIES);
 
+        mgr.createUser(p.createUserDetails());
 
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
 
+        try {
+            mgr.changePassword("wrongpassword", "yossariansnewpassword");
+            fail("Expected BadCredentialsException");
+        } catch (BadCredentialsException expected) {
+        }
 
     }
 }

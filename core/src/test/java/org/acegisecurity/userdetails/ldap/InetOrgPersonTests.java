@@ -1,8 +1,9 @@
 package org.acegisecurity.userdetails.ldap;
 
 import junit.framework.TestCase;
-import org.springframework.ldap.support.DirContextAdapter;
-import org.springframework.ldap.support.DistinguishedName;
+
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DistinguishedName;
 
 /**
  * @author Luke Taylor

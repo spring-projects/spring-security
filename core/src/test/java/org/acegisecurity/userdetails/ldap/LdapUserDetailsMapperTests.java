@@ -20,9 +20,8 @@ import junit.framework.TestCase;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.BasicAttribute;
 
-import org.acegisecurity.GrantedAuthorityImpl;
-import org.springframework.ldap.support.DirContextAdapter;
-import org.springframework.ldap.support.DistinguishedName;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DistinguishedName;
 
 /**
  * Tests {@link LdapUserDetailsMapper}.
