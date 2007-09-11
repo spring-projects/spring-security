@@ -64,7 +64,7 @@ public class X509ProcessingFilterTests extends TestCase {
     }
 
     public void tearDown() {
-        SecurityContextHolder.getContext().setAuthentication(null);
+        SecurityContextHolder.clearContext();
     }
 
     public void testAuthenticationIsNullWithNoCertificate()

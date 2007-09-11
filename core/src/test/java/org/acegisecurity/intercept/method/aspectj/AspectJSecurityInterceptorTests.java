@@ -47,7 +47,6 @@ public class AspectJSecurityInterceptorTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public AspectJSecurityInterceptorTests() {
-        super();
     }
 
     public AspectJSecurityInterceptorTests(String arg0) {
@@ -56,13 +55,14 @@ public class AspectJSecurityInterceptorTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AspectJSecurityInterceptorTests.class);
-    }
-
     public final void setUp() throws Exception {
         super.setUp();
     }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        SecurityContextHolder.clearContext();
+    }    
 
     public void testCallbackIsInvokedWhenPermissionGranted()
         throws Exception {
@@ -94,8 +94,6 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         Object result = si.invoke(joinPoint, aspectJCallback);
 
         assertEquals("object proceeded", result);
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testCallbackIsNotInvokedWhenPermissionDenied()
@@ -131,8 +129,6 @@ public class AspectJSecurityInterceptorTests extends TestCase {
         } catch (AccessDeniedException expected) {
             assertTrue(true);
         }
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     //~ Inner Classes ==================================================================================================

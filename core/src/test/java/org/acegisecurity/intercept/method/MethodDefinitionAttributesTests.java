@@ -64,6 +64,12 @@ public class MethodDefinitionAttributesTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        SecurityContextHolder.clearContext();
+    }
+
     private ConfigAttributeDefinition getConfigAttributeDefinition(Class clazz, String methodName, Class[] args)
         throws Exception {
         final Method method = clazz.getMethod(methodName, args);
@@ -77,10 +83,6 @@ public class MethodDefinitionAttributesTests extends TestCase {
                 });
 
         return config;
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(MethodDefinitionAttributesTests.class);
     }
 
     private ITargetObject makeInterceptedTarget() {
@@ -186,8 +188,6 @@ public class MethodDefinitionAttributesTests extends TestCase {
         ITargetObject target = makeInterceptedTarget();
         String result = target.makeUpperCase("hello");
         assertEquals("HELLO org.acegisecurity.MockRunAsAuthenticationToken true", result);
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testMethodCallWithoutRunAsReplacement()
@@ -200,13 +200,11 @@ public class MethodDefinitionAttributesTests extends TestCase {
         String result = target.makeLowerCase("HELLO");
 
         assertEquals("hello org.acegisecurity.providers.UsernamePasswordAuthenticationToken true", result);
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testNullReturnedIfZeroAttributesDefinedForMethodInvocation()
         throws Exception {
-        // SomeDomain is not defined in the MockAttributes() 
+        // SomeDomain is not defined in the MockAttributes()
         // (which getConfigAttributeDefinition refers to)
         ConfigAttributeDefinition def = getConfigAttributeDefinition(SomeDomain.class, "getId", null);
         assertNull(def);

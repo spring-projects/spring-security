@@ -37,7 +37,6 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public SecurityContextHolderAwareRequestWrapperTests() {
-        super();
     }
 
     public SecurityContextHolderAwareRequestWrapperTests(String arg0) {
@@ -46,12 +45,9 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(SecurityContextHolderAwareRequestWrapperTests.class);
-    }
 
-    public final void setUp() throws Exception {
-        super.setUp();
+    protected void tearDown() throws Exception {
+        SecurityContextHolder.clearContext();
     }
 
     public void testCorrectOperationWithStringBasedPrincipal()
@@ -69,8 +65,6 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         assertTrue(wrapper.isUserInRole("ROLE_FOO"));
         assertFalse(wrapper.isUserInRole("ROLE_NOT_GRANTED"));
         assertEquals(auth, wrapper.getUserPrincipal());
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testCorrectOperationWithUserDetailsBasedPrincipal()
@@ -91,8 +85,6 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         assertTrue(wrapper.isUserInRole("ROLE_FOOBAR"));
         assertTrue(wrapper.isUserInRole("ROLE_HELLO"));
         assertEquals(auth, wrapper.getUserPrincipal());
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testNullAuthenticationHandling() throws Exception {
@@ -105,8 +97,6 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         assertNull(wrapper.getRemoteUser());
         assertFalse(wrapper.isUserInRole("ROLE_ANY"));
         assertNull(wrapper.getUserPrincipal());
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testNullPrincipalHandling() throws Exception {
@@ -123,7 +113,5 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         assertFalse(wrapper.isUserInRole("ROLE_HELLO")); // principal is null, so reject
         assertFalse(wrapper.isUserInRole("ROLE_FOOBAR")); // principal is null, so reject
         assertNull(wrapper.getUserPrincipal());
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 }

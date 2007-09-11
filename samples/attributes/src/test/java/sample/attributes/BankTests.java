@@ -44,7 +44,6 @@ public class BankTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public BankTests() {
-        super();
     }
 
     public BankTests(String arg0) {
@@ -52,6 +51,16 @@ public class BankTests extends TestCase {
     }
 
     //~ Methods ========================================================================================================
+
+    public final void setUp() throws Exception {
+        super.setUp();
+        ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+        service = (BankService) ctx.getBean("bankService");
+    }
+
+    public void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
 
     private static void createSecureContext() {
         TestingAuthenticationToken auth = new TestingAuthenticationToken("test", "test",
@@ -64,16 +73,6 @@ public class BankTests extends TestCase {
 
     private static void destroySecureContext() {
         SecurityContextHolder.setContext(new SecurityContextImpl());
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(BankTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-        ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
-        service = (BankService) ctx.getBean("bankService");
     }
 
     public void testDeniedAccess() throws Exception {

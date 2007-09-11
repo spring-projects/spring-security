@@ -52,6 +52,11 @@ public class AclTagTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
+
+    protected void tearDown() throws Exception {
+        SecurityContextHolder.clearContext();
+    }
+
     public void testInclusionDeniedWhenAclManagerUnawareOfObject()
         throws JspException {
         Authentication auth = new TestingAuthenticationToken("marissa", "koala", new GrantedAuthority[] {});
@@ -60,8 +65,6 @@ public class AclTagTests extends TestCase {
         aclTag.setHasPermission(new Long(SimpleAclEntry.ADMINISTRATION).toString());
         aclTag.setDomainObject(new Integer(54));
         assertEquals(Tag.SKIP_BODY, aclTag.doStartTag());
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testInclusionDeniedWhenNoListOfPermissionsGiven()
@@ -72,8 +75,6 @@ public class AclTagTests extends TestCase {
         aclTag.setHasPermission(null);
         aclTag.setDomainObject("object1");
         assertEquals(Tag.SKIP_BODY, aclTag.doStartTag());
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testInclusionDeniedWhenPrincipalDoesNotHoldAnyPermissions()
@@ -87,8 +88,6 @@ public class AclTagTests extends TestCase {
         aclTag.setDomainObject("object1");
         assertEquals("object1", aclTag.getDomainObject());
         assertEquals(Tag.SKIP_BODY, aclTag.doStartTag());
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testInclusionDeniedWhenPrincipalDoesNotHoldRequiredPermissions()
@@ -99,8 +98,6 @@ public class AclTagTests extends TestCase {
         aclTag.setHasPermission(new Integer(SimpleAclEntry.DELETE).toString());
         aclTag.setDomainObject("object1");
         assertEquals(Tag.SKIP_BODY, aclTag.doStartTag());
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testInclusionDeniedWhenSecurityContextEmpty()
@@ -110,8 +107,6 @@ public class AclTagTests extends TestCase {
         aclTag.setHasPermission(new Long(SimpleAclEntry.ADMINISTRATION).toString());
         aclTag.setDomainObject("object1");
         assertEquals(Tag.SKIP_BODY, aclTag.doStartTag());
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testInclusionPermittedWhenDomainObjectIsNull()
@@ -134,8 +129,6 @@ public class AclTagTests extends TestCase {
         } catch (JspException expected) {
             assertTrue(true);
         }
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testOperationWhenPrincipalHoldsPermissionOfMultipleList()
@@ -146,8 +139,6 @@ public class AclTagTests extends TestCase {
         aclTag.setHasPermission(new Integer(SimpleAclEntry.ADMINISTRATION) + "," + new Integer(SimpleAclEntry.READ));
         aclTag.setDomainObject("object1");
         assertEquals(Tag.EVAL_BODY_INCLUDE, aclTag.doStartTag());
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testOperationWhenPrincipalHoldsPermissionOfSingleList()
@@ -158,8 +149,6 @@ public class AclTagTests extends TestCase {
         aclTag.setHasPermission(new Integer(SimpleAclEntry.READ).toString());
         aclTag.setDomainObject("object1");
         assertEquals(Tag.EVAL_BODY_INCLUDE, aclTag.doStartTag());
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     //~ Inner Classes ==================================================================================================

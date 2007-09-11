@@ -58,6 +58,12 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         this.jdbcMutableAclService = jdbcAclService;
     }
 
+
+    protected void onTearDown() throws Exception {
+        super.onTearDown();
+        SecurityContextHolder.clearContext();
+    }
+
     public void testLifecycle() {
         setComplete();
 
@@ -159,7 +165,7 @@ public class JdbcAclServiceTests extends AbstractTransactionalDataSourceSpringCo
         // Let's add an identical permission to the child, but it'll appear AFTER the current permission, so has no impact
         child.insertAce(null, BasePermission.DELETE, new PrincipalSid(auth), true);
 
-        // Let's also add another permission to the child 
+        // Let's also add another permission to the child
         child.insertAce(null, BasePermission.CREATE, new PrincipalSid(auth), true);
 
         // Save the changed child

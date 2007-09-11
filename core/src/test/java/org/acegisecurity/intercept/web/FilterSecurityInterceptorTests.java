@@ -57,7 +57,6 @@ public class FilterSecurityInterceptorTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public FilterSecurityInterceptorTests() {
-        super();
     }
 
     public FilterSecurityInterceptorTests(String arg0) {
@@ -66,12 +65,14 @@ public class FilterSecurityInterceptorTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(FilterSecurityInterceptorTests.class);
-    }
-
     public final void setUp() throws Exception {
         super.setUp();
+        SecurityContextHolder.clearContext();
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        SecurityContextHolder.clearContext();
     }
 
     public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass()
@@ -136,8 +137,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         }
     }
 
-    public void testHttpsInvocationReflectsPortNumber()
-        throws Throwable {
+    public void testHttpsInvocationReflectsPortNumber() throws Throwable {
         // Setup the FilterSecurityInterceptor
         FilterSecurityInterceptor interceptor = new FilterSecurityInterceptor();
         interceptor.setAccessDecisionManager(new MockAccessDecisionManager());
@@ -170,9 +170,6 @@ public class FilterSecurityInterceptorTests extends TestCase {
         // Create and test our secure object
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         interceptor.invoke(fi);
-
-        // Destroy the Context
-        SecurityContextHolder.clearContext();
     }
 
     public void testNormalStartupAndGetter() throws Exception {
@@ -225,9 +222,6 @@ public class FilterSecurityInterceptorTests extends TestCase {
         // Create and test our secure object
         FilterInvocation fi = new FilterInvocation(request, response, chain);
         interceptor.invoke(fi);
-
-        // Destroy the Context
-        SecurityContextHolder.clearContext();
     }
 
     public void testNotLoadedFromApplicationContext() throws Exception {
@@ -239,8 +233,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         mappings.add(mapping);
 
         PathBasedFilterInvocationDefinitionMap filterInvocationDefinitionSource = new PathBasedFilterInvocationDefinitionMap();
-        filterInvocationDefinitionSource
-                .setConvertUrlToLowercaseBeforeComparison(true);
+        filterInvocationDefinitionSource.setConvertUrlToLowercaseBeforeComparison(true);
         FilterInvocationDefinitionDecorator decorator = new FilterInvocationDefinitionDecorator(
                 filterInvocationDefinitionSource);
         decorator.setMappings(mappings);
@@ -252,8 +245,7 @@ public class FilterSecurityInterceptorTests extends TestCase {
         filterChain.expectToProceed = true;
 
         FilterInvocation fi = new FilterInvocation(
-                new MockHttpServletRequest(), new MockHttpServletResponse(),
-                filterChain);
+                new MockHttpServletRequest(), new MockHttpServletResponse(), filterChain);
         filter.invoke(fi);
     }
 
@@ -267,7 +259,6 @@ public class FilterSecurityInterceptorTests extends TestCase {
         }
 
         private MockFilterChain() {
-            super();
         }
 
         public void doFilter(ServletRequest request, ServletResponse response)
@@ -287,10 +278,6 @@ public class FilterSecurityInterceptorTests extends TestCase {
         public MockFilterInvocationDefinitionMap(String servletPath, ConfigAttributeDefinition toReturn) {
             this.servletPath = servletPath;
             this.toReturn = toReturn;
-        }
-
-        private MockFilterInvocationDefinitionMap() {
-            super();
         }
 
         public ConfigAttributeDefinition getAttributes(Object object)

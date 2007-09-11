@@ -70,8 +70,14 @@ public class MethodSecurityInterceptorTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(MethodSecurityInterceptorTests.class);
+    public final void setUp() throws Exception {
+        super.setUp();
+        SecurityContextHolder.clearContext();
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        SecurityContextHolder.clearContext();
     }
 
     private ITargetObject makeInterceptedTarget() {
@@ -100,11 +106,6 @@ public class MethodSecurityInterceptorTests extends TestCase {
         si.setAfterInvocationManager(null);
 
         return (ITargetObject) context.getBean("target");
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testCallingAPublicMethodFacadeWillNotRepeatSecurityChecksWhenPassedToTheSecuredMethodItFronts()

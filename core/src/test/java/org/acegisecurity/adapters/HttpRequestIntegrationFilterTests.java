@@ -38,7 +38,6 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public HttpRequestIntegrationFilterTests() {
-        super();
     }
 
     public HttpRequestIntegrationFilterTests(String arg0) {
@@ -47,18 +46,14 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(HttpRequestIntegrationFilterTests.class);
-    }
-
     protected void setUp() throws Exception {
         super.setUp();
-        SecurityContextHolder.getContext().setAuthentication(null);
+        SecurityContextHolder.clearContext();
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        SecurityContextHolder.getContext().setAuthentication(null);
+        SecurityContextHolder.clearContext();
     }
 
     public void testCorrectOperation() throws Exception {

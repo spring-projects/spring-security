@@ -57,16 +57,14 @@ public class AuthorizeTagTests extends TestCase {
         SecurityContextHolder.clearContext();
     }
 
-    public void testAlwaysReturnsUnauthorizedIfNoUserFound()
-        throws JspException {
+    public void testAlwaysReturnsUnauthorizedIfNoUserFound() throws JspException {
         SecurityContextHolder.getContext().setAuthentication(null);
 
         authorizeTag.setIfAllGranted("ROLE_TELLER");
         assertEquals("prevents request - no principal in Context", Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 
-    public void testDefaultsToNotOutputtingBodyWhenNoRequiredAuthorities()
-        throws JspException {
+    public void testDefaultsToNotOutputtingBodyWhenNoRequiredAuthorities() throws JspException {
         assertEquals("", authorizeTag.getIfAllGranted());
         assertEquals("", authorizeTag.getIfAnyGranted());
         assertEquals("", authorizeTag.getIfNotGranted());
@@ -85,15 +83,13 @@ public class AuthorizeTagTests extends TestCase {
             authorizeTag.doStartTag());
     }
 
-    public void testOutputsBodyWhenNotGrantedSatisfied()
-        throws JspException {
+    public void testOutputsBodyWhenNotGrantedSatisfied() throws JspException {
         authorizeTag.setIfNotGranted("ROLE_BANKER");
         assertEquals("allows request - principal doesn't have ROLE_BANKER", Tag.EVAL_BODY_INCLUDE,
             authorizeTag.doStartTag());
     }
 
-    public void testPreventsBodyOutputIfNoSecurityContext()
-        throws JspException {
+    public void testPreventsBodyOutputIfNoSecurityContext() throws JspException {
         SecurityContextHolder.getContext().setAuthentication(null);
         authorizeTag.setIfAnyGranted("ROLE_BANKER");
 
@@ -105,14 +101,12 @@ public class AuthorizeTagTests extends TestCase {
         assertEquals("unauthorized - ROLE_BANKER not in granted authorities", Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 
-    public void testSkipsBodyWhenMissingAnAllGranted()
-        throws JspException {
+    public void testSkipsBodyWhenMissingAnAllGranted() throws JspException {
         authorizeTag.setIfAllGranted("ROLE SUPERVISOR,ROLE_TELLER,ROLE_BANKER");
         assertEquals("prevents request - missing ROLE_BANKER on principal", Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 
-    public void testSkipsBodyWhenNotGrantedUnsatisfied()
-        throws JspException {
+    public void testSkipsBodyWhenNotGrantedUnsatisfied() throws JspException {
         authorizeTag.setIfNotGranted("ROLE_TELLER");
         assertEquals("prevents request - principal has ROLE_TELLER", Tag.SKIP_BODY, authorizeTag.doStartTag());
     }

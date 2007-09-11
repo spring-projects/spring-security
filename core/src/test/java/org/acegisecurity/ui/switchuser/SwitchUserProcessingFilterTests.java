@@ -52,7 +52,6 @@ public class SwitchUserProcessingFilterTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public SwitchUserProcessingFilterTests() {
-        super();
     }
 
     public SwitchUserProcessingFilterTests(String arg0) {
@@ -61,6 +60,11 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
+
+    protected void tearDown() throws Exception {
+        SecurityContextHolder.clearContext();
+    }
+
     private MockHttpServletRequest createMockSwitchRequest() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setScheme("http");
@@ -68,14 +72,6 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         request.setRequestURI("/j_acegi_switch_user");
 
         return request;
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(SwitchUserProcessingFilterTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
     }
 
     public void testAttemptSwitchToUnknownUser() throws Exception {
@@ -179,7 +175,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         Authentication result = filter.attemptSwitchUser(request);
         assertTrue(result != null);
     }
-    
+
     public void testIfSwitchUserWithNullUsernameThrowsException() throws Exception {
         // set current user
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
@@ -196,7 +192,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         	 result = filter.attemptSwitchUser(request);
         	 fail("UsernameNotFoundException should have been thrown");
         } catch (UsernameNotFoundException e) {
-        	
+
         }
         assertFalse(result != null);
     }

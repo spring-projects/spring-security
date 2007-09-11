@@ -43,6 +43,10 @@ public class AuthenticationTagTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
+    protected void tearDown() throws Exception {
+        SecurityContextHolder.clearContext();
+    }
+
     public void testOperationAndMethodPrefixWhenPrincipalIsAUserDetailsInstance()
         throws JspException {
         Authentication auth = new TestingAuthenticationToken(new User("marissaUserDetails", "koala", true, true, true,
@@ -83,15 +87,12 @@ public class AuthenticationTagTests extends TestCase {
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
     }
 
-    public void testOperationWhenSecurityContextIsNull()
-        throws JspException {
+    public void testOperationWhenSecurityContextIsNull() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(null);
 
         authenticationTag.setOperation("principal");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
         assertEquals(null, authenticationTag.getLastMessage());
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testSkipsBodyIfNullOrEmptyOperation() throws Exception {

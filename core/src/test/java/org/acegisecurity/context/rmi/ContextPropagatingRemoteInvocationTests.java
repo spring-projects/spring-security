@@ -41,7 +41,6 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public ContextPropagatingRemoteInvocationTests() {
-        super();
     }
 
     public ContextPropagatingRemoteInvocationTests(String arg0) {
@@ -49,6 +48,12 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
     }
 
     //~ Methods ========================================================================================================
+
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        SecurityContextHolder.clearContext();
+    }
 
     private ContextPropagatingRemoteInvocation getRemoteInvocation()
         throws Exception {
@@ -59,10 +64,6 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
         ContextPropagatingRemoteInvocationFactory factory = new ContextPropagatingRemoteInvocationFactory();
 
         return (ContextPropagatingRemoteInvocation) factory.createRemoteInvocation(mi);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(ContextPropagatingRemoteInvocationTests.class);
     }
 
     public void testContextIsResetEvenIfExceptionOccurs()
@@ -103,8 +104,7 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
             remoteInvocation.invoke(new TargetObject()));
     }
 
-    public void testNullContextHolderDoesNotCauseInvocationProblems()
-        throws Exception {
+    public void testNullContextHolderDoesNotCauseInvocationProblems() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(null); // just to be explicit
 
         ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();

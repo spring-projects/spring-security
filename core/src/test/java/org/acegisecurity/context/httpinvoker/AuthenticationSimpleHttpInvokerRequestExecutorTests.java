@@ -52,8 +52,10 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCas
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AuthenticationSimpleHttpInvokerRequestExecutorTests.class);
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        SecurityContextHolder.clearContext();
     }
 
     public void testNormalOperation() throws Exception {
@@ -71,8 +73,6 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCas
         // See http://www.faqs.org/rfcs/rfc1945.html section 11.1 for example
         // we are comparing against
         assertEquals("Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==", conn.getRequestProperty("Authorization"));
-
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testNullContextHolderIsNull() throws Exception {
