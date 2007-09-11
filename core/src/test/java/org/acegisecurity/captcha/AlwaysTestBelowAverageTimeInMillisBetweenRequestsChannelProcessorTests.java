@@ -74,7 +74,7 @@ public class AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessorTe
         context.setHuman();
 
         while ((System.currentTimeMillis() - context.getLastPassedCaptchaDateInMillis()) < (10 * alwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor
-            .getThresold())) {
+            .getThreshold())) {
             assertTrue(alwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor
                 .isContextValidConcerningHumanity(context));
         }
@@ -98,14 +98,14 @@ public class AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessorTe
         int i = 0;
 
         while ((System.currentTimeMillis() - context.getLastPassedCaptchaDateInMillis()) < (100 * alwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor
-            .getThresold())) {
+            .getThreshold())) {
             System.out.println((System.currentTimeMillis() - context.getLastPassedCaptchaDateInMillis()));
 
             context.incrementHumanRestrictedRessoucesRequestsCount();
             i++;
 
             while ((System.currentTimeMillis() - context.getLastPassedCaptchaDateInMillis()) < (alwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor
-                .getThresold() * i)) {}
+                .getThreshold() * i)) {}
 
             System.out.println((System.currentTimeMillis() - context.getLastPassedCaptchaDateInMillis()));
 

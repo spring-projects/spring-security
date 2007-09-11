@@ -29,29 +29,28 @@ public class AlwaysTestAfterMaxRequestsCaptchaChannelProcessor extends CaptchaCh
     //~ Static fields/initializers =====================================================================================
 
     /** Keyword for this channelProcessor */
-    public static final String DEFAULT_KEYWORD = "REQUIRES_CAPTCHA_ABOVE_THRESOLD_REQUESTS";
+    public static final String DEFAULT_KEYWORD = "REQUIRES_CAPTCHA_ABOVE_THRESHOLD_REQUESTS";
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructor
      */
     public AlwaysTestAfterMaxRequestsCaptchaChannelProcessor() {
-        super();
         this.setKeyword(DEFAULT_KEYWORD);
     }
 
     //~ Methods ========================================================================================================
 
     /**
-     * Verify wheter the context is valid concerning humanity
+     * Verify whether the context is valid concerning humanity
      *
      * @param context
      *
      * @return true if valid, false otherwise
      */
     boolean isContextValidConcerningHumanity(CaptchaSecurityContext context) {
-        if (context.getHumanRestrictedResourcesRequestsCount() < getThresold()) {
+        if (context.getHumanRestrictedResourcesRequestsCount() < getThreshold()) {
             logger.debug("context is valid : request count < thresold");
 
             return true;

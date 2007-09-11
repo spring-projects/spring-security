@@ -92,8 +92,6 @@ public class CaptchaEntryPoint implements ChannelEntryPoint, InitializingBean {
 
     //~ Instance fields ================================================================================================
 
-    // ~ Instance fields
-    // ========================================================
     private PortMapper portMapper = new PortMapperImpl();
     private PortResolver portResolver = new PortResolverImpl();
     private String captchaFormUrl;
@@ -208,7 +206,6 @@ public class CaptchaEntryPoint implements ChannelEntryPoint, InitializingBean {
     }
 
     /**
-     * DOCUMENT ME!
      *
      * @return the captcha test page to redirect to.
      */

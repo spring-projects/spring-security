@@ -35,11 +35,10 @@ public class AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor e
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructor
      */
     public AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor() {
-        super();
         this.setKeyword(DEFAULT_KEYWORD);
     }
 
@@ -52,7 +51,7 @@ public class AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor e
      */
     public void afterPropertiesSet() throws Exception {
         super.afterPropertiesSet();
-        Assert.isTrue(getThresold() > 0, "thresold must be > 0");
+        Assert.isTrue(getThreshold() > 0, "thresold must be > 0");
     }
 
     /**
@@ -64,7 +63,7 @@ public class AlwaysTestBelowAverageTimeInMillisBetweenRequestsChannelProcessor e
      */
     boolean isContextValidConcerningHumanity(CaptchaSecurityContext context) {
         int req = context.getHumanRestrictedResourcesRequestsCount();
-        float thresold = getThresold();
+        float thresold = getThreshold();
         float duration = System.currentTimeMillis() - context.getLastPassedCaptchaDateInMillis();
         float average;
 

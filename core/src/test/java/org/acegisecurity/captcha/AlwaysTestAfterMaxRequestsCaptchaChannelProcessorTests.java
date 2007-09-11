@@ -15,13 +15,10 @@
 
 package org.acegisecurity.captcha;
 
-import junit.framework.*;
-
-import org.acegisecurity.captcha.AlwaysTestAfterMaxRequestsCaptchaChannelProcessor;
+import junit.framework.TestCase;
 
 
 /**
- * DOCUMENT ME!
  *
  * @author $author$
  * @version $Revision$
@@ -45,16 +42,16 @@ public class AlwaysTestAfterMaxRequestsCaptchaChannelProcessorTests extends Test
         CaptchaSecurityContextImpl context = new CaptchaSecurityContextImpl();
         assertTrue(alwaysTestAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
 
-        context.incrementHumanRestrictedRessoucesRequestsCount();
+        context.incrementHumanRestrictedResourcesRequestsCount();
 
         alwaysTestAfterMaxRequestsCaptchaChannelProcessor.setThresold(-1);
         assertFalse(alwaysTestAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
 
         alwaysTestAfterMaxRequestsCaptchaChannelProcessor.setThresold(3);
         assertTrue(alwaysTestAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
-        context.incrementHumanRestrictedRessoucesRequestsCount();
+        context.incrementHumanRestrictedResourcesRequestsCount();
         assertTrue(alwaysTestAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
-        context.incrementHumanRestrictedRessoucesRequestsCount();
+        context.incrementHumanRestrictedResourcesRequestsCount();
         assertFalse(alwaysTestAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
     }
 

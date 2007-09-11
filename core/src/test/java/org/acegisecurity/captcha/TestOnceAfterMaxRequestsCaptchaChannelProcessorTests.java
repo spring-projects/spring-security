@@ -45,20 +45,20 @@ public class TestOnceAfterMaxRequestsCaptchaChannelProcessorTests extends TestCa
         CaptchaSecurityContextImpl context = new CaptchaSecurityContextImpl();
         assertTrue(testOnceAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
 
-        context.incrementHumanRestrictedRessoucesRequestsCount();
+        context.incrementHumanRestrictedResourcesRequestsCount();
 
         testOnceAfterMaxRequestsCaptchaChannelProcessor.setThresold(-1);
         assertFalse(testOnceAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
 
         testOnceAfterMaxRequestsCaptchaChannelProcessor.setThresold(3);
         assertTrue(testOnceAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
-        context.incrementHumanRestrictedRessoucesRequestsCount();
+        context.incrementHumanRestrictedResourcesRequestsCount();
         assertTrue(testOnceAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
-        context.incrementHumanRestrictedRessoucesRequestsCount();
+        context.incrementHumanRestrictedResourcesRequestsCount();
         assertFalse(testOnceAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
         context.setHuman();
 
-        for (int i = 0; i < (2 * testOnceAfterMaxRequestsCaptchaChannelProcessor.getThresold()); i++) {
+        for (int i = 0; i < (2 * testOnceAfterMaxRequestsCaptchaChannelProcessor.getThreshold()); i++) {
             assertTrue(testOnceAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
         }
     }

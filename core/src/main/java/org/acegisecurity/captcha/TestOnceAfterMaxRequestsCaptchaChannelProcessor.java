@@ -31,14 +31,13 @@ public class TestOnceAfterMaxRequestsCaptchaChannelProcessor extends CaptchaChan
     //~ Constructors ===================================================================================================
 
     public TestOnceAfterMaxRequestsCaptchaChannelProcessor() {
-        super();
         this.setKeyword(DEFAULT_KEYWORD);
     }
 
     //~ Methods ========================================================================================================
 
     boolean isContextValidConcerningHumanity(CaptchaSecurityContext context) {
-        if (context.isHuman() || (context.getHumanRestrictedResourcesRequestsCount() < getThresold())) {
+        if (context.isHuman() || (context.getHumanRestrictedResourcesRequestsCount() < getThreshold())) {
             logger.debug("context is valid concerning humanity or request count < thresold");
 
             return true;

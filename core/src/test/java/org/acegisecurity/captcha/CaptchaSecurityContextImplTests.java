@@ -48,7 +48,7 @@ public class CaptchaSecurityContextImplTests extends SecurityContextImplTests {
         context1 = new CaptchaSecurityContextImpl();
         assertEquals(context1, context2);
 
-        context1.incrementHumanRestrictedRessoucesRequestsCount();
+        context1.incrementHumanRestrictedResourcesRequestsCount();
         assertNotSame(context1, context2);
     }
 
@@ -66,7 +66,7 @@ public class CaptchaSecurityContextImplTests extends SecurityContextImplTests {
         context1 = new CaptchaSecurityContextImpl();
         assertEquals(context1.hashCode(), context2.hashCode());
 
-        context1.incrementHumanRestrictedRessoucesRequestsCount();
+        context1.incrementHumanRestrictedResourcesRequestsCount();
         assertTrue(context1 != context2);
     }
 
@@ -75,7 +75,7 @@ public class CaptchaSecurityContextImplTests extends SecurityContextImplTests {
         context.setHuman();
         assertEquals("should be human", true, context.isHuman());
         assertEquals("should be 0", 0, context.getHumanRestrictedResourcesRequestsCount());
-        context.incrementHumanRestrictedRessoucesRequestsCount();
+        context.incrementHumanRestrictedResourcesRequestsCount();
         assertEquals("should be 1", 1, context.getHumanRestrictedResourcesRequestsCount());
     }
 
@@ -84,7 +84,7 @@ public class CaptchaSecurityContextImplTests extends SecurityContextImplTests {
         context.setHuman();
         assertEquals("should be human", true, context.isHuman());
         assertEquals("should be 0", 0, context.getHumanRestrictedResourcesRequestsCount());
-        context.incrementHumanRestrictedRessoucesRequestsCount();
+        context.incrementHumanRestrictedResourcesRequestsCount();
         assertEquals("should be 1", 1, context.getHumanRestrictedResourcesRequestsCount());
 
         long now = System.currentTimeMillis();

@@ -99,7 +99,7 @@ public abstract class CaptchaChannelProcessorTemplate implements ChannelProcesso
                     redirectToEntryPoint(invocation);
                 } else {
                     logger.debug("has been successfully checked this keyword, increment request count");
-                    context.incrementHumanRestrictedRessoucesRequestsCount();
+                    context.incrementHumanRestrictedResourcesRequestsCount();
                 }
             } else {
                 logger.debug("do not support this attribute");
@@ -115,7 +115,7 @@ public abstract class CaptchaChannelProcessorTemplate implements ChannelProcesso
         return keyword;
     }
 
-    public int getThresold() {
+    public int getThreshold() {
         return thresold;
     }
 

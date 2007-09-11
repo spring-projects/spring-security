@@ -43,7 +43,7 @@ public interface CaptchaSecurityContext extends SecurityContext {
     /**
      * Method to increment the human Restricted Resrouces Requests Count;
      */
-    void incrementHumanRestrictedRessoucesRequestsCount();
+    void incrementHumanRestrictedResourcesRequestsCount();
 
     /**
      * DOCUMENT ME!

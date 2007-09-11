@@ -86,7 +86,7 @@ public class CaptchaSecurityContextImpl extends SecurityContextImpl implements C
     /**
      * Method to increment the human Restricted Resrouces Requests Count;
      */
-    public void incrementHumanRestrictedRessoucesRequestsCount() {
+    public void incrementHumanRestrictedResourcesRequestsCount() {
         humanRestrictedResourcesRequestsCount++;
     }
 

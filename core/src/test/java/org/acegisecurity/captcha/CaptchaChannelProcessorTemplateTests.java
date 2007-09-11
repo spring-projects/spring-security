@@ -122,9 +122,9 @@ public class CaptchaChannelProcessorTemplateTests extends TestCase {
         processor.setKeyword("X");
         assertEquals("X", processor.getKeyword());
 
-        assertEquals(0, processor.getThresold());
+        assertEquals(0, processor.getThreshold());
         processor.setThresold(1);
-        assertEquals(1, processor.getThresold());
+        assertEquals(1, processor.getThreshold());
 
         assertTrue(processor.getEntryPoint() == null);
         processor.setEntryPoint(new CaptchaEntryPoint());

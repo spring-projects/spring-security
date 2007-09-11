@@ -26,15 +26,15 @@ public class AlwaysTestAfterTimeInMillisCaptchaChannelProcessor extends CaptchaC
     //~ Static fields/initializers =====================================================================================
 
     /** Keyword for this channelProcessor */
-    public static final String DEFAULT_KEYWORD = "REQUIRES_CAPTCHA_AFTER_THRESOLD_IN_MILLIS";
+    public static final String DEFAULT_KEYWORD = "REQUIRES_CAPTCHA_AFTER_THRESHOLD_IN_MILLIS";
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Constructor
      */
     public AlwaysTestAfterTimeInMillisCaptchaChannelProcessor() {
-        super();
+
         this.setKeyword(DEFAULT_KEYWORD);
     }
 
@@ -48,7 +48,7 @@ public class AlwaysTestAfterTimeInMillisCaptchaChannelProcessor extends CaptchaC
      * @return true if valid, false otherwise
      */
     boolean isContextValidConcerningHumanity(CaptchaSecurityContext context) {
-        if ((System.currentTimeMillis() - context.getLastPassedCaptchaDateInMillis()) < getThresold()) {
+        if ((System.currentTimeMillis() - context.getLastPassedCaptchaDateInMillis()) < getThreshold()) {
             logger.debug("context is valid : last passed captcha date - current time < thresold");
 
             return true;

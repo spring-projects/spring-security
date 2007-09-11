@@ -61,7 +61,7 @@ public class AlwaysTestAfterTimeInMillisCaptchaChannelProcessorTests extends Tes
         context.setHuman();
 
         while ((System.currentTimeMillis() - context.getLastPassedCaptchaDateInMillis()) < alwaysTestAfterTimeInMillisCaptchaChannelProcessor
-            .getThresold()) {
+            .getThreshold()) {
             assertTrue(alwaysTestAfterTimeInMillisCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
             context.incrementHumanRestrictedRessoucesRequestsCount();
 
