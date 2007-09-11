@@ -57,7 +57,7 @@ public class AlwaysTestAfterTimeInMillisCaptchaChannelProcessorTests extends Tes
     public void testIsContextValidConcerningHumanity()
         throws Exception {
         CaptchaSecurityContext context = new CaptchaSecurityContextImpl();
-        alwaysTestAfterTimeInMillisCaptchaChannelProcessor.setThresold(100);
+        alwaysTestAfterTimeInMillisCaptchaChannelProcessor.setThreshold(100);
         context.setHuman();
 
         while ((System.currentTimeMillis() - context.getLastPassedCaptchaDateInMillis()) < alwaysTestAfterTimeInMillisCaptchaChannelProcessor
@@ -78,7 +78,7 @@ public class AlwaysTestAfterTimeInMillisCaptchaChannelProcessorTests extends Tes
     public void testNewContext() {
         CaptchaSecurityContext context = new CaptchaSecurityContextImpl();
 
-        //alwaysTestAfterTimeInMillisCaptchaChannelProcessor.setThresold(10);
+        //alwaysTestAfterTimeInMillisCaptchaChannelProcessor.setThreshold(10);
         assertFalse(alwaysTestAfterTimeInMillisCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
     }
 }

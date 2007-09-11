@@ -40,17 +40,17 @@ public class TestOnceAfterMaxRequestsCaptchaChannelProcessorTests extends TestCa
 
     public void testIsContextValidConcerningHumanity()
         throws Exception {
-        testOnceAfterMaxRequestsCaptchaChannelProcessor.setThresold(1);
+        testOnceAfterMaxRequestsCaptchaChannelProcessor.setThreshold(1);
 
         CaptchaSecurityContextImpl context = new CaptchaSecurityContextImpl();
         assertTrue(testOnceAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
 
         context.incrementHumanRestrictedResourcesRequestsCount();
 
-        testOnceAfterMaxRequestsCaptchaChannelProcessor.setThresold(-1);
+        testOnceAfterMaxRequestsCaptchaChannelProcessor.setThreshold(-1);
         assertFalse(testOnceAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
 
-        testOnceAfterMaxRequestsCaptchaChannelProcessor.setThresold(3);
+        testOnceAfterMaxRequestsCaptchaChannelProcessor.setThreshold(3);
         assertTrue(testOnceAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
         context.incrementHumanRestrictedResourcesRequestsCount();
         assertTrue(testOnceAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
@@ -67,7 +67,7 @@ public class TestOnceAfterMaxRequestsCaptchaChannelProcessorTests extends TestCa
         CaptchaSecurityContextImpl context = new CaptchaSecurityContextImpl();
 
         assertFalse(testOnceAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
-        testOnceAfterMaxRequestsCaptchaChannelProcessor.setThresold(1);
+        testOnceAfterMaxRequestsCaptchaChannelProcessor.setThreshold(1);
         assertTrue(testOnceAfterMaxRequestsCaptchaChannelProcessor.isContextValidConcerningHumanity(context));
     }
 }

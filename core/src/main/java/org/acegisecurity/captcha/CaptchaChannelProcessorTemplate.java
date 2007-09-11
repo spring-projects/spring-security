@@ -138,7 +138,7 @@ public abstract class CaptchaChannelProcessorTemplate implements ChannelProcesso
         this.keyword = keyword;
     }
 
-    public void setThresold(int thresold) {
+    public void setThreshold(int thresold) {
         this.thresold = thresold;
     }
 
