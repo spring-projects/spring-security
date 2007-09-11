@@ -24,6 +24,8 @@ import org.acegisecurity.ui.WebAuthenticationDetails;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 
+import javax.servlet.ServletException;
+
 
 /**
  * Tests {@link AuthenticationProcessingFilter}.
@@ -35,7 +37,6 @@ public class AuthenticationProcessingFilterTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public AuthenticationProcessingFilterTests() {
-        super();
     }
 
     public AuthenticationProcessingFilterTests(String arg0) {
@@ -43,14 +44,6 @@ public class AuthenticationProcessingFilterTests extends TestCase {
     }
 
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AuthenticationProcessingFilterTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testGetters() {
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
@@ -62,10 +55,8 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY, "marissa");
         request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY, "koala");
 
-        MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
-
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
-        filter.setAuthenticationManager(authMgr);
+        filter.setAuthenticationManager(new MockAuthenticationManager(true));
         filter.init(null);
 
         Authentication result = filter.attemptAuthentication(request);
@@ -77,10 +68,8 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY, "marissa");
 
-        MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
-
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
-        filter.setAuthenticationManager(authMgr);
+        filter.setAuthenticationManager(new MockAuthenticationManager(true));
         filter.init(null);
 
         Authentication result = filter.attemptAuthentication(request);
@@ -91,13 +80,27 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY, "koala");
 
-        MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
-
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
-        filter.setAuthenticationManager(authMgr);
+        filter.setAuthenticationManager(new MockAuthenticationManager(true));
         filter.init(null);
 
         Authentication result = filter.attemptAuthentication(request);
         assertTrue(result != null);
+    }
+
+    public void testUsingDifferentParameterNamesWorksAsExpected() throws ServletException {
+        AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
+        filter.setAuthenticationManager(new MockAuthenticationManager(true));
+        filter.setUsernameParameter("x");
+        filter.setPasswordParameter("y");        
+        filter.init(null);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addParameter("x", "marissa");
+        request.addParameter("y", "koala");
+
+        Authentication result = filter.attemptAuthentication(request);
+        assertTrue(result != null);
+        assertEquals("127.0.0.1", ((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());        
     }
 }

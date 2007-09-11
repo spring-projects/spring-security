@@ -21,6 +21,7 @@ import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.acegisecurity.ui.AbstractProcessingFilter;
+import org.springframework.util.Assert;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -28,10 +29,15 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * Processes an authentication form.<p>Login forms must present two parameters to this filter: a username and
- * password. The parameter names to use are contained in the static fields {@link #ACEGI_SECURITY_FORM_USERNAME_KEY}
- * and {@link #ACEGI_SECURITY_FORM_PASSWORD_KEY}.</p>
- *  <P><B>Do not use this class directly.</B> Instead configure <code>web.xml</code> to use the {@link
+ * Processes an authentication form.
+ * <p>Login forms must present two parameters to this filter: a username and
+ * password. The default parameter names to use are contained in the
+ * static fields {@link #ACEGI_SECURITY_FORM_USERNAME_KEY} and {@link #ACEGI_SECURITY_FORM_PASSWORD_KEY}.
+ * The parameter names can also be changed by setting the <tt>usernameParameter</tt> and <tt>passwordParameter</tt>
+ * properties.
+ * </p>
+ *
+ * <p><b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the {@link
  * org.acegisecurity.util.FilterToBeanProxy}.</p>
  *
  * @author Ben Alex
@@ -45,10 +51,12 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
     public static final String ACEGI_SECURITY_FORM_PASSWORD_KEY = "j_password";
     public static final String ACEGI_SECURITY_LAST_USERNAME_KEY = "ACEGI_SECURITY_LAST_USERNAME";
 
+    private String usernameParameter = ACEGI_SECURITY_FORM_USERNAME_KEY;
+    private String passwordParameter = ACEGI_SECURITY_FORM_PASSWORD_KEY;
+
     //~ Methods ========================================================================================================
 
-    public Authentication attemptAuthentication(HttpServletRequest request)
-        throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request) throws AuthenticationException {
         String username = obtainUsername(request);
         String password = obtainPassword(request);
 
@@ -94,7 +102,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
      *         <code>AuthenticationManager</code>
      */
     protected String obtainPassword(HttpServletRequest request) {
-        return request.getParameter(ACEGI_SECURITY_FORM_PASSWORD_KEY);
+        return request.getParameter(passwordParameter);
     }
 
     /**
@@ -107,7 +115,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
      *         <code>AuthenticationManager</code>
      */
     protected String obtainUsername(HttpServletRequest request) {
-        return request.getParameter(ACEGI_SECURITY_FORM_USERNAME_KEY);
+        return request.getParameter(usernameParameter);
     }
 
     /**
@@ -119,5 +127,25 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
      */
     protected void setDetails(HttpServletRequest request, UsernamePasswordAuthenticationToken authRequest) {
         authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
+    }
+
+    /**
+     * Sets the parameter name which will be used to obtain the username from the login request.
+     *
+     * @param usernameParameter the parameter name. Defaults to "j_username".
+     */
+    public void setUsernameParameter(String usernameParameter) {
+        Assert.hasText(usernameParameter, "Username parameter must not be empty or null");
+        this.usernameParameter = usernameParameter;
+    }
+
+    /**
+     * Sets the parameter name which will be used to obtain the password from the login request..
+     *
+     * @param passwordParameter the parameter name. Defaults to "j_password".
+     */
+    public void setPasswordParameter(String passwordParameter) {
+        Assert.hasText(passwordParameter, "Password parameter must not be empty or null");        
+        this.passwordParameter = passwordParameter;
     }
 }
