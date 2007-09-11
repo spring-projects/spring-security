@@ -36,6 +36,8 @@ import javax.servlet.http.HttpServletRequestWrapper;
  * SecurityContextHolderAwareRequestWrapper#isUserInRole(java.lang.String)} and {@link
  * javax.servlet.http.HttpServletRequestWrapper#getRemoteUser()} responses.
  *
+ * @see SecurityContextHolderAwareRequestFilter
+ *
  * @author Orlando Garcia Carmona
  * @author Ben Alex
  * @version $Id$
@@ -45,10 +47,21 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
+    /**
+     * The prefix passed by the filter. It will be prepended to any supplied role values before
+     * comparing it with the roles obtained from the security context.
+     */
+    private String rolePrefix;
+
     //~ Constructors ===================================================================================================
 
-    public SecurityContextHolderAwareRequestWrapper(HttpServletRequest request, PortResolver portResolver) {
+    public SecurityContextHolderAwareRequestWrapper(
+            HttpServletRequest request,
+            PortResolver portResolver,
+            String rolePrefix) {
         super(request);
+
+        this.rolePrefix = rolePrefix;
     }
 
     //~ Methods ========================================================================================================
@@ -106,6 +119,10 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 
     private boolean isGranted(String role) {
         Authentication auth = getAuthentication();
+
+        if( rolePrefix != null ) {
+            role = rolePrefix + role;
+        }
 
         if ((auth == null) || (auth.getPrincipal() == null) || (auth.getAuthorities() == null)) {
             return false;

@@ -41,11 +41,16 @@ import javax.servlet.http.HttpSession;
 
 
 /**
- * Provides request parameters, headers and cookies from either an original request or a saved request.<p>Note that
- * not all request parameters in the original request are emulated by this wrapper. Nevertheless, the important data
- * from the original request is emulated and this should prove adequate for most purposes (in particular standard HTTP
- * GET and POST operations).</p>
- *  <p>Added into a request by {@link org.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter}.</p>
+ * Provides request parameters, headers and cookies from either an original request or a saved request.
+ *
+ * <p>Note that not all request parameters in the original request are emulated by this wrapper.
+ * Nevertheless, the important data from the original request is emulated and this should prove
+ * adequate for most purposes (in particular standard HTTP GET and POST operations).</p>
+ *
+ * <p>Added into a request by {@link org.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter}.</p>
+ *
+ *
+ * @see SecurityContextHolderAwareRequestFilter
  *
  * @author Andrey Grebnev
  * @author Ben Alex
@@ -72,8 +77,8 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
 
     //~ Constructors ===================================================================================================
 
-    public SavedRequestAwareWrapper(HttpServletRequest request, PortResolver portResolver) {
-        super(request,portResolver);
+    public SavedRequestAwareWrapper(HttpServletRequest request, PortResolver portResolver, String rolePrefix) {
+        super(request, portResolver, rolePrefix);
 
         HttpSession session = request.getSession(false);
 
@@ -113,8 +118,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
 
     /**
      * The default behavior of this method is to return getCookies() on the wrapped request object.
-     *
-     * @return DOCUMENT ME!
      */
     public Cookie[] getCookies() {
         if (savedRequest == null) {
@@ -129,12 +132,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     /**
      * The default behavior of this method is to return getDateHeader(String name) on the wrapped request
      * object.
-     *
-     * @param name DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws IllegalArgumentException DOCUMENT ME!
      */
     public long getDateHeader(String name) {
         if (savedRequest == null) {
@@ -143,13 +140,13 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
             String value = getHeader(name);
 
             if (value == null) {
-                return (-1L);
+                return -1L;
             }
 
             // Attempt to convert the date header in a variety of formats
             long result = FastHttpDateFormat.parseDate(value, formats);
 
-            if (result != (-1L)) {
+            if (result != -1L) {
                 return result;
             }
 
@@ -159,10 +156,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
 
     /**
      * The default behavior of this method is to return getHeader(String name) on the wrapped request object.
-     *
-     * @param name DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
      */
     public String getHeader(String name) {
         if (savedRequest == null) {
@@ -183,8 +176,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
 
     /**
      * The default behavior of this method is to return getHeaderNames() on the wrapped request object.
-     *
-     * @return DOCUMENT ME!
      */
     public Enumeration getHeaderNames() {
         if (savedRequest == null) {
@@ -196,10 +187,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
 
     /**
      * The default behavior of this method is to return getHeaders(String name) on the wrapped request object.
-     *
-     * @param name DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
      */
     public Enumeration getHeaders(String name) {
         if (savedRequest == null) {
@@ -212,10 +199,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     /**
      * The default behavior of this method is to return getIntHeader(String name) on the wrapped request
      * object.
-     *
-     * @param name DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
      */
     public int getIntHeader(String name) {
         if (savedRequest == null) {
@@ -224,17 +207,15 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
             String value = getHeader(name);
 
             if (value == null) {
-                return (-1);
+                return -1;
             } else {
-                return (Integer.parseInt(value));
+                return Integer.parseInt(value);
             }
         }
     }
 
     /**
      * The default behavior of this method is to return getLocale() on the wrapped request object.
-     *
-     * @return DOCUMENT ME!
      */
     public Locale getLocale() {
         if (savedRequest == null) {
@@ -260,7 +241,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     /**
      * The default behavior of this method is to return getLocales() on the wrapped request object.
      *
-     * @return DOCUMENT ME!
      */
     public Enumeration getLocales() {
         if (savedRequest == null) {
@@ -282,7 +262,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     /**
      * The default behavior of this method is to return getMethod() on the wrapped request object.
      *
-     * @return DOCUMENT ME!
      */
     public String getMethod() {
         if (savedRequest == null) {
@@ -295,10 +274,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     /**
      * The default behavior of this method is to return getParameter(String name) on the wrapped request
      * object.
-     *
-     * @param name DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
      */
     public String getParameter(String name) {
 /*
@@ -342,8 +317,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
 
     /**
      * The default behavior of this method is to return getParameterMap() on the wrapped request object.
-     *
-     * @return DOCUMENT ME!
      */
     public Map getParameterMap() {
         if (savedRequest == null) {
@@ -355,8 +328,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
 
     /**
      * The default behavior of this method is to return getParameterNames() on the wrapped request object.
-     *
-     * @return DOCUMENT ME!
      */
     public Enumeration getParameterNames() {
         if (savedRequest == null) {
@@ -369,10 +340,6 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
     /**
      * The default behavior of this method is to return getParameterValues(String name) on the wrapped request
      * object.
-     *
-     * @param name DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
      */
     public String[] getParameterValues(String name) {
         if (savedRequest == null) {

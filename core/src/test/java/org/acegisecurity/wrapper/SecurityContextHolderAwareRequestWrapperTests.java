@@ -50,8 +50,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         SecurityContextHolder.clearContext();
     }
 
-    public void testCorrectOperationWithStringBasedPrincipal()
-        throws Exception {
+    public void testCorrectOperationWithStringBasedPrincipal() throws Exception {
         Authentication auth = new TestingAuthenticationToken("marissa", "koala",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FOO")});
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -59,7 +58,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/");
 
-        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, new PortResolverImpl());
+        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, new PortResolverImpl(), "");
 
         assertEquals("marissa", wrapper.getRemoteUser());
         assertTrue(wrapper.isUserInRole("ROLE_FOO"));
@@ -67,8 +66,20 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         assertEquals(auth, wrapper.getUserPrincipal());
     }
 
-    public void testCorrectOperationWithUserDetailsBasedPrincipal()
-        throws Exception {
+    public void testUseOfRolePrefixMeansItIsntNeededWhenCallngIsUserInRole() {
+        Authentication auth = new TestingAuthenticationToken("marissa", "koala",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FOO")});
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/");
+
+        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, new PortResolverImpl(), "ROLE_");
+
+        assertTrue(wrapper.isUserInRole("FOO"));
+    }
+
+    public void testCorrectOperationWithUserDetailsBasedPrincipal() throws Exception {
         Authentication auth = new TestingAuthenticationToken(new User("marissaAsUserDetails", "koala", true, true,
                     true, true, new GrantedAuthority[] {}), "koala",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_HELLO"), new GrantedAuthorityImpl("ROLE_FOOBAR")});
@@ -77,7 +88,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/");
 
-        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, new PortResolverImpl());
+        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, new PortResolverImpl(), "");
 
         assertEquals("marissaAsUserDetails", wrapper.getRemoteUser());
         assertFalse(wrapper.isUserInRole("ROLE_FOO"));
@@ -87,19 +98,19 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         assertEquals(auth, wrapper.getUserPrincipal());
     }
 
-    public void testNullAuthenticationHandling() throws Exception {
+    public void testRoleIsntHeldIfAuthenticationIsNull() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(null);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/");
 
-        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request,new PortResolverImpl());
+        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request,new PortResolverImpl(), "");
         assertNull(wrapper.getRemoteUser());
         assertFalse(wrapper.isUserInRole("ROLE_ANY"));
         assertNull(wrapper.getUserPrincipal());
     }
 
-    public void testNullPrincipalHandling() throws Exception {
+    public void testRolesArentHeldIfAuthenticationPrincipalIsNull() throws Exception {
         Authentication auth = new TestingAuthenticationToken(null, "koala",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_HELLO"), new GrantedAuthorityImpl("ROLE_FOOBAR")});
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -107,7 +118,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/");
 
-        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, new PortResolverImpl());
+        SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(request, new PortResolverImpl(), "");
 
         assertNull(wrapper.getRemoteUser());
         assertFalse(wrapper.isUserInRole("ROLE_HELLO")); // principal is null, so reject

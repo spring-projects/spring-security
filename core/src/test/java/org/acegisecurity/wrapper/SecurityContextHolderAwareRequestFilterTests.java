@@ -39,7 +39,6 @@ public class SecurityContextHolderAwareRequestFilterTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public SecurityContextHolderAwareRequestFilterTests() {
-        super();
     }
 
     public SecurityContextHolderAwareRequestFilterTests(String arg0) {
@@ -47,10 +46,6 @@ public class SecurityContextHolderAwareRequestFilterTests extends TestCase {
     }
 
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(SecurityContextHolderAwareRequestFilterTests.class);
-    }
 
     public final void setUp() throws Exception {
         super.setUp();
@@ -76,10 +71,6 @@ public class SecurityContextHolderAwareRequestFilterTests extends TestCase {
 
         public MockFilterChain(Class expectedServletRequest) {
             this.expectedServletRequest = expectedServletRequest;
-        }
-
-        private MockFilterChain() {
-            super();
         }
 
         public void doFilter(ServletRequest request, ServletResponse response)

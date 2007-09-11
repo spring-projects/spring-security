@@ -53,6 +53,7 @@ public class SecurityContextHolderAwareRequestFilter implements Filter {
     private Class wrapperClass = SavedRequestAwareWrapper.class;
     private Constructor constructor;
     private PortResolver portResolver = new PortResolverImpl();
+    private String rolePrefix;
 
     //~ Methods ========================================================================================================
 
@@ -65,14 +66,15 @@ public class SecurityContextHolderAwareRequestFilter implements Filter {
         if (!wrapperClass.isAssignableFrom(request.getClass())) {
             if (constructor == null) {
                 try {
-                    constructor = wrapperClass.getConstructor(new Class[] {HttpServletRequest.class, PortResolver.class});
+                    constructor = wrapperClass.getConstructor(
+                            new Class[] {HttpServletRequest.class, PortResolver.class, String.class});
                 } catch (Exception ex) {
                     ReflectionUtils.handleReflectionException(ex);
                 }
             }
 
             try {
-                request = (HttpServletRequest) constructor.newInstance(new Object[] {request, portResolver});
+                request = (HttpServletRequest) constructor.newInstance(new Object[] {request, portResolver, rolePrefix});
             } catch (Exception ex) {
                 ReflectionUtils.handleReflectionException(ex);
             }
@@ -92,5 +94,10 @@ public class SecurityContextHolderAwareRequestFilter implements Filter {
         Assert.notNull(wrapperClass, "WrapperClass required");
         Assert.isTrue(HttpServletRequest.class.isAssignableFrom(wrapperClass), "Wrapper must be a HttpServletRequest");
         this.wrapperClass = wrapperClass;
+    }
+
+    public void setRolePrefix(String rolePrefix) {
+        Assert.notNull(rolePrefix, "Role prefix must not be null");
+        this.rolePrefix = rolePrefix.trim();
     }
 }
