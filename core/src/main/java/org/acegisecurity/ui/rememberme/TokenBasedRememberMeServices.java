@@ -43,7 +43,7 @@ import org.springframework.web.bind.RequestUtils;
 
 /**
  * Identifies previously remembered users by a Base-64 encoded cookie.
- * 
+ *
  * <p>
  * This implementation does not rely on an external database, so is attractive
  * for simple applications. The cookie will be valid for a specific period from
@@ -56,7 +56,7 @@ import org.springframework.web.bind.RequestUtils;
  * implementation will only send a remember-me token if the parameter defined by
  * {@link #setParameter(String)} is present.
  * </p>
- * 
+ *
  * <p>
  * An {@link org.acegisecurity.userdetails.UserDetailsService} is required by
  * this implementation, so that it can construct a valid
@@ -65,14 +65,14 @@ import org.springframework.web.bind.RequestUtils;
  * the user's password is available and can be checked as part of the encoded
  * cookie.
  * </p>
- * 
+ *
  * <p>
  * The cookie encoded by this implementation adopts the following form:
- * 
+ *
  * <pre>
  * username + &quot;:&quot; + expiryTime + &quot;:&quot; + Md5Hex(username + &quot;:&quot; + expiryTime + &quot;:&quot; + password + &quot;:&quot; + key)
  * </pre>
- * 
+ *
  * </p>
  * <p>
  * As such, if the user changes their password any remember-me token will be
@@ -96,14 +96,13 @@ import org.springframework.web.bind.RequestUtils;
  * authentication attempt. This can be changed using
  * {@link #setTokenValiditySeconds(long)}.
  * </p>
- * 
+ *
  * @author Ben Alex
  * @version $Id: TokenBasedRememberMeServices.java 1871 2007-05-25 03:12:49Z
  * benalex $
  */
 public class TokenBasedRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler {
-	// ~ Static fields/initializers
-	// =====================================================================================
+	//~ Static fields/initializers =====================================================================================
 
 	public static final String ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY = "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE";
 
@@ -111,8 +110,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 
 	protected static final Log logger = LogFactory.getLog(TokenBasedRememberMeServices.class);
 
-	// ~ Instance fields
-	// ================================================================================================
+	//~ Instance fields ================================================================================================
 
 	protected AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
 
@@ -126,12 +124,9 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 
 	private boolean alwaysRemember = false;
 
-	private static final int DEFAULT_ORDER = Integer.MAX_VALUE; // ~ default
-
 	private String cookieName = ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
 
-	// ~ Methods
-	// ========================================================================================================
+	//~ Methods ========================================================================================================
 
 	public void afterPropertiesSet() throws Exception {
 		Assert.hasLength(key);
@@ -147,7 +142,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 	 * providing the found instance of accessDeniedHandler as a method
 	 * parameter. If more than one instance of <code>AccessDeniedHandler</code>
 	 * is found, the method throws <code>IllegalStateException</code>.
-	 * 
+	 *
 	 * @param applicationContext to locate the instance
 	 */
 	private void autoDetectAndUseAnyUserDetailsService(ApplicationContext applicationContext) {
@@ -155,7 +150,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 		if (map.size() > 1) {
 			throw new IllegalArgumentException(
 					"More than one UserDetailsService beans detected please refer to the one using "
-							+ " [ principalRepositoryBeanRef  ] " + "attribute");
+							+ " [ principalRepositoryBeanRef  ] attribute");
 		}
 		else if (map.size() == 1) {
 			setUserDetailsService((UserDetailsService) map.values().iterator().next());
@@ -397,9 +392,8 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 		response.addCookie(makeValidCookie(tokenValueBase64, request, tokenValiditySeconds));
 
 		if (logger.isDebugEnabled()) {
-			logger
-					.debug("Added remember-me cookie for user '" + username + "', expiry: '" + new Date(expiryTime)
-							+ "'");
+			logger.debug("Added remember-me cookie for user '"
+                    + username + "', expiry: '" + new Date(expiryTime) + "'");
 		}
 	}
 
