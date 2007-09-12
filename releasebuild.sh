@@ -16,7 +16,7 @@
 # 7.  The archives are tar archives. Create zip versions from the contents and check the internal paths are Ok.
 # 8.  Check the site looks Ok.
 # 9.  Check the reference guide links in the site are valid and that images are shown and paths in HTML are relative.
-# 10. Deploy the contacts and tutorial sample apps in a web container and check they work.
+# 10. Deploy the contacts and tutorial sample apps in Jetty and Tomcat and check they work.
 # 11. Check there have been no further commits since checkout (svn update). If there have, go to 1.
 # 12. Commit the source with the changed version numbers and note the revision number (should be 'build revision' + 1).
 # 13. Update the pom file versions to the appropriate snapshot version, do a grep to make sure none have been missed
