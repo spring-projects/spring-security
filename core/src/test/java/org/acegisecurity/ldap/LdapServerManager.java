@@ -35,9 +35,11 @@ import org.apache.directory.server.jndi.ServerContextFactory;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;
+import org.springframework.core.io.Resource;
 
 
 /**
@@ -47,10 +49,11 @@ import org.springframework.ldap.core.support.DefaultDirObjectFactory;
  * @author Luke Taylor (borrowed from Spring Ldap project).
  *
  */
-public class LdapServerManager implements DisposableBean {
+public class LdapServerManager implements DisposableBean, InitializingBean {
     private static Log log = LogFactory.getLog(LdapServerManager.class);
 
     private ContextSource contextSource;
+    private Resource ldifFile;
 
     public void setContextSource(ContextSource contextSource) {
         this.contextSource = contextSource;
@@ -68,6 +71,17 @@ public class LdapServerManager implements DisposableBean {
         env.putAll(configuration.toJndiEnvironment());
 
         new InitialContext(env);
+    }
+
+
+    public void afterPropertiesSet() throws Exception {
+        if (ldifFile != null) {
+            cleanAndSetup(ldifFile.getFile().getAbsolutePath());
+        }
+    }
+
+    public void setLdifFile(Resource ldifFile) {
+        this.ldifFile = ldifFile;
     }
 
     public void cleanAndSetup(String ldifFile) throws Exception {
