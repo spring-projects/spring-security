@@ -82,14 +82,12 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
             final String userDn = (String) dns.next();
 
             if (ldapTemplate.nameExists(userDn)) {
-                LdapUserDetailsImpl.Essence userEssence = (LdapUserDetailsImpl.Essence)
+                user = (LdapUserDetailsImpl)
                         ldapTemplate.retrieveEntry(userDn, getUserDetailsMapper(), getUserAttributes());
-                userEssence.setUsername(username);
-                user = userEssence.createUserDetails();
             }
         }
 
-        if ((user == null) && (getUserSearch() != null)) {
+        if (user == null && getUserSearch() != null) {
             user = getUserSearch().searchForUser(username);
         }
 

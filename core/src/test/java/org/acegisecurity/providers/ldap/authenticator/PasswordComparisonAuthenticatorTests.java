@@ -86,7 +86,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 
    public void testLdapPasswordCompareFailsWithWrongPassword() {
        // Don't retrieve the password
-       authenticator.setUserAttributes(new String[] {"cn", "sn"});
+       authenticator.setUserAttributes(new String[] {"uid", "cn", "sn"});
        try {
            authenticator.authenticate("Bob", "wrongpassword");
            fail("Authentication should fail with wrong password.");
@@ -95,9 +95,9 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
    }
 
     public void testLocalPasswordComparisonSucceedsWithCorrectPassword() {
-        LdapUserDetails user = authenticator.authenticate("Bob", "bobspassword");
+        LdapUserDetails user = authenticator.authenticate("bob", "bobspassword");
         // check username is retrieved.
-        assertEquals("Bob", user.getUsername());
+        assertEquals("bob", user.getUsername());
         assertEquals("bobspassword", user.getPassword());
     }
 
@@ -107,16 +107,16 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
     }
 
     public void testOnlySpecifiedAttributesAreRetrieved() throws Exception {
-        authenticator.setUserAttributes(new String[] {"userPassword"});
+        authenticator.setUserAttributes(new String[] {"uid", "userPassword"});
         authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
 
         LdapUserDetails user = authenticator.authenticate("Bob", "bobspassword");
-        assertEquals("Should have retrieved 1 attribute (userPassword)", 1, user.getAttributes().size());
+        assertEquals("Should have retrieved 2 attribute (uid, userPassword)", 2, user.getAttributes().size());
     }
 
    public void testLdapCompareSucceedsWithCorrectPassword() {
        // Don't retrieve the password
-       authenticator.setUserAttributes(new String[] {"cn"});
+       authenticator.setUserAttributes(new String[] {"uid"});
        // Bob has a plaintext password.
        authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
        authenticator.authenticate("bob", "bobspassword");
@@ -124,7 +124,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 
    public void testLdapCompareSucceedsWithShaEncodedPassword() {
        // Don't retrieve the password
-       authenticator.setUserAttributes(new String[] {"cn"});
+       authenticator.setUserAttributes(new String[] {"uid"});
        authenticator.authenticate("ben", "benspassword");
    }
 
@@ -145,10 +145,10 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
     }
 
    public void testLdapCompareWithDifferentPasswordAttributeSucceeds() {
-       authenticator.setUserAttributes(new String[] {"cn"});
+       authenticator.setUserAttributes(new String[] {"uid"});
        authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
-       authenticator.setPasswordAttributeName("uid");
-       authenticator.authenticate("bob", "bob");
+       authenticator.setPasswordAttributeName("cn");
+       authenticator.authenticate("bob", "Bob Hamilton");
    }
 
     public void testWithUserSearch() {

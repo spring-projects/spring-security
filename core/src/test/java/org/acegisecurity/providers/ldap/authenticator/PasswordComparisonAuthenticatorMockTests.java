@@ -23,6 +23,7 @@ import org.jmock.MockObjectTestCase;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.BasicAttribute;
 
 
 /**
@@ -33,9 +34,10 @@ import javax.naming.directory.DirContext;
 public class PasswordComparisonAuthenticatorMockTests extends MockObjectTestCase {
     //~ Methods ========================================================================================================
 
-    public void testLdapCompareIsUsedWhenPasswordIsNotRetrieved()
-        throws Exception {
+    public void testLdapCompareIsUsedWhenPasswordIsNotRetrieved() throws Exception {
         Mock mockCtx = mock(DirContext.class);
+        BasicAttributes attrs = new BasicAttributes();
+        attrs.put(new BasicAttribute("uid", "bob"));
 
         PasswordComparisonAuthenticator authenticator = new PasswordComparisonAuthenticator(new MockInitialDirContextFactory(
                     (DirContext) mockCtx.proxy(), "dc=acegisecurity,dc=org"));
@@ -46,7 +48,7 @@ public class PasswordComparisonAuthenticatorMockTests extends MockObjectTestCase
         mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=acegisecurity,dc=org"));
         mockCtx.expects(once()).method("lookup").with(eq("cn=Bob, ou=people")).will(returnValue(true));
         mockCtx.expects(once()).method("getAttributes").with(eq("cn=Bob, ou=people"), NULL)
-               .will(returnValue(new BasicAttributes()));
+               .will(returnValue(attrs));
 
         // Setup a single return value (i.e. success)
         Attributes searchResults = new BasicAttributes("", null);

@@ -40,7 +40,7 @@ public class LdapUserDetailsMapper implements ContextMapper {
     //~ Instance fields ================================================================================================
 
     private final Log logger = LogFactory.getLog(LdapUserDetailsMapper.class);
-//    private String usernameAttributeName = "uid";
+    private String usernameAttributeName = "uid";
     private String passwordAttributeName = "userPassword";
     private String rolePrefix = "ROLE_";
     private String[] roleAttributes = null;
@@ -66,7 +66,7 @@ public class LdapUserDetailsMapper implements ContextMapper {
             essence.setPassword(mapPassword(passwordAttribute));
         }
 
-//        essence.setUsername(mapUsername(ctx));
+        essence.setUsername(mapUsername(ctx));
 
         // Map the roles
         for (int i = 0; (roleAttributes != null) && (i < roleAttributes.length); i++) {
@@ -86,8 +86,8 @@ public class LdapUserDetailsMapper implements ContextMapper {
             }
         }
 
-        //return essence.createUserDetails();
-        return essence;
+        return essence.createUserDetails();
+        //return essence;
     }
 
     /**
@@ -115,23 +115,23 @@ public class LdapUserDetailsMapper implements ContextMapper {
 
     }
 
-//    protected String mapUsername(DirContextAdapter ctx) {
-//        Attribute usernameAttribute = ctx.getAttributes().get(usernameAttributeName);
-//        String username;
-//
-//        if (usernameAttribute == null) {
-//            throw new AttributesIntegrityViolationException(
-//                    "Failed to get attribute " + usernameAttributeName + " from context");
-//        }
-//
-//        try {
-//            username = (String) usernameAttribute.get();
-//        } catch (NamingException e) {
-//            throw new UncategorizedLdapException("Failed to get username from attribute " + usernameAttributeName, e);
-//        }
-//
-//        return username;
-//    }
+    protected String mapUsername(DirContextAdapter ctx) {
+        Attribute usernameAttribute = ctx.getAttributes().get(usernameAttributeName);
+        String username;
+
+        if (usernameAttribute == null) {
+            throw new UncategorizedLdapException(
+                    "Failed to get attribute " + usernameAttributeName + " from context");
+        }
+
+        try {
+            username = (String) usernameAttribute.get();
+        } catch (NamingException e) {
+            throw new UncategorizedLdapException("Failed to get username from attribute " + usernameAttributeName, e);
+        }
+
+        return username;
+    }
 
     /**
      * Creates a GrantedAuthority from a role attribute. Override to customize
@@ -176,9 +176,9 @@ public class LdapUserDetailsMapper implements ContextMapper {
     }
 
 
-//    public void setUsernameAttributeName(String usernameAttributeName) {
-//        this.usernameAttributeName = usernameAttributeName;
-//    }
+    public void setUsernameAttributeName(String usernameAttributeName) {
+        this.usernameAttributeName = usernameAttributeName;
+    }
 
     /**
      * The names of any attributes in the user's  entry which represent application

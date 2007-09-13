@@ -92,7 +92,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
         locator.setSearchSubtree(true);
 
         LdapUserDetails ben = locator.searchForUser("Ben Alex");
-        assertEquals("Ben Alex", ben.getUsername());
+        assertEquals("ben", ben.getUsername());
 
 //        assertEquals("uid=ben,ou=people,dc=acegisecurity,dc=org", ben.getDn());
     }

@@ -88,11 +88,10 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
                 new BindWithSpecificDnContextSource(getInitialDirContextFactory(), userDn, password));
 
         try {
-            LdapUserDetailsImpl.Essence user = (LdapUserDetailsImpl.Essence) template.retrieveEntry(userDn,
+            LdapUserDetailsImpl user = (LdapUserDetailsImpl) template.retrieveEntry(userDn,
                     getUserDetailsMapper(), getUserAttributes());
-            user.setUsername(username);
 
-            return user.createUserDetails();
+            return user;
         } catch (BadCredentialsException e) {
             // This will be thrown if an invalid user name is used and the method may
             // be called multiple times to try different names, so we trap the exception

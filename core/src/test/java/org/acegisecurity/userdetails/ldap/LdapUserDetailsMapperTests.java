@@ -42,10 +42,11 @@ public class LdapUserDetailsMapperTests extends TestCase {
         DirContextAdapter ctx = new DirContextAdapter();
 
         ctx.setAttributeValues("userRole", new String[] {"X", "Y", "Z"});
+        ctx.setAttributeValue("uid", "ani");
 
-        LdapUserDetailsImpl.Essence user = (LdapUserDetailsImpl.Essence) mapper.mapFromContext(ctx);
+        LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapFromContext(ctx);
 
-        assertEquals(3, user.getGrantedAuthorities().length);
+        assertEquals(3, user.getAuthorities().length);
     }
 
     /**
@@ -60,11 +61,12 @@ public class LdapUserDetailsMapperTests extends TestCase {
         attrs.put(new BasicAttribute("userRole", "x"));
 
         DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName("cn=someName"));
+        ctx.setAttributeValue("uid", "ani");
 
-        LdapUserDetailsImpl.Essence user = (LdapUserDetailsImpl.Essence) mapper.mapFromContext(ctx);
+        LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapFromContext(ctx);
 
-        assertEquals(1, user.getGrantedAuthorities().length);
-        assertEquals("ROLE_X", user.getGrantedAuthorities()[0].getAuthority());
+        assertEquals(1, user.getAuthorities().length);
+        assertEquals("ROLE_X", user.getAuthorities()[0].getAuthority());
     }
 
 //    public void testNonStringRoleAttributeIsIgnoredByDefault() throws Exception {
@@ -90,9 +92,9 @@ public class LdapUserDetailsMapperTests extends TestCase {
         attrs.put(new BasicAttribute("myappsPassword", "mypassword".getBytes()));
 
         DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName("cn=someName"));
+        ctx.setAttributeValue("uid", "ani");
 
-        LdapUserDetails user =
-                ((LdapUserDetailsImpl.Essence) mapper.mapFromContext(ctx)).createUserDetails();
+        LdapUserDetails user = (LdapUserDetailsImpl) mapper.mapFromContext(ctx);
 
         assertEquals("mypassword", user.getPassword());
     }

@@ -117,15 +117,14 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 
         try {
 
-            LdapUserDetailsImpl.Essence user = (LdapUserDetailsImpl.Essence) template.searchForSingleEntry(
+            LdapUserDetailsImpl user = (LdapUserDetailsImpl) template.searchForSingleEntry(
                     searchBase, searchFilter, new String[] {username}, userDetailsMapper);
 
-            user.setUsername(username);
-//            if (!username.equals(user.getUsername())) {
-//                logger.debug("Search returned user object with different username: " + user.getUsername());
-//            }
+            if (!username.equals(user.getUsername())) {
+                logger.debug("Search returned user object with different username: " + user.getUsername());
+            }
 
-            return user.createUserDetails();
+            return user;
         } catch (IncorrectResultSizeDataAccessException notFound) {
             if (notFound.getActualSize() == 0) {
                 throw new UsernameNotFoundException("User " + username + " not found in directory.");
@@ -162,6 +161,10 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
      */
     public void setSearchTimeLimit(int searchTimeLimit) {
         searchControls.setTimeLimit(searchTimeLimit);
+    }
+
+    public void setUserDetailsMapper(LdapUserDetailsMapper userDetailsMapper) {
+        this.userDetailsMapper = userDetailsMapper;
     }
 
     public String toString() {
