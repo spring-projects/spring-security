@@ -92,7 +92,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
         filter.setAuthenticationManager(new MockAuthenticationManager(true));
         filter.setUsernameParameter("x");
-        filter.setPasswordParameter("y");        
+        filter.setPasswordParameter("y");
         filter.init(null);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -101,6 +101,19 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
         Authentication result = filter.attemptAuthentication(request);
         assertTrue(result != null);
-        assertEquals("127.0.0.1", ((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());        
+        assertEquals("127.0.0.1", ((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
+    }
+
+    public void testSpacesAreTrimmedCorrectlyFromUsername() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_USERNAME_KEY, " marissa ");
+        request.addParameter(AuthenticationProcessingFilter.ACEGI_SECURITY_FORM_PASSWORD_KEY, "koala");
+
+        AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
+        filter.setAuthenticationManager(new MockAuthenticationManager(true));
+        filter.init(null);
+
+        Authentication result = filter.attemptAuthentication(request);
+        assertEquals("marissa", result.getName());
     }
 }

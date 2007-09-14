@@ -68,6 +68,8 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
             password = "";
         }
 
+        username = username.trim();
+
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
 
         // Place the last username attempted into HttpSession for views
@@ -145,7 +147,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
      * @param passwordParameter the parameter name. Defaults to "j_password".
      */
     public void setPasswordParameter(String passwordParameter) {
-        Assert.hasText(passwordParameter, "Password parameter must not be empty or null");        
+        Assert.hasText(passwordParameter, "Password parameter must not be empty or null");
         this.passwordParameter = passwordParameter;
     }
 }
