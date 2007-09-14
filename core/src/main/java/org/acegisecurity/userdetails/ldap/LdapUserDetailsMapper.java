@@ -31,7 +31,7 @@ import javax.naming.directory.Attribute;
 
 
 /**
- * The entry mapper used by the authenticators to create an ldap user object.
+ * The context mapper used by the authenticators to create an ldap user object.
  *
  * @author Luke Taylor
  * @version $Id$
