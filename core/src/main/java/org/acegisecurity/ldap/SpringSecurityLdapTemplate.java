@@ -25,19 +25,28 @@ import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.AttributesMapper;
+import org.springframework.ldap.core.AttributesMapperCallbackHandler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
+import java.text.MessageFormat;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.Context;
+import javax.naming.NameClassPair;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.management.AttributeNotFoundException;
 
 
 /**
@@ -51,12 +60,11 @@ import javax.naming.directory.SearchResult;
  */
 public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.LdapTemplate {
     //~ Static fields/initializers =====================================================================================
+    private static final Log logger = LogFactory.getLog(SpringSecurityLdapTemplate.class);
 
     public static final String[] NO_ATTRS = new String[0];
 
     //~ Instance fields ================================================================================================
-
-    private NamingExceptionTranslator exceptionTranslator = new LdapExceptionTranslator();
 
     /** Default search controls */
     private SearchControls searchControls = new SearchControls();
@@ -103,20 +111,6 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
 
         return matches.booleanValue();
     }
-
-//    public Object execute(LdapCallback callback) throws DataAccessException {
-//        DirContext ctx = null;
-//
-//        try {
-//            ctx = dirContextFactory.getReadOnlyContext();
-//
-//            return callback.doInDirContext(ctx);
-//        } catch (NamingException exception) {
-//            throw exceptionTranslator.translate("LdapCallback", exception);
-//        } finally {
-//            LdapUtils.closeContext(ctx);
-//        }
-//    }
 
     public boolean nameExists(final String dn) {
         Boolean exists = (Boolean) executeReadOnly(new ContextExecutor() {
@@ -176,46 +170,54 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
      */
     public Set searchForSingleAttributeValues(final String base, final String filter, final Object[] params,
         final String attributeName) {
-        class SingleAttributeSearchCallback implements ContextExecutor {
-            public Object executeWithContext(DirContext ctx)
-                throws NamingException {
-                Set unionOfValues = new HashSet();
 
-                // We're only interested in a single attribute for this method, so we make a copy of
-                // the search controls and override the returningAttributes property
-                SearchControls ctls = new SearchControls();
+        String formattedFilter = MessageFormat.format(filter, params);
 
-                ctls.setSearchScope(searchControls.getSearchScope());
-                ctls.setTimeLimit(searchControls.getTimeLimit());
-                ctls.setDerefLinkFlag(searchControls.getDerefLinkFlag());
-                ctls.setReturningAttributes(new String[] {attributeName});
+        // Returns either a string or list of strings from each match, depending on whether the
+        // specified attribute has one or more values.
+        AttributesMapper roleMapper = new AttributesMapper() {
+            public Object mapFromAttributes(Attributes attributes) throws NamingException {
+                Attribute attribute = attributes.get(attributeName);
 
-                NamingEnumeration matchingEntries = ctx.search(base, filter, params, ctls);
+                if (attribute == null || attribute.size() == 0) {
+                    logger.debug("No attribute value found for '" + attributeName + "'");
 
-                while (matchingEntries.hasMore()) {
-                    SearchResult result = (SearchResult) matchingEntries.next();
-                    Attributes attrs = result.getAttributes();
-
-                    // There should only be one attribute in each matching entry.
-                    NamingEnumeration returnedAttributes = attrs.getAll();
-
-                    while (returnedAttributes.hasMore()) {
-                        Attribute returnedAttribute = (Attribute) returnedAttributes.next();
-                        NamingEnumeration attributeValues = returnedAttribute.getAll();
-
-                        while (attributeValues.hasMore()) {
-                            Object value = attributeValues.next();
-
-                            unionOfValues.add(value.toString());
-                        }
-                    }
+                    return null;
                 }
 
-                return unionOfValues;
-            }
-        }
+                if (attribute.size() == 1) {
+                    return attribute.get();
+                }
 
-        return (Set) executeReadOnly(new SingleAttributeSearchCallback());
+                NamingEnumeration ne = attribute.getAll();
+                List values = new ArrayList(attribute.size());
+                while (ne.hasMore()) {
+                    values.add(ne.next());
+                }
+                return values;
+            }
+        };
+
+        AttributesMapperCallbackHandler collector = new AttributesMapperCallbackHandler(roleMapper) {
+            public void handleNameClassPair(NameClassPair nameClassPair) {
+                Object roleObject = getObjectFromNameClassPair(nameClassPair);
+
+                if (roleObject instanceof String) {
+                    getList().add(roleObject);
+                } else if (roleObject instanceof List) {
+                    getList().addAll((List)roleObject);
+                }
+            }
+        };
+
+        SearchControls ctls = new SearchControls();
+        ctls.setSearchScope(searchControls.getSearchScope());
+        ctls.setReturningAttributes(new String[] {attributeName});
+        ctls.setReturningObjFlag(false);
+
+        search(base, formattedFilter, ctls, collector);
+
+        return new HashSet(collector.getList());
     }
 
     /**
@@ -282,13 +284,5 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
      */
     public void setSearchControls(SearchControls searchControls) {
         this.searchControls = searchControls;
-    }
-
-    //~ Inner Classes ==================================================================================================
-
-    private static class LdapExceptionTranslator implements NamingExceptionTranslator {
-        public DataAccessException translate(String task, NamingException e) {
-            return new LdapDataAccessException(task + ";" + e.getMessage(), e);
-        }
     }
 }
