@@ -28,10 +28,12 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * Processes an authentication form.<p>Login forms must present two parameters to this filter: a username and
+ * Processes an authentication form.
+ * <p>Login forms must present two parameters to this filter: a username and
  * password. The parameter names to use are contained in the static fields {@link #ACEGI_SECURITY_FORM_USERNAME_KEY}
  * and {@link #ACEGI_SECURITY_FORM_PASSWORD_KEY}.</p>
- *  <P><B>Do not use this class directly.</B> Instead configure <code>web.xml</code> to use the {@link
+ *
+ * <p><b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the {@link
  * org.acegisecurity.util.FilterToBeanProxy}.</p>
  *
  * @author Ben Alex
@@ -47,8 +49,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
 
     //~ Methods ========================================================================================================
 
-    public Authentication attemptAuthentication(HttpServletRequest request)
-        throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request) throws AuthenticationException {
         String username = obtainUsername(request);
         String password = obtainPassword(request);
 
@@ -59,6 +60,8 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
         if (password == null) {
             password = "";
         }
+
+        username = username.trim();
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
 
