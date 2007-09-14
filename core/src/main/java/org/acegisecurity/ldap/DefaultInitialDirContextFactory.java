@@ -68,7 +68,7 @@ import javax.naming.directory.InitialDirContext;
  * @see <a href="http://java.sun.com/products/jndi/tutorial/ldap/connect/pool.html">The Java tutorial's guide to LDAP
  *      connection pooling</a>
  */
-public class DefaultInitialDirContextFactory implements InitialDirContextFactory, MessageSourceAware, ContextSource {
+public class DefaultInitialDirContextFactory implements InitialDirContextFactory, MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(DefaultInitialDirContextFactory.class);
