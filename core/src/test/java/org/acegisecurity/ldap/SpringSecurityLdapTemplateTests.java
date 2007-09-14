@@ -28,7 +28,7 @@ import javax.naming.directory.DirContext;
  * @author Luke Taylor
  * @version $Id$
  */
-public class LdapTemplateTests extends AbstractLdapIntegrationTests {
+public class SpringSecurityLdapTemplateTests extends AbstractLdapIntegrationTests {
     //~ Instance fields ================================================================================================
 
     private SpringSecurityLdapTemplate template;
@@ -75,7 +75,7 @@ public class LdapTemplateTests extends AbstractLdapIntegrationTests {
         } catch (UncategorizedLdapException expected) {}
     }
 
-    public void testSearchForSingleAttributeValues() {
+    public void testRoleSearchReturnsCorrectNumberOfRoles() {
         String param = "uid=ben,ou=people,dc=acegisecurity,dc=org";
 
         Set values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "ou");
@@ -84,5 +84,13 @@ public class LdapTemplateTests extends AbstractLdapIntegrationTests {
         assertTrue(values.contains("developer"));
         assertTrue(values.contains("manager"));
         assertTrue(values.contains("submanager"));
+    }
+
+    public void testRoleSearchForMissingAttributeFailsGracefully() {
+        String param = "uid=ben,ou=people,dc=acegisecurity,dc=org";
+
+        Set values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "mail");
+
+        assertEquals(0, values.size());
     }
 }
