@@ -17,6 +17,7 @@ package org.acegisecurity.userdetails.jdbc;
 
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.AcegiMessageSource;
 
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
@@ -24,6 +25,7 @@ import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 
 import org.springframework.context.ApplicationContextException;
+import org.springframework.context.support.MessageSourceAccessor;
 
 import org.springframework.dao.DataAccessException;
 
@@ -65,6 +67,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 
     //~ Instance fields ================================================================================================
 
+    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
     protected MappingSqlQuery authoritiesByUsernameMapping;
     protected MappingSqlQuery usersByUsernameMapping;
     private String authoritiesByUsernameQuery;
@@ -124,7 +127,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
         List users = usersByUsernameMapping.execute(username);
 
         if (users.size() == 0) {
-            throw new UsernameNotFoundException("User not found");
+            throw new UsernameNotFoundException(
+                    messages.getMessage("JdbcDaoImpl.notFound", new Object[]{username}, "Username {0} not found"));
         }
 
         UserDetails user = (UserDetails) users.get(0); // contains no GrantedAuthority[]
@@ -134,7 +138,9 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
         addCustomAuthorities(user.getUsername(), dbAuths);
 
         if (dbAuths.size() == 0) {
-            throw new UsernameNotFoundException("User has no GrantedAuthority");
+            throw new UsernameNotFoundException(
+                    messages.getMessage("JdbcDaoImpl.noAuthority",
+                            new Object[] {username}, "User {0} has no GrantedAuthority"));
         }
 
         GrantedAuthority[] arrayAuths = (GrantedAuthority[]) dbAuths.toArray(new GrantedAuthority[dbAuths.size()]);

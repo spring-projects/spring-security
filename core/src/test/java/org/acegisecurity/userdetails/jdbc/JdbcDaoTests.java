@@ -40,7 +40,6 @@ public class JdbcDaoTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public JdbcDaoTests() {
-        super();
     }
 
     public JdbcDaoTests(String arg0) {
@@ -48,10 +47,6 @@ public class JdbcDaoTests extends TestCase {
     }
 
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(JdbcDaoTests.class);
-    }
 
     private JdbcDaoImpl makePopulatedJdbcDao() throws Exception {
         JdbcDaoImpl dao = new JdbcDaoImpl();
@@ -69,10 +64,6 @@ public class JdbcDaoTests extends TestCase {
         dao.afterPropertiesSet();
 
         return dao;
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
     }
 
     public void testCheckDaoAccessUserSuccess() throws Exception {
@@ -121,7 +112,7 @@ public class JdbcDaoTests extends TestCase {
             dao.loadUserByUsername("cooper");
             fail("Should have thrown UsernameNotFoundException");
         } catch (UsernameNotFoundException expected) {
-            assertEquals("User has no GrantedAuthority", expected.getMessage());
+            assertEquals("User cooper has no GrantedAuthority", expected.getMessage());
         }
     }
 
