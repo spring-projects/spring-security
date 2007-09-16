@@ -26,6 +26,7 @@ import java.io.UnsupportedEncodingException;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.Name;
 
 
 /**
@@ -73,8 +74,7 @@ public final class LdapUtils {
      *
      * @throws NamingException any exceptions thrown by the context are propagated.
      */
-    public static String getRelativeName(String fullDn, Context baseCtx)
-            throws NamingException {
+    public static String getRelativeName(String fullDn, Context baseCtx) throws NamingException {
 
         String baseDn = baseCtx.getNameInNamespace();
 

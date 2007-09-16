@@ -24,8 +24,11 @@ import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
+import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DistinguishedName;
 
 import java.util.ArrayList;
 
@@ -54,14 +57,14 @@ public class LdapAuthenticationProviderTests extends TestCase {
     public void testDifferentCacheValueCausesException() {
         LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
                 new MockAuthoritiesPopulator());
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben", "benspassword");
 
         // User is authenticated here
-        UserDetails user = ldapProvider.retrieveUser("bob", authRequest);
+        UserDetails user = ldapProvider.retrieveUser("ben", authRequest);
         // Assume the user details object is cached...
 
         // And a subsequent authentication request comes in on the cached data
-        authRequest = new UsernamePasswordAuthenticationToken("bob", "wrongpassword");
+        authRequest = new UsernamePasswordAuthenticationToken("ben", "wrongpassword");
 
         try {
             ldapProvider.additionalAuthenticationChecks(user, authRequest);
@@ -95,14 +98,17 @@ public class LdapAuthenticationProviderTests extends TestCase {
     public void testNormalUsage() {
         LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
                 new MockAuthoritiesPopulator());
+        LdapUserDetailsMapper userMapper = new LdapUserDetailsMapper();
+        userMapper.setRoleAttributes(new String[] {"ou"});
+        ldapProvider.setUserDetailsContextMapper(userMapper);
 
         assertNotNull(ldapProvider.getAuthoritiesPopulator());
 
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
-        UserDetails user = ldapProvider.retrieveUser("bob", authRequest);
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben", "benspassword");
+        UserDetails user = ldapProvider.retrieveUser("ben", authRequest);
         assertEquals(2, user.getAuthorities().length);
-        assertEquals("bobspassword", user.getPassword());
-        assertEquals("bob", user.getUsername());
+        assertEquals("{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=", user.getPassword());
+        assertEquals("ben", user.getUsername());
 
         ArrayList authorities = new ArrayList();
         authorities.add(user.getAuthorities()[0].getAuthority());
@@ -116,8 +122,11 @@ public class LdapAuthenticationProviderTests extends TestCase {
 
     public void testUseWithNullAuthoritiesPopulatorReturnsCorrectRole() {
         LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator());
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
-        UserDetails user = ldapProvider.retrieveUser("bob", authRequest);
+        LdapUserDetailsMapper userMapper = new LdapUserDetailsMapper();
+        userMapper.setRoleAttributes(new String[] {"ou"});
+        ldapProvider.setUserDetailsContextMapper(userMapper);        
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben", "benspassword");
+        UserDetails user = ldapProvider.retrieveUser("ben", authRequest);
         assertEquals(1, user.getAuthorities().length);
         assertEquals("ROLE_FROM_ENTRY", user.getAuthorities()[0].getAuthority());
     }
@@ -125,23 +134,20 @@ public class LdapAuthenticationProviderTests extends TestCase {
     //~ Inner Classes ==================================================================================================
 
     class MockAuthenticator implements LdapAuthenticator {
-        Attributes userAttributes = new BasicAttributes("cn", "bob");
 
-        public LdapUserDetails authenticate(String username, String password) {
-            LdapUserDetailsImpl.Essence userEssence = new LdapUserDetailsImpl.Essence();
-            userEssence.setPassword("{SHA}anencodedpassword");
-            userEssence.setAttributes(userAttributes);
+        public DirContextOperations authenticate(String username, String password) {
+            DirContextAdapter ctx = new DirContextAdapter();
+            ctx.setAttributeValue("ou", "FROM_ENTRY");
 
-            if (username.equals("bob") && password.equals("bobspassword")) {
-                userEssence.setDn("cn=bob,ou=people,dc=acegisecurity,dc=org");
-                userEssence.addAuthority(new GrantedAuthorityImpl("ROLE_FROM_ENTRY"));
+            if (username.equals("ben") && password.equals("benspassword")) {
+                ctx.setDn(new DistinguishedName("cn=ben,ou=people,dc=acegisecurity,dc=org"));
+                ctx.setAttributeValue("userPassword","{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=");
 
-                return userEssence.createUserDetails();
+                return ctx;
             } else if (username.equals("jen") && password.equals("")) {
-                userEssence.setDn("cn=jen,ou=people,dc=acegisecurity,dc=org");
-                userEssence.addAuthority(new GrantedAuthorityImpl("ROLE_FROM_ENTRY"));
+                ctx.setDn(new DistinguishedName("cn=jen,ou=people,dc=acegisecurity,dc=org"));
 
-                return userEssence.createUserDetails();
+                return ctx;
             }
 
             throw new BadCredentialsException("Authentication failed.");
@@ -169,7 +175,7 @@ public class LdapAuthenticationProviderTests extends TestCase {
 //        assertEquals(2, auth.getAuthorities().length);
 //    }
     class MockAuthoritiesPopulator implements LdapAuthoritiesPopulator {
-        public GrantedAuthority[] getGrantedAuthorities(LdapUserDetails userDetailsll) {
+        public GrantedAuthority[] getGrantedAuthorities(DirContextOperations userCtx, String username) {
             return new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_FROM_POPULATOR")};
         }
     }

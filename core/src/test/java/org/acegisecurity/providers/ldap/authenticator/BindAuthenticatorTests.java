@@ -17,14 +17,13 @@ package org.acegisecurity.providers.ldap.authenticator;
 
 import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.GrantedAuthorityImpl;
 
 import org.acegisecurity.ldap.AbstractLdapIntegrationTests;
 import org.acegisecurity.ldap.InitialDirContextFactory;
 
-import org.acegisecurity.userdetails.ldap.LdapUserDetails;
-import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
-import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.DirContextOperations;
 
 
 /**
@@ -48,8 +47,8 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
     public void testAuthenticationWithCorrectPasswordSucceeds() {
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
 
-        LdapUserDetails user = authenticator.authenticate("bob", "bobspassword");
-        assertEquals("bob", user.getUsername());
+        DirContextOperations user = authenticator.authenticate("bob", "bobspassword");
+        assertEquals("bob", user.getStringAttribute("uid"));
     }
 
     public void testAuthenticationWithInvalidUserNameFails() {
@@ -62,10 +61,9 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
     }
 
     public void testAuthenticationWithUserSearch() throws Exception {
-        LdapUserDetailsImpl.Essence userEssence = new LdapUserDetailsImpl.Essence();
-        userEssence.setDn("uid=bob,ou=people,dc=acegisecurity,dc=org");
+        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=bob,ou=people,dc=acegisecurity,dc=org"));
 
-        authenticator.setUserSearch(new MockUserSearch(userEssence.createUserDetails()));
+        authenticator.setUserSearch(new MockUserSearch(ctx));
         authenticator.afterPropertiesSet();
         authenticator.authenticate("bob", "bobspassword");
     }
@@ -77,21 +75,6 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
             authenticator.authenticate("bob", "wrongpassword");
             fail("Shouldn't be able to bind with wrong password");
         } catch (BadCredentialsException expected) {}
-    }
-
-    // TODO: Create separate tests for base class
-    public void testRoleRetrieval() {
-        authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
-
-        LdapUserDetailsMapper userMapper = new LdapUserDetailsMapper();
-        userMapper.setRoleAttributes(new String[] {"uid"});
-
-        authenticator.setUserDetailsMapper(userMapper);
-
-        LdapUserDetails user = authenticator.authenticate("bob", "bobspassword");
-
-        assertEquals(1, user.getAuthorities().length);
-        assertEquals(new GrantedAuthorityImpl("ROLE_BOB"), user.getAuthorities()[0]);
     }
 
     public void testUserDnPatternReturnsCorrectDn() {

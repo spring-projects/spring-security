@@ -15,7 +15,7 @@
 
 package org.acegisecurity.ldap;
 
-import org.acegisecurity.userdetails.ldap.LdapUserDetails;
+import org.springframework.ldap.core.DirContextOperations;
 
 
 /**
@@ -37,7 +37,7 @@ public interface LdapUserSearch {
      *
      * @param username the login name supplied to the authentication service.
      *
-     * @return an LdapUserDetailsImpl object containing the user's full DN and requested attributes.
+     * @return a DirContextOperations object containing the user's full DN and requested attributes.
      */
-    LdapUserDetails searchForUser(String username);
+    DirContextOperations searchForUser(String username);
 }

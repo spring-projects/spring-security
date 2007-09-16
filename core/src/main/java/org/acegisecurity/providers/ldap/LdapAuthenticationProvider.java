@@ -19,14 +19,15 @@ import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.ldap.LdapDataAccessException;
 
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.acegisecurity.providers.ldap.authenticator.LdapShaPasswordEncoder;
+import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.acegisecurity.providers.dao.AbstractUserDetailsAuthenticationProvider;
 
 import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.ldap.LdapUserDetails;
-import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
+import org.acegisecurity.userdetails.ldap.UserDetailsContextMapper;
+import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.dao.DataAccessException;
+import org.springframework.ldap.core.DirContextOperations;
 
 
 /**
@@ -123,6 +125,8 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
 
     private LdapAuthenticator authenticator;
     private LdapAuthoritiesPopulator authoritiesPopulator;
+    private UserDetailsContextMapper userDetailsContextMapper = new LdapUserDetailsMapper();
+    private PasswordEncoder passwordEncoder = new LdapShaPasswordEncoder();
     private boolean includeDetailsObject = true;
 
     //~ Constructors ===================================================================================================
@@ -149,7 +153,7 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     public LdapAuthenticationProvider(LdapAuthenticator authenticator) {
         this.setAuthenticator(authenticator);
         this.setAuthoritiesPopulator(new NullAuthoritiesPopulator());
-    }    
+    }
 
     //~ Methods ========================================================================================================
 
@@ -171,42 +175,21 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         return authoritiesPopulator;
     }
 
+    public void setUserDetailsContextMapper(UserDetailsContextMapper userDetailsContextMapper) {
+        Assert.notNull(userDetailsContextMapper, "UserDetailsContextMapper must not be null");
+        this.userDetailsContextMapper = userDetailsContextMapper;
+    }
+
     protected void additionalAuthenticationChecks(UserDetails userDetails,
                                                   UsernamePasswordAuthenticationToken authentication)
         throws AuthenticationException {
-        if (!userDetails.getPassword().equals(authentication.getCredentials().toString())) {
+		String presentedPassword = authentication.getCredentials() == null ? "" :
+                authentication.getCredentials().toString();
+        if (!passwordEncoder.isPasswordValid(userDetails.getPassword(), presentedPassword, null)) { 
             throw new BadCredentialsException(messages.getMessage(
                     "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
                     includeDetailsObject ? userDetails : null);
         }
-    }
-
-    /**
-     * Creates the final <tt>UserDetails</tt> object that will be returned by the provider once the user has
-     * been authenticated.<p>The <tt>LdapAuthoritiesPopulator</tt> will be used to create the granted
-     * authorites for the user.</p>
-     *  <p>Can be overridden to customize the creation of the final UserDetails instance. The default will
-     * merge any additional authorities retrieved from the populator with the propertis of original <tt>ldapUser</tt>
-     * object and set the values of the username and password.</p>
-     *
-     * @param ldapUser The intermediate LdapUserDetails instance returned by the authenticator.
-     * @param username the username submitted to the provider
-     * @param password the password submitted to the provider
-     *
-     * @return The UserDetails for the successfully authenticated user.
-     */
-    protected UserDetails createUserDetails(LdapUserDetails ldapUser, String username, String password) {
-        LdapUserDetailsImpl.Essence user = new LdapUserDetailsImpl.Essence(ldapUser);
-        user.setUsername(username);
-        user.setPassword(password);
-
-        GrantedAuthority[] extraAuthorities = getAuthoritiesPopulator().getGrantedAuthorities(ldapUser);
-
-        for (int i = 0; i < extraAuthorities.length; i++) {
-            user.addAuthority(extraAuthorities[i]);
-        }
-
-        return user.createUserDetails();
     }
 
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
@@ -230,9 +213,11 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         }
 
         try {
-            LdapUserDetails ldapUser = getAuthenticator().authenticate(username, password);
+            DirContextOperations user = getAuthenticator().authenticate(username, password);
 
-            return createUserDetails(ldapUser, username, password);
+            GrantedAuthority[] extraAuthorities = getAuthoritiesPopulator().getGrantedAuthorities(user, username);
+
+            return userDetailsContextMapper.mapUserFromContext(user, username, extraAuthorities);
 
         } catch (DataAccessException ldapAccessFailure) {
             throw new AuthenticationServiceException(ldapAccessFailure.getMessage(), ldapAccessFailure);
@@ -250,7 +235,7 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     //~ Inner Classes ==================================================================================================
 
     private static class NullAuthoritiesPopulator implements LdapAuthoritiesPopulator {
-        public GrantedAuthority[] getGrantedAuthorities(LdapUserDetails userDetails) throws LdapDataAccessException {
+        public GrantedAuthority[] getGrantedAuthorities(DirContextOperations userDetails, String username) {
             return new GrantedAuthority[0];
         }
     }

@@ -24,13 +24,12 @@ import org.acegisecurity.ldap.LdapUtils;
 import org.acegisecurity.providers.encoding.PasswordEncoder;
 
 import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.acegisecurity.userdetails.ldap.LdapUserDetails;
-import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.util.Assert;
+import org.springframework.ldap.core.DirContextOperations;
 
 import java.util.Iterator;
 
@@ -70,20 +69,19 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 
     //~ Methods ========================================================================================================
 
-    public LdapUserDetails authenticate(final String username, final String password) {
+    public DirContextOperations authenticate(final String username, final String password) {
         // locate the user and check the password
-        LdapUserDetails user = null;
+        DirContextOperations user = null;
 
         Iterator dns = getUserDns(username).iterator();
 
         SpringSecurityLdapTemplate ldapTemplate = new SpringSecurityLdapTemplate(getInitialDirContextFactory());
 
-        while (dns.hasNext() && (user == null)) {
+        while (dns.hasNext() && user == null) {
             final String userDn = (String) dns.next();
 
             if (ldapTemplate.nameExists(userDn)) {
-                user = (LdapUserDetailsImpl)
-                        ldapTemplate.retrieveEntry(userDn, getUserDetailsMapper(), getUserAttributes());
+                user = ldapTemplate.retrieveEntry(userDn, getUserAttributes());
             }
         }
 
@@ -95,7 +93,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
             throw new UsernameNotFoundException(username);
         }
 
-        String retrievedPassword = user.getPassword();
+        Object retrievedPassword = user.getObjectAttribute(passwordAttributeName);
 
         if (retrievedPassword != null) {
             if (!verifyPassword(password, retrievedPassword)) {
@@ -107,15 +105,14 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Password attribute wasn't retrieved for user '" + username + "' using mapper "
-                + getUserDetailsMapper() + ". Performing LDAP compare of password attribute '" + passwordAttributeName
-                + "'");
+            logger.debug("Password attribute wasn't retrieved for user '" + username
+                    + "'. Performing LDAP compare of password attribute '" + passwordAttributeName + "'");
         }
 
         String encodedPassword = passwordEncoder.encodePassword(password, null);
         byte[] passwordBytes = LdapUtils.getUtf8Bytes(encodedPassword);
 
-        if (!ldapTemplate.compare(user.getDn(), passwordAttributeName, passwordBytes)) {
+        if (!ldapTemplate.compare(user.getDn().toString(), passwordAttributeName, passwordBytes)) {
             throw new BadCredentialsException(messages.getMessage("PasswordComparisonAuthenticator.badCredentials",
                     "Bad credentials"));
         }
@@ -141,12 +138,17 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
      *
      * @return true if they match
      */
-    private boolean verifyPassword(String password, String ldapPassword) {
+    protected boolean verifyPassword(String password, Object ldapPassword) {
+        if (!(ldapPassword instanceof String)) {
+            // Assume it's binary
+            ldapPassword = new String((byte[]) ldapPassword);
+        }
+
         if (ldapPassword.equals(password)) {
             return true;
         }
 
-        if (passwordEncoder.isPasswordValid(ldapPassword, password, null)) {
+        if (passwordEncoder.isPasswordValid((String)ldapPassword, password, null)) {
             return true;
         }
 

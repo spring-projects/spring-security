@@ -22,6 +22,7 @@ import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.acegisecurity.userdetails.ldap.LdapUserDetails;
 
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.ldap.core.DirContextOperations;
 
 
 /**
@@ -48,8 +49,8 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
         locator.setSearchTimeLimit(0);
         locator.setDerefLinkFlag(false);
 
-        LdapUserDetails bob = locator.searchForUser("bob");
-        assertEquals("bob", bob.getUsername());
+        DirContextOperations bob = locator.searchForUser("bob");
+        assertEquals("bob", bob.getStringAttribute("uid"));
 
         // name is wrong with embedded apacheDS
 //        assertEquals("uid=bob,ou=people,dc=acegisecurity,dc=org", bob.getDn());
@@ -61,9 +62,8 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
                 "(&(cn=*)(!(|(uid={0})(uid=marissa))))", dirCtxFactory);
 
         // Search for bob, get back ben...
-        LdapUserDetails ben = locator.searchForUser("bob");
-        String cn = (String) ben.getAttributes().get("cn").get();
-        assertEquals("Ben Alex", cn);
+        DirContextOperations ben = locator.searchForUser("bob");
+        assertEquals("Ben Alex", ben.getStringAttribute("cn"));
 
 //        assertEquals("uid=ben,ou=people,"+ROOT_DN, ben.getDn());
     }
@@ -91,8 +91,8 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
         FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("", "(cn={0})", dirCtxFactory);
         locator.setSearchSubtree(true);
 
-        LdapUserDetails ben = locator.searchForUser("Ben Alex");
-        assertEquals("ben", ben.getUsername());
+        DirContextOperations ben = locator.searchForUser("Ben Alex");
+        assertEquals("ben", ben.getStringAttribute("uid"));
 
 //        assertEquals("uid=ben,ou=people,dc=acegisecurity,dc=org", ben.getDn());
     }

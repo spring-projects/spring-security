@@ -22,6 +22,7 @@ import javax.naming.directory.BasicAttribute;
 
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
+import org.acegisecurity.GrantedAuthority;
 
 /**
  * Tests {@link LdapUserDetailsMapper}.
@@ -44,7 +45,7 @@ public class LdapUserDetailsMapperTests extends TestCase {
         ctx.setAttributeValues("userRole", new String[] {"X", "Y", "Z"});
         ctx.setAttributeValue("uid", "ani");
 
-        LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapFromContext(ctx);
+        LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani", new GrantedAuthority[0]);
 
         assertEquals(3, user.getAuthorities().length);
     }
@@ -63,7 +64,7 @@ public class LdapUserDetailsMapperTests extends TestCase {
         DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName("cn=someName"));
         ctx.setAttributeValue("uid", "ani");
 
-        LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapFromContext(ctx);
+        LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani", new GrantedAuthority[0]);
 
         assertEquals(1, user.getAuthorities().length);
         assertEquals("ROLE_X", user.getAuthorities()[0].getAuthority());
@@ -94,7 +95,7 @@ public class LdapUserDetailsMapperTests extends TestCase {
         DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName("cn=someName"));
         ctx.setAttributeValue("uid", "ani");
 
-        LdapUserDetails user = (LdapUserDetailsImpl) mapper.mapFromContext(ctx);
+        LdapUserDetails user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani", new GrantedAuthority[0]);
 
         assertEquals("mypassword", user.getPassword());
     }

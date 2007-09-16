@@ -22,8 +22,6 @@ import org.acegisecurity.ldap.LdapUserSearch;
 
 import org.acegisecurity.providers.ldap.LdapAuthenticator;
 
-import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
-
 import org.springframework.beans.factory.InitializingBean;
 
 import org.springframework.context.MessageSource;
@@ -31,7 +29,6 @@ import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 
 import org.springframework.util.Assert;
-import org.springframework.ldap.core.ContextMapper;
 
 import java.text.MessageFormat;
 
@@ -49,7 +46,6 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
     //~ Instance fields ================================================================================================
 
     private InitialDirContextFactory initialDirContextFactory;
-    private LdapUserDetailsMapper userDetailsMapper = new LdapUserDetailsMapper();
 
     /** Optional search object which can be used to locate a user when a simple DN match isn't sufficient */
     private LdapUserSearch userSearch;
@@ -110,10 +106,6 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
         return userAttributes;
     }
 
-    protected ContextMapper getUserDetailsMapper() {
-        return userDetailsMapper;
-    }
-
     /**
      * Builds list of possible DNs for the user, worked out from the <tt>userDnPatterns</tt> property. The
      * returned value includes the root DN of the provider URL used to configure the
@@ -157,11 +149,6 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
     public void setUserAttributes(String[] userAttributes) {
         Assert.notNull(userAttributes, "The userAttributes property cannot be set to null");
         this.userAttributes = userAttributes;
-    }
-
-    public void setUserDetailsMapper(LdapUserDetailsMapper userDetailsMapper) {
-        Assert.notNull("userDetailsMapper must not be null");
-        this.userDetailsMapper = userDetailsMapper;
     }
 
     /**

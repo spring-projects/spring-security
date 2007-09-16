@@ -23,9 +23,9 @@ import org.acegisecurity.ldap.InitialDirContextFactory;
 import org.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
 
 import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.acegisecurity.userdetails.ldap.LdapUserDetails;
-import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
-import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.DirContextOperations;
 
 
 /**
@@ -52,14 +52,13 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
         // com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
     }
 
-    public void testAllAttributesAreRetrivedByDefault() {
-        LdapUserDetails user = authenticator.authenticate("bob", "bobspassword");
+    public void testAllAttributesAreRetrievedByDefault() {
+        DirContextAdapter user = (DirContextAdapter) authenticator.authenticate("bob", "bobspassword");
         //System.out.println(user.getAttributes().toString());
         assertEquals("User should have 5 attributes", 5, user.getAttributes().size());
     }
 
-    public void testFailedSearchGivesUserNotFoundException()
-        throws Exception {
+    public void testFailedSearchGivesUserNotFoundException() throws Exception {
         authenticator = new PasswordComparisonAuthenticator((InitialDirContextFactory) getContextSource());
         assertTrue("User DN matches shouldn't be available", authenticator.getUserDns("Bob").isEmpty());
         authenticator.setUserSearch(new MockUserSearch(null));
@@ -95,10 +94,11 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
    }
 
     public void testLocalPasswordComparisonSucceedsWithCorrectPassword() {
-        LdapUserDetails user = authenticator.authenticate("bob", "bobspassword");
+        DirContextOperations user = authenticator.authenticate("bob", "bobspassword");
         // check username is retrieved.
-        assertEquals("bob", user.getUsername());
-        assertEquals("bobspassword", user.getPassword());
+        assertEquals("bob", user.getStringAttribute("uid"));
+        String password = new String((byte[])user.getObjectAttribute("userPassword"));
+        assertEquals("bobspassword", password);
     }
 
     public void testMultipleDnPatternsWorkOk() {
@@ -110,7 +110,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
         authenticator.setUserAttributes(new String[] {"uid", "userPassword"});
         authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
 
-        LdapUserDetails user = authenticator.authenticate("Bob", "bobspassword");
+        DirContextAdapter user = (DirContextAdapter) authenticator.authenticate("Bob", "bobspassword");
         assertEquals("Should have retrieved 2 attribute (uid, userPassword)", 2, user.getAttributes().size());
     }
 
@@ -136,12 +136,8 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
     }
 
     public void testUseOfDifferentPasswordAttribute() {
-        LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
-        mapper.setPasswordAttributeName("uid");
         authenticator.setPasswordAttributeName("uid");
-        authenticator.setUserDetailsMapper(mapper);
-
-        LdapUserDetails bob = authenticator.authenticate("bob", "bob");
+        authenticator.authenticate("bob", "bob");
     }
 
    public void testLdapCompareWithDifferentPasswordAttributeSucceeds() {
@@ -155,11 +151,10 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
         authenticator = new PasswordComparisonAuthenticator((InitialDirContextFactory) getContextSource());
         assertTrue("User DN matches shouldn't be available", authenticator.getUserDns("Bob").isEmpty());
 
-        LdapUserDetailsImpl.Essence userEssence = new LdapUserDetailsImpl.Essence();
-        userEssence.setDn("uid=Bob,ou=people,dc=acegisecurity,dc=org");
-        userEssence.setPassword("bobspassword");
+        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=Bob,ou=people,dc=acegisecurity,dc=org"));
+        ctx.setAttributeValue("userPassword", "bobspassword");
 
-        authenticator.setUserSearch(new MockUserSearch(userEssence.createUserDetails()));
+        authenticator.setUserSearch(new MockUserSearch(ctx));
         authenticator.authenticate("ShouldntBeUsed", "bobspassword");
     }
 }

@@ -16,6 +16,7 @@
 package org.acegisecurity.providers.ldap;
 
 import org.acegisecurity.userdetails.ldap.LdapUserDetails;
+import org.springframework.ldap.core.DirContextOperations;
 
 
 /**
@@ -40,5 +41,5 @@ public interface LdapAuthenticator {
      *
      * @return the details of the successfully authenticated user.
      */
-    LdapUserDetails authenticate(String username, String password);
+    DirContextOperations authenticate(String username, String password);
 }

@@ -17,6 +17,7 @@ package org.acegisecurity.userdetails.ldap;
 
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.userdetails.UserDetails;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,6 +26,7 @@ import org.springframework.util.Assert;
 import org.springframework.ldap.UncategorizedLdapException;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -36,11 +38,10 @@ import javax.naming.directory.Attribute;
  * @author Luke Taylor
  * @version $Id$
  */
-public class LdapUserDetailsMapper implements ContextMapper {
+public class LdapUserDetailsMapper implements UserDetailsContextMapper {
     //~ Instance fields ================================================================================================
 
     private final Log logger = LogFactory.getLog(LdapUserDetailsMapper.class);
-    private String usernameAttributeName = "uid";
     private String passwordAttributeName = "userPassword";
     private String rolePrefix = "ROLE_";
     private String[] roleAttributes = null;
@@ -48,25 +49,21 @@ public class LdapUserDetailsMapper implements ContextMapper {
 
     //~ Methods ========================================================================================================
 
-    public Object mapFromContext(Object ctxObj) {
-        Assert.isInstanceOf(DirContextAdapter.class, ctxObj, "Can only map from DirContextAdapter instances");
-
-        DirContextAdapter ctx = (DirContextAdapter)ctxObj;
+    public UserDetails mapUserFromContext(DirContextOperations ctx, String username, GrantedAuthority[] authorities) {
         String dn = ctx.getNameInNamespace();
 
         logger.debug("Mapping user details from context with DN: " + dn);
 
         LdapUserDetailsImpl.Essence essence = new LdapUserDetailsImpl.Essence();
         essence.setDn(dn);
-        essence.setAttributes(ctx.getAttributes());
 
-        Attribute passwordAttribute = ctx.getAttributes().get(passwordAttributeName);
+        Object passwordValue = ctx.getObjectAttribute(passwordAttributeName);
 
-        if (passwordAttribute != null) {
-            essence.setPassword(mapPassword(passwordAttribute));
+        if (passwordValue != null) {
+            essence.setPassword(mapPassword(passwordValue));
         }
 
-        essence.setUsername(mapUsername(ctx));
+        essence.setUsername(username);
 
         // Map the roles
         for (int i = 0; (roleAttributes != null) && (i < roleAttributes.length); i++) {
@@ -86,51 +83,36 @@ public class LdapUserDetailsMapper implements ContextMapper {
             }
         }
 
+        // Add the supplied authorities
+
+        for (int i=0; i < authorities.length; i++) {
+            essence.addAuthority(authorities[i]);
+        }
+
         return essence.createUserDetails();
-        //return essence;
+
+    }
+
+    public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
+
     }
 
     /**
      * Extension point to allow customized creation of the user's password from
      * the attribute stored in the directory.
      *
-     * @param passwordAttribute the attribute instance containing the password
+     * @param passwordValue the value of the password attribute
      * @return a String representation of the password.
      */
-    protected String mapPassword(Attribute passwordAttribute) {
-        Object retrievedPassword = null;
+    protected String mapPassword(Object passwordValue) {
 
-        try {
-            retrievedPassword = passwordAttribute.get();
-        } catch (NamingException e) {
-            throw new UncategorizedLdapException("Failed to get password attribute", e);
-        }
-
-        if (!(retrievedPassword instanceof String)) {
+        if (!(passwordValue instanceof String)) {
             // Assume it's binary
-            retrievedPassword = new String((byte[]) retrievedPassword);
+            passwordValue = new String((byte[]) passwordValue);
         }
 
-        return (String) retrievedPassword;
+        return (String) passwordValue;
 
-    }
-
-    protected String mapUsername(DirContextAdapter ctx) {
-        Attribute usernameAttribute = ctx.getAttributes().get(usernameAttributeName);
-        String username;
-
-        if (usernameAttribute == null) {
-            throw new UncategorizedLdapException(
-                    "Failed to get attribute " + usernameAttributeName + " from context");
-        }
-
-        try {
-            username = (String) usernameAttribute.get();
-        } catch (NamingException e) {
-            throw new UncategorizedLdapException("Failed to get username from attribute " + usernameAttributeName, e);
-        }
-
-        return username;
     }
 
     /**
@@ -173,11 +155,6 @@ public class LdapUserDetailsMapper implements ContextMapper {
      */
     public void setPasswordAttributeName(String passwordAttributeName) {
         this.passwordAttributeName = passwordAttributeName;
-    }
-
-
-    public void setUsernameAttributeName(String usernameAttributeName) {
-        this.usernameAttributeName = usernameAttributeName;
     }
 
     /**

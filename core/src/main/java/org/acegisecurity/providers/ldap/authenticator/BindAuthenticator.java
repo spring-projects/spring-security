@@ -27,8 +27,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.ldap.core.ContextSource;
+import org.springframework.ldap.core.DirContextOperations;
 
 import javax.naming.directory.DirContext;
+import javax.naming.Name;
 import java.util.Iterator;
 
 
@@ -58,21 +60,21 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
     //~ Methods ========================================================================================================
 
-    public LdapUserDetails authenticate(String username, String password) {
-        LdapUserDetails user = null;
+    public DirContextOperations authenticate(String username, String password) {
+        DirContextOperations user = null;
 
         // If DN patterns are configured, try authenticating with them directly
         Iterator dns = getUserDns(username).iterator();
 
-        while (dns.hasNext() && (user == null)) {
+        while (dns.hasNext() && user == null) {
             user = bindWithDn((String) dns.next(), username, password);
         }
 
         // Otherwise use the configured locator to find the user
         // and authenticate with the returned DN.
-        if ((user == null) && (getUserSearch() != null)) {
-            LdapUserDetails userFromSearch = getUserSearch().searchForUser(username);
-            user = bindWithDn(userFromSearch.getDn(), username, password);
+        if (user == null && getUserSearch() != null) {
+            DirContextOperations userFromSearch = getUserSearch().searchForUser(username);
+            user = bindWithDn(userFromSearch.getDn().toString(), username, password);
         }
 
         if (user == null) {
@@ -83,15 +85,13 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
         return user;
     }
 
-    private LdapUserDetails bindWithDn(String userDn, String username, String password) {
+    private DirContextOperations bindWithDn(String userDn, String username, String password) {
         SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(
                 new BindWithSpecificDnContextSource(getInitialDirContextFactory(), userDn, password));
 
         try {
-            LdapUserDetailsImpl user = (LdapUserDetailsImpl) template.retrieveEntry(userDn,
-                    getUserDetailsMapper(), getUserAttributes());
+            return template.retrieveEntry(userDn, getUserAttributes());
 
-            return user;
         } catch (BadCredentialsException e) {
             // This will be thrown if an invalid user name is used and the method may
             // be called multiple times to try different names, so we trap the exception
@@ -116,7 +116,6 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
         private InitialDirContextFactory ctxFactory;
         private String userDn;
         private String password;
-
 
         public BindWithSpecificDnContextSource(InitialDirContextFactory ctxFactory, String userDn, String password) {
             this.ctxFactory = ctxFactory;

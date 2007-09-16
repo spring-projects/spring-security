@@ -18,11 +18,11 @@ package org.acegisecurity.providers.ldap.authenticator;
 import org.acegisecurity.ldap.LdapUserSearch;
 
 import org.acegisecurity.userdetails.ldap.LdapUserDetails;
+import org.springframework.ldap.core.DirContextOperations;
 
 
 /**
- * 
-DOCUMENT ME!
+ *
  *
  * @author Luke Taylor
  * @version $Id$
@@ -30,17 +30,17 @@ DOCUMENT ME!
 public class MockUserSearch implements LdapUserSearch {
     //~ Instance fields ================================================================================================
 
-    LdapUserDetails user;
+    DirContextOperations user;
 
     //~ Constructors ===================================================================================================
 
-    public MockUserSearch(LdapUserDetails user) {
+    public MockUserSearch(DirContextOperations user) {
         this.user = user;
     }
 
     //~ Methods ========================================================================================================
 
-    public LdapUserDetails searchForUser(String username) {
+    public DirContextOperations searchForUser(String username) {
         return user;
     }
 }

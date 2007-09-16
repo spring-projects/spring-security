@@ -32,6 +32,9 @@ import java.security.MessageDigest;
  * base-64 encoded and have the label "{SHA}" (or "{SSHA}") prepended to the encoded hash. These can be made lower-case
  * in the encoded password, if required, by setting the <tt>forceLowerCasePrefix</tt> property to true.
  *
+ * Also supports plain text passwords, so can safely be used in cases when both encoded and non-encoded passwords are in
+ * use or when a null implementation is required.
+ *
  * @author Luke Taylor
  * @version $Id$
  */
@@ -128,6 +131,10 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
      */
     public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
         String encPassWithoutPrefix;
+
+        if (!encPass.startsWith("{")) {
+            return encPass.equals(rawPass);
+        }
 
         if (encPass.startsWith(SSHA_PREFIX) || encPass.startsWith(SSHA_PREFIX_LC)) {
             encPassWithoutPrefix = encPass.substring(6);

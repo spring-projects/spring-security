@@ -27,6 +27,7 @@ import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.AttributesMapperCallbackHandler;
+import org.springframework.ldap.core.DirContextOperations;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -41,6 +42,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.Context;
 import javax.naming.NameClassPair;
+import javax.naming.Name;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -136,22 +138,19 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
      * Composes an object from the attributes of the given DN.
      *
      * @param dn the directory entry which will be read
-     * @param mapper maps the attributes to the required object
      * @param attributesToRetrieve the named attributes which will be retrieved from the directory entry.
      *
      * @return the object created by the mapper
      */
-    public Object retrieveEntry(final String dn, final ContextMapper mapper, final String[] attributesToRetrieve) {
+    public DirContextOperations retrieveEntry(final String dn, final String[] attributesToRetrieve) {
 
-        return executeReadOnly(new ContextExecutor() {
+        return (DirContextOperations) executeReadOnly(new ContextExecutor() {
                 public Object executeWithContext(DirContext ctx) throws NamingException {
                     Attributes attrs = ctx.getAttributes(LdapUtils.getRelativeName(dn, ctx), attributesToRetrieve);
 
                     // Object object = ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
 
-                    DirContextAdapter ctxAdapter = new DirContextAdapter(attrs, new DistinguishedName(dn));
-
-                    return mapper.mapFromContext(ctxAdapter);
+                    return new DirContextAdapter(attrs, new DistinguishedName(dn));
                 }
             });
     }
@@ -227,17 +226,15 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
      * @param base
      * @param filter
      * @param params
-     * @param mapper
      *
      * @return the object created by the mapper from the matching entry
      *
      * @throws IncorrectResultSizeDataAccessException if no results are found or the search returns more than one
      *         result.
      */
-    public Object searchForSingleEntry(final String base, final String filter, final Object[] params,
-        final ContextMapper mapper) {
+    public DirContextOperations searchForSingleEntry(final String base, final String filter, final Object[] params) {
 
-        return executeReadOnly(new ContextExecutor() {
+        return (DirContextOperations) executeReadOnly(new ContextExecutor() {
                 public Object executeWithContext(DirContext ctx)
                     throws NamingException {
 
@@ -269,10 +266,7 @@ public class SpringSecurityLdapTemplate extends org.springframework.ldap.core.Ld
                         dn.append(nameInNamespace);
                     }
 
-                    DirContextAdapter ctxAdapter = new DirContextAdapter(
-                            searchResult.getAttributes(), new DistinguishedName(dn.toString()));
-
-                    return mapper.mapFromContext(ctxAdapter);
+                    return new DirContextAdapter(searchResult.getAttributes(), new DistinguishedName(dn.toString()));
                 }
             });
     }

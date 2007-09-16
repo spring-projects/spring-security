@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.util.Assert;
+import org.springframework.ldap.core.DirContextOperations;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -156,11 +157,11 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * roles for the given user (on top of those obtained from the standard
      * search implemented by this class).
      *
-     * @param ldapUser the user who's roles are required
+     * @param user the context representing the user who's roles are required
      * @return the extra roles which will be merged with those returned by the group search
      */
 
-    protected Set getAdditionalRoles(LdapUserDetails ldapUser) {
+    protected Set getAdditionalRoles(DirContextOperations user, String username) {
         return null;
     }
 
@@ -168,26 +169,19 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * Obtains the authorities for the user who's directory entry is represented by
      * the supplied LdapUserDetails object.
      *
-     * @param userDetails the user who's authorities are required
+     * @param user the user who's authorities are required
      * @return the set of roles granted to the user.
      */
-    public final GrantedAuthority[] getGrantedAuthorities(LdapUserDetails userDetails) {
-        String userDn = userDetails.getDn();
+    public final GrantedAuthority[] getGrantedAuthorities(DirContextOperations user, String username) {
+        String userDn = user.getDn().toString();
 
         if (logger.isDebugEnabled()) {
             logger.debug("Getting authorities for user " + userDn);
         }
 
-        Set roles = getGroupMembershipRoles(userDn, userDetails.getUsername());
+        Set roles = getGroupMembershipRoles(userDn, username);
 
-        // Temporary use of deprecated method
-        Set oldGroupRoles = getGroupMembershipRoles(userDn, userDetails.getAttributes());
-
-        if (oldGroupRoles != null) {
-            roles.addAll(oldGroupRoles);
-        }
-
-        Set extraRoles = getAdditionalRoles(userDetails);
+        Set extraRoles = getAdditionalRoles(user, username);
 
         if (extraRoles != null) {
             roles.addAll(extraRoles);
@@ -199,19 +193,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
         return (GrantedAuthority[]) roles.toArray(new GrantedAuthority[roles.size()]);
     }
-
-//    protected Set getRolesFromUserAttributes(String userDn, Attributes userAttributes) {
-//        Set userRoles = new HashSet();
-//
-//        for(int i=0; userRoleAttributes != null && i < userRoleAttributes.length; i++) {
-//            Attribute roleAttribute = userAttributes.get(userRoleAttributes[i]);
-//
-//            addAttributeValuesToRoleSet(roleAttribute, userRoles);
-//        }
-//
-//        return userRoles;
-//    }
-
 
     public Set getGroupMembershipRoles(String userDn, String username) {
         Set authorities = new HashSet();
@@ -245,19 +226,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         }
 
         return authorities;
-    }
-
-    /**
-     * Searches for groups the user is a member of.
-     *
-     * @param userDn         the user's distinguished name.
-     * @param userAttributes the retrieved user's attributes (unused by default).
-     * @return the set of roles obtained from a group membership search, or null if <tt>groupSearchBase</tt> has been
-     *         set.
-     * @deprecated Subclasses should implement <tt>getAdditionalRoles</tt> instead.
-     */
-    protected Set getGroupMembershipRoles(String userDn, Attributes userAttributes) {
-        return new HashSet();
     }
 
     protected InitialDirContextFactory getInitialDirContextFactory() {

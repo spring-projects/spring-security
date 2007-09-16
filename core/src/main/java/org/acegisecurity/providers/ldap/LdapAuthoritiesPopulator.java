@@ -20,6 +20,7 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.ldap.LdapDataAccessException;
 
 import org.acegisecurity.userdetails.ldap.LdapUserDetails;
+import org.springframework.ldap.core.DirContextOperations;
 
 
 /**
@@ -38,12 +39,11 @@ public interface LdapAuthoritiesPopulator {
     /**
      * Get the list of authorities for the user.
      *
-     * @param userDetails the user details object which was returned by the LDAP authenticator.
+     * @param user the context object which was returned by the LDAP authenticator.
      *
      * @return the granted authorities for the given user.
      *
      * @throws LdapDataAccessException if there is a problem accessing the directory.
      */
-    GrantedAuthority[] getGrantedAuthorities(LdapUserDetails userDetails)
-        throws LdapDataAccessException;
+    GrantedAuthority[] getGrantedAuthorities(DirContextOperations user, String username) throws LdapDataAccessException;
 }

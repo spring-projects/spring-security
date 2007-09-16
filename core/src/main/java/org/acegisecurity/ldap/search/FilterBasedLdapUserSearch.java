@@ -20,9 +20,6 @@ import org.acegisecurity.ldap.SpringSecurityLdapTemplate;
 import org.acegisecurity.ldap.LdapUserSearch;
 
 import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.acegisecurity.userdetails.ldap.LdapUserDetails;
-import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
-import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,6 +29,7 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.util.Assert;
 
 import org.springframework.ldap.core.ContextSource;
+import org.springframework.ldap.core.DirContextOperations;
 
 import javax.naming.directory.SearchControls;
 
@@ -53,7 +51,6 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
     //~ Instance fields ================================================================================================
 
     private ContextSource initialDirContextFactory;
-    private LdapUserDetailsMapper userDetailsMapper = new LdapUserDetailsMapper();
 
     /**
      * The LDAP SearchControls object used for the search. Shared between searches so shouldn't be modified
@@ -105,7 +102,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
      *
      * @throws UsernameNotFoundException if no matching entry is found.
      */
-    public LdapUserDetails searchForUser(String username) {
+    public DirContextOperations searchForUser(String username) {
         if (logger.isDebugEnabled()) {
             logger.debug("Searching for user '" + username + "', with user search "
                 + this.toString());
@@ -117,14 +114,8 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 
         try {
 
-            LdapUserDetailsImpl user = (LdapUserDetailsImpl) template.searchForSingleEntry(
-                    searchBase, searchFilter, new String[] {username}, userDetailsMapper);
+            return template.searchForSingleEntry(searchBase, searchFilter, new String[] {username});
 
-            if (!username.equals(user.getUsername())) {
-                logger.debug("Search returned user object with different username: " + user.getUsername());
-            }
-
-            return user;
         } catch (IncorrectResultSizeDataAccessException notFound) {
             if (notFound.getActualSize() == 0) {
                 throw new UsernameNotFoundException("User " + username + " not found in directory.");
@@ -161,10 +152,6 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
      */
     public void setSearchTimeLimit(int searchTimeLimit) {
         searchControls.setTimeLimit(searchTimeLimit);
-    }
-
-    public void setUserDetailsMapper(LdapUserDetailsMapper userDetailsMapper) {
-        this.userDetailsMapper = userDetailsMapper;
     }
 
     public String toString() {
