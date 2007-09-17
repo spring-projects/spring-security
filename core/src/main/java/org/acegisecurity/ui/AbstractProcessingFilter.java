@@ -44,6 +44,10 @@ import org.springframework.util.Assert;
 import java.io.IOException;
 
 import java.util.Properties;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -53,6 +57,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * Abstract processor of browser-based HTTP-based authentication requests.
@@ -96,7 +101,7 @@ import javax.servlet.http.HttpServletResponse;
  * xml. This property is a java.util.Properties object that maps a
  * fully-qualified exception class name to a redirection url target. For
  * example:
- * 
+ *
  * <pre>
  *  &lt;property name=&quot;exceptionMappings&quot;&gt;
  *    &lt;props&gt;
@@ -104,7 +109,7 @@ import javax.servlet.http.HttpServletResponse;
  *    &lt;/props&gt;
  *  &lt;/property&gt;
  * </pre>
- * 
+ *
  * The example above would redirect all
  * {@link org.acegisecurity.BadCredentialsException}s thrown, to a page in the
  * web-application called /bad_credentials.jsp.
@@ -121,22 +126,27 @@ import javax.servlet.http.HttpServletResponse;
  * authentication was unsuccessful, because this would generally be recorded via
  * an <code>AuthenticationManager</code>-specific application event.
  * </p>
- * 
+ *  <p>The filter has an optional attribute <tt>invalidateSessionOnSuccessfulAuthentication</tt> that will invalidate
+ * the current session on successful authentication. This is to protect against session fixation attacks (see
+ * <a href="http://en.wikipedia.org/wiki/Session_fixation">this Wikipedia article</a> for more information).
+ * The behaviour is turned off by default. Additionally there is a property <tt>migrateInvalidatedSessionAttributes</tt>
+ * which tells if on session invalidation we are to migrate all session attributes from the old session to a newly
+ * created one. This is turned on by default, but not used unless <tt>invalidateSessionOnSuccessfulAuthentication</tt>
+ * is true.</p>
+ *
  * @author Ben Alex
  * @version $Id: AbstractProcessingFilter.java 1909 2007-06-19 04:08:19Z
  * vishalpuri $
  */
 public abstract class AbstractProcessingFilter implements Filter, InitializingBean, ApplicationEventPublisherAware,
 		MessageSourceAware {
-	// ~ Static fields/initializers
-	// =====================================================================================
+	//~ Static fields/initializers =====================================================================================
 
 	public static final String ACEGI_SAVED_REQUEST_KEY = "ACEGI_SAVED_REQUEST_KEY";
 
 	public static final String ACEGI_SECURITY_LAST_EXCEPTION_KEY = "ACEGI_SECURITY_LAST_EXCEPTION";
 
-	// ~ Instance fields
-	// ================================================================================================
+	//~ Instance fields ================================================================================================
 
 	protected ApplicationEventPublisher eventPublisher;
 
@@ -198,8 +208,24 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 	 */
 	private boolean useRelativeContext = false;
 
-	// ~ Methods
-	// ========================================================================================================
+
+    /**
+     * Tells if we on successful authentication should invalidate the
+     * current session. This is a common guard against session fixation attacks.
+     * Defaults to <code>false</code>.
+     */
+    private boolean invalidateSessionOnSuccessfulAuthentication = false;
+
+    /**
+     * If {@link #invalidateSessionOnSuccessfulAuthentication} is true, this
+     * flag indicates that the session attributes of the session to be invalidated
+     * are to be migrated to the new session. Defaults to <code>true</code> since
+     * nothing will happpen unless {@link #invalidateSessionOnSuccessfulAuthentication}
+     * is true.
+     */
+    private boolean migrateInvalidatedSessionAttributes = true;
+
+    //~ Methods ========================================================================================================
 
 	public void afterPropertiesSet() throws Exception {
 		Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
@@ -211,12 +237,12 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 
 	/**
 	 * Performs actual authentication.
-	 * 
+	 *
 	 * @param request from which to extract parameters and perform the
 	 * authentication
-	 * 
+	 *
 	 * @return the authenticated user
-	 * 
+	 *
 	 * @throws AuthenticationException if authentication fails
 	 */
 	public abstract Authentication attemptAuthentication(HttpServletRequest request) throws AuthenticationException;
@@ -282,7 +308,7 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 	/**
 	 * Specifies the default <code>filterProcessesUrl</code> for the
 	 * implementation.
-	 * 
+	 *
 	 * @return the default <code>filterProcessesUrl</code>
 	 */
 	public abstract String getDefaultFilterProcessesUrl();
@@ -293,7 +319,7 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 	 * Override this method of you want to provide a customized default Url (for
 	 * example if you want different Urls depending on the authorities of the
 	 * user who has just logged in).
-	 * 
+	 *
 	 * @return the defaultTargetUrl property
 	 */
 	public String getDefaultTargetUrl() {
@@ -314,9 +340,9 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 
 	/**
 	 * Does nothing. We use IoC container lifecycle services instead.
-	 * 
+	 *
 	 * @param arg0 ignored
-	 * 
+	 *
 	 * @throws ServletException ignored
 	 */
 	public void init(FilterConfig arg0) throws ServletException {
@@ -364,10 +390,10 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 	 * Subclasses may override for special requirements, such as Tapestry
 	 * integration.
 	 * </p>
-	 * 
+	 *
 	 * @param request as received from the filter chain
 	 * @param response as received from the filter chain
-	 * 
+	 *
 	 * @return <code>true</code> if the filter should attempt authentication,
 	 * <code>false</code> otherwise
 	 */
@@ -465,7 +491,17 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 		this.rememberMeServices = rememberMeServices;
 	}
 
-	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+
+    public void setInvalidateSessionOnSuccessfulAuthentication(boolean invalidateSessionOnSuccessfulAuthentication) {
+        this.invalidateSessionOnSuccessfulAuthentication = invalidateSessionOnSuccessfulAuthentication;
+    }
+
+
+    public void setMigrateInvalidatedSessionAttributes(boolean migrateInvalidatedSessionAttributes) {
+        this.migrateInvalidatedSessionAttributes = migrateInvalidatedSessionAttributes;
+    }
+
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 			Authentication authResult) throws IOException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Authentication success: " + authResult.toString());
@@ -477,7 +513,12 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 			logger.debug("Updated SecurityContextHolder to contain the following Authentication: '" + authResult + "'");
 		}
 
-		String targetUrl = determineTargetUrl(request);
+
+        if (invalidateSessionOnSuccessfulAuthentication) {
+            startNewSessionIfRequired(request);
+        }
+
+        String targetUrl = determineTargetUrl(request);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Redirecting to target URL from HTTP Session (or default): " + targetUrl);
@@ -495,7 +536,53 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 		sendRedirect(request, response, targetUrl);
 	}
 
-	protected String determineTargetUrl(HttpServletRequest request) {
+    private void startNewSessionIfRequired(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+
+        if (session != null) {
+
+            if (!migrateInvalidatedSessionAttributes) {
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Invalidating session without migrating attributes.");
+                }
+
+                session.invalidate();
+                session = null;
+
+                // this is probably not necessary, but seems cleaner since
+                // there already was a session going.
+                request.getSession(true);
+
+            } else {
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Invalidating session and migrating attributes.");
+                }
+
+                HashMap migratedAttributes = new HashMap();
+
+                Enumeration enumer = session.getAttributeNames();
+
+                while (enumer.hasMoreElements()) {
+                    String key = (String) enumer.nextElement();
+                    migratedAttributes.put(key, session.getAttribute(key));
+                }
+
+                session.invalidate();
+                session = request.getSession(true); // we now have a new session
+
+                Iterator iter = migratedAttributes.entrySet().iterator();
+
+                while (iter.hasNext()) {
+                    Map.Entry entry = (Map.Entry) iter.next();
+                    session.setAttribute((String) entry.getKey(), entry.getValue());
+                }
+            }
+        }
+    }
+
+    protected String determineTargetUrl(HttpServletRequest request) {
 		// Don't attempt to obtain the url from the saved request if
 		// alwaysUsedefaultTargetUrl is set
 		String targetUrl = alwaysUseDefaultTargetUrl ? null : obtainFullRequestUrl(request);
