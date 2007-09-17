@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
+		<property name="filterInvocationDefinitionSource">
+			<value>
+			CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+			PATTERN_TYPE_APACHE_ANT
+			/login_error.jsp=httpSessionContextIntegrationFilter
+			/**=httpSessionContextIntegrationFilter, exceptionTranslationFilter, ntlmFilter, filterSecurityInterceptor 
+			</value>
+		</property>
+	</bean>
+
+	<!-- The first item in the Chain: httpSessionContextIntegrationFilter -->
+	<bean id="httpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter">
+		<property name="context">
+			<value>org.acegisecurity.context.SecurityContextImpl</value>
+		</property>
+	</bean>
+
+	<!-- the second item in the chain: exceptionTranslationFilter -->
+	<bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
+		<property name="authenticationEntryPoint" ref="ntlmEntryPoint"/>
+	</bean>
+
+	<!-- the third item in the chain: ntlmFilter -->
+	<bean id="ntlmFilter" class="org.acegisecurity.ui.ntlm.NtlmProcessingFilter">
+		<property name="defaultDomain" value="YOURDOMAIN"/>
+		<!-- It is better to use a WINS server if available over a specific domain controller
+ 		<property name="domainController" value="FOO"/> -->
+		<property name="netbiosWINS" value="192.168.0.3"/>
+		<property name="authenticationManager" ref="providerManager"/>
+	</bean>
+
+	<bean id="providerManager" class="org.acegisecurity.providers.ProviderManager">
+		<property name="providers">
+			<list>
+				<ref local="daoAuthenticationProvider"/>
+            </list>
+        </property>
+    </bean>
+
+	<bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
+		<property name="userDetailsService">
+			<ref local="memoryUserDetailsService"/>
+		</property>
+	</bean>
+
+	<!-- NOTE: You will need to write a custom UserDetailsService in most cases -->
+	<bean id="memoryUserDetailsService" class="org.acegisecurity.userdetails.memory.InMemoryDaoImpl">
+		<property name="userMap">
+			<value>jdoe=PASSWORD,ROLE_USER</value>
+		</property>
+	</bean>
+
+	<!-- the fourth item in the chain: filterSecurityInterceptor -->
+	<bean id="filterSecurityInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
+		<property name="authenticationManager"><ref local="providerManager"/></property>
+		<property name="accessDecisionManager"><ref local="accessDecisionManager"/></property>
+		<property name="objectDefinitionSource">
+			<value>
+			CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+			PATTERN_TYPE_APACHE_ANT
+			/**=ROLE_USER
+			</value>
+		</property>
+	</bean>
+
+	<!-- authenticationManager defined above -->
+	<bean id="accessDecisionManager" class="org.acegisecurity.vote.UnanimousBased">
+		<property name="allowIfAllAbstainDecisions">
+			<value>false</value>
+		</property>
+		<property name="decisionVoters">
+			<list>
+				<ref local="roleVoter"/>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="roleVoter" class="org.acegisecurity.vote.RoleVoter"/>
+
+	<bean id="ntlmEntryPoint" class="org.acegisecurity.ui.ntlm.NtlmProcessingFilterEntryPoint">
+		<property name="authenticationFailureUrl" value="/login_error.jsp"/>
+	</bean>
+
+	<!-- Done with the chain -->
+
+	<!-- This bean automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->
+	<bean id="loggerListener" class="org.acegisecurity.event.authentication.LoggerListener"/>
+
+</beans>
