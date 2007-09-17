@@ -17,6 +17,8 @@ package org.acegisecurity.providers.ldap.authenticator;
 
 import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.acegisecurity.ldap.AbstractLdapIntegrationTests;
 import org.acegisecurity.ldap.InitialDirContextFactory;
@@ -36,18 +38,24 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
     //~ Instance fields ================================================================================================
 
     private BindAuthenticator authenticator;
+    private Authentication bob;
+    private Authentication ben;
+
 
     //~ Methods ========================================================================================================
 
     public void onSetUp() {
         authenticator = new BindAuthenticator((InitialDirContextFactory) getContextSource());
         authenticator.setMessageSource(new AcegiMessageSource());
+        bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
+        ben = new UsernamePasswordAuthenticationToken("ben", "benspassword");
+        
     }
 
     public void testAuthenticationWithCorrectPasswordSucceeds() {
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
 
-        DirContextOperations user = authenticator.authenticate("bob", "bobspassword");
+        DirContextOperations user = authenticator.authenticate(bob);
         assertEquals("bob", user.getStringAttribute("uid"));
     }
 
@@ -55,7 +63,7 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
 
         try {
-            authenticator.authenticate("nonexistentsuser", "bobspassword");
+            authenticator.authenticate(new UsernamePasswordAuthenticationToken("nonexistentsuser", "password"));
             fail("Shouldn't be able to bind with invalid username");
         } catch (BadCredentialsException expected) {}
     }
@@ -65,14 +73,14 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 
         authenticator.setUserSearch(new MockUserSearch(ctx));
         authenticator.afterPropertiesSet();
-        authenticator.authenticate("bob", "bobspassword");
+        authenticator.authenticate(bob);
     }
 
     public void testAuthenticationWithWrongPasswordFails() {
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
 
         try {
-            authenticator.authenticate("bob", "wrongpassword");
+            authenticator.authenticate(new UsernamePasswordAuthenticationToken("bob", "wrongpassword"));
             fail("Shouldn't be able to bind with wrong password");
         } catch (BadCredentialsException expected) {}
     }

@@ -180,6 +180,10 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         this.userDetailsContextMapper = userDetailsContextMapper;
     }
 
+    protected UserDetailsContextMapper getUserDetailsContextMapper() {
+        return userDetailsContextMapper;
+    }
+
     protected void additionalAuthenticationChecks(UserDetails userDetails,
                                                   UsernamePasswordAuthenticationToken authentication)
         throws AuthenticationException {
@@ -193,7 +197,7 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     }
 
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
-        throws AuthenticationException {
+            throws AuthenticationException {
         if (!StringUtils.hasLength(username)) {
             throw new BadCredentialsException(messages.getMessage("LdapAuthenticationProvider.emptyUsername",
                     "Empty Username"));
@@ -213,7 +217,7 @@ public class LdapAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         }
 
         try {
-            DirContextOperations user = getAuthenticator().authenticate(username, password);
+            DirContextOperations user = getAuthenticator().authenticate(authentication);
 
             GrantedAuthority[] extraAuthorities = getAuthoritiesPopulator().getGrantedAuthorities(user, username);
 

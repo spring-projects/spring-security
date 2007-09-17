@@ -16,6 +16,7 @@
 package org.acegisecurity.providers.ldap.authenticator;
 
 import org.acegisecurity.ldap.MockInitialDirContextFactory;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -57,6 +58,6 @@ public class PasswordComparisonAuthenticatorMockTests extends MockObjectTestCase
                 .with(eq("cn=Bob, ou=people"), eq("(userPassword={0})"), NOT_NULL, NOT_NULL)
                 .will(returnValue(searchResults.getAll()));
         mockCtx.expects(atLeastOnce()).method("close");
-        authenticator.authenticate("Bob", "bobspassword");
+        authenticator.authenticate(new UsernamePasswordAuthenticationToken("Bob","bobspassword"));
     }
 }

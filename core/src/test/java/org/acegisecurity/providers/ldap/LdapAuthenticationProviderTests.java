@@ -20,20 +20,17 @@ import junit.framework.TestCase;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.Authentication;
 
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
 import org.acegisecurity.userdetails.ldap.LdapUserDetailsMapper;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 
 import java.util.ArrayList;
-
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 
 
 /**
@@ -135,9 +132,12 @@ public class LdapAuthenticationProviderTests extends TestCase {
 
     class MockAuthenticator implements LdapAuthenticator {
 
-        public DirContextOperations authenticate(String username, String password) {
+        public DirContextOperations authenticate(Authentication authentication) {
             DirContextAdapter ctx = new DirContextAdapter();
             ctx.setAttributeValue("ou", "FROM_ENTRY");
+            String username = authentication.getName();
+            String password = (String) authentication.getCredentials();
+
 
             if (username.equals("ben") && password.equals("benspassword")) {
                 ctx.setDn(new DistinguishedName("cn=ben,ou=people,dc=acegisecurity,dc=org"));

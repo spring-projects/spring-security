@@ -16,21 +16,20 @@
 package org.acegisecurity.providers.ldap.authenticator;
 
 import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.acegisecurity.ldap.InitialDirContextFactory;
 import org.acegisecurity.ldap.SpringSecurityLdapTemplate;
-
-import org.acegisecurity.userdetails.ldap.LdapUserDetails;
-import org.acegisecurity.userdetails.ldap.LdapUserDetailsImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.util.Assert;
 
 import javax.naming.directory.DirContext;
-import javax.naming.Name;
 import java.util.Iterator;
 
 
@@ -60,8 +59,13 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
     //~ Methods ========================================================================================================
 
-    public DirContextOperations authenticate(String username, String password) {
+    public DirContextOperations authenticate(Authentication authentication) {
         DirContextOperations user = null;
+        Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
+                "Can only process UsernamePasswordAuthenticationToken objects");
+
+        String username = authentication.getName();
+        String password = (String)authentication.getCredentials();
 
         // If DN patterns are configured, try authenticating with them directly
         Iterator dns = getUserDns(username).iterator();

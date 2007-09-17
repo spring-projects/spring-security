@@ -178,7 +178,14 @@ ls $RELEASE_DIR | grep -v sha | grep -v md5 | xargs tar -cjf $PROJECT_NAME-$RELE
 
 # Create source archive
 
-tar --exclude='*/.svn' -cjf $PROJECT_NAME-$RELEASE_VERSION-src.tar.bz2 notice.txt src-readme.txt license.txt -C core/src/main/java/ org
+tar --exclude='*/.svn' -cjf $PROJECT_NAME-$RELEASE_VERSION-src.tar.bz2 notice.txt src-readme.txt license.txt \
+    -C core/src/main/java/ org \
+    -C ${PROJ_DIR}/core-tiger/main/java org \
+    -C ${PROJ_DIR}/adapters/jetty/main/java org \
+    -C ${PROJ_DIR}/adapters/jboss/main/java org \
+    -C ${PROJ_DIR}/adapters/resin/main/java org \
+    -C ${PROJ_DIR}/adapters/cas/main/java org \
+    -C ${PROJ_DIR}/adapters/catalina/main/java org    
 
 
 

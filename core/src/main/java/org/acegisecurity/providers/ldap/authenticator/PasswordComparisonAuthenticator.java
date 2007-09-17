@@ -16,12 +16,14 @@
 package org.acegisecurity.providers.ldap.authenticator;
 
 import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.Authentication;
 
 import org.acegisecurity.ldap.InitialDirContextFactory;
 import org.acegisecurity.ldap.SpringSecurityLdapTemplate;
 import org.acegisecurity.ldap.LdapUtils;
 
 import org.acegisecurity.providers.encoding.PasswordEncoder;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 
@@ -69,9 +71,14 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 
     //~ Methods ========================================================================================================
 
-    public DirContextOperations authenticate(final String username, final String password) {
+    public DirContextOperations authenticate(final Authentication authentication) {
+        Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
+                "Can only process UsernamePasswordAuthenticationToken objects");
         // locate the user and check the password
+
         DirContextOperations user = null;
+        String username = authentication.getName();
+        String password = (String)authentication.getCredentials();
 
         Iterator dns = getUserDns(username).iterator();
 
@@ -105,7 +112,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Password attribute wasn't retrieved for user '" + username
+            logger.debug("Password attribute wasn't retrieved for user '" + authentication
                     + "'. Performing LDAP compare of password attribute '" + passwordAttributeName + "'");
         }
 

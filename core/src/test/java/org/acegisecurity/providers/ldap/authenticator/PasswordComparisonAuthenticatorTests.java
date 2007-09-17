@@ -16,11 +16,13 @@
 package org.acegisecurity.providers.ldap.authenticator;
 
 import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.Authentication;
 
 import org.acegisecurity.ldap.AbstractLdapIntegrationTests;
 import org.acegisecurity.ldap.InitialDirContextFactory;
 
 import org.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
+import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -38,6 +40,8 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
     //~ Instance fields ================================================================================================
 
     private PasswordComparisonAuthenticator authenticator;
+    private Authentication bob;
+    private Authentication ben;
 
     //~ Methods ========================================================================================================
 
@@ -45,6 +49,8 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
         super.onSetUp();
         authenticator = new PasswordComparisonAuthenticator((InitialDirContextFactory) getContextSource());
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
+        bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
+        ben = new UsernamePasswordAuthenticationToken("ben", "benspassword");
     }
 
     public void onTearDown() throws Exception {
@@ -53,7 +59,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
     }
 
     public void testAllAttributesAreRetrievedByDefault() {
-        DirContextAdapter user = (DirContextAdapter) authenticator.authenticate("bob", "bobspassword");
+        DirContextAdapter user = (DirContextAdapter) authenticator.authenticate(bob);
         //System.out.println(user.getAttributes().toString());
         assertEquals("User should have 5 attributes", 5, user.getAttributes().size());
     }
@@ -65,19 +71,19 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
         authenticator.afterPropertiesSet();
 
         try {
-            authenticator.authenticate("Joe", "password");
+            authenticator.authenticate(new UsernamePasswordAuthenticationToken("Joe", "pass"));
             fail("Expected exception on failed user search");
         } catch (UsernameNotFoundException expected) {}
     }
 
     public void testLocalComparisonSucceedsWithShaEncodedPassword() {
         // Ben's password is SHA encoded
-        authenticator.authenticate("ben", "benspassword");
+        authenticator.authenticate(ben);
     }
 
     public void testLocalPasswordComparisonFailsWithWrongPassword() {
         try {
-            authenticator.authenticate("Bob", "wrongpassword");
+            authenticator.authenticate(new UsernamePasswordAuthenticationToken("bob", "wrongpass"));
             fail("Authentication should fail with wrong password.");
         } catch (BadCredentialsException expected) {}
     }
@@ -87,14 +93,14 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
        // Don't retrieve the password
        authenticator.setUserAttributes(new String[] {"uid", "cn", "sn"});
        try {
-           authenticator.authenticate("Bob", "wrongpassword");
+           authenticator.authenticate(new UsernamePasswordAuthenticationToken("bob", "wrongpass"));
            fail("Authentication should fail with wrong password.");
        } catch(BadCredentialsException expected) {
        }
    }
 
     public void testLocalPasswordComparisonSucceedsWithCorrectPassword() {
-        DirContextOperations user = authenticator.authenticate("bob", "bobspassword");
+        DirContextOperations user = authenticator.authenticate(bob);
         // check username is retrieved.
         assertEquals("bob", user.getStringAttribute("uid"));
         String password = new String((byte[])user.getObjectAttribute("userPassword"));
@@ -103,14 +109,14 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 
     public void testMultipleDnPatternsWorkOk() {
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=nonexistent", "uid={0},ou=people"});
-        authenticator.authenticate("Bob", "bobspassword");
+        authenticator.authenticate(bob);
     }
 
     public void testOnlySpecifiedAttributesAreRetrieved() throws Exception {
         authenticator.setUserAttributes(new String[] {"uid", "userPassword"});
         authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
 
-        DirContextAdapter user = (DirContextAdapter) authenticator.authenticate("Bob", "bobspassword");
+        DirContextAdapter user = (DirContextAdapter) authenticator.authenticate(bob);
         assertEquals("Should have retrieved 2 attribute (uid, userPassword)", 2, user.getAttributes().size());
     }
 
@@ -119,13 +125,13 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
        authenticator.setUserAttributes(new String[] {"uid"});
        // Bob has a plaintext password.
        authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
-       authenticator.authenticate("bob", "bobspassword");
+       authenticator.authenticate(bob);
    }
 
    public void testLdapCompareSucceedsWithShaEncodedPassword() {
        // Don't retrieve the password
        authenticator.setUserAttributes(new String[] {"uid"});
-       authenticator.authenticate("ben", "benspassword");
+       authenticator.authenticate(ben);
    }
 
     public void testPasswordEncoderCantBeNull() {
@@ -135,16 +141,16 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
         } catch (IllegalArgumentException expected) {}
     }
 
-    public void testUseOfDifferentPasswordAttribute() {
+    public void testUseOfDifferentPasswordAttributeSucceeds() {
         authenticator.setPasswordAttributeName("uid");
-        authenticator.authenticate("bob", "bob");
+        authenticator.authenticate(new UsernamePasswordAuthenticationToken("bob", "bob"));
     }
 
    public void testLdapCompareWithDifferentPasswordAttributeSucceeds() {
        authenticator.setUserAttributes(new String[] {"uid"});
        authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
        authenticator.setPasswordAttributeName("cn");
-       authenticator.authenticate("bob", "Bob Hamilton");
+       authenticator.authenticate(new UsernamePasswordAuthenticationToken("ben", "Ben Alex"));
    }
 
     public void testWithUserSearch() {
@@ -155,6 +161,6 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
         ctx.setAttributeValue("userPassword", "bobspassword");
 
         authenticator.setUserSearch(new MockUserSearch(ctx));
-        authenticator.authenticate("ShouldntBeUsed", "bobspassword");
+        authenticator.authenticate(new UsernamePasswordAuthenticationToken("shouldntbeused", "bobspassword"));
     }
 }
