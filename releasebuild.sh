@@ -33,7 +33,7 @@
 #
 ########################################################################################################################
 
-RELEASE_VERSION=1.0.6-SNAPSHOT
+RELEASE_VERSION=2.0-SNAPSHOT
 
 # Project Name. Used for creating the archives.
 PROJECT_NAME=acegi-security
@@ -139,7 +139,7 @@ popd
 find . -name "*${RELEASE_VERSION}.jar" | grep -v WEB-INF | xargs -I % -n 1  cp % $RELEASE_DIR
 find . -name "*${RELEASE_VERSION}.war" | xargs -I % -n 1  cp % $RELEASE_DIR
 
-# Should be 9 archives - core, core-tiger, the adapters (cas, jboss, resin, jetty, catalina), tutorial and contacts wars.
+# Should be 10 archives - core, core-tiger, the adapters (cas, jboss, resin, jetty, catalina), ntlm, tutorial and contacts wars.
 
 pushd $RELEASE_DIR
 
