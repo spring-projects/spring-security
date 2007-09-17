@@ -23,6 +23,8 @@ import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.providers.cas.TicketResponse;
 
 import org.acegisecurity.ui.cas.ServiceProperties;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ClassPathResource;
 
 import java.util.Vector;
 
@@ -37,7 +39,6 @@ public class AbstractTicketValidatorTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public AbstractTicketValidatorTests() {
-        super();
     }
 
     public AbstractTicketValidatorTests(String arg0) {
@@ -45,14 +46,6 @@ public class AbstractTicketValidatorTests extends TestCase {
     }
 
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AbstractTicketValidatorTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testDetectsMissingCasValidate() throws Exception {
         AbstractTicketValidator tv = new MockAbstractTicketValidator();
@@ -92,26 +85,40 @@ public class AbstractTicketValidatorTests extends TestCase {
         assertEquals("/some/file/cacerts", tv.getTrustStore());
     }
 
-    public void testSystemPropertySetDuringAfterPropertiesSet()
-        throws Exception {
+    public void testTrustStoreSystemPropertySetDuringAfterPropertiesSet() throws Exception {
         AbstractTicketValidator tv = new MockAbstractTicketValidator();
         tv.setCasValidate("https://company.com/cas/proxyvalidate");
-        assertEquals("https://company.com/cas/proxyvalidate", tv.getCasValidate());
-
         tv.setServiceProperties(new ServiceProperties());
-        assertTrue(tv.getServiceProperties() != null);
 
-        tv.setTrustStore("/some/file/cacerts");
-        assertEquals("/some/file/cacerts", tv.getTrustStore());
+        // We need an existing file to use as the truststore property
+        Resource r = new ClassPathResource("log4j.properties");
+        String filename = r.getFile().getAbsolutePath();
+
+        tv.setTrustStore(filename);
+        assertEquals(filename, tv.getTrustStore());
 
         String before = System.getProperty("javax.net.ssl.trustStore");
         tv.afterPropertiesSet();
-        assertEquals("/some/file/cacerts", System.getProperty("javax.net.ssl.trustStore"));
+        assertEquals(filename, System.getProperty("javax.net.ssl.trustStore"));
 
         if (before == null) {
             System.setProperty("javax.net.ssl.trustStore", "");
         } else {
             System.setProperty("javax.net.ssl.trustStore", before);
+        }
+    }
+
+    public void testMissingTrustStoreFileCausesException() throws Exception {
+        AbstractTicketValidator tv = new MockAbstractTicketValidator();
+        tv.setServiceProperties(new ServiceProperties());
+        tv.setCasValidate("https://company.com/cas/proxyvalidate");
+        tv.setTrustStore("/non/existent/file");
+
+        try {
+            tv.afterPropertiesSet();
+
+            fail("Expected exception with non-existent truststore");
+        } catch (IllegalArgumentException expected) {
         }
     }
 
@@ -125,7 +132,6 @@ public class AbstractTicketValidatorTests extends TestCase {
         }
 
         private MockAbstractTicketValidator() {
-            super();
         }
 
         public TicketResponse confirmTicketValid(String serviceTicket)

@@ -16,15 +16,16 @@
 package org.acegisecurity.providers.cas.ticketvalidator;
 
 import org.acegisecurity.providers.cas.TicketValidator;
-
 import org.acegisecurity.ui.cas.ServiceProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
-
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+
+import java.io.File;
 
 
 /**
@@ -50,9 +51,11 @@ public abstract class AbstractTicketValidator implements TicketValidator, Initia
         Assert.hasLength(casValidate, "A casValidate URL must be set");
         Assert.notNull(serviceProperties, "serviceProperties must be specified");
 
-        if ((trustStore != null) && (!"".equals(trustStore))) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Setting system property 'javax.net.ssl.trustStore'" + " to value [" + trustStore + "]");
+        if (StringUtils.hasLength(trustStore)) {
+            logger.info("Setting system property 'javax.net.ssl.trustStore' to value [" + trustStore + "]");
+
+            if (! (new File(trustStore)).exists()) {
+                throw new IllegalArgumentException("Parameter 'trustStore' file does not exist at " + trustStore);
             }
 
             System.setProperty("javax.net.ssl.trustStore", trustStore);
