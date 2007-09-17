@@ -62,6 +62,10 @@ public class PrincipalSid implements Sid {
         return ((PrincipalSid) object).getPrincipal().equals(this.getPrincipal());
     }
 
+    public int hashCode() {
+        return this.getPrincipal().hashCode();
+    }
+
     public String getPrincipal() {
         return principal;
     }

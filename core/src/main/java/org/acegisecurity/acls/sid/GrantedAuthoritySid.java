@@ -57,6 +57,10 @@ public class GrantedAuthoritySid implements Sid {
         return ((GrantedAuthoritySid) object).getGrantedAuthority().equals(this.getGrantedAuthority());
     }
 
+    public int hashCode() {
+        return this.getGrantedAuthority().hashCode();
+    }
+
     public String getGrantedAuthority() {
         return grantedAuthority;
     }
