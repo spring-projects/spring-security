@@ -39,8 +39,6 @@ import org.springframework.util.Assert;
 import java.security.cert.X509Certificate;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import java.util.regex.MatchResult;
-
 
 /**
  * Populates the X509 authorities via an {@link org.acegisecurity.userdetails.UserDetailsService}.
