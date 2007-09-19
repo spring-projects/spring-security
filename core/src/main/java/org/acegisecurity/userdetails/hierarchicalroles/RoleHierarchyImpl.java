@@ -18,7 +18,6 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -27,6 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -119,7 +119,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("getReachableGrantedAuthorities() - From the roles " + ArrayUtils.toString(authorities)
+            logger.debug("getReachableGrantedAuthorities() - From the roles " + Arrays.asList(authorities)
                     + " one can reach " + reachableRoles + " in zero or more steps.");
         }
 
