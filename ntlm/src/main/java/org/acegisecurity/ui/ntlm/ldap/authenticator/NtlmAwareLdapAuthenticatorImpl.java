@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.acegisecurity.ui.ntlm.ldap.authenticator;
 
@@ -16,11 +16,11 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.ldap.core.DirContextOperations;
 
 /**
- * Fullfill the User details after NTLM authentication was done. Or (if no NTLM
- * authentication done) act as the parent to authenticate the user
- * 
+ * Loads the UserDetails if authentication was already performed by NTLM (indicated by the type of authentication
+ * token submitted). Otherwise falls back to the parent class behaviour, attempting to bind as the user.
+ *
  * @author sylvain.mougenot
- * 
+ *
  */
 public class NtlmAwareLdapAuthenticatorImpl extends BindAuthenticator {
 	/**
@@ -37,7 +37,7 @@ public class NtlmAwareLdapAuthenticatorImpl extends BindAuthenticator {
 
 	/**
 	 * Prepare the template without bind requirements.
-	 * 
+	 *
 	 * @param aUserDn
 	 * @param aUserName
 	 * @see #loadDetail(SpringSecurityLdapTemplate, String, String)
@@ -50,7 +50,7 @@ public class NtlmAwareLdapAuthenticatorImpl extends BindAuthenticator {
 
 	/**
 	 * Load datas
-	 * 
+	 *
 	 * @param aTemplate
 	 * @param aUserDn
 	 * @param aUserName
@@ -68,20 +68,20 @@ public class NtlmAwareLdapAuthenticatorImpl extends BindAuthenticator {
 			// exception
 			// unless a subclass wishes to implement more specialized behaviour.
 			if (logger.isDebugEnabled()) {
-				logger.debug("Failed to bind as " + aUserDn + ": "
-						+ e.getMessage(), e);
+				logger.debug("Failed to bind as " + aUserDn + ": " + e.getMessage(), e);
 			}
 		}
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.acegisecurity.ui.ntlm.NtlmAwareLdapAuthenticator#authenticate(org.acegisecurity.ui.ntlm.NtlmUsernamePasswordAuthenticationToken)
+	/**
+	 * If the supplied <tt>Authentication</tt> object is of type <tt>NtlmUsernamePasswordAuthenticationToken</tt>,
+     * the information stored in the user's directory entry is loaded without attempting to authenticate them.
+     * Otherwise the parent class is called to perform a bind operation to authenticate the user.
 	 */
 	public DirContextOperations authenticate(Authentication authentication) {
         if (!(authentication instanceof NtlmUsernamePasswordAuthenticationToken)) {
+            // Not NTLM authenticated, so call the base class to authenticate the user.
             return super.authenticate(authentication);
         }
 
