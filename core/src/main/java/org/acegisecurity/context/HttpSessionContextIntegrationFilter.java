@@ -465,7 +465,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
     }
 
 
-    //~ Inner Classes ==================================================================================================    
+    //~ Inner Classes ==================================================================================================
 
     /**
      * Wrapper that is applied to every request to update the <code>HttpSession<code> with
@@ -486,7 +486,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         /**
          * Takes the parameters required to call <code>storeSecurityContextInSession()</code> in
          * addition to the response object we are wrapping.
-         * @see HttpSessionContextIntegrationFilter#storeSecurityContextInSession(SecurityContext, ServletRequest, boolean, int)
+         * @see HttpSessionContextIntegrationFilter#storeSecurityContextInSession(SecurityContext, HttpServletRequest, boolean, int)
          */
         public OnRedirectUpdateSessionResponseWrapper(HttpServletResponse response,
                                                       HttpServletRequest request,
