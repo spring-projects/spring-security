@@ -54,7 +54,6 @@ public class AbstractProcessingFilterTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public AbstractProcessingFilterTests() {
-        super();
     }
 
     public AbstractProcessingFilterTests(String arg0) {
@@ -81,10 +80,6 @@ public class AbstractProcessingFilterTests extends TestCase {
         filter.init(filterConfig);
         filter.doFilter(request, response, filterChain);
         filter.destroy();
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AbstractProcessingFilterTests.class);
     }
 
     private SavedRequest makeSavedRequestForUrl() {
@@ -117,8 +112,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertTrue(filter.requiresAuthentication(request, response));
     }
 
-    public void testDoFilterWithNonHttpServletRequestDetected()
-        throws Exception {
+    public void testDoFilterWithNonHttpServletRequestDetected() throws Exception {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
 
         try {
@@ -129,8 +123,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testDoFilterWithNonHttpServletResponseDetected()
-        throws Exception {
+    public void testDoFilterWithNonHttpServletResponseDetected() throws Exception {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
 
         try {
@@ -141,8 +134,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testFailedAuthenticationRedirectsAppropriately()
-        throws Exception {
+    public void testFailedAuthenticationRedirectsAppropriately() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
 
@@ -177,11 +169,9 @@ public class AbstractProcessingFilterTests extends TestCase {
 
         assertEquals("/mycontext/accountExpired.jsp", response.getRedirectedUrl());
         assertNull(SecurityContextHolder.getContext().getAuthentication());
-        assertEquals(8*1024, response.getBufferSize());
     }
 
-    public void testFilterProcessesUrlVariationsRespected()
-        throws Exception {
+    public void testFilterProcessesUrlVariationsRespected() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
         request.setServletPath("/j_OTHER_LOCATION");
@@ -204,7 +194,6 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-        assertEquals(8*1024, response.getBufferSize());
     }
 
     public void testGettersSetters() {
@@ -242,8 +231,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         } catch (IllegalArgumentException expected) {}
     }
 
-    public void testIgnoresAnyServletPathOtherThanFilterProcessesUrl()
-        throws Exception {
+    public void testIgnoresAnyServletPathOtherThanFilterProcessesUrl() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
         request.setServletPath("/some.file.html");
@@ -263,8 +251,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response, chain);
     }
 
-    public void testNormalOperationWithDefaultFilterProcessesUrl()
-        throws Exception {
+    public void testNormalOperationWithDefaultFilterProcessesUrl() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
 
@@ -288,11 +275,9 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-        assertEquals(8*1024, response.getBufferSize());
     }
 
-    public void testStartupDetectsInvalidAuthenticationFailureUrl()
-        throws Exception {
+    public void testStartupDetectsInvalidAuthenticationFailureUrl() throws Exception {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setAuthenticationManager(new MockAuthenticationManager());
         filter.setDefaultTargetUrl("/");
@@ -306,8 +291,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testStartupDetectsInvalidAuthenticationManager()
-        throws Exception {
+    public void testStartupDetectsInvalidAuthenticationManager() throws Exception {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setAuthenticationFailureUrl("/failed.jsp");
         filter.setDefaultTargetUrl("/");
@@ -321,8 +305,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testStartupDetectsInvalidDefaultTargetUrl()
-        throws Exception {
+    public void testStartupDetectsInvalidDefaultTargetUrl() throws Exception {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setAuthenticationFailureUrl("/failed.jsp");
         filter.setAuthenticationManager(new MockAuthenticationManager());
@@ -336,8 +319,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testStartupDetectsInvalidFilterProcessesUrl()
-        throws Exception {
+    public void testStartupDetectsInvalidFilterProcessesUrl() throws Exception {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setAuthenticationFailureUrl("/failed.jsp");
         filter.setAuthenticationManager(new MockAuthenticationManager());
@@ -352,8 +334,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         }
     }
 
-    public void testSuccessLoginThenFailureLoginResultsInSessionLosingToken()
-        throws Exception {
+    public void testSuccessLoginThenFailureLoginResultsInSessionLosingToken() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
 
@@ -374,7 +355,6 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-        assertEquals(8*1024, response.getBufferSize());
 
         // Now try again but this time have filter deny access
         // Setup our HTTP request
@@ -419,8 +399,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
-    public void testSuccessfulAuthenticationCausesRedirectToSessionSpecifiedUrl()
-        throws Exception {
+    public void testSuccessfulAuthenticationCausesRedirectToSessionSpecifiedUrl() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
         request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
@@ -440,11 +419,10 @@ public class AbstractProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response, chain);
         assertEquals(makeSavedRequestForUrl().getFullRequestUrl(), response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-        assertEquals(8*1024, response.getBufferSize());
     }
 
     /**
-     * SEC-297 fix. 
+     * SEC-297 fix.
      */
     public void testFullDefaultTargetUrlDoesNotHaveContextPathPrepended() throws Exception {
         MockHttpServletRequest request = createMockRequest();
@@ -481,7 +459,6 @@ public class AbstractProcessingFilterTests extends TestCase {
         }
 
         private MockAbstractProcessingFilter() {
-            super();
         }
 
         public Authentication attemptAuthentication(HttpServletRequest request)
@@ -513,7 +490,6 @@ public class AbstractProcessingFilterTests extends TestCase {
         }
 
         private MockFilterChain() {
-            super();
         }
 
         public void doFilter(ServletRequest request, ServletResponse response)
