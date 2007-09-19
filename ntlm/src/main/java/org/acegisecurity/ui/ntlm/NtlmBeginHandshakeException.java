@@ -28,4 +28,4 @@ public class NtlmBeginHandshakeException extends NtlmBaseException {
 		super("NTLM");
 	}
 
-}	// End NtlmBeginHandshakeException
+}

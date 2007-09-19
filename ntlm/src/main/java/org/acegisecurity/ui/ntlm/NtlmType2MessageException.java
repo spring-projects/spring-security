@@ -41,8 +41,9 @@ public class NtlmType2MessageException extends NtlmBaseException {
 	 * Internet Explorer does a POST.
 	 */
 	public void preserveAuthentication() {
-		if (auth != null)
+		if (auth != null) {
 			SecurityContextHolder.getContext().setAuthentication(auth);
-	}
+        }
+    }
 
-}	// End NTLMType2MessageException
+}

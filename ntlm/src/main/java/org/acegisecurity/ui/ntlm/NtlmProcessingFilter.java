@@ -72,7 +72,7 @@ import org.springframework.util.Assert;
  * server to automatcially discover the username of a browser client when that
  * client is logged into a Windows domain and is using an NTLM-aware browser.
  * A web application can then reuse the user's Windows credentials without
- * having to ask for them again.   
+ * having to ask for them again.
  * <p>
  * Because NTLM only provides the username of the Windows client, an Acegi
  * Security NTLM deployment must have a <code>UserDetailsService</code> that
@@ -83,7 +83,7 @@ import org.springframework.util.Assert;
  * The Acegi Security bean configuration file must also place the
  * <code>ExceptionTranslationFilter</code> before this filter in the
  * <code>FilterChainProxy</code> definition.
- * 
+ *
  * @author Davide Baroncelli
  * @author Edward Smith
  * @version $Id$
@@ -102,16 +102,16 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 
 	//~ Instance fields ================================================================================================
 
-	/** Shoud the filter load balance among multiple domain controllers, default <code>false</code>		*/
+	/** Should the filter load balance among multiple domain controllers, default <code>false</code> */
 	private boolean	loadBalance;
 
-	/** Shoud the domain name be stripped from the username, default <code>true</code>					*/
+	/** Should the domain name be stripped from the username, default <code>true</code> */
 	private boolean stripDomain = true;
 
-	/** Should the filter initiate NTLM negotiations, default <code>true</code>							*/
+	/** Should the filter initiate NTLM negotiations, default <code>true</code>	*/
 	private boolean forceIdentification = true;
 
-	/** Shoud the filter retry NTLM on authorization failure, default <code>false</code>				*/
+	/** Should the filter retry NTLM on authorization failure, default <code>false</code> */
 	private boolean retryOnAuthFailure;
 
 	private String	soTimeout;
@@ -120,7 +120,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	private String	domainController;
 	private AuthenticationManager authenticationManager;
 
-	//~ Public Methods =================================================================================================
+	//~ Methods ========================================================================================================
 
 	/**
 	 * Ensures an <code>AuthenticationManager</code> and authentication failure
@@ -130,9 +130,9 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 		Assert.notNull(this.authenticationManager, "An AuthenticationManager is required");
 
 		// Default to 5 minutes if not already specified
-		Config.setProperty("jcifs.smb.client.soTimeout", (soTimeout == null) ? "300000" : soTimeout);
+		Config.setProperty("jcifs.smb.client.soTimeout", soTimeout == null ? "300000" : soTimeout);
 		// Default to 20 minutes if not already specified
-		Config.setProperty("jcifs.netbios.cachePolicy", (cachePolicy == null) ? "1200" : cachePolicy);
+		Config.setProperty("jcifs.netbios.cachePolicy", cachePolicy == null ? "1200" : cachePolicy);
 
 		if (domainController == null) {
 			domainController = defaultDomain;
@@ -141,7 +141,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 
 	/**
 	 * Sets the <code>AuthenticationManager</code> to use.
-	 * 
+	 *
 	 * @param authenticationManager the <code>AuthenticationManager</code> to use.
 	 */
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
@@ -153,7 +153,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	 * client username and password are also set, then preauthentication will
 	 * be used which is necessary to initialize the SMB signing digest. SMB
 	 * signatures are required by default on Windows 2003 domain controllers.
-	 * 
+	 *
 	 * @param defaultDomain The name of the default domain.
 	 */
 	public void setDefaultDomain(String defaultDomain) {
@@ -163,7 +163,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 
 	/**
 	 * Sets the SMB client username.
-	 * 
+	 *
 	 * @param smbClientUsername The SMB client username.
 	 */
 	public void setSmbClientUsername(String smbClientUsername) {
@@ -172,7 +172,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 
 	/**
 	 * Sets the SMB client password.
-	 * 
+	 *
 	 * @param smbClientPassword The SMB client password.
 	 */
 	public void setSmbClientPassword(String smbClientPassword) {
@@ -184,8 +184,8 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	 * authentication is forced to use a separate transport. This effectively
 	 * ignores SMB signing requirements, however at the expense of reducing
 	 * scalability. Preauthentication with a domain, username, and password is
-	 * the preferred method for working with servers that require signatures. 
-	 * 
+	 * the preferred method for working with servers that require signatures.
+	 *
 	 * @param smbClientSSNLimit The SMB client SSN limit.
 	 */
 	public void setSmbClientSSNLimit(String smbClientSSNLimit) {
@@ -196,17 +196,17 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	 * Configures JCIFS to use a WINS server.  It is preferred to use a WINS
 	 * server over a specific domain controller.  Set this property instead of
 	 * <code>domainController</code> if there is a WINS server available.
-	 * 
+	 *
 	 * @param netbiosWINS The WINS server JCIFS will use.
 	 */
 	public void setNetbiosWINS(String netbiosWINS) {
-		Config.setProperty("jcifs.netbios.wins", netbiosWINS);  
+		Config.setProperty("jcifs.netbios.wins", netbiosWINS);
 	}
 
 	/**
 	 * The IP address of any SMB server that should be used to authenticate
 	 * HTTP clients.
-	 * 
+	 *
 	 * @param domainController The IP address of the domain controller.
 	 */
 	public void setDomainController(String domainController) {
@@ -218,7 +218,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	 * specified, then query for domain controllers by name.  When load
 	 * balance is <code>true</code>, rotate through the list of domain
 	 * controllers when authenticating users.
-	 * 
+	 *
 	 * @param loadBalance The load balance flag value.
 	 */
 	public void setLoadBalance(boolean loadBalance) {
@@ -229,7 +229,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	 * Configures <code>NtlmProcessingFilter</code> to strip the Windows
 	 * domain name from the username when set to <code>true</code>, which
 	 * is the default value.
-	 *  
+	 *
 	 * @param stripDomain The strip domain flag value.
 	 */
 	public void setStripDomain(boolean stripDomain) {
@@ -240,7 +240,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	 * Sets the <code>jcifs.smb.client.soTimeout</code> property to the
 	 * timeout value specified in milliseconds. Defaults to 5 minutes
 	 * if not specified.
-	 * 
+	 *
 	 * @param timeout The milliseconds timeout value.
 	 */
 	public void setSoTimeout(String timeout) {
@@ -251,7 +251,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	 * Sets the <code>jcifs.netbios.cachePolicy</code> property to the
 	 * number of seconds a NetBIOS address is cached by JCIFS. Defaults to
 	 * 20 minutes if not specified.
-	 * 
+	 *
 	 * @param numSeconds The number of seconds a NetBIOS address is cached.
 	 */
 	public void setCachePolicy(String numSeconds) {
@@ -261,7 +261,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	/**
 	 * Loads properties starting with "jcifs" into the JCIFS configuration.
 	 * Any other properties are ignored.
-	 * 
+	 *
 	 * @param props The JCIFS properties to set.
 	 */
 	public void setJcifsProperties(Properties props) {
@@ -277,7 +277,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 
 	/**
 	 * Returns <code>true</code> if NTLM authentication is forced.
-	 * 
+	 *
 	 * @return <code>true</code> if NTLM authentication is forced.
 	 */
 	public boolean isForceIdentification() {
@@ -286,7 +286,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 
 	/**
 	 * Sets a flag denoting whether NTLM authentication should be forced.
-	 * 
+	 *
 	 * @param forceIdentification the force identification flag value to set.
 	 */
 	public void setForceIdentification(boolean forceIdentification) {
@@ -297,14 +297,12 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	 * Sets a flag denoting whether NTLM should retry whenever authentication
 	 * fails.  Retry will only occur on an {@link AuthenticationCredentialsNotFoundException}
 	 * or {@link InsufficientAuthenticationException}.
-	 * 
+	 *
 	 * @param retryOnFailure the retry on failure flag value to set.
 	 */
 	public void setRetryOnAuthFailure(boolean retryOnFailure) {
 		this.retryOnAuthFailure = retryOnFailure;
 	}
-
-	//~ Protected Methods ==============================================================================================
 
 	protected void doFilter(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain) throws IOException {
 		final HttpSession session = request.getSession();
@@ -350,8 +348,6 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 		}
 	}
 
-	//~ Private Methods ================================================================================================
-
 	/**
 	 * Returns <code>true</code> if reauthentication is needed on an IE POST.
 	 */
@@ -362,7 +358,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 
 	/**
 	 * Creates and returns a Type 2 message from the provided Type 1 message.
-	 *  
+	 *
 	 * @param message the Type 1 message to process.
 	 * @param session the <code>HTTPSession</code> object.
 	 * @param dcAddress the domain controller address.
@@ -379,7 +375,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	/**
 	 * Builds and returns an <code>NtlmPasswordAuthentication</code> object
 	 * from the provided Type 3 message.
-	 * 
+	 *
 	 * @param message the Type 3 message to process.
 	 * @param session the <code>HTTPSession</code> object.
 	 * @param dcAddress the domain controller address.
@@ -400,7 +396,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 
 	/**
 	 * Checks the user credentials against the domain controller.
-	 * 
+	 *
 	 * @param session the <code>HTTPSession</code> object.
 	 * @param dcAddress the domain controller address.
 	 * @param auth the <code>NtlmPasswordAuthentication</code> object.
@@ -424,7 +420,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	/**
 	 * Authenticates the user credentials acquired from NTLM against the Acegi
 	 * Security <code>AuthenticationManager</code>.
-	 * 
+	 *
 	 * @param request the <code>HttpServletRequest</code> object.
 	 * @param response the <code>HttpServletResponse</code> object.
 	 * @param session the <code>HttpSession</code> object.
@@ -472,7 +468,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	/**
 	 * Returns the domain controller address based on the <code>loadBalance</code>
 	 * setting.
-	 * 
+	 *
 	 * @param session the <code>HttpSession</code> object.
 	 * @return the domain controller address.
 	 * @throws UnknownHostException
@@ -494,7 +490,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	/**
 	 * Returns the domain controller challenge based on the <code>loadBalance</code>
 	 * setting.
-	 * 
+	 *
 	 * @param session the <code>HttpSession</code> object.
 	 * @param dcAddress the domain controller address.
 	 * @return the domain controller challenge.
@@ -502,10 +498,11 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	 * @throws SmbException
 	 */
 	private byte[] getChallenge(final HttpSession session, final UniAddress dcAddress) throws UnknownHostException, SmbException {
-		if (loadBalance)
+		if (loadBalance) {
 			return ((NtlmChallenge) session.getAttribute(CHALLENGE_ATTR)).challenge;
+        }
 
-		return SmbSession.getChallenge(dcAddress);
+        return SmbSession.getChallenge(dcAddress);
 	}
 
 }	// End NtlmProcessingFilter

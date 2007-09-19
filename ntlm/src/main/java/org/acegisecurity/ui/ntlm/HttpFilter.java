@@ -58,4 +58,4 @@ public abstract class HttpFilter implements Filter {
 		response.sendRedirect(response.encodeRedirectURL(url));
 	}
 
-}	// End HttpFilter
+}

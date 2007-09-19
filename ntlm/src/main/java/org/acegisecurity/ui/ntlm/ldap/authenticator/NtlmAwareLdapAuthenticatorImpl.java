@@ -14,6 +14,7 @@ import org.acegisecurity.ui.ntlm.NtlmUsernamePasswordAuthenticationToken;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.NameNotFoundException;
 
 /**
  * Loads the UserDetails if authentication was already performed by NTLM (indicated by the type of authentication
@@ -23,52 +24,34 @@ import org.springframework.ldap.core.DirContextOperations;
  *
  */
 public class NtlmAwareLdapAuthenticatorImpl extends BindAuthenticator {
-	/**
-	 * Logger for this class
-	 */
-	private static final Log logger = LogFactory.getLog(NtlmAwareLdapAuthenticatorImpl.class);
+    //~ Static fields/initializers =====================================================================================
 
-	/**
-	 * @param initialDirContextFactory
-	 */
+    private static final Log logger = LogFactory.getLog(NtlmAwareLdapAuthenticatorImpl.class);
+
+
+    //~ Constructors ===================================================================================================
+
 	public NtlmAwareLdapAuthenticatorImpl(InitialDirContextFactory initialDirContextFactory) {
 		super(initialDirContextFactory);
 	}
 
-	/**
-	 * Prepare the template without bind requirements.
-	 *
-	 * @param aUserDn
-	 * @param aUserName
-	 * @see #loadDetail(SpringSecurityLdapTemplate, String, String)
-	 * @return
-	 */
-	protected DirContextOperations bindWithoutDn(String aUserDn, String aUserName) {
-		SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(getInitialDirContextFactory());
-		return loadDetail(template, aUserDn, aUserName);
-	}
+    //~ Methods ========================================================================================================
 
-	/**
-	 * Load datas
-	 *
-	 * @param aTemplate
-	 * @param aUserDn
-	 * @param aUserName
-	 * @return
+    /**
+     * Loads the user context information without binding.
 	 */
-	protected DirContextOperations loadDetail(SpringSecurityLdapTemplate aTemplate, String aUserDn, String aUserName) {
+	protected DirContextOperations loadUser(String aUserDn, String aUserName) {
+		SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(getInitialDirContextFactory());
+
 		try {
-			DirContextOperations user =  aTemplate.retrieveEntry(aUserDn, getUserAttributes());
+			DirContextOperations user =  template.retrieveEntry(aUserDn, getUserAttributes());
 
 			return user;
-		} catch (BadCredentialsException e) {
-			// This will be thrown if an invalid user name is used and the
-			// method may
-			// be called multiple times to try different names, so we trap the
-			// exception
-			// unless a subclass wishes to implement more specialized behaviour.
+		} catch (NameNotFoundException e) {
+			// This will be thrown if an invalid user name is used and the method may
+			// be called multiple times to try different names, so we trap the exception.
 			if (logger.isDebugEnabled()) {
-				logger.debug("Failed to bind as " + aUserDn + ": " + e.getMessage(), e);
+				logger.debug("Failed to load user " + aUserDn + ": " + e.getMessage(), e);
 			}
 		}
 		return null;
@@ -97,7 +80,7 @@ public class NtlmAwareLdapAuthenticatorImpl extends BindAuthenticator {
 
 		// tries them all until we found something
 		while (myDns.hasNext() && (user == null)) {
-			user = bindWithoutDn((String) myDns.next(), userName);
+			user = loadUser((String) myDns.next(), userName);
 		}
 
 		// Otherwise use the configured locator to find the user
@@ -105,7 +88,7 @@ public class NtlmAwareLdapAuthenticatorImpl extends BindAuthenticator {
 		if ((user == null) && (getUserSearch() != null)) {
 			DirContextOperations userFromSearch = getUserSearch().searchForUser(userName);
 			// lancer l'identificvation
-			user = bindWithoutDn(userFromSearch.getDn().toString(), userName);
+			user = loadUser(userFromSearch.getDn().toString(), userName);
 		}
 
 		// Failed to locate the user in the LDAP directory

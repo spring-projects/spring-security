@@ -31,4 +31,4 @@ public abstract class NtlmBaseException extends AuthenticationException {
 		super(msg);
 	}
 
-}	// End NtlmBaseException
+}

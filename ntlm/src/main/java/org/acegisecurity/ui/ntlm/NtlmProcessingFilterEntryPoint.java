@@ -45,7 +45,7 @@ import jcifs.Config;
  * @version $Id$
  */
 public class NtlmProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
-    //~ Static fields/initializers =============================================
+    //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(NtlmProcessingFilterEntryPoint.class);
 
@@ -54,7 +54,7 @@ public class NtlmProcessingFilterEntryPoint implements AuthenticationEntryPoint,
 	/** Where to redirect the browser to if authentication fails		*/
 	private String authenticationFailureUrl;
 
-	//~ Methods ================================================================
+	//~ Methods ========================================================================================================
 
 	/**
 	 * Ensures an authentication failure URL has been provided in the bean
@@ -66,7 +66,7 @@ public class NtlmProcessingFilterEntryPoint implements AuthenticationEntryPoint,
 
 	/**
 	 * Sets the authentication failure URL.
-	 * 
+	 *
 	 * @param authenticationFailureUrl the authentication failure URL.
 	 */
 	public void setAuthenticationFailureUrl(String authenticationFailureUrl) {
@@ -83,11 +83,11 @@ public class NtlmProcessingFilterEntryPoint implements AuthenticationEntryPoint,
 	 * <li>{@link NtlmBeginHandshakeException}: NTLM
 	 * <li>{@link NtlmType2MessageException}: NTLM &lt;base64-encoded type-2-message&gt;
 	 * </ul>
-	 * 
+	 *
 	 * If the {@link AuthenticationException} is not a subclass of
 	 * {@link NtlmBaseException}, then redirect the user to the authentication
 	 * failure URL.
-	 * 
+	 *
 	 * @param request The {@link HttpServletRequest} object.
 	 * @param response Then {@link HttpServletResponse} object.
 	 * @param authException Either {@link NtlmBeginHandshakeException},
@@ -116,4 +116,4 @@ public class NtlmProcessingFilterEntryPoint implements AuthenticationEntryPoint,
 		}
 	}
 
-}	// End NtlmProcessingFilterEntryPoint
+}
