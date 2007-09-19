@@ -12,7 +12,7 @@
         <module>adapters</module>
 		<module>portlet</module>
         <module>samples</module>
-        <module>ntlm</module>        
+        <module>ntlm</module>
     </modules>
 
 	<description>Acegi Security System for Spring</description>
@@ -560,6 +560,16 @@
 				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-aop</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+            <dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+            <dependency>
 				<groupId>log4j</groupId>
 				<artifactId>log4j</artifactId>
 				<version>1.2.9</version>

@@ -13,5 +13,10 @@
       <artifactId>org.mortbay.jetty</artifactId>
       <version>4.2.22</version>
     </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jdbc</artifactId>
+        <scope>test</scope>
+    </dependency>      
   </dependencies>
 </project>

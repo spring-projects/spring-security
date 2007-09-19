@@ -19,5 +19,10 @@
       <version>2.3</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jdbc</artifactId>
+        <scope>test</scope>
+    </dependency>      
   </dependencies>
 </project>
