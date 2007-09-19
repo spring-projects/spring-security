@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.acegisecurity.Authentication;
+import org.acegisecurity.util.RedirectUtils;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,6 +61,7 @@ public class LogoutFilter implements Filter {
     private String filterProcessesUrl = "/j_acegi_logout";
     private String logoutSuccessUrl;
     private LogoutHandler[] handlers;
+    private boolean useRelativeContext;
 
     //~ Constructors ===================================================================================================
 
@@ -162,11 +164,8 @@ public class LogoutFilter implements Filter {
      */
     protected void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
             throws IOException {
-        if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            url = request.getContextPath() + url;
-        }
 
-        response.sendRedirect(response.encodeRedirectURL(url));
+        RedirectUtils.sendRedirect(request, response, url, useRelativeContext);
     }
 
     public void setFilterProcessesUrl(String filterProcessesUrl) {
@@ -176,5 +175,9 @@ public class LogoutFilter implements Filter {
 
     protected String getFilterProcessesUrl() {
         return filterProcessesUrl;
+    }
+
+    public void setUseRelativeContext(boolean useRelativeContext) {
+        this.useRelativeContext = useRelativeContext;
     }
 }
