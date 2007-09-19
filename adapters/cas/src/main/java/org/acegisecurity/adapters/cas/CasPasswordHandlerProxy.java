@@ -27,6 +27,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import java.util.Map;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -39,7 +40,7 @@ import javax.servlet.http.HttpServletRequest;
  * server if not desired. It exists solely for the convenience of users wishing have CAS delegate to an Acegi Security
  * System-based <code>AuthenticationManager</code>.</p>
  *  <p>This class works requires a properly configured <code>CasPasswordHandler</code>. On the first authentication
- * request, the class will use Spring's {@link WebApplicationContextUtils#getWebApplicationContext(ServletContext sc)}
+ * request, the class will use Spring's {@link WebApplicationContextUtils#getRequiredWebApplicationContext(ServletContext)}
  * method to obtain an <code>ApplicationContext</code> instance, inside which must be a configured
  * <code>CasPasswordHandler</code> instance. The <code>CasPasswordHandlerProxy</code> will then delegate
  * authentication requests to that instance.</p>
