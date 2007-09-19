@@ -50,26 +50,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Handles any <code>AccessDeniedException</code> and
- * <code>AuthenticationException</code> thrown within the filter chain.
+ * Handles any <code>AccessDeniedException</code> and <code>AuthenticationException</code> thrown within the
+ * filter chain.
  * <p>
- * This filter is necessary because it provides the bridge between Java
- * exceptions and HTTP responses. It is solely concerned with maintaining the
- * user interface. This filter does not do any actual security enforcement.
+ * This filter is necessary because it provides the bridge between Java exceptions and HTTP responses.
+ * It is solely concerned with maintaining the user interface. This filter does not do any actual security enforcement.
  * </p>
  * <p>
- * If an {@link AuthenticationException} is detected, the filter will launch the
- * <code>authenticationEntryPoint</code>. This allows common handling of
- * authentication failures originating from any subclass of
+ * If an {@link AuthenticationException} is detected, the filter will launch the <code>authenticationEntryPoint</code>.
+ * This allows common handling of authentication failures originating from any subclass of
  * {@link org.acegisecurity.intercept.AbstractSecurityInterceptor}.
  * </p>
  * <p>
- * If an {@link AccessDeniedException} is detected, the filter will determine
- * whether or not the user is an anonymous user. If they are an anonymous user,
- * the <code>authenticationEntryPoint</code> will be launched. If they are not
- * an anonymous user, the filter will delegate to the
- * {@link org.acegisecurity.ui.AccessDeniedHandler}. By default the filter will
- * use {@link org.acegisecurity.ui.AccessDeniedHandlerImpl}.
+ * If an {@link AccessDeniedException} is detected, the filter will determine whether or not the user is an anonymous
+ * user. If they are an anonymous user, the <code>authenticationEntryPoint</code> will be launched. If they are not
+ * an anonymous user, the filter will delegate to the {@link org.acegisecurity.ui.AccessDeniedHandler}.
+ * By default the filter will use {@link org.acegisecurity.ui.AccessDeniedHandlerImpl}.
  * </p>
  * <p>
  * To use this filter, it is necessary to specify the following properties:
@@ -82,74 +78,35 @@ import javax.servlet.http.HttpServletResponse;
  * <li><code>portResolver</code> is used to determine the "real" port that a
  * request was received on.</li>
  * </ul>
- * <P>
- * <B>Do not use this class directly.</B> Instead configure
- * <code>web.xml</code> to use the {@link
- * org.acegisecurity.util.FilterToBeanProxy}.
+ * <p>
+ * <b>Do not use this class directly.</b> Instead configure <code>web.xml</code> to use the
+ * {@link org.acegisecurity.util.FilterToBeanProxy}.
  * </p>
- * 
+ *
  * @author Ben Alex
  * @author colin sampaleanu
- * @version $Id: ExceptionTranslationFilter.java 1496 2006-05-23 13:38:33Z
- * benalex $
+ * @version $Id$
  */
 public class ExceptionTranslationFilter implements Filter, InitializingBean {
-	// ~ Static fields/initializers
-	// =====================================================================================
+
+    //~ Static fields/initializers =====================================================================================
 
 	private static final Log logger = LogFactory.getLog(ExceptionTranslationFilter.class);
 
-	// ~ Instance fields
-	// ================================================================================================
+	//~ Instance fields ================================================================================================
 
-	private AccessDeniedHandler accessDeniedHandler;
-
+    private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 	private AuthenticationEntryPoint authenticationEntryPoint;
-
 	private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
-
 	private PortResolver portResolver = new PortResolverImpl();
-
 	private boolean createSessionAllowed = true;
 
-	// ~ Methods
-	// ========================================================================================================
+	//~ Methods ========================================================================================================
 
 	public void afterPropertiesSet() throws Exception {
 		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint must be specified");
 		Assert.notNull(portResolver, "portResolver must be specified");
 		Assert.notNull(authenticationTrustResolver, "authenticationTrustResolver must be specified");
-	}
-
-	/**
-	 * Introspects the <code>Applicationcontext</code> for the single instance
-	 * of {@link AccessDeniedHandler}. If found invoke
-	 * setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) method by
-	 * providing the found instance of accessDeniedHandler as a method
-	 * parameter. If more than one instance of <code>AccessDeniedHandler</code>
-	 * is found, the method throws <code>IllegalStateException</code>.
-	 * 
-	 * @param applicationContext to locate the instance
-	 */
-	private void autoDetectAnyAccessDeniedHandlerAndUseIt(ApplicationContext applicationContext) {
-		Map map = applicationContext.getBeansOfType(AccessDeniedHandler.class);
-		if (map.size() > 1) {
-			throw new IllegalArgumentException(
-					"More than one AccessDeniedHandler beans detected please refer to the one using "
-							+ " [ accessDeniedBeanRef  ] " + "attribute");
-		}
-		else if (map.size() == 1) {
-			AccessDeniedHandler handler = (AccessDeniedHandlerImpl) map.values().iterator().next();
-			setAccessDeniedHandler(handler);
-		}
-		else {
-			// create and use the default one specified as an instance variable.
-			accessDeniedHandler = new AccessDeniedHandlerImpl();
-		}
-
-	}
-
-	public void destroy() {
 	}
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
@@ -231,20 +188,15 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
 		}
 	}
 
-	public void init(FilterConfig filterConfig) throws ServletException {
-	}
-
 	/**
-	 * If <code>true</code>, indicates that
-	 * <code>SecurityEnforcementFilter</code> is permitted to store the target
-	 * URL and exception information in the <code>HttpSession</code> (the
-	 * default). In situations where you do not wish to unnecessarily create
-	 * <code>HttpSession</code>s - because the user agent will know the
-	 * failed URL, such as with BASIC or Digest authentication - you may wish to
+	 * If <code>true</code>, indicates that <code>SecurityEnforcementFilter</code> is permitted to store the target
+	 * URL and exception information in the <code>HttpSession</code> (the default).
+     * In situations where you do not wish to unnecessarily create <code>HttpSession</code>s - because the user agent
+     * will know the failed URL, such as with BASIC or Digest authentication - you may wish to
 	 * set this property to <code>false</code>. Remember to also set the
 	 * {@link org.acegisecurity.context.HttpSessionContextIntegrationFilter#allowSessionCreation}
 	 * to <code>false</code> if you set this property to <code>false</code>.
-	 * 
+	 *
 	 * @return <code>true</code> if the <code>HttpSession</code> will be
 	 * used to store information about the failed request, <code>false</code>
 	 * if the <code>HttpSession</code> will not be used
@@ -296,4 +248,10 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
 	public void setPortResolver(PortResolver portResolver) {
 		this.portResolver = portResolver;
 	}
+
+    public void init(FilterConfig filterConfig) throws ServletException {
+    }
+
+    public void destroy() {
+    }
 }
