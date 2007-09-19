@@ -14,21 +14,16 @@
 
 package org.acegisecurity.userdetails.hierarchicalroles;
 
+
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
-
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Arrays;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import java.util.*;
 
 /**
  * <p>
@@ -183,8 +178,8 @@ public class RoleHierarchyImpl implements RoleHierarchy {
                 if (rolesReachableInOneStepMap.containsKey(aRole)) {
                     Set newReachableRoles = (Set) rolesReachableInOneStepMap.get(aRole);
 
-                    if (CollectionUtils.containsAny(rolesToVisitSet, newReachableRoles)
-                            || CollectionUtils.containsAny(visitedRolesSet, newReachableRoles)) {
+                    // definition of a cycle: you can reach the role you are starting from
+                    if (rolesToVisitSet.contains(role) || visitedRolesSet.contains(role)) {
                         throw new CycleInRoleHierarchyException();
                     } else {
                          // no cycle

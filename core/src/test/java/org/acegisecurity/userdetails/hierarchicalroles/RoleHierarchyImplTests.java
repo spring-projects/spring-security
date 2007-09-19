@@ -34,10 +34,6 @@ public class RoleHierarchyImplTests extends TestCase {
         super(testCaseName);
     }
 
-    public static void main(String[] args) {
-        TestRunner.run(RoleHierarchyImplTests.class);
-    }
-
     public void testSimpleRoleHierarchy() {
         GrantedAuthority[] authorities0 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_0") };
         GrantedAuthority[] authorities1 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A") };
@@ -66,6 +62,26 @@ public class RoleHierarchyImplTests extends TestCase {
         assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(roleHierarchyImpl.getReachableGrantedAuthorities(authorities1), authorities3));
     }
 
+    public void testComplexRoleHierarchy() {
+        GrantedAuthority[] authoritiesInput1 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A") };
+        GrantedAuthority[] authoritiesOutput1 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_A"), new GrantedAuthorityImpl("ROLE_B"), new GrantedAuthorityImpl("ROLE_C"),
+                                                                         new GrantedAuthorityImpl("ROLE_D") };
+        GrantedAuthority[] authoritiesInput2 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_B") };
+        GrantedAuthority[] authoritiesOutput2 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_B"), new GrantedAuthorityImpl("ROLE_D") };
+        GrantedAuthority[] authoritiesInput3 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_C") };
+        GrantedAuthority[] authoritiesOutput3 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_C"), new GrantedAuthorityImpl("ROLE_D") };
+        GrantedAuthority[] authoritiesInput4 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_D") };
+        GrantedAuthority[] authoritiesOutput4 = new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_D") };
+
+        RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
+        roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\nROLE_A > ROLE_C\nROLE_C > ROLE_D\nROLE_B > ROLE_D");
+
+        assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(roleHierarchyImpl.getReachableGrantedAuthorities(authoritiesInput1), authoritiesOutput1));
+        assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(roleHierarchyImpl.getReachableGrantedAuthorities(authoritiesInput2), authoritiesOutput2));
+        assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(roleHierarchyImpl.getReachableGrantedAuthorities(authoritiesInput3), authoritiesOutput3));
+        assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(roleHierarchyImpl.getReachableGrantedAuthorities(authoritiesInput4), authoritiesOutput4));
+    }
+
     public void testCyclesInRoleHierarchy() {
         RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
 
@@ -83,6 +99,21 @@ public class RoleHierarchyImplTests extends TestCase {
             roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_C\nROLE_C > ROLE_A");
             fail("Cycle in role hierarchy was not detected!");
         } catch (CycleInRoleHierarchyException e) {}
+
+        try {
+            roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_C\nROLE_C > ROLE_E\nROLE_E > ROLE_D\nROLE_D > ROLE_B");
+            fail("Cycle in role hierarchy was not detected!");
+        } catch (CycleInRoleHierarchyException e) {}
+    }
+
+    public void testNoCyclesInRoleHierarchy() {
+        RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
+
+        try {
+            roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\nROLE_A > ROLE_C\nROLE_C > ROLE_D\nROLE_B > ROLE_D");
+        } catch (CycleInRoleHierarchyException e) {
+            fail("A cycle in role hierarchy was incorrectly detected!");
+        }
     }
 
 }
