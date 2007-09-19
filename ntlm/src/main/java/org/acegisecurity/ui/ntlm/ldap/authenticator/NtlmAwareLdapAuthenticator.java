@@ -23,15 +23,15 @@ import org.springframework.ldap.NameNotFoundException;
  * @author sylvain.mougenot
  *
  */
-public class NtlmAwareLdapAuthenticatorImpl extends BindAuthenticator {
+public class NtlmAwareLdapAuthenticator extends BindAuthenticator {
     //~ Static fields/initializers =====================================================================================
 
-    private static final Log logger = LogFactory.getLog(NtlmAwareLdapAuthenticatorImpl.class);
+    private static final Log logger = LogFactory.getLog(NtlmAwareLdapAuthenticator.class);
 
 
     //~ Constructors ===================================================================================================
 
-	public NtlmAwareLdapAuthenticatorImpl(InitialDirContextFactory initialDirContextFactory) {
+	public NtlmAwareLdapAuthenticator(InitialDirContextFactory initialDirContextFactory) {
 		super(initialDirContextFactory);
 	}
 
