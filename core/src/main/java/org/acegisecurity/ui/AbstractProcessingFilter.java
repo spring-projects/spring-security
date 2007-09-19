@@ -19,6 +19,7 @@ import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
+import org.acegisecurity.util.RedirectUtils;
 
 import org.acegisecurity.context.SecurityContextHolder;
 
@@ -405,30 +406,8 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 
 	protected void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
 			throws IOException {
-		String finalUrl;
-		if (!url.startsWith("http://") && !url.startsWith("https://")) {
-			if (useRelativeContext) {
-				finalUrl = url;
-			}
-			else {
-				finalUrl = request.getContextPath() + url;
-			}
-		}
-		else if (useRelativeContext) {
-			// Calculate the relative URL from the fully qualifed URL, minus the
-			// protocol and base context.
-			int len = request.getContextPath().length();
-			int index = url.indexOf(request.getContextPath()) + len;
-			finalUrl = url.substring(index);
-			if (finalUrl.length() > 1 && finalUrl.charAt(0) == '/') {
-				finalUrl = finalUrl.substring(1);
-			}
-		}
-		else {
-			finalUrl = url;
-		}
 
-		response.sendRedirect(response.encodeRedirectURL(finalUrl));
+        RedirectUtils.sendRedirect(request, response, url, useRelativeContext);
 	}
 
 	public void setAlwaysUseDefaultTargetUrl(boolean alwaysUseDefaultTargetUrl) {
