@@ -13,19 +13,22 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.ui.ntlm;
+package org.springframework.security.ui.ntlm;
 
 import org.acegisecurity.AuthenticationException;
 
 /**
- * Signals the beginning of an NTLM handshaking process.
+ * Base class for NTLM exceptions so that it is easier to distinguish them
+ * from other <code>AuthenticationException</code>s in the
+ * {@link NtlmProcessingFilterEntryPoint}.  Marked as <code>abstract</code>
+ * since this exception is never supposed to be instantiated.
  *
  * @author Edward Smith
  */
-public class NtlmBeginHandshakeException extends NtlmBaseException {
+public abstract class NtlmBaseException extends AuthenticationException {
 
-	public NtlmBeginHandshakeException() {
-		super("NTLM");
+	public NtlmBaseException(final String msg) {
+		super(msg);
 	}
 
 }

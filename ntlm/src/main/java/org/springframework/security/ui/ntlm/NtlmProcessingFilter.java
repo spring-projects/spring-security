@@ -13,19 +13,14 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.ui.ntlm;
+package org.springframework.security.ui.ntlm;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -42,7 +37,6 @@ import jcifs.smb.SmbException;
 import jcifs.smb.SmbSession;
 import jcifs.util.Base64;
 
-import org.acegisecurity.AcegiMessageSource;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationCredentialsNotFoundException;
 import org.acegisecurity.AuthenticationException;
@@ -50,17 +44,13 @@ import org.acegisecurity.AuthenticationManager;
 import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.InsufficientAuthenticationException;
 import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
-import org.acegisecurity.ui.AbstractProcessingFilter;
 import org.acegisecurity.ui.WebAuthenticationDetails;
-import org.acegisecurity.ui.savedrequest.SavedRequest;
 import org.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.util.Assert;
 
 /**

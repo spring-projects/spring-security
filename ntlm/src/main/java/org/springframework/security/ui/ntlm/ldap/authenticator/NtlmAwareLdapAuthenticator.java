@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.acegisecurity.ui.ntlm.ldap.authenticator;
+package org.springframework.security.ui.ntlm.ldap.authenticator;
 
 import java.util.Iterator;
 
@@ -10,7 +10,7 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.ldap.InitialDirContextFactory;
 import org.acegisecurity.ldap.SpringSecurityLdapTemplate;
 import org.acegisecurity.providers.ldap.authenticator.BindAuthenticator;
-import org.acegisecurity.ui.ntlm.NtlmUsernamePasswordAuthenticationToken;
+import org.springframework.security.ui.ntlm.NtlmUsernamePasswordAuthenticationToken;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.ldap.core.DirContextOperations;

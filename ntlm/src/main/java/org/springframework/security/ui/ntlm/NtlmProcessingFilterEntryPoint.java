@@ -13,11 +13,9 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.ui.ntlm;
+package org.springframework.security.ui.ntlm;
 
-import org.acegisecurity.AuthenticationCredentialsNotFoundException;
 import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.InsufficientAuthenticationException;
 import org.acegisecurity.ui.AuthenticationEntryPoint;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,8 +29,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import jcifs.Config;
 
 /**
  * Used by <code>ExceptionTranslationFilter</code> to assist with the NTLM

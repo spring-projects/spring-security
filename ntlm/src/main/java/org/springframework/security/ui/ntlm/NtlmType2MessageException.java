@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.ui.ntlm;
+package org.springframework.security.ui.ntlm;
 
 import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.context.SecurityContextHolder;
 
 /**

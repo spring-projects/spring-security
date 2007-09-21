@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.ui.ntlm;
+package org.springframework.security.ui.ntlm;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 

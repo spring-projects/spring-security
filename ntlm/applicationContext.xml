@@ -27,7 +27,7 @@
 	</bean>
 
 	<!-- the third item in the chain: ntlmFilter -->
-	<bean id="ntlmFilter" class="org.acegisecurity.ui.ntlm.NtlmProcessingFilter">
+	<bean id="ntlmFilter" class="org.springframework.security.ui.ntlm.NtlmProcessingFilter">
 		<property name="defaultDomain" value="YOURDOMAIN"/>
 		<!-- It is better to use a WINS server if available over a specific domain controller
  		<property name="domainController" value="FOO"/> -->
@@ -83,7 +83,7 @@
 
 	<bean id="roleVoter" class="org.acegisecurity.vote.RoleVoter"/>
 
-	<bean id="ntlmEntryPoint" class="org.acegisecurity.ui.ntlm.NtlmProcessingFilterEntryPoint">
+	<bean id="ntlmEntryPoint" class="org.springframework.security.ui.ntlm.NtlmProcessingFilterEntryPoint">
 		<property name="authenticationFailureUrl" value="/login_error.jsp"/>
 	</bean>
 
