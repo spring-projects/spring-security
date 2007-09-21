@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.portlet.cache;
+package org.springframework.security.providers.portlet.cache;
 
-import org.acegisecurity.providers.portlet.UserCache;
-import org.acegisecurity.userdetails.UserDetails;
+import org.springframework.security.providers.portlet.UserCache;
+import org.springframework.security.userdetails.UserDetails;
 
 /**
  * <code>UserCache</code> implementation for portlets that does nothing.

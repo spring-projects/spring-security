@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.ui.portlet;
+package org.springframework.security.ui.portlet;
 
 import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
 
-import org.acegisecurity.BadCredentialsException;
+import org.springframework.security.BadCredentialsException;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 

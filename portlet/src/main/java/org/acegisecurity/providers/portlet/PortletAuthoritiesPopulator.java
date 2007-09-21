@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.portlet;
+package org.springframework.security.providers.portlet;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.userdetails.UserDetails;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.userdetails.UserDetails;
 
 /**
  * Populates the <code>UserDetails</code> associated with the

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.context;
+package org.springframework.security.context;
 
 import java.lang.reflect.Method;
 
@@ -48,7 +48,7 @@ import org.springframework.web.portlet.ModelAndView;
  * <p> If a valid <code>SecurityContext</code> cannot be obtained from the <code>PortletSession</code> for
  * whatever reason, a fresh <code>SecurityContext</code> will be created and used instead. The created object
  * will be of the instance defined by the {@link #setContext(Class)} method (which defaults to
- * {@link org.acegisecurity.context.SecurityContextImpl}. </p>
+ * {@link org.springframework.security.context.SecurityContextImpl}. </p>
  *
  * <p>A <code>PortletSession</code> may be created by this interceptor if one does not already exist.  If at the
  * end of the portlet request the <code>PortletSession</code> does not exist, one will <b>only</b> be created if
@@ -67,7 +67,7 @@ import org.springframework.web.portlet.ModelAndView;
  * <code>true</code> (setting it to <code>false</code> will cause a startup-time error).</p>
 
  * <p>This interceptor <b>must</b> be executed <b>before</p> any authentication processing mechanisms. These
- * mechanisms (specifically {@link org.acegisecurity.ui.portlet.PortletProcessingInterceptor}) expect the
+ * mechanisms (specifically {@link org.springframework.security.ui.portlet.PortletProcessingInterceptor}) expect the
  * <code>SecurityContextHolder</code> to contain a valid <code>SecurityContext</code> by the time they execute.</p>
  *
  * <p>An important nuance to this interceptor is that (by default) the <code>SecurityContext</code> is stored
@@ -179,7 +179,7 @@ public class PortletSessionContextIntegrationInterceptor
 		// check that the value of context is legal
 		if ((this.context == null) || (!SecurityContext.class.isAssignableFrom(this.context))) {
 			throw new IllegalArgumentException("context must be defined and implement SecurityContext "
-					+ "(typically use org.acegisecurity.context.SecurityContextImpl; existing class is "
+					+ "(typically use org.springframework.security.context.SecurityContextImpl; existing class is "
 					+ this.context + ")");
 		}
 

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.context;
+package org.springframework.security.context;
 
 import javax.portlet.PortletSession;
 
 import junit.framework.TestCase;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.providers.portlet.PortletAuthenticationToken;
-import org.acegisecurity.providers.portlet.PortletTestUtils;
-import org.acegisecurity.userdetails.User;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.providers.portlet.PortletAuthenticationToken;
+import org.springframework.security.providers.portlet.PortletTestUtils;
+import org.springframework.security.userdetails.User;
 import org.springframework.mock.web.portlet.MockActionRequest;
 import org.springframework.mock.web.portlet.MockActionResponse;
 import org.springframework.mock.web.portlet.MockRenderRequest;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.ui.portlet;
+package org.springframework.security.ui.portlet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,18 +24,18 @@ import javax.portlet.PortletSession;
 
 import junit.framework.TestCase;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationManager;
-import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.providers.TestingAuthenticationToken;
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.providers.portlet.PortletAuthenticationToken;
-import org.acegisecurity.providers.portlet.PortletTestUtils;
-import org.acegisecurity.ui.AbstractProcessingFilter;
-import org.acegisecurity.userdetails.User;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationManager;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.TestingAuthenticationToken;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.portlet.PortletAuthenticationToken;
+import org.springframework.security.providers.portlet.PortletTestUtils;
+import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.userdetails.User;
 import org.springframework.mock.web.portlet.MockActionRequest;
 import org.springframework.mock.web.portlet.MockActionResponse;
 import org.springframework.mock.web.portlet.MockRenderRequest;

@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.portlet.populator;
+package org.springframework.security.providers.portlet.populator;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.providers.portlet.PortletAuthenticationToken;
-import org.acegisecurity.providers.portlet.PortletTestUtils;
-import org.acegisecurity.userdetails.UserDetails;
+import org.springframework.security.AuthenticationServiceException;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.providers.portlet.PortletAuthenticationToken;
+import org.springframework.security.providers.portlet.PortletTestUtils;
+import org.springframework.security.userdetails.UserDetails;
 
 
 /**

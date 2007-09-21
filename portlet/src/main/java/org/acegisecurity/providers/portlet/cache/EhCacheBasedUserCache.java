@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.portlet.cache;
+package org.springframework.security.providers.portlet.cache;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 
-import org.acegisecurity.providers.portlet.UserCache;
-import org.acegisecurity.userdetails.UserDetails;
+import org.springframework.security.providers.portlet.UserCache;
+import org.springframework.security.userdetails.UserDetails;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;

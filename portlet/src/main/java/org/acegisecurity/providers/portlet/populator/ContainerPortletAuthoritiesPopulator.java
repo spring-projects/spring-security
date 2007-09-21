@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.portlet.populator;
+package org.springframework.security.providers.portlet.populator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -22,15 +22,15 @@ import java.util.List;
 
 import javax.portlet.PortletRequest;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.providers.portlet.PortletAuthenticationProvider;
-import org.acegisecurity.providers.portlet.PortletAuthoritiesPopulator;
-import org.acegisecurity.userdetails.User;
-import org.acegisecurity.userdetails.UserDetails;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationServiceException;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.providers.portlet.PortletAuthenticationProvider;
+import org.springframework.security.providers.portlet.PortletAuthoritiesPopulator;
+import org.springframework.security.userdetails.User;
+import org.springframework.security.userdetails.UserDetails;
 
 /**
  * <p>Populates the portlet authorities via role information from the portlet container.

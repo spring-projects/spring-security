@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.portlet;
+package org.springframework.security.providers.portlet;
 
-import org.acegisecurity.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetails;
 
 /**
  * Provides a cache of {@link UserDetails} objects for the

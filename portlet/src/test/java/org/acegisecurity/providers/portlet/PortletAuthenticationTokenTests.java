@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.portlet;
+package org.springframework.security.providers.portlet;
 
 import junit.framework.TestCase;
 

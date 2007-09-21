@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.ui.portlet;
+package org.springframework.security.ui.portlet;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -30,15 +30,15 @@ import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationManager;
-import org.acegisecurity.context.SecurityContext;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.providers.portlet.PortletAuthenticationProvider;
-import org.acegisecurity.providers.portlet.PortletAuthenticationToken;
-import org.acegisecurity.providers.portlet.populator.ContainerPortletAuthoritiesPopulator;
-import org.acegisecurity.ui.AbstractProcessingFilter;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationManager;
+import org.springframework.security.context.SecurityContext;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.portlet.PortletAuthenticationProvider;
+import org.springframework.security.providers.portlet.PortletAuthenticationToken;
+import org.springframework.security.providers.portlet.populator.ContainerPortletAuthoritiesPopulator;
+import org.springframework.security.ui.AbstractProcessingFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -75,8 +75,8 @@ import org.springframework.web.portlet.ModelAndView;
  * will replace this with the <code>USER_INFO</code> map in the resulting <code>Authentication</code>
  * object.</p>
  *
- * @see org.acegisecurity.ui.AbstractProcessingFilter
- * @see org.acegisecurity.ui.webapp.AuthenticationProcessingFilter
+ * @see org.springframework.security.ui.AbstractProcessingFilter
+ * @see org.springframework.security.ui.webapp.AuthenticationProcessingFilter
  * @author John A. Lewis
  * @since 2.0
  * @version $Id$

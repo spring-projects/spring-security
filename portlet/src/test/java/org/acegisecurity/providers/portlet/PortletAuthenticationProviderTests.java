@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.portlet;
+package org.springframework.security.providers.portlet;
 
 import junit.framework.TestCase;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.userdetails.UserDetails;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.userdetails.UserDetails;
 
 /**
  * Tests {@link PortletAuthenticationProvider}

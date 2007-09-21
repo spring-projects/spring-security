@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.portlet.cache;
+package org.springframework.security.providers.portlet.cache;
 
 import java.io.IOException;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 
-import org.acegisecurity.providers.portlet.PortletTestUtils;
+import org.springframework.security.providers.portlet.PortletTestUtils;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
 
 /**

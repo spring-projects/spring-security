@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.portlet.populator;
+package org.springframework.security.providers.portlet.populator;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.providers.portlet.PortletAuthenticationProvider;
-import org.acegisecurity.providers.portlet.PortletAuthoritiesPopulator;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UserDetailsService;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationServiceException;
+import org.springframework.security.providers.portlet.PortletAuthenticationProvider;
+import org.springframework.security.providers.portlet.PortletAuthoritiesPopulator;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 

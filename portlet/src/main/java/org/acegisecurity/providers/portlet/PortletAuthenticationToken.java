@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.portlet;
+package org.springframework.security.providers.portlet;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.providers.AbstractAuthenticationToken;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.providers.AbstractAuthenticationToken;
 
 /**
  * <code>Authentication</code> implementation for JSR 168 Portlet authentication.  <p>The

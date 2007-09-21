@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.ui.portlet;
+package org.springframework.security.ui.portlet;
 
 import java.io.IOException;
 
@@ -23,8 +23,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.ui.AuthenticationEntryPoint;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.ui.AuthenticationEntryPoint;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.Ordered;
@@ -37,7 +37,7 @@ import org.springframework.core.Ordered;
  * already failed.  Therefore the <code>commence</code> method in this case will
  * always return <code>HttpServletResponse.SC_FORBIDDEN</code> (HTTP 403 error).
  *
- * @see org.acegisecurity.ui.ExceptionTranslationFilter
+ * @see org.springframework.security.ui.ExceptionTranslationFilter
  * @author John A. Lewis
  * @since 2.0
  * @version $Id$

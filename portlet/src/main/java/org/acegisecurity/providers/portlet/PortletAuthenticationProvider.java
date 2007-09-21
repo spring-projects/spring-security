@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.providers.portlet;
+package org.springframework.security.providers.portlet;
 
 import java.security.Principal;
 import java.util.Map;
 
 import javax.portlet.PortletRequest;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.providers.AuthenticationProvider;
-import org.acegisecurity.providers.portlet.cache.NullUserCache;
-import org.acegisecurity.userdetails.UserDetails;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationServiceException;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.providers.AuthenticationProvider;
+import org.springframework.security.providers.portlet.cache.NullUserCache;
+import org.springframework.security.userdetails.UserDetails;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
 
 /**
  * <p>Processes a JSR 168 Portlet authentication request.  The request will typically
- * originate from {@link org.acegisecurity.ui.portlet.PortletProcessingInterceptor}.</p>
+ * originate from {@link org.springframework.security.ui.portlet.PortletProcessingInterceptor}.</p>
  *
  * <p>Be aware that this provider is trusting the portal and portlet container to handle
  * actual authentication. If a valid {@link PortletAuthenticationToken} is presented with
