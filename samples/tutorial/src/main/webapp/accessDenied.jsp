@@ -1,6 +1,6 @@
-<%@ page import="org.acegisecurity.context.SecurityContextHolder" %>
-<%@ page import="org.acegisecurity.Authentication" %>
-<%@ page import="org.acegisecurity.ui.AccessDeniedHandlerImpl" %>
+<%@ page import="org.springframework.security.context.SecurityContextHolder" %>
+<%@ page import="org.springframework.security.Authentication" %>
+<%@ page import="org.springframework.security.ui.AccessDeniedHandlerImpl" %>
 
 <h1>Sorry, access is denied</h1>
 

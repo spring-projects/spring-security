@@ -14,7 +14,7 @@
 
    <!-- ======================== FILTER CHAIN ======================= -->
 
-	<bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
+	<bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
       <property name="filterInvocationDefinitionSource">
          <value>
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -26,7 +26,7 @@
 
    <!-- ======================== AUTHENTICATION ======================= -->
 
-   <bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
+   <bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
       <property name="providers">
          <list>
 		    <ref local="x509AuthenticationProvider"/>
@@ -34,23 +34,23 @@
       </property>
    </bean>
 
-   <bean id="jdbcDaoImpl" class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
+   <bean id="jdbcDaoImpl" class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
       <property name="dataSource"><ref bean="dataSource"/></property>
    </bean>
 
-   <bean id="basicProcessingFilter" class="org.acegisecurity.ui.basicauth.BasicProcessingFilter">
+   <bean id="basicProcessingFilter" class="org.springframework.security.ui.basicauth.BasicProcessingFilter">
       <property name="authenticationManager"><ref local="authenticationManager"/></property>
       <property name="authenticationEntryPoint"><ref local="basicProcessingFilterEntryPoint"/></property>
    </bean>
 
-   <bean id="basicProcessingFilterEntryPoint" class="org.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
+   <bean id="basicProcessingFilterEntryPoint" class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint">
       <property name="realmName"><value>Contacts Realm</value></property>
    </bean>
 
-   <bean id="httpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter">
+   <bean id="httpSessionContextIntegrationFilter" class="org.springframework.security.context.HttpSessionContextIntegrationFilter">
    </bean>
 
-	<bean id="x509AuthenticationProvider" class="org.acegisecurity.providers.x509.X509AuthenticationProvider">
+	<bean id="x509AuthenticationProvider" class="org.springframework.security.providers.x509.X509AuthenticationProvider">
 		<property name="x509AuthoritiesPopulator"><ref local="x509AuthoritiesPopulator"/></property>
         <property name="x509UserCache"><ref local="x509UserCache"/></property>
 	</bean>
@@ -66,21 +66,21 @@
        </property>
     </bean>
 
-	<bean id="x509UserCache" class="org.acegisecurity.providers.x509.cache.EhCacheBasedX509UserCache">
+	<bean id="x509UserCache" class="org.springframework.security.providers.x509.cache.EhCacheBasedX509UserCache">
       <property name="cache"><ref local="x509UserCacheBackend"/></property>
 	</bean>
 
-	<bean id="x509AuthoritiesPopulator" class="org.acegisecurity.providers.x509.populator.DaoX509AuthoritiesPopulator">
+	<bean id="x509AuthoritiesPopulator" class="org.springframework.security.providers.x509.populator.DaoX509AuthoritiesPopulator">
 		<property name="userDetailsService"><ref local="jdbcDaoImpl"/></property>
       <!--  <property name="subjectDNRegex"><value>emailAddress=(.*?),</value></property> -->
 	</bean>
 
 	<!-- note logout has little impact, due to X509 certificate still being presented (it will cause a refresh of the authentication though) -->
-   <bean id="logoutFilter" class="org.acegisecurity.ui.logout.LogoutFilter">
+   <bean id="logoutFilter" class="org.springframework.security.ui.logout.LogoutFilter">
       <constructor-arg value="/index.jsp"/> <!-- URL redirected to after logout -->
       <constructor-arg>
          <list>
-              <bean class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler"/>
+              <bean class="org.springframework.security.ui.logout.SecurityContextLogoutHandler"/>
          </list>
       </constructor-arg>
    </bean>
@@ -89,7 +89,7 @@
 	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
 
 	<!-- Enabled by default for X.509 (obviously) -->
-	<bean id="channelProcessingFilter" class="org.acegisecurity.securechannel.ChannelProcessingFilter">
+	<bean id="channelProcessingFilter" class="org.springframework.security.securechannel.ChannelProcessingFilter">
 		<property name="channelDecisionManager"><ref local="channelDecisionManager"/></property>
  		<property name="filterInvocationDefinitionSource">
 			<value>
@@ -100,7 +100,7 @@
 		</property>
 	</bean>
 
-	<bean id="channelDecisionManager" class="org.acegisecurity.securechannel.ChannelDecisionManagerImpl">
+	<bean id="channelDecisionManager" class="org.springframework.security.securechannel.ChannelDecisionManagerImpl">
 	    <property name="channelProcessors">
       		<list>
  	        	<ref local="secureChannelProcessor"/>
@@ -109,23 +109,23 @@
 	    </property>
 	</bean>
 
-	<bean id="secureChannelProcessor" class="org.acegisecurity.securechannel.SecureChannelProcessor"/>
-	<bean id="insecureChannelProcessor" class="org.acegisecurity.securechannel.InsecureChannelProcessor"/>
+	<bean id="secureChannelProcessor" class="org.springframework.security.securechannel.SecureChannelProcessor"/>
+	<bean id="insecureChannelProcessor" class="org.springframework.security.securechannel.InsecureChannelProcessor"/>
 
 	<!-- ===================== HTTP REQUEST SECURITY ==================== -->
 
-	<bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
+	<bean id="exceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter">
 		<property name="authenticationEntryPoint"><ref local="x509ProcessingFilterEntryPoint"/></property>
 	</bean>
 
-	<bean id="x509ProcessingFilter" class="org.acegisecurity.ui.x509.X509ProcessingFilter">
+	<bean id="x509ProcessingFilter" class="org.springframework.security.ui.x509.X509ProcessingFilter">
 		<property name="authenticationManager"><ref local="authenticationManager"/></property>
 	</bean>
 
-	<bean id="x509ProcessingFilterEntryPoint" class="org.acegisecurity.ui.x509.X509ProcessingFilterEntryPoint">
+	<bean id="x509ProcessingFilterEntryPoint" class="org.springframework.security.ui.x509.X509ProcessingFilterEntryPoint">
 	</bean>
 
-	<bean id="httpRequestAccessDecisionManager" class="org.acegisecurity.vote.AffirmativeBased">
+	<bean id="httpRequestAccessDecisionManager" class="org.springframework.security.vote.AffirmativeBased">
    		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
 		<property name="decisionVoters">
 		  <list>
@@ -137,7 +137,7 @@
 	<!-- Note the order that entries are placed against the objectDefinitionSource is critical.
 	     The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
 	     Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
-	<bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
+	<bean id="filterInvocationInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
     	<property name="authenticationManager"><ref local="authenticationManager"/></property>
     	<property name="accessDecisionManager"><ref local="httpRequestAccessDecisionManager"/></property>
  		<property name="objectDefinitionSource">

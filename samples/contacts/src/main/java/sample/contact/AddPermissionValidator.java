@@ -14,7 +14,7 @@
  */
 package sample.contact;
 
-import org.acegisecurity.acls.domain.BasePermission;
+import org.springframework.security.acls.domain.BasePermission;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;

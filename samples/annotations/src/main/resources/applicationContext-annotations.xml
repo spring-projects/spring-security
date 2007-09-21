@@ -22,19 +22,19 @@
 <beans>
 
 	<!-- =================== SECURITY SYSTEM DEFINITIONS ================== -->
-	
+
 	<!-- RunAsManager -->
-	<bean id="runAsManager" class="org.acegisecurity.runas.RunAsManagerImpl">
+	<bean id="runAsManager" class="org.springframework.security.runas.RunAsManagerImpl">
      	<property name="key"><value>my_run_as_password</value></property>
  	</bean>
 
 	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHENTICATION DEFINITIONS ~~~~~~~~~~~~~~~~~~ -->
 
 	<!-- This authentication provider accepts any presented TestingAuthenticationToken -->
-	<bean id="testingAuthenticationProvider" class="org.acegisecurity.providers.TestingAuthenticationProvider"/>
+	<bean id="testingAuthenticationProvider" class="org.springframework.security.providers.TestingAuthenticationProvider"/>
 
 	<!-- The authentication manager that iterates through our only authentication provider -->
-	<bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
+	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
 		<property name="providers">
 		  <list>
 		    <ref local="testingAuthenticationProvider"/>
@@ -45,10 +45,10 @@
 	<!-- ~~~~~~~~~~~~~~~~~~~~ AUTHORIZATION DEFINITIONS ~~~~~~~~~~~~~~~~~~~ -->
 
 	<!-- An access decision voter that reads ROLE_* configuaration settings -->
-	<bean id="roleVoter" class="org.acegisecurity.vote.RoleVoter"/>
+	<bean id="roleVoter" class="org.springframework.security.vote.RoleVoter"/>
 
 	<!-- A unanimous access decision manager -->
-	<bean id="accessDecisionManager" class="org.acegisecurity.vote.UnanimousBased">
+	<bean id="accessDecisionManager" class="org.springframework.security.vote.UnanimousBased">
    		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
 		<property name="decisionVoters">
 		  <list>
@@ -56,31 +56,31 @@
 		  </list>
 		</property>
 	</bean>
-	
+
 	<!-- ===================== SECURITY DEFINITIONS ======================= -->
-	
-	<bean id="attributes" class="org.acegisecurity.annotation.SecurityAnnotationAttributes"/>
-	
-	<bean id="objectDefinitionSource" class="org.acegisecurity.intercept.method.MethodDefinitionAttributes">
+
+	<bean id="attributes" class="org.springframework.security.annotation.SecurityAnnotationAttributes"/>
+
+	<bean id="objectDefinitionSource" class="org.springframework.security.intercept.method.MethodDefinitionAttributes">
 		<property name="attributes"><ref local="attributes"/></property>
 	</bean>
 
 	<!-- We don't validate config attributes, as it's unsupported by MethodDefinitionAttributes -->
-	<bean id="securityInterceptor" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
+	<bean id="securityInterceptor" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
     	<property name="validateConfigAttributes"><value>false</value></property>
     	<property name="authenticationManager"><ref local="authenticationManager"/></property>
     	<property name="accessDecisionManager"><ref local="accessDecisionManager"/></property>
     	<property name="runAsManager"><ref local="runAsManager"/></property>
  		<property name="objectDefinitionSource"><ref local="objectDefinitionSource"/></property>
 	</bean>
-	
+
 	<bean id="bankService" class="sample.annotations.BankServiceImpl"/>
-	
+
 	<!--
 		This bean is a postprocessor that will automatically apply relevant advisors
 		to any bean in child factories.
 	-->
-	<bean id="autoproxy" 
+	<bean id="autoproxy"
 		class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
 	</bean>
 
@@ -91,9 +91,9 @@
 		above configuration is a JDK 5 Annotations Attributes-based source.
 	-->
 	<bean id="methodSecurityAdvisor"
-		class="org.acegisecurity.intercept.method.aopalliance.MethodDefinitionSourceAdvisor"
+		class="org.springframework.security.intercept.method.aopalliance.MethodDefinitionSourceAdvisor"
 		autowire="constructor" >
 	</bean>
-	
+
 
 </beans>

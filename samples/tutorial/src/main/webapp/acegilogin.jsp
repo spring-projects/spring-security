@@ -1,7 +1,7 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core' %>
-<%@ page import="org.acegisecurity.ui.AbstractProcessingFilter" %>
-<%@ page import="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter" %>
-<%@ page import="org.acegisecurity.AuthenticationException" %>
+<%@ page import="org.springframework.security.ui.AbstractProcessingFilter" %>
+<%@ page import="org.springframework.security.ui.webapp.AuthenticationProcessingFilter" %>
+<%@ page import="org.springframework.security.AuthenticationException" %>
 
 <html>
   <head>
@@ -18,8 +18,8 @@
 	<p>username <b>scott</b>, password <b>wombat</b> (normal user)
 	<p>username <b>peter</b>, password <b>opal</b> (user disabled)
 	<p>
-	
-    <%-- this form-login-page form is also used as the 
+
+    <%-- this form-login-page form is also used as the
          form-error-page to ask for a login again.
          --%>
     <c:if test="${not empty param.login_error}">

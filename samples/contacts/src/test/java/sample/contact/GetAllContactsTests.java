@@ -14,14 +14,14 @@
  */
 package sample.contact;
 
-import org.acegisecurity.Authentication;
+import org.springframework.security.Authentication;
 
-import org.acegisecurity.acls.domain.BasePermission;
-import org.acegisecurity.acls.sid.PrincipalSid;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.sid.PrincipalSid;
 
-import org.acegisecurity.context.SecurityContextHolder;
+import org.springframework.security.context.SecurityContextHolder;
 
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 

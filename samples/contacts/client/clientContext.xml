@@ -27,10 +27,10 @@
 			<ref local="remoteInvocationFactory"/>
 		</property>
 	</bean>
-	 
-	<bean id="remoteInvocationFactory" class="org.acegisecurity.ui.rmi.ContextPropagatingRemoteInvocationFactory"/>
+
+	<bean id="remoteInvocationFactory" class="org.springframework.security.ui.rmi.ContextPropagatingRemoteInvocationFactory"/>
 	-->
-	
+
 	<!-- Proxy for the HTTP-invoker-exported ContactManager -->
 	<!-- Spring's HTTP invoker uses Java serialization via HTTP  -->
 	<bean id="httpInvokerProxy" class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean">
@@ -47,7 +47,7 @@
 
 	<!-- Automatically propagates ContextHolder-managed Authentication principal
 		 and credentials to a HTTP invoker BASIC authentication header -->
-	<bean id="httpInvokerRequestExecutor" class="org.acegisecurity.context.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor"/>
+	<bean id="httpInvokerRequestExecutor" class="org.springframework.security.context.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor"/>
 
 	<!-- Proxy for the Hessian-exported ContactManager
 	<bean id="hessianProxy" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
@@ -59,7 +59,7 @@
 		</property>
 	</bean>
 	-->
-	
+
 	<!-- Proxy for the Burlap-exported ContactManager
 	<bean id="burlapProxy" class="org.springframework.remoting.caucho.BurlapProxyFactoryBean">
 		<property name="serviceInterface">
@@ -70,5 +70,5 @@
 		</property>
 	</bean>
 	-->
-	
+
 </beans>

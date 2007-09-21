@@ -2,18 +2,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.acegisecurity</groupId>
-        <artifactId>acegi-security-samples</artifactId>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-samples</artifactId>
         <version>2.0-SNAPSHOT</version>
     </parent>
-    <groupId>org.acegisecurity</groupId>
-    <artifactId>acegi-security-samples-tutorial</artifactId>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-samples-tutorial</artifactId>
     <name>Acegi Security Samples - Tutorial</name>
     <packaging>war</packaging>
     <dependencies>
         <dependency>
-            <groupId>org.acegisecurity</groupId>
-            <artifactId>acegi-security</artifactId>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

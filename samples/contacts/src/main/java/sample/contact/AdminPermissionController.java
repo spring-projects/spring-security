@@ -14,9 +14,9 @@
  */
 package sample.contact;
 
-import org.acegisecurity.acls.Acl;
-import org.acegisecurity.acls.AclService;
-import org.acegisecurity.acls.objectidentity.ObjectIdentityImpl;
+import org.springframework.security.acls.Acl;
+import org.springframework.security.acls.AclService;
+import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
 
 import org.springframework.beans.factory.InitializingBean;
 

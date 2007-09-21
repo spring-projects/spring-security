@@ -14,7 +14,7 @@
  */
 package sample.contact;
 
-import org.acegisecurity.acl.basic.SimpleAclEntry;
+import org.springframework.security.acl.basic.SimpleAclEntry;
 
 
 /**

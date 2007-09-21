@@ -14,22 +14,22 @@
  */
 package sample.contact;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
 
-import org.acegisecurity.acls.MutableAcl;
-import org.acegisecurity.acls.MutableAclService;
-import org.acegisecurity.acls.Permission;
-import org.acegisecurity.acls.domain.AclImpl;
-import org.acegisecurity.acls.domain.BasePermission;
-import org.acegisecurity.acls.objectidentity.ObjectIdentity;
-import org.acegisecurity.acls.objectidentity.ObjectIdentityImpl;
-import org.acegisecurity.acls.sid.PrincipalSid;
+import org.springframework.security.acls.MutableAcl;
+import org.springframework.security.acls.MutableAclService;
+import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.domain.AclImpl;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.objectidentity.ObjectIdentity;
+import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
+import org.springframework.security.acls.sid.PrincipalSid;
 
-import org.acegisecurity.context.SecurityContextHolder;
+import org.springframework.security.context.SecurityContextHolder;
 
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -111,7 +111,7 @@ public class DataSourcePopulator implements InitializingBean {
            Encoded password for bill is "wombat"
            Encoded password for bob is "wombat"
            Encoded password for jane is "wombat"
-        
+
          */
         template.execute("INSERT INTO USERS VALUES('marissa','a564de63c2d0da68cf47586ee05984d7',TRUE);");
         template.execute("INSERT INTO USERS VALUES('dianne','65d15fe9156f9c4bbffd98085992a44e',TRUE);");

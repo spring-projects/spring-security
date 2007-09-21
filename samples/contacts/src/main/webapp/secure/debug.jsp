@@ -1,7 +1,7 @@
-<%@ page import="org.acegisecurity.context.SecurityContextHolder" %>
-<%@ page import="org.acegisecurity.Authentication" %>
-<%@ page import="org.acegisecurity.GrantedAuthority" %>
-<%@ page import="org.acegisecurity.adapters.AuthByAdapter" %>
+<%@ page import="org.springframework.security.context.SecurityContextHolder" %>
+<%@ page import="org.springframework.security.Authentication" %>
+<%@ page import="org.springframework.security.GrantedAuthority" %>
+<%@ page import="org.springframework.security.adapters.AuthByAdapter" %>
 
 <%
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

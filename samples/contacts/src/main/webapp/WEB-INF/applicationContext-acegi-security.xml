@@ -16,7 +16,7 @@
 
 	<!--  if you wish to use channel security, add "channelProcessingFilter," in front
 	      of "httpSessionContextIntegrationFilter" in the list below -->
-	<bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
+	<bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
       <property name="filterInvocationDefinitionSource">
          <value><![CDATA[
 		    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -28,7 +28,7 @@
 
    <!-- ======================== AUTHENTICATION ======================= -->
 
-   <bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
+   <bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
       <property name="providers">
          <list>
             <ref local="daoAuthenticationProvider"/>
@@ -38,13 +38,13 @@
       </property>
    </bean>
 
-   <bean id="jdbcDaoImpl" class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
+   <bean id="jdbcDaoImpl" class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
       <property name="dataSource"><ref bean="dataSource"/></property>
    </bean>
 
-   <bean id="passwordEncoder" class="org.acegisecurity.providers.encoding.Md5PasswordEncoder"/>
+   <bean id="passwordEncoder" class="org.springframework.security.providers.encoding.Md5PasswordEncoder"/>
 
-   <bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
+   <bean id="daoAuthenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
       <property name="userDetailsService"><ref local="jdbcDaoImpl"/></property>
 <!--      <property name="userCache"><ref local="userCache"/></property> -->
       <property name="passwordEncoder"><ref local="passwordEncoder"/></property>
@@ -61,66 +61,66 @@
       </property>
    </bean>
 
-   <bean id="userCache" class="org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
+   <bean id="userCache" class="org.springframework.security.providers.dao.cache.EhCacheBasedUserCache">
       <property name="cache"><ref local="userCacheBackend"/></property>
    </bean>
 -->
    <!-- Automatically receives AuthenticationEvent messages -->
-   <bean id="loggerListener" class="org.acegisecurity.event.authentication.LoggerListener"/>
+   <bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
 
-   <bean id="basicProcessingFilter" class="org.acegisecurity.ui.basicauth.BasicProcessingFilter">
+   <bean id="basicProcessingFilter" class="org.springframework.security.ui.basicauth.BasicProcessingFilter">
       <property name="authenticationManager"><ref local="authenticationManager"/></property>
       <property name="authenticationEntryPoint"><ref local="basicProcessingFilterEntryPoint"/></property>
    </bean>
 
-   <bean id="basicProcessingFilterEntryPoint" class="org.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
+   <bean id="basicProcessingFilterEntryPoint" class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint">
       <property name="realmName"><value>Contacts Realm</value></property>
    </bean>
 
-   <bean id="anonymousProcessingFilter" class="org.acegisecurity.providers.anonymous.AnonymousProcessingFilter">
+   <bean id="anonymousProcessingFilter" class="org.springframework.security.providers.anonymous.AnonymousProcessingFilter">
       <property name="key"><value>foobar</value></property>
       <property name="userAttribute"><value>anonymousUser,ROLE_ANONYMOUS</value></property>
    </bean>
 
-   <bean id="anonymousAuthenticationProvider" class="org.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider">
+   <bean id="anonymousAuthenticationProvider" class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
       <property name="key"><value>foobar</value></property>
    </bean>
 
-   <bean id="httpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter">
+   <bean id="httpSessionContextIntegrationFilter" class="org.springframework.security.context.HttpSessionContextIntegrationFilter">
    </bean>
 
-   <bean id="rememberMeProcessingFilter" class="org.acegisecurity.ui.rememberme.RememberMeProcessingFilter">
+   <bean id="rememberMeProcessingFilter" class="org.springframework.security.ui.rememberme.RememberMeProcessingFilter">
       <property name="authenticationManager"><ref local="authenticationManager"/></property>
       <property name="rememberMeServices"><ref local="rememberMeServices"/></property>
    </bean>
 
-   <bean id="rememberMeServices" class="org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices">
+   <bean id="rememberMeServices" class="org.springframework.security.ui.rememberme.TokenBasedRememberMeServices">
       <property name="userDetailsService"><ref local="jdbcDaoImpl"/></property>
       <property name="key"><value>springRocks</value></property>
    </bean>
 
-   <bean id="rememberMeAuthenticationProvider" class="org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider">
+   <bean id="rememberMeAuthenticationProvider" class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider">
       <property name="key"><value>springRocks</value></property>
    </bean>
 
-   <bean id="logoutFilter" class="org.acegisecurity.ui.logout.LogoutFilter">
+   <bean id="logoutFilter" class="org.springframework.security.ui.logout.LogoutFilter">
       <constructor-arg value="/index.jsp"/> <!-- URL redirected to after logout -->
       <constructor-arg>
          <list>
               <ref bean="rememberMeServices"/>
-              <bean class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler"/>
+              <bean class="org.springframework.security.ui.logout.SecurityContextLogoutHandler"/>
          </list>
       </constructor-arg>
    </bean>
 
-   <bean id="securityContextHolderAwareRequestFilter" class="org.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter"/>
+   <bean id="securityContextHolderAwareRequestFilter" class="org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter"/>
 
    <!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
 
    <!-- You will need to uncomment the "Acegi Channel Processing Filter"
         <filter-mapping> in web.xml for the following beans to be used -->
 
-   <bean id="channelProcessingFilter" class="org.acegisecurity.securechannel.ChannelProcessingFilter">
+   <bean id="channelProcessingFilter" class="org.springframework.security.securechannel.ChannelProcessingFilter">
       <property name="channelDecisionManager"><ref local="channelDecisionManager"/></property>
       <property name="filterInvocationDefinitionSource">
          <value><![CDATA[
@@ -133,7 +133,7 @@
       </property>
    </bean>
 
-   <bean id="channelDecisionManager" class="org.acegisecurity.securechannel.ChannelDecisionManagerImpl">
+   <bean id="channelDecisionManager" class="org.springframework.security.securechannel.ChannelDecisionManagerImpl">
       <property name="channelProcessors">
          <list>
             <ref local="secureChannelProcessor"/>
@@ -142,21 +142,21 @@
       </property>
    </bean>
 
-   <bean id="secureChannelProcessor" class="org.acegisecurity.securechannel.SecureChannelProcessor"/>
-   <bean id="insecureChannelProcessor" class="org.acegisecurity.securechannel.InsecureChannelProcessor"/>
+   <bean id="secureChannelProcessor" class="org.springframework.security.securechannel.SecureChannelProcessor"/>
+   <bean id="insecureChannelProcessor" class="org.springframework.security.securechannel.InsecureChannelProcessor"/>
 
    <!-- ===================== HTTP REQUEST SECURITY ==================== -->
 
-   <bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
+   <bean id="exceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter">
       <property name="authenticationEntryPoint"><ref local="authenticationProcessingFilterEntryPoint"/></property>
       <property name="accessDeniedHandler">
-      	<bean class="org.acegisecurity.ui.AccessDeniedHandlerImpl">
+      	<bean class="org.springframework.security.ui.AccessDeniedHandlerImpl">
       		<property name="errorPage" value="/accessDenied.jsp"/>
       	</bean>
       </property>
    </bean>
 
-   <bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
+   <bean id="authenticationProcessingFilter" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
       <property name="authenticationManager"><ref bean="authenticationManager"/></property>
       <property name="authenticationFailureUrl"><value>/acegilogin.jsp?login_error=1</value></property>
       <property name="defaultTargetUrl"><value>/</value></property>
@@ -164,12 +164,12 @@
       <property name="rememberMeServices"><ref local="rememberMeServices"/></property>
    </bean>
 
-   <bean id="authenticationProcessingFilterEntryPoint" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+   <bean id="authenticationProcessingFilterEntryPoint" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
       <property name="loginFormUrl"><value>/acegilogin.jsp</value></property>
       <property name="forceHttps"><value>false</value></property>
    </bean>
 
-   <bean id="httpRequestAccessDecisionManager" class="org.acegisecurity.vote.AffirmativeBased">
+   <bean id="httpRequestAccessDecisionManager" class="org.springframework.security.vote.AffirmativeBased">
       <property name="allowIfAllAbstainDecisions"><value>false</value></property>
       <property name="decisionVoters">
          <list>
@@ -181,7 +181,7 @@
    <!-- Note the order that entries are placed against the objectDefinitionSource is critical.
         The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
         Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
-   <bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
+   <bean id="filterInvocationInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
       <property name="authenticationManager"><ref bean="authenticationManager"/></property>
       <property name="accessDecisionManager"><ref local="httpRequestAccessDecisionManager"/></property>
       <property name="objectDefinitionSource">
@@ -202,11 +202,11 @@
    <!-- Filter used to switch the user context. Note: the switch and exit url must be secured
         based on the role granted the ability to 'switch' to another user -->
    <!-- In this example 'marissa' has ROLE_SUPERVISOR that can switch to regular ROLE_USER(s) -->
-   <bean id="switchUserProcessingFilter" class="org.acegisecurity.ui.switchuser.SwitchUserProcessingFilter">
+   <bean id="switchUserProcessingFilter" class="org.springframework.security.ui.switchuser.SwitchUserProcessingFilter">
       <property name="userDetailsService" ref="jdbcDaoImpl" />
 	  <property name="switchUserUrl"><value>/j_acegi_switch_user</value></property>
 	  <property name="exitUserUrl"><value>/j_acegi_exit_user</value></property>
-	  <property name="targetUrl"><value>/acegi-security-sample-contacts-filter/secure/index.htm</value></property>
+	  <property name="targetUrl"><value>/spring-security-sample-contacts-filter/secure/index.htm</value></property>
    </bean>
 
 </beans>

@@ -14,7 +14,7 @@
 
    <!-- ======================== FILTER CHAIN ======================= -->
 
-  <bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
+  <bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
     <property name="filterInvocationDefinitionSource">
       <value>
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -26,7 +26,7 @@
 
   <!-- ======================== AUTHENTICATION ======================= -->
 
-  <bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
+  <bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
     <property name="providers">
       <list>
         <ref local="casAuthenticationProvider"/>
@@ -34,22 +34,22 @@
     </property>
   </bean>
 
-  <bean id="jdbcDaoImpl" class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
+  <bean id="jdbcDaoImpl" class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
     <property name="dataSource" ref="dataSource"/>
   </bean>
 
-  <bean id="basicProcessingFilter" class="org.acegisecurity.ui.basicauth.BasicProcessingFilter">
+  <bean id="basicProcessingFilter" class="org.springframework.security.ui.basicauth.BasicProcessingFilter">
     <property name="authenticationManager"><ref local="authenticationManager"/></property>
     <property name="authenticationEntryPoint"><ref local="basicProcessingFilterEntryPoint"/></property>
   </bean>
 
-  <bean id="basicProcessingFilterEntryPoint" class="org.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
+  <bean id="basicProcessingFilterEntryPoint" class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint">
     <property name="realmName"><value>Contacts Realm</value></property>
   </bean>
 
-  <bean id="httpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter"/>
+  <bean id="httpSessionContextIntegrationFilter" class="org.springframework.security.context.HttpSessionContextIntegrationFilter"/>
 
-	<bean id="casAuthenticationProvider" class="org.acegisecurity.providers.cas.CasAuthenticationProvider">
+	<bean id="casAuthenticationProvider" class="org.springframework.security.providers.cas.CasAuthenticationProvider">
 		<property name="casAuthoritiesPopulator"><ref local="casAuthoritiesPopulator"/></property>
 		<property name="casProxyDecider"><ref local="casProxyDecider"/></property>
 		<property name="ticketValidator"><ref local="casProxyTicketValidator"/></property>
@@ -57,7 +57,7 @@
 		<property name="key"><value>my_password_for_this_auth_provider_only</value></property>
 	</bean>
 
-	<bean id="casProxyTicketValidator" class="org.acegisecurity.providers.cas.ticketvalidator.CasProxyTicketValidator">
+	<bean id="casProxyTicketValidator" class="org.springframework.security.providers.cas.ticketvalidator.CasProxyTicketValidator">
 		<property name="casValidate" value="https://localhost:8443/cas/proxyValidate"/>
 		<property name="proxyCallbackUrl" value="https://localhost:8443/contacts-cas/casProxy/receptor"/>
 		<property name="serviceProperties"><ref local="serviceProperties"/></property>
@@ -71,27 +71,27 @@
     <property name="cacheName" value="ticketCache"/>
   </bean>
 
-	<bean id="statelessTicketCache" class="org.acegisecurity.providers.cas.cache.EhCacheBasedTicketCache">
+	<bean id="statelessTicketCache" class="org.springframework.security.providers.cas.cache.EhCacheBasedTicketCache">
       <property name="cache"><ref local="ticketCacheBackend"/></property>
 	</bean>
 
-	<bean id="casAuthoritiesPopulator" class="org.acegisecurity.providers.cas.populator.DaoCasAuthoritiesPopulator">
+	<bean id="casAuthoritiesPopulator" class="org.springframework.security.providers.cas.populator.DaoCasAuthoritiesPopulator">
 		<property name="userDetailsService"><ref local="jdbcDaoImpl"/></property>
 	</bean>
 
-	<bean id="casProxyDecider" class="org.acegisecurity.providers.cas.proxy.RejectProxyTickets"/>
+	<bean id="casProxyDecider" class="org.springframework.security.providers.cas.proxy.RejectProxyTickets"/>
 
-	<bean id="serviceProperties" class="org.acegisecurity.ui.cas.ServiceProperties">
+	<bean id="serviceProperties" class="org.springframework.security.ui.cas.ServiceProperties">
 		<property name="service" value="https://localhost:8443/contacts-cas/j_acegi_cas_security_check"/>
 		<property name="sendRenew" value="false"/>
 	</bean>
 
 	<!-- note logout has little impact, due to CAS reauthentication functionality (it will cause a refresh of the authentication though) -->
-   <bean id="logoutFilter" class="org.acegisecurity.ui.logout.LogoutFilter">
+   <bean id="logoutFilter" class="org.springframework.security.ui.logout.LogoutFilter">
       <constructor-arg value="/index.jsp"/> <!-- URL redirected to after logout -->
       <constructor-arg>
          <list>
-              <bean class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler"/>
+              <bean class="org.springframework.security.ui.logout.SecurityContextLogoutHandler"/>
          </list>
       </constructor-arg>
    </bean>
@@ -100,7 +100,7 @@
 	<!-- ===================== HTTP CHANNEL REQUIREMENTS ==================== -->
 
 	<!-- Enabled by default for CAS, as a CAS deployment uses HTTPS -->
-	<bean id="channelProcessingFilter" class="org.acegisecurity.securechannel.ChannelProcessingFilter">
+	<bean id="channelProcessingFilter" class="org.springframework.security.securechannel.ChannelProcessingFilter">
 		<property name="channelDecisionManager"><ref local="channelDecisionManager"/></property>
  		<property name="filterInvocationDefinitionSource">
 			<value>
@@ -112,7 +112,7 @@
 		</property>
 	</bean>
 
-	<bean id="channelDecisionManager" class="org.acegisecurity.securechannel.ChannelDecisionManagerImpl">
+	<bean id="channelDecisionManager" class="org.springframework.security.securechannel.ChannelDecisionManagerImpl">
 	    <property name="channelProcessors">
       		<list>
  	        	<ref local="secureChannelProcessor"/>
@@ -121,28 +121,28 @@
 	    </property>
 	</bean>
 
-	<bean id="secureChannelProcessor" class="org.acegisecurity.securechannel.SecureChannelProcessor"/>
-	<bean id="insecureChannelProcessor" class="org.acegisecurity.securechannel.InsecureChannelProcessor"/>
+	<bean id="secureChannelProcessor" class="org.springframework.security.securechannel.SecureChannelProcessor"/>
+	<bean id="insecureChannelProcessor" class="org.springframework.security.securechannel.InsecureChannelProcessor"/>
 
 	<!-- ===================== HTTP REQUEST SECURITY ==================== -->
 
-	<bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
+	<bean id="exceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter">
 		<property name="authenticationEntryPoint"><ref local="casProcessingFilterEntryPoint"/></property>
 	</bean>
 
-	<bean id="casProcessingFilter" class="org.acegisecurity.ui.cas.CasProcessingFilter">
+	<bean id="casProcessingFilter" class="org.springframework.security.ui.cas.CasProcessingFilter">
 		<property name="authenticationManager"><ref local="authenticationManager"/></property>
 		<property name="authenticationFailureUrl"><value>/casfailed.jsp</value></property>
 		<property name="defaultTargetUrl"><value>/</value></property>
 		<property name="filterProcessesUrl"><value>/j_acegi_cas_security_check</value></property>
 	</bean>
 
-	<bean id="casProcessingFilterEntryPoint" class="org.acegisecurity.ui.cas.CasProcessingFilterEntryPoint">
+	<bean id="casProcessingFilterEntryPoint" class="org.springframework.security.ui.cas.CasProcessingFilterEntryPoint">
 		<property name="loginUrl"><value>https://localhost:8443/cas/login</value></property>
 		<property name="serviceProperties"><ref local="serviceProperties"/></property>
 	</bean>
 
-	<bean id="httpRequestAccessDecisionManager" class="org.acegisecurity.vote.AffirmativeBased">
+	<bean id="httpRequestAccessDecisionManager" class="org.springframework.security.vote.AffirmativeBased">
    		<property name="allowIfAllAbstainDecisions"><value>false</value></property>
 		<property name="decisionVoters">
 		  <list>
@@ -154,7 +154,7 @@
 	<!-- Note the order that entries are placed against the objectDefinitionSource is critical.
 	     The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
 	     Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
-	<bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
+	<bean id="filterInvocationInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
     	<property name="authenticationManager"><ref local="authenticationManager"/></property>
     	<property name="accessDecisionManager"><ref local="httpRequestAccessDecisionManager"/></property>
  		<property name="objectDefinitionSource">

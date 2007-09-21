@@ -14,8 +14,8 @@
  */
 package sample.contact;
 
-import org.acegisecurity.acls.Permission;
-import org.acegisecurity.acls.sid.Sid;
+import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.sid.Sid;
 
 import java.util.List;
 

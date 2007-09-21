@@ -14,11 +14,11 @@
  */
 package sample.contact;
 
-import org.acegisecurity.acls.AclService;
-import org.acegisecurity.acls.Permission;
-import org.acegisecurity.acls.domain.BasePermission;
-import org.acegisecurity.acls.sid.PrincipalSid;
-import org.acegisecurity.acls.sid.Sid;
+import org.springframework.security.acls.AclService;
+import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.sid.PrincipalSid;
+import org.springframework.security.acls.sid.Sid;
 
 import org.springframework.beans.factory.InitializingBean;
 

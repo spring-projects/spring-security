@@ -1,10 +1,10 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core' %>
 
-<%@ page import="org.acegisecurity.context.SecurityContextHolder" %>
-<%@ page import="org.acegisecurity.Authentication" %>
-<%@ page import="org.acegisecurity.ui.AbstractProcessingFilter" %>
-<%@ page import="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter" %>
-<%@ page import="org.acegisecurity.AuthenticationException" %>
+<%@ page import="org.springframework.security.context.SecurityContextHolder" %>
+<%@ page import="org.springframework.security.Authentication" %>
+<%@ page import="org.springframework.security.ui.AbstractProcessingFilter" %>
+<%@ page import="org.springframework.security.ui.webapp.AuthenticationProcessingFilter" %>
+<%@ page import="org.springframework.security.AuthenticationException" %>
 
 <html>
   <head>
