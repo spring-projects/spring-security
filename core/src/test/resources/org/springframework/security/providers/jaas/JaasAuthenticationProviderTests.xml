@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- $Id$  -->
+
+<beans>
+
+    <bean id="eventCheck" class="org.springframework.security.providers.jaas.JaasEventCheck"/>
+
+    <bean id="jaasAuthenticationProvider" class="org.springframework.security.providers.jaas.JaasAuthenticationProvider">
+        <property name="loginContextName">
+            <value>JAASTest</value>
+        </property>
+        <property name="loginConfig">
+            <value>classpath:org/springframework/security/providers/jaas/login.conf</value>
+        </property>
+        <property name="callbackHandlers">
+            <list>
+                <bean class="org.springframework.security.providers.jaas.TestCallbackHandler"/>
+                <bean class="org.springframework.security.providers.jaas.JaasNameCallbackHandler"/>
+                <bean class="org.springframework.security.providers.jaas.JaasPasswordCallbackHandler"/>
+            </list>
+        </property>
+        <property name="authorityGranters">
+            <list>
+                <bean class="org.springframework.security.providers.jaas.TestAuthorityGranter"/>
+            </list>
+        </property>
+    </bean>
+</beans>

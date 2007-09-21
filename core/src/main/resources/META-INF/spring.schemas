@@ -1,2 +1,2 @@
-http\://www.springframework.org/schema/security/spring-security-2.0.xsd=org/acegisecurity/config/spring-security-2.0.xsd
+http\://www.springframework.org/schema/security/spring-security-2.0.xsd=org/springframework/security/config/spring-security-2.0.xsd
 

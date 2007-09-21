@@ -1,1 +1,1 @@
-http\://www.springframework.org/schema/security=org.acegisecurity.config.SecurityNamespaceHandler
+http\://www.springframework.org/schema/security=org.springframework.security.config.SecurityNamespaceHandler

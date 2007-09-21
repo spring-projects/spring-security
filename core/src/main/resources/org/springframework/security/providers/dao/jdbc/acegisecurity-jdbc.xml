@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+ * The Acegi Security System for Spring is published under the terms
+ * of the Apache Software License.
+ * $Id$
+-->
+
+<beans>
+
+	<!-- ================= CONTAINER ADAPTER CONFIGURATION ================ -->
+
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"><value>org.hsqldb.jdbcDriver</value></property>
+		<property name="url"><value>jdbc:hsqldb:hsql://localhost:9001</value></property>
+		<property name="username"><value>sa</value></property>
+		<property name="password"><value></value></property>
+	</bean>
+
+	<!-- Data access object which stores authentication information -->
+	<bean id="jdbcDaoImpl" class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
+  		<property name="dataSource"><ref bean="dataSource"/></property>
+	</bean>
+
+	<!-- Authentication provider that queries our data access object  -->
+	<bean id="daoAuthenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+     	<property name="userDetailsService"><ref bean="jdbcDaoImpl"/></property>
+	</bean>
+
+	<!-- The authentication manager that iterates through our only authentication provider -->
+	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
+		<property name="providers">
+		  <list>
+		    <ref bean="daoAuthenticationProvider"/>
+		  </list>
+		</property>
+	</bean>
+
+</beans>

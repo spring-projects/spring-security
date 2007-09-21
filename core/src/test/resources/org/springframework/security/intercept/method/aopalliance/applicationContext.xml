@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+ * Copyright 2004 Acegi Technology Pty Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * $Id$
+-->
+
+<beans>
+
+	<bean id="afterInvocation" class="org.springframework.security.MockAfterInvocationManager"/>
+	<bean id="authentication" class="org.springframework.security.MockAuthenticationManager"/>
+	<bean id="accessDecision" class="org.springframework.security.MockAccessDecisionManager"/>
+	<bean id="runAs" class="org.springframework.security.MockRunAsManager"/>
+
+   <bean id="secureObjectLoggerListener" class="org.springframework.security.event.authorization.LoggerListener"/>
+
+	<bean id="securityInterceptor" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
+		<property name="authenticationManager"><ref local="authentication"/></property>
+		<property name="accessDecisionManager"><ref local="accessDecision"/></property>
+		<property name="afterInvocationManager"><ref local="afterInvocation"/></property>
+		<property name="runAsManager"><ref local="runAs"/></property>
+		<property name="objectDefinitionSource">
+			<value>
+                org.springframework.security.ITargetObject.makeLower*=MOCK_LOWER
+                org.springframework.security.ITargetObject.makeUpper*=MOCK_UPPER,RUN_AS
+                org.springframework.security.ITargetObject.computeHashCode*=MOCK_HASH,AFTER_INVOCATION_MOCK
+            </value>
+		</property>
+	</bean>
+
+	<bean id="realTarget" class="org.springframework.security.TargetObject"/>
+
+    <bean id="target" class="org.springframework.aop.framework.ProxyFactoryBean">
+      <property name="proxyInterfaces"><value>org.springframework.security.ITargetObject</value></property>
+      <property name="interceptorNames">
+         <list>
+            <idref local="securityInterceptor"/>
+            <idref local="realTarget"/>
+         </list>
+      </property>
+    </bean>
+
+</beans>
