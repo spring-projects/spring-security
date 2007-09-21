@@ -27,7 +27,7 @@
 
     <subtitle>Reference Documentation</subtitle>
 
-    <releaseinfo>1.0.5</releaseinfo>
+    <releaseinfo>2.0-SNAPSHOT</releaseinfo>
 
     <authorgroup>
       <author>
@@ -878,7 +878,7 @@ if (obj instanceof UserDetails) {
         instead are hard-coded in English within Acegi Security's code.</para>
 
         <para>Shipping in the <literal>acegi-security-xx.jar</literal> you
-        will find an <literal>org.acegisecurity</literal> package that in turn
+        will find an <literal>org.springframework.security</literal> package that in turn
         contains a <literal>messages.properties</literal> file. This should be
         referred to by your <literal>ApplicationContext</literal>, as Acegi
         Security classes implement Spring's
@@ -940,10 +940,10 @@ if (obj instanceof UserDetails) {
 
         <para><programlisting>&lt;filter&gt;
   &lt;filter-name&gt;Acegi HTTP Request Security Filter&lt;/filter-name&gt;
-  &lt;filter-class&gt;org.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
+  &lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
-    &lt;param-value&gt;org.acegisecurity.ClassThatImplementsFilter&lt;/param-value&gt;
+    &lt;param-value&gt;org.springframework.security.ClassThatImplementsFilter&lt;/param-value&gt;
   &lt;/init-param&gt;
 &lt;/filter&gt;</programlisting></para>
 
@@ -1005,11 +1005,12 @@ if (obj instanceof UserDetails) {
         <literal>FilterChainProxy</literal> class. It is wired using a
         <literal>FilterToBeanProxy</literal> (just like in the example above),
         but the target class is
-        <literal>org.acegisecurity.util.FilterChainProxy</literal>. The filter
+        <literal>org.springframework.security.util.FilterChainProxy</literal>. The filter
         chain is then declared in the application context, using code such as
         this:</para>
 
-        <para><programlisting>&lt;bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy"&gt;
+        <para><programlisting>&lt;bean id="filterChainProxy"
+            class="org.springframework.security.util.FilterChainProxy"&gt;
   &lt;property name="filterInvocationDefinitionSource"&gt;
     &lt;value&gt;
       CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -1223,10 +1224,10 @@ if (obj instanceof UserDetails) {
         <para><programlisting>
 &lt;filter&gt;
   &lt;filter-name&gt;Acegi Channel Processing Filter&lt;/filter-name&gt;
-  &lt;filter-class&gt;org.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
+  &lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
-    &lt;param-value&gt;org.acegisecurity.securechannel.ChannelProcessingFilter&lt;/param-value&gt;
+    &lt;param-value&gt;org.springframework.security.securechannel.ChannelProcessingFilter&lt;/param-value&gt;
   &lt;/init-param&gt;
 &lt;/filter&gt;
 
@@ -1242,7 +1243,7 @@ if (obj instanceof UserDetails) {
         context:</para>
 
         <para><programlisting>
-&lt;bean id="channelProcessingFilter" class="org.acegisecurity.securechannel.ChannelProcessingFilter"&gt;
+&lt;bean id="channelProcessingFilter" class="org.springframework.security.securechannel.ChannelProcessingFilter"&gt;
   &lt;property name="channelDecisionManager"&gt;&lt;ref bean="channelDecisionManager"/&gt;&lt;/property&gt;
   &lt;property name="filterInvocationDefinitionSource"&gt;
     &lt;value&gt;
@@ -1255,7 +1256,7 @@ if (obj instanceof UserDetails) {
   &lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="channelDecisionManager" class="org.acegisecurity.securechannel.ChannelDecisionManagerImpl"&gt;
+&lt;bean id="channelDecisionManager" class="org.springframework.security.securechannel.ChannelDecisionManagerImpl"&gt;
   &lt;property name="channelProcessors"&gt;
     &lt;list&gt;
       &lt;ref bean="secureChannelProcessor"/&gt;
@@ -1264,8 +1265,8 @@ if (obj instanceof UserDetails) {
   &lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="secureChannelProcessor" class="org.acegisecurity.securechannel.SecureChannelProcessor"/&gt;
-&lt;bean id="insecureChannelProcessor" class="org.acegisecurity.securechannel.InsecureChannelProcessor"/&gt;
+&lt;bean id="secureChannelProcessor" class="org.springframework.security.securechannel.SecureChannelProcessor"/&gt;
+&lt;bean id="insecureChannelProcessor" class="org.springframework.security.securechannel.InsecureChannelProcessor"/&gt;
 
         </programlisting></para>
 
@@ -1437,10 +1438,10 @@ if (obj instanceof UserDetails) {
 
         <para><programlisting>&lt;filter&gt;
   &lt;filter-name&gt;Acegi Filter Chain Proxy&lt;/filter-name&gt;
-  &lt;filter-class&gt;org.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
+  &lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
-    &lt;param-value&gt;org.acegisecurity.util.FilterChainProxy&lt;/param-value&gt;
+    &lt;param-value&gt;org.springframework.security.util.FilterChainProxy&lt;/param-value&gt;
   &lt;/init-param&gt;
 &lt;/filter&gt;
 
@@ -1459,7 +1460,8 @@ if (obj instanceof UserDetails) {
         bean definition would look like inside your application
         context:</para>
 
-        <para><programlisting>&lt;bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy"&gt;
+        <para><programlisting>&lt;bean id="filterChainProxy"
+            class="org.springframework.security.util.FilterChainProxy"&gt;
   &lt;property name="filterInvocationDefinitionSource"&gt;
     &lt;value&gt;
       CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -1539,7 +1541,8 @@ if (obj instanceof UserDetails) {
         Security, so let's look at how it's configured for the example we're
         using in this chapter:</para>
 
-        <para><programlisting>&lt;bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager"&gt;
+        <para><programlisting>&lt;bean id="authenticationManager"
+            class="org.springframework.security.providers.ProviderManager"&gt;
   &lt;property name="providers"&gt;
     &lt;list&gt;
       &lt;ref local="daoAuthenticationProvider"/&gt;
@@ -1600,16 +1603,18 @@ if (obj instanceof UserDetails) {
         header or HTTP redirect in order to start authentication. Continuing
         on with our earlier example:</para>
 
-        <para><programlisting>&lt;bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter"&gt;
+        <para><programlisting>&lt;bean id="exceptionTranslationFilter"
+            class="org.springframework.security.ui.ExceptionTranslationFilter"&gt;
   &lt;property name="authenticationEntryPoint"&gt;&lt;ref local="authenticationProcessingFilterEntryPoint"/&gt;&lt;/property&gt;
   &lt;property name="accessDeniedHandler"&gt;
-    &lt;bean class="org.acegisecurity.ui.AccessDeniedHandlerImpl"&gt;
+    &lt;bean class="org.springframework.security.ui.AccessDeniedHandlerImpl"&gt;
       &lt;property name="errorPage" value="/accessDenied.jsp"/&gt;
     &lt;/bean&gt;
   &lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="authenticationProcessingFilterEntryPoint" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint"&gt;
+&lt;bean id="authenticationProcessingFilterEntryPoint"
+            class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint"&gt;
   &lt;property name="loginFormUrl"&gt;&lt;value&gt;/acegilogin.jsp&lt;/value&gt;&lt;/property&gt;
   &lt;property name="forceHttps"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -1698,7 +1703,8 @@ if (obj instanceof UserDetails) {
           configure the <literal>InMemoryDaoImpl</literal>
           implementation:</para>
 
-          <para><programlisting>&lt;bean id="inMemoryDaoImpl" class="org.acegisecurity.userdetails.memory.InMemoryDaoImpl"&gt;
+          <para><programlisting>&lt;bean id="inMemoryDaoImpl"
+              class="org.springframework.security.userdetails.memory.InMemoryDaoImpl"&gt;
   &lt;property name="userMap"&gt;
     &lt;value&gt;
       marissa=koala,ROLE_TELLER,ROLE_SUPERVISOR
@@ -1758,7 +1764,7 @@ if (obj instanceof UserDetails) {
   &lt;property name="password"&gt;&lt;value&gt;&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="jdbcDaoImpl" class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl"&gt;
+&lt;bean id="jdbcDaoImpl" class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl"&gt;
   &lt;property name="dataSource"&gt;&lt;ref bean="dataSource"/&gt;&lt;/property&gt;
 &lt;/bean&gt;        </programlisting></para>
 
@@ -1800,11 +1806,11 @@ if (obj instanceof UserDetails) {
         following to <literal>web.xml</literal>:</para>
 
         <para><programlisting>&lt;listener&gt;
-  &lt;listener-class&gt;org.acegisecurity.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;
+  &lt;listener-class&gt;org.springframework.security.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;
 &lt;/listener&gt;        </programlisting></para>
 
         <para>In addition, you will need to add the
-        <literal>org.acegisecurity.concurrent.ConcurrentSessionFilter</literal>
+        <literal>org.springframework.security.concurrent.ConcurrentSessionFilter</literal>
         to your <literal>FilterChainProxy</literal>. The
         <classname>ConcurrentSessionFilter</classname> requires two properties,
         <literal>sessionRegistry</literal>, which generally points to an
@@ -1824,19 +1830,21 @@ if (obj instanceof UserDetails) {
         <literal>ConcurrentSessionControllerImpl</literal> and refer to it
         from your <literal>ProviderManager</literal> bean:</para>
 
-        <para><programlisting>&lt;bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager"&gt;
+        <para><programlisting>&lt;bean id="authenticationManager"
+            class="org.springframework.security.providers.ProviderManager"&gt;
   &lt;property name="providers"&gt;
     &lt;!-- your providers go here --&gt;
   &lt;/property&gt;
   &lt;property name="sessionController"&gt;&lt;ref bean="concurrentSessionController"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="concurrentSessionController" class="org.acegisecurity.concurrent.ConcurrentSessionControllerImpl"&gt;
+&lt;bean id="concurrentSessionController"
+            class="org.springframework.security.concurrent.ConcurrentSessionControllerImpl"&gt;
   &lt;property name="maximumSessions"&gt;&lt;value&gt;1&lt;/value&gt;&lt;/property&gt;
   &lt;property name="sessionRegistry"&gt;&lt;ref local="sessionRegistry"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="sessionRegistry" class="org.acegisecurity.concurrent.SessionRegistryImpl"/&gt;</programlisting></para>
+&lt;bean id="sessionRegistry" class="org.springframework.security.concurrent.SessionRegistryImpl"/&gt;</programlisting></para>
       </sect1>
 
       <sect1 id="authentication-taglibs">
@@ -1891,7 +1899,8 @@ if (obj instanceof UserDetails) {
         configured to present a UsernamePasswordAuthenticationToken, the
         configuration of the provider itself is rather simple:</para>
 
-        <para><programlisting>&lt;bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
+        <para><programlisting>&lt;bean id="daoAuthenticationProvider"
+            class="org.springframework.security.providers.dao.DaoAuthenticationProvider"&gt;
   &lt;property name="userDetailsService"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
   &lt;property name="saltSource"&gt;&lt;ref bean="saltSource"/&gt;&lt;/property&gt;
   &lt;property name="passwordEncoder"&gt;&lt;ref bean="passwordEncoder"/&gt;&lt;/property&gt;
@@ -1927,7 +1936,8 @@ if (obj instanceof UserDetails) {
         <literal>EhCacheBasedUserCache</literal>, which is configured as
         follows:</para>
 
-        <para><programlisting>&lt;bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
+        <para><programlisting>&lt;bean id="daoAuthenticationProvider"
+            class="org.springframework.security.providers.dao.DaoAuthenticationProvider"&gt;
   &lt;property name="userDetailsService"&gt;&lt;ref bean="userDetailsService"/&gt;&lt;/property&gt;
   &lt;property name="userCache"&gt;&lt;ref bean="userCache"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
@@ -1947,7 +1957,7 @@ if (obj instanceof UserDetails) {
   &lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="userCache" class="org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache"&gt;
+&lt;bean id="userCache" class="org.springframework.security.providers.dao.cache.EhCacheBasedUserCache"&gt;
   &lt;property name="cache"&gt;&lt;ref local="userCacheBackend"/&gt;&lt;/property&gt;
 &lt;/bean&gt;        </programlisting></para>
 
@@ -2023,7 +2033,8 @@ if (obj instanceof UserDetails) {
         above JAAS login configuration file:</para>
 
         <para><programlisting>
-&lt;bean id="jaasAuthenticationProvider" class="org.acegisecurity.providers.jaas.JaasAuthenticationProvider"&gt;
+&lt;bean id="jaasAuthenticationProvider"
+            class="org.springframework.security.providers.jaas.JaasAuthenticationProvider"&gt;
   &lt;property name="loginConfig"&gt;
     &lt;value&gt;/WEB-INF/login.conf&lt;/value&gt;
   &lt;/property&gt;
@@ -2032,13 +2043,13 @@ if (obj instanceof UserDetails) {
   &lt;/property&gt;
   &lt;property name="callbackHandlers"&gt;
     &lt;list&gt;
-      &lt;bean class="org.acegisecurity.providers.jaas.JaasNameCallbackHandler"/&gt;
-      &lt;bean class="org.acegisecurity.providers.jaas.JaasPasswordCallbackHandler"/&gt;
+      &lt;bean class="org.springframework.security.providers.jaas.JaasNameCallbackHandler"/&gt;
+      &lt;bean class="org.springframework.security.providers.jaas.JaasPasswordCallbackHandler"/&gt;
     &lt;/list&gt;
   &lt;/property&gt;
   &lt;property name="authorityGranters"&gt;
     &lt;list&gt;
-      &lt;bean class="org.acegisecurity.providers.jaas.TestAuthorityGranter"/&gt;
+      &lt;bean class="org.springframework.security.providers.jaas.TestAuthorityGranter"/&gt;
     &lt;/list&gt;
   &lt;/property&gt;
 &lt;/bean&gt;
@@ -2167,7 +2178,8 @@ if (obj instanceof UserDetails) {
         sent to the <literal>SiteminderAuthenticationProvider</literal>. Let's
         look at an example:</para>
 
-        <para><programlisting>&lt;bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.SiteminderAuthenticationProcessingFilter"&gt;
+        <para><programlisting>&lt;bean id="authenticationProcessingFilter"
+            class="org.springframework.security.ui.webapp.SiteminderAuthenticationProcessingFilter"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="authenticationFailureUrl"&gt;&lt;value&gt;/login.jsp?login_error=1&lt;/value&gt;&lt;/property&gt;
   &lt;property name="defaultTargetUrl"&gt;&lt;value&gt;/security.do?method=getMainMenu&lt;/value&gt;&lt;/property&gt;
@@ -2296,11 +2308,12 @@ public boolean supports(Class clazz);</programlisting></para>
         bean context with the same key:</para>
 
         <para><programlisting>
-&lt;bean id="runAsManager" class="org.acegisecurity.runas.RunAsManagerImpl"&gt;
+&lt;bean id="runAsManager" class="org.springframework.security.runas.RunAsManagerImpl"&gt;
   &lt;property name="key"&gt;&lt;value&gt;my_run_as_password&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="runAsAuthenticationProvider" class="org.acegisecurity.runas.RunAsImplAuthenticationProvider"&gt;
+&lt;bean id="runAsAuthenticationProvider"
+            class="org.springframework.security.runas.RunAsImplAuthenticationProvider"&gt;
   &lt;property name="key"&gt;&lt;value&gt;my_run_as_password&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
@@ -2339,10 +2352,10 @@ public boolean supports(Class clazz);</programlisting></para>
 
         <para><programlisting>&lt;filter&gt;
   &lt;filter-name&gt;Acegi Authentication Processing Filter&lt;/filter-name&gt;
-  &lt;filter-class&gt;org.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
+  &lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
-    &lt;param-value&gt;org.acegisecurity.ui.webapp.AuthenticationProcessingFilter&lt;/param-value&gt;
+    &lt;param-value&gt;org.springframework.security.ui.webapp.AuthenticationProcessingFilter&lt;/param-value&gt;
   &lt;/init-param&gt;
 &lt;/filter&gt;
 
@@ -2355,7 +2368,8 @@ public boolean supports(Class clazz);</programlisting></para>
         refer to the Filters section. The application context will need to
         define the <literal>AuthenticationProcessingFilter</literal>:</para>
 
-        <para><programlisting>&lt;bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter"&gt;
+        <para><programlisting>&lt;bean id="authenticationProcessingFilter"
+            class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="authenticationFailureUrl"&gt;&lt;value&gt;/acegilogin.jsp?login_error=1&lt;/value&gt;&lt;/property&gt;
   &lt;property name="defaultTargetUrl"&gt;&lt;value&gt;/&lt;/value&gt;&lt;/property&gt;
@@ -2420,12 +2434,13 @@ public boolean supports(Class clazz);</programlisting></para>
         collaborator:</para>
 
         <para><programlisting>
-&lt;bean id="basicProcessingFilter" class="org.acegisecurity.ui.basicauth.BasicProcessingFilter"&gt;
+&lt;bean id="basicProcessingFilter" class="org.springframework.security.ui.basicauth.BasicProcessingFilter"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="authenticationEntryPoint"&gt;&lt;ref bean="authenticationEntryPoint"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="authenticationEntryPoint" class="org.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint"&gt;
+&lt;bean id="authenticationEntryPoint"
+            class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint"&gt;
   &lt;property name="realmName"&gt;&lt;value&gt;Name Of Your Realm&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
@@ -2541,13 +2556,14 @@ key:              A private key to prevent modification of the nonce token
         collaborators:</para>
 
         <para><programlisting>
-&lt;bean id="digestProcessingFilter" class="org.acegisecurity.ui.digestauth.DigestProcessingFilter"&gt;
+&lt;bean id="digestProcessingFilter" class="org.springframework.security.ui.digestauth.DigestProcessingFilter"&gt;
   &lt;property name="userDetailsService"&gt;&lt;ref local="jdbcDaoImpl"/&gt;&lt;/property&gt;
   &lt;property name="authenticationEntryPoint"&gt;&lt;ref local="digestProcessingFilterEntryPoint"/&gt;&lt;/property&gt;
   &lt;property name="userCache"&gt;&lt;ref local="userCache"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="digestProcessingFilterEntryPoint" class="org.acegisecurity.ui.digestauth.DigestProcessingFilterEntryPoint"&gt;
+&lt;bean id="digestProcessingFilterEntryPoint"
+            class="org.springframework.security.ui.digestauth.DigestProcessingFilterEntryPoint"&gt;
   &lt;property name="realmName"&gt;&lt;value&gt;Contacts Realm via Digest Authentication&lt;/value&gt;&lt;/property&gt;
   &lt;property name="key"&gt;&lt;value&gt;acegi&lt;/value&gt;&lt;/property&gt;
   &lt;property name="nonceValiditySeconds"&gt;&lt;value&gt;10&lt;/value&gt;&lt;/property&gt;
@@ -2633,12 +2649,14 @@ key:              A private key to prevent modification of the nonce token
         filter and authentication provider appears as follows:</para>
 
         <para><programlisting>
-&lt;bean id="anonymousProcessingFilter" class="org.acegisecurity.providers.anonymous.AnonymousProcessingFilter"&gt;
+&lt;bean id="anonymousProcessingFilter"
+            class="org.springframework.security.providers.anonymous.AnonymousProcessingFilter"&gt;
   &lt;property name="key"&gt;&lt;value&gt;foobar&lt;/value&gt;&lt;/property&gt;
   &lt;property name="userAttribute"&gt;&lt;value&gt;anonymousUser,ROLE_ANONYMOUS&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="anonymousAuthenticationProvider" class="org.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider"&gt;
+&lt;bean id="anonymousAuthenticationProvider"
+            class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider"&gt;
   &lt;property name="key"&gt;&lt;value&gt;foobar&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
@@ -2658,7 +2676,8 @@ key:              A private key to prevent modification of the nonce token
         example:</para>
 
         <para><programlisting>
-&lt;bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
+&lt;bean id="filterInvocationInterceptor"
+            class="org.springframework.security.intercept.web.FilterSecurityInterceptor"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref local="httpRequestAccessDecisionManager"/&gt;&lt;/property&gt;
   &lt;property name="objectDefinitionSource"&gt;
@@ -2785,16 +2804,18 @@ key:              A private key to prevent modification of the remember-me token
         remember-me services are as follows:</para>
 
         <para><programlisting>
-&lt;bean id="rememberMeProcessingFilter" class="org.acegisecurity.ui.rememberme.RememberMeProcessingFilter"&gt;
+&lt;bean id="rememberMeProcessingFilter"
+            class="org.springframework.security.ui.rememberme.RememberMeProcessingFilter"&gt;
   &lt;property name="rememberMeServices"&gt;&lt;ref local="rememberMeServices"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="rememberMeServices" class="org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices"&gt;
+&lt;bean id="rememberMeServices" class="org.springframework.security.ui.rememberme.TokenBasedRememberMeServices"&gt;
   &lt;property name="userDetailsService"&gt;&lt;ref local="jdbcDaoImpl"/&gt;&lt;/property&gt;
   &lt;property name="key"&gt;&lt;value&gt;springRocks&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="rememberMeAuthenticationProvider" class="org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider"&gt;
+&lt;bean id="rememberMeAuthenticationProvider"
+            class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider"&gt;
   &lt;property name="key"&gt;&lt;value&gt;springRocks&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
@@ -2984,7 +3005,7 @@ key:              A private key to prevent modification of the remember-me token
         <title>Using LDAP with Acegi Security</title>
 
         <para>The main LDAP provider class is
-        <classname>org.acegisecurity.providers.ldap.LdapAuthenticationProvider</classname>.
+        <classname>org.springframework.security.providers.ldap.LdapAuthenticationProvider</classname>.
         This bean doesn't actually do much itself other than implement the
         <methodname>retrieveUser</methodname> method required by its base
         class,
@@ -3057,7 +3078,7 @@ key:              A private key to prevent modification of the remember-me token
             <title>BindAuthenticator</title>
 
             <para>The class
-            <classname>org.acegisecurity.providers.ldap.authenticator.BindAuthenticator</classname>
+            <classname>org.springframework.security.providers.ldap.authenticator.BindAuthenticator</classname>
             implements the bind authentication strategy. It simply attempts to
             bind as the user.</para>
           </sect3>
@@ -3066,7 +3087,7 @@ key:              A private key to prevent modification of the remember-me token
             <title>PasswordComparisonAuthenticator</title>
 
             <para>The class
-            <classname>org.acegisecurity.providers.ldap.authenticator.PasswordComparisonAuthenticator</classname>
+            <classname>org.springframework.security.providers.ldap.authenticator.PasswordComparisonAuthenticator</classname>
             implements the password comparison authentication strategy.</para>
           </sect3>
 
@@ -3146,14 +3167,14 @@ key:              A private key to prevent modification of the remember-me token
         <para>A typical configuration, using some of the beans we've discussed
         above, might look like this: <programlisting>
     &lt;bean id="initialDirContextFactory"
-            class="org.acegisecurity.ldap.DefaultInitialDirContextFactory"&gt;
+            class="org.springframework.security.ldap.DefaultInitialDirContextFactory"&gt;
       &lt;constructor-arg value="ldap://monkeymachine:389/dc=acegisecurity,dc=org"/&gt;
       &lt;property name="managerDn"&gt;&lt;value&gt;cn=manager,dc=acegisecurity,dc=org&lt;/value&gt;&lt;/property&gt;
       &lt;property name="managerPassword"&gt;&lt;value&gt;password&lt;/value&gt;&lt;/property&gt;
     &lt;/bean&gt;
 
     &lt;bean id="userSearch"
-            class="org.acegisecurity.ldap.search.FilterBasedLdapUserSearch"&gt;
+            class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch"&gt;
       &lt;constructor-arg index="0"&gt;
         &lt;value&gt;&lt;/value&gt;
       &lt;/constructor-arg&gt;
@@ -3169,15 +3190,15 @@ key:              A private key to prevent modification of the remember-me token
     &lt;/bean&gt;
 
     &lt;bean id="ldapAuthProvider"
-            class="org.acegisecurity.providers.ldap.LdapAuthenticationProvider"&gt;
+            class="org.springframework.security.providers.ldap.LdapAuthenticationProvider"&gt;
       &lt;constructor-arg&gt;
-        &lt;bean class="org.acegisecurity.providers.ldap.authenticator.BindAuthenticator"&gt;
+        &lt;bean class="org.springframework.security.providers.ldap.authenticator.BindAuthenticator"&gt;
            &lt;constructor-arg&gt;&lt;ref local="initialDirContextFactory"/&gt;&lt;/constructor-arg&gt;
            &lt;property name="userDnPatterns"&gt;&lt;list&gt;&lt;value&gt;uid={0},ou=people&lt;/value&gt;&lt;/list&gt;&lt;/property&gt;
         &lt;/bean&gt;
       &lt;/constructor-arg&gt;
       &lt;constructor-arg&gt;
-        &lt;bean class="org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator"&gt;
+        &lt;bean class="org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator"&gt;
            &lt;constructor-arg&gt;&lt;ref local="initialDirContextFactory"/&gt;&lt;/constructor-arg&gt;
            &lt;constructor-arg&gt;&lt;value&gt;ou=groups&lt;/value&gt;&lt;/constructor-arg&gt;
            &lt;property name="groupRoleAttribute"&gt;&lt;value&gt;ou&lt;/value&gt;&lt;/property&gt;
@@ -3536,7 +3557,7 @@ key:              A private key to prevent modification of the remember-me token
           <literal>applicationContext.xml</literal> is included below:</para>
 
           <programlisting>
-&lt;bean id="inMemoryDaoImpl" class="org.acegisecurity.userdetails.memory.InMemoryDaoImpl"&gt;
+&lt;bean id="inMemoryDaoImpl" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl"&gt;
   &lt;property name="userMap"&gt;
     &lt;value&gt;
       marissa=koala,ROLES_IGNORED_BY_CAS
@@ -3547,11 +3568,12 @@ key:              A private key to prevent modification of the remember-me token
   &lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
+&lt;bean id="daoAuthenticationProvider"
+              class="org.springframework.security.providers.dao.DaoAuthenticationProvider"&gt;
   &lt;property name="userDetailsService"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager"&gt;
+&lt;bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager"&gt;
   &lt;property name="providers"&gt;
     &lt;list&gt;
       &lt;ref bean="daoAuthenticationProvider"/&gt;
@@ -3559,7 +3581,7 @@ key:              A private key to prevent modification of the remember-me token
   &lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="casPasswordHandler" class="org.acegisecurity.adapters.cas.CasPasswordHandler"&gt;
+&lt;bean id="casPasswordHandler" class="org.springframework.security.adapters.cas.CasPasswordHandler"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
@@ -3579,7 +3601,7 @@ key:              A private key to prevent modification of the remember-me token
 
 &lt;context-param&gt;
   &lt;param-name&gt;edu.yale.its.tp.cas.authHandler&lt;/param-name&gt;
-  &lt;param-value&gt;org.acegisecurity.adapters.cas.CasPasswordHandlerProxy&lt;/param-value&gt;
+  &lt;param-value&gt;org.springframework.security.adapters.cas.CasPasswordHandlerProxy&lt;/param-value&gt;
 &lt;/context-param&gt;
 
 &lt;context-param&gt;
@@ -3643,7 +3665,7 @@ key:              A private key to prevent modification of the remember-me token
 			&lt;property name="authenticationHandlers"&gt;
 				&lt;list&gt;
 					&lt;bean class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler" /&gt;
-					&lt;bean class="org.acegisecurity.adapters.cas3.CasAuthenticationHandler"&gt;
+					&lt;bean class="org.springframework.security.adapters.cas3.CasAuthenticationHandler"&gt;
 						&lt;property name="authenticationManager" ref="acegiAuthenticationManager" /&gt;
 					&lt;/bean&gt;
 				&lt;/list&gt;
@@ -3651,7 +3673,7 @@ key:              A private key to prevent modification of the remember-me token
 		&lt;/bean&gt;
 
 
-		&lt;bean id="inMemoryDaoImpl" class="org.acegisecurity.userdetails.memory.InMemoryDaoImpl"&gt;
+		&lt;bean id="inMemoryDaoImpl" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl"&gt;
 	  		&lt;property name="userMap"&gt;
 				&lt;value&gt;
 					marissa=koala,ROLES_IGNORED_BY_CAS
@@ -3662,11 +3684,12 @@ key:              A private key to prevent modification of the remember-me token
 			&lt;/property&gt;
 		&lt;/bean&gt;
 
-		&lt;bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider"&gt;
+		&lt;bean id="daoAuthenticationProvider"
+              class="org.springframework.security.providers.dao.DaoAuthenticationProvider"&gt;
 	     	&lt;property name="userDetailsService"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
 		&lt;/bean&gt;
 
-		&lt;bean id="acegiAuthenticationManager" class="org.acegisecurity.providers.ProviderManager"&gt;
+		&lt;bean id="acegiAuthenticationManager" class="org.springframework.security.providers.ProviderManager"&gt;
 			&lt;property name="providers"&gt;
 			  &lt;list&gt;
 			    &lt;ref bean="daoAuthenticationProvider"/&gt;
@@ -3712,7 +3735,7 @@ key:              A private key to prevent modification of the remember-me token
 
         <para><programlisting>
 
-&lt;bean id="serviceProperties" class="org.acegisecurity.ui.cas.ServiceProperties"&gt;
+&lt;bean id="serviceProperties" class="org.springframework.security.ui.cas.ServiceProperties"&gt;
   &lt;property name="service"&gt;&lt;value&gt;https://localhost:8443/contacts-cas/j_acegi_cas_security_check&lt;/value&gt;&lt;/property&gt;
   &lt;property name="sendRenew"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
@@ -3731,18 +3754,19 @@ key:              A private key to prevent modification of the remember-me token
         authentication process:</para>
 
         <para><programlisting>
-&lt;bean id="casProcessingFilter" class="org.acegisecurity.ui.cas.CasProcessingFilter"&gt;
+&lt;bean id="casProcessingFilter" class="org.springframework.security.ui.cas.CasProcessingFilter"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="authenticationFailureUrl"&gt;&lt;value&gt;/casfailed.jsp&lt;/value&gt;&lt;/property&gt;
   &lt;property name="defaultTargetUrl"&gt;&lt;value&gt;/&lt;/value&gt;&lt;/property&gt;
   &lt;property name="filterProcessesUrl"&gt;&lt;value&gt;/j_acegi_cas_security_check&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter"&gt;
+&lt;bean id="exceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter"&gt;
   &lt;property name="authenticationEntryPoint"&gt;&lt;ref local="casProcessingFilterEntryPoint"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="casProcessingFilterEntryPoint" class="org.acegisecurity.ui.cas.CasProcessingFilterEntryPoint"&gt;
+&lt;bean id="casProcessingFilterEntryPoint"
+            class="org.springframework.security.ui.cas.CasProcessingFilterEntryPoint"&gt;
   &lt;property name="loginUrl"&gt;&lt;value&gt;https://localhost:8443/cas/login&lt;/value&gt;&lt;/property&gt;
   &lt;property name="serviceProperties"&gt;&lt;ref bean="serviceProperties"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
@@ -3755,10 +3779,10 @@ key:              A private key to prevent modification of the remember-me token
         <para><programlisting>
 &lt;filter&gt;
   &lt;filter-name&gt;Acegi CAS Processing Filter&lt;/filter-name&gt;
-  &lt;filter-class&gt;org.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
+  &lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
-    &lt;param-value&gt;org.acegisecurity.ui.cas.CasProcessingFilter&lt;/param-value&gt;
+    &lt;param-value&gt;org.springframework.security.ui.cas.CasProcessingFilter&lt;/param-value&gt;
   &lt;/init-param&gt;
 &lt;/filter&gt;
 
@@ -3789,7 +3813,7 @@ key:              A private key to prevent modification of the remember-me token
         collaborators:</para>
 
         <para><programlisting>
-&lt;bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager"&gt;
+&lt;bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager"&gt;
   &lt;property name="providers"&gt;
     &lt;list&gt;
       &lt;ref bean="casAuthenticationProvider"/&gt;
@@ -3797,7 +3821,8 @@ key:              A private key to prevent modification of the remember-me token
   &lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="casAuthenticationProvider" class="org.acegisecurity.providers.cas.CasAuthenticationProvider"&gt;
+&lt;bean id="casAuthenticationProvider"
+            class="org.springframework.security.providers.cas.CasAuthenticationProvider"&gt;
   &lt;property name="casAuthoritiesPopulator"&gt;&lt;ref bean="casAuthoritiesPopulator"/&gt;&lt;/property&gt;
   &lt;property name="casProxyDecider"&gt;&lt;ref bean="casProxyDecider"/&gt;&lt;/property&gt;
   &lt;property name="ticketValidator"&gt;&lt;ref bean="casProxyTicketValidator"/&gt;&lt;/property&gt;
@@ -3805,7 +3830,8 @@ key:              A private key to prevent modification of the remember-me token
   &lt;property name="key"&gt;&lt;value&gt;my_password_for_this_auth_provider_only&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="casProxyTicketValidator" class="org.acegisecurity.providers.cas.ticketvalidator.CasProxyTicketValidator"&gt;
+&lt;bean id="casProxyTicketValidator"
+            class="org.springframework.security.providers.cas.ticketvalidator.CasProxyTicketValidator"&gt;
   &lt;property name="casValidate"&gt;&lt;value&gt;https://localhost:8443/cas/proxyValidate&lt;/value&gt;&lt;/property&gt;
   &lt;property name="proxyCallbackUrl"&gt;&lt;value&gt;https://localhost:8443/contacts-cas/casProxy/receptor&lt;/value&gt;&lt;/property&gt;
   &lt;property name="serviceProperties"&gt;&lt;ref bean="serviceProperties"/&gt;&lt;/property&gt;
@@ -3827,15 +3853,16 @@ key:              A private key to prevent modification of the remember-me token
   &lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="statelessTicketCache" class="org.acegisecurity.providers.cas.cache.EhCacheBasedTicketCache"&gt;
+&lt;bean id="statelessTicketCache" class="org.springframework.security.providers.cas.cache.EhCacheBasedTicketCache"&gt;
   &lt;property name="cache"&gt;&lt;ref local="ticketCacheBackend"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="casAuthoritiesPopulator" class="org.acegisecurity.providers.cas.populator.DaoCasAuthoritiesPopulator"&gt;
+&lt;bean id="casAuthoritiesPopulator"
+            class="org.springframework.security.providers.cas.populator.DaoCasAuthoritiesPopulator"&gt;
   &lt;property name="userDetailsService"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="casProxyDecider" class="org.acegisecurity.providers.cas.proxy.RejectProxyTickets"/&gt;
+&lt;bean id="casProxyDecider" class="org.springframework.security.providers.cas.proxy.RejectProxyTickets"/&gt;
 
         </programlisting></para>
 
@@ -4006,7 +4033,8 @@ key:              A private key to prevent modification of the remember-me token
         to be validated by the <literal>AuthByAdapterProvider</literal>. This
         authentication provider is defined as follows:</para>
 
-        <para><programlisting>&lt;bean id="authByAdapterProvider" class="org.acegisecurity.adapters.AuthByAdapterProvider"&gt;
+        <para><programlisting>&lt;bean id="authByAdapterProvider"
+            class="org.springframework.security.adapters.AuthByAdapterProvider"&gt;
   &lt;property name="key"&gt;&lt;value&gt;my_password&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;       </programlisting></para>
 
@@ -4059,7 +4087,7 @@ key:              A private key to prevent modification of the remember-me token
         <para><programlisting>
   &lt;Call name="addRealm"&gt;
     &lt;Arg&gt;
-      &lt;New class="org.acegisecurity.adapters.jetty.JettyAcegiUserRealm"&gt;
+      &lt;New class="org.springframework.security.adapters.jetty.JettyAcegiUserRealm"&gt;
         &lt;Arg&gt;Spring Powered Realm&lt;/Arg&gt;
         &lt;Arg&gt;my_password&lt;/Arg&gt;
         &lt;Arg&gt;etc/acegisecurity.xml&lt;/Arg&gt;
@@ -4132,8 +4160,8 @@ key:              A private key to prevent modification of the remember-me token
         <para><programlisting>
 &lt;application-policy name = "SpringPoweredRealm"&gt;
    &lt;authentication&gt;
-      &lt;login-module code = "org.acegisecurity.adapters.jboss.JbossAcegiLoginModule"
-        flag = "required"&gt;
+      &lt;login-module code = "org.springframework.security.adapters.jboss.JbossAcegiLoginModule"
+            flag = "required"&gt;
         &lt;module-option name = "appContextLocation"&gt;acegisecurity.xml&lt;/module-option&gt;
         &lt;module-option name = "key"&gt;my_password&lt;/module-option&gt;
      &lt;/login-module&gt;
@@ -4158,8 +4186,8 @@ key:              A private key to prevent modification of the remember-me token
         <para><programlisting>
 &lt;application-policy name = "SpringPoweredRealm"&gt;
    &lt;authentication&gt;
-      &lt;login-module code = "org.acegisecurity.adapters.jboss.JbossAcegiLoginModule"
-        flag = "required"&gt;
+      &lt;login-module code = "org.springframework.security.adapters.jboss.JbossAcegiLoginModule"
+            flag = "required"&gt;
         &lt;module-option name = "singletonId"&gt;springRealm&lt;/module-option&gt;
         &lt;module-option name = "key"&gt;my_password&lt;/module-option&gt;
         &lt;module-option name = "authenticationManager"&gt;authenticationManager&lt;/module-option&gt;
@@ -4300,7 +4328,7 @@ key:              A private key to prevent modification of the remember-me token
         <para><programlisting>
 &lt;web-app&gt;
   &lt;authenticator&gt;
-    &lt;type&gt;org.acegisecurity.adapters.resin.ResinAcegiAuthenticator&lt;/type&gt;
+    &lt;type&gt;org.springframework.security.adapters.resin.ResinAcegiAuthenticator&lt;/type&gt;
     &lt;init&gt;
       &lt;app-context-location&gt;WEB-INF/resin-acegisecurity.xml&lt;/app-context-location&gt;
       &lt;key&gt;my_password&lt;/key&gt;
@@ -4332,8 +4360,9 @@ key:              A private key to prevent modification of the remember-me token
         active <literal>&lt;Realm&gt;</literal> entry. An example realm
         entry:</para>
 
-        <para><programlisting>      &lt;Realm className="org.acegisecurity.adapters.catalina.CatalinaAcegiUserRealm"
-             appContextLocation="conf/acegisecurity.xml"
+        <para><programlisting>      &lt;Realm
+            className="org.springframework.security.adapters.catalina.CatalinaAcegiUserRealm"
+            appContextLocation="conf/acegisecurity.xml"
              key="my_password" /&gt;</programlisting></para>
 
         <para>Be sure to remove any other <literal>&lt;Realm&gt;</literal>
@@ -4389,6 +4418,370 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         <para>Finally, restart Tomcat.</para>
       </sect1>
     </chapter>
+
+    <chapter>
+      <title>Context propagation support for EJBs</title>
+
+      <section>
+        <title>Rationale</title>
+
+        <para>Spring Security does provide transparent propagation of security
+        context information in specific remoting scenarios. That means that the
+        security context of the invoker is passed along with each method
+        invocation to the server. There the context is being reestablished so that
+        a service method can take place in the security context of the invoker.
+        There is out-of-the-box support for RMI or Spring's own HttpInvoker
+        protocol. Now many applications around are based on EJB remoting because
+        of requirements or policy, which are precluded from that benefit. </para>
+
+        <para>If you have an EJB application you have two options for integrating
+        Spring Security:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Use a container adapter for integrating with that application
+            server's proprietary security mechanism (Spring Security provides some
+            ready usable adapters for use in legacy scenarios)</para>
+          </listitem>
+
+          <listitem>
+            <para>Create wrappers on the client side (and on the server side when
+            using POJO delegation) to propagate the security context</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Both approaches have the benefit that the implementation of your
+        service, as well as its clients, are agnostic to remoting and security
+        context propagation taking place. The drawback of the first approach is,
+        that you have to reimplement parts of your security infrastructure when
+        switching the container (or maybe upgrading it, as sometimes the security
+        strategy changes over time). That issue does not arise in the second
+        approach, but the problem here is the implementation overhead of creating
+        according wrappers to hide the context propagation.</para>
+
+        <para>The following chapters describe the infrastructure classes which
+        wrap the context propagation and abstract it away from both client usage
+        and service implementation.</para>
+      </section>
+
+      <section>
+        <title>How it works</title>
+
+        <para>See figure 1 which describes the recommended POJO delegation model,
+        where an EJB session bean only serves as remoting wrapper. The actual
+        service implementation resides inside a POJO that implements the given
+        business interface. The EJB implementation does nothing more than just
+        delegating invocations of service operations to the POJO. Using Spring's
+        support classes for wiring the POJO to the EJB is simple. Spring also
+        allows wiring the service interface to the client by transparently
+        wrapping the remote interface.</para>
+
+        <para><figure>
+            <title>Figure 1: Using EJB as remoting wrapper</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="images/ejb_pojo_delegation.gif" />
+              </imageobject>
+            </mediaobject>
+          </figure></para>
+
+        <para>This concept is now slightly enhanced by the context propagation
+        module. As it is not possible to intercept the invocation of a remote
+        interface in a portable manner, we have to extend the remote interface
+        methods to include an additional parameter that holdes the SecurityContext
+        we wish to propagate. In consequence we also have to modify the method
+        implementations in the EJB implementation class to take that additional
+        argument. This is depicted in figure 2. Note however, that the client
+        still works with the plain business interface we had before and that the
+        actual service implementation class is still the same.</para>
+
+        <para><figure>
+            <title>Figure 2: Using EJB as enhanced remoting wrapper</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="images/extended_ejb_pojo_delegation.gif" />
+              </imageobject>
+            </mediaobject>
+          </figure></para>
+
+        <para>Now how does this work? On the client side a proxy translates
+        invocations from the business interface (Service) to invocations of the
+        extended business interface (XService) which is actually exposed by the
+        remote interface. The current security context is extracted and passed
+        into the additionally provided method parameter.</para>
+
+        <para>On the server side the EJB implementation refers to a delegate which
+        also exposes the extended service interface (XService). Behind that
+        service interface hides a proxy which extracts the passed-in
+        SecurityContext and establishes it in the current thread. Then it
+        delegates the invocation to the actual delegate class (ServiceImpl),
+        translating the method invocation as the target does not know about the
+        SecurityContext parameter. The invocation chain is exemplified in figure
+        3.</para>
+
+        <para><figure>
+            <title>Figure 3: Invocation chain</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="images/invocation_chain.gif" />
+              </imageobject>
+            </mediaobject>
+          </figure>The yellow colored elements indicate instances exposing the
+        extended business interface while the green colored elements indicate
+        instances exposing the real business interface.</para>
+      </section>
+
+      <section>
+        <title>How to use it</title>
+
+        <para>The following subsections show how to use the provided
+        infrastructure classes and how to enable your code to use them.</para>
+
+        <section>
+          <title>The building blocks</title>
+
+          <section>
+            <title>The business interface</title>
+
+            <para><programlisting format="linespecific">public interface Service {
+
+        Result operation(Parameter param);
+    }</programlisting>How the business interface looks like depends just on, well,
+            your business requirements. Nothing special about it.</para>
+          </section>
+
+          <section>
+            <title>The service implementation</title>
+
+            <para><programlisting>public class ServiceImpl implements Service {
+
+        public Result operation(Parameter param) {
+            ...
+        }
+    }</programlisting>The service implementation just implements the business
+            interface, nothing more.</para>
+          </section>
+
+          <section>
+            <title>The extended business interface and the remote
+            interface</title>
+
+            <para><programlisting>// Extended business interface
+    public interface XService {
+
+        public Result operation(SecurityContext securityCtx, Parameter param) throws SecurityServiceException, RemoteException;
+    }   </programlisting></para>
+
+            <para><programlisting>// Remote interface
+    public interface ServiceRemote extends XService, EJBObject {}</programlisting>The
+            extended business interface introduces an additional parameter for
+            each method (which is by convention the first parameter). Besides that
+            augmentation of the parameter list we have to consider that this
+            interface is being used in an EJB remoting scenario, so we specify a
+            "throws RemoteException" for each method. This is not strictly
+            necessary but it allows us to greatly simplify the definition of the
+            actual remote interface as could be seen in the second listing.
+            </para>
+
+            <para>In addition to the RemoteException, each method also should
+            declare throwing a
+            org.springframework.security.ejb.server.SecurityServiceException. This
+            is because of the EJB spec: If an EJB method throws an unchecked
+            exception (all Spring Security exceptions are unchecked) that
+            exception will be wrapped into a RemoteException and the bean instance
+            will be dropped from the container. As this is unwanted and negatively
+            impacts performance we declare the SecurityServiceException to be
+            thrown. So any security exceptions will be wrapped into a
+            SecurityServiceException to be passed to the client. Note that
+            everything still works when that declaration is omitted, but consider
+            the negative consequences for the EJB in question.</para>
+          </section>
+
+          <section>
+            <title>The EJB implementation</title>
+
+            <para><programlisting>public class ServiceBean extends AbstractStatelessSessionBean implements XService {
+
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * Delegate bean name.
+         */
+        private static final String DELEGATE_BEAN_NAME = "xService";
+
+        /**
+         * The delegate.
+         */
+        private XService delegate;
+
+
+        /**
+         * @see org.springframework.ejb.support.AbstractStatelessSessionBean#onEjbCreate()
+         */
+        protected void onEjbCreate() throws CreateException {
+            this.delegate = (XService) getBeanFactory().getBean(DELEGATE_BEAN_NAME, XService.class);
+        }
+
+        /**
+         * @see XService#operation(SecurityContext, Parameter)
+         */
+        public Result operation(SecurityContext securityCtx, Parameter param) throws SecurityServiceException, RemoteException {
+            return this.delegate.operation(ctx, name);
+        }
+    }</programlisting></para>
+
+            <para>It is recommended to use the convenience
+            AbstractStatelessSessionBean base class provided by the Spring
+            Framework. Implementation is then reduced to implementing the
+            onEjbCreate()-callback method to retrieve the delegate bean and to
+            implement the methods to do the delegation.</para>
+          </section>
+        </section>
+
+        <section>
+          <title>Wiring the client-side</title>
+
+          <para><programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+    &lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
+
+    &lt;beans&gt;
+
+        &lt;bean id="client" class="client.Client"&gt;
+            &lt;property name="service" ref="service"/&gt;
+        &lt;/bean&gt;
+
+        &lt;bean id="jndiTemplate" class="org.springframework.jndi.JndiTemplate"&gt;
+            &lt;property name="environment"&gt;
+                &lt;value&gt;
+                   // ...
+                &lt;/value&gt;
+            &lt;/property&gt;
+        &lt;/bean&gt;
+
+        &lt;bean id="service" class="org.springframework.security.ejb.client.SecurityContextInjectingRemoteSlsbProxyFactoryBean"&gt;
+
+            &lt;property name="businessInterface" value="server.Service"/&gt;
+
+            &lt;property name="slsbBusinessInterface" value="server.XService"/&gt;
+
+            &lt;property name="jndiTemplate" ref="jndiTemplate"/&gt;
+
+            &lt;property name="jndiName" value="ejb/Service"/&gt;
+
+            &lt;property name="extraArgumentPosition" value="0"/&gt;
+
+            &lt;property name="methodRegexpPatterns"&gt;
+                &lt;list&gt;
+                    &lt;value&gt;.*&lt;/value&gt;
+                &lt;/list&gt;
+            &lt;/property&gt;
+
+        &lt;/bean&gt;
+    &lt;/beans&gt;</programlisting>The above listing shows how the the service is
+          being wired to the client. Instead of using a
+          SimpleRemoteStatelessSessionProxyFactoryBean we use a
+          SecurityContextInjectingRemoteSlsbProxyFactoryBean which provides the
+          same functionality but is enhanced for hiding context
+          propagation.</para>
+
+          <para>The specified "businessInterface" property designates the actual
+          business interface while the property "slsbBusinessInterface" specifies
+          the extended business interface (it conforms to the
+          SimpleRemoteStatelessSessionProxyFactoryBean#businessInterface
+          property).</para>
+
+          <para>The "extraArgumentPosition" and "methodRegexpPatterns" properties
+          are optional. The former specifies the index of the parameter to insert.
+          The default is 0 which means that the SecurityContext parameter will be
+          the first one in the parameter list. The latter parameter specifies
+          which methods to enhance by an additional SecurityContext parameter. By
+          default all exposed methods are enhanced.</para>
+
+          <para>Most other properties correspond to those in
+          SimpleRemoteStatelessSessionProxyFactoryBean. Please refer to the API
+          documentation for more details.</para>
+        </section>
+
+        <section>
+          <title>Wiring the server-side</title>
+
+          <para><programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+    &lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
+
+    &lt;beans&gt;
+
+        &lt;!--  Proxy for extracting secure context information --&gt;
+        &lt;bean id="xService" class="org.springframework.security.ejb.server.support.SecurityContextExtractingProxyFactoryBean"&gt;
+
+            &lt;property name="businessInterface" value="server.XService"/&gt;
+
+            &lt;property name="interceptorNames"&gt;
+                &lt;list&gt;
+                    &lt;value&gt;serviceSecurityInterceptor&lt;/value&gt;
+                &lt;/list&gt;
+            &lt;/property&gt;
+
+            &lt;property name="target" ref="serviceTarget"/&gt;
+
+            &lt;property name="extraArgumentPosition" value="0"/&gt;
+
+            &lt;property name="methodRegexpPatterns"&gt;
+                &lt;list&gt;
+                    &lt;value&gt;.*&lt;/value&gt;
+                &lt;/list&gt;
+            &lt;/property&gt;
+        &lt;/bean&gt;
+
+        &lt;!--  Security interceptor --&gt;
+        &lt;bean id="helloServiceSecurityInterceptor" class="org.springframework.security.ejb.server.support.TranslatingMethodSecurityInterceptor"&gt;
+            &lt;property name="validateConfigAttributes" value="true"/&gt;
+            &lt;property name="authenticationManager" ref="authenticationManager"/&gt;
+            &lt;property name="accessDecisionManager" ref="accessDecisionManager"/&gt;
+            &lt;property name="runAsManager" ref="runAsManager"/&gt;
+
+            &lt;property name="objectDefinitionSource"&gt;
+                &lt;value&gt;server.Service.*=ROLE_USER&lt;/value&gt;
+            &lt;/property&gt;
+        &lt;/bean&gt;
+
+        &lt;!-- Service implementation --&gt;
+        &lt;bean id="serviceTarget" class="server.ServiceImpl"&gt;
+        &lt;/bean&gt;
+
+    &lt;/beans&gt;</programlisting></para>
+
+          <para>The definition of the EJB's delegate bean (xService) is actually a
+          SecurityContextExtractingProxyFactoryBean which creates a proxy that
+          takes care of extracting the SecurityContext, establishing it, and
+          delegating to the target bean (serviceTarget).</para>
+
+          <para>The "businessInterface" property is again the extended business
+          interface exposed by proxies created by the factory bean. The "target"
+          refers to the actual target bean, while the "interceptorNames" property
+          refers to a list of interceptor names which have to be defined in the
+          application context. </para>
+
+          <para>Note that the security interceptor is of type
+          "TranslatingMethodSecurityInterceptor". It is a subclass of
+          org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor
+          and additionaly wraps all security exceptions into a
+          SecurityServiceException, if possible. For its parameterization refer to
+          the documentation of MethodSecurityInterceptor.</para>
+
+          <para>The "extraArgumentPosition" and "methodRegexpPatterns" properties
+          are again optional, specifying the position of the additional
+          SecurityContext parameter and which methods will be augmented by it. It
+          is important that both properties are specified the same on client and
+          server. As recommendation just omit specifying these properties and
+          stick with the default values.</para>
+        </section>
+      </section>
+    </chapter>
+
+
   </part>
 
   <part id="authorization">
@@ -4588,26 +4981,27 @@ public boolean supports(Class clazz);</programlisting></para>
         is designed to have multiple instances in the same application
         context, such as:</para>
 
-        <para><programlisting>&lt;bean id="aclContactReadVoter" class="org.acegisecurity.vote.BasicAclEntryVoter"&gt;
+        <para><programlisting>&lt;bean id="aclContactReadVoter"
+            class="org.springframework.security.vote.BasicAclEntryVoter"&gt;
   &lt;property name="processConfigAttribute"&gt;&lt;value&gt;ACL_CONTACT_READ&lt;/value&gt;&lt;/property&gt;
   &lt;property name="processDomainObjectClass"&gt;&lt;value&gt;sample.contact.Contact&lt;/value&gt;&lt;/property&gt;
   &lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
   &lt;property name="requirePermission"&gt;
     &lt;list&gt;
-      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
-      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.READ"/&gt;
+      &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+      &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/&gt;
     &lt;/list&gt;
   &lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="aclContactDeleteVoter" class="org.acegisecurity.vote.BasicAclEntryVoter"&gt;
+&lt;bean id="aclContactDeleteVoter" class="org.springframework.security.vote.BasicAclEntryVoter"&gt;
   &lt;property name="processConfigAttribute"&gt;&lt;value&gt;ACL_CONTACT_DELETE&lt;/value&gt;&lt;/property&gt;
   &lt;property name="processDomainObjectClass"&gt;&lt;value&gt;sample.contact.Contact&lt;/value&gt;&lt;/property&gt;
   &lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
   &lt;property name="requirePermission"&gt;
     &lt;list&gt;
-      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
-      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.DELETE"/&gt;
+      &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+      &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.DELETE"/&gt;
     &lt;/list&gt;
   &lt;/property&gt;
 &lt;/bean&gt;        </programlisting></para>
@@ -4726,8 +5120,8 @@ public boolean supports(Class clazz);</programlisting></para>
           <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
           ACL module. The new ACL module is a significant rewrite of the
           existing ACL module. The new module can be found under the
-          <literal>org.acegisecurity.acls</literal> package, with the old ACL
-          module under <literal>org.acegisecurity.acl</literal>. We encourage
+          <literal>org.springframework.security.acls</literal> package, with the old ACL
+          module under <literal>org.springframework.security.acl</literal>. We encourage
           users to consider testing with the new ACL module and build
           applications with it. The old ACL module should be considered
           deprecated and may be removed from a future release. The following
@@ -4749,14 +5143,15 @@ public boolean supports(Class clazz);</programlisting></para>
           <literal>AclAfterInvocationProvider</literal> delivers a solution,
           and is configured as follows:</para>
 
-          <para><programlisting>&lt;bean id="afterAclRead" class="org.acegisecurity.afterinvocation.AclEntryAfterInvocationProvider"&gt;
+          <para><programlisting>&lt;bean id="afterAclRead"
+              class="org.springframework.security.afterinvocation.AclEntryAfterInvocationProvider"&gt;
   &lt;constructor-arg&gt;
     &lt;ref bean="aclService"/&gt;
   &lt;/constructor-arg&gt;
   &lt;constructor-arg&gt;
     &lt;list&gt;
-      &lt;ref local="org.acegisecurity.acls.domain.BasePermission.ADMINISTRATION"/&gt;
-      &lt;ref local="org.acegisecurity.acls.domain.BasePermission.READ"/&gt;
+      &lt;ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/&gt;
+      &lt;ref local="org.springframework.security.acls.domain.BasePermission.READ"/&gt;
     &lt;/list&gt;
   &lt;/constructor-arg&gt;
 &lt;/bean&gt;      </programlisting></para>
@@ -4780,14 +5175,15 @@ public boolean supports(Class clazz);</programlisting></para>
           removes the offending elements. The provider is configured as
           follows:</para>
 
-          <para><programlisting>&lt;bean id="afterAclCollectionRead" class="org.acegisecurity.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider"&gt;
+          <para><programlisting>&lt;bean id="afterAclCollectionRead"
+              class="org.springframework.security.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider"&gt;
   &lt;constructor-arg&gt;
     &lt;ref bean="aclService"/&gt;
   &lt;/constructor-arg&gt;
   &lt;constructor-arg&gt;
     &lt;list&gt;
-      &lt;ref local="org.acegisecurity.acls.domain.BasePermission.ADMINISTRATION"/&gt;
-      &lt;ref local="org.acegisecurity.acls.domain.BasePermission.READ"/&gt;
+      &lt;ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/&gt;
+      &lt;ref local="org.springframework.security.acls.domain.BasePermission.READ"/&gt;
     &lt;/list&gt;
   &lt;/constructor-arg&gt;
 &lt;/bean&gt;    </programlisting></para>
@@ -4809,8 +5205,8 @@ public boolean supports(Class clazz);</programlisting></para>
           <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
           ACL module. The new ACL module is a significant rewrite of the
           existing ACL module. The new module can be found under the
-          <literal>org.acegisecurity.acls</literal> package, with the old ACL
-          module under <literal>org.acegisecurity.acl</literal>. We encourage
+          <literal>org.springframework.security.acls</literal> package, with the old ACL
+          module under <literal>org.springframework.security.acl</literal>. We encourage
           users to consider testing with the new ACL module and build
           applications with it. The old ACL module should be considered
           deprecated and may be removed from a future release.</para>
@@ -4830,12 +5226,13 @@ public boolean supports(Class clazz);</programlisting></para>
           <literal>BasicAclAfterInvocationProvider</literal> delivers a
           solution, and is configured as follows:</para>
 
-          <para><programlisting>&lt;bean id="afterAclRead" class="org.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationProvider"&gt;
+          <para><programlisting>&lt;bean id="afterAclRead"
+              class="org.springframework.security.afterinvocation.BasicAclEntryAfterInvocationProvider"&gt;
   &lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
   &lt;property name="requirePermission"&gt;
     &lt;list&gt;
-      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
-      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.READ"/&gt;
+      &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+      &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/&gt;
     &lt;/list&gt;
   &lt;/property&gt;
 &lt;/bean&gt;       </programlisting></para>
@@ -4859,12 +5256,13 @@ public boolean supports(Class clazz);</programlisting></para>
           removes the offending elements. The provider is configured as
           follows:</para>
 
-          <para><programlisting>&lt;bean id="afterAclCollectionRead" class="org.acegisecurity.afterinvocation.BasicAclEntryAfterInvocationCollectionFilteringProvider"&gt;
+          <para><programlisting>&lt;bean id="afterAclCollectionRead"
+              class="org.springframework.security.afterinvocation.BasicAclEntryAfterInvocationCollectionFilteringProvider"&gt;
   &lt;property name="aclManager"&gt;&lt;ref local="aclManager"/&gt;&lt;/property&gt;
   &lt;property name="requirePermission"&gt;
     &lt;list&gt;
-      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
-      &lt;ref local="org.acegisecurity.acl.basic.SimpleAclEntry.READ"/&gt;
+      &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.ADMINISTRATION"/&gt;
+      &lt;ref local="org.springframework.security.acl.basic.SimpleAclEntry.READ"/&gt;
     &lt;/list&gt;
   &lt;/property&gt;
 &lt;/bean&gt;       </programlisting></para>
@@ -4994,7 +5392,8 @@ public boolean supports(Class clazz);</programlisting></para>
         <literal>MethodSecurityInterceptor</literal> itself is configured as
         follows:</para>
 
-        <programlisting>&lt;bean id="bankManagerSecurity" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
+        <programlisting>&lt;bean id="bankManagerSecurity"
+            class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
   &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;true&lt;/value&gt;&lt;/property&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
@@ -5002,9 +5401,9 @@ public boolean supports(Class clazz);</programlisting></para>
   &lt;property name="afterInvocationManager"&gt;&lt;ref bean="afterInvocationManager"/&gt;&lt;/property&gt;
   &lt;property name="objectDefinitionSource"&gt;
     &lt;value&gt;
-      org.acegisecurity.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
-      org.acegisecurity.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
-    &lt;/value&gt;
+            org.springframework.security.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
+            org.springframework.security.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
+            &lt;/value&gt;
   &lt;/property&gt;
 &lt;/bean&gt;        </programlisting>
 
@@ -5057,11 +5456,13 @@ public boolean supports(Class clazz);</programlisting></para>
         bean context will be configured differently:</para>
 
         <programlisting>&lt;bean id="attributes" class="org.springframework.metadata.commons.CommonsAttributes"/&gt;
-&lt;bean id="objectDefinitionSource" class="org.acegisecurity.intercept.method.MethodDefinitionAttributes"&gt;
+&lt;bean id="objectDefinitionSource"
+            class="org.springframework.security.intercept.method.MethodDefinitionAttributes"&gt;
   &lt;property name="attributes"&gt;&lt;ref local="attributes"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="bankManagerSecurity" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
+&lt;bean id="bankManagerSecurity"
+            class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
   &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
@@ -5103,12 +5504,15 @@ public boolean supports(Class clazz);</programlisting></para>
         <para>If you are using the Acegi Security Java 5 Annotations approach,
         your bean context will be configured as follows:</para>
 
-        <programlisting>&lt;bean id="attributes" class="org.acegisecurity.annotation.SecurityAnnotationAttributes"/&gt;
-&lt;bean id="objectDefinitionSource" class="org.acegisecurity.intercept.method.MethodDefinitionAttributes"&gt;
+        <programlisting>&lt;bean id="attributes"
+            class="org.springframework.security.annotation.SecurityAnnotationAttributes"/&gt;
+&lt;bean id="objectDefinitionSource"
+            class="org.springframework.security.intercept.method.MethodDefinitionAttributes"&gt;
   &lt;property name="attributes"&gt;&lt;ref local="attributes"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="bankManagerSecurity" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
+&lt;bean id="bankManagerSecurity"
+            class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor"&gt;
   &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
@@ -5123,9 +5527,9 @@ public boolean supports(Class clazz);</programlisting></para>
         security configuration as provided by the property editor
         approach:</para>
 
-        <programlisting>import org.acegisecurity.annotation.Secured;
+        <programlisting>import org.springframework.security.annotation.Secured;
 
-public interface BankManager {
+            public interface BankManager {
 
     /**
      * Delete something
@@ -5204,7 +5608,8 @@ public interface BankManager {
         <literal>AspectJSecurityInterceptor</literal> is configured in the
         Spring application context:</para>
 
-        <programlisting>&lt;bean id="bankManagerSecurity" class="org.acegisecurity.intercept.method.aspectj.AspectJSecurityInterceptor"&gt;
+        <programlisting>&lt;bean id="bankManagerSecurity"
+            class="org.springframework.security.intercept.method.aspectj.AspectJSecurityInterceptor"&gt;
   &lt;property name="validateConfigAttributes"&gt;&lt;value&gt;true&lt;/value&gt;&lt;/property&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
@@ -5212,9 +5617,9 @@ public interface BankManager {
   &lt;property name="afterInvocationManager"&gt;&lt;ref bean="afterInvocationManager"/&gt;&lt;/property&gt;
   &lt;property name="objectDefinitionSource"&gt;
     &lt;value&gt;
-      org.acegisecurity.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
-      org.acegisecurity.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
-    &lt;/value&gt;
+            org.springframework.security.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
+            org.springframework.security.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
+            &lt;/value&gt;
   &lt;/property&gt;
 &lt;/bean&gt;        </programlisting>
 
@@ -5233,11 +5638,11 @@ public interface BankManager {
         <para>Next you'll need to define an AspectJ <literal>aspect</literal>.
         For example:</para>
 
-        <programlisting>package org.acegisecurity.samples.aspectj;
+        <programlisting>package org.springframework.security.samples.aspectj;
 
-import org.acegisecurity.intercept.method.aspectj.AspectJSecurityInterceptor;
-import org.acegisecurity.intercept.method.aspectj.AspectJCallback;
-import org.springframework.beans.factory.InitializingBean;
+            import org.springframework.security.intercept.method.aspectj.AspectJSecurityInterceptor;
+            import org.springframework.security.intercept.method.aspectj.AspectJCallback;
+            import org.springframework.beans.factory.InitializingBean;
 
 public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 
@@ -5290,8 +5695,8 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 
         <programlisting>
 &lt;bean id="domainObjectInstanceSecurityAspect"
-    class="org.acegisecurity.samples.aspectj.DomainObjectInstanceSecurityAspect"
-    factory-method="aspectOf"&gt;
+            class="org.springframework.security.samples.aspectj.DomainObjectInstanceSecurityAspect"
+            factory-method="aspectOf"&gt;
   &lt;property name="securityInterceptor"&gt;&lt;ref bean="aspectJSecurityInterceptor"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
@@ -5313,10 +5718,10 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 
         <programlisting>&lt;filter&gt;
   &lt;filter-name&gt;Acegi HTTP Request Security Filter&lt;/filter-name&gt;
-  &lt;filter-class&gt;org.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;
+  &lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
-    &lt;param-value&gt;org.acegisecurity.intercept.web.FilterSecurityInterceptor&lt;/param-value&gt;
+    &lt;param-value&gt;org.springframework.security.intercept.web.FilterSecurityInterceptor&lt;/param-value&gt;
   &lt;/init-param&gt;
 &lt;/filter&gt;
 
@@ -5333,16 +5738,19 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <para>In the application context you will need to configure three
         beans:</para>
 
-        <programlisting>&lt;bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter"&gt;
+        <programlisting>&lt;bean id="exceptionTranslationFilter"
+            class="org.springframework.security.ui.ExceptionTranslationFilter"&gt;
   &lt;property name="authenticationEntryPoint"&gt;&lt;ref local="authenticationEntryPoint"/&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="authenticationEntryPoint" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint"&gt;
+&lt;bean id="authenticationEntryPoint"
+            class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint"&gt;
   &lt;property name="loginFormUrl"&gt;&lt;value&gt;/acegilogin.jsp&lt;/value&gt;&lt;/property&gt;
   &lt;property name="forceHttps"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
-&lt;bean id="filterSecurityInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
+&lt;bean id="filterSecurityInterceptor"
+            class="org.springframework.security.intercept.web.FilterSecurityInterceptor"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
   &lt;property name="objectDefinitionSource"&gt;
@@ -5431,7 +5839,8 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         earlier configuration could be generated using Apache Ant paths as
         follows:</para>
 
-        <programlisting>&lt;bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor"&gt;
+        <programlisting>&lt;bean id="filterInvocationInterceptor"
+            class="org.springframework.security.intercept.web.FilterSecurityInterceptor"&gt;
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="accessDecisionManager"&gt;&lt;ref bean="accessDecisionManager"/&gt;&lt;/property&gt;
   &lt;property name="runAsManager"&gt;&lt;ref bean="runAsManager"/&gt;&lt;/property&gt;
@@ -5486,8 +5895,8 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
         ACL module. The new ACL module is a significant rewrite of the
         existing ACL module. The new module can be found under the
-        <literal>org.acegisecurity.acls</literal> package, with the old ACL
-        module under <literal>org.acegisecurity.acl</literal>. We encourage
+        <literal>org.springframework.security.acls</literal> package, with the old ACL
+        module under <literal>org.springframework.security.acl</literal>. We encourage
         users to consider testing with the new ACL module and build
         applications with it. The old ACL module should be considered
         deprecated and may be removed from a future release.</para>
@@ -5572,7 +5981,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
       <section id="domain-acls-key-concepts">
         <title>Key Concepts</title>
 
-        <para>The org.acegisecurity.acls package should be consulted for its
+        <para>The org.springframework.security.acls package should be consulted for its
         major interfaces. The key interfaces are:</para>
 
         <itemizedlist spacing="compact">
@@ -5662,8 +6071,8 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <para>PLEASE NOTE: Acegi Security 1.0.3 contains a preview of a new
         ACL module. The new ACL module is a significant rewrite of the
         existing ACL module. The new module can be found under the
-        <literal>org.acegisecurity.acls</literal> package, with the old ACL
-        module under <literal>org.acegisecurity.acl</literal>. We encourage
+        <literal>org.springframework.security.acls</literal> package, with the old ACL
+        module under <literal>org.springframework.security.acl</literal>. We encourage
         users to consider testing with the new ACL module and build
         applications with it. The old ACL module should be considered
         deprecated and may be removed from a future release.</para>
@@ -5755,7 +6164,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         in the planning stages. The Basic ACL services will be deprecated from
         release 1.1.0.</para>
 
-        <para>The <literal>org.acegisecurity.acl</literal> package is very
+        <para>The <literal>org.springframework.security.acl</literal> package is very
         simple, comprising only a handful of interfaces and a single class, as
         shown in Figure 6. It provides the basic foundation for access control
         list (ACL) lookups.</para>
@@ -5800,7 +6209,7 @@ public AclEntry[] getAcls(java.lang.Object domainInstance, Authentication authen
         need to provide an implementation that reflects that ACL permissions
         for your application.</para>
 
-        <para>Rounding out the <literal>org.acegisecurity.acl</literal>
+        <para>Rounding out the <literal>org.springframework.security.acl</literal>
         package is an <literal>AclProviderManager</literal> class, with a
         corresponding <literal>AclProvider</literal> interface.
         <literal>AclProviderManager</literal> is a concrete implementation of
@@ -5835,7 +6244,7 @@ public AclEntry[] getAcls(java.lang.Object domainInstance, Authentication authen
         all about this type of permission masking (eg <literal>chmod
         777</literal>). You'll find the classes and interfaces for the integer
         masking ACL package under
-        <literal>org.acegisecurity.acl.basic</literal>.</para>
+        <literal>org.springframework.security.acl.basic</literal>.</para>
 
         <para>Extending the <literal>AclEntry</literal> interface is a
         <literal>BasicAclEntry</literal> interface, with the main methods
@@ -5926,14 +6335,20 @@ CREATE TABLE acl_permission (
      FOREIGN KEY (acl_object_identity) REFERENCES acl_object_identity(id)
 );
 
-INSERT INTO acl_object_identity VALUES (1, 'corp.DomainObject:1', null, 'org.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acl_object_identity VALUES (2, 'corp.DomainObject:2', 1, 'org.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acl_object_identity VALUES (3, 'corp.DomainObject:3', 1, 'org.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acl_object_identity VALUES (4, 'corp.DomainObject:4', 1, 'org.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acl_object_identity VALUES (5, 'corp.DomainObject:5', 3, 'org.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acl_object_identity VALUES (6, 'corp.DomainObject:6', 3, 'org.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (1, 'corp.DomainObject:1', null,
+            'org.springframework.security.acl.basic.SimpleAclEntry');
+            INSERT INTO acl_object_identity VALUES (2, 'corp.DomainObject:2', 1,
+            'org.springframework.security.acl.basic.SimpleAclEntry');
+            INSERT INTO acl_object_identity VALUES (3, 'corp.DomainObject:3', 1,
+            'org.springframework.security.acl.basic.SimpleAclEntry');
+            INSERT INTO acl_object_identity VALUES (4, 'corp.DomainObject:4', 1,
+            'org.springframework.security.acl.basic.SimpleAclEntry');
+            INSERT INTO acl_object_identity VALUES (5, 'corp.DomainObject:5', 3,
+            'org.springframework.security.acl.basic.SimpleAclEntry');
+            INSERT INTO acl_object_identity VALUES (6, 'corp.DomainObject:6', 3,
+            'org.springframework.security.acl.basic.SimpleAclEntry');
 
-INSERT INTO acl_permission VALUES (null, 1, 'ROLE_SUPERVISOR', 1);
+            INSERT INTO acl_permission VALUES (null, 1, 'ROLE_SUPERVISOR', 1);
 INSERT INTO acl_permission VALUES (null, 2, 'ROLE_SUPERVISOR', 0);
 INSERT INTO acl_permission VALUES (null, 2, 'marissa', 2);
 INSERT INTO acl_permission VALUES (null, 3, 'scott', 14);
@@ -5982,7 +6397,7 @@ BEGIN
   SELECT ACL_PERMISSION_SEQ.NEXTVAL INTO :new.id FROM dual;
 END;
 
-&lt;bean id="basicAclExtendedDao" class="org.acegisecurity.acl.basic.jdbc.JdbcExtendedDaoImpl"&gt;
+&lt;bean id="basicAclExtendedDao" class="org.springframework.security.acl.basic.jdbc.JdbcExtendedDaoImpl"&gt;
     &lt;property name="dataSource"&gt;
         &lt;ref bean="dataSource"/&gt;
     &lt;/property&gt;
@@ -6173,15 +6588,17 @@ END;
 
         <blockquote>
           <para>Context on SecurityContextHolder is of type:
-          org.acegisecurity.context.SecurityContextImpl</para>
+              org.springframework.security.context.SecurityContextImpl
+          </para>
 
           <para>The Context implements SecurityContext.</para>
 
           <para>Authentication object is of type:
-          org.acegisecurity.adapters.PrincipalAcegiUserToken</para>
+              org.springframework.security.adapters.PrincipalAcegiUserToken
+          </para>
 
           <para>Authentication object as a String:
-          org.acegisecurity.adapters.PrincipalAcegiUserToken@e9a7c2: Username:
+              org.springframework.security.adapters.PrincipalAcegiUserToken@e9a7c2: Username:
           marissa; Password: [PROTECTED]; Authenticated: true; Granted
           Authorities: ROLE_TELLER, ROLE_SUPERVISOR</para>
 

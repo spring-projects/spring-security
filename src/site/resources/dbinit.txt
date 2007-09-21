@@ -76,12 +76,12 @@ CREATE TABLE acl_permission (
 ---           scott             Administer (overrides parent #3)
 ---------------------------------------------------------------------
 
-INSERT INTO acl_object_identity VALUES (1, 'org.acegisecurity.acl.DomainObject:1', null, 'org.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acl_object_identity VALUES (2, 'org.acegisecurity.acl.DomainObject:2', 1, 'org.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acl_object_identity VALUES (3, 'org.acegisecurity.acl.DomainObject:3', 1, 'org.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acl_object_identity VALUES (4, 'org.acegisecurity.acl.DomainObject:4', 1, 'org.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acl_object_identity VALUES (5, 'org.acegisecurity.acl.DomainObject:5', 3, 'org.acegisecurity.acl.basic.SimpleAclEntry');
-INSERT INTO acl_object_identity VALUES (6, 'org.acegisecurity.acl.DomainObject:6', 3, 'org.acegisecurity.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (1, 'org.springframework.security.acl.DomainObject:1', null, 'org.springframework.security.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (2, 'org.springframework.security.acl.DomainObject:2', 1, 'org.springframework.security.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (3, 'org.springframework.security.acl.DomainObject:3', 1, 'org.springframework.security.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (4, 'org.springframework.security.acl.DomainObject:4', 1, 'org.springframework.security.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (5, 'org.springframework.security.acl.DomainObject:5', 3, 'org.springframework.security.acl.basic.SimpleAclEntry');
+INSERT INTO acl_object_identity VALUES (6, 'org.springframework.security.acl.DomainObject:6', 3, 'org.springframework.security.acl.basic.SimpleAclEntry');
 
 INSERT INTO acl_permission VALUES (null, 1, 'ROLE_SUPERVISOR', 1);
 INSERT INTO acl_permission VALUES (null, 2, 'ROLE_SUPERVISOR', 0);
