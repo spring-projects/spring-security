@@ -36,13 +36,13 @@ import java.util.HashSet;
  * @author Ben Alex
  * @version $Id$
  */
-public class JdbcDaoTests extends TestCase {
+public class JdbcDaoImplTests extends TestCase {
     //~ Constructors ===================================================================================================
 
-    public JdbcDaoTests() {
+    public JdbcDaoImplTests() {
     }
 
-    public JdbcDaoTests(String arg0) {
+    public JdbcDaoImplTests(String arg0) {
         super(arg0);
     }
 
@@ -56,8 +56,7 @@ public class JdbcDaoTests extends TestCase {
         return dao;
     }
 
-    private JdbcDaoImpl makePopulatedJdbcDaoWithRolePrefix()
-        throws Exception {
+    private JdbcDaoImpl makePopulatedJdbcDaoWithRolePrefix() throws Exception {
         JdbcDaoImpl dao = new JdbcDaoImpl();
         dao.setDataSource(PopulatedDatabase.getDataSource());
         dao.setRolePrefix("ARBITRARY_PREFIX_");
