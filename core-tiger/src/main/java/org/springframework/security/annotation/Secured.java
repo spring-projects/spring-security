@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.annotation;
+package org.springframework.security.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -24,21 +24,21 @@ import java.lang.annotation.Target;
 
 /**
  * Java 5 annotation for describing service layer security attributes.
- * 
- * <p>The <code>Secured</code> annotation is used to define a list of security 
- * configuration attributes for business methods.  This annotation can be used 
+ *
+ * <p>The <code>Secured</code> annotation is used to define a list of security
+ * configuration attributes for business methods.  This annotation can be used
  * as a Java 5 alternative to XML configuration.
  * <p>For example:
  * <pre>
  *     &#64;Secured ({"ROLE_USER"})
  *     public void create(Contact contact);
- *     
+ *
  *     &#64;Secured ({"ROLE_USER", "ROLE_ADMIN"})
  *     public void update(Contact contact);
- *     
+ *
  *     &#64;Secured ({"ROLE_ADMIN"})
  *     public void delete(Contact contact);
- * </pre> 
+ * </pre>
  * @author Mark St.Godard
  * @version $Id$
  */
@@ -48,9 +48,9 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Secured {
 /**
-     * Returns the list of security configuration attributes. 
+     * Returns the list of security configuration attributes.
      *   (i.e. ROLE_USER, ROLE_ADMIN etc.)
-     * @return String[] The secure method attributes 
+     * @return String[] The secure method attributes
      */
     public String[] value();
 }

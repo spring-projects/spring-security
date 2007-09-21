@@ -13,16 +13,35 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.annotation.test;
+package org.springframework.security.annotation.test;
+
+import java.util.Collection;
+
 
 /**
  * DOCUMENT ME!
  *
  * @author $author$
  * @version $Revision: 1496 $
-  */
-public interface OrganisationService extends Service<Organisation> {
+  *
+ * @param <E> DOCUMENT ME!
+ */
+public class ServiceImpl<E extends Entity> implements Service<E> {
     //~ Methods ========================================================================================================
 
-    public void deactive(Organisation org);
+    public int countElements(Collection<E> ids) {
+        return 0;
+    }
+
+    public void makeLowerCase(E input) {
+        input.makeLowercase();
+    }
+
+    public void makeUpperCase(E input) {
+        input.makeUppercase();
+    }
+
+    public void publicMakeLowerCase(E input) {
+        input.makeUppercase();
+    }
 }

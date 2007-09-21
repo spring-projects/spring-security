@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.annotation;
+package org.springframework.security.annotation;
 
 /**
  * DOCUMENT ME!

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.annotation.test;
+package org.springframework.security.annotation.test;
 
 import org.springframework.util.Assert;
 

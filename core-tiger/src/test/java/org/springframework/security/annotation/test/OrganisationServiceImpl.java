@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.annotation.test;
+package org.springframework.security.annotation.test;
 
 /**
  * DOCUMENT ME!
@@ -21,10 +21,10 @@ package org.acegisecurity.annotation.test;
  * @author $author$
  * @version $Revision: 1496 $
   */
-public class PersonServiceImpl extends ServiceImpl<Person> implements PersonService {
+public class OrganisationServiceImpl extends ServiceImpl<Organisation> implements OrganisationService {
     //~ Methods ========================================================================================================
 
-    public void deactive(Person person) {
-        person.deactive();
+    public void deactive(Organisation org) {
+        org.deactive();
     }
 }

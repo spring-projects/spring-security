@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.annotation.test;
+package org.springframework.security.annotation.test;
 
 /**
  * An extended version of <code>Entity</code>.
@@ -21,14 +21,14 @@ package org.acegisecurity.annotation.test;
  * @author Ben Alex
  * @version $Id$
  */
-public class Person extends Entity {
+public class Organisation extends Entity {
     //~ Instance fields ================================================================================================
 
     private boolean active = true;
 
     //~ Constructors ===================================================================================================
 
-    public Person(String name) {
+    public Organisation(String name) {
         super(name);
     }
 

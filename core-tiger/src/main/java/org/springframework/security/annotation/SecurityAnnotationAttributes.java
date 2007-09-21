@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.acegisecurity.annotation;
+package org.springframework.security.annotation;
 
-import org.acegisecurity.SecurityConfig;
+import org.springframework.security.SecurityConfig;
 
 import org.springframework.metadata.Attributes;
 
@@ -35,11 +35,11 @@ import java.util.Set;
  * <code>Secured</code> Java 5 annotation.</p>
  *  <p>The <code>SecurityAnnotationAttributes</code> implementation can be used to configure a
  * <code>MethodDefinitionAttributes</code> and  <code>MethodSecurityInterceptor</code> bean definition (see below).</p>
- *  <p>For example:<pre>&lt;bean id="attributes" 
- *     class="org.acegisecurity.annotation.SecurityAnnotationAttributes"/>&lt;bean id="objectDefinitionSource" 
- *     class="org.acegisecurity.intercept.method.MethodDefinitionAttributes">    &lt;property name="attributes">
- *         &lt;ref local="attributes"/>    &lt;/property>&lt;/bean>&lt;bean id="securityInterceptor" 
- *     class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">     . . .
+ *  <p>For example:<pre>&lt;bean id="attributes"
+ *     class="org.springframework.security.annotation.SecurityAnnotationAttributes"/>&lt;bean id="objectDefinitionSource"
+ *     class="org.springframework.security.intercept.method.MethodDefinitionAttributes">    &lt;property name="attributes">
+ *         &lt;ref local="attributes"/>    &lt;/property>&lt;/bean>&lt;bean id="securityInterceptor"
+ *     class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">     . . .
  *      &lt;property name="objectDefinitionSource">         &lt;ref local="objectDefinitionSource"/>     &lt;/property>
  * &lt;/bean></pre></p>
  *  <p>These security annotations are similiar to the Commons Attributes approach, however they are using Java 5
@@ -50,7 +50,7 @@ import java.util.Set;
  * @author Mark St.Godard
  * @version $Id$
  *
- * @see org.acegisecurity.annotation.Secured
+ * @see org.springframework.security.annotation.Secured
  */
 public class SecurityAnnotationAttributes implements Attributes {
     //~ Methods ========================================================================================================

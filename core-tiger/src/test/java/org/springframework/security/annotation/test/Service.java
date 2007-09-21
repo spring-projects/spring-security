@@ -13,16 +13,25 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.annotation.test;
+package org.springframework.security.annotation.test;
+
+import java.util.Collection;
+
 
 /**
- * DOCUMENT ME!
+ * An interface that uses Java 5 generics.
  *
- * @author $author$
- * @version $Revision: 1496 $
-  */
-public interface PersonService extends Service<Person> {
+ * @author Ben Alex
+ * @version $Id$
+ */
+public interface Service<E extends Entity> {
     //~ Methods ========================================================================================================
 
-    public void deactive(Person person);
+    public int countElements(Collection<E> ids);
+
+    public void makeLowerCase(E input);
+
+    public void makeUpperCase(E input);
+
+    public void publicMakeLowerCase(E input);
 }

@@ -13,18 +13,32 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.annotation.test;
+package org.springframework.security.annotation.test;
 
 /**
- * DOCUMENT ME!
+ * An extended version of <code>Entity</code>.
  *
- * @author $author$
- * @version $Revision: 1496 $
-  */
-public class OrganisationServiceImpl extends ServiceImpl<Organisation> implements OrganisationService {
+ * @author Ben Alex
+ * @version $Id$
+ */
+public class Person extends Entity {
+    //~ Instance fields ================================================================================================
+
+    private boolean active = true;
+
+    //~ Constructors ===================================================================================================
+
+    public Person(String name) {
+        super(name);
+    }
+
     //~ Methods ========================================================================================================
 
-    public void deactive(Organisation org) {
-        org.deactive();
+    void deactive() {
+        this.active = true;
+    }
+
+    public boolean isActive() {
+        return this.active;
     }
 }

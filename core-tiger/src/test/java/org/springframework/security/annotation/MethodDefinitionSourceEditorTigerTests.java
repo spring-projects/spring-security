@@ -13,23 +13,23 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.annotation;
+package org.springframework.security.annotation;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
 
-import org.acegisecurity.ConfigAttributeDefinition;
-import org.acegisecurity.SecurityConfig;
-import org.acegisecurity.annotation.test.Entity;
-import org.acegisecurity.annotation.test.OrganisationService;
-import org.acegisecurity.annotation.test.PersonService;
-import org.acegisecurity.annotation.test.PersonServiceImpl;
-import org.acegisecurity.annotation.test.Service;
-import org.acegisecurity.annotation.test.ServiceImpl;
-import org.acegisecurity.intercept.method.MethodDefinitionMap;
-import org.acegisecurity.intercept.method.MethodDefinitionSourceEditor;
+import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.SecurityConfig;
+import org.springframework.security.annotation.test.Entity;
+import org.springframework.security.annotation.test.OrganisationService;
+import org.springframework.security.annotation.test.PersonService;
+import org.springframework.security.annotation.test.PersonServiceImpl;
+import org.springframework.security.annotation.test.Service;
+import org.springframework.security.annotation.test.ServiceImpl;
+import org.springframework.security.intercept.method.MethodDefinitionMap;
+import org.springframework.security.intercept.method.MethodDefinitionSourceEditor;
 import org.aopalliance.intercept.MethodInvocation;
 
 
@@ -64,7 +64,7 @@ public class MethodDefinitionSourceEditorTigerTests extends TestCase {
         throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "org.acegisecurity.annotation.test.Service.makeLower*=ROLE_FROM_INTERFACE\r\norg.acegisecurity.annotation.test.Service.makeUpper*=ROLE_FROM_INTERFACE\r\norg.acegisecurity.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
+            "org.springframework.security.annotation.test.Service.makeLower*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.Service.makeUpper*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         assertEquals(3, map.getMethodMapSize());
@@ -87,7 +87,7 @@ public class MethodDefinitionSourceEditorTigerTests extends TestCase {
         throws Exception {
         MethodDefinitionSourceEditor editor = new MethodDefinitionSourceEditor();
         editor.setAsText(
-            "org.acegisecurity.annotation.test.Service.makeLower*=ROLE_FROM_INTERFACE\r\norg.acegisecurity.annotation.test.Service.makeUpper*=ROLE_FROM_INTERFACE\r\norg.acegisecurity.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
+            "org.springframework.security.annotation.test.Service.makeLower*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.Service.makeUpper*=ROLE_FROM_INTERFACE\r\norg.springframework.security.annotation.test.ServiceImpl.makeUpper*=ROLE_FROM_IMPLEMENTATION");
 
         MethodDefinitionMap map = (MethodDefinitionMap) editor.getValue();
         assertEquals(3, map.getMethodMapSize());

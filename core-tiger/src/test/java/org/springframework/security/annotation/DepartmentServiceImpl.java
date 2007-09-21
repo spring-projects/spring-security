@@ -1,4 +1,4 @@
-package org.acegisecurity.annotation;
+package org.springframework.security.annotation;
 
 /**
  * @author Joe Scalise

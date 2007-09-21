@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.acegisecurity.annotation;
+package org.springframework.security.annotation;
 
 import junit.framework.TestCase;
 
-import org.acegisecurity.SecurityConfig;
+import org.springframework.security.SecurityConfig;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,7 +30,7 @@ import java.util.Collection;
 
 
 /**
- * Tests for {@link org.acegisecurity.annotation.SecurityAnnotationAttributes}
+ * Tests for {@link org.springframework.security.annotation.SecurityAnnotationAttributes}
  *
  * @author Mark St.Godard
  * @author Joe Scalise
@@ -118,7 +118,7 @@ public class SecurityAnnotationAttributesTests extends TestCase {
         // expect 1 annotation
         assertTrue(attrs.size() == 1);
 
-        // should have 1 SecurityConfig 
+        // should have 1 SecurityConfig
         SecurityConfig sc = (SecurityConfig) attrs.iterator().next();
 
         assertTrue(sc.getAttribute().equals("ROLE_USER"));
@@ -166,7 +166,7 @@ public class SecurityAnnotationAttributesTests extends TestCase {
         boolean user = false;
         boolean admin = false;
 
-        // should have 2 SecurityConfigs 
+        // should have 2 SecurityConfigs
         for (Object obj : attrs) {
             assertTrue(obj instanceof SecurityConfig);
 
