@@ -12,17 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.acegisecurity.providers.openid;
+package org.springframework.security.providers.openid;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.BadCredentialsException;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationServiceException;
+import org.springframework.security.BadCredentialsException;
 
-import org.acegisecurity.providers.AuthenticationProvider;
-import org.acegisecurity.providers.cas.CasAuthoritiesPopulator;
+import org.springframework.security.providers.AuthenticationProvider;
+import org.springframework.security.providers.cas.CasAuthoritiesPopulator;
 
-import org.acegisecurity.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetails;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -46,7 +46,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
     }
 
     /* (non-Javadoc)
-     * @see org.acegisecurity.providers.AuthenticationProvider#authenticate(org.acegisecurity.Authentication)
+     * @see org.springframework.security.providers.AuthenticationProvider#authenticate(org.springframework.security.Authentication)
      */
     public Authentication authenticate(Authentication authentication)
         throws AuthenticationException {
@@ -97,7 +97,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
     }
 
     /* (non-Javadoc)
-     * @see org.acegisecurity.providers.AuthenticationProvider#supports(java.lang.Class)
+     * @see org.springframework.security.providers.AuthenticationProvider#supports(java.lang.Class)
      */
     public boolean supports(Class authentication) {
         return OpenIDAuthenticationToken.class.isAssignableFrom(authentication);

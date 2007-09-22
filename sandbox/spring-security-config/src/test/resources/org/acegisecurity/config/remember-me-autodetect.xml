@@ -37,7 +37,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 	<security:authentication-repository id="authenticationRepository" />
 
 	<bean id="userDetailsService"
-		class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
+		class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
 		<property name="dataSource">
 			<ref bean="dataSource" />
 		</property>

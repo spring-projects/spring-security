@@ -12,15 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.acegisecurity.providers.openid;
+package org.springframework.security.providers.openid;
 
 import junit.framework.TestCase;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.BadCredentialsException;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationServiceException;
+import org.springframework.security.BadCredentialsException;
 
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 
 /**
@@ -36,7 +36,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
     //~ Methods ========================================================================================================
 
     /*
-     * Test method for 'org.acegisecurity.providers.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
+     * Test method for 'org.springframework.security.providers.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
      */
     public void testAuthenticateCancel() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
@@ -55,7 +55,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
     }
 
     /*
-     * Test method for 'org.acegisecurity.providers.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
+     * Test method for 'org.springframework.security.providers.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
      */
     public void testAuthenticateError() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
@@ -74,7 +74,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
     }
 
     /*
-     * Test method for 'org.acegisecurity.providers.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
+     * Test method for 'org.springframework.security.providers.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
      */
     public void testAuthenticateFailure() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
@@ -93,7 +93,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
     }
 
     /*
-     * Test method for 'org.acegisecurity.providers.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
+     * Test method for 'org.springframework.security.providers.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
      */
     public void testAuthenticateSetupNeeded() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
@@ -112,7 +112,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
     }
 
     /*
-     * Test method for 'org.acegisecurity.providers.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
+     * Test method for 'org.springframework.security.providers.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
      */
     public void testAuthenticateSuccess() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
@@ -147,7 +147,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
     }
 
     /*
-     * Test method for 'org.acegisecurity.providers.openid.OpenIDAuthenticationProvider.supports(Class)'
+     * Test method for 'org.springframework.security.providers.openid.OpenIDAuthenticationProvider.supports(Class)'
      */
     public void testDoesntSupport() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
@@ -157,7 +157,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
     }
 
     /*
-     * Test method for 'org.acegisecurity.providers.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
+     * Test method for 'org.springframework.security.providers.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
      */
     public void testIgnoresUserPassAuthToken() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
@@ -168,7 +168,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
     }
 
     /*
-     * Test method for 'org.acegisecurity.providers.openid.OpenIDAuthenticationProvider.supports(Class)'
+     * Test method for 'org.springframework.security.providers.openid.OpenIDAuthenticationProvider.supports(Class)'
      */
     public void testSupports() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();

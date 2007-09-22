@@ -91,7 +91,7 @@
 		type="RememberMeFilter">
 		<xsd:annotation>
 			<xsd:documentation
-				source="org.acegisecurity.ui.rememberme.RememberMeProcessingFilter">
+				source="org.springframework.security.ui.rememberme.RememberMeProcessingFilter">
 				<![CDATA[
 	makes the filter, but does little else, as it auto-detects everything
 				]]>
@@ -243,10 +243,10 @@
 		type="AuthenticationManager">
 		<xsd:annotation>
 			<xsd:documentation
-				source="org.acegisecurity.providers.ProviderManager">
+				source="org.springframework.security.providers.ProviderManager">
 				<![CDATA[
-				Resolves to 'org.acegisecurity.providers.ProviderManager'
-				]]>
+				Resolves to 'org.springframework.security.providers.ProviderManager'
+                                                ]]>
 			</xsd:documentation>
 		</xsd:annotation>
 	</xsd:element>
@@ -272,7 +272,7 @@
 	<xsd:element name="authentication-jdbc">
 		<xsd:annotation>
 			<xsd:documentation
-				source="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
+				source="org.springframework.security.providers.dao.DaoAuthenticationProvider">
 				<![CDATA[
 				if not specified will be auto-tetected from the ApplicationContext and tried in order 
 				]]>
@@ -286,7 +286,7 @@
 	<xsd:element name="authentication-ldap">
 		<xsd:annotation>
 			<xsd:documentation
-				source="org.acegisecurity.providers.ldap.LdapAuthenticationProvider">
+				source="org.springframework.security.providers.ldap.LdapAuthenticationProvider">
 				<![CDATA[
 				if not specified will be auto-tetected from the ApplicationContext and tried in order 
 				]]>

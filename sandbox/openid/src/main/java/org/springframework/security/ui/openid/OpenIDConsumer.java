@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.acegisecurity.ui.openid;
+package org.springframework.security.ui.openid;
 
-import org.acegisecurity.providers.openid.OpenIDAuthenticationToken;
+import org.springframework.security.providers.openid.OpenIDAuthenticationToken;
 
 import javax.servlet.http.HttpServletRequest;
 

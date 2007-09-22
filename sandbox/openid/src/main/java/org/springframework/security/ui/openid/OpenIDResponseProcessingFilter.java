@@ -12,16 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.acegisecurity.ui.openid;
+package org.springframework.security.ui.openid;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationServiceException;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationServiceException;
 
-import org.acegisecurity.providers.openid.OpenIDAuthenticationToken;
+import org.springframework.security.providers.openid.OpenIDAuthenticationToken;
 
-import org.acegisecurity.ui.AbstractProcessingFilter;
-import org.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
+import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -40,7 +40,7 @@ public class OpenIDResponseProcessingFilter extends AbstractProcessingFilter {
     //~ Methods ========================================================================================================
 
     /* (non-Javadoc)
-     * @see org.acegisecurity.ui.AbstractProcessingFilter#attemptAuthentication(javax.servlet.http.HttpServletRequest)
+     * @see org.springframework.security.ui.AbstractProcessingFilter#attemptAuthentication(javax.servlet.http.HttpServletRequest)
      * @Override
      */
     public Authentication attemptAuthentication(HttpServletRequest req)
@@ -65,7 +65,7 @@ public class OpenIDResponseProcessingFilter extends AbstractProcessingFilter {
     }
 
     /* (non-Javadoc)
-     * @see org.acegisecurity.ui.AbstractProcessingFilter#getDefaultFilterProcessesUrl()
+     * @see org.springframework.security.ui.AbstractProcessingFilter#getDefaultFilterProcessesUrl()
      * @Override
      */
     public String getDefaultFilterProcessesUrl() {

@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.acegisecurity.providers.openid;
+package org.springframework.security.providers.openid;
 
-import org.acegisecurity.GrantedAuthority;
+import org.springframework.security.GrantedAuthority;
 
-import org.acegisecurity.providers.AbstractAuthenticationToken;
+import org.springframework.security.providers.AbstractAuthenticationToken;
 
 
 /**
@@ -61,7 +61,7 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
     //~ Methods ========================================================================================================
 
     /* (non-Javadoc)
-     * @see org.acegisecurity.Authentication#getCredentials()
+     * @see org.springframework.security.Authentication#getCredentials()
      */
     public Object getCredentials() {
         return null;
@@ -76,7 +76,7 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
     }
 
     /* (non-Javadoc)
-     * @see org.acegisecurity.Authentication#getPrincipal()
+     * @see org.springframework.security.Authentication#getPrincipal()
      */
     public Object getPrincipal() {
         return identityUrl;

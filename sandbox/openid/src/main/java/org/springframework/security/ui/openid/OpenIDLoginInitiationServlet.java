@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.acegisecurity.ui.openid;
+package org.springframework.security.ui.openid;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,7 +34,7 @@ import java.io.IOException;
  * <br/>
  * <br/>        &lt;servlet&gt;
  * <br/>        &nbsp;&nbsp; &lt;servlet-name&gt;openid&lt;/servlet-name&gt;
- * <br/>        &nbsp;&nbsp; &lt;servlet-class&gt;org.acegisecurity.ui.openid.OpenIDLoginInitiationServlet&lt;/servlet-class&gt;
+ * <br/>        &nbsp;&nbsp; &lt;servlet-class&gt;org.springframework.security.ui.openid.OpenIDLoginInitiationServlet&lt;/servlet-class&gt;
  * <br/>        &nbsp;&nbsp; &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
  * <br/>        &nbsp;&nbsp; &lt;init-param&gt;
  * <br/>        &nbsp;&nbsp;&nbsp;&nbsp; &lt;description&gt;The error page - will receive error "message"&lt;/description&gt;

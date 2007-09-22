@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.ldap.ppolicy;
+package org.springframework.security.ldap.ppolicy;
 
 import javax.naming.ldap.Control;
 

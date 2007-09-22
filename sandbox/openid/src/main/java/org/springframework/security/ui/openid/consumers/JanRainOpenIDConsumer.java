@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.acegisecurity.ui.openid.consumers;
+package org.springframework.security.ui.openid.consumers;
 
 import com.janrain.openid.consumer.AuthRequest;
 import com.janrain.openid.consumer.Consumer;
@@ -21,12 +21,12 @@ import com.janrain.openid.consumer.Response;
 import com.janrain.openid.consumer.StatusCode;
 import com.janrain.openid.store.OpenIDStore;
 
-import org.acegisecurity.providers.openid.OpenIDAuthenticationStatus;
-import org.acegisecurity.providers.openid.OpenIDAuthenticationToken;
+import org.springframework.security.providers.openid.OpenIDAuthenticationStatus;
+import org.springframework.security.providers.openid.OpenIDAuthenticationToken;
 
-import org.acegisecurity.ui.openid.OpenIDConstants;
-import org.acegisecurity.ui.openid.OpenIDConsumer;
-import org.acegisecurity.ui.openid.OpenIDConsumerException;
+import org.springframework.security.ui.openid.OpenIDConstants;
+import org.springframework.security.ui.openid.OpenIDConsumer;
+import org.springframework.security.ui.openid.OpenIDConsumerException;
 
 import org.springframework.beans.factory.InitializingBean;
 
@@ -64,7 +64,7 @@ public class JanRainOpenIDConsumer implements OpenIDConsumer, InitializingBean {
     }
 
     /* (non-Javadoc)
-     * @see org.acegisecurity.ui.openid.OpenIDConsumer#beginConsumption(java.lang.String)
+     * @see org.springframework.security.ui.openid.OpenIDConsumer#beginConsumption(java.lang.String)
      */
     public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl)
         throws OpenIDConsumerException {
@@ -110,7 +110,7 @@ public class JanRainOpenIDConsumer implements OpenIDConsumer, InitializingBean {
     }
 
     /* (non-Javadoc)
-     * @see org.acegisecurity.ui.openid.OpenIDConsumer#endConsumption(javax.servlet.http.HttpServletRequest)
+     * @see org.springframework.security.ui.openid.OpenIDConsumer#endConsumption(javax.servlet.http.HttpServletRequest)
      */
     public OpenIDAuthenticationToken endConsumption(HttpServletRequest req)
         throws OpenIDConsumerException {

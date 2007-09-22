@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.acegisecurity.ui.openid.consumers;
+package org.springframework.security.ui.openid.consumers;
 
-import org.acegisecurity.providers.openid.OpenIDAuthenticationToken;
+import org.springframework.security.providers.openid.OpenIDAuthenticationToken;
 
-import org.acegisecurity.ui.openid.OpenIDConsumer;
-import org.acegisecurity.ui.openid.OpenIDConsumerException;
+import org.springframework.security.ui.openid.OpenIDConsumer;
+import org.springframework.security.ui.openid.OpenIDConsumerException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,7 +36,7 @@ public class MockOpenIDConsumer implements OpenIDConsumer {
     //~ Methods ========================================================================================================
 
     /* (non-Javadoc)
-     * @see org.acegisecurity.ui.openid.OpenIDConsumer#beginConsumption(javax.servlet.http.HttpServletRequest, java.lang.String)
+     * @see org.springframework.security.ui.openid.OpenIDConsumer#beginConsumption(javax.servlet.http.HttpServletRequest, java.lang.String)
      */
     public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl)
         throws OpenIDConsumerException {
@@ -44,7 +44,7 @@ public class MockOpenIDConsumer implements OpenIDConsumer {
     }
 
     /* (non-Javadoc)
-     * @see org.acegisecurity.ui.openid.OpenIDConsumer#endConsumption(javax.servlet.http.HttpServletRequest)
+     * @see org.springframework.security.ui.openid.OpenIDConsumer#endConsumption(javax.servlet.http.HttpServletRequest)
      */
     public OpenIDAuthenticationToken endConsumption(HttpServletRequest req)
         throws OpenIDConsumerException {
@@ -61,7 +61,7 @@ public class MockOpenIDConsumer implements OpenIDConsumer {
     }
 
     /* (non-Javadoc)
-     * @see org.acegisecurity.ui.openid.OpenIDConsumer#setReturnToUrl(java.lang.String)
+     * @see org.springframework.security.ui.openid.OpenIDConsumer#setReturnToUrl(java.lang.String)
      */
     public void setReturnToUrl(String returnToUrl) {
         // TODO Auto-generated method stub

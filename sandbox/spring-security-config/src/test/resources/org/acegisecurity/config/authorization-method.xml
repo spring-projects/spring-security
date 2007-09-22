@@ -30,7 +30,7 @@
 		springAop="true" >
 		<security:url-mapping source="xml">
 			<security:method-pattern
-				type="org.acegisecurity.BankServiceImpl.listAccounts">
+				type="org.springframework.security.BankServiceImpl.listAccounts">
 				<security:configuration-attribute attribute="ROLE_A" />
 			</security:method-pattern>
 		</security:url-mapping>
@@ -38,7 +38,7 @@
 
 
 	<!-- 
-		<bean id="methodSecurity" class="org.acegisecurity.intercept.method.aopalliance.MethodSecurityInterceptor">
+		<bean id="methodSecurity" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
 		<property name="validateConfigAttributes"><value>true</value></property>
 		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
 		<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
@@ -46,8 +46,8 @@
 		<property name="afterInvocationManager"><ref bean="afterInvocationManager"/></property>
 		<property name="objectDefinitionSource">
 		<value>
-		org.acegisecurity.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
-		org.acegisecurity.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
+		org.springframework.security.context.BankManager.delete*=ROLE_SUPERVISOR,RUN_AS_SERVER
+		org.springframework.security.context.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR,BANKSECURITY_CUSTOMER,RUN_AS_SERVER
 		</value>
 		</property>
 		</bean> 

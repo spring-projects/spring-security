@@ -1,4 +1,4 @@
-package org.acegisecurity.ldap.ppolicy;
+package org.springframework.security.ldap.ppolicy;
 
 /**
  * @author Luke

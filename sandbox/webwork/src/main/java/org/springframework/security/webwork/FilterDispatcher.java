@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.acegisecurity.webwork;
+package org.springframework.security.webwork;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 
-import org.acegisecurity.ui.ExceptionTranslationFilter;
+import org.springframework.security.ui.ExceptionTranslationFilter;
 
 import com.opensymphony.webwork.dispatcher.DispatcherUtils;
 

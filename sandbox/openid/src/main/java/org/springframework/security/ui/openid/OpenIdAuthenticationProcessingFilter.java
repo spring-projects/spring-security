@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.ui.openid;
+package org.springframework.security.ui.openid;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.providers.openid.OpenIDAuthenticationToken;
-import org.acegisecurity.ui.AbstractProcessingFilter;
-import org.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.AuthenticationServiceException;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.openid.OpenIDAuthenticationToken;
+import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.StringUtils;

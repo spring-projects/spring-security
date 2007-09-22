@@ -1,6 +1,6 @@
-package org.acegisecurity.ui.openid;
+package org.springframework.security.ui.openid;
 
-import org.acegisecurity.AuthenticationException;
+import org.springframework.security.AuthenticationException;
 
 /**
  * @author Ray Krueger

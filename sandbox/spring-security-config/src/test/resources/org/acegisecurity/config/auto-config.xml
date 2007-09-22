@@ -26,7 +26,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 			resource="classpath:org/acegisecurity/config/user.properties" />
 	</security:principal-repository>
 	
-	<bean id="bankService" class="org.acegisecurity.BankServiceImpl"/>
+	<bean id="bankService" class="org.springframework.security.BankServiceImpl"/>
 	
 	
 </beans>

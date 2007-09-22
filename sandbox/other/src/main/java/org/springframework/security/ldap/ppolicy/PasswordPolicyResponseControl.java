@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.ldap.ppolicy;
+package org.springframework.security.ldap.ppolicy;
 
 import netscape.ldap.ber.stream.BERChoice;
 import netscape.ldap.ber.stream.BERElement;
@@ -28,8 +28,8 @@ import netscape.ldap.ber.stream.BERSequence;
 import netscape.ldap.ber.stream.BERTag;
 import netscape.ldap.ber.stream.BERTagDecoder;
 
-import org.acegisecurity.ldap.LdapDataAccessException;
-import org.acegisecurity.ldap.ppolicy.PasswordPolicyControl;
+import org.springframework.security.ldap.LdapDataAccessException;
+import org.springframework.security.ldap.ppolicy.PasswordPolicyControl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,7 +50,7 @@ import java.io.InputStream;
  * @author Luke Taylor
  * @version $Id: PasswordPolicyResponseControl.java 1496 2006-05-23 13:38:33Z benalex $
  *
- * @see org.acegisecurity.ldap.ppolicy.PasswordPolicyControl
+ * @see org.springframework.security.ldap.ppolicy.PasswordPolicyControl
  * @see <a href="http://www.ibm.com/developerworks/tivoli/library/t-ldap-controls/">Stefan Zoerner's IBM developerworks
  *      article on LDAP controls.</a>
  */

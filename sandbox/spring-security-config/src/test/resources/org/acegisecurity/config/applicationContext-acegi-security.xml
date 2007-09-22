@@ -23,7 +23,7 @@
 
 
 	<bean id="filterChainProxy"
-		class="org.acegisecurity.util.FilterChainProxy">
+		class="org.springframework.security.util.FilterChainProxy">
 		<property name="filterInvocationDefinitionSource">
 			<value>
 				CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -48,7 +48,7 @@
 
 
 	<bean id="securityContextLogoutHandler"
-		class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler" />
+		class="org.springframework.security.ui.logout.SecurityContextLogoutHandler" />
 
 	<!--  the URLs are all mandatory and have no defaults (well, except authenticationUrl) -->
 	<security:authentication-form id="authenticationProcessingFilter"
@@ -72,14 +72,14 @@
 
 
 	<bean id="securityContextHolderAwareRequestFilter"
-		class="org.acegisecurity.wrapper.SecurityContextHolderAwareRequestFilter" />
+		class="org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter" />
 
 	<!-- makes the filter, but does little else, as it auto-detects everything -->
 	<security:authentication-remember-me-filter
 		id="rememberMeProcessingFilter" />
 
 	<bean id="anonymousProcessingFilter"
-		class="org.acegisecurity.providers.anonymous.AnonymousProcessingFilter">
+		class="org.springframework.security.providers.anonymous.AnonymousProcessingFilter">
 		<property name="key" value="changeThis" />
 		<property name="userAttribute"
 			value="anonymousUser,ROLE_ANONYMOUS" />
@@ -95,31 +95,31 @@
 
 
 	<bean id="authenticationEntryPoint"
-		class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+		class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
 		<property name="loginFormUrl" value="/acegilogin.jsp" />
 		<property name="forceHttps" value="false" />
 	</bean>
 
 
 	<bean id="accessDeniedHandler"
-		class="org.acegisecurity.ui.AccessDeniedHandlerImpl">
+		class="org.springframework.security.ui.AccessDeniedHandlerImpl">
 		<property name="errorPage" value="/accessDenied.jsp" />
 	</bean>
 
 
 	<bean id="filterInvocationInterceptor"
-		class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
+		class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
 		<property name="authenticationManager"
 			ref="authenticationManager" />
 		<property name="accessDecisionManager">
-			<bean class="org.acegisecurity.vote.AffirmativeBased">
+			<bean class="org.springframework.security.vote.AffirmativeBased">
 				<property name="allowIfAllAbstainDecisions"
 					value="false" />
 				<property name="decisionVoters">
 					<list>
-						<bean class="org.acegisecurity.vote.RoleVoter" />
+						<bean class="org.springframework.security.vote.RoleVoter" />
 						<bean
-							class="org.acegisecurity.vote.AuthenticatedVoter" />
+							class="org.springframework.security.vote.AuthenticatedVoter" />
 					</list>
 				</property>
 			</bean>
@@ -137,16 +137,16 @@
 
 
 	<!--<bean id="authenticationManager"
-		class="org.acegisecurity.providers.ProviderManager">
+		class="org.springframework.security.providers.ProviderManager">
 		<property name="providers">
 		<list>
 		<ref local="daoAuthenticationProvider" />
 		<bean
-		class="org.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider">
+		class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
 		<property name="key" value="changeThis" />
 		</bean>
 		<bean
-		class="org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider">
+		class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider">
 		<property name="key" value="changeThis" />
 		</bean>
 		</list>
@@ -154,7 +154,7 @@
 		</bean>-->
 
 	<bean id="userCache"
-		class="org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
+		class="org.springframework.security.providers.dao.cache.EhCacheBasedUserCache">
 		<property name="cache">
 			<bean
 				class="org.springframework.cache.ehcache.EhCacheFactoryBean">
@@ -169,6 +169,6 @@
 
 	<!-- This bean is optional; it isn't used by any other bean as it only listens and logs -->
 	<bean id="loggerListener"
-		class="org.acegisecurity.event.authentication.LoggerListener" />
+		class="org.springframework.security.event.authentication.LoggerListener" />
 
 </beans>

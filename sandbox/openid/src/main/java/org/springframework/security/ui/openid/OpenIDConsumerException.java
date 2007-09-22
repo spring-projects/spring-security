@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.acegisecurity.ui.openid;
+package org.springframework.security.ui.openid;
 
 /**
  * Thrown by an OpenIDConsumer if it cannot process a request

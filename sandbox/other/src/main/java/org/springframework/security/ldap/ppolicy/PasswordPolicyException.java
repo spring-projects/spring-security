@@ -1,6 +1,6 @@
-package org.acegisecurity.ldap.ppolicy;
+package org.springframework.security.ldap.ppolicy;
 
-import org.acegisecurity.AuthenticationException;
+import org.springframework.security.AuthenticationException;
 
 /**
  * @author Luke

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.ldap.ppolicy;
+package org.springframework.security.ldap.ppolicy;
 
-import org.acegisecurity.ldap.ppolicy.PasswordPolicyControl;
+import org.springframework.security.ldap.ppolicy.PasswordPolicyControl;
 
 import javax.naming.ldap.Control;
 import javax.naming.ldap.ControlFactory;

@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.acegisecurity.ui.openid.consumers;
+package org.springframework.security.ui.openid.consumers;
 
-import org.acegisecurity.providers.openid.OpenIDAuthenticationStatus;
-import org.acegisecurity.providers.openid.OpenIDAuthenticationToken;
+import org.springframework.security.providers.openid.OpenIDAuthenticationStatus;
+import org.springframework.security.providers.openid.OpenIDAuthenticationToken;
 
-import org.acegisecurity.ui.openid.OpenIDConsumer;
-import org.acegisecurity.ui.openid.OpenIDConsumerException;
+import org.springframework.security.ui.openid.OpenIDConsumer;
+import org.springframework.security.ui.openid.OpenIDConsumerException;
 
 import org.openid4java.association.AssociationException;
 

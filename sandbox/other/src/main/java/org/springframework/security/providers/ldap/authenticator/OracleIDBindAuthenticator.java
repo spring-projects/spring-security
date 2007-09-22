@@ -1,11 +1,9 @@
-package org.acegisecurity.providers.ldap.authenticator;
+package org.springframework.security.providers.ldap.authenticator;
 
-import org.acegisecurity.ldap.InitialDirContextFactory;
-import org.acegisecurity.ldap.DefaultInitialDirContextFactory;
-import org.acegisecurity.ldap.ppolicy.PasswordExpiredException;
-import org.acegisecurity.ldap.ppolicy.AccountLockedException;
-import org.acegisecurity.ldap.ppolicy.PasswordPolicyException;
-import org.acegisecurity.ldap.ppolicy.PasswordInHistoryException;
+import org.springframework.security.ldap.InitialDirContextFactory;
+import org.springframework.security.ldap.ppolicy.PasswordExpiredException;
+import org.springframework.security.ldap.ppolicy.AccountLockedException;
+import org.springframework.security.ldap.ppolicy.PasswordPolicyException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

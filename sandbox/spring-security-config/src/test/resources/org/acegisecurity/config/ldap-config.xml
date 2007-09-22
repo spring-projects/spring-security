@@ -27,7 +27,7 @@
 
 
 	<!--<bean id="initialDirContextFactory"
-		class="org.acegisecurity.ldap.DefaultInitialDirContextFactory">
+		class="org.springframework.security.ldap.DefaultInitialDirContextFactory">
 		<constructor-arg
 		value="ldap://monkeymachine:389/dc=acegisecurity,dc=org" />
 		<property name="managerDn">
@@ -39,10 +39,10 @@
 		</bean>
 		
 		<bean id="ldapAuthProvider"
-		class="org.acegisecurity.providers.ldap.LdapAuthenticationProvider">
+		class="org.springframework.security.providers.ldap.LdapAuthenticationProvider">
 		<constructor-arg>
 		<bean
-		class="org.acegisecurity.providers.ldap.authenticator.BindAuthenticator">
+		class="org.springframework.security.providers.ldap.authenticator.BindAuthenticator">
 		<constructor-arg>
 		<ref local="initialDirContextFactory" />
 		</constructor-arg>
@@ -55,7 +55,7 @@
 		</constructor-arg>
 		<constructor-arg>
 		<bean
-		class="org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
+		class="org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
 		<constructor-arg>
 		<ref local="initialDirContextFactory" />
 		</constructor-arg>

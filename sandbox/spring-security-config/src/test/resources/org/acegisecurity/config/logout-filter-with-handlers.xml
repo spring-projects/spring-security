@@ -21,7 +21,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 		id="rememberMeServices" key="someValue" />
 
 	<bean id="SecurityContextLogoutHandler"
-		class="org.acegisecurity.ui.logout.SecurityContextLogoutHandler" />
+		class="org.springframework.security.ui.logout.SecurityContextLogoutHandler" />
 
 	<security:principal-repository id="userDetailsService">
 		<security:user-definition username="vishal"

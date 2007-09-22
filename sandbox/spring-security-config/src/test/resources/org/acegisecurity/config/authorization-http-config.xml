@@ -29,18 +29,18 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
 
 	<!--<bean id="filterInvocationInterceptor"
-		class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
+		class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
 		<property name="authenticationManager"
 		ref="authenticationManager" />
 		<property name="accessDecisionManager">
-		<bean class="org.acegisecurity.vote.AffirmativeBased">
+		<bean class="org.springframework.security.vote.AffirmativeBased">
 		<property name="allowIfAllAbstainDecisions"
 		value="false" />
 		<property name="decisionVoters">
 		<list>
-		<bean class="org.acegisecurity.vote.RoleVoter" />
+		<bean class="org.springframework.security.vote.RoleVoter" />
 		<bean
-		class="org.acegisecurity.vote.AuthenticatedVoter" />
+		class="org.springframework.security.vote.AuthenticatedVoter" />
 		</list>
 		</property>
 		</bean>

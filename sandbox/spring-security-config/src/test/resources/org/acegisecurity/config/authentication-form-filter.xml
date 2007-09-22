@@ -29,7 +29,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 		id="rememberMeServices" key="someValue" />
 
 	<bean id="userDetailsService"
-		class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
+		class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
 		<property name="dataSource">
 			<ref bean="dataSource" />
 		</property>

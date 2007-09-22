@@ -30,7 +30,7 @@
 		springAop="true" >
 		<security:url-mapping source="annotations">
 			<security:method-pattern
-				type="org.acegisecurity.BankServiceImpl.listAccounts">
+				type="org.springframework.security.BankServiceImpl.listAccounts">
 				<security:configuration-attribute attribute="ROLE_A" />
 				<security:configuration-attribute attribute="ROLE_B" />
 			</security:method-pattern>

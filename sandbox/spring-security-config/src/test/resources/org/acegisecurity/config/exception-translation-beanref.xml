@@ -22,12 +22,12 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 	</security:exception-translation>
 
 	<bean id="theBeanToUse"
-		class="org.acegisecurity.ui.AccessDeniedHandlerImpl">
+		class="org.springframework.security.ui.AccessDeniedHandlerImpl">
 		<property name="errorPage" value="/accessDenied.jsp" />
 	</bean>
 
 	<bean id="authenticationProcessingFilterEntryPoint"
-		class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+		class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
 		<property name="loginFormUrl">
 			<value>/acegilogin.jsp</value>
 		</property>

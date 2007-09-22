@@ -15,7 +15,7 @@
 	</security:authentication-repository>
 
 	<bean id="refToUserDetailsService"
-		class="org.acegisecurity.userdetails.jdbc.JdbcDaoImpl">
+		class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
 		<property name="dataSource">
 			<ref bean="dataSource" />
 		</property>
@@ -39,13 +39,13 @@
 	</bean>
 	
 	<bean id="refToSaltSource"
-		class="org.acegisecurity.providers.dao.salt.SystemWideSaltSource">
+		class="org.springframework.security.providers.dao.salt.SystemWideSaltSource">
 		<property name="systemWideSalt">
 			<value>12345</value>
 		</property>
 	</bean>
 
 	<bean id="refToPasswordEncoder"
-		class="org.acegisecurity.providers.encoding.Md5PasswordEncoder" />
+		class="org.springframework.security.providers.encoding.Md5PasswordEncoder" />
 	
 </beans>

@@ -13,16 +13,13 @@
  * limitations under the License.
  */
 
-package org.acegisecurity.ldap.ppolicy;
+package org.springframework.security.ldap.ppolicy;
 
 import junit.framework.TestCase;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.Control;
-import javax.naming.ldap.LdapContext;
-import java.util.Hashtable;
 
 /**
  * Tests for <tt>PasswordPolicyResponse</tt>.
@@ -41,8 +38,8 @@ public class PasswordPolicyResponseControlTests extends TestCase {
 //        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 //        env.put(Context.PROVIDER_URL, "ldap://gorille:389/");
 //        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-//        env.put(Context.SECURITY_PRINCIPAL, "cn=manager,dc=acegisecurity,dc=org");
-//        env.put(Context.SECURITY_CREDENTIALS, "acegisecurity");
+//        env.put(Context.SECURITY_PRINCIPAL, "cn=manager,dc=security,dc=org");
+//        env.put(Context.SECURITY_CREDENTIALS, "security");
 //        env.put(LdapContext.CONTROL_FACTORIES, PasswordPolicyControlFactory.class.getName());
 //
 //        InitialLdapContext ctx = new InitialLdapContext(env, null);
@@ -52,7 +49,7 @@ public class PasswordPolicyResponseControlTests extends TestCase {
 //        ctx.setRequestControls(rctls);
 //
 //        try {
-//            ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, "uid=bob,ou=people,dc=acegisecurity,dc=org" );
+//            ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, "uid=bob,ou=people,dc=security,dc=org" );
 //            ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, "bobspassword");
 //            Object o = ctx.lookup("");
 //

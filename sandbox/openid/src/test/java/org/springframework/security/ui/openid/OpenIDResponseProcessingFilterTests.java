@@ -12,21 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.acegisecurity.ui.openid;
+package org.springframework.security.ui.openid;
 
 import junit.framework.TestCase;
 
-import org.acegisecurity.AbstractAuthenticationManager;
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.BadCredentialsException;
+import org.springframework.security.AbstractAuthenticationManager;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.BadCredentialsException;
 
-import org.acegisecurity.providers.cas.CasAuthoritiesPopulator;
-import org.acegisecurity.providers.openid.MockAuthoritiesPopulator;
-import org.acegisecurity.providers.openid.OpenIDAuthenticationStatus;
-import org.acegisecurity.providers.openid.OpenIDAuthenticationToken;
+import org.springframework.security.providers.cas.CasAuthoritiesPopulator;
+import org.springframework.security.providers.openid.MockAuthoritiesPopulator;
+import org.springframework.security.providers.openid.OpenIDAuthenticationStatus;
+import org.springframework.security.providers.openid.OpenIDAuthenticationToken;
 
-import org.acegisecurity.ui.openid.consumers.MockOpenIDConsumer;
+import org.springframework.security.ui.openid.consumers.MockOpenIDConsumer;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -44,7 +44,7 @@ public class OpenIDResponseProcessingFilterTests extends TestCase {
     //~ Methods ========================================================================================================
 
     /*
-     * Test method for 'org.acegisecurity.ui.openid.OpenIDResponseProcessingFilter.attemptAuthentication(HttpServletRequest)'
+     * Test method for 'org.springframework.security.ui.openid.OpenIDResponseProcessingFilter.attemptAuthentication(HttpServletRequest)'
      */
     public void testAttemptAuthenticationFailure() {
         // set up mock objects
@@ -70,7 +70,7 @@ public class OpenIDResponseProcessingFilterTests extends TestCase {
     }
 
     /*
-     * Test method for 'org.acegisecurity.ui.openid.OpenIDResponseProcessingFilter.attemptAuthentication(HttpServletRequest)'
+     * Test method for 'org.springframework.security.ui.openid.OpenIDResponseProcessingFilter.attemptAuthentication(HttpServletRequest)'
      */
     public void testAttemptAuthenticationHttpServletRequest() {
         // set up mock objects
@@ -102,7 +102,7 @@ public class OpenIDResponseProcessingFilterTests extends TestCase {
     }
 
     /*
-     * Test method for 'org.acegisecurity.ui.openid.OpenIDResponseProcessingFilter.getDefaultFilterProcessesUrl()'
+     * Test method for 'org.springframework.security.ui.openid.OpenIDResponseProcessingFilter.getDefaultFilterProcessesUrl()'
      */
     public void testGetDefaultFilterProcessesUrl() {
         OpenIDResponseProcessingFilter filter = new OpenIDResponseProcessingFilter();
