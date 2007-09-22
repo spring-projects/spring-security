@@ -15,7 +15,7 @@
 
 package org.springframework.security.ui.ntlm;
 
-import org.acegisecurity.AuthenticationException;
+import org.springframework.security.AuthenticationException;
 
 /**
  * Base class for NTLM exceptions so that it is easier to distinguish them

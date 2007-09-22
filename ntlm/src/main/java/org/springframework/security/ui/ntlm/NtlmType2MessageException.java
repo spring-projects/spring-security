@@ -15,8 +15,8 @@
 
 package org.springframework.security.ui.ntlm;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.context.SecurityContextHolder;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
 
 /**
  * Contains the NTLM Type 2 message that is sent back to the client during

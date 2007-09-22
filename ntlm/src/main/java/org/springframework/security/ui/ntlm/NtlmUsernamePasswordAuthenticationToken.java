@@ -17,7 +17,7 @@ package org.springframework.security.ui.ntlm;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 /**
  * An NTLM-specific {@link UsernamePasswordAuthenticationToken} that allows

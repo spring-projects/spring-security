@@ -5,11 +5,11 @@ package org.springframework.security.ui.ntlm.ldap.authenticator;
 
 import java.util.Iterator;
 
-import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.Authentication;
-import org.acegisecurity.ldap.InitialDirContextFactory;
-import org.acegisecurity.ldap.SpringSecurityLdapTemplate;
-import org.acegisecurity.providers.ldap.authenticator.BindAuthenticator;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.Authentication;
+import org.springframework.security.ldap.InitialDirContextFactory;
+import org.springframework.security.ldap.SpringSecurityLdapTemplate;
+import org.springframework.security.providers.ldap.authenticator.BindAuthenticator;
 import org.springframework.security.ui.ntlm.NtlmUsernamePasswordAuthenticationToken;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

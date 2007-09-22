@@ -15,8 +15,8 @@
 
 package org.springframework.security.ui.ntlm;
 
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.ui.AuthenticationEntryPoint;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.ui.AuthenticationEntryPoint;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
