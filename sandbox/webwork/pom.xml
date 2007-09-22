@@ -7,7 +7,7 @@
   </parent>
   <artifactId>spring-security-webwork</artifactId>
   <name>Spring Security - Webwork support</name>
-  <description>Acegi Security System for Spring - Support for WebWork 2</description>
+  <description>Spring Security - Support for WebWork 2</description>
   <version>0.3-SNAPSHOT</version>
 
   <scm>

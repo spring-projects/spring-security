@@ -9,7 +9,7 @@
    <version>2.0-SNAPSHOT</version>
  </parent>
  <artifactId>spring-security-sample-dms</artifactId>
- <name>Acegi Security System for Spring - dms sample</name>
+ <name>Spring Security - dms sample</name>
   <dependencies>
      <dependency>
        <groupId>org.springframework.security</groupId>

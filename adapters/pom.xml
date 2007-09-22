@@ -6,7 +6,7 @@
     <version>2.0-SNAPSHOT</version>
   </parent>
   <artifactId>spring-security-adapters</artifactId>
-  <name>Spring Security System for Spring - Adapters</name>
+  <name>Spring Security - Adapters</name>
   <packaging>pom</packaging>
   <dependencies>
     <dependency>

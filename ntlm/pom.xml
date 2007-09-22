@@ -7,7 +7,7 @@
 	</parent>
 	<packaging>jar</packaging>
 	<artifactId>spring-security-ntlm</artifactId>
-	<name>Spring Security - NTLM</name>
+	<name>Spring Security - NTLM Support</name>
 
 	<dependencies>
 		<dependency>
@@ -38,7 +38,7 @@
             <artifactId>spring-ldap</artifactId>
             <version>1.2-RC1</version>
             <optional>true</optional>
-        </dependency>        
+        </dependency>
     </dependencies>
 
 	<build>

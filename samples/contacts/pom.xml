@@ -9,7 +9,7 @@
     <version>2.0-SNAPSHOT</version>
   </parent>
   <artifactId>spring-security-samples-contacts</artifactId>
-  <name>Acegi Security System for Spring - Contacts sample</name>
+  <name>Spring Security - Contacts sample</name>
   <packaging>war</packaging>
 
   <dependencies>
