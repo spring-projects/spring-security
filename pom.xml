@@ -9,7 +9,7 @@
 	<modules>
 		<module>core</module>
         <module>core-tiger</module>
-        <!--module>adapters</module-->
+        <module>adapters</module>
 		<module>portlet</module>
         <module>samples</module>
         <module>ntlm</module>

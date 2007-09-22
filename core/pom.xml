@@ -155,7 +155,7 @@
 			</resource>
 			<resource>
 				<directory>
-					${basedir}/src/main/resources/org/acegisecurity/taglibs
+					${basedir}/src/main/resources/org/springframework/security/taglibs
 				</directory>
 				<targetPath>META-INF</targetPath>
 				<includes>
