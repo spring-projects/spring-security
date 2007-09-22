@@ -18,10 +18,10 @@
 <!-- 2. Setup the Acegi Filter Chain Proxy -->
 	<filter>
 		<filter-name>Acegi Filter Chain Proxy</filter-name>
-		<filter-class>org.acegisecurity.util.FilterToBeanProxy</filter-class>
+		<filter-class>org.springframework.security.FilterToBeanProxy</filter-class>
 		<init-param>
 			<param-name>targetClass</param-name>
-			<param-value>org.acegisecurity.util.FilterChainProxy</param-value>
+			<param-value>org.springframework.security.util.FilterChainProxy</param-value>
 		</init-param>
 	</filter>
 
@@ -36,14 +36,14 @@
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
 
-<!--	b) Setup a listener to connect spring with log4J --> 
+<!--	b) Setup a listener to connect spring with log4J -->
 	<listener>
 		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
 	</listener>
 
 <!--    c) Setup ACEGI to subscribe to http session events in the web context -->
 	<listener>
-		<listener-class>org.acegisecurity.ui.session.HttpSessionEventPublisher</listener-class>
+		<listener-class>org.springframework.acegisecurityrk.acegisecurity.ui.session.HttpSessionEventPublisher</listener-class>
 	</listener>
 
 	<welcome-file-list>

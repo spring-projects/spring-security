@@ -3,26 +3,26 @@
 
 <beans>
 
-	<bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
+	<bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
 		<property name="filterInvocationDefinitionSource">
 			<value>
 			CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 			PATTERN_TYPE_APACHE_ANT
 			/login_error.jsp=httpSessionContextIntegrationFilter
-			/**=httpSessionContextIntegrationFilter, exceptionTranslationFilter, ntlmFilter, filterSecurityInterceptor 
+			/**=httpSessionContextIntegrationFilter, exceptionTranslationFilter, ntlmFilter, filterSecurityInterceptor
 			</value>
 		</property>
 	</bean>
 
 	<!-- The first item in the Chain: httpSessionContextIntegrationFilter -->
-	<bean id="httpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter">
+	<bean id="httpSessionContextIntegrationFilter" class="org.springframework.security.context.HttpSessionContextIntegrationFilter">
 		<property name="context">
-			<value>org.acegisecurity.context.SecurityContextImpl</value>
+			<value>org.springframework.security.context.SecurityContextImpl</value>
 		</property>
 	</bean>
 
 	<!-- the second item in the chain: exceptionTranslationFilter -->
-	<bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
+	<bean id="exceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter">
 		<property name="authenticationEntryPoint" ref="ntlmEntryPoint"/>
 	</bean>
 
@@ -35,7 +35,7 @@
 		<property name="authenticationManager" ref="providerManager"/>
 	</bean>
 
-	<bean id="providerManager" class="org.acegisecurity.providers.ProviderManager">
+	<bean id="providerManager" class="org.springframework.security.providers.ProviderManager">
 		<property name="providers">
 			<list>
 				<ref local="daoAuthenticationProvider"/>
@@ -43,21 +43,21 @@
         </property>
     </bean>
 
-	<bean id="daoAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
+	<bean id="daoAuthenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
 		<property name="userDetailsService">
 			<ref local="memoryUserDetailsService"/>
 		</property>
 	</bean>
 
 	<!-- NOTE: You will need to write a custom UserDetailsService in most cases -->
-	<bean id="memoryUserDetailsService" class="org.acegisecurity.userdetails.memory.InMemoryDaoImpl">
+	<bean id="memoryUserDetailsService" class="org.springframework.security.userdetails.memory.InMemoryDaoImpl">
 		<property name="userMap">
 			<value>jdoe=PASSWORD,ROLE_USER</value>
 		</property>
 	</bean>
 
 	<!-- the fourth item in the chain: filterSecurityInterceptor -->
-	<bean id="filterSecurityInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
+	<bean id="filterSecurityInterceptor" class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
 		<property name="authenticationManager"><ref local="providerManager"/></property>
 		<property name="accessDecisionManager"><ref local="accessDecisionManager"/></property>
 		<property name="objectDefinitionSource">
@@ -70,7 +70,7 @@
 	</bean>
 
 	<!-- authenticationManager defined above -->
-	<bean id="accessDecisionManager" class="org.acegisecurity.vote.UnanimousBased">
+	<bean id="accessDecisionManager" class="org.springframework.security.vote.UnanimousBased">
 		<property name="allowIfAllAbstainDecisions">
 			<value>false</value>
 		</property>
@@ -81,7 +81,7 @@
 		</property>
 	</bean>
 
-	<bean id="roleVoter" class="org.acegisecurity.vote.RoleVoter"/>
+	<bean id="roleVoter" class="org.springframework.security.vote.RoleVoter"/>
 
 	<bean id="ntlmEntryPoint" class="org.springframework.security.ui.ntlm.NtlmProcessingFilterEntryPoint">
 		<property name="authenticationFailureUrl" value="/login_error.jsp"/>
@@ -90,6 +90,6 @@
 	<!-- Done with the chain -->
 
 	<!-- This bean automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->
-	<bean id="loggerListener" class="org.acegisecurity.event.authentication.LoggerListener"/>
+	<bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
 
 </beans>
