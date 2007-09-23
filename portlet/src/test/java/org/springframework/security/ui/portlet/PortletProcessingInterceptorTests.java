@@ -149,7 +149,7 @@ public class PortletProcessingInterceptorTests extends TestCase {
 
 		// Verify that proper exception was thrown
 		assertTrue(request.getPortletSession().getAttribute(
-					AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY,
+					AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY,
 					PortletSession.APPLICATION_SCOPE)
 					instanceof BadCredentialsException);
 	}

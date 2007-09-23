@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
  * Processes an authentication form.
  * <p>Login forms must present two parameters to this filter: a username and
  * password. The default parameter names to use are contained in the
- * static fields {@link #ACEGI_SECURITY_FORM_USERNAME_KEY} and {@link #ACEGI_SECURITY_FORM_PASSWORD_KEY}.
+ * static fields {@link #SPRING_SECURITY_FORM_USERNAME_KEY} and {@link #SPRING_SECURITY_FORM_PASSWORD_KEY}.
  * The parameter names can also be changed by setting the <tt>usernameParameter</tt> and <tt>passwordParameter</tt>
  * properties.
  * </p>
@@ -47,12 +47,12 @@ import javax.servlet.http.HttpServletRequest;
 public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
     //~ Static fields/initializers =====================================================================================
 
-    public static final String ACEGI_SECURITY_FORM_USERNAME_KEY = "j_username";
-    public static final String ACEGI_SECURITY_FORM_PASSWORD_KEY = "j_password";
-    public static final String ACEGI_SECURITY_LAST_USERNAME_KEY = "ACEGI_SECURITY_LAST_USERNAME";
+    public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "j_username";
+    public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "j_password";
+    public static final String SPRING_SECURITY_LAST_USERNAME_KEY = "SECURITY_SECURITY_LAST_USERNAME";
 
-    private String usernameParameter = ACEGI_SECURITY_FORM_USERNAME_KEY;
-    private String passwordParameter = ACEGI_SECURITY_FORM_PASSWORD_KEY;
+    private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
+    private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
 
     //~ Methods ========================================================================================================
 
@@ -73,7 +73,7 @@ public class AuthenticationProcessingFilter extends AbstractProcessingFilter {
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
 
         // Place the last username attempted into HttpSession for views
-        request.getSession().setAttribute(ACEGI_SECURITY_LAST_USERNAME_KEY, username);
+        request.getSession().setAttribute(SPRING_SECURITY_LAST_USERNAME_KEY, username);
 
         // Allow subclasses to set the "details" property
         setDetails(request, authRequest);

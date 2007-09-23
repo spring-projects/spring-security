@@ -108,7 +108,7 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 		MockRenderRequest request = PortletTestUtils.createRenderRequest();
 		MockRenderResponse response = PortletTestUtils.createRenderResponse();
 		request.getPortletSession().setAttribute(
-				PortletSessionContextIntegrationInterceptor.ACEGI_SECURITY_CONTEXT_KEY,
+				PortletSessionContextIntegrationInterceptor.SPRING_SECURITY_CONTEXT_KEY,
 				sc, PortletSession.APPLICATION_SCOPE);
 
 		// Prepare interceptor
@@ -145,7 +145,7 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 		MockActionRequest request = PortletTestUtils.createActionRequest();
 		MockActionResponse response = PortletTestUtils.createActionResponse();
 		request.getPortletSession().setAttribute(
-				PortletSessionContextIntegrationInterceptor.ACEGI_SECURITY_CONTEXT_KEY,
+				PortletSessionContextIntegrationInterceptor.SPRING_SECURITY_CONTEXT_KEY,
 				sc, PortletSession.APPLICATION_SCOPE);
 
 		// Prepare interceptor
@@ -178,7 +178,7 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 		MockActionRequest request = PortletTestUtils.createActionRequest();
 		MockActionResponse response = PortletTestUtils.createActionResponse();
 		request.getPortletSession().setAttribute(
-				PortletSessionContextIntegrationInterceptor.ACEGI_SECURITY_CONTEXT_KEY,
+				PortletSessionContextIntegrationInterceptor.SPRING_SECURITY_CONTEXT_KEY,
 				sc, PortletSession.APPLICATION_SCOPE);
 
 		// Prepare interceptor
@@ -209,7 +209,7 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 
 		// Verify the new principal is stored in the session
 		sc = (SecurityContext)request.getPortletSession().getAttribute(
-				PortletSessionContextIntegrationInterceptor.ACEGI_SECURITY_CONTEXT_KEY,
+				PortletSessionContextIntegrationInterceptor.SPRING_SECURITY_CONTEXT_KEY,
 				PortletSession.APPLICATION_SCOPE);
 		assertEquals(baselinePrincipal, sc.getAuthentication());
 	}
@@ -232,7 +232,7 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 
 		// Verify Authentication is in the PortletSession
 		SecurityContext sc = (SecurityContext)request.getPortletSession(false).
-				getAttribute(PortletSessionContextIntegrationInterceptor.ACEGI_SECURITY_CONTEXT_KEY, PortletSession.APPLICATION_SCOPE);
+				getAttribute(PortletSessionContextIntegrationInterceptor.SPRING_SECURITY_CONTEXT_KEY, PortletSession.APPLICATION_SCOPE);
 		assertEquals(principal, ((SecurityContext)sc).getAuthentication());
 	}
 
@@ -280,7 +280,7 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 		MockActionRequest request = PortletTestUtils.createActionRequest();
 		MockActionResponse response = PortletTestUtils.createActionResponse();
 		request.getPortletSession().setAttribute(
-				PortletSessionContextIntegrationInterceptor.ACEGI_SECURITY_CONTEXT_KEY,
+				PortletSessionContextIntegrationInterceptor.SPRING_SECURITY_CONTEXT_KEY,
 				"NOT_A_CONTEXT_OBJECT", PortletSession.APPLICATION_SCOPE);
 
 		// Prepare the interceptor
@@ -295,7 +295,7 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 
 		// Verify Authentication is in the PortletSession
 		SecurityContext sc = (SecurityContext)request.getPortletSession(false).
-				getAttribute(PortletSessionContextIntegrationInterceptor.ACEGI_SECURITY_CONTEXT_KEY, PortletSession.APPLICATION_SCOPE);
+				getAttribute(PortletSessionContextIntegrationInterceptor.SPRING_SECURITY_CONTEXT_KEY, PortletSession.APPLICATION_SCOPE);
 		assertEquals(principal, ((SecurityContext)sc).getAuthentication());
 	}
 
@@ -334,7 +334,7 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 		MockActionRequest request = PortletTestUtils.createActionRequest();
 		MockActionResponse response = PortletTestUtils.createActionResponse();
 		request.getPortletSession().setAttribute(
-				PortletSessionContextIntegrationInterceptor.ACEGI_SECURITY_CONTEXT_KEY,
+				PortletSessionContextIntegrationInterceptor.SPRING_SECURITY_CONTEXT_KEY,
 				sc, PortletSession.PORTLET_SCOPE);
 
 		// Prepare interceptor
@@ -363,7 +363,7 @@ public class PortletSessionContextIntegrationInterceptorTests extends TestCase {
 
 		// Verify the new principal is stored in the session
 		sc = (SecurityContext)request.getPortletSession().getAttribute(
-				PortletSessionContextIntegrationInterceptor.ACEGI_SECURITY_CONTEXT_KEY,
+				PortletSessionContextIntegrationInterceptor.SPRING_SECURITY_CONTEXT_KEY,
 				PortletSession.PORTLET_SCOPE);
 		assertEquals(baselinePrincipal, sc.getAuthentication());
 	}

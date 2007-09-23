@@ -55,7 +55,7 @@ import org.springframework.web.portlet.ModelAndView;
  * is guaranteed to have already been created by an earlier interceptor.  If authentication
  * fails, the <code>AuthenticationException</code> will be placed into the
  * <code>APPLICATION_SCOPE</code> of the <code>PortletSession</code> with the attribute defined
- * by {@link AbstractProcessingFilter#ACEGI_SECURITY_LAST_EXCEPTION_KEY}.</p>
+ * by {@link AbstractProcessingFilter#SPRING_SECURITY_LAST_EXCEPTION_KEY}.</p>
  *
  *  <p>Some portals do not properly provide the identity of the current user via the
  * <code>getRemoteUser()</code> or <code>getUserPrincipal()</code> methods of the
@@ -170,7 +170,7 @@ public class PortletProcessingInterceptor implements
 					logger.debug("Authentication failed - updating ContextHolder to contain null Authentication");
 				ctx.setAuthentication(null);
 				request.getPortletSession().setAttribute(
-						AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY,
+						AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY,
 						failed, PortletSession.APPLICATION_SCOPE);
 				onUnsuccessfulAuthentication(request, response, failed);
 			}

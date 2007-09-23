@@ -206,6 +206,6 @@ public class X509ProcessingFilter implements Filter, InitializingBean, Applicati
             logger.debug("Updated SecurityContextHolder to contain null Authentication");
         }
 
-        request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY, failed);
+        request.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY, failed);
     }
 }

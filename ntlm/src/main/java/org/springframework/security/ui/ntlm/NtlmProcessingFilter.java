@@ -426,7 +426,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 		authRequest.setDetails(new WebAuthenticationDetails(request));
 
 		// Place the last username attempted into HttpSession for views
-		session.setAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_LAST_USERNAME_KEY, authRequest.getName());
+		session.setAttribute(AuthenticationProcessingFilter.SPRING_SECURITY_LAST_USERNAME_KEY, authRequest.getName());
 
 		// Backup the current authentication in case of an AuthenticationException
 		backupAuth = SecurityContextHolder.getContext().getAuthentication();

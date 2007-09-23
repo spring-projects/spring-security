@@ -71,7 +71,7 @@ import javax.servlet.http.HttpSession;
  * <p>
  * If authentication fails, the <code>AuthenticationException</code> will be
  * placed into the <code>HttpSession</code> with the attribute defined by
- * {@link #ACEGI_SECURITY_LAST_EXCEPTION_KEY}.
+ * {@link #SPRING_SECURITY_LAST_EXCEPTION_KEY}.
  * </p>
  * <p>
  * To use this filter, it is necessary to specify the following properties:
@@ -79,7 +79,7 @@ import javax.servlet.http.HttpSession;
  * <ul>
  * <li><code>defaultTargetUrl</code> indicates the URL that should be used
  * for redirection if the <code>HttpSession</code> attribute named
- * {@link #ACEGI_SAVED_REQUEST_KEY} does not indicate the target URL once
+ * {@link #SPRING_SECURITY_SAVED_REQUEST_KEY} does not indicate the target URL once
  * authentication is completed successfully. eg: <code>/</code>. The
  * <code>defaultTargetUrl</code> will be treated as relative to the web-app's
  * context path, and should include the leading <code>/</code>.
@@ -93,7 +93,7 @@ import javax.servlet.http.HttpSession;
  * <li><code>alwaysUseDefaultTargetUrl</code> causes successful
  * authentication to always redirect to the <code>defaultTargetUrl</code>,
  * even if the <code>HttpSession</code> attribute named {@link
- * #ACEGI_SAVED_REQUEST_KEY} defines the intended target URL.</li>
+ * # SPRING_SECURITY_SAVED_REQUEST_KEY} defines the intended target URL.</li>
  * </ul>
  * <p>
  * To configure this filter to redirect to specific pages as the result of
@@ -143,9 +143,9 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 		MessageSourceAware {
 	//~ Static fields/initializers =====================================================================================
 
-	public static final String ACEGI_SAVED_REQUEST_KEY = "ACEGI_SAVED_REQUEST_KEY";
+	public static final String SPRING_SECURITY_SAVED_REQUEST_KEY = "SPRING_SECURITY_SAVED_REQUEST_KEY";
 
-	public static final String ACEGI_SECURITY_LAST_EXCEPTION_KEY = "ACEGI_SECURITY_LAST_EXCEPTION";
+	public static final String SPRING_SECURITY_LAST_EXCEPTION_KEY = "SPRING_SECURITY_LAST_EXCEPTION";
 
 	//~ Instance fields ================================================================================================
 
@@ -168,7 +168,7 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 
 	/**
 	 * Where to redirect the browser to if authentication is successful but
-	 * ACEGI_SAVED_REQUEST_KEY is <code>null</code>
+	 * SPRING_SECURITY_SAVED_REQUEST_KEY is <code>null</code>
 	 */
 	private String defaultTargetUrl;
 
@@ -349,7 +349,7 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 	}
 
 	public static String obtainFullRequestUrl(HttpServletRequest request) {
-		SavedRequest savedRequest = (SavedRequest) request.getSession().getAttribute(ACEGI_SAVED_REQUEST_KEY);
+		SavedRequest savedRequest = (SavedRequest) request.getSession().getAttribute(SPRING_SECURITY_SAVED_REQUEST_KEY);
 
 		return (savedRequest == null) ? null : savedRequest.getFullRequestUrl();
 	}
@@ -575,7 +575,7 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 		}
 
 		try {
-			request.getSession().setAttribute(ACEGI_SECURITY_LAST_EXCEPTION_KEY, failed);
+			request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, failed);
 		}
 		catch (Exception ignored) {
 		}

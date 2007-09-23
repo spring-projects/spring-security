@@ -216,7 +216,7 @@ public class ExceptionTranslationFilter implements Filter, InitializingBean {
 		if (createSessionAllowed) {
 			// Store the HTTP request itself. Used by AbstractProcessingFilter
 			// for redirection after successful authentication (SEC-29)
-			httpRequest.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY, savedRequest);
+			httpRequest.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY, savedRequest);
 		}
 
 		// SEC-112: Clear the SecurityContextHolder's Authentication, as the

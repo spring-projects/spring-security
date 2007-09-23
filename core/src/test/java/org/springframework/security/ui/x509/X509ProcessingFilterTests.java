@@ -82,7 +82,7 @@ public class X509ProcessingFilterTests extends TestCase {
         filter.doFilter(request, response, chain);
 
         Object lastException = request.getSession()
-                                      .getAttribute(AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY);
+                                      .getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY);
 
         assertNull("Authentication should be null", SecurityContextHolder.getContext().getAuthentication());
         assertTrue("BadCredentialsException should have been thrown", lastException instanceof BadCredentialsException);

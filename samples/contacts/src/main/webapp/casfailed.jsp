@@ -12,7 +12,7 @@
 
       <font color="red">
         Your CAS credentials were rejected.<BR><BR>
-        Reason: <%= ((AuthenticationException) session.getAttribute(org.springframework.security.ui.AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY)).getMessage() %>
+        Reason: <%= ((AuthenticationException) session.getAttribute(org.springframework.security.ui.AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY)).getMessage() %>
       </font>
 
   </body>

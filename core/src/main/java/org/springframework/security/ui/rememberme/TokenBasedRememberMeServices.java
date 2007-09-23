@@ -104,7 +104,7 @@ import org.springframework.web.bind.RequestUtils;
 public class TokenBasedRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler {
 	//~ Static fields/initializers =====================================================================================
 
-	public static final String ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY = "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE";
+	public static final String SPRING_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY = "SPRING_SECURITY_HASHED_REMEMBER_ME_COOKIE";
 
 	public static final String DEFAULT_PARAMETER = "_acegi_security_remember_me";
 
@@ -124,7 +124,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 
 	private boolean alwaysRemember = false;
 
-	private String cookieName = ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
+	private String cookieName = SPRING_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
 
 	//~ Methods ========================================================================================================
 

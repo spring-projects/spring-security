@@ -128,7 +128,7 @@ public class ExceptionTranslationFilterTests extends TestCase {
 		filter.doFilter(request, response, chain);
 		assertEquals(403, response.getStatus());
 		assertEquals(AccessDeniedException.class, request.getAttribute(
-				AccessDeniedHandlerImpl.ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY).getClass());
+				AccessDeniedHandlerImpl.SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY).getClass());
 	}
 
 	public void testDoFilterWithNonHttpServletRequestDetected() throws Exception {

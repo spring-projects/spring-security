@@ -106,7 +106,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
     static final String FILTER_APPLIED = "__acegi_session_integration_filter_applied";
 
-    public static final String ACEGI_SECURITY_CONTEXT_KEY = "ACEGI_SECURITY_CONTEXT";
+    public static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
 
     //~ Instance fields ================================================================================================
 
@@ -224,7 +224,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
             }
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug("Obtained a valid SecurityContext from ACEGI_SECURITY_CONTEXT to "
+                logger.debug("Obtained a valid SecurityContext from SPRING_SECURITY_CONTEXT to "
                         + "associate with SecurityContextHolder: '" + contextBeforeChainExecution + "'");
             }
         }
@@ -293,11 +293,11 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
         // Session exists, so try to obtain a context from it.
 
-        Object contextFromSessionObject = httpSession.getAttribute(ACEGI_SECURITY_CONTEXT_KEY);
+        Object contextFromSessionObject = httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
 
         if (contextFromSessionObject == null) {
             if (logger.isDebugEnabled()) {
-                logger.debug("HttpSession returned null object for ACEGI_SECURITY_CONTEXT");
+                logger.debug("HttpSession returned null object for SPRING_SECURITY_CONTEXT");
             }
 
             return null;
@@ -323,7 +323,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
         if (!(contextFromSessionObject instanceof SecurityContext)) {
             if (logger.isWarnEnabled()) {
-                logger.warn("ACEGI_SECURITY_CONTEXT did not contain a SecurityContext but contained: '"
+                logger.warn("SPRING_SECURITY_CONTEXT did not contain a SecurityContext but contained: '"
                         + contextFromSessionObject
                         + "'; are you improperly modifying the HttpSession directly "
                         + "(you should always use SecurityContextHolder) or using the HttpSession attribute "
@@ -405,7 +405,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
         // If HttpSession exists, store current SecurityContextHolder contents but only if
         // the SecurityContext has actually changed (see JIRA SEC-37)
         if (httpSession != null && securityContext.hashCode() != contextHashBeforeChainExecution) {
-            httpSession.setAttribute(ACEGI_SECURITY_CONTEXT_KEY, securityContext);
+            httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("SecurityContext stored to HttpSession: '" + securityContext + "'");

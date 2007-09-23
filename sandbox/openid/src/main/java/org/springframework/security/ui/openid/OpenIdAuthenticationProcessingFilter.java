@@ -41,12 +41,12 @@ public class OpenIdAuthenticationProcessingFilter extends AbstractProcessingFilt
     //~ Static fields/initializers =====================================================================================
 
     private static final Log log = LogFactory.getLog(OpenIdAuthenticationProcessingFilter.class);
-    public static final String DEFAULT_CLAMED_IDENTITY_FIELD = "j_username";
+    public static final String DEFAULT_CLAIMED_IDENTITY_FIELD = "j_username";
 
     //~ Instance fields ================================================================================================
 
     private OpenIDConsumer consumer;
-    private String claimedIdentityFieldName = DEFAULT_CLAMED_IDENTITY_FIELD;
+    private String claimedIdentityFieldName = DEFAULT_CLAIMED_IDENTITY_FIELD;
     private String errorPage = "index.jsp";
 
     //~ Methods ========================================================================================================
@@ -72,7 +72,7 @@ public class OpenIdAuthenticationProcessingFilter extends AbstractProcessingFilt
 
         if (authentication.isAuthenticated()) {
             req.getSession()
-                    .setAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_LAST_USERNAME_KEY, token.getIdentityUrl());
+                    .setAttribute(AuthenticationProcessingFilter.SPRING_SECURITY_LAST_USERNAME_KEY, token.getIdentityUrl());
         }
 
         return authentication;
@@ -175,7 +175,7 @@ public class OpenIdAuthenticationProcessingFilter extends AbstractProcessingFilt
         }
 
         try {
-            request.getSession().setAttribute(ACEGI_SECURITY_LAST_EXCEPTION_KEY, failed);
+            request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, failed);
         } catch (Exception ignored) {
         }
 

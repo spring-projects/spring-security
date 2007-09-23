@@ -376,7 +376,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
-        request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
+        request.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null, null);
@@ -402,7 +402,7 @@ public class AbstractProcessingFilterTests extends TestCase {
     public void testSuccessfulAuthenticationCausesRedirectToSessionSpecifiedUrl() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
-        request.getSession().setAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
+        request.getSession().setAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null, null);

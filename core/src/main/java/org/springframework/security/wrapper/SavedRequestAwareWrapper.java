@@ -90,7 +90,7 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
             return;
         }
 
-        SavedRequest saved = (SavedRequest) session.getAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY);
+        SavedRequest saved = (SavedRequest) session.getAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY);
 
         if ((saved != null) && saved.doesRequestMatch(request, portResolver)) {
             if (logger.isDebugEnabled()) {
@@ -98,7 +98,7 @@ public class SavedRequestAwareWrapper extends SecurityContextHolderAwareRequestW
             }
 
             savedRequest = saved;
-            session.removeAttribute(AbstractProcessingFilter.ACEGI_SAVED_REQUEST_KEY);
+            session.removeAttribute(AbstractProcessingFilter.SPRING_SECURITY_SAVED_REQUEST_KEY);
 
             formats[0] = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
             formats[1] = new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US);

@@ -39,8 +39,8 @@ import javax.servlet.http.HttpServletResponse;
  * next paragraph). This allows applications to optionally function even when their Siteminder infrastructure is
  * unavailable, as is often the case during development.</p>
  *  <P><B>Login forms</B> must present two <B>parameters</B> to this filter: a username and password. If not
- * specified, the parameter names to use are contained in the static fields {@link #ACEGI_SECURITY_FORM_USERNAME_KEY}
- * and {@link #ACEGI_SECURITY_FORM_PASSWORD_KEY}.</p>
+ * specified, the parameter names to use are contained in the static fields {@link #SPRING_SECURITY_FORM_USERNAME_KEY}
+ * and {@link #SPRING_SECURITY_FORM_PASSWORD_KEY}.</p>
  *  <P><B>Do not use this class directly.</B> Instead, configure <code>web.xml</code> to use the {@link
  * org.springframework.security.util.FilterToBeanProxy}.</p>
  */
@@ -101,7 +101,7 @@ public class SiteminderAuthenticationProcessingFilter extends AuthenticationProc
             if ((formUsernameParameterKey != null) && (formUsernameParameterKey.length() > 0)) {
                 username = request.getParameter(formUsernameParameterKey);
             } else {
-                username = request.getParameter(ACEGI_SECURITY_FORM_USERNAME_KEY);
+                username = request.getParameter(SPRING_SECURITY_FORM_USERNAME_KEY);
             }
 
             password = obtainPassword(request);
@@ -130,7 +130,7 @@ public class SiteminderAuthenticationProcessingFilter extends AuthenticationProc
         setDetails(request, authRequest);
 
         // Place the last username attempted into HttpSession for views
-        request.getSession().setAttribute(ACEGI_SECURITY_LAST_USERNAME_KEY, username);
+        request.getSession().setAttribute(SPRING_SECURITY_LAST_USERNAME_KEY, username);
 
         return this.getAuthenticationManager().authenticate(authRequest);
     }
@@ -184,7 +184,7 @@ public class SiteminderAuthenticationProcessingFilter extends AuthenticationProc
         if ((formPasswordParameterKey != null) && (formPasswordParameterKey.length() > 0)) {
             return request.getParameter(formPasswordParameterKey);
         } else {
-            return request.getParameter(ACEGI_SECURITY_FORM_PASSWORD_KEY);
+            return request.getParameter(SPRING_SECURITY_FORM_PASSWORD_KEY);
         }
     }
 
@@ -209,7 +209,7 @@ public class SiteminderAuthenticationProcessingFilter extends AuthenticationProc
         //is present and user is not already authenticated.
         boolean bAuthenticated = false;
         SecurityContext context = (SecurityContext)
-                request.getSession().getAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
+                request.getSession().getAttribute(HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY);
 
         if (context != null) {
             Authentication auth = context.getAuthentication();

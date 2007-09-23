@@ -36,7 +36,7 @@ import javax.servlet.http.HttpServletResponse;
  * "forward" to the specified error page view. Being a "forward", the <code>SecurityContextHolder</code> will remain
  * populated. This is of benefit if the view (or a tag library or macro) wishes to access the
  * <code>SecurityContextHolder</code>. The request scope will also be populated with the exception itself, available
- * from the key {@link #ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY}.</p>
+ * from the key {@link #SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY}.</p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -44,7 +44,7 @@ import javax.servlet.http.HttpServletResponse;
 public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
     //~ Static fields/initializers =====================================================================================
 
-    public static final String ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY = "ACEGI_SECURITY_403_EXCEPTION";
+    public static final String SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY = "SPRING_SECURITY_403_EXCEPTION";
     protected static final Log logger = LogFactory.getLog(AccessDeniedHandlerImpl.class);
 
     //~ Instance fields ================================================================================================
@@ -57,7 +57,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
         throws IOException, ServletException {
         if (errorPage != null) {
             // Put exception into request scope (perhaps of use to a view)
-            ((HttpServletRequest) request).setAttribute(ACEGI_SECURITY_ACCESS_DENIED_EXCEPTION_KEY,
+            ((HttpServletRequest) request).setAttribute(SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY,
                 accessDeniedException);
 
             // Perform RequestDispatcher "forward"

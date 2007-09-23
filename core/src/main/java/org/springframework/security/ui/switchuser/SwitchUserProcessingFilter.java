@@ -104,7 +104,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
 
     // ~ Static fields/initializers
     // =============================================
-    public static final String ACEGI_SECURITY_SWITCH_USERNAME_KEY = "j_username";
+    public static final String SPRING_SECURITY_SWITCH_USERNAME_KEY = "j_username";
     public static final String ROLE_PREVIOUS_ADMINISTRATOR = "ROLE_PREVIOUS_ADMINISTRATOR";
 
     //~ Instance fields ================================================================================================
@@ -197,7 +197,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
         throws AuthenticationException {
         UsernamePasswordAuthenticationToken targetUserRequest = null;
 
-        String username = request.getParameter(ACEGI_SECURITY_SWITCH_USERNAME_KEY);
+        String username = request.getParameter(SPRING_SECURITY_SWITCH_USERNAME_KEY);
 
         if (username == null) {
             username = "";

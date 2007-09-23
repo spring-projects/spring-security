@@ -118,7 +118,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 		// Build a mock request
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.getSession().setAttribute(
-				HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY,
+				HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY,
 				sc);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -170,7 +170,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 		// Build a mock request
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.getSession().setAttribute(
-				HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY,
+				HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY,
 				sc);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -188,7 +188,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
 		// Obtain new/update Authentication from HttpSession
 		SecurityContext context = (SecurityContext) request.getSession().getAttribute(
-						HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
+						HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY);
 		assertEquals(updatedPrincipal, ((SecurityContext) context).getAuthentication());
 	}
 
@@ -214,7 +214,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
 		// Obtain new/updated Authentication from HttpSession
 		SecurityContext context = (SecurityContext) request.getSession(false).getAttribute(
-						HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
+						HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY);
 		assertEquals(updatedPrincipal, ((SecurityContext) context).getAuthentication());
 	}
 
@@ -268,7 +268,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 		// Build a mock request
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.getSession().setAttribute(
-				HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY,
+				HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY,
 				"NOT_A_CONTEXT_OBJECT");
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -284,7 +284,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
 		// Obtain new/update Authentication from HttpSession
 		SecurityContext context = (SecurityContext) request.getSession().getAttribute(
-						HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
+						HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY);
 		assertEquals(updatedPrincipal, ((SecurityContext) context).getAuthentication());
 	}
 
@@ -302,7 +302,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.getSession().setAttribute(
-				HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY,
+				HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY,
 				sc);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 

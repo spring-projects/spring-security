@@ -321,7 +321,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
      */
     protected void handleLogout(HttpSessionDestroyedEvent event) {
         SecurityContext context = (SecurityContext)
-                event.getSession().getAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY);
+                event.getSession().getAttribute(HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY);
 
         if (context == null) {
             log.debug("The destroyed session has no SecurityContext");

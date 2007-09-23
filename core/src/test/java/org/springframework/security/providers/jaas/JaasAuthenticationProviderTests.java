@@ -214,7 +214,7 @@ public class JaasAuthenticationProviderTests extends TestCase {
         context.setAuthentication(token);
 
         MockHttpSession mockSession = new MockHttpSession();
-        mockSession.setAttribute(HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY, context);
+        mockSession.setAttribute(HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY, context);
 
         jaasProvider.onApplicationEvent(new HttpSessionDestroyedEvent(mockSession));
 

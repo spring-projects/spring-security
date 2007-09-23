@@ -25,7 +25,7 @@
     <c:if test="${not empty param.login_error}">
       <font color="red">
         Your login attempt was not successful, try again.<BR><BR>
-        Reason: <%= ((AuthenticationException) session.getAttribute(AbstractProcessingFilter.ACEGI_SECURITY_LAST_EXCEPTION_KEY)).getMessage() %>
+        Reason: <%= ((AuthenticationException) session.getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY)).getMessage() %>
       </font>
     </c:if>
 

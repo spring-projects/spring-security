@@ -58,7 +58,7 @@ public class OpenIDResponseProcessingFilter extends AbstractProcessingFilter {
 
         if (authentication.isAuthenticated()) {
             req.getSession()
-               .setAttribute(AuthenticationProcessingFilter.ACEGI_SECURITY_LAST_USERNAME_KEY, token.getIdentityUrl());
+               .setAttribute(AuthenticationProcessingFilter.SPRING_SECURITY_LAST_USERNAME_KEY, token.getIdentityUrl());
         }
 
         return authentication;

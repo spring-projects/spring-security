@@ -101,7 +101,7 @@ public class PortletSessionContextIntegrationInterceptor
 
 	protected static final Log logger = LogFactory.getLog(PortletSessionContextIntegrationInterceptor.class);
 
-	public static final String ACEGI_SECURITY_CONTEXT_KEY = HttpSessionContextIntegrationFilter.ACEGI_SECURITY_CONTEXT_KEY;
+	public static final String SPRING_SECURITY_CONTEXT_KEY = HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY;
 
 	private static final String SESSION_EXISTED = PortletSessionContextIntegrationInterceptor.class.getName() + ".SESSION_EXISTED";
 	private static final String CONTEXT_HASHCODE = PortletSessionContextIntegrationInterceptor.class.getName() + ".CONTEXT_HASHCODE";
@@ -238,7 +238,7 @@ public class PortletSessionContextIntegrationInterceptor
 			portletSessionExistedAtStartOfRequest = true;
 
 			// attempt to retrieve the context from the session
-			Object contextFromSessionObject = portletSession.getAttribute(ACEGI_SECURITY_CONTEXT_KEY, portletSessionScope());
+			Object contextFromSessionObject = portletSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY, portletSessionScope());
 
 			// if we got a context then place it into the holder
 			if (contextFromSessionObject != null) {
@@ -262,12 +262,12 @@ public class PortletSessionContextIntegrationInterceptor
 				// if what we got is a valid context then place it into the holder, otherwise create a new one
 				if (contextFromSessionObject instanceof SecurityContext) {
 					if (logger.isDebugEnabled())
-						logger.debug("Obtained from ACEGI_SECURITY_CONTEXT a valid SecurityContext and "
+						logger.debug("Obtained from SPRING_SECURITY_CONTEXT a valid SecurityContext and "
 								+ "set to SecurityContextHolder: '" + contextFromSessionObject + "'");
 					SecurityContextHolder.setContext((SecurityContext) contextFromSessionObject);
 				} else {
 					if (logger.isWarnEnabled())
-						logger.warn("ACEGI_SECURITY_CONTEXT did not contain a SecurityContext but contained: '"
+						logger.warn("SPRING_SECURITY_CONTEXT did not contain a SecurityContext but contained: '"
 										+ contextFromSessionObject
 										+ "'; are you improperly modifying the PortletSession directly "
 										+ "(you should always use SecurityContextHolder) or using the PortletSession attribute "
@@ -280,7 +280,7 @@ public class PortletSessionContextIntegrationInterceptor
 
 				// there was no context in the session, so create a new context and put it in the holder
 				if (logger.isDebugEnabled())
-					logger.debug("PortletSession returned null object for ACEGI_SECURITY_CONTEXT - new "
+					logger.debug("PortletSession returned null object for SPRING_SECURITY_CONTEXT - new "
 							+ "SecurityContext instance associated with SecurityContextHolder");
 				SecurityContextHolder.setContext(generateNewContext());
 			}
@@ -354,7 +354,7 @@ public class PortletSessionContextIntegrationInterceptor
 		// if the session exists and the context has changes, then store the context back into the session
 		if ((portletSession != null)
 			&& (SecurityContextHolder.getContext().hashCode() != oldContextHashCode)) {
-			portletSession.setAttribute(ACEGI_SECURITY_CONTEXT_KEY,	SecurityContextHolder.getContext(), portletSessionScope());
+			portletSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY,	SecurityContextHolder.getContext(), portletSessionScope());
 			if (logger.isDebugEnabled())
 				logger.debug("SecurityContext stored to PortletSession: '"
 					+ SecurityContextHolder.getContext() + "'");

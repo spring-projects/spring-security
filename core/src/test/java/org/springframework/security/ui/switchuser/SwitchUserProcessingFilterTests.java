@@ -80,7 +80,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, "user-that-doesnt-exist");
+        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "user-that-doesnt-exist");
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
@@ -101,7 +101,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
 
         // this user is disabled
-        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, "mcgarrett");
+        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "mcgarrett");
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
@@ -124,7 +124,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
 
         // this user is disabled
-        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, "wofat");
+        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "wofat");
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
@@ -147,7 +147,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
 
         // this user is disabled
-        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, "steve");
+        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "steve");
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
@@ -167,7 +167,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
+        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
@@ -183,7 +183,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         String username = null;
-        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, username);
+        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, username);
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
@@ -304,7 +304,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         MockHttpServletRequest request = createMockSwitchRequest();
-        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
+        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
         request.setRequestURI("/webapp/j_acegi_switch_user");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -351,7 +351,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         // http request
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/webapp/j_acegi_switch_user");
-        request.addParameter(SwitchUserProcessingFilter.ACEGI_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
+        request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
 
         // http response
         MockHttpServletResponse response = new MockHttpServletResponse();
