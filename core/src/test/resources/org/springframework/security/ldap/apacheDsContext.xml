@@ -31,7 +31,7 @@
 		making it easier for the integration tests requiring OpenLDAP.
 	-->
 	<bean id="configuration" class="org.apache.directory.server.configuration.MutableServerStartupConfiguration">
-    	<property name="ldapPort" value="3900" />
+    	<property name="ldapPort" value="3999" />
         <property name="contextPartitionConfigurations">
       		<set>
                 <bean class="org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration">
