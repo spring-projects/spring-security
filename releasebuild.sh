@@ -36,7 +36,7 @@
 RELEASE_VERSION=2.0-SNAPSHOT
 
 # Project Name. Used for creating the archives.
-PROJECT_NAME=acegi-security
+PROJECT_NAME=spring-security
 
 PROJ_DIR=`pwd`;
 RELEASE_DIR=$PROJ_DIR/$PROJECT_NAME-$RELEASE_VERSION
