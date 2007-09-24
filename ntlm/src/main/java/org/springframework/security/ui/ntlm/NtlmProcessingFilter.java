@@ -85,10 +85,10 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 
 	private static final String	STATE_ATTR = "AcegiNtlm";
 	private static final String	CHALLENGE_ATTR = "NtlmChal";
-	private static final Integer BEGIN = Integer.valueOf(0);
-	private static final Integer NEGOTIATE = Integer.valueOf(1);
-	private static final Integer COMPLETE = Integer.valueOf(2);
-	private static final Integer DELAYED = Integer.valueOf(3);
+	private static final Integer BEGIN = new Integer(0);
+	private static final Integer NEGOTIATE = new Integer(1);
+	private static final Integer COMPLETE = new Integer(2);
+	private static final Integer DELAYED = new Integer(3);
 
 	//~ Instance fields ================================================================================================
 
