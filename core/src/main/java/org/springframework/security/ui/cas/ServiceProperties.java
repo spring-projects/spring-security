@@ -43,7 +43,7 @@ public class ServiceProperties implements InitializingBean {
     /**
      * Represents the service the user is authenticating to.<p>This service is the callback URL belonging to
      * the local Acegi Security System for Spring secured application. For example,</p>
-     *  <code>https://www.mycompany.com/application/j_acegi_cas_security_check</code>
+     *  <code>https://www.mycompany.com/application/j_spring_cas_security_check</code>
      *
      * @return the URL of the service the user is authenticating to
      */

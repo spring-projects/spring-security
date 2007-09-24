@@ -77,12 +77,12 @@ public class CasProcessingFilter extends AbstractProcessingFilter {
     }
 
     /**
-     * This filter by default responds to <code>/j_acegi_cas_security_check</code>.
+     * This filter by default responds to <code>/j_spring_cas_security_check</code>.
      *
      * @return the default
      */
     public String getDefaultFilterProcessesUrl() {
-        return "/j_acegi_cas_security_check";
+        return "/j_spring_cas_security_check";
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {}

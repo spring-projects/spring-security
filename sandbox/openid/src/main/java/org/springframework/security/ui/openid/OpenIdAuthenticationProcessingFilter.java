@@ -109,7 +109,7 @@ public class OpenIdAuthenticationProcessingFilter extends AbstractProcessingFilt
     }
 
     public String getDefaultFilterProcessesUrl() {
-        return "/j_acegi_openid_security_check";
+        return "/j_spring_openid_security_check";
     }
 
     public String getErrorPage() {

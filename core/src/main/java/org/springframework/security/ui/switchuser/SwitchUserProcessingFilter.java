@@ -87,8 +87,8 @@ import javax.servlet.http.HttpServletResponse;
  * Example:<pre>
  * &lt;bean id="switchUserProcessingFilter" class="org.springframework.security.ui.switchuser.SwitchUserProcessingFilter">
  *    &lt;property name="authenticationDao" ref="jdbcDaoImpl" />
- *    &lt;property name="switchUserUrl">&lt;value>/j_acegi_switch_user&lt;/value>&lt;/property>
- *    &lt;property name="exitUserUrl">&lt;value>/j_acegi_exit_user&lt;/value>&lt;/property>
+ *    &lt;property name="switchUserUrl">&lt;value>/j_spring_security_switch_user&lt;/value>&lt;/property>
+ *    &lt;property name="exitUserUrl">&lt;value>/j_spring_security_exit_user&lt;/value>&lt;/property>
  *    &lt;property name="targetUrl">&lt;value>/index.jsp&lt;/value>&lt;/property>&lt;/bean></pre></p>
  *
  * @author Mark St.Godard
@@ -112,8 +112,8 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
     private ApplicationEventPublisher eventPublisher;
     private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
     protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
-    private String exitUserUrl = "/j_acegi_exit_user";
-    private String switchUserUrl = "/j_acegi_switch_user";
+    private String exitUserUrl = "/j_spring_security_exit_user";
+    private String switchUserUrl = "/j_spring_security_switch_user";
     private String targetUrl;
     private SwitchUserAuthorityChanger switchUserAuthorityChanger;
 

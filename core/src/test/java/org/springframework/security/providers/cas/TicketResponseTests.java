@@ -71,7 +71,7 @@ public class TicketResponseTests extends TestCase {
     public void testGetters() {
         // Build the proxy list returned in the ticket from CAS
         List proxyList = new Vector();
-        proxyList.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        proxyList.add("https://localhost/newPortal/j_spring_cas_security_check");
 
         TicketResponse ticket = new TicketResponse("marissa", proxyList,
                 "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");

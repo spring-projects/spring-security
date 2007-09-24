@@ -47,7 +47,7 @@ public class SecurityContextHolder {
     public static final String MODE_THREADLOCAL = "MODE_THREADLOCAL";
     public static final String MODE_INHERITABLETHREADLOCAL = "MODE_INHERITABLETHREADLOCAL";
     public static final String MODE_GLOBAL = "MODE_GLOBAL";
-    public static final String SYSTEM_PROPERTY = "acegi.security.strategy";
+    public static final String SYSTEM_PROPERTY = "spring.security.strategy";
     private static String strategyName = System.getProperty(SYSTEM_PROPERTY);
     private static SecurityContextHolderStrategy strategy;
     private static int initializeCount = 0;

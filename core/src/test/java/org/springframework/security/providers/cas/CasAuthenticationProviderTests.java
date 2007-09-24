@@ -102,7 +102,7 @@ public class CasAuthenticationProviderTests extends TestCase {
         assertEquals(makeUserDetailsFromAuthoritiesPopulator(), casResult.getPrincipal());
         assertEquals("PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt",
             casResult.getProxyGrantingTicketIou());
-        assertEquals("https://localhost/portal/j_acegi_cas_security_check", casResult.getProxyList().get(0));
+        assertEquals("https://localhost/portal/j_spring_cas_security_check", casResult.getProxyList().get(0));
         assertEquals("ST-123", casResult.getCredentials());
         assertEquals(new GrantedAuthorityImpl("ROLE_A"), casResult.getAuthorities()[0]);
         assertEquals(new GrantedAuthorityImpl("ROLE_B"), casResult.getAuthorities()[1]);
@@ -393,7 +393,7 @@ public class CasAuthenticationProviderTests extends TestCase {
             throws AuthenticationException {
             if (returnTicket) {
                 List list = new Vector();
-                list.add("https://localhost/portal/j_acegi_cas_security_check");
+                list.add("https://localhost/portal/j_spring_cas_security_check");
 
                 return new TicketResponse("marissa", list, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
             }

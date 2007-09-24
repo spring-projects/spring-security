@@ -58,7 +58,7 @@ public class LogoutFilter implements Filter {
 
     //~ Instance fields ================================================================================================
 
-    private String filterProcessesUrl = "/j_acegi_logout";
+    private String filterProcessesUrl = "/j_spring_security_logout";
     private String logoutSuccessUrl;
     private LogoutHandler[] handlers;
     private boolean useRelativeContext;

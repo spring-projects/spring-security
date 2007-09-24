@@ -106,7 +106,7 @@ public class OpenIDResponseProcessingFilterTests extends TestCase {
      */
     public void testGetDefaultFilterProcessesUrl() {
         OpenIDResponseProcessingFilter filter = new OpenIDResponseProcessingFilter();
-        assertEquals("/j_acegi_openid_security_check", filter.getDefaultFilterProcessesUrl());
+        assertEquals("/j_spring_openid_security_check", filter.getDefaultFilterProcessesUrl());
     }
 
     //~ Inner Classes ==================================================================================================

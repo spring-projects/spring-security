@@ -3,7 +3,6 @@
 <%@ page import="org.springframework.security.context.SecurityContextHolder" %>
 <%@ page import="org.springframework.security.Authentication" %>
 <%@ page import="org.springframework.security.ui.AbstractProcessingFilter" %>
-<%@ page import="org.springframework.security.ui.webapp.AuthenticationProcessingFilter" %>
 <%@ page import="org.springframework.security.AuthenticationException" %>
 
 <html>
@@ -21,7 +20,7 @@
       </font>
     </c:if>
 
-    <form action="<c:url value='j_acegi_exit_user'/>" method="POST">
+    <form action="<c:url value='j_spring_security_exit_user'/>" method="POST">
       <table>
         <tr><td>Current User:</td><td>
 

@@ -1250,7 +1250,7 @@ if (obj instanceof UserDetails) {
       CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
       \A/secure/.*\Z=REQUIRES_SECURE_CHANNEL
       \A/acegilogin.jsp.*\Z=REQUIRES_SECURE_CHANNEL
-      \A/j_acegi_security_check.*\Z=REQUIRES_SECURE_CHANNEL
+      \A/j_spring_security_check.*\Z=REQUIRES_SECURE_CHANNEL
       \A.*\Z=REQUIRES_INSECURE_CHANNEL
     &lt;/value&gt;
   &lt;/property&gt;
@@ -2183,7 +2183,7 @@ if (obj instanceof UserDetails) {
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="authenticationFailureUrl"&gt;&lt;value&gt;/login.jsp?login_error=1&lt;/value&gt;&lt;/property&gt;
   &lt;property name="defaultTargetUrl"&gt;&lt;value&gt;/security.do?method=getMainMenu&lt;/value&gt;&lt;/property&gt;
-  &lt;property name="filterProcessesUrl"&gt;&lt;value&gt;/j_acegi_security_check&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="filterProcessesUrl"&gt;&lt;value&gt;/j_spring_security_check&lt;/value&gt;&lt;/property&gt;
   &lt;property name="siteminderUsernameHeaderKey"&gt;&lt;value&gt;SM_USER&lt;/value&gt;&lt;/property&gt;
   &lt;property name="formUsernameParameterKey"&gt;&lt;value&gt;j_username&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
@@ -2346,7 +2346,7 @@ public boolean supports(Class clazz);</programlisting></para>
         <para>The login form simply contains <literal>j_username</literal> and
         <literal>j_password</literal> input fields, and posts to a URL that is
         monitored by the filter (by default
-        <literal>j_acegi_security_check</literal>). The filter is defined in
+        <literal>j_spring_security_check</literal>). The filter is defined in
         <literal>web.xml</literal> behind a
         <literal>FilterToBeanProxy</literal> as follows:</para>
 
@@ -2373,7 +2373,7 @@ public boolean supports(Class clazz);</programlisting></para>
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="authenticationFailureUrl"&gt;&lt;value&gt;/acegilogin.jsp?login_error=1&lt;/value&gt;&lt;/property&gt;
   &lt;property name="defaultTargetUrl"&gt;&lt;value&gt;/&lt;/value&gt;&lt;/property&gt;
-  &lt;property name="filterProcessesUrl"&gt;&lt;value&gt;/j_acegi_security_check&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="filterProcessesUrl"&gt;&lt;value&gt;/j_spring_security_check&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;        </programlisting></para>
 
         <para>The configured <literal>AuthenticationManager</literal>
@@ -3361,7 +3361,7 @@ key:              A private key to prevent modification of the remember-me token
             indicate a <literal>service</literal> parameter, which is the
             callback URL for Acegi Security service. For example, the URL to
             which the browser is redirected might be
-            <literal>https://my.company.com/cas/login?service=https%3A%2F%2Fserver3.company.com%2Fwebapp%2Fj_acegi_cas_security_check</literal>.</para>
+            <literal>https://my.company.com/cas/login?service=https%3A%2F%2Fserver3.company.com%2Fwebapp%2Fj_spring_cas_security_check</literal>.</para>
           </listitem>
 
           <listitem>
@@ -3382,13 +3382,13 @@ key:              A private key to prevent modification of the remember-me token
             <literal>ticket</literal> parameter, which is an opaque string
             representing the "service ticket". Continuing our earlier example,
             the URL the browser is redirected to might be
-            <literal>https://server3.company.com/webapp/j_acegi_cas_security_check?ticket=ST-0-ER94xMJmn6pha35CQRoZ</literal>.</para>
+            <literal>https://server3.company.com/webapp/j_spring_cas_security_check?ticket=ST-0-ER94xMJmn6pha35CQRoZ</literal>.</para>
           </listitem>
 
           <listitem>
             <para>Back in the service web application, the
             <literal>CasProcessingFilter</literal> is always listening for
-            requests to <literal>/j_acegi_cas_security_check</literal> (this
+            requests to <literal>/j_spring_cas_security_check</literal> (this
             is configurable, but we'll use the defaults in this introduction).
             The processing filter will construct a
             <literal>UsernamePasswordAuthenticationToken</literal>
@@ -3421,7 +3421,7 @@ key:              A private key to prevent modification of the remember-me token
             to the CAS server in order to validate the service ticket. The
             <literal>CasProxyTicketValidator</literal> may also include a
             proxy callback URL, which is included in this example:
-            <literal>https://my.company.com/cas/proxyValidate?service=https%3A%2F%2Fserver3.company.com%2Fwebapp%2Fj_acegi_cas_security_check&amp;ticket=ST-0-ER94xMJmn6pha35CQRoZ&amp;pgtUrl=https://server3.company.com/webapp/casProxy/receptor</literal>.</para>
+            <literal>https://my.company.com/cas/proxyValidate?service=https%3A%2F%2Fserver3.company.com%2Fwebapp%2Fj_spring_cas_security_check&amp;ticket=ST-0-ER94xMJmn6pha35CQRoZ&amp;pgtUrl=https://server3.company.com/webapp/casProxy/receptor</literal>.</para>
           </listitem>
 
           <listitem>
@@ -3736,7 +3736,7 @@ key:              A private key to prevent modification of the remember-me token
         <para><programlisting>
 
 &lt;bean id="serviceProperties" class="org.springframework.security.ui.cas.ServiceProperties"&gt;
-  &lt;property name="service"&gt;&lt;value&gt;https://localhost:8443/contacts-cas/j_acegi_cas_security_check&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="service"&gt;&lt;value&gt;https://localhost:8443/contacts-cas/j_spring_cas_security_check&lt;/value&gt;&lt;/property&gt;
   &lt;property name="sendRenew"&gt;&lt;value&gt;false&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
@@ -3758,7 +3758,7 @@ key:              A private key to prevent modification of the remember-me token
   &lt;property name="authenticationManager"&gt;&lt;ref bean="authenticationManager"/&gt;&lt;/property&gt;
   &lt;property name="authenticationFailureUrl"&gt;&lt;value&gt;/casfailed.jsp&lt;/value&gt;&lt;/property&gt;
   &lt;property name="defaultTargetUrl"&gt;&lt;value&gt;/&lt;/value&gt;&lt;/property&gt;
-  &lt;property name="filterProcessesUrl"&gt;&lt;value&gt;/j_acegi_cas_security_check&lt;/value&gt;&lt;/property&gt;
+  &lt;property name="filterProcessesUrl"&gt;&lt;value&gt;/j_spring_cas_security_check&lt;/value&gt;&lt;/property&gt;
 &lt;/bean&gt;
 
 &lt;bean id="exceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter"&gt;

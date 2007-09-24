@@ -69,7 +69,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setScheme("http");
         request.setServerName("localhost");
-        request.setRequestURI("/j_acegi_switch_user");
+        request.setRequestURI("/j_spring_security_switch_user");
 
         return request;
     }
@@ -199,8 +199,8 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
     public void testBadConfigMissingAuthenticationDao() {
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setSwitchUserUrl("/j_acegi_switch_user");
-        filter.setExitUserUrl("/j_acegi_exit_user");
+        filter.setSwitchUserUrl("/j_spring_security_switch_user");
+        filter.setExitUserUrl("/j_spring_security_exit_user");
         filter.setTargetUrl("/main.jsp");
 
         try {
@@ -214,8 +214,8 @@ public class SwitchUserProcessingFilterTests extends TestCase {
     public void testBadConfigMissingTargetUrl() {
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
-        filter.setSwitchUserUrl("/j_acegi_switch_user");
-        filter.setExitUserUrl("/j_acegi_exit_user");
+        filter.setSwitchUserUrl("/j_spring_security_switch_user");
+        filter.setExitUserUrl("/j_spring_security_exit_user");
 
         try {
             filter.afterPropertiesSet();
@@ -228,9 +228,9 @@ public class SwitchUserProcessingFilterTests extends TestCase {
     public void testDefaultProcessesFilterUrlWithPathParameter() {
         MockHttpServletRequest request = createMockSwitchRequest();
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setSwitchUserUrl("/j_acegi_switch_user");
+        filter.setSwitchUserUrl("/j_spring_security_switch_user");
 
-        request.setRequestURI("/webapp/j_acegi_switch_user;jsessionid=8JHDUD723J8");
+        request.setRequestURI("/webapp/j_spring_security_switch_user;jsessionid=8JHDUD723J8");
         assertTrue(filter.requiresSwitchUser(request));
     }
 
@@ -251,7 +251,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
         // http request
         MockHttpServletRequest request = createMockSwitchRequest();
-        request.setRequestURI("/j_acegi_exit_user");
+        request.setRequestURI("/j_spring_security_exit_user");
 
         // http response
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -259,7 +259,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         // setup filter
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
-        filter.setExitUserUrl("/j_acegi_exit_user");
+        filter.setExitUserUrl("/j_spring_security_exit_user");
 
         MockFilterChain chain = new MockFilterChain(true);
 
@@ -278,7 +278,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
         // http request
         MockHttpServletRequest request = createMockSwitchRequest();
-        request.setRequestURI("/j_acegi_exit_user");
+        request.setRequestURI("/j_spring_security_exit_user");
 
         // http response
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -286,7 +286,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         // setup filter
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
-        filter.setExitUserUrl("/j_acegi_exit_user");
+        filter.setExitUserUrl("/j_spring_security_exit_user");
 
         MockFilterChain chain = new MockFilterChain(true);
 
@@ -305,13 +305,13 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
         MockHttpServletRequest request = createMockSwitchRequest();
         request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
-        request.setRequestURI("/webapp/j_acegi_switch_user");
+        request.setRequestURI("/webapp/j_spring_security_switch_user");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain(true);
 
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setSwitchUserUrl("/j_acegi_switch_user");
+        filter.setSwitchUserUrl("/j_spring_security_switch_user");
         filter.setTargetUrl("/webapp/someOtherUrl");
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
 
@@ -323,11 +323,11 @@ public class SwitchUserProcessingFilterTests extends TestCase {
     public void testRequiresExitUser() {
         // filter
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setExitUserUrl("/j_acegi_exit_user");
+        filter.setExitUserUrl("/j_spring_security_exit_user");
 
         // request
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("/j_acegi_exit_user");
+        request.setRequestURI("/j_spring_security_exit_user");
 
         assertTrue(filter.requiresExitUser(request));
     }
@@ -335,7 +335,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
     public void testRequiresSwitch() {
         // filter
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
-        filter.setSwitchUserUrl("/j_acegi_switch_user");
+        filter.setSwitchUserUrl("/j_spring_security_switch_user");
 
         // request
         MockHttpServletRequest request = createMockSwitchRequest();
@@ -350,7 +350,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
 
         // http request
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("/webapp/j_acegi_switch_user");
+        request.setRequestURI("/webapp/j_spring_security_switch_user");
         request.addParameter(SwitchUserProcessingFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
 
         // http response
@@ -359,7 +359,7 @@ public class SwitchUserProcessingFilterTests extends TestCase {
         // setup filter
         SwitchUserProcessingFilter filter = new SwitchUserProcessingFilter();
         filter.setUserDetailsService(new MockAuthenticationDaoUserJackLord());
-        filter.setSwitchUserUrl("/j_acegi_switch_user");
+        filter.setSwitchUserUrl("/j_spring_security_switch_user");
 
         MockFilterChain chain = new MockFilterChain(true);
 

@@ -44,11 +44,11 @@ import java.io.IOException;
  * <br/>        &lt;/servlet&gt;
  * <br/>        &lt;servlet-mapping&gt;
  * <br/>        &nbsp;&nbsp; &lt;servlet-name&gt;openid&lt;/servlet-name&gt;
- * <br/>        &nbsp;&nbsp; &lt;url-pattern&gt;/j_acegi_openid_start&lt;/url-pattern&gt;
+ * <br/>        &nbsp;&nbsp; &lt;url-pattern&gt;/j_spring_security_openid_start&lt;/url-pattern&gt;
  * <br/>        &lt;/servlet-mapping&gt;
  * <br/>
  * <br/>Sample login form:
- * <br/>&lt;form method="POST" action="j_acegi_openid_start"&gt;
+ * <br/>&lt;form method="POST" action="j_spring_security_openid_start"&gt;
  * <br/>&nbsp;&nbsp; &lt;input type="text" name="j_username" /&gt;
  * <br/>&nbsp;&nbsp; &lt;input type="password" name="j_password" /&gt;
  * <br/>&nbsp;&nbsp; &lt;input type="submit" value="Verify" /&gt;
@@ -91,7 +91,7 @@ public class OpenIDLoginInitiationServlet extends HttpServlet {
 
     /**
      * Servlet config key for looking up the form login URL from the Servlet config.
-     * <br/><b>Only set the formLogin servlet init-param if you are not using</b> <code>/j_acegi_security_check</code>
+     * <br/><b>Only set the formLogin servlet init-param if you are not using</b> <code>/j_spring_security_check</code>
      * <br/>
      * <br/>        &nbsp;&nbsp; &lt;init-param&gt;
      * <br/>        &nbsp;&nbsp;&nbsp;&nbsp; &lt;description&gt;The form login URL - for standard authentication&lt;/description&gt;
@@ -107,7 +107,7 @@ public class OpenIDLoginInitiationServlet extends HttpServlet {
     public static final String CONSUMER_KEY = "openIDConsumer";
     private String errorPage = "index.jsp";
     private String identityField = "j_username";
-    private String formLoginUrl = "/j_acegi_security_check";
+    private String formLoginUrl = "/j_spring_security_check";
 
     /**
      * Check for init-params
@@ -152,7 +152,7 @@ public class OpenIDLoginInitiationServlet extends HttpServlet {
         // get the submitted id field
         String id = req.getParameter(identityField);
 
-        // assume page will validate? 
+        // assume page will validate?
         //TODO: null checking!
 
         //TODO: pattern matching
@@ -161,7 +161,7 @@ public class OpenIDLoginInitiationServlet extends HttpServlet {
         if ((password != null) && (password.length() > 0)) {
             logger.debug("Attempting to authenticate using username/password");
 
-            // forward to authenticationProcessingFilter (/j_acegi_security_check - depends on param names)
+            // forward to authenticationProcessingFilter (/j_spring_security_check - depends on param names)
             req.getRequestDispatcher(formLoginUrl).forward(req, res);
 
         } else {

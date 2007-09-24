@@ -27,6 +27,6 @@
   </tr>
 </c:forEach>
 </table>
-<p><a href="<c:url value="add.htm"/>">Add</a>   <p><a href="<c:url value="../j_acegi_logout"/>">Logoff</a> (also clears any remember-me cookie)
+<p><a href="<c:url value="add.htm"/>">Add</a>   <p><a href="<c:url value="../j_spring_security_logout"/>">Logoff</a> (also clears any remember-me cookie)
 </body>
 </html>

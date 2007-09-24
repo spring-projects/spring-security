@@ -41,7 +41,7 @@ import javax.servlet.ServletResponse;
 public class FilterSecurityInterceptor extends AbstractSecurityInterceptor implements Filter {
     //~ Static fields/initializers =====================================================================================
 
-    private static final String FILTER_APPLIED = "__acegi_filterSecurityInterceptor_filterApplied";
+    private static final String FILTER_APPLIED = "__acegi_security_filterSecurityInterceptor_filterApplied";
 
     //~ Instance fields ================================================================================================
 

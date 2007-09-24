@@ -127,7 +127,7 @@
 			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 				\A/secure/.*\Z=REQUIRES_SECURE_CHANNEL
 				\A/acegilogin.jsp.*\Z=REQUIRES_SECURE_CHANNEL
-				\A/j_acegi_security_check.*\Z=REQUIRES_SECURE_CHANNEL
+				\A/j_spring_security_check.*\Z=REQUIRES_SECURE_CHANNEL
 				\A.*\Z=REQUIRES_INSECURE_CHANNEL
          ]]></value>
       </property>
@@ -160,7 +160,7 @@
       <property name="authenticationManager"><ref bean="authenticationManager"/></property>
       <property name="authenticationFailureUrl"><value>/acegilogin.jsp?login_error=1</value></property>
       <property name="defaultTargetUrl"><value>/</value></property>
-      <property name="filterProcessesUrl"><value>/j_acegi_security_check</value></property>
+      <property name="filterProcessesUrl"><value>/j_spring_security_check</value></property>
       <property name="rememberMeServices"><ref local="rememberMeServices"/></property>
    </bean>
 
@@ -192,7 +192,7 @@
 			    /hello.htm=ROLE_ANONYMOUS,ROLE_USER
 			    /logoff.jsp=ROLE_ANONYMOUS,ROLE_USER
 			    /switchuser.jsp=ROLE_SUPERVISOR
-			    /j_acegi_switch_user=ROLE_SUPERVISOR
+			    /j_spring_security_switch_user=ROLE_SUPERVISOR
 			    /acegilogin.jsp*=ROLE_ANONYMOUS,ROLE_USER
 				/**=ROLE_USER
          ]]></value>
@@ -204,8 +204,8 @@
    <!-- In this example 'marissa' has ROLE_SUPERVISOR that can switch to regular ROLE_USER(s) -->
    <bean id="switchUserProcessingFilter" class="org.springframework.security.ui.switchuser.SwitchUserProcessingFilter">
       <property name="userDetailsService" ref="jdbcDaoImpl" />
-	  <property name="switchUserUrl"><value>/j_acegi_switch_user</value></property>
-	  <property name="exitUserUrl"><value>/j_acegi_exit_user</value></property>
+	  <property name="switchUserUrl"><value>/j_spring_security_switch_user</value></property>
+	  <property name="exitUserUrl"><value>/j_spring_security_exit_user</value></property>
 	  <property name="targetUrl"><value>/spring-security-sample-contacts-filter/secure/index.htm</value></property>
    </bean>
 

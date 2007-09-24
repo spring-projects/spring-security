@@ -106,9 +106,9 @@ public class AbstractProcessingFilterTests extends TestCase {
         MockHttpServletRequest request = createMockRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockAbstractProcessingFilter filter = new MockAbstractProcessingFilter();
-        filter.setFilterProcessesUrl("/j_acegi_security_check");
+        filter.setFilterProcessesUrl("/j_spring_security_check");
 
-        request.setRequestURI("/mycontext/j_acegi_security_check;jsessionid=I8MIONOSTHOR");
+        request.setRequestURI("/mycontext/j_spring_security_check;jsessionid=I8MIONOSTHOR");
         assertTrue(filter.requiresAuthentication(request, response));
     }
 
@@ -281,7 +281,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setAuthenticationManager(new MockAuthenticationManager());
         filter.setDefaultTargetUrl("/");
-        filter.setFilterProcessesUrl("/j_acegi_security_check");
+        filter.setFilterProcessesUrl("/j_spring_security_check");
 
         try {
             filter.afterPropertiesSet();
@@ -295,7 +295,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setAuthenticationFailureUrl("/failed.jsp");
         filter.setDefaultTargetUrl("/");
-        filter.setFilterProcessesUrl("/j_acegi_security_check");
+        filter.setFilterProcessesUrl("/j_spring_security_check");
 
         try {
             filter.afterPropertiesSet();
@@ -309,7 +309,7 @@ public class AbstractProcessingFilterTests extends TestCase {
         AbstractProcessingFilter filter = new MockAbstractProcessingFilter();
         filter.setAuthenticationFailureUrl("/failed.jsp");
         filter.setAuthenticationManager(new MockAuthenticationManager());
-        filter.setFilterProcessesUrl("/j_acegi_security_check");
+        filter.setFilterProcessesUrl("/j_spring_security_check");
 
         try {
             filter.afterPropertiesSet();

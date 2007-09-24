@@ -55,7 +55,7 @@ public class JanRainOpenIDConsumer implements OpenIDConsumer, InitializingBean {
     //~ Instance fields ================================================================================================
 
     private OpenIDStore store;
-    private String returnToUrl = "j_acegi_openid_security_check";
+    private String returnToUrl = "j_spring_openid_security_check";
 
     //~ Methods ========================================================================================================
 

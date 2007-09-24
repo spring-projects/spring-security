@@ -29,7 +29,7 @@
       </font>
     </c:if>
 
-    <form action="<c:url value='j_acegi_security_check'/>" method="POST">
+    <form action="<c:url value='j_spring_security_check'/>" method="POST">
       <table>
         <tr><td>User:</td><td><input type='text' name='j_username' <c:if test="${not empty param.login_error}">value='<c:out value="${ACEGI_SECURITY_LAST_USERNAME}"/>'</c:if>></td></tr>
         <tr><td>Password:</td><td><input type='password' name='j_password'></td></tr>

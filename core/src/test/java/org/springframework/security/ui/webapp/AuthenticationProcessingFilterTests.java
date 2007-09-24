@@ -47,7 +47,7 @@ public class AuthenticationProcessingFilterTests extends TestCase {
 
     public void testGetters() {
         AuthenticationProcessingFilter filter = new AuthenticationProcessingFilter();
-        assertEquals("/j_acegi_security_check", filter.getDefaultFilterProcessesUrl());
+        assertEquals("/j_spring_security_check", filter.getDefaultFilterProcessesUrl());
     }
 
     public void testNormalOperation() throws Exception {

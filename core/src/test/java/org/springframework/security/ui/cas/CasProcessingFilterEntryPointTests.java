@@ -86,7 +86,7 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
     public void testNormalOperationWithRenewFalse() throws Exception {
         ServiceProperties sp = new ServiceProperties();
         sp.setSendRenew(false);
-        sp.setService("https://mycompany.com/bigWebApp/j_acegi_cas_security_check");
+        sp.setService("https://mycompany.com/bigWebApp/j_spring_cas_security_check");
 
         CasProcessingFilterEntryPoint ep = new CasProcessingFilterEntryPoint();
         ep.setLoginUrl("https://cas/login");
@@ -101,14 +101,14 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
         ep.commence(request, response, null);
 
         assertEquals("https://cas/login?service="
-            + URLEncoder.encode("https://mycompany.com/bigWebApp/j_acegi_cas_security_check", "UTF-8"),
+            + URLEncoder.encode("https://mycompany.com/bigWebApp/j_spring_cas_security_check", "UTF-8"),
             response.getRedirectedUrl());
     }
 
     public void testNormalOperationWithRenewTrue() throws Exception {
         ServiceProperties sp = new ServiceProperties();
         sp.setSendRenew(true);
-        sp.setService("https://mycompany.com/bigWebApp/j_acegi_cas_security_check");
+        sp.setService("https://mycompany.com/bigWebApp/j_spring_cas_security_check");
 
         CasProcessingFilterEntryPoint ep = new CasProcessingFilterEntryPoint();
         ep.setLoginUrl("https://cas/login");
@@ -122,7 +122,7 @@ public class CasProcessingFilterEntryPointTests extends TestCase {
         ep.afterPropertiesSet();
         ep.commence(request, response, null);
         assertEquals("https://cas/login?service="
-            + URLEncoder.encode("https://mycompany.com/bigWebApp/j_acegi_cas_security_check", "UTF-8") + "&renew=true",
+            + URLEncoder.encode("https://mycompany.com/bigWebApp/j_spring_cas_security_check", "UTF-8") + "&renew=true",
             response.getRedirectedUrl());
     }
 }

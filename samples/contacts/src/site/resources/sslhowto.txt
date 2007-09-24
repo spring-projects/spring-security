@@ -35,7 +35,7 @@ O NOT USE IN PRODUCTION., L=Unknown, ST=Unknown, C=Unknown correct?
 2. keytool -export -v -rfc -alias acegisecurity -file acegisecurity.txt -keystore keystore -storepass password
 
 3. copy acegisecurity.txt %JAVA_HOME%\lib\security
-   
+
 4. copy keystore %YOUR_WEB_CONTAINER_LOCATION%
 
    NOTE: You will need to configure your web container as appropriate.
@@ -73,7 +73,7 @@ TROUBLESHOOTING
   load the Acegi Security webapp, get redirected to the CAS server, then
   after login they get redirected back to the Acegi Security webapp and
   receive a failure. This is because the CAS server redirects to something
-  like https://server3.company.com/webapp/j_acegi_cas_security_check?ticket=ST-0-ER94xMJmn6pha35CQRoZ
+  like https://server3.company.com/webapp/j_spring_cas_security_check?ticket=ST-0-ER94xMJmn6pha35CQRoZ
   which causes the "service ticket" (the "ticket" parameter) to be validated.
   net.sf.acegisecurity.providers.cas.ticketvalidator.CasProxyTicketValidator
   performs service ticket validation by delegation to CAS'
@@ -85,7 +85,7 @@ TROUBLESHOOTING
   has NOTHING to do with client-side (browser) certificates. You need to
   correct the trust between the two webserver keystores alone.
 
-* A "sun.security.validator.ValidatorException: No trusted certificate 
+* A "sun.security.validator.ValidatorException: No trusted certificate
   found" indicates the cacerts is not being used or it did not correctly
   import the certificate. To rule out your web container replacing or in
   some way modifying the trust manager, set the

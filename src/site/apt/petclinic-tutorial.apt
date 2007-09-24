@@ -93,7 +93,7 @@ copy %acegi%\WEB-INF\lib\commons-codec-1.3.jar %spring%\samples\petclinic\war\WE
 <table style="width:100%">
   <tr>
     <td><a href="<c:url value="/welcome.htm"/>">Home</a></td>
-    <td><a href="<c:url value="/j_acegi_logout"/>">Logout</a></td>
+    <td><a href="<c:url value="/j_spring_security_logout"/>">Logout</a></td>
     <td style="text-align:right;color:silver">PetClinic :: a Spring Framework demonstration</td>
   </tr>
 </table>

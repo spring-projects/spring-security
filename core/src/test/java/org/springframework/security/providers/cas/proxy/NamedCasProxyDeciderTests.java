@@ -53,12 +53,12 @@ public class NamedCasProxyDeciderTests extends TestCase {
 
         // Build the ticket returned from CAS
         List proxyList = new Vector();
-        proxyList.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        proxyList.add("https://localhost/newPortal/j_spring_cas_security_check");
 
         // Build the list of valid nearest proxies
         List validProxies = new Vector();
-        validProxies.add("https://localhost/portal/j_acegi_cas_security_check");
-        validProxies.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        validProxies.add("https://localhost/portal/j_spring_cas_security_check");
+        validProxies.add("https://localhost/newPortal/j_spring_cas_security_check");
         proxyDecider.setValidProxies(validProxies);
         proxyDecider.afterPropertiesSet();
 
@@ -102,8 +102,8 @@ public class NamedCasProxyDeciderTests extends TestCase {
 
         // Build the list of valid nearest proxies
         List validProxies = new Vector();
-        validProxies.add("https://localhost/portal/j_acegi_cas_security_check");
-        validProxies.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        validProxies.add("https://localhost/portal/j_spring_cas_security_check");
+        validProxies.add("https://localhost/newPortal/j_spring_cas_security_check");
         proxyDecider.setValidProxies(validProxies);
 
         assertEquals(validProxies, proxyDecider.getValidProxies());
@@ -115,12 +115,12 @@ public class NamedCasProxyDeciderTests extends TestCase {
 
         // Build the ticket returned from CAS
         List proxyList = new Vector();
-        proxyList.add("https://localhost/untrustedWebApp/j_acegi_cas_security_check");
+        proxyList.add("https://localhost/untrustedWebApp/j_spring_cas_security_check");
 
         // Build the list of valid nearest proxies
         List validProxies = new Vector();
-        validProxies.add("https://localhost/portal/j_acegi_cas_security_check");
-        validProxies.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        validProxies.add("https://localhost/portal/j_spring_cas_security_check");
+        validProxies.add("https://localhost/newPortal/j_spring_cas_security_check");
         proxyDecider.setValidProxies(validProxies);
         proxyDecider.afterPropertiesSet();
 

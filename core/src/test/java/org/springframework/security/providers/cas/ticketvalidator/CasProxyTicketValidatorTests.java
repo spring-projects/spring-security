@@ -65,7 +65,7 @@ public class CasProxyTicketValidatorTests extends TestCase {
     public void testNormalOperation() {
         ServiceProperties sp = new ServiceProperties();
         sp.setSendRenew(true);
-        sp.setService("https://my.com/webapp//j_acegi_cas_security_check");
+        sp.setService("https://my.com/webapp//j_spring_cas_security_check");
 
         CasProxyTicketValidator tv = new MockCasProxyTicketValidator(true, false);
         tv.setCasValidate("https://company.com/cas/proxyvalidate");

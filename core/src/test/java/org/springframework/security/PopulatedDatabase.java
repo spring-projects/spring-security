@@ -49,7 +49,7 @@ public class PopulatedDatabase {
     private static void setupDataSource() {
         dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
-        dataSource.setUrl("jdbc:hsqldb:mem:acegisecuritytest");
+        dataSource.setUrl("jdbc:hsqldb:mem:springsecuritytest");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
 

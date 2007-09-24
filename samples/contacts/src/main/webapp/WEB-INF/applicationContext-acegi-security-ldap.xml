@@ -84,7 +84,7 @@
       <property name="authenticationManager"><ref bean="authenticationManager"/></property>
       <property name="authenticationFailureUrl"><value>/acegilogin.jsp?login_error=1</value></property>
       <property name="defaultTargetUrl"><value>/</value></property>
-      <property name="filterProcessesUrl"><value>/j_acegi_security_check</value></property>
+      <property name="filterProcessesUrl"><value>/j_spring_security_check</value></property>
    </bean>
 
    <bean id="authenticationProcessingFilterEntryPoint" class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">

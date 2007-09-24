@@ -104,7 +104,7 @@ public class HttpSessionContextIntegrationFilter implements InitializingBean, Fi
 
     protected static final Log logger = LogFactory.getLog(HttpSessionContextIntegrationFilter.class);
 
-    static final String FILTER_APPLIED = "__acegi_session_integration_filter_applied";
+    static final String FILTER_APPLIED = "__spring_security_session_integration_filter_applied";
 
     public static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
 

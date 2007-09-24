@@ -72,7 +72,7 @@ public class RejectProxyTicketsTests extends TestCase {
     public void testRejectsIfAnyProxyInList() {
         RejectProxyTickets proxyDecider = new RejectProxyTickets();
         List proxyList = new Vector();
-        proxyList.add("https://localhost/webApp/j_acegi_cas_security_check");
+        proxyList.add("https://localhost/webApp/j_spring_cas_security_check");
 
         try {
             proxyDecider.confirmProxyListTrusted(proxyList);

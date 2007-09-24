@@ -69,10 +69,10 @@ public class OpenIDResponseProcessingFilter extends AbstractProcessingFilter {
      * @Override
      */
     public String getDefaultFilterProcessesUrl() {
-        return "/j_acegi_openid_security_check";
+        return "/j_spring_openid_security_check";
     }
 
-    // dependency injection	
+    // dependency injection
     /**
      * DOCUMENT ME!
      *

@@ -44,7 +44,7 @@
 		<property name="authenticationManager" ref="authenticationManager"/>
 		<property name="authenticationFailureUrl" value="/acegilogin.jsp?login_error=1"/>
 		<property name="defaultTargetUrl" value="/"/>
-		<property name="filterProcessesUrl" value="/j_acegi_security_check"/>
+		<property name="filterProcessesUrl" value="/j_spring_security_check"/>
 		<property name="rememberMeServices" ref="rememberMeServices"/>
 	</bean>
 

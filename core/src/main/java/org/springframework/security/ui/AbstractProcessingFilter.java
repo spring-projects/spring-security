@@ -174,7 +174,7 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 
 	/**
 	 * The URL destination that this filter intercepts and processes (usually
-	 * something like <code>/j_acegi_security_check</code>)
+	 * something like <code>/j_spring_security_check</code>)
 	 */
 	private String filterProcessesUrl = getDefaultFilterProcessesUrl();
 

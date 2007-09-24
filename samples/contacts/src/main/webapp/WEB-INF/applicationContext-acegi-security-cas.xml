@@ -82,7 +82,7 @@
 	<bean id="casProxyDecider" class="org.springframework.security.providers.cas.proxy.RejectProxyTickets"/>
 
 	<bean id="serviceProperties" class="org.springframework.security.ui.cas.ServiceProperties">
-		<property name="service" value="https://localhost:8443/contacts-cas/j_acegi_cas_security_check"/>
+		<property name="service" value="https://localhost:8443/contacts-cas/j_spring_cas_security_check"/>
 		<property name="sendRenew" value="false"/>
 	</bean>
 
@@ -106,7 +106,7 @@
 			<value>
 			    CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
 				\A/secure/.*\Z=REQUIRES_SECURE_CHANNEL
-				\A/j_acegi_cas_security_check.*\Z=REQUIRES_SECURE_CHANNEL
+				\A/j_spring_cas_security_check.*\Z=REQUIRES_SECURE_CHANNEL
 				\A.*\Z=REQUIRES_INSECURE_CHANNEL
 			</value>
 		</property>
@@ -134,7 +134,7 @@
 		<property name="authenticationManager"><ref local="authenticationManager"/></property>
 		<property name="authenticationFailureUrl"><value>/casfailed.jsp</value></property>
 		<property name="defaultTargetUrl"><value>/</value></property>
-		<property name="filterProcessesUrl"><value>/j_acegi_cas_security_check</value></property>
+		<property name="filterProcessesUrl"><value>/j_spring_cas_security_check</value></property>
 	</bean>
 
 	<bean id="casProcessingFilterEntryPoint" class="org.springframework.security.ui.cas.CasProcessingFilterEntryPoint">

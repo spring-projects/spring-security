@@ -20,7 +20,7 @@ public class LogoutHandlerTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        request.setRequestURI("/j_acegi_logout;someparam=blah?otherparam=blah");
+        request.setRequestURI("/j_spring_security_logout;someparam=blah?otherparam=blah");
 
         assertTrue(filter.requiresLogout(request, response));
     }
@@ -30,7 +30,7 @@ public class LogoutHandlerTests extends TestCase {
         request.setContextPath("/context");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        request.setRequestURI("/context/j_acegi_logout?param=blah");
+        request.setRequestURI("/context/j_spring_security_logout?param=blah");
 
         assertTrue(filter.requiresLogout(request, response));
     }

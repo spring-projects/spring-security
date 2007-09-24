@@ -140,14 +140,14 @@ public class CasAuthenticationTokenTests extends TestCase {
 
     public void testEqualsWhenEqual() {
         List proxyList1 = new Vector();
-        proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        proxyList1.add("https://localhost/newPortal/j_spring_cas_security_check");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
                 makeUserDetails(), proxyList1, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
 
         List proxyList2 = new Vector();
-        proxyList2.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        proxyList2.add("https://localhost/newPortal/j_spring_cas_security_check");
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
@@ -159,7 +159,7 @@ public class CasAuthenticationTokenTests extends TestCase {
     public void testGetters() {
         // Build the proxy list returned in the ticket from CAS
         List proxyList = new Vector();
-        proxyList.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        proxyList.add("https://localhost/newPortal/j_spring_cas_security_check");
 
         CasAuthenticationToken token = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
@@ -187,14 +187,14 @@ public class CasAuthenticationTokenTests extends TestCase {
 
     public void testNotEqualsDueToAbstractParentEqualsCheck() {
         List proxyList1 = new Vector();
-        proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        proxyList1.add("https://localhost/newPortal/j_spring_cas_security_check");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
                 makeUserDetails(), proxyList1, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
 
         List proxyList2 = new Vector();
-        proxyList2.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        proxyList2.add("https://localhost/newPortal/j_spring_cas_security_check");
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("key", makeUserDetails("OTHER_NAME"), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
@@ -205,7 +205,7 @@ public class CasAuthenticationTokenTests extends TestCase {
 
     public void testNotEqualsDueToDifferentAuthenticationClass() {
         List proxyList1 = new Vector();
-        proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        proxyList1.add("https://localhost/newPortal/j_spring_cas_security_check");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
@@ -219,14 +219,14 @@ public class CasAuthenticationTokenTests extends TestCase {
 
     public void testNotEqualsDueToKey() {
         List proxyList1 = new Vector();
-        proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        proxyList1.add("https://localhost/newPortal/j_spring_cas_security_check");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
                 makeUserDetails(), proxyList1, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
 
         List proxyList2 = new Vector();
-        proxyList2.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        proxyList2.add("https://localhost/newPortal/j_spring_cas_security_check");
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("DIFFERENT_KEY", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
@@ -237,14 +237,14 @@ public class CasAuthenticationTokenTests extends TestCase {
 
     public void testNotEqualsDueToProxyGrantingTicket() {
         List proxyList1 = new Vector();
-        proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        proxyList1.add("https://localhost/newPortal/j_spring_cas_security_check");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
                 makeUserDetails(), proxyList1, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
 
         List proxyList2 = new Vector();
-        proxyList2.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        proxyList2.add("https://localhost/newPortal/j_spring_cas_security_check");
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
@@ -255,14 +255,14 @@ public class CasAuthenticationTokenTests extends TestCase {
 
     public void testNotEqualsDueToProxyList() {
         List proxyList1 = new Vector();
-        proxyList1.add("https://localhost/newPortal/j_acegi_cas_security_check");
+        proxyList1.add("https://localhost/newPortal/j_spring_cas_security_check");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
                 makeUserDetails(), proxyList1, "PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt");
 
         List proxyList2 = new Vector();
-        proxyList2.add("https://localhost/SOME_OTHER_PORTAL/j_acegi_cas_security_check");
+        proxyList2.add("https://localhost/SOME_OTHER_PORTAL/j_spring_cas_security_check");
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("key", makeUserDetails(), "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},

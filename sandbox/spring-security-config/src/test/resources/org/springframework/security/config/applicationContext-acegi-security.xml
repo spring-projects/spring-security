@@ -3,7 +3,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:security="http://www.springframework.org/schema/security"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
 	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
 	<!--
@@ -41,7 +41,7 @@
 	<!-- If LogoutFilter does not have setHandlers populated, introspect app ctx for LogoutHandlers, using Ordered (if present, otherwise assume Integer.MAX_VALUE) -->
 	<!-- The logoutUrl and redirectAfterLogout are both optional and default to that shown -->
 	<security:logout-support id="logoutFilter"
-		redirectAfterLogoutUrl="/index.jsp" logoutUrl="/j_acegi_logout" />
+		redirectAfterLogoutUrl="/index.jsp" logoutUrl="/j_spring_security_logout" />
 
 	<security:authentication-remember-me-services
 		id="rememberMeServices" key="someValue" />
@@ -52,7 +52,7 @@
 
 	<!--  the URLs are all mandatory and have no defaults (well, except authenticationUrl) -->
 	<security:authentication-form id="authenticationProcessingFilter"
-		authenticationUrl="/j_acegi_security_check" defaultTargetUrl="/"
+		authenticationUrl="/j_spring_security_check" defaultTargetUrl="/"
 		errorFormUrl="/acegilogin.jsp?login_error=1" />
 
 	<!-- make it optional, if not supplied autodetect all auth-providers from app ctx, using Ordered to resolve their order  -->
@@ -85,7 +85,7 @@
 			value="anonymousUser,ROLE_ANONYMOUS" />
 	</bean>
 
-	<!-- Basically accessDeniedUrl is optional, we if unspecified impl will auto-detect any AccessDeniedHandler in ctx and use it; 
+	<!-- Basically accessDeniedUrl is optional, we if unspecified impl will auto-detect any AccessDeniedHandler in ctx and use it;
 		alternately if there are > 1 such handlers, we can nominate the one to use via accessDeniedBeanRef; provide nested elements for
 		other props; i do not mind if you move the access denied stuff to a sub-element -->
 	<security:exception-translation id="exceptionTranslationFilter">
