@@ -54,19 +54,16 @@
                     page.
                 </p>
             </subsection>
-            <subsection name="SVN Snapshots and Daily Builds">
+            <subsection name="Nightly Builds">
                 <p>
                     If you don't wish to access SVN directly, we provide
                     <a
                         href="http://acegisecurity.sourceforge.net/nightly/">
-                        nightly SVN exports
+                        nightly snaphot builds
                     </a>
-                    for your convenience. There is also an automated
-                    build which uploads bundle of Acegi Security jar
-                    files to the same location. Both binary and source
-                    archives have the date of the build and the SVN
-                    revision number appended to the filename, so you can
-                    match them up easily.
+                    for your convenience. These should contain both source and binary
+                    jars. The archive files are labelled with both the build date and the
+                    subversion revision number used for the build.
                 </p>
             </subsection>
         </section>
