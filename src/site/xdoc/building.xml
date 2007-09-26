@@ -6,17 +6,17 @@
 
     <subsection name="Checking Out from Subversion (SVN)">
 
-    <p>This project uses <a href="http://maven.apache.org">Maven</a> as project manager
+    <p>This project uses <a href="http://maven.apache.org/">Maven</a> as project manager
 	and build tool.	We recommend you to install Maven 2.0.5 or greater before trying
 	the following.</p><p>To checkout Acegi Security from SVN, see our
-    <a href="cvs-usage.html">SVN Usage</a> page.</p>
+    <a href="svn-usage.html">SVN Usage</a> page.</p>
 
     </subsection>
 
     <subsection name="Quick Build"><p>Often people reading this document just want to see if Acegi Security will work
 	for their projects. They want to deploy a sample application, and that's about it
 	(after all, all the reference documentation can be read online at
-	<a href="http://acegisecurity.org">http://acegisecurity.org</a>).
+	<a href="http://acegisecurity.org/">http://acegisecurity.org</a>).
     Assuming you've already checked out the code from subversion, start up a command prompt and
     execute the following commands from the directory containing the project source:</p>
     <ol>

@@ -19,6 +19,18 @@ Subversion Usage
 
 +----------------------------------------------------------------------------------------------------------------------+
 
+    Note that the above command checks out the trunk source which is the least likely to be stable (although it should
+    always build correctly with no failing unit tests). If you are a beginner, or are looking for the source for a
+    specific stable version, you can use a different URL. For example, the following command would check out the 1.0
+    branch of the code which should only contain bugfixes and minor updates so should be very stable:
+
++----------------------------------------------------------------------------------------------------------------------+
+
+          svn co http://acegisecurity.svn.sourceforge.net/svnroot/acegisecurity/spring-security/branches/1.0.x-branch/
+
++----------------------------------------------------------------------------------------------------------------------+
+
+
 * Nightly Snapshots
 
     If you'd prefer not to use the subversion client directly, please see our {{{"downloads.html"}downloads page}} for
