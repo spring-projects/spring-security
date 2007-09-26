@@ -18,7 +18,7 @@
 <!-- 2. Setup the Acegi Filter Chain Proxy -->
 	<filter>
 		<filter-name>Acegi Filter Chain Proxy</filter-name>
-		<filter-class>org.springframework.security.FilterToBeanProxy</filter-class>
+		<filter-class>org.springframework.security.util.FilterToBeanProxy</filter-class>
 		<init-param>
 			<param-name>targetClass</param-name>
 			<param-value>org.springframework.security.util.FilterChainProxy</param-value>
@@ -43,7 +43,7 @@
 
 <!--    c) Setup ACEGI to subscribe to http session events in the web context -->
 	<listener>
-		<listener-class>org.springframework.acegisecurityrk.acegisecurity.ui.session.HttpSessionEventPublisher</listener-class>
+		<listener-class>org.springframework.security.ui.session.HttpSessionEventPublisher</listener-class>
 	</listener>
 
 	<welcome-file-list>
