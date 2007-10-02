@@ -25,7 +25,9 @@ public class LdapBeanDefinitionParserTests {
     @AfterClass
     public static void closeContext() {
         // Make sure apache ds shuts down
-        appContext.close();
+        if (appContext != null) {
+            appContext.close();
+        }
     }
 
     @Test
