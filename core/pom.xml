@@ -116,19 +116,22 @@
 			<groupId>org.apache.directory.server</groupId>
 			<artifactId>apacheds-core</artifactId>
 			<version>1.0.2</version>
-			<scope>test</scope>
+			<scope>compile</scope>
+            <optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.directory.server</groupId>
 			<artifactId>apacheds-server-jndi</artifactId>
 			<version>1.0.2</version>
-			<scope>test</scope>
+			<scope>compile</scope>
+            <optional>true</optional>
 		</dependency>
         <dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.4.3</version>
-			<scope>test</scope>
+			<scope>runtime</scope>
+            <optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>jmock</groupId>

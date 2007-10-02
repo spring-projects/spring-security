@@ -3062,10 +3062,10 @@ key:              A private key to prevent modification of the remember-me token
             linkend="ldap-dircontextfactory">connecting to the LDAP
             server</link> for more information on this). For example, if you
             are using an LDAP server specified by the URL
-            <literal>ldap://monkeymachine.co.uk/dc=acegisecurity,dc=org</literal>,
+            <literal>ldap://monkeymachine.co.uk/dc=springframework,dc=org</literal>,
             and have a pattern <literal>uid={0},ou=greatapes</literal>, then a
             login name of "gorilla" will map to a DN
-            <literal>uid=gorilla,ou=greatapes,dc=acegisecurity,dc=org</literal>.
+            <literal>uid=gorilla,ou=greatapes,dc=springframework,dc=org</literal>.
             Each configured DN pattern will be tried in turn until a match is
             found. For information on using a search, see the section on <link
             linkend="ldap-searchobjects">search objects</link> below. A
@@ -3168,8 +3168,8 @@ key:              A private key to prevent modification of the remember-me token
         above, might look like this: <programlisting>
     &lt;bean id="initialDirContextFactory"
             class="org.springframework.security.ldap.DefaultInitialDirContextFactory"&gt;
-      &lt;constructor-arg value="ldap://monkeymachine:389/dc=acegisecurity,dc=org"/&gt;
-      &lt;property name="managerDn"&gt;&lt;value&gt;cn=manager,dc=acegisecurity,dc=org&lt;/value&gt;&lt;/property&gt;
+      &lt;constructor-arg value="ldap://monkeymachine:389/dc=springframework,dc=org"/&gt;
+      &lt;property name="managerDn"&gt;&lt;value&gt;cn=manager,dc=springframework,dc=org&lt;/value&gt;&lt;/property&gt;
       &lt;property name="managerPassword"&gt;&lt;value&gt;password&lt;/value&gt;&lt;/property&gt;
     &lt;/bean&gt;
 
@@ -3208,12 +3208,12 @@ key:              A private key to prevent modification of the remember-me token
 
           </programlisting> This would set up the provider to access an LDAP
         server with URL
-        <literal>ldap://monkeymachine:389/dc=acegisecurity,dc=org</literal>.
+        <literal>ldap://monkeymachine:389/dc=springframework,dc=org</literal>.
         Authentication will be performed by attempting to bind with the DN
-        <literal>uid=&lt;user-login-name&gt;,ou=people,dc=acegisecurity,dc=org</literal>.
+        <literal>uid=&lt;user-login-name&gt;,ou=people,dc=springframework,dc=org</literal>.
         After successful authentication, roles will be assigned to the user by
         searching under the DN
-        <literal>ou=groups,dc=acegisecurity,dc=org</literal> with the default
+        <literal>ou=groups,dc=springframework,dc=org</literal> with the default
         filter <literal>(member=&lt;user's-DN&gt;)</literal>. The role name
         will be taken from the <quote>ou</quote> attribute of each
         match.</para>
