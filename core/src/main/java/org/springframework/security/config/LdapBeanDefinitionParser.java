@@ -4,7 +4,6 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.util.StringUtils;
 import org.springframework.security.ldap.DefaultInitialDirContextFactory;
@@ -113,6 +112,8 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
      * @param parserContext
      *
      * @return the BeanDefinition for the ContextSource for the embedded server.
+     *
+     * @see ApacheDSStartStopBean
      */
     private RootBeanDefinition createEmbeddedServer(Element element, ParserContext parserContext) {
         MutableServerStartupConfiguration configuration = new MutableServerStartupConfiguration();
@@ -145,6 +146,10 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
         //TODO: Allow port configuration
         configuration.setLdapPort(3389);
+        // We shut down the server ourself when the app context is closed so we don't need
+        // the extra shutdown hook from apache DS itself.
+        configuration.setShutdownHookEnabled(false);
+        configuration.setExitVmOnShutdown(false);
         configuration.setContextPartitionConfigurations(partitions);
 
         RootBeanDefinition initialDirContextFactory = new RootBeanDefinition(DefaultInitialDirContextFactory.class);
@@ -155,6 +160,7 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
         RootBeanDefinition apacheDSStartStop = new RootBeanDefinition(ApacheDSStartStopBean.class);
         apacheDSStartStop.getConstructorArgumentValues().addGenericArgumentValue(configuration);
+        apacheDSStartStop.getConstructorArgumentValues().addGenericArgumentValue(initialDirContextFactory);
 
         if (parserContext.getRegistry().containsBeanDefinition("_apacheDSStartStopBean")) {
             //TODO: Appropriate exception
@@ -162,7 +168,6 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
         }
 
         parserContext.getRegistry().registerBeanDefinition("_apacheDSStartStopBean", apacheDSStartStop);
-
 
         return initialDirContextFactory;
     }
