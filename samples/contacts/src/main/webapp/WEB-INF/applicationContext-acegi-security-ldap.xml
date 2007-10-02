@@ -37,8 +37,8 @@
    </bean>
 
    <bean id="initialDirContextFactory" class="org.springframework.security.ldap.DefaultInitialDirContextFactory">
-     <constructor-arg value="ldap://monkeymachine.co.uk:389/dc=acegisecurity,dc=org"/>
-     <property name="managerDn" value="cn=manager,dc=acegisecurity,dc=org" />
+     <constructor-arg value="ldap://monkeymachine.co.uk:389/dc=springframework,dc=org"/>
+     <property name="managerDn" value="cn=manager,dc=springframework,dc=org" />
      <property name="managerPassword" value="acegisecurity"/>
    </bean>
 

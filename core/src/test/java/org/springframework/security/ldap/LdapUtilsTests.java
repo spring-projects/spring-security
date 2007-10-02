@@ -45,9 +45,9 @@ public class LdapUtilsTests extends MockObjectTestCase {
         throws Exception {
         Mock mockCtx = mock(DirContext.class);
 
-        mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=acegisecurity,dc=org"));
+        mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=springframework,dc=org"));
 
-        assertEquals("", LdapUtils.getRelativeName("dc=acegisecurity,dc=org", (Context) mockCtx.proxy()));
+        assertEquals("", LdapUtils.getRelativeName("dc=springframework,dc=org", (Context) mockCtx.proxy()));
     }
 
     public void testGetRelativeNameReturnsFullDnWithEmptyBaseName()
@@ -56,8 +56,8 @@ public class LdapUtilsTests extends MockObjectTestCase {
 
         mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue(""));
 
-        assertEquals("cn=jane,dc=acegisecurity,dc=org",
-            LdapUtils.getRelativeName("cn=jane,dc=acegisecurity,dc=org", (Context) mockCtx.proxy()));
+        assertEquals("cn=jane,dc=springframework,dc=org",
+            LdapUtils.getRelativeName("cn=jane,dc=springframework,dc=org", (Context) mockCtx.proxy()));
     }
 
     public void testGetRelativeNameWorksWithArbitrarySpaces()
@@ -74,12 +74,12 @@ public class LdapUtilsTests extends MockObjectTestCase {
         assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine"));
         assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/"));
         assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/"));
-        assertEquals("dc=acegisecurity,dc=org",
-            LdapUtils.parseRootDnFromUrl("ldaps://monkeymachine.co.uk/dc=acegisecurity,dc=org"));
-        assertEquals("dc=acegisecurity,dc=org", LdapUtils.parseRootDnFromUrl("ldap:///dc=acegisecurity,dc=org"));
-        assertEquals("dc=acegisecurity,dc=org",
-            LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/dc=acegisecurity,dc=org"));
-        assertEquals("dc=acegisecurity,dc=org/ou=blah",
-            LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/dc=acegisecurity,dc=org/ou=blah"));
+        assertEquals("dc=springframework,dc=org",
+            LdapUtils.parseRootDnFromUrl("ldaps://monkeymachine.co.uk/dc=springframework,dc=org"));
+        assertEquals("dc=springframework,dc=org", LdapUtils.parseRootDnFromUrl("ldap:///dc=springframework,dc=org"));
+        assertEquals("dc=springframework,dc=org",
+            LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/dc=springframework,dc=org"));
+        assertEquals("dc=springframework,dc=org/ou=blah",
+            LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/dc=springframework,dc=org/ou=blah"));
     }
 }

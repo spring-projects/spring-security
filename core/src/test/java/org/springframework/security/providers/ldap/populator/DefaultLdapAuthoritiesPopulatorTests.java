@@ -26,9 +26,11 @@ import org.springframework.ldap.core.DistinguishedName;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.junit.Assert.*;
+import org.junit.Test;
+
 
 /**
- * DOCUMENT ME!
  *
  * @author Luke Taylor
  * @version $Id$
@@ -37,13 +39,14 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
     private DefaultLdapAuthoritiesPopulator populator;
     //~ Methods ========================================================================================================
 
-    protected void onSetUp() throws Exception {
+    public void onSetUp() throws Exception {
         super.onSetUp();
 
         populator = new DefaultLdapAuthoritiesPopulator((InitialDirContextFactory) getContextSource(), "ou=groups");
 
     }
 
+    @Test
     public void testDefaultRoleIsAssignedWhenSet() {
 
         populator.setDefaultRole("ROLE_USER");
@@ -55,6 +58,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
         assertEquals("ROLE_USER", authorities[0].getAuthority());
     }
 
+    @Test
     public void testGroupSearchReturnsExpectedRoles() {
         populator.setRolePrefix("ROLE_");
         populator.setGroupRoleAttribute("ou");
@@ -63,7 +67,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
         populator.setConvertToUpperCase(true);
         populator.setGroupSearchFilter("(member={0})");
 
-        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=ben,ou=people,dc=acegisecurity,dc=org"));
+        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=ben,ou=people,dc=springframework,dc=org"));
 
         GrantedAuthority[] authorities = populator.getGrantedAuthorities(ctx, "ben");
 
@@ -76,12 +80,13 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
         assertTrue(roles.contains("ROLE_MANAGER"));
     }
 
+    @Test
     public void testUseOfUsernameParameterReturnsExpectedRoles() {
         populator.setGroupRoleAttribute("ou");
         populator.setConvertToUpperCase(true);
         populator.setGroupSearchFilter("(ou={1})");
 
-        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=ben,ou=people,dc=acegisecurity,dc=org"));
+        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=ben,ou=people,dc=springframework,dc=org"));
 
         GrantedAuthority[] authorities = populator.getGrantedAuthorities(ctx, "manager");
 
@@ -89,11 +94,12 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
         assertEquals("ROLE_MANAGER", authorities[0].getAuthority());
     }
 
+    @Test
     public void testSubGroupRolesAreNotFoundByDefault() {
         populator.setGroupRoleAttribute("ou");
         populator.setConvertToUpperCase(true);
 
-        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=ben,ou=people,dc=acegisecurity,dc=org"));
+        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=ben,ou=people,dc=springframework,dc=org"));
 
         GrantedAuthority[] authorities = populator.getGrantedAuthorities(ctx, "manager");
 
@@ -105,12 +111,13 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
         assertTrue(roles.contains("ROLE_DEVELOPER"));
     }
 
+    @Test
     public void testSubGroupRolesAreFoundWhenSubtreeSearchIsEnabled() {
         populator.setGroupRoleAttribute("ou");
         populator.setConvertToUpperCase(true);
         populator.setSearchSubtree(true);
 
-        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=ben,ou=people,dc=acegisecurity,dc=org"));
+        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=ben,ou=people,dc=springframework,dc=org"));
 
         GrantedAuthority[] authorities = populator.getGrantedAuthorities(ctx, "manager");
 

@@ -48,7 +48,7 @@ import javax.naming.directory.InitialDirContext;
  * <tt>DirContext</tt> references.
  * <p>
  * The directory location is configured using by setting the constructor argument
- * <tt>providerUrl</tt>. This should be in the form <tt>ldap://monkeymachine.co.uk:389/dc=acegisecurity,dc=org</tt>.
+ * <tt>providerUrl</tt>. This should be in the form <tt>ldap://monkeymachine.co.uk:389/dc=springframework,dc=org</tt>.
  * The Sun JNDI provider also supports lists of space-separated URLs, each of which will be tried in turn until a
  * connection is obtained.
  * </p>
@@ -226,8 +226,8 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
     /**
      * Returns the root DN of the configured provider URL. For example, if the URL is
-     * <tt>ldap://monkeymachine.co.uk:389/dc=acegisecurity,dc=org</tt> the value will be
-     * <tt>dc=acegisecurity,dc=org</tt>.
+     * <tt>ldap://monkeymachine.co.uk:389/dc=springframework,dc=org</tt> the value will be
+     * <tt>dc=springframework,dc=org</tt>.
      *
      * @return the root DN calculated from the path of the LDAP url.
      */

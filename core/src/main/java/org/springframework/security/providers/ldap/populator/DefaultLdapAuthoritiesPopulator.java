@@ -45,13 +45,13 @@ import javax.naming.directory.SearchControls;
  * A typical group search scenario would be where each group/role is specified using the <tt>groupOfNames</tt>
  * (or <tt>groupOfUniqueNames</tt>) LDAP objectClass and the user's DN is listed in the <tt>member</tt> (or
  * <tt>uniqueMember</tt>) attribute to indicate that they should be assigned that role. The following LDIF sample has
- * the groups stored under the DN <tt>ou=groups,dc=acegisecurity,dc=org</tt> and a group called "developers" with
+ * the groups stored under the DN <tt>ou=groups,dc=springframework,dc=org</tt> and a group called "developers" with
  * "ben" and "marissa" as members:
  * <pre>
- * dn: ou=groups,dc=acegisecurity,dc=orgobjectClass: top
- * objectClass: organizationalUnitou: groupsdn: cn=developers,ou=groups,dc=acegisecurity,dc=org
+ * dn: ou=groups,dc=springframework,dc=orgobjectClass: top
+ * objectClass: organizationalUnitou: groupsdn: cn=developers,ou=groups,dc=springframework,dc=org
  * objectClass: groupOfNamesobjectClass: topcn: developersdescription: Acegi Security Developers
- * member: uid=ben,ou=people,dc=acegisecurity,dc=orgmember: uid=marissa,ou=people,dc=acegisecurity,dc=orgou: developer
+ * member: uid=ben,ou=people,dc=springframework,dc=orgmember: uid=marissa,ou=people,dc=springframework,dc=orgou: developer
  * </pre>
  * </p>
  * <p/>
@@ -75,7 +75,7 @@ import javax.naming.directory.SearchControls;
  *   &lt;property name="convertToUpperCase">&lt;value>true&lt;/value>&lt;/property>
  * &lt;/bean>
  * </pre>
- * A search for roles for user "uid=ben,ou=people,dc=acegisecurity,dc=org" would return the single granted authority
+ * A search for roles for user "uid=ben,ou=people,dc=springframework,dc=org" would return the single granted authority
  * "ROLE_DEVELOPER".
  * </p>
  * <p/>

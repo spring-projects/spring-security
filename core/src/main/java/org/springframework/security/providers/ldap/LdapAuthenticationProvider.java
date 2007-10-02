@@ -73,8 +73,8 @@ import org.springframework.ldap.core.DirContextOperations;
  * A simple configuration might be as follows:
  * <pre>
  *    &lt;bean id="initialDirContextFactory" class="org.springframework.security.providers.ldap.DefaultInitialDirContextFactory">
- *      &lt;constructor-arg value="ldap://monkeymachine:389/dc=acegisecurity,dc=org"/>
- *      &lt;property name="managerDn">&lt;value>cn=manager,dc=acegisecurity,dc=org&lt;/value>&lt;/property>
+ *      &lt;constructor-arg value="ldap://monkeymachine:389/dc=springframework,dc=org"/>
+ *      &lt;property name="managerDn">&lt;value>cn=manager,dc=springframework,dc=org&lt;/value>&lt;/property>
  *      &lt;property name="managerPassword">&lt;value>password&lt;/value>&lt;/property>
  *    &lt;/bean>
  *
@@ -95,10 +95,10 @@ import org.springframework.ldap.core.DirContextOperations;
  *    &lt;/bean></pre>
  *
  * <p>This would set up the provider to access an LDAP server with URL
- * <tt>ldap://monkeymachine:389/dc=acegisecurity,dc=org</tt>. Authentication will be performed by attempting to bind
- * with the DN <tt>uid=&lt;user-login-name&gt;,ou=people,dc=acegisecurity,dc=org</tt>. After successful
+ * <tt>ldap://monkeymachine:389/dc=springframework,dc=org</tt>. Authentication will be performed by attempting to bind
+ * with the DN <tt>uid=&lt;user-login-name&gt;,ou=people,dc=springframework,dc=org</tt>. After successful
  * authentication, roles will be assigned to the user by searching under the DN
- * <tt>ou=groups,dc=acegisecurity,dc=org</tt> with the default filter <tt>(member=&lt;user's-DN&gt;)</tt>. The role
+ * <tt>ou=groups,dc=springframework,dc=org</tt> with the default filter <tt>(member=&lt;user's-DN&gt;)</tt>. The role
  * name will be taken from the "ou" attribute of each match.</p>
  * <p>
  * The authenticate method will reject empty passwords outright. LDAP servers may allow an anonymous

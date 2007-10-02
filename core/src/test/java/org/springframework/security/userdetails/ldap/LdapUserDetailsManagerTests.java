@@ -26,6 +26,10 @@ import org.springframework.security.context.SecurityContextHolder;
 
 import org.springframework.ldap.core.DirContextAdapter;
 
+import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Test;
+
 /**
  * @author Luke Taylor
  * @version $Id$
@@ -36,7 +40,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
     private LdapUserDetailsManager mgr;
     private SpringSecurityLdapTemplate template;
 
-    protected void onSetUp() throws Exception {
+    public void onSetUp() throws Exception {
         super.onSetUp();
         mgr = new LdapUserDetailsManager(getContextSource());
         template = new SpringSecurityLdapTemplate(getContextSource());
@@ -53,7 +57,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 
         group.setAttributeValue("objectclass", "groupOfNames");
         group.setAttributeValue("cn", "clowns");
-        group.setAttributeValue("member", "cn=nobody,ou=testpeople,dc=acegisecurity,dc=org");
+        group.setAttributeValue("member", "cn=nobody,ou=testpeople,dc=springframework,dc=org");
         template.bind("cn=clowns,ou=testgroups", group, null);
 
         group.setAttributeValue("cn", "acrobats");
@@ -66,8 +70,8 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
         mgr.setUserDetailsMapper(new PersonContextMapper());
     }
 
-
-    protected void onTearDown() throws Exception {
+    @After
+    public void onTearDown() throws Exception {
 //        Iterator people = template.list("ou=testpeople").iterator();
 
 //        DirContext rootCtx = new DirContextAdapter(new DistinguishedName(getInitialCtxFactory().getRootDn()));
@@ -80,9 +84,9 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
         template.unbind("ou=testgroups",true);
 
         SecurityContextHolder.clearContext();
-        super.onTearDown();
     }
 
+    @Test
     public void testLoadUserByUsernameReturnsCorrectData() {
         mgr.setUserDnBase("ou=people");
         mgr.setGroupSearchBase("ou=groups");
@@ -94,6 +98,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
         assertEquals(1, bob.getAuthorities().length);
     }
 
+    @Test
     public void testLoadingInvalidUsernameThrowsUsernameNotFoundException() {
 
         try {
@@ -104,15 +109,18 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
         }
     }
 
+    @Test
     public void testUserExistsReturnsTrueForValidUser() {
         mgr.setUserDnBase("ou=people");
         assertTrue(mgr.userExists("bob"));
     }
 
+    @Test
     public void testUserExistsReturnsFalseForInValidUser() {
         assertFalse(mgr.userExists("jim"));
     }
 
+    @Test
     public void testCreateNewUserSucceeds() {
         InetOrgPerson.Essence p = new InetOrgPerson.Essence();
         p.setCn(new String[] {"Joe Smeth"});
@@ -123,6 +131,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
         mgr.createUser(p.createUserDetails());
     }
 
+    @Test
     public void testDeleteUserSucceeds() {
         InetOrgPerson.Essence p = new InetOrgPerson.Essence();
         p.setCn(new String[] {"Don Smeth"});
@@ -150,6 +159,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
         assertEquals(0, mgr.getUserAuthorities(mgr.buildDn("don"), "don").length);
     }
 
+    @Test
     public void testPasswordChangeWithCorrectOldPasswordSucceeds() {
         InetOrgPerson.Essence p = new InetOrgPerson.Essence();
         p.setCn(new String[] {"John Yossarian"});
@@ -165,10 +175,11 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 
         mgr.changePassword("yossarianspassword", "yossariansnewpassword");
 
-        assertTrue(template.compare("uid=johnyossarian,ou=testpeople,dc=acegisecurity,dc=org",
+        assertTrue(template.compare("uid=johnyossarian,ou=testpeople,dc=springframework,dc=org",
                 "userPassword", "yossariansnewpassword"));
     }
 
+    @Test
     public void testPasswordChangeWithWrongOldPasswordFails() {
         InetOrgPerson.Essence p = new InetOrgPerson.Essence();
         p.setCn(new String[] {"John Yossarian"});

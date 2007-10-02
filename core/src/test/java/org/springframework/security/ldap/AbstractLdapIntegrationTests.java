@@ -14,9 +14,23 @@
  */
 package org.springframework.security.ldap;
 
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 import org.springframework.ldap.core.ContextSource;
+import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.junit.BeforeClass;
+import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.After;
+import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
+
+import javax.naming.directory.DirContext;
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
+import javax.naming.Binding;
+import javax.naming.ContextNotEmptyException;
+import javax.naming.NameNotFoundException;
 
 /**
  * Based on class borrowed from Spring Ldap project.
@@ -24,42 +38,62 @@ import org.springframework.core.io.ClassPathResource;
  * @author Luke Taylor
  * @version $Id$
  */
-public abstract class AbstractLdapIntegrationTests extends AbstractDependencyInjectionSpringContextTests {
-    private LdapServerManager ldapServerManager;
-    private ContextSource contextSource;
-    private DefaultInitialDirContextFactory initialDirContextFactory;
+public abstract class AbstractLdapIntegrationTests {
+    private static ClassPathXmlApplicationContext appContext;
+    private boolean dirty = false;
 
     protected AbstractLdapIntegrationTests() {
-        super.setAutowireMode(AUTOWIRE_BY_NAME);
     }
 
-    protected String[] getConfigLocations() {
-        return new String[] {"/org/springframework/security/ldap/ldapIntegrationTestContext.xml"};
+    @BeforeClass
+    public static void loadContext() {
+        appContext = new ClassPathXmlApplicationContext("/org/springframework/security/ldap/ldapIntegrationTestContext.xml");
     }
 
+    @AfterClass
+    public static void closeContext() {
+        appContext.close();
+    }
 
-    protected void onSetUp() throws Exception {
-        super.onSetUp();
+    @Before
+    public void onSetUp() throws Exception {
+    }
 
-        ClassPathResource ldifs = new ClassPathResource("org/springframework/security/ldap/setup_data.ldif");
+    /** Reloads the server data file */
+    protected void setDirty() {
+        dirty = true;
+    }
+
+    @After
+    public final void reloadServerDataIfDirty() throws Exception {
+//        if (!dirty) {
+//            return;
+//        }
+
+//        closeContext();
+//        loadContext();
+        ClassPathResource ldifs = new ClassPathResource("test-server.ldif");
 
         if (!ldifs.getFile().exists()) {
             throw new IllegalStateException("Ldif file not found: " + ldifs.getFile().getAbsolutePath());
         }
 
-        ldapServerManager.cleanAndSetup(ldifs.getFile().getAbsolutePath());
-    }
+        DirContext ctx = getContextSource().getReadWriteContext();
 
-    public void setLdapServerManager(LdapServerManager ldapServerManager) {
-        this.ldapServerManager = ldapServerManager;
+        // First of all, make sure the database is empty.
+        Name startingPoint = new DistinguishedName("dc=springframework,dc=org");
+
+        try {
+            clearSubContexts(ctx, startingPoint);
+            LdifFileLoader loader = new LdifFileLoader(ctx, ldifs.getFile().getAbsolutePath());
+            loader.execute();
+        } finally {
+            ctx.close();
+        }        
     }
 
     public ContextSource getContextSource() {
-        return contextSource;
-    }
-
-    public void setContextSource(ContextSource contextSource) {
-        this.contextSource = contextSource;
+        return (ContextSource) appContext.getBean("contextSource");
     }
 
     /**
@@ -67,11 +101,36 @@ public abstract class AbstractLdapIntegrationTests extends AbstractDependencyInj
      * the cleanAndSetup method so any mods during tests can mess it up.
      * TODO: Once the initialdircontextfactory stuff has been refactored, revisit this and remove this property.
      */
-    public DefaultInitialDirContextFactory getInitialDirContextFactory() {
-        return initialDirContextFactory;
+    protected DefaultInitialDirContextFactory getInitialDirContextFactory() {
+        return (DefaultInitialDirContextFactory) appContext.getBean("initialDirContextFactory");
     }
 
-    public void setInitialDirContextFactory(DefaultInitialDirContextFactory initialDirContextFactory) {
-        this.initialDirContextFactory = initialDirContextFactory;
+    private void clearSubContexts(DirContext ctx, Name name) throws NamingException {
+
+        NamingEnumeration enumeration = null;
+        try {
+            enumeration = ctx.listBindings(name);
+            while (enumeration.hasMore()) {
+                Binding element = (Binding) enumeration.next();
+                DistinguishedName childName = new DistinguishedName(element.getName());
+                childName.prepend((DistinguishedName) name);
+
+                try {
+                    ctx.destroySubcontext(childName);
+                } catch (ContextNotEmptyException e) {
+                    clearSubContexts(ctx, childName);
+                    ctx.destroySubcontext(childName);
+                }
+            }
+        } catch(NameNotFoundException ignored) {
+        }
+        catch (NamingException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                enumeration.close();
+            } catch (Exception ignored) {
+            }
+        }
     }
 }

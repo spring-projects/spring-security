@@ -41,12 +41,12 @@ public class PasswordComparisonAuthenticatorMockTests extends MockObjectTestCase
         attrs.put(new BasicAttribute("uid", "bob"));
 
         PasswordComparisonAuthenticator authenticator = new PasswordComparisonAuthenticator(new MockInitialDirContextFactory(
-                    (DirContext) mockCtx.proxy(), "dc=acegisecurity,dc=org"));
+                    (DirContext) mockCtx.proxy(), "dc=springframework,dc=org"));
 
         authenticator.setUserDnPatterns(new String[] {"cn={0},ou=people"});
 
         // Get the mock to return an empty attribute set
-        mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=acegisecurity,dc=org"));
+        mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=springframework,dc=org"));
         mockCtx.expects(once()).method("lookup").with(eq("cn=Bob, ou=people")).will(returnValue(true));
         mockCtx.expects(once()).method("getAttributes").with(eq("cn=Bob, ou=people"), NULL)
                .will(returnValue(attrs));

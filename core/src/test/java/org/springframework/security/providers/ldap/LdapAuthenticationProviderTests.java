@@ -140,12 +140,12 @@ public class LdapAuthenticationProviderTests extends TestCase {
 
 
             if (username.equals("ben") && password.equals("benspassword")) {
-                ctx.setDn(new DistinguishedName("cn=ben,ou=people,dc=acegisecurity,dc=org"));
+                ctx.setDn(new DistinguishedName("cn=ben,ou=people,dc=springframework,dc=org"));
                 ctx.setAttributeValue("userPassword","{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=");
 
                 return ctx;
             } else if (username.equals("jen") && password.equals("")) {
-                ctx.setDn(new DistinguishedName("cn=jen,ou=people,dc=acegisecurity,dc=org"));
+                ctx.setDn(new DistinguishedName("cn=jen,ou=people,dc=springframework,dc=org"));
 
                 return ctx;
             }

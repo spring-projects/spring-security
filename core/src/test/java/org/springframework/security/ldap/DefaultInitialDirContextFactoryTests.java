@@ -24,6 +24,8 @@ import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.directory.DirContext;
 
+import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  * Tests {@link org.springframework.security.ldap.DefaultInitialDirContextFactory}.
@@ -44,6 +46,7 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapIntegratio
         idf.setMessageSource(new AcegiMessageSource());
     }
 
+    @Test
     public void testAnonymousBindSucceeds() throws Exception {
         DirContext ctx = idf.newInitialDirContext();
         // Connection pooling should be set by default for anon users.
@@ -52,9 +55,10 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapIntegratio
         ctx.close();
     }
 
+    @Test
     public void testBaseDnIsParsedFromCorrectlyFromUrl() {
-        idf = new DefaultInitialDirContextFactory("ldap://acegisecurity.org/dc=acegisecurity,dc=org");
-        assertEquals("dc=acegisecurity,dc=org", idf.getRootDn());
+        idf = new DefaultInitialDirContextFactory("ldap://acegisecurity.org/dc=springframework,dc=org");
+        assertEquals("dc=springframework,dc=org", idf.getRootDn());
 
         // Check with an empty root
         idf = new DefaultInitialDirContextFactory("ldap://acegisecurity.org/");
@@ -65,8 +69,9 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapIntegratio
         assertEquals("", idf.getRootDn());
     }
 
+    @Test
     public void testBindAsManagerFailsIfNoPasswordSet() throws Exception {
-        idf.setManagerDn("uid=bob,ou=people,dc=acegisecurity,dc=org");
+        idf.setManagerDn("uid=bob,ou=people,dc=springframework,dc=org");
 
         DirContext ctx = null;
 
@@ -81,9 +86,10 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapIntegratio
         LdapUtils.closeContext(ctx);
     }
 
+    @Test
     public void testBindAsManagerSucceeds() throws Exception {
         idf.setManagerPassword("bobspassword");
-        idf.setManagerDn("uid=bob,ou=people,dc=acegisecurity,dc=org");
+        idf.setManagerDn("uid=bob,ou=people,dc=springframework,dc=org");
 
         DirContext ctx = idf.newInitialDirContext();
 // Can't rely on this property being there with embedded server
@@ -91,14 +97,16 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapIntegratio
         ctx.close();
     }
 
+    @Test
     public void testConnectionAsSpecificUserSucceeds() throws Exception {
-        DirContext ctx = idf.newInitialDirContext("uid=Bob,ou=people,dc=acegisecurity,dc=org", "bobspassword");
+        DirContext ctx = idf.newInitialDirContext("uid=Bob,ou=people,dc=springframework,dc=org", "bobspassword");
         // We don't want pooling for specific users.
         // assertNull(ctx.getEnvironment().get("com.sun.jndi.ldap.connect.pool"));
 //        com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
         ctx.close();
     }
 
+    @Test
     public void testConnectionFailure() throws Exception {
         // Use the wrong port
         idf = new DefaultInitialDirContextFactory("ldap://localhost:60389");
@@ -115,6 +123,7 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapIntegratio
         } catch (UncategorizedLdapException expected) {}
     }
 
+    @Test
     public void testEnvironment() {
         idf = new DefaultInitialDirContextFactory("ldap://acegisecurity.org/");
 
@@ -144,9 +153,9 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapIntegratio
         assertEquals("extravarvalue", env.get("extravar"));
     }
 
-    public void testInvalidPasswordCausesBadCredentialsException()
-        throws Exception {
-        idf.setManagerDn("uid=bob,ou=people,dc=acegisecurity,dc=org");
+    @Test
+    public void testInvalidPasswordCausesBadCredentialsException() throws Exception {
+        idf.setManagerDn("uid=bob,ou=people,dc=springframework,dc=org");
         idf.setManagerPassword("wrongpassword");
 
         DirContext ctx = null;
@@ -159,28 +168,31 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapIntegratio
         LdapUtils.closeContext(ctx);
     }
 
+    @Test
     public void testMultipleProviderUrlsAreAccepted() {
-        idf = new DefaultInitialDirContextFactory("ldaps://security.org/dc=acegisecurity,dc=org "
-                + "ldap://monkeymachine.co.uk/dc=acegisecurity,dc=org");
+        idf = new DefaultInitialDirContextFactory("ldaps://security.org/dc=springframework,dc=org "
+                + "ldap://monkeymachine.co.uk/dc=springframework,dc=org");
     }
 
+    @Test
     public void testMultipleProviderUrlsWithDifferentRootsAreRejected() {
         try {
-            idf = new DefaultInitialDirContextFactory("ldap://security.org/dc=acegisecurity,dc=org "
+            idf = new DefaultInitialDirContextFactory("ldap://security.org/dc=springframework,dc=org "
                     + "ldap://monkeymachine.co.uk/dc=someotherplace,dc=org");
             fail("Different root DNs should cause an exception");
         } catch (IllegalArgumentException expected) {}
     }
 
+    @Test
     public void testSecureLdapUrlIsSupported() {
-        idf = new DefaultInitialDirContextFactory("ldaps://localhost/dc=acegisecurity,dc=org");
-        assertEquals("dc=acegisecurity,dc=org", idf.getRootDn());
+        idf = new DefaultInitialDirContextFactory("ldaps://localhost/dc=springframework,dc=org");
+        assertEquals("dc=springframework,dc=org", idf.getRootDn());
     }
 
 //    public void testNonLdapUrlIsRejected() throws Exception {
 //        DefaultInitialDirContextFactory idf = new DefaultInitialDirContextFactory();
 //
-//        idf.setUrl("http://security.org/dc=acegisecurity,dc=org");
+//        idf.setUrl("http://security.org/dc=springframework,dc=org");
 //        idf.setInitialContextFactory(CoreContextFactory.class.getName());
 //
 //        try {
@@ -189,8 +201,9 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapIntegratio
 //        } catch(IllegalArgumentException expected) {
 //        }
 //    }
+    @Test
     public void testServiceLocationUrlIsSupported() {
-        idf = new DefaultInitialDirContextFactory("ldap:///dc=acegisecurity,dc=org");
-        assertEquals("dc=acegisecurity,dc=org", idf.getRootDn());
+        idf = new DefaultInitialDirContextFactory("ldap:///dc=springframework,dc=org");
+        assertEquals("dc=springframework,dc=org", idf.getRootDn());
     }
 }

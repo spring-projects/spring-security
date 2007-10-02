@@ -27,6 +27,8 @@ import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.DirContextOperations;
 
+import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  * Tests for {@link BindAuthenticator}.
@@ -52,6 +54,7 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 
     }
 
+    @Test
     public void testAuthenticationWithCorrectPasswordSucceeds() {
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
 
@@ -59,6 +62,7 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
         assertEquals("bob", user.getStringAttribute("uid"));
     }
 
+    @Test
     public void testAuthenticationWithInvalidUserNameFails() {
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
 
@@ -68,14 +72,16 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
         } catch (BadCredentialsException expected) {}
     }
 
+    @Test
     public void testAuthenticationWithUserSearch() throws Exception {
-        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=bob,ou=people,dc=acegisecurity,dc=org"));
+        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=bob,ou=people,dc=springframework,dc=org"));
 
         authenticator.setUserSearch(new MockUserSearch(ctx));
         authenticator.afterPropertiesSet();
         authenticator.authenticate(bob);
     }
 
+    @Test
     public void testAuthenticationWithWrongPasswordFails() {
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
 
@@ -85,6 +91,7 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
         } catch (BadCredentialsException expected) {}
     }
 
+    @Test
     public void testUserDnPatternReturnsCorrectDn() {
         authenticator.setUserDnPatterns(new String[] {"cn={0},ou=people"});
         assertEquals("cn=Joe,ou=people," + ((InitialDirContextFactory)getContextSource()).getRootDn(), authenticator.getUserDns("Joe").get(0));

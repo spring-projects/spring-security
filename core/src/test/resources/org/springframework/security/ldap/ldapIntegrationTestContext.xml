@@ -1,34 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+    xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd">
 
-    <import resource="classpath:/org/springframework/security/ldap/apacheDsContext.xml"/>
+    <security:ldap ldif="classpath:test-server.ldif"/>
 
-	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="location" value="classpath:/org/springframework/security/ldap/ldapserver.properties" />
-	</bean>
-<!--
-	<bean id="contextSource" class="org.springframework.ldap.core.support.DirContextSource" >
-		<property name="urls" value="${urls}" />
-		<property name="userDn" value="${userDn}" />
-		<property name="password" value="${password}" />
-		<property name="base" value="${base}" />
-		<property name="dirObjectFactory" value="org.springframework.ldap.core.support.DefaultDirObjectFactory" />
-	</bean>
--->
-    <bean id="contextSource" class="org.springframework.security.ldap.DefaultInitialDirContextFactory" >
-        <constructor-arg value="${fullUrl}"/>
-        <property name="managerDn" value="${userDn}"/>
-		<property name="managerPassword" value="${password}" />
-        <property name="useLdapContext" value="true"/>
-        <property name="dirObjectFactory" value="org.springframework.ldap.core.support.DefaultDirObjectFactory" />
-	</bean>
+    <!--<import resource="classpath:/org/springframework/security/ldap/apacheDsContext.xml"/>-->
 
-    <!-- Here for refactoring, until we have a satisfactory context source implementation -->
     <bean id="initialDirContextFactory" class="org.springframework.security.ldap.DefaultInitialDirContextFactory" >
-        <constructor-arg value="${fullUrl}"/>
+        <constructor-arg value="ldap://127.0.0.1:3389/dc=springframework,dc=org"/>
         <property name="useLdapContext" value="true"/>
         <property name="dirObjectFactory" value="org.springframework.ldap.core.support.DefaultDirObjectFactory" />
 	</bean>

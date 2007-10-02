@@ -62,8 +62,8 @@ public final class LdapUtils {
 
     /**
      * Obtains the part of a DN relative to a supplied base context.
-     * <p>If the DN is "cn=bob,ou=people,dc=acegisecurity,dc=org" and the base context name is
-     * "ou=people,dc=acegisecurity,dc=org" it would return "cn=bob".
+     * <p>If the DN is "cn=bob,ou=people,dc=springframework,dc=org" and the base context name is
+     * "ou=people,dc=springframework,dc=org" it would return "cn=bob".
      * </p>
      *
      * @param fullDn the DN
@@ -144,7 +144,7 @@ public final class LdapUtils {
 
     /**
      * Works out the root DN for an LDAP URL.<p>For example, the URL
-     * <tt>ldap://monkeymachine:11389/dc=acegisecurity,dc=org</tt> has the root DN "dc=acegisecurity,dc=org".</p>
+     * <tt>ldap://monkeymachine:11389/dc=springframework,dc=org</tt> has the root DN "dc=springframework,dc=org".</p>
      *
      * @param url the LDAP URL
      *
@@ -185,7 +185,7 @@ public final class LdapUtils {
     // removed for 1.3 compatibility
     /**
      * Parses the supplied LDAP URL.
-     * @param url the URL (e.g. <tt>ldap://monkeymachine:11389/dc=acegisecurity,dc=org</tt>).
+     * @param url the URL (e.g. <tt>ldap://monkeymachine:11389/dc=springframework,dc=org</tt>).
      * @return the URI object created from the URL
      * @throws IllegalArgumentException if the URL is null, empty or the URI syntax is invalid.
      */
