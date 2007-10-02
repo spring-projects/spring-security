@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.AfterClass;
 import org.junit.After;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
+import org.apache.directory.server.core.DirectoryService;
 
 import javax.naming.directory.DirContext;
 import javax.naming.Name;
@@ -31,6 +32,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.Binding;
 import javax.naming.ContextNotEmptyException;
 import javax.naming.NameNotFoundException;
+import java.util.Set;
 
 /**
  * Based on class borrowed from Spring Ldap project.
@@ -46,14 +48,30 @@ public abstract class AbstractLdapIntegrationTests {
     }
 
     @BeforeClass
-    public static void loadContext() {
+    public static void loadContext() throws NamingException {
+        shutdownRunningServers();
         appContext = new ClassPathXmlApplicationContext("/org/springframework/security/ldap/ldapIntegrationTestContext.xml");
+
     }
 
     @AfterClass
-    public static void closeContext() {
-        appContext.close();
+    public static void closeContext() throws Exception {
+        if(appContext != null) {
+            appContext.close();
+        }
+        shutdownRunningServers();
     }
+
+    private static void shutdownRunningServers() throws NamingException {
+        DirectoryService ds = DirectoryService.getInstance();
+
+        if (ds.isStarted()) {
+            System.out.println("WARNING: Discovered running DirectoryService with configuration: " + ds.getConfiguration().getStartupConfiguration().toString());
+            System.out.println("Shutting it down...");
+            ds.shutdown();
+        }
+    }
+
 
     @Before
     public void onSetUp() throws Exception {

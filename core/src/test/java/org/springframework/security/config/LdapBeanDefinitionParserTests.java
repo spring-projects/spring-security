@@ -41,6 +41,5 @@ public class LdapBeanDefinitionParserTests {
 
         template.lookup("uid=ben,ou=people");
 
-
     }
 }
