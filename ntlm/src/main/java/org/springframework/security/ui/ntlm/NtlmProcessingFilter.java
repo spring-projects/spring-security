@@ -54,7 +54,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 /**
- * A clean-room implementation for Acegi Security System of an NTLM HTTP filter
+ * A clean-room implementation for Spring Security of an NTLM HTTP filter
  * leveraging the JCIFS library.
  * <p>
  * NTLM is a Microsoft-developed protocol providing single sign-on capabilities
@@ -64,13 +64,13 @@ import org.springframework.util.Assert;
  * A web application can then reuse the user's Windows credentials without
  * having to ask for them again.
  * <p>
- * Because NTLM only provides the username of the Windows client, an Acegi
+ * Because NTLM only provides the username of the Windows client, a Spring
  * Security NTLM deployment must have a <code>UserDetailsService</code> that
  * provides a <code>UserDetails</code> object with the empty string as the
  * password and whatever <code>GrantedAuthority</code> values necessary to
  * pass the <code>FilterSecurityInterceptor</code>.
  * <p>
- * The Acegi Security bean configuration file must also place the
+ * The Spring Security bean configuration file must also place the
  * <code>ExceptionTranslationFilter</code> before this filter in the
  * <code>FilterChainProxy</code> definition.
  *
@@ -83,7 +83,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 
 	private static Log	logger = LogFactory.getLog(NtlmProcessingFilter.class);
 
-	private static final String	STATE_ATTR = "AcegiNtlm";
+	private static final String	STATE_ATTR = "SpringSecurityNtlm";
 	private static final String	CHALLENGE_ATTR = "NtlmChal";
 	private static final Integer BEGIN = new Integer(0);
 	private static final Integer NEGOTIATE = new Integer(1);
@@ -328,7 +328,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 				this.logon(session, dcAddress, auth);
 				session.setAttribute(STATE_ATTR, COMPLETE);
 
-				// Do not reauthenticate the user in Acegi during an IE POST
+				// Do not reauthenticate the user in Spring Security during an IE POST
 				final Authentication myCurrentAuth = SecurityContextHolder.getContext().getAuthentication();
 				if (myCurrentAuth == null || myCurrentAuth instanceof AnonymousAuthenticationToken) {
 					logger.debug("Authenticating user credentials");
@@ -408,7 +408,7 @@ public class NtlmProcessingFilter extends HttpFilter implements InitializingBean
 	}
 
 	/**
-	 * Authenticates the user credentials acquired from NTLM against the Acegi
+	 * Authenticates the user credentials acquired from NTLM against the Spring
 	 * Security <code>AuthenticationManager</code>.
 	 *
 	 * @param request the <code>HttpServletRequest</code> object.

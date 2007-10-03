@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.springframework.security.AccessDecisionManager;
 import org.springframework.security.AccessDeniedException;
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
@@ -43,7 +43,7 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
 
     private List decisionVoters;
 
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
     private boolean allowIfAllAbstainDecisions = false;
 

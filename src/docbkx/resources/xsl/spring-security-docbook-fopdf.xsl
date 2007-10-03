@@ -111,7 +111,7 @@
 		<xsl:param name="gentext-key" select="''" />
 		<xsl:variable name="Version">
 			<xsl:if test="//releaseinfo">
-				<xsl:text>Acegi Security </xsl:text><xsl:value-of select="//releaseinfo" /><xsl:text></xsl:text>
+				<xsl:text>Spring Security </xsl:text><xsl:value-of select="//releaseinfo" /><xsl:text></xsl:text>
 			</xsl:if>
 		</xsl:variable>
 		<xsl:choose>

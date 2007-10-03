@@ -146,7 +146,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
 
     private LoginExceptionResolver loginExceptionResolver = new DefaultLoginExceptionResolver();
     private Resource loginConfig;
-    private String loginContextName = "ACEGI";
+    private String loginContextName = "SPRINGSECURITY";
     private AuthorityGranter[] authorityGranters;
     private JaasAuthenticationCallbackHandler[] callbackHandlers;
     private ApplicationEventPublisher applicationEventPublisher;

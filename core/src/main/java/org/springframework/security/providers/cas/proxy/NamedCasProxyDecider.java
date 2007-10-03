@@ -15,7 +15,7 @@
 
 package org.springframework.security.providers.cas.proxy;
 
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 
 import org.springframework.security.providers.cas.CasProxyDecider;
 import org.springframework.security.providers.cas.ProxyUntrustedException;
@@ -46,7 +46,7 @@ public class NamedCasProxyDecider implements CasProxyDecider, InitializingBean, 
     //~ Instance fields ================================================================================================
 
     private List validProxies;
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
     //~ Methods ========================================================================================================
 

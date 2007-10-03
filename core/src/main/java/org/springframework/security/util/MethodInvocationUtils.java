@@ -26,8 +26,8 @@ import java.util.List;
 
 
 /**
- * Static utility methods for creating <code>MethodInvocation</code>s usable within Acegi Security.<p>All methods
- * of this class return a {@link org.springframework.security.util.SimpleMethodInvocation}.</p>
+ * Static utility methods for creating <code>MethodInvocation</code>s usable within Spring Security.
+ * <p>All methods of this class return a {@link org.springframework.security.util.SimpleMethodInvocation}.</p>
  *
  * @author Ben Alex
  * @version $Id$

@@ -8,7 +8,7 @@
 	<short-name>authz</short-name>
 	<uri>http://acegisecurity.org/authz</uri>
 	<description>
-        Acegi Security Systems Authorization Tag Library
+        Spring Securitys Authorization Tag Library
 		$Id$
 	</description>
 

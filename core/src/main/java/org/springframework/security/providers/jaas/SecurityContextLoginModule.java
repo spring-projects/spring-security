@@ -31,13 +31,14 @@ import javax.security.auth.spi.LoginModule;
 
 
 /**
- * An implementation of {@link LoginModule} that uses an Acegi Security {@link
+ * An implementation of {@link LoginModule} that uses a Spring Security {@link
  * org.springframework.security.context.SecurityContext SecurityContext} to provide authentication.<p>This LoginModule
  * provides opposite functionality to the {@link JaasAuthenticationProvider} API, and should not really be used in
  * conjunction with it.</p>
- *  <p>The {@link JaasAuthenticationProvider} allows Acegi to authenticate against Jaas.</p>
- *  <p>The SecurityContextLoginModule allows a Jaas based application to authenticate against Acegi. If there is no
- * Authentication in the  {@link SecurityContextHolder} the login() method will throw a LoginException by default.
+ *  <p>The {@link JaasAuthenticationProvider} allows Spring Security to authenticate against Jaas.</p>
+ *  <p>The SecurityContextLoginModule allows a Jaas based application to authenticate against Spring Security.
+ * If there is no Authentication in the  {@link SecurityContextHolder} the login() method will throw a LoginException
+ * by default.
  * This functionality can be changed with the <tt>ignoreMissingAuthentication</tt> option by setting it to "true".
  * Setting ignoreMissingAuthentication=true will tell the SecurityContextLoginModule to simply return false and be
  * ignored if the authentication is null.</p>
@@ -59,7 +60,7 @@ public class SecurityContextLoginModule implements LoginModule {
     //~ Methods ========================================================================================================
 
     /**
-     * Abort the authentication process by forgetting the Acegi Security <code>Authentication</code>.
+     * Abort the authentication process by forgetting the Spring Security <code>Authentication</code>.
      *
      * @return true if this method succeeded, or false if this <code>LoginModule</code> should be ignored.
      *
@@ -76,7 +77,7 @@ public class SecurityContextLoginModule implements LoginModule {
     }
 
     /**
-     * Authenticate the <code>Subject</code> (phase two) by adding the Acegi Security
+     * Authenticate the <code>Subject</code> (phase two) by adding the Spring Security
      * <code>Authentication</code> to the <code>Subject</code>'s principals.
      *
      * @return true if this method succeeded, or false if this <code>LoginModule</code> should be ignored.
@@ -103,7 +104,7 @@ public class SecurityContextLoginModule implements LoginModule {
 
     /**
      * Initialize this <code>LoginModule</code>. Ignores the callback handler, since the code establishing the
-     * <code>LoginContext</code> likely won't provide one that understands Acegi Security. Also ignores the
+     * <code>LoginContext</code> likely won't provide one that understands Spring Security. Also ignores the
      * <code>sharedState</code> and <code>options</code> parameters, since none are recognized.
      *
      * @param subject the <code>Subject</code> to be authenticated. <p>
@@ -120,7 +121,7 @@ public class SecurityContextLoginModule implements LoginModule {
     }
 
     /**
-     * Authenticate the <code>Subject</code> (phase one) by extracting the Acegi Security
+     * Authenticate the <code>Subject</code> (phase one) by extracting the Spring Security
      * <code>Authentication</code> from the current <code>SecurityContext</code>.
      *
      * @return true if the authentication succeeded, or false if this <code>LoginModule</code> should be ignored.

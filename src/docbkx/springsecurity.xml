@@ -23,7 +23,7 @@
 -->
 <book>
   <bookinfo>
-    <title>Acegi Security</title>
+    <title>Spring Security</title>
 
     <subtitle>Reference Documentation</subtitle>
 
@@ -43,7 +43,7 @@
   <preface id="preface">
     <title>Preface</title>
 
-    <para>Acegi Security provides a comprehensive security solution for
+    <para>Spring Security provides a comprehensive security solution for
     J2EE-based enterprise software applications. As you will discover as you
     venture through this reference guide, we have tried to provide you a
     useful and highly configurable security system.</para>
@@ -70,7 +70,7 @@
     real-time. Moving to the higher layers, your Java Virtual Machine will
     hopefully be configured to minimize the permissions granted to different
     Java types, and then your application will add its own problem
-    domain-specific security configuration. Acegi Security makes this latter
+    domain-specific security configuration. Spring Security makes this latter
     area - application security - much easier.</para>
 
     <para>Of course, you will need to properly address all security layers
@@ -81,7 +81,7 @@
     performance benchmarking, load monitoring, centralised logging, incident
     response procedures etc.</para>
 
-    <para>With Acegi Security being focused on helping you with the enterprise
+    <para>With Spring Security being focused on helping you with the enterprise
     application security layer, you will find that there are as many different
     requirements as there are business problem domains. A banking application
     has different needs from an ecommerce application. An ecommerce
@@ -90,7 +90,7 @@
     challenging and rewarding.</para>
 
     <para>This reference guide has been largely restructured for the 1.0.0
-    release of Acegi Security. Please read Part I, <link
+    release of Spring Security (then called Acegi Security). Please read Part I, <link
     linkend="overall-architecture">Overall Architecture</link>, in its
     entirety. The remaining parts of the reference guide are structured in a
     more traditional reference style, designed to be read on an as-required
@@ -99,7 +99,7 @@
     <para>We hope that you find this reference guide useful, and we welcome
     your feedback and <link linkend="jira">suggestions</link>.</para>
 
-    <para>Finally, welcome to the Acegi Security <link
+    <para>Finally, welcome to the Spring Security <link
     linkend="community">community</link>.</para>
   </preface>
 
@@ -107,11 +107,11 @@
     <title>Overall Architecture</title>
 
     <partintro>
-      <para>Like most software, Acegi Security has certain central interfaces,
+      <para>Like most software, Spring Security has certain central interfaces,
       classes and conceptual abstractions that are commonly used throughout
       the framework. In this part of the reference guide we will introduce
-      Acegi Security, before examining these central elements that are
-      necessary to successfully planning and executing an Acegi Security
+      Spring Security, before examining these central elements that are
+      necessary to successfully planning and executing a Spring Security
       integration.</para>
     </partintro>
 
@@ -119,26 +119,26 @@
       <title>Introduction</title>
 
       <sect1 id="what-is-acegi-security">
-        <title>What is Acegi Security?</title>
+        <title>What is Spring Security?</title>
 
-        <para>Acegi Security provides comprehensive security services for
+        <para>Spring Security provides comprehensive security services for
         J2EE-based enterprise software applications. There is a particular
         emphasis on supporting projects built using The Spring Framework,
         which is the leading J2EE solution for enterprise software
         development. If you're not using Spring for developing enterprise
         applications, we warmly encourage you to take a closer look at it.
         Some familiarity with Spring - and in particular dependency injection
-        principles - will help you get up to speed with Acegi Security more
+        principles - will help you get up to speed with Spring Security more
         easily.</para>
 
-        <para>People use Acegi Security for many reasons, but most are drawn
+        <para>People use Spring Security for many reasons, but most are drawn
         to the project after finding the security features of J2EE's Servlet
         Specification or EJB Specification lack the depth required for typical
         enterprise application scenarios. Whilst mentioning these standards,
         it's important to recognise that they are not portable at a WAR or EAR
         level. Therefore, if you switch server environments, it is typically a
         lot of work to reconfigure your application's security in the new
-        target environment. Using Acegi Security overcomes these problems, and
+        target environment. Using Spring Security overcomes these problems, and
         also brings you dozens of other useful, entirely customisable security
         features.</para>
 
@@ -151,14 +151,14 @@
         your application. To arrive at the point where an authorization
         decision is needed, the identity of the principal has already been
         established by the authentication process. These concepts are common,
-        and not at all specific to Acegi Security.</para>
+        and not at all specific to Spring Security.</para>
 
-        <para>At an authentication level, Acegi Security supports a wide range
+        <para>At an authentication level, Spring Security supports a wide range
         of authentication models. Most of these authentication models are
         either provided by third parties, or are developed by relevant
         standards bodies such as the Internet Engineering Task Force. In
-        addition, Acegi Security provides its own set of authentication
-        features. Specifically, Acegi Security currently supports
+        addition, Spring Security provides its own set of authentication
+        features. Specifically, Spring Security currently supports
         authentication with all of these technologies:</para>
 
         <itemizedlist spacing="compact">
@@ -233,16 +233,16 @@
           </listitem>
         </itemizedlist>
 
-        <para>Many independent software vendors (ISVs) adopt Acegi Security
+        <para>Many independent software vendors (ISVs) adopt Spring Security
         because of this rich choice of authentication models. Doing so allows
         them to quickly integrate their solutions with whatever their end
         clients need, without undertaking a lot of engineering or requiring
         the client to change their environment. If none of the above
-        authentication mechanisms suit your needs, Acegi Security is an open
+        authentication mechanisms suit your needs, Spring Security is an open
         platform and it is quite simple to write your own authentication
-        mechanism. Many corporate users of Acegi Security need to integrate
+        mechanism. Many corporate users of Spring Security need to integrate
         with "legacy" systems that don't follow any particular security
-        standards, and Acegi Security is happy to "play nicely" with such
+        standards, and Spring Security is happy to "play nicely" with such
         systems.</para>
 
         <para>Sometimes the mere process of authentication isn't enough.
@@ -255,17 +255,17 @@
         This is especially helpful to protect password recovery processes from
         brute force attacks, or simply to make it harder for people to
         duplicate your application's key content. To help you achieve these
-        goals, Acegi Security fully supports automatic "channel security",
+        goals, Spring Security fully supports automatic "channel security",
         together with JCaptcha integration for human user detection.</para>
 
-        <para>Irrespective of how authentication was undertaken, Acegi
+        <para>Irrespective of how authentication was undertaken, Spring
         Security provides a deep set of authorization capabilities. There are
         three main areas of interest in respect of authorization, these being
         authorizing web requests, authorizing methods can be invoked, and
         authorizing access to individual domain object instances. To help you
         understand the differences, consider the authorization capabilities
         found in the Servlet Specification web pattern security, EJB Container
-        Managed Security and file system security respectively. Acegi Security
+        Managed Security and file system security respectively. Spring Security
         provides deep capabilities in all of these important areas, which
         we'll explore later in this reference guide.</para>
       </sect1>
@@ -273,13 +273,13 @@
       <sect1 id="history">
         <title>History</title>
 
-        <para>Acegi Security began in late 2003, when a question was posed on
-        the Spring Developers' mailing list asking whether there had been any
-        consideration given to a Spring-based security implementation. At the
-        time the Spring community was relatively small (especially by today's
-        size!), and indeed Spring itself had only existed as a SourceForge
-        project from early 2003. The response to the question was that it was
-        a worthwhile area, although a lack of time currently prevented its
+        <para>Spring Security began in late 2003 as "The Acegi Security System for Spring".
+        A question was posed on the Spring Developers' mailing list asking 
+        whether there had been any consideration given to a Spring-based security
+        implementation. At the time the Spring community was relatively small
+        (especially by today's size!), and indeed Spring itself had only existed
+        as a SourceForge project from early 2003. The response to the question
+        was that it was a worthwhile area, although a lack of time currently prevented its
         exploration.</para>
 
         <para>With that in mind, a simple security implementation was built
@@ -301,14 +301,18 @@
         misconfiguration.</para>
 
         <para>Acegi Security-specific authentication services were
-        subsequently introduced. Around a year later, the Acegi Security
+        subsequently introduced. Around a year later, Acegi Security
         became an official Spring Framework subproject. The 1.0.0 final
         release was published in May 2006 - after more than two and a half
         years of active use in numerous production software projects and many
         hundreds of improvements and community contributions.</para>
 
-        <para>Today Acegi Security enjoys a strong and active open source
-        community. There are thousands of messages about Acegi Security on the
+        <para>Since work began on the 2.0 release, the project has been
+        rebranded as "Spring Security".
+        </para>
+
+        <para>Today Spring Security enjoys a strong and active open source
+        community. There are thousands of messages about Spring Security on the
         support forums. Fourteen developers work on the code itself, with an
         active community who also regularly share patches and support their
         peers.</para>
@@ -317,7 +321,7 @@
       <sect1 id="release-numbering">
         <title>Release Numbering</title>
 
-        <para>It is useful to understand how Acegi Security release numbers
+        <para>It is useful to understand how Spring Security release numbers
         work, as it will help you identify the effort (or lack thereof)
         involved in migrating to future releases of the project. Officially,
         we use the Apache Portable Runtime Project versioning guidelines,
@@ -340,19 +344,19 @@
       <sect1 id="runtime-environment">
         <title>Runtime Environment</title>
 
-        <para>Acegi Security is written to execute within a standard Java 1.3
+        <para>Spring Security is written to execute within a standard Java 1.3
         Runtime Environment. It also supports Java 5.0, although the Java
         types which are specific to this release are packaged in a separate
-        package with the suffix "tiger" in their JAR filename. As Acegi
+        package with the suffix "tiger" in their JAR filename. As Spring
         Security aims to operate in a self-contained manner, there is no need
         to place any special configuration files into your Java Runtime
         Environment. In particular, there is no need to configure a special
         Java Authentication and Authorization Service (JAAS) policy file or
-        place Acegi Security into common classpath locations.</para>
+        place Spring Security into common classpath locations.</para>
 
         <para>Similarly, if you are using an EJB Container or Servlet
         Container there is no need to put any special configuration files
-        anywhere, nor include Acegi Security in a server classloader.</para>
+        anywhere, nor include Spring Security in a server classloader.</para>
 
         <para>This above design offers maximum deployment time flexibility, as
         you can simply copy your target artifact (be it a JAR, WAR or EAR)
@@ -363,7 +367,7 @@
         <title>Shared Components</title>
 
         <para>Let's explore some of the most important shared components in
-        Acegi Security. Components are considered "shared" if they are central
+        Spring Security. Components are considered "shared" if they are central
         to the framework and the framework cannot operate without them. These
         Java types represent the building blocks of the remaining system, so
         it's important to understand that they're there, even if you don't
@@ -380,7 +384,7 @@
         passed around as an argument to those methods. Using a
         <literal>ThreadLocal</literal> in this way is quite safe if care is
         taken to clear the thread after the present principal's request is
-        processed. Of course, Acegi Security takes care of this for you
+        processed. Of course, Spring Security takes care of this for you
         automatically so there is no need to worry about it.</para>
 
         <para>Some applications aren't entirely suitable for using a
@@ -402,7 +406,7 @@
 
         <para>Inside the <literal>SecurityContextHolder</literal> we store
         details of the principal currently interacting with the application.
-        Acegi Security uses an <literal>Authentication</literal> object to
+        Spring Security uses an <literal>Authentication</literal> object to
         represent this information. Whilst you won't normally need to create
         an <literal>Authentication</literal> object yourself, it is fairly
         common for users to query the <literal>Authentication</literal>
@@ -422,7 +426,7 @@ if (obj instanceof UserDetails) {
         object between <literal>SecurityContextHolder</literal> and
         <literal>Authentication</literal>. The
         <literal>SecurityContextHolder.getContext()</literal> method is
-        actually returning a <literal>SecurityContext</literal>. Acegi
+        actually returning a <literal>SecurityContext</literal>. Spring
         Security uses a few different <literal>SecurityContext</literal>
         implementations, such as if we need to store special information
         related to a request that is not principal-specific. A good example of
@@ -436,10 +440,10 @@ if (obj instanceof UserDetails) {
         can obtain a principal from the <literal>Authentication</literal>
         object. The principal is just an <literal>Object</literal>. Most of
         the time this can be cast into a <literal>UserDetails</literal>
-        object. <literal>UserDetails</literal> is a central interface in Acegi
+        object. <literal>UserDetails</literal> is a central interface in Spring
         Security. It represents a principal, but in an extensible and
         application-specific way. Think of <literal>UserDetails</literal> as
-        the adapter between your own user database and what Acegi Security
+        the adapter between your own user database and what Spring Security
         needs inside the <literal>SecurityContextHolder</literal>. Being a
         representation of something from your own user database, quite often
         you will cast the <literal>UserDetails</literal> to the original
@@ -454,7 +458,7 @@ if (obj instanceof UserDetails) {
         interface called <literal>UserDetailsService</literal>. The only
         method on this interface accepts a <literal>String</literal>-based
         username argument and returns a <literal>UserDetails</literal>. Most
-        authentication providers that ship with Acegi Security delegate to a
+        authentication providers that ship with Spring Security delegate to a
         <literal>UserDetailsService</literal> as part of the authentication
         process. The <literal>UserDetailsService</literal> is used to build
         the <literal>Authentication</literal> object that is stored in the
@@ -478,7 +482,7 @@ if (obj instanceof UserDetails) {
         "roles", such as <literal>ROLE_ADMINISTRATOR</literal> or
         <literal>ROLE_HR_SUPERVISOR</literal>. These roles are later on
         configured for web authorization, method authorization and domain
-        object authorization. Other parts of Acegi Security are capable of
+        object authorization. Other parts of Spring Security are capable of
         interpreting these authorities, and expect them to be present.
         <literal>GrantedAuthority</literal> objects are usually loaded by
         the <literal>UserDetailsService</literal>.</para>
@@ -490,7 +494,7 @@ if (obj instanceof UserDetails) {
         <literal>Employee</literal> object number 54, because if there are
         thousands of such authorities you would quickly run out of memory (or,
         at the very least, cause the application to take a long time to
-        authenticate a user). Of course, Acegi Security is expressly designed
+        authenticate a user). Of course, Spring Security is expressly designed
         to handle this common requirement, but you'd instead use the project's
         domain object security capabilities for this purpose.</para>
 
@@ -507,7 +511,7 @@ if (obj instanceof UserDetails) {
         always use the <literal>SecurityContextHolder</literal>
         instead.</para>
 
-        <para>Just to recap, the major building blocks of Acegi Security
+        <para>Just to recap, the major building blocks of Spring Security
         are:</para>
 
         <itemizedlist spacing="compact">
@@ -530,7 +534,7 @@ if (obj instanceof UserDetails) {
 
           <listitem>
             <para><literal>Authentication</literal>, to represent the
-            principal in an Acegi Security-specific manner.</para>
+            principal in a Spring Security-specific manner.</para>
           </listitem>
 
           <listitem>
@@ -560,13 +564,13 @@ if (obj instanceof UserDetails) {
       <sect1 id="common-authentication">
         <title>Authentication</title>
 
-        <para>As mentioned in the beginning of this reference guide, Acegi
+        <para>As mentioned in the beginning of this reference guide, Spring
         Security can participate in many different authentication
-        environments. Whilst we recommend people use Acegi Security for
+        environments. Whilst we recommend people use Spring Security for
         authentication and not integrate with existing Container Managed
         Authentication, it is nevertheless supported - as is integrating with
         your own proprietary authentication system. Let's first explore
-        authentication from the perspective of Acegi Security managing web
+        authentication from the perspective of Spring Security managing web
         security entirely on its own, which is illustrative of the most
         complex and most common situation.</para>
 
@@ -622,7 +626,7 @@ if (obj instanceof UserDetails) {
           </listitem>
         </orderedlist>
 
-        <para>Acegi Security has distinct classes responsible for most of the
+        <para>Spring Security has distinct classes responsible for most of the
         steps described above. The main participants (in the order that they
         are used) are the <literal>ExceptionTranslationFilter</literal>, an
         <literal>AuthenticationEntryPoint</literal>, an authentication
@@ -647,7 +651,7 @@ if (obj instanceof UserDetails) {
         <para>The <literal>AuthenticationEntryPoint</literal> is responsible
         for step three in the above list. As you can imagine, each web
         application will have a default authentication strategy (well, this
-        can be configured like nearly everything else in Acegi Security, but
+        can be configured like nearly everything else in Spring Security, but
         let's keep it simple for now). Each major authentication system will
         have its own <literal>AuthenticationEntryPoint</literal>
         implementation, which takes actions such as described in step
@@ -656,7 +660,7 @@ if (obj instanceof UserDetails) {
         <para>After your browser decides to submit your authentication
         credentials (either as an HTTP form post or HTTP header) there needs to
         be something on the server that "collects" these authentication
-        details. By now we're at step six in the above list. In Acegi Security
+        details. By now we're at step six in the above list. In Spring Security
         we have a special name for the function of collecting authentication
         details from a user agent (usually a web browser), and that name is
         "authentication mechanism". After the authentication details are
@@ -664,7 +668,7 @@ if (obj instanceof UserDetails) {
         request" object is built and then presented to an
         <interfacename>AuthenticationProvider</interfacename>.</para>
 
-        <para>The last played in the Acegi Security authentication process is
+        <para>The last played in the Spring Security authentication process is
         an <literal>AuthenticationProvider</literal>. Quite simply, it is
         responsible for taking an <literal>Authentication</literal> request
         object and deciding whether or not it is valid. The provider will
@@ -678,7 +682,7 @@ if (obj instanceof UserDetails) {
         <literal>UserDetails</literal> object. As mentioned earlier, most
         application will provide their own
         <literal>UserDetailsService</literal>, although some will be able to
-        use the JDBC or in-memory implementation that ships with Acegi
+        use the JDBC or in-memory implementation that ships with Spring
         Security. The resultant <literal>UserDetails</literal> object - and
         particularly the <literal>GrantedAuthority[]</literal>s contained
         within the <literal>UserDetails</literal> object - will be used when
@@ -695,7 +699,7 @@ if (obj instanceof UserDetails) {
         above).</para>
 
         <para>Whilst this describes the typical authentication workflow, the
-        good news is that Acegi Security doesn't mind how you put an
+        good news is that Spring Security doesn't mind how you put an
         <literal>Authentication</literal> inside the
         <literal>SecurityContextHolder</literal>. The only critical
         requirement is that the <literal>SecurityContextHolder</literal>
@@ -705,15 +709,15 @@ if (obj instanceof UserDetails) {
 
         <para>You can (and many users do) write their own filters or MVC
         controllers to provide interoperability with authentication systems
-        that are not based on Acegi Security. For example, you might be using
+        that are not based on Spring Security. For example, you might be using
         Container Managed Authentication which makes the current user
         available from a ThreadLocal or JNDI location. Or you might work for a
         company that has a legacy proprietary authentication system, which is
         a corporate "standard" over which you have little control. In such
-        situations it's quite easy to get Acegi Security to work, and still
+        situations it's quite easy to get Spring Security to work, and still
         provide authorization capabilities. All you need to do is write a
         filter (or equivalent) that reads the third-party user information
-        from a location, build an Acegi Security-specific Authentication
+        from a location, build a Spring Security-specific Authentication
         object, and put it onto the SecurityContextHolder. It's quite easy to
         do this, and it is a fully-supported integration approach.</para>
       </sect1>
@@ -725,14 +729,14 @@ if (obj instanceof UserDetails) {
         types of advice available: before, after, throws and around. An around
         advice is very useful, because an advisor can elect whether or not to
         proceed with a method invocation, whether or not to modify the
-        response, and whether or not to throw an exception. Acegi Security
+        response, and whether or not to throw an exception. Spring Security
         provides an around advice for method invocations as well as web
         requests. We achieve an around advice for method invocations using AOP
         Alliance, and we achieve an around advice for web requests using a
         standard Filter.</para>
 
         <para>For those not familiar with AOP, the key point to understand is
-        that Acegi Security can help you protect method invocations as well as
+        that Spring Security can help you protect method invocations as well as
         web requests. Most people are interested in securing method
         invocations on their services layer. This is because the services
         layer is where most business logic resides in current-generation J2EE
@@ -753,9 +757,9 @@ if (obj instanceof UserDetails) {
         authorization, coupled with some AOP Alliance method invocation
         authorization on the services layer.</para>
 
-        <para>Acegi Security uses the term "secure object" to refer to any
+        <para>Spring Security uses the term "secure object" to refer to any
         object that can have security applied to it. Each secure object
-        supported by Acegi Security has its own class, which is a subclass of
+        supported by Spring Security has its own class, which is a subclass of
         <literal>AbstractSecurityInterceptor</literal>. Importantly, by the
         time the <literal>AbstractSecurityInterceptor</literal> is run, the
         <literal>SecurityContextHolder</literal> will contain a valid
@@ -785,7 +789,7 @@ if (obj instanceof UserDetails) {
         <literal>AccessDecisionManager</literal> calling a
         <literal>RunAsManager</literal>. This might be useful in reasonably
         unusual situations, such as if a services layer method needs to call a
-        remote system and present a different identity. Because Acegi Security
+        remote system and present a different identity. Because Spring Security
         automatically propagates security identity from one server to another
         (assuming you're using a properly-configured RMI or HttpInvoker
         remoting protocol client), this may be useful.</para>
@@ -843,7 +847,7 @@ if (obj instanceof UserDetails) {
         <title>Conclusion</title>
 
         <para>Congratulations! You have enough of a high-level picture of
-        Acegi Security to embark on your project. We've explored the shared
+        Spring Security to embark on your project. We've explored the shared
         components, how authentication works, and reviewed the common
         authorization concept of a "secure object". Everything that follows in
         this reference guide may or may not apply to your particular needs,
@@ -855,16 +859,16 @@ if (obj instanceof UserDetails) {
       <title>Supporting Infrastructure</title>
 
       <para>This chapter introduces some of the supplementary and supporting
-      infrastructure used by Acegi Security. If a capability is not directly
-      related to security, yet included in the Acegi Security project, we will
+      infrastructure used by Spring Security. If a capability is not directly
+      related to security, yet included in the Spring Security project, we will
       discuss it in this chapter.</para>
 
       <sect1 id="localization">
         <title>Localization</title>
 
-        <para>Acegi Security supports localization of exception messages that
+        <para>Spring Security supports localization of exception messages that
         end users are likely to see. If your application is designed for
-        English users, you don't need to do anything as by default all Acegi
+        English users, you don't need to do anything as by default all Security
         Security messages are in English. If you need to support other
         locales, everything you need to know is contained in this
         section.</para>
@@ -875,7 +879,7 @@ if (obj instanceof UserDetails) {
         developers or system deployers (including incorrect attributes,
         interface contract violations, using incorrect constructors, startup
         time validation, debug-level logging) etc are not localized and
-        instead are hard-coded in English within Acegi Security's code.</para>
+        instead are hard-coded in English within Spring Security's code.</para>
 
         <para>Shipping in the <literal>acegi-security-xx.jar</literal> you
         will find an <literal>org.springframework.security</literal> package that in turn
@@ -894,8 +898,8 @@ if (obj instanceof UserDetails) {
 
         <para>The <literal>messages.properties</literal> is named in
         accordance with standard resource bundles and represents the default
-        language supported by Acegi Securtiy messages. This default file is in
-        English. If you do not register a message source, Acegi Security will
+        language supported by Spring Security messages. This default file is in
+        English. If you do not register a message source, Spring Security will
         still work correctly and fallback to hard-coded English versions of
         the messages.</para>
 
@@ -913,7 +917,7 @@ if (obj instanceof UserDetails) {
         <literal>ThreadLocal</literal> known as
         <literal>org.springframework.context.i18n.LocaleContextHolder</literal>.
         You should set the <literal>LocaleContextHolder</literal> to represent
-        the preferred <literal>Locale</literal> of each user. Acegi Security
+        the preferred <literal>Locale</literal> of each user. Spring Security
         will attempt to locate a message from the message source using the
         <literal>Locale</literal> obtained from this
         <literal>ThreadLocal</literal>. Please refer to Spring documentation
@@ -928,7 +932,7 @@ if (obj instanceof UserDetails) {
       <sect1 id="filters">
         <title>Filters</title>
 
-        <para>Acegi Security uses many filters, as referred to throughout the
+        <para>Spring Security uses many filters, as referred to throughout the
         remainder of this reference guide. You have a choice in how these
         filters are added to your web application, in that you can use either
         <literal>FilterToBeanProxy</literal> or
@@ -939,7 +943,7 @@ if (obj instanceof UserDetails) {
         <literal>web.xml</literal> follows:</para>
 
         <para><programlisting>&lt;filter&gt;
-  &lt;filter-name&gt;Acegi HTTP Request Security Filter&lt;/filter-name&gt;
+  &lt;filter-name&gt;Spring Security HTTP Request Security Filter&lt;/filter-name&gt;
   &lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
@@ -1001,7 +1005,7 @@ if (obj instanceof UserDetails) {
         <literal>&lt;filter&gt;</literal> and
         <literal>&lt;filter-mapping&gt;</literal> entries in
         <literal>web.xml</literal> explodes when using more than a few
-        filters. To overcome this issue, Acegi Security provides a
+        filters. To overcome this issue, Spring Security provides a
         <literal>FilterChainProxy</literal> class. It is wired using a
         <literal>FilterToBeanProxy</literal> (just like in the example above),
         but the target class is
@@ -1130,7 +1134,7 @@ if (obj instanceof UserDetails) {
           <listitem>
             <para>The
             <literal>SecurityContextHolderAwareRequestFilter</literal>, if you
-            are using it to install an Acegi Security aware
+            are using it to install a Spring Security aware
             <literal>HttpServletRequestWrapper</literal> into your servlet
             container</para>
           </listitem>
@@ -1154,7 +1158,7 @@ if (obj instanceof UserDetails) {
 
           <listitem>
             <para><literal>ExceptionTranslationFilter</literal>, to catch any
-            Acegi Security exceptions so that either an HTTP error response can
+            Spring Security exceptions so that either an HTTP error response can
             be returned or an appropriate
             <literal>AuthenticationEntryPoint</literal> can be launched</para>
           </listitem>
@@ -1170,10 +1174,10 @@ if (obj instanceof UserDetails) {
         <literal>FilterChainProxy</literal>. It is recommended that a single
         <literal>FilterToBeanProxy</literal> proxy through to a single
         <literal>FilterChainProxy</literal> for each application, with that
-        <literal>FilterChainProxy</literal> defining all of Acegi Security
+        <literal>FilterChainProxy</literal> defining all of Spring Security
         <literal>Filter</literal>s.</para>
 
-        <para>If you're using SiteMesh, ensure Acegi Security filters execute
+        <para>If you're using SiteMesh, ensure Spring Security filters execute
         before the SiteMesh filters are called. This enables the
         <literal>SecurityContextHolder</literal> to be populated in time for
         use by SiteMesh decorators</para>
@@ -1187,7 +1191,7 @@ if (obj instanceof UserDetails) {
         <title>Overview</title>
 
         <para>In addition to coordinating the authentication and authorization
-        requirements of your application, Acegi Security is also able to
+        requirements of your application, Spring Security is also able to
         ensure unauthenticated web requests have certain properties. These
         properties may include being of a particular transport type, having a
         particular <literal>HttpSession</literal> attribute set and so on. The
@@ -1211,19 +1215,19 @@ if (obj instanceof UserDetails) {
         across an insecure channel. You will need to ensure your
         <literal>web.xml</literal>-defined
         <literal>&lt;welcome-file&gt;</literal> points to an HTTPS location,
-        and the application never directs the user to an HTTP location. Acegi
+        and the application never directs the user to an HTTP location. Spring
         Security provides a solution to assist with the latter.</para>
       </sect1>
 
       <sect1 id="channel-security-config">
         <title>Configuration</title>
 
-        <para>To utilise Acegi Security's channel security services, add the
+        <para>To utilise Spring Security's channel security services, add the
         following lines to <literal>web.xml</literal>:</para>
 
         <para><programlisting>
 &lt;filter&gt;
-  &lt;filter-name&gt;Acegi Channel Processing Filter&lt;/filter-name&gt;
+  &lt;filter-name&gt;Spring Security Channel Processing Filter&lt;/filter-name&gt;
   &lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
@@ -1232,7 +1236,7 @@ if (obj instanceof UserDetails) {
 &lt;/filter&gt;
 
 &lt;filter-mapping&gt;
-  &lt;filter-name&gt;Acegi Channel Processing Filter&lt;/filter-name&gt;
+  &lt;filter-name&gt;Spring Security Channel Processing Filter&lt;/filter-name&gt;
   &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
 &lt;/filter-mapping&gt;
 
@@ -1286,7 +1290,7 @@ if (obj instanceof UserDetails) {
         transport protocol), it will perform a redirect, throw an exception or
         take whatever other action is appropriate.</para>
 
-        <para>Included with Acegi Security are two concrete
+        <para>Included with Spring Security are two concrete
         <literal>ChannelProcessor</literal> implementations:
         <literal>SecureChannelProcessor</literal> ensures requests with a
         configuration attribute of <literal>REQUIRES_SECURE_CHANNEL</literal>
@@ -1297,7 +1301,7 @@ if (obj instanceof UserDetails) {
         Both implementations delegate to a
         <literal>ChannelEntryPoint</literal> if the required transport
         protocol is not used. The two <literal>ChannelEntryPoint</literal>
-        implementations included with Acegi Security simply redirect the
+        implementations included with Spring Security simply redirect the
         request to HTTP and HTTPS as appropriate. Appropriate defaults are
         assigned to the <literal>ChannelProcessor</literal> implementations
         for the configuration attribute keywords they respond to and the
@@ -1312,7 +1316,7 @@ if (obj instanceof UserDetails) {
         respond correctly to a redirection instruction which also changes the
         port to use. Accordingly, absolute URLs are used in conjunction with
         bug detection logic in the <literal>PortResolverImpl</literal> that is
-        wired up by default to many Acegi Security beans. Please refer to the
+        wired up by default to many Spring Security beans. Please refer to the
         JavaDocs for <literal>PortResolverImpl</literal> for further
         details.</para>
 
@@ -1368,7 +1372,7 @@ if (obj instanceof UserDetails) {
       <sect1 id="taglib-overview">
         <title>Overview</title>
 
-        <para>Acegi Security comes bundled with several JSP tag libraries that
+        <para>Spring Security comes bundled with several JSP tag libraries that
         eases JSP writing. The tag libraries are known as
         <literal>authz</literal> and provide a range of different
         services.</para>
@@ -1378,7 +1382,7 @@ if (obj instanceof UserDetails) {
         <title>Configuration</title>
 
         <para>All taglib classes are included in the core
-        <literal>acegi-security-xx.jar</literal> file, with the
+        <literal>spring-security-xx.jar</literal> file, with the
         <literal>authz.tld</literal> located in the JAR's
         <literal>META-INF</literal> directory. This means for JSP 1.2+ web
         containers you can simply include the JAR in the WAR's
@@ -1422,7 +1426,7 @@ if (obj instanceof UserDetails) {
       <sect1 id="mechanisms-providers-entry-points">
         <title>Mechanisms, Providers and Entry Points</title>
 
-        <para>If you're using Acegi Security-provided authentication
+        <para>If you're using Spring Security-provided authentication
         approaches, you'll usually need to configure a web filter, together
         with an <literal>AuthenticationProvider</literal> and
         <literal>AuthenticationEntryPoint</literal>. In this section we are
@@ -1433,11 +1437,11 @@ if (obj instanceof UserDetails) {
 
         <para>In the web.xml, this application will need a single Acegi
         Security filter in order to use the FilterChainProxy. Nearly every
-        Acegi Security application will have such an entry, and it looks like
+        Spring Security application will have such an entry, and it looks like
         this:</para>
 
         <para><programlisting>&lt;filter&gt;
-  &lt;filter-name&gt;Acegi Filter Chain Proxy&lt;/filter-name&gt;
+  &lt;filter-name&gt;Spring Security Filter Chain Proxy&lt;/filter-name&gt;
   &lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
@@ -1446,12 +1450,12 @@ if (obj instanceof UserDetails) {
 &lt;/filter&gt;
 
 &lt;filter-mapping&gt;
-  &lt;filter-name&gt;Acegi Filter Chain Proxy&lt;/filter-name&gt;
+  &lt;filter-name&gt;Spring Security Filter Chain Proxy&lt;/filter-name&gt;
   &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
 &lt;/filter-mapping&gt;</programlisting></para>
 
         <para>The above declarations will cause every web request to be passed
-        through to Acegi Security's FilterChainProxy. As explained in the
+        through to Spring Security's FilterChainProxy. As explained in the
         filters section of this reference guide, the <classname>FilterChainProxy</classname> is a
         generally-useful class that enables web requests to be passed to
         different filters based on the URL patterns. Those delegated filters
@@ -1471,7 +1475,7 @@ if (obj instanceof UserDetails) {
   &lt;/property&gt;
 &lt;/bean&gt;</programlisting></para>
 
-        <para>Internally Acegi Security will use a
+        <para>Internally Spring Security will use a
         <literal>PropertyEditor</literal> to convert the string presented in
         the above XML fragment into a
         <literal>FilterInvocationDefinitionSource</literal> object. What's
@@ -1537,7 +1541,7 @@ if (obj instanceof UserDetails) {
         <interfacename>AuthenticationManager</interfacename> is responsible for passing requests through a
         chain of AuthenticationProviders. It's a little like the filter chain
         we discussed earlier, although there are some differences. There is
-        only one <interfacename>AuthenticationManager</interfacename> implementation shipped with Acegi
+        only one <interfacename>AuthenticationManager</interfacename> implementation shipped with Spring
         Security, so let's look at how it's configured for the example we're
         using in this chapter:</para>
 
@@ -1626,7 +1630,7 @@ if (obj instanceof UserDetails) {
         access denied error page. We use a forward so that the
         <literal>SecurityContextHolder</literal> still contains details of the
         principal, which may be useful for display to the user (in old
-        releases of Acegi Security we relied upon the servlet container to
+        releases of Spring Security we relied upon the servlet container to
         handle a 403 error message, which lacked this useful contextual
         information). <literal>AccessDeniedHandlerImpl</literal> will also set
         the HTTP header to 403, which is the official error code to indicate
@@ -1669,8 +1673,8 @@ if (obj instanceof UserDetails) {
         responsibility of actually validating the credentials.</para>
 
         <para>A single concrete implementation of
-        <literal>UserDetails</literal> is provided with Acegi Security, being
-        the <literal>User</literal> class. Acegi Security users will need to
+        <literal>UserDetails</literal> is provided with Spring Security, being
+        the <literal>User</literal> class. Spring Security users will need to
         decide when writing their <literal>UserDetailsService</literal> what
         concrete <literal>UserDetails</literal> class to return. In most cases
         <literal>User</literal> will be used directly or subclassed, although
@@ -1686,7 +1690,7 @@ if (obj instanceof UserDetails) {
         <para>Given <literal>UserDetailsService</literal> is so simple to
         implement, it should be easy for users to retrieve authentication
         information using a persistence strategy of their choice. Having said
-        that, Acegi Security does include a couple of useful base
+        that, Spring Security does include a couple of useful base
         implementations, which we'll look at below.</para>
 
         <sect2 id="in-memory-service">
@@ -1696,7 +1700,7 @@ if (obj instanceof UserDetails) {
           <literal>UserDetailsService</literal> implementation that extracts
           information from a persistence engine of choice, many applications
           do not require such complexity. This is particularly true if you're
-          undertaking a rapid prototype or just starting integrating Acegi
+          undertaking a rapid prototype or just starting integrating Spring
           Security, when you don't really want to spend time configuring
           databases or writing <literal>UserDetailsService</literal>
           implementations. For this sort of situation, a simple option is to
@@ -1746,7 +1750,7 @@ if (obj instanceof UserDetails) {
         <sect2 id="jdbc-service">
           <title>JDBC Authentication</title>
 
-          <para>Acegi Security also includes a
+          <para>Spring Security also includes a
           <literal>UserDetailsService</literal> that can obtain authentication
           information from a JDBC data source. Internally Spring JDBC is used,
           so it avoids the complexity of a fully-featured object relational
@@ -1774,7 +1778,7 @@ if (obj instanceof UserDetails) {
           per normal Spring options. Irrespective of the database used and how
           a <literal>DataSource</literal> is obtained, a standard schema must
           be used as indicated in <literal>dbinit.txt</literal>. You can
-          download this file from the Acegi Security web site.</para>
+          download this file from the Spring Security web site.</para>
 
           <para>If your default schema is unsuitable for your needs,
           <literal>JdbcDaoImpl</literal> provides two properties that allow
@@ -1786,7 +1790,7 @@ if (obj instanceof UserDetails) {
           certain <literal>UserDetails</literal> implementation returned),
           you'd be better off writing your own
           <literal>UserDetailsService</literal>. The base implementation
-          provided with Acegi Security is intended for typical situations, and
+          provided with Spring Security is intended for typical situations, and
           does not offer infinite configuration flexibility.</para>
         </sect2>
       </sect1>
@@ -1794,7 +1798,7 @@ if (obj instanceof UserDetails) {
       <sect1 id="concurrent-sessions">
         <title>Concurrent Session Handling</title>
 
-        <para>Acegi Security is able to prevent a principal from concurrently
+        <para>Spring Security is able to prevent a principal from concurrently
         authenticating to the same application more than a specified number of
         times. Many ISVs take advantage of this to enforce licensing, whilst
         network administrators like this feature because it helps prevent
@@ -1874,7 +1878,7 @@ if (obj instanceof UserDetails) {
       <sect1 id="dao-provider-overview">
         <title>Overview</title>
 
-        <para>Acegi Security includes a production-quality
+        <para>Spring Security includes a production-quality
         <literal>AuthenticationProvider</literal> implementation called
         <literal>DaoAuthenticationProvider</literal>. This authentication
         provider is compatible with all of the authentication mechanisms that
@@ -1914,7 +1918,7 @@ if (obj instanceof UserDetails) {
         A <literal>SaltSource</literal> enables the passwords to be populated
         with a "salt", which enhances the security of the passwords in the
         authentication repository. <literal>PasswordEncoder</literal>
-        implementations are provided with Acegi Security covering MD5, SHA and
+        implementations are provided with Spring Security covering MD5, SHA and
         cleartext encodings. Two <literal>SaltSource</literal> implementations
         are also provided: <literal>SystemWideSaltSource</literal> which
         encodes all passwords with the same salt, and
@@ -1961,7 +1965,7 @@ if (obj instanceof UserDetails) {
   &lt;property name="cache"&gt;&lt;ref local="userCacheBackend"/&gt;&lt;/property&gt;
 &lt;/bean&gt;        </programlisting></para>
 
-        <para>All Acegi Security EH-CACHE implementations (including
+        <para>All Spring Security EH-CACHE implementations (including
         <literal>EhCacheBasedUserCache</literal>) require an EH-CACHE
         <literal>Cache</literal> object. The <literal>Cache</literal> object
         can be obtained from wherever you like, although we recommend you use
@@ -1989,7 +1993,7 @@ if (obj instanceof UserDetails) {
         applications, such as the user's full name, email address etc. If
         using container adapters, or if your applications were written to
         operate with <literal>String</literal>s (as was the case for releases
-        prior to Acegi Security 0.6), you should set the
+        prior to Spring Security 0.6), you should set the
         <literal>DaoAuthenticationProvider.forcePrincipalAsString</literal>
         property to <literal>true</literal> in your application context</para>
       </sect1>
@@ -2002,7 +2006,7 @@ if (obj instanceof UserDetails) {
       <sect1 id="jaas-overview">
         <title>Overview</title>
 
-        <para>Acegi Security provides a package able to delegate
+        <para>Spring Security provides a package able to delegate
         authentication requests to the Java Authentication and Authorization
         Service (JAAS). This package is discussed in detail below.</para>
 
@@ -2027,7 +2031,7 @@ if (obj instanceof UserDetails) {
   sample.SampleLoginModule required;
 };</programlisting></para>
 
-        <para>Like all Acegi Security beans, the
+        <para>Like all Spring Security beans, the
         <literal>JaasAuthenticationProvider</literal> is configured via the
         application context. The following definitions would correspond to the
         above JAAS login configuration file:</para>
@@ -2066,15 +2070,15 @@ if (obj instanceof UserDetails) {
           of some sort. These callbacks are usually used to obtain the
           username and password from the user.</para>
 
-          <para>In an Acegi Security deployment, Acegi Security is responsible
+          <para>In a Spring Security deployment, Spring Security is responsible
           for this user interaction (via the authentication mechanism). Thus,
           by the time the authentication request is delegated through to JAAS,
-          Acegi Security's authentication mechanism will already have
+          Spring Security's authentication mechanism will already have
           fully-populated an <literal>Authentication</literal> object
           containing all the information required by the JAAS
           <literal>LoginModule</literal>.</para>
 
-          <para>Therefore, the JAAS package for Acegi Security provides two
+          <para>Therefore, the JAAS package for Spring Security provides two
           default callback handlers,
           <literal>JaasNameCallbackHandler</literal> and
           <literal>JaasPasswordCallbackHandler</literal>. Each of these
@@ -2102,11 +2106,11 @@ if (obj instanceof UserDetails) {
           <title id="jaas-authority-granter">JAAS AuthorityGranter</title>
 
           <para>JAAS works with principals. Even "roles" are represented as
-          principals in JAAS. Acegi Security, on the other hand, works with
+          principals in JAAS. Spring Security, on the other hand, works with
           <literal>Authentication</literal> objects. Each
           <literal>Authentication</literal> object contains a single
           principal, and multiple <literal>GrantedAuthority</literal>[]s. To
-          facilitate mapping between these different concepts, Acegi
+          facilitate mapping between these different concepts, Spring
           Security's JAAS package includes an
           <literal>AuthorityGranter</literal> interface.</para>
 
@@ -2114,7 +2118,7 @@ if (obj instanceof UserDetails) {
           inspecting a JAAS principal and returning a
           <literal>String</literal>. The
           <literal>JaasAuthenticationProvider</literal> then creates a
-          <literal>JaasGrantedAuthority</literal> (which implements Acegi
+          <literal>JaasGrantedAuthority</literal> (which implements Spring
           Security’s <literal>GrantedAuthority</literal> interface) containing
           both the <literal>AuthorityGranter</literal>-returned
           <literal>String</literal> and the JAAS principal that the
@@ -2129,7 +2133,7 @@ if (obj instanceof UserDetails) {
           <literal>JaasAuthenticationProvider.setAuthorityGranters(List)</literal>
           property.</para>
 
-          <para>Acegi Security does not include any production
+          <para>Spring Security does not include any production
           <literal>AuthorityGranter</literal>s given that every JAAS principal
           has an implementation-specific meaning. However, there is a
           <literal>TestAuthorityGranter</literal> in the unit tests that
@@ -2148,15 +2152,15 @@ if (obj instanceof UserDetails) {
         <para>Siteminder is a commercial single sign on solution by Computer
         Associates.</para>
 
-        <para>Acegi Security provides a filter,
+        <para>Spring Security provides a filter,
         <literal>SiteminderAuthenticationProcessingFilter</literal> and
         provider, <literal>SiteminderAuthenticationProvider</literal> that can
         be used to process requests that have been pre-authenticated by
         Siteminder. This filter assumes that you're using Siteminder for
-        <emphasis>authentication</emphasis>, and that you're using Acegi
+        <emphasis>authentication</emphasis>, and that you're using Spring
         Security for <emphasis>authorization</emphasis>. The use of Siteminder
         for <emphasis>authorization</emphasis> is not yet directly supported
-        by Acegi Security.</para>
+        by Spring Security.</para>
 
         <para>When using Siteminder, an agent is setup on your web server to
         intercept a principal's first call to your application. The agent
@@ -2171,7 +2175,7 @@ if (obj instanceof UserDetails) {
       <sect1 id="siteminder-config">
         <title>Configuration</title>
 
-        <para>The first step in setting up Acegi Security's Siteminder support
+        <para>The first step in setting up Spring Security's Siteminder support
         is to define the authentication mechanism that will inspect the HTTP
         header discussed earlier. It will be responsible for generating a
         <literal>UsernamePasswordAuthenticationToken</literal> that is later
@@ -2192,7 +2196,7 @@ if (obj instanceof UserDetails) {
         <literal>AuthenticationManager</literal>, as is normally needed by
         authentication mechanisms. Several URLs are also specified, with the
         values being self-explanatory. It's important to also specify the HTTP
-        header that Acegi Security should inspect. If you additionally want to
+        header that Spring Security should inspect. If you additionally want to
         support form-based authentication (i.e. in your development
         environment where Siteminder is not installed), specify the form's
         username parameter as well - just don't do this in production!</para>
@@ -2242,7 +2246,7 @@ if (obj instanceof UserDetails) {
         will be able to call other objects which require different
         authentication and authorization credentials. It will also be able to
         perform any internal security checks for specific
-        <literal>GrantedAuthority</literal> objects. Because Acegi Security
+        <literal>GrantedAuthority</literal> objects. Because Spring Security
         provides a number of helper classes that automatically configure
         remoting protocols based on the contents of the
         <literal>SecurityContextHolder</literal>, these run-as replacements
@@ -2272,7 +2276,7 @@ public boolean supports(Class clazz);</programlisting></para>
         that the security interceptor will present.</para>
 
         <para>One concrete implementation of a <literal>RunAsManager</literal>
-        is provided with Acegi Security. The
+        is provided with Spring Security. The
         <literal>RunAsManagerImpl</literal> class returns a replacement
         <literal>RunAsUserToken</literal> if any
         <literal>ConfigAttribute</literal> starts with
@@ -2410,7 +2414,7 @@ public boolean supports(Class clazz);</programlisting></para>
       <sect1 id="basic-overview">
         <title>Overview</title>
 
-        <para>Acegi Security provides a
+        <para>Spring Security provides a
         <literal>BasicProcessingFilter</literal> which is capable of
         processing basic authentication credentials presented in HTTP headers.
         This can be used for authenticating calls made by Spring remoting
@@ -2471,7 +2475,7 @@ public boolean supports(Class clazz);</programlisting></para>
       <sect1 id="digest-overview">
         <title>Overview</title>
 
-        <para>Acegi Security provides a
+        <para>Spring Security provides a
         <literal>DigestProcessingFilter</literal> which is capable of
         processing digest authentication credentials presented in HTTP
         headers. Digest Authentication attempts to solve many of the
@@ -2481,7 +2485,7 @@ public boolean supports(Class clazz);</programlisting></para>
         Explorer. The standard governing HTTP Digest Authentication is defined
         by RFC 2617, which updates an earlier version of the Digest
         Authentication standard prescribed by RFC 2069. Most user agents
-        implement RFC 2617. Acegi Security
+        implement RFC 2617. Spring Security
         <literal>DigestProcessingFilter</literal> is compatible with the
         "<literal>auth</literal>" quality of protection
         (<literal>qop</literal>) prescribed by RFC 2617, which also provides
@@ -2497,7 +2501,7 @@ public boolean supports(Class clazz);</programlisting></para>
         between Form Authentication, Basic Authentication and Digest
         Authentication, although extra security also means more complex user
         agent implementations. Central to Digest Authentication is a "nonce".
-        This is a value the server generates. Acegi Security's nonce adopts
+        This is a value the server generates. Spring Security's nonce adopts
         the following format:</para>
 
         <para><programlisting>base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
@@ -2516,7 +2520,7 @@ key:              A private key to prevent modification of the nonce token
         a random value which the user agent generates each request), the realm
         name etc, then performing an MD5 hash. Both the server and user agent
         perform this digest computation, resulting in different hash codes if
-        they disagree on an included value (eg password). In Acegi Security
+        they disagree on an included value (eg password). In Spring Security
         implementation, if the server-generated nonce has merely expired (but
         the digest was otherwise valid), the
         <literal>DigestProcessingFilterEntryPoint</literal> will send a
@@ -2538,9 +2542,9 @@ key:              A private key to prevent modification of the nonce token
         <para>Because of the more complex implementation of Digest
         Authentication, there are often user agent issues. For example,
         Internet Explorer fails to present an "<literal>opaque</literal>"
-        token on subsequent requests in the same session. Acegi Security
+        token on subsequent requests in the same session. Spring Security
         filters therefore encapsulate all state information into the
-        "<literal>nonce</literal>" token instead. In our testing, Acegi
+        "<literal>nonce</literal>" token instead. In our testing, Spring
         Security implementation works reliably with FireFox and Internet
         Explorer, correctly handling nonce timeouts etc.</para>
       </sect1>
@@ -2597,12 +2601,12 @@ key:              A private key to prevent modification of the nonce token
 
         <para>Digest Authentication's RFC offers a range of additional
         features to further increase security. For example, the nonce can be
-        changed on every request. Despite this, Acegi Security implementation
+        changed on every request. Despite this, Spring Security implementation
         was designed to minimise the complexity of the implementation (and the
         doubtless user agent incompatibilities that would emerge), and avoid
         needing to store server-side state. You are invited to review RFC 2617
         if you wish to explore these features in more detail. As far as we are
-        aware, Acegi Security implementation does comply with the minimum
+        aware, Spring Security's implementation does comply with the minimum
         standards of this RFC.</para>
       </sect1>
     </chapter>
@@ -2632,7 +2636,7 @@ key:              A private key to prevent modification of the nonce token
       <sect1 id="anonymous-config">
         <title>Configuration</title>
 
-        <para>Acegi Security provides three classes that together provide an
+        <para>Spring Security provides three classes that together provide an
         anonymous authentication feature.
         <literal>AnonymousAuthenticationToken</literal> is an implementation
         of <literal>Authentication</literal>, and stores the
@@ -2723,7 +2727,7 @@ key:              A private key to prevent modification of the nonce token
         remember the identity of a principal between sessions. This is
         typically accomplished by sending a cookie to the browser, with the
         cookie being detected during future sessions and causing automated
-        login to take place. Acegi Security provides the necessary hooks so
+        login to take place. Spring Security provides the necessary hooks so
         that such operations can take place, along with providing a concrete
         implementation that uses hashing to preserve the security of
         cookie-based tokens.</para>
@@ -2849,25 +2853,25 @@ key:              A private key to prevent modification of the remember-me token
         part of the SSL handshake. The server will authenticate the client by
         checking that it's certificate is signed by an acceptable authority.
         If a valid certificate has been provided, it can be obtained through
-        the servlet API in an application. Acegi Security X509 module extracts
+        the servlet API in an application. Spring Security X509 module extracts
         the certificate using a filter and passes it to the configured X509
         authentication provider to allow any additional application-specific
         checks to be applied. It also maps the certificate to an application
         user and loads that user's set of granted authorities for use with the
-        standard Acegi Security infrastructure.</para>
+        standard Spring Security infrastructure.</para>
 
         <para>You should be familiar with using certificates and setting up
         client authentication for your servlet container before attempting to
-        use it with Acegi Security. Most of the work is in creating and
+        use it with Spring Security. Most of the work is in creating and
         installing suitable certificates and keys. For example, if you're
         using Tomcat then read the instructions here <ulink
         url="http://jakarta.apache.org/tomcat/tomcat-5.0-doc/ssl-howto.html"></ulink>.
         It's important that you get this working before trying it out with
-        Acegi Security</para>
+        Spring Security</para>
       </sect1>
 
       <sect1 id="x509-with-acegi">
-        <title>Using X509 with Acegi Security</title>
+        <title>Using X509 with Spring Security</title>
 
         <para>With X509 authentication, there is no explicit login procedure
         so the implementation is relatively simple; there is no need to
@@ -2969,7 +2973,7 @@ key:              A private key to prevent modification of the remember-me token
         </programlisting><parameter>clientAuth</parameter> can also be set to
         <parameter>want</parameter> if you still want SSL connections to
         succeed even if the client doesn't provide a certificate. Obviously
-        these clients won't be able to access any objects secured by Acegi
+        these clients won't be able to access any objects secured by Spring
         Security (unless you use a non-X509 authentication mechanism, such as
         BASIC authentication, to authenticate the user)</para>
       </sect1>
@@ -2986,13 +2990,13 @@ key:              A private key to prevent modification of the remember-me token
         to store the role information for application users.</para>
 
         <para>There are many different scenarios for how an LDAP server may be
-        configured so Acegi LDAP provider is fully configurable. It uses
+        configured so Spring Security's LDAP provider is fully configurable. It uses
         separate strategy interfaces for authentication and role retrieval and
         provides default implementations which can be configured to handle a
         wide range of situations.</para>
 
         <para>You should be familiar with LDAP before trying to use it with
-        Acegi. The following link provides a good introduction to the concepts
+        Spring Security. The following link provides a good introduction to the concepts
         involved and a guide to setting up a directory using the free LDAP
         server OpenLDAP: <ulink
         url="http://www.zytrax.com/books/ldap/"></ulink>. Some familiarity
@@ -3002,7 +3006,7 @@ key:              A private key to prevent modification of the remember-me token
       </sect1>
 
       <sect1 id="ldap-with-acegi">
-        <title>Using LDAP with Acegi Security</title>
+        <title>Using LDAP with Spring Security</title>
 
         <para>The main LDAP provider class is
         <classname>org.springframework.security.providers.ldap.LdapAuthenticationProvider</classname>.
@@ -3027,7 +3031,7 @@ key:              A private key to prevent modification of the remember-me token
           with the user's own permissions.</para>
 
           <para>There are currently two authentication strategies supplied
-          with Acegi Security: <itemizedlist>
+          with Spring Security: <itemizedlist>
               <listitem>
                 <para>Authentication directly to the LDAP server ("bind"
                 authentication).</para>
@@ -3237,15 +3241,15 @@ key:              A private key to prevent modification of the remember-me token
         <para>JA-SIG produces an enterprise-wide single sign on system known
         as CAS. Unlike other initiatives, JA-SIG's Central Authentication
         Service is open source, widely used, simple to understand, platform
-        independent, and supports proxy capabilities. Acegi Security fully
+        independent, and supports proxy capabilities. Spring Security fully
         supports CAS, and provides an easy migration path from
-        single-application deployments of Acegi Security through to
+        single-application deployments of Spring Security through to
         multiple-application deployments secured by an enterprise-wide CAS
         server.</para>
 
         <para>You can learn more about CAS at
         <literal>http://www.ja-sig.org/products/cas/</literal>. You will need
-        to visit this URL to download the CAS Server files. Whilst Acegi
+        to visit this URL to download the CAS Server files. Whilst Spring
         Security includes two CAS libraries in the "-with-dependencies" ZIP
         file, you will still need the CAS Java Server Pages and
         <literal>web.xml</literal> to customise and deploy your CAS
@@ -3257,9 +3261,9 @@ key:              A private key to prevent modification of the remember-me token
 
         <para>Whilst the CAS web site above contains two documents that detail
         the architecture of CAS, we present the general overview again here
-        within the context of Acegi Security. The following refers to both CAS
+        within the context of Spring Security. The following refers to both CAS
         2.0 (produced by Yale) and CAS 3.0 (produced by JA-SIG), being the
-        versions of CAS that Acegi Security supports.</para>
+        versions of CAS that Spring Security supports.</para>
 
         <para>Somewhere in your enterprise you will need to setup a CAS
         server. The CAS server is simply a standard WAR file, so there isn't
@@ -3278,13 +3282,13 @@ key:              A private key to prevent modification of the remember-me token
         <para>If you are already running an existing CAS 2.0 server instance,
         you will have already established a
         <literal>PasswordHandler</literal>. If you do not already have a
-        <literal>PasswordHandler</literal>, you might prefer to use Acegi
-        Security <literal>CasPasswordHandler</literal> class. This class
-        delegates through to the standard Acegi Security
+        <literal>PasswordHandler</literal>, you might prefer to use Spring
+        Security's <literal>CasPasswordHandler</literal> class. This class
+        delegates through to the standard Spring Security
         <literal>AuthenticationManager</literal>, enabling you to use a
         security configuration you might already have in place. You do not
         need to use the <literal>CasPasswordHandler</literal> class on your
-        CAS server if you do not wish. Acegi Security will function as a CAS
+        CAS server if you do not wish. Spring Security will function as a CAS
         client successfully irrespective of the
         <literal>PasswordHandler</literal> you've chosen for your CAS
         server.</para>
@@ -3304,12 +3308,12 @@ key:              A private key to prevent modification of the remember-me token
         you will have already established an
         <literal>AuthenticationHandler</literal>. If you do not already have
         an <literal>AuthenticationHandler</literal>, you might prefer to use
-        Acegi Security <literal>CasAuthenticationHandler</literal> class. This
-        class delegates through to the standard Acegi Security
+        Spring Security <literal>CasAuthenticationHandler</literal> class. This
+        class delegates through to the standard Spring Security
         <literal>AuthenticationManager</literal>, enabling you to use a
         security configuration you might already have in place. You do not
         need to use the <literal>CasAuthenticationHandler</literal> class on
-        your CAS server if you do not wish. Acegi Security will function as a
+        your CAS server if you do not wish. Spring Security will function as a
         CAS client successfully irrespective of the
         <literal>AuthenticationHandler</literal> you've chosen for your CAS
         server.</para>
@@ -3327,20 +3331,20 @@ key:              A private key to prevent modification of the remember-me token
         Active Server Pages, Perl, Python and others. Naturally, Java support
         is very strong given the CAS server is written in Java. You do not
         need to use any of CAS' client classes in applications secured by
-        Acegi Security. This is handled transparently for you.</para>
+        Spring Security. This is handled transparently for you.</para>
 
-        <para>The basic interaction between a web browser, CAS server and an
-        Acegi Security for System Spring secured service is as follows:</para>
+        <para>The basic interaction between a web browser, CAS server and n
+        Spring Security-secured service is as follows:</para>
 
         <orderedlist>
           <listitem>
             <para>The web user is browsing the service's public pages. CAS or
-            Acegi Security is not involved.</para>
+            Spring Security is not involved.</para>
           </listitem>
 
           <listitem>
             <para>The user eventually requests a page that is either secure or
-            one of the beans it uses is secure. Acegi Security's
+            one of the beans it uses is secure. Spring Security's
             <literal>ExceptionTranslationFilter</literal> will detect the
             <literal>AuthenticationException</literal>.</para>
           </listitem>
@@ -3359,7 +3363,7 @@ key:              A private key to prevent modification of the remember-me token
             <para>The <literal>CasProcessingFilterEntry</literal> point will
             redirect the user's browser to the CAS server. It will also
             indicate a <literal>service</literal> parameter, which is the
-            callback URL for Acegi Security service. For example, the URL to
+            callback URL for Spring Security service. For example, the URL to
             which the browser is redirected might be
             <literal>https://my.company.com/cas/login?service=https%3A%2F%2Fserver3.company.com%2Fwebapp%2Fj_spring_cas_security_check</literal>.</para>
           </listitem>
@@ -3414,7 +3418,7 @@ key:              A private key to prevent modification of the remember-me token
           <listitem>
             <para><literal>CasAuthenticationProvider</literal> will validate
             the service ticket using a <literal>TicketValidator</literal>
-            implementation. Acegi Security includes one implementation, the
+            implementation. Spring Security includes one implementation, the
             <literal>CasProxyTicketValidator</literal>. This implementation a
             ticket validation class included in the CAS client library. The
             <literal>CasProxyTicketValidator</literal> makes an HTTPS request
@@ -3463,8 +3467,8 @@ key:              A private key to prevent modification of the remember-me token
             a configured <literal>CasProxyDecider</literal>. The
             <literal>CasProxyDecider</literal> indicates whether the proxy
             list in the <literal>TicketResponse</literal> is acceptable to the
-            service. Several implementations are provided with Acegi Security
-            System: <literal>RejectProxyTickets</literal>,
+            service. Several implementations are provided with Spring Security:
+            <literal>RejectProxyTickets</literal>,
             <literal>AcceptAnyCasProxy</literal> and
             <literal>NamedCasProxyDecider</literal>. These names are largely
             self-explanatory, except <literal>NamedCasProxyDecider</literal>
@@ -3476,7 +3480,7 @@ key:              A private key to prevent modification of the remember-me token
             <para><literal>CasAuthenticationProvider</literal> will next
             request a <literal>CasAuthoritiesPopulator</literal> to advise the
             <literal>GrantedAuthority</literal> objects that apply to the user
-            contained in the <literal>TicketResponse</literal>. Acegi Security
+            contained in the <literal>TicketResponse</literal>. Spring Security
             includes a <literal>DaoCasAuthoritiesPopulator</literal> which
             simply uses the <literal>UserDetailsService</literal>
             infrastructure to find the <literal>UserDetails</literal> and
@@ -3505,7 +3509,7 @@ key:              A private key to prevent modification of the remember-me token
             <literal>CasProcessingFilter</literal>, which places the created
             <literal>CasAuthenticationToken</literal> into the
             <literal>HttpSession</literal> attribute named
-            <literal>HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY</literal>.</para>
+            <literal>HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY</literal>.</para>
           </listitem>
 
           <listitem>
@@ -3517,7 +3521,7 @@ key:              A private key to prevent modification of the remember-me token
             <para>As the <literal>Authentication</literal> object is now in
             the well-known location, it is handled like any other
             authentication approach. Usually the
-            <literal>HttpSessionIntegrationFilter</literal> will be used to
+            <literal>HttpSessionContextIntegrationFilter</literal> will be used to
             associate the <literal>Authentication</literal> object with the
             <literal>SecurityContextHolder</literal> for the duration of each
             request.</para>
@@ -3525,14 +3529,14 @@ key:              A private key to prevent modification of the remember-me token
         </orderedlist>
 
         <para>It's good that you're still here! It might sound involved, but
-        you can relax as Acegi Security classes hide much of the complexity.
+        you can relax as Spring Security classes hide much of the complexity.
         Let's now look at how this is configured</para>
       </sect1>
 
       <sect1 id="cas-server">
         <title>Optional CAS Server Setup</title>
 
-        <para>Acegi Security can even act as the backend which a CAS version
+        <para>Spring Security can even act as the backend which a CAS version
         2.0 or 3.0 server utilises. The configuration approach is described
         below. Of course, if you have an existing CAS environment you might
         just like to use it instead.</para>
@@ -3540,10 +3544,10 @@ key:              A private key to prevent modification of the remember-me token
         <sect2 id="cas-server-2">
           <title>CAS Version 2.0</title>
 
-          <para>As mentioned above, Acegi Security includes a
+          <para>As mentioned above, Spring Security includes a
           <literal>PasswordHandler</literal> that bridges your existing
           <literal>AuthenticationManager</literal> into CAS 2.0. You do not
-          need to use this <literal>PasswordHandler</literal> to use Acegi
+          need to use this <literal>PasswordHandler</literal> to use Spring
           Security on the client side (any CAS
           <literal>PasswordHandler</literal> will do).</para>
 
@@ -3633,11 +3637,11 @@ key:              A private key to prevent modification of the remember-me token
         <sect2 id="cas-server-3">
           <title>CAS Version 3.0</title>
 
-          <para>As mentioned above, Acegi Security includes an
+          <para>As mentioned above, Spring Security includes an
           <literal>AuthenticationHandler</literal> that bridges your existing
           <literal>AuthenticationManager</literal> into CAS 3.0. You do not
           need to use this <literal>AuthenticationHandler</literal> to use
-          Acegi Security on the client side (any CAS
+          Spring Security on the client side (any CAS
           <literal>AuthenticationHandler</literal> will do).</para>
 
           <para>To install, you will need to download and extract the CAS
@@ -3666,7 +3670,7 @@ key:              A private key to prevent modification of the remember-me token
 				&lt;list&gt;
 					&lt;bean class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler" /&gt;
 					&lt;bean class="org.springframework.security.adapters.cas3.CasAuthenticationHandler"&gt;
-						&lt;property name="authenticationManager" ref="acegiAuthenticationManager" /&gt;
+						&lt;property name="authenticationManager" ref="authenticationManager" /&gt;
 					&lt;/bean&gt;
 				&lt;/list&gt;
 			&lt;/property&gt;
@@ -3689,7 +3693,7 @@ key:              A private key to prevent modification of the remember-me token
 	     	&lt;property name="userDetailsService"&gt;&lt;ref bean="inMemoryDaoImpl"/&gt;&lt;/property&gt;
 		&lt;/bean&gt;
 
-		&lt;bean id="acegiAuthenticationManager" class="org.springframework.security.providers.ProviderManager"&gt;
+		&lt;bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager"&gt;
 			&lt;property name="providers"&gt;
 			  &lt;list&gt;
 			    &lt;ref bean="daoAuthenticationProvider"/&gt;
@@ -3725,8 +3729,8 @@ key:              A private key to prevent modification of the remember-me token
       <sect1 id="cas-client">
         <title>Configuration of CAS Client</title>
 
-        <para>The web application side of CAS is made easy due to Acegi
-        Security. It is assumed you already know the basics of using Acegi
+        <para>The web application side of CAS is made easy due to Spring
+        Security. It is assumed you already know the basics of using Spring
         Security, so these are not covered again below. Only the CAS-specific
         beans are mentioned.</para>
 
@@ -3778,7 +3782,7 @@ key:              A private key to prevent modification of the remember-me token
 
         <para><programlisting>
 &lt;filter&gt;
-  &lt;filter-name&gt;Acegi CAS Processing Filter&lt;/filter-name&gt;
+  &lt;filter-name&gt;Spring Security CAS Processing Filter&lt;/filter-name&gt;
   &lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
@@ -3787,7 +3791,7 @@ key:              A private key to prevent modification of the remember-me token
 &lt;/filter&gt;
 
 &lt;filter-mapping&gt;
-  &lt;filter-name&gt;Acegi CAS Processing Filter&lt;/filter-name&gt;
+  &lt;filter-name&gt;Spring Security CAS Processing Filter&lt;/filter-name&gt;
   &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
 &lt;/filter-mapping&gt;
 
@@ -3898,7 +3902,7 @@ key:              A private key to prevent modification of the remember-me token
 
         <para>This completes the configuration of CAS. If you haven't made any
         mistakes, your web application should happily work within the
-        framework of CAS single sign on. No other parts of Acegi Security need
+        framework of CAS single sign on. No other parts of Spring Security need
         to be concerned about the fact CAS handled authentication.</para>
 
         <para>There is also a <literal>contacts-cas.war</literal> file in the
@@ -3926,9 +3930,9 @@ key:              A private key to prevent modification of the remember-me token
         ticket directly from the CAS server.</para>
 
         <para>Because remoting protocols have no way of presenting themselves
-        within the context of a <literal>HttpSession</literal>, it isn't
+        within the context of an <literal>HttpSession</literal>, it isn't
         possible to rely on the <literal>HttpSession</literal>'s
-        <literal>HttpSessionIntegrationFilter.ACEGI_SECURITY_AUTHENTICATION_KEY</literal>
+        <literal>HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY</literal>
         attribute to locate the <literal>CasAuthenticationToken</literal>.
         Furthermore, because the CAS server invalidates a service ticket after
         it has been validated by the <literal>TicketValidator</literal>,
@@ -3964,7 +3968,7 @@ key:              A private key to prevent modification of the remember-me token
         proxy-granting IOU ticket by calling
         <literal>CasAuthenticationToken.getProxyGrantingTicketIou()</literal>.</para>
 
-        <para>It is hoped you find CAS integration easy and useful with Acegi
+        <para>It is hoped you find CAS integration easy and useful with Spring
         Security classes. Welcome to enterprise-wide single sign on!</para>
       </sect1>
     </chapter>
@@ -3975,7 +3979,7 @@ key:              A private key to prevent modification of the remember-me token
       <sect1 id="ca-overview">
         <title>Overview</title>
 
-        <para>Very early versions of Acegi Security exclusively used Container
+        <para>Very early versions of Spring Security exclusively used Container
         Adapters for interfacing authentication with end users. Whilst this
         worked well, it required considerable time to support multiple
         container versions and the configuration itself was relatively
@@ -3984,19 +3988,19 @@ key:              A private key to prevent modification of the remember-me token
         developed, and are today recommended for almost all
         applications.</para>
 
-        <para>Container Adapters enable Acegi Security to integrate directly
+        <para>Container Adapters enable Spring Security to integrate directly
         with the containers used to host end user applications. This
         integration means that applications can continue to leverage the
         authentication and authorization capabilities built into containers
         (such as <literal>isUserInRole()</literal> and form-based or basic
         authentication), whilst benefiting from the enhanced security
-        interception capabilities provided by Acegi Security (it should be
-        noted that Acegi Security also offers
+        interception capabilities provided by Spring Security (it should be
+        noted that Spring Security also offers
         <literal>ContextHolderAwareRequestWrapper</literal> to deliver
         <literal>isUserInRole()</literal> and similar Servlet Specification
         compatibility methods).</para>
 
-        <para>The integration between a container and Acegi Security is
+        <para>The integration between a container and Spring Security is
         achieved through an adapter. The adapter provides a
         container-compatible user authentication provider, and needs to return
         a container-compatible user object.</para>
@@ -4009,7 +4013,7 @@ key:              A private key to prevent modification of the remember-me token
         <literal>acegisecurity.xml</literal> and is placed in a
         container-specific location.</para>
 
-        <para>Acegi Security currently supports Jetty, Catalina (Tomcat),
+        <para>Spring Security currently supports Jetty, Catalina (Tomcat),
         JBoss and Resin. Additional container adapters can easily be
         written</para>
       </sect1>
@@ -4087,7 +4091,7 @@ key:              A private key to prevent modification of the remember-me token
         <para><programlisting>
   &lt;Call name="addRealm"&gt;
     &lt;Arg&gt;
-      &lt;New class="org.springframework.security.adapters.jetty.JettyAcegiUserRealm"&gt;
+      &lt;New class="org.springframework.security.adapters.jetty.JettySpringSecurityUserRealm"&gt;
         &lt;Arg&gt;Spring Powered Realm&lt;/Arg&gt;
         &lt;Arg&gt;my_password&lt;/Arg&gt;
         &lt;Arg&gt;etc/acegisecurity.xml&lt;/Arg&gt;
@@ -4160,7 +4164,7 @@ key:              A private key to prevent modification of the remember-me token
         <para><programlisting>
 &lt;application-policy name = "SpringPoweredRealm"&gt;
    &lt;authentication&gt;
-      &lt;login-module code = "org.springframework.security.adapters.jboss.JbossAcegiLoginModule"
+      &lt;login-module code = "org.springframework.security.adapters.jboss.JbossSpringSecurityLoginModule"
             flag = "required"&gt;
         &lt;module-option name = "appContextLocation"&gt;acegisecurity.xml&lt;/module-option&gt;
         &lt;module-option name = "key"&gt;my_password&lt;/module-option&gt;
@@ -4186,7 +4190,7 @@ key:              A private key to prevent modification of the remember-me token
         <para><programlisting>
 &lt;application-policy name = "SpringPoweredRealm"&gt;
    &lt;authentication&gt;
-      &lt;login-module code = "org.springframework.security.adapters.jboss.JbossAcegiLoginModule"
+      &lt;login-module code = "org.springframework.security.adapters.jboss.JbossSpringSecurityLoginModule"
             flag = "required"&gt;
         &lt;module-option name = "singletonId"&gt;springRealm&lt;/module-option&gt;
         &lt;module-option name = "key"&gt;my_password&lt;/module-option&gt;
@@ -4361,7 +4365,7 @@ key:              A private key to prevent modification of the remember-me token
         entry:</para>
 
         <para><programlisting>      &lt;Realm
-            className="org.springframework.security.adapters.catalina.CatalinaAcegiUserRealm"
+            className="org.springframework.security.adapters.catalina.CatalinaSpringSecurityUserRealm"
             appContextLocation="conf/acegisecurity.xml"
              key="my_password" /&gt;</programlisting></para>
 
@@ -4371,7 +4375,7 @@ key:              A private key to prevent modification of the remember-me token
         <para>Copy <literal>acegisecurity.xml</literal> into
         <literal>$CATALINA_HOME/conf</literal>.</para>
 
-        <para>Copy <literal>acegi-security-catalina-XX.jar</literal> into
+        <para>Copy <literal>spring-security-catalina-XX.jar</literal> into
         <literal>$CATALINA_HOME/server/lib</literal>.</para>
 
         <para>Copy the following files into
@@ -4400,7 +4404,7 @@ key:              A private key to prevent modification of the remember-me token
         </itemizedlist>
 
         <para>None of the above JAR files (or
-        <literal>acegi-security-XX.jar</literal>) should be in your
+        <literal>spring-security-XX.jar</literal>) should be in your
         application's <literal>WEB-INF/lib</literal>. The realm name indicated
         in your <literal>web.xml</literal> does not matter with
         Catalina.</para>
@@ -4788,11 +4792,11 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
     <title>Authorization</title>
 
     <partintro>
-      <para>The advanced authorization capabilities within Acegi Security
+      <para>The advanced authorization capabilities within Spring Security
       represent one of the most compelling reasons for its popularity.
-      Irrespective of how you choose to authenticate - whether using an Acegi
+      Irrespective of how you choose to authenticate - whether using a Spring
       Security-provided mechanism and provider, or integrating with a
-      container or other non-Acegi Security authentication authority - you
+      container or other non-Spring Security authentication authority - you
       will find the authorization services can be used within your application
       in a consistent and simple way.</para>
 
@@ -4845,7 +4849,7 @@ $CATALINA_HOME/bin/startup.sh</programlisting></para>
         specifically support the <literal>GrantedAuthority</literal>
         implementation in order to understand its contents.</para>
 
-        <para>Acegi Security includes one concrete
+        <para>Spring Security includes one concrete
         <literal>GrantedAuthority</literal> implementation,
         <literal>GrantedAuthorityImpl</literal>. This allows any
         user-specified <literal>String</literal> to be converted into a
@@ -4894,7 +4898,7 @@ public boolean supports(Class clazz);</programlisting></para>
 
         <para>Whilst users can implement their own
         <literal>AccessDecisionManager</literal> to control all aspects of
-        authorization, Acegi Security includes several
+        authorization, Spring Security includes several
         <literal>AccessDecisionManager</literal> implementations that are
         based on voting. Figure 4 illustrates the relevant classes.</para>
 
@@ -4935,7 +4939,7 @@ public boolean supports(Class clazz);</programlisting></para>
         <literal>ACCESS_GRANTED</literal>.</para>
 
         <para>There are three concrete
-        <literal>AccessDecisionManager</literal>s provided with Acegi Security
+        <literal>AccessDecisionManager</literal>s provided with Spring Security
         that tally the votes. The <literal>ConsensusBased</literal>
         implementation will grant or deny access based on the consensus of
         non-abstain votes. Properties are provided to control behavior in the
@@ -4960,7 +4964,7 @@ public boolean supports(Class clazz);</programlisting></para>
         effect.</para>
 
         <para>There are two concrete <literal>AccessDecisionVoter</literal>
-        implementations provided with Acegi Security. The
+        implementations provided with Spring Security. The
         <literal>RoleVoter</literal> class will vote if any ConfigAttribute
         begins with <literal>ROLE_</literal>. It will vote to grant access if
         there is a <literal>GrantedAuthority</literal> which returns a
@@ -4976,7 +4980,7 @@ public boolean supports(Class clazz);</programlisting></para>
         as the <literal>ROLE_</literal> prefix.</para>
 
         <para><literal>BasicAclEntryVoter</literal> is the other concrete
-        voter included with Acegi Security. It integrates with Acegi
+        voter included with Spring Security. It integrates with Spring
         Security's <literal>AclManager</literal> (discussed later). This voter
         is designed to have multiple instances in the same application
         context, such as:</para>
@@ -5025,14 +5029,14 @@ public boolean supports(Class clazz);</programlisting></para>
         <literal>BasicAclEntryVoter</literal> is an important class as it
         allows you to build truly complex applications with domain object
         security entirely defined in the application context. If you're
-        interested in learning more about Acegi Security's ACL capabilities
+        interested in learning more about Spring Security's ACL capabilities
         and how best to apply them, please see the ACL and "After Invocation"
         sections of this reference guide, and the Contacts sample
         application.</para>
 
         <para>It is also possible to implement a custom
         <literal>AccessDecisionVoter</literal>. Several examples are provided
-        in Acegi Security unit tests, including
+        in Spring Security unit tests, including
         <literal>ContactSecurityVoter</literal> and
         <literal>DenyVoter</literal>. The
         <literal>ContactSecurityVoter</literal> abstains from voting decisions
@@ -5062,11 +5066,11 @@ public boolean supports(Class clazz);</programlisting></para>
         with the secure object invocation, some applications need a way of
         modifying the object actually returned by the secure object
         invocation. Whilst you could easily implement your own AOP concern to
-        achieve this, Acegi Security provides a convenient hook that has
+        achieve this, Spring Security provides a convenient hook that has
         several concrete implementations that integrate with its ACL
         capabilities.</para>
 
-        <para>Figure 5 illustrates Acegi Security's
+        <para>Figure 5 illustrates Spring Security's
         <literal>AfterInvocationManager</literal> and its concrete
         implementations.</para>
 
@@ -5081,7 +5085,7 @@ public boolean supports(Class clazz);</programlisting></para>
             </caption>
           </mediaobject></para>
 
-        <para>Like many other parts of Acegi Security,
+        <para>Like many other parts of Spring Security,
         <literal>AfterInvocationManager</literal> has a single concrete
         implementation, <literal>AfterInvocationProviderManager</literal>, which
         polls a list of <literal>AfterInvocationProvider</literal>s. Each
@@ -5097,7 +5101,7 @@ public boolean supports(Class clazz);</programlisting></para>
         configuration attributes that allow the
         <literal>MethodSecurityInterceptor</literal>'s
         <literal>AccessDecisionManager</literal> to allow an operation. If
-        you're using the typical Acegi Security included
+        you're using the typical Spring Security included
         <literal>AccessDecisionManager</literal> implementations, having no
         configuration attributes defined for a particular secure method
         invocation will cause each <literal>AccessDecisionVoter</literal> to
@@ -5361,7 +5365,7 @@ public boolean supports(Class clazz);</programlisting></para>
         domain object. The numbers are actually integers that are used with
         <literal>BasePermission</literal> bit masking. Please refer to the ACL
         section of this reference guide to understand more about the ACL
-        capabilities of Acegi Security.</para>
+        capabilities of Spring Security.</para>
 
         <para><literal>AclTag</literal> is part of the old ACL module and
         should be considered deprecated. For the sake of historical reference,
@@ -5384,7 +5388,7 @@ public boolean supports(Class clazz);</programlisting></para>
         <literal>ProxyFactoryBean</literal> or
         <literal>BeanNameAutoProxyCreator</literal>, as commonly used by many
         other parts of Spring (refer to the sample application for examples).
-        Alternatively, Acegi Security provides a
+        Alternatively, Spring Security provides a
         <literal>MethodDefinitionSourceAdvisor</literal> which may be used
         with Spring's <literal>DefaultAdvisorAutoProxyCreator</literal> to
         automatically chain the security interceptor in front of any beans
@@ -5501,7 +5505,7 @@ public boolean supports(Class clazz);</programlisting></para>
     public float getBalance(int id);
 }</programlisting>
 
-        <para>If you are using the Acegi Security Java 5 Annotations approach,
+        <para>If you are using the Spring Security Java 5 Annotations approach,
         your bean context will be configured as follows:</para>
 
         <programlisting>&lt;bean id="attributes"
@@ -5520,7 +5524,7 @@ public boolean supports(Class clazz);</programlisting></para>
   &lt;property name="objectDefinitionSource"&gt;&lt;ref bean="objectDefinitionSource"/&gt;&lt;/property&gt;
 &lt;/bean&gt;        </programlisting>
 
-        <para>In addition, your source code will contain Acegi Java 5 Security
+        <para>In addition, your source code will contain Spring Security Java 5 Security
         Annotations that represent the <literal>ConfigAttribute</literal>. The
         following example uses the <literal>@Secured</literal> annotations to
         represent the configuration attributes, and results in the same
@@ -5717,7 +5721,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         configuration example is provided below:</para>
 
         <programlisting>&lt;filter&gt;
-  &lt;filter-name&gt;Acegi HTTP Request Security Filter&lt;/filter-name&gt;
+  &lt;filter-name&gt;Spring Security HTTP Request Security Filter&lt;/filter-name&gt;
   &lt;filter-class&gt;org.springframework.security.util.FilterToBeanProxy&lt;/filter-class&gt;
   &lt;init-param&gt;
     &lt;param-name&gt;targetClass&lt;/param-name&gt;
@@ -5726,13 +5730,13 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 &lt;/filter&gt;
 
 &lt;filter-mapping&gt;
-  &lt;filter-name&gt;Acegi HTTP Request Security Filter&lt;/filter-name&gt;
+  &lt;filter-name&gt;Spring Security HTTP Request Security Filter&lt;/filter-name&gt;
   &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
 &lt;/filter-mapping&gt;</programlisting>
 
         <para>Notice that the filter is actually a
         <literal>FilterToBeanProxy</literal>. Most of the filters used by
-        Acegi Security use this class. Refer to the Filters section to learn
+        Spring Security use this class. Refer to the Filters section to learn
         more about this bean.</para>
 
         <para>In the application context you will need to configure three
@@ -5774,7 +5778,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         if the user requests a secure HTTP resource but they are not
         authenticated. The class handles presenting the appropriate response
         to the user so that authentication can begin. Three concrete
-        implementations are provided with Acegi Security:
+        implementations are provided with Spring Security:
         <literal>AuthenticationProcessingFilterEntryPoint</literal> for
         commencing a form-based authentication,
         <literal>BasicProcessingFilterEntryPoint</literal> for commencing a
@@ -5917,7 +5921,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         only be able to see their own customer records. To make it a little
         more interesting, your customers can allow other users to see their
         customer records, such as their "puppy preschool "mentor or president
-        of their local "Pony Club". Using Acegi Security as the foundation,
+        of their local "Pony Club". Using Spring Security as the foundation,
         you have several approaches that can be used:<orderedlist>
             <listitem>
               <para>Write your business methods to enforce the security. You
@@ -6093,7 +6097,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         only be able to see their own customer records. To make it a little
         more interesting, your customers can allow other users to see their
         customer records, such as their "puppy preschool "mentor or president
-        of their local "Pony Club". Using Acegi Security as the foundation,
+        of their local "Pony Club". Using Spring Security as the foundation,
         you have several approaches that can be used:<orderedlist>
             <listitem>
               <para>Write your business methods to enforce the security. You
@@ -6159,7 +6163,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 
         <para>Please note that our Basic ACL services are currently being
         refactored. We expect release 1.1.0 will contain this new code.
-        Planned code is already in the Acegi Security Subversion sandbox, so
+        Planned code is already in the Spring Security Subversion sandbox, so
         please check there if you have a new application requiring ACLs or are
         in the planning stages. The Basic ACL services will be deprecated from
         release 1.1.0.</para>
@@ -6224,7 +6228,7 @@ public AclEntry[] getAcls(java.lang.Object domainInstance, Authentication authen
         <para>With this background, let's now look at a usable ACL
         implementation.</para>
 
-        <para>Acegi Security includes a production-quality ACL provider
+        <para>Spring Security includes a production-quality ACL provider
         implementation, which is shown in Figure 7.</para>
 
         <para><mediaobject>
@@ -6294,7 +6298,7 @@ public java.lang.Object getRecipient();</programlisting></para>
         a <literal>BasicAclDao</literal> against the provider, so different
         ACL repository types can be accessed in a pluggable manner. The
         <literal>BasicAclProvider</literal> also supports pluggable cache
-        providers (with Acegi Security including an implementation that fronts
+        providers (with Spring Security including an implementation that fronts
         EH-CACHE).</para>
 
         <para>The <literal>BasicAclDao</literal> interface is very simple to
@@ -6308,7 +6312,7 @@ public java.lang.Object getRecipient();</programlisting></para>
         appropriate <literal>BasicAclEntry</literal> objects and return
         them.</para>
 
-        <para>Acegi Security includes a single <literal>BasicAclDao</literal>
+        <para>Spring Security includes a single <literal>BasicAclDao</literal>
         implementation called <literal>JdbcDaoImpl</literal>. As implied by
         the name, <literal>JdbcDaoImpl</literal> accesses ACL information from
         a JDBC database. There is also an extended version of this DAO,
@@ -6541,7 +6545,7 @@ END;
 
     <partintro>
       <para>In addition to this reference guide, a number of other resources
-      exist to help you learn how to use Acegi Security. These resources are
+      exist to help you learn how to use Spring Security. These resources are
       discussed in this section.</para>
     </partintro>
 
@@ -6551,31 +6555,31 @@ END;
       <sect1 id="contacts-sample">
         <title id="contacts">Contacts</title>
 
-        <para>Included with Acegi Security is a very simple application that
+        <para>Included with Spring Security is a very simple application that
         can demonstrate the basic security facilities provided by the system
         (and confirm your Container Adapter is properly configured if you're
         using one).</para>
 
         <para>If you build from Subversion, the Contacts sample application
         includes three deployable versions:
-        <literal>acegi-security-sample-contacts-filter.war</literal> is
+        <literal>spring-security-sample-contacts-filter.war</literal> is
         configured with the HTTP Session Authentication approach.
-        Acegi<literal><literal>-security-sample-contacts-ca.war</literal></literal>
+        <literal>spring-security-sample-contacts-ca.war</literal>
         is configured to use a Container Adapter. Finally,
-        <literal>acegi-security-sample-contacts-cas.war</literal> is designed
+        <literal>spring-security-sample-contacts-cas.war</literal> is designed
         to work with a JA-SIG CAS server. If you're just wanting to see how
         the sample application works, please use
-        <literal><literal>acegi-security-sample-contacts-filter.war</literal></literal>
+        <literal><literal>spring-security-sample-contacts-filter.war</literal></literal>
         as it does not require special configuration of your container. This
         is also the artifact included in official release ZIPs.</para>
 
-        <para>To deploy, simply copy the relevant WAR file from Acegi Security
+        <para>To deploy, simply copy the relevant WAR file from Spring Security
         distribution into your container’s <literal>webapps</literal>
         directory.</para>
 
         <para>After starting your container, check the application can load.
         Visit
-        <literal>http://localhost:</literal><literal><literal>8080/</literal>acegi-security-sample-contacts-filter</literal>
+        <literal>http://localhost:8080/spring-security-sample-contacts-filter</literal>
         (or whichever URL is appropriate for your web container and the WAR
         you deployed). A random contact should be displayed. Click "Refresh"
         several times and you will see different contacts. The business method
@@ -6594,11 +6598,11 @@ END;
           <para>The Context implements SecurityContext.</para>
 
           <para>Authentication object is of type:
-              org.springframework.security.adapters.PrincipalAcegiUserToken
+              org.springframework.security.adapters.PrincipalSpringSecurityUserToken
           </para>
 
           <para>Authentication object as a String:
-              org.springframework.security.adapters.PrincipalAcegiUserToken@e9a7c2: Username:
+              org.springframework.security.adapters.PrincipalSpringSecurityUserToken@e9a7c2: Username:
           marissa; Password: [PROTECTED]; Authenticated: true; Granted
           Authorities: ROLE_TELLER, ROLE_SUPERVISOR</para>
 
@@ -6614,7 +6618,7 @@ END;
         </blockquote>
 
         <para>If you receive a different message, and deployed
-        <literal>acegi-security-sample-contacts-ca.war</literal>, check you
+        <literal>spring-security-sample-contacts-ca.war</literal>, check you
         have properly configured your Container Adapter as described elsewhere
         in this reference guide.</para>
 
@@ -6626,8 +6630,8 @@ END;
         contacts. Behind the scenes, the
         <literal>MethodSecurityInterceptor</literal> is securing the business
         objects. If you're using
-        <literal><literal>acegi-security-sample-contacts-filter.war</literal></literal>
-        or <literal>acegi-security-sample-contacts-cas.war</literal>, the
+            or <literal>spring-security-sample-contacts-cas.war</literal>, the
+            <literal><literal>spring-security-sample-contacts-filter.war</literal></literal>
         <literal>FilterSecurityInterceptor</literal> is also securing the HTTP
         requests. If using either of these WARs, be sure to try visiting
         <literal>http://localhost:8080/contacts/secure/super</literal>, which
@@ -6641,7 +6645,7 @@ END;
         <para>The Contacts sample application also include a
         <literal>client</literal> directory. Inside you will find a small
         application that queries the backend business objects using several
-        web services protocols. This demonstrates how to use Acegi Security
+        web services protocols. This demonstrates how to use Spring Security
         for authentication with Spring remoting protocols. To try this client,
         ensure your servlet container is still running the Contacts sample
         application, and then execute <literal>client marissa koala</literal>.
@@ -6708,7 +6712,7 @@ END;
       <sect1 id="jira">
         <title>Use JIRA for Issue Tracking</title>
 
-        <para>Acegi Security uses JIRA to manage bug reports and enhancement
+        <para>Spring Security uses JIRA to manage bug reports and enhancement
         requests. If you find a bug, please log a report using JIRA. Do not
         log it on the support forum, mailing list or by emailing the project's
         developers. Such approaches are ad-hoc and we prefer to manage bugs
@@ -6728,14 +6732,14 @@ END;
       <sect1 id="becoming-involved">
         <title>Becoming Involved</title>
 
-        <para>We welcome you to become involved in Acegi Security project.
+        <para>We welcome you to become involved in Spring Security project.
         There are many ways of contributing, including reading the mailing
         list and responding to questions from other people, writing new code,
         improving existing code, assisting with documentation, developing
         samples or tutorials, or simply making suggestions.</para>
 
         <para>Please read our project policies web page that is available on
-        Acegi Security home page. This explains the path to become a
+        Spring Security home page. This explains the path to become a
         committer, and the administration approaches we use within the
         project.</para>
       </sect1>
@@ -6743,7 +6747,7 @@ END;
       <sect1 id="further-info">
         <title>Further Information</title>
 
-        <para>Questions and comments on Acegi Security are welcome. Please use
+        <para>Questions and comments on Spring Security are welcome. Please use
         the Spring Community Forum web site at <ulink
         url="http://forum.springframework.org"></ulink> for all support
         issues. Remember to use JIRA for bug reports, as explained above.

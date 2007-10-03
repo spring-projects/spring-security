@@ -32,12 +32,12 @@ import org.springframework.util.Assert;
 
 
 /**
- * <p>Provides JA-SIG CAS 3 authentication by delegating to the Acegi <code>AuthenticationManager</code>.</p>
+ * <p>Provides JA-SIG CAS 3 authentication by delegating to the Spring Security <code>AuthenticationManager</code>.</p>
  *  <p>This class would be configured in the <code>webapp/WEB-INF/deployerConfigContext.xml</code> file in the CAS
  * distribution.</p>
  *
  * @author Scott Battaglia
- * @version $Id$
+ * @version $Id:CasAuthenticationHandler.java 2151 2007-09-22 11:54:13Z luke_t $
  *
  * @see AuthenticationHandler
  * @see AuthenticationManager
@@ -81,9 +81,9 @@ public final class CasAuthenticationHandler extends AbstractUsernamePasswordAuth
     }
 
     /**
-     * Method to set the Acegi <code>AuthenticationManager</code> to delegate to.
+     * Method to set the Spring Security <code>AuthenticationManager</code> to delegate to.
      *
-     * @param authenticationManager the Acegi AuthenticationManager that knows how to authenticate users.
+     * @param authenticationManager the Spring Security AuthenticationManager that knows how to authenticate users.
      */
     public void setAuthenticationManager(final AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;

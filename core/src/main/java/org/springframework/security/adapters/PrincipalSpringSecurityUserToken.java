@@ -13,38 +13,35 @@
  * limitations under the License.
  */
 
-package org.springframework.security.adapters.jetty;
+package org.springframework.security.adapters;
 
 import org.springframework.security.GrantedAuthority;
 
-import org.springframework.security.adapters.AbstractAdapterAuthenticationToken;
-
-import org.mortbay.http.UserPrincipal;
+import java.security.Principal;
 
 
 /**
- * A Jetty compatible {@link org.springframework.security.Authentication} object.
+ * A {@link Principal} compatible  {@link org.springframework.security.Authentication} object.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class JettyAcegiUserToken extends AbstractAdapterAuthenticationToken implements UserPrincipal {
+public class PrincipalSpringSecurityUserToken extends AbstractAdapterAuthenticationToken implements Principal {
     //~ Instance fields ================================================================================================
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+    private Object principal;
     private String password;
     private String username;
 
     //~ Constructors ===================================================================================================
 
-    public JettyAcegiUserToken(String key, String username, String password, GrantedAuthority[] authorities) {
+    public PrincipalSpringSecurityUserToken(String key, String username, String password, GrantedAuthority[] authorities,
+        Object principal) {
         super(key, authorities);
         this.username = username;
         this.password = password;
-    }
-
-    protected JettyAcegiUserToken() {
-        throw new IllegalArgumentException("Cannot use default constructor");
+        this.principal = principal;
     }
 
     //~ Methods ========================================================================================================
@@ -58,6 +55,10 @@ public class JettyAcegiUserToken extends AbstractAdapterAuthenticationToken impl
     }
 
     public Object getPrincipal() {
-        return this.username;
+        if (this.principal == null) {
+            return this.username;
+        }
+
+        return this.principal;
     }
 }

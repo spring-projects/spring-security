@@ -15,7 +15,7 @@
 
 package org.springframework.security.providers.x509;
 
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.BadCredentialsException;
@@ -53,7 +53,7 @@ public class X509AuthenticationProvider implements AuthenticationProvider, Initi
 
     //~ Instance fields ================================================================================================
 
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private X509AuthoritiesPopulator x509AuthoritiesPopulator;
     private X509UserCache userCache = new NullX509UserCache();
 

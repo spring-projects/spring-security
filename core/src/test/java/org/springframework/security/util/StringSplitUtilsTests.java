@@ -51,14 +51,14 @@ public class StringSplitUtilsTests extends TestCase {
 
     public void testSplitEachArrayElementAndCreateMapNormalOperation() {
         // note it ignores malformed entries (ie those without an equals sign)
-        String unsplit = "username=\"marissa\", invalidEntryThatHasNoEqualsSign, realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/acegi-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
+        String unsplit = "username=\"marissa\", invalidEntryThatHasNoEqualsSign, realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
         Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
         assertEquals("marissa", headerMap.get("username"));
         assertEquals("Contacts Realm", headerMap.get("realm"));
         assertEquals("MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==", headerMap.get("nonce"));
-        assertEquals("/acegi-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4",
+        assertEquals("/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4",
                 headerMap.get("uri"));
         assertEquals("38644211cf9ac3da63ab639807e2baff", headerMap.get("response"));
         assertEquals("auth", headerMap.get("qop"));
@@ -68,14 +68,14 @@ public class StringSplitUtilsTests extends TestCase {
     }
 
     public void testSplitEachArrayElementAndCreateMapRespectsInstructionNotToRemoveCharacters() {
-        String unsplit = "username=\"marissa\", realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/acegi-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
+        String unsplit = "username=\"marissa\", realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
         String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
         Map headerMap = StringSplitUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", null);
 
         assertEquals("\"marissa\"", headerMap.get("username"));
         assertEquals("\"Contacts Realm\"", headerMap.get("realm"));
         assertEquals("\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\"", headerMap.get("nonce"));
-        assertEquals("\"/acegi-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\"",
+        assertEquals("\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\"",
                 headerMap.get("uri"));
         assertEquals("\"38644211cf9ac3da63ab639807e2baff\"", headerMap.get("response"));
         assertEquals("auth", headerMap.get("qop"));

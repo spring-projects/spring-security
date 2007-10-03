@@ -15,7 +15,7 @@
 
 package org.springframework.security.ldap;
 
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.BadCredentialsException;
 
 import org.apache.commons.logging.Log;
@@ -78,7 +78,7 @@ public class DefaultInitialDirContextFactory implements InitialDirContextFactory
 
     /** Allows extra environment variables to be added at config time. */
     private Map extraEnvVars = null;
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
     /** Type of authentication within LDAP; default is simple. */
     private String authenticationType = "simple";

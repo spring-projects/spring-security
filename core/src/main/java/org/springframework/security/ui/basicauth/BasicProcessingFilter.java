@@ -61,7 +61,7 @@ import org.springframework.util.Assert;
  * which will prompt the user to authenticate again via BASIC authentication.</p>
  *  <p>Basic authentication is an attractive protocol because it is simple and widely deployed. However, it still
  * transmits a password in clear text and as such is undesirable in many situations. Digest authentication is also
- * provided by Acegi Security and should be used instead of Basic authentication wherever possible. See {@link
+ * provided by Spring Security and should be used instead of Basic authentication wherever possible. See {@link
  * org.springframework.security.ui.digestauth.DigestProcessingFilter}.</p>
  *  <p>Note that if a {@link #rememberMeServices} is set, this filter will automatically send back remember-me
  * details to the client. Therefore, subsequent requests will not need to present a BASIC authentication header as

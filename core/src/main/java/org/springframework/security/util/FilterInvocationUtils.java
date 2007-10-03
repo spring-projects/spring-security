@@ -31,7 +31,7 @@ import javax.servlet.ServletResponse;
 
 
 /**
- * Static utility methods for creating <code>FilterInvocation</code>s usable within Acegi Security.<p>The generated
+ * Static utility methods for creating <code>FilterInvocation</code>s usable within Spring Security.<p>The generated
  * <code>FilterInvocation</code> objects are not intended for use with <code>AbstractSecurityInterceptor</code>
  * subclasses. Instead they are generally used by <code>WebInvocationPrivilegeEvaluator</code>.</p>
  *

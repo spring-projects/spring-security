@@ -34,17 +34,17 @@ import java.util.Map;
 
 
 /**
- * Adapter to enable Jetty to authenticate via the Acegi Security System for Spring.<p>Returns a {@link
- * JettyAcegiUserToken} to Jetty's authentication system, which is subsequently available via
+ * Adapter to enable Jetty to authenticate via Spring Security.<p>Returns a {@link
+ * JettySpringSecurityUserToken} to Jetty's authentication system, which is subsequently available via
  * <code>HttpServletRequest.getUserPrincipal()</code>.</p>
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id:JettySpringSecurityUserRealm.java 2151 2007-09-22 11:54:13Z luke_t $
  */
-public final class JettyAcegiUserRealm implements UserRealm {
+public final class JettySpringSecurityUserRealm implements UserRealm {
     //~ Static fields/initializers =====================================================================================
 
-    private static final Log logger = LogFactory.getLog(JettyAcegiUserRealm.class);
+    private static final Log logger = LogFactory.getLog(JettySpringSecurityUserRealm.class);
 
     //~ Instance fields ================================================================================================
 
@@ -64,7 +64,7 @@ public final class JettyAcegiUserRealm implements UserRealm {
      *
      * @throws IllegalArgumentException DOCUMENT ME!
      */
-    public JettyAcegiUserRealm(String realm, String providerKey, String appContextLocation) {
+    public JettySpringSecurityUserRealm(String realm, String providerKey, String appContextLocation) {
         this.realm = realm;
         this.key = providerKey;
 
@@ -96,7 +96,7 @@ public final class JettyAcegiUserRealm implements UserRealm {
         authenticationManager = (AuthenticationManager) beans.get(beanName);
     }
 
-    protected JettyAcegiUserRealm() {
+    protected JettySpringSecurityUserRealm() {
         throw new IllegalArgumentException("Cannot use default constructor");
     }
 
@@ -124,7 +124,7 @@ public final class JettyAcegiUserRealm implements UserRealm {
             return null;
         }
 
-        return new JettyAcegiUserToken(this.key, response.getPrincipal().toString(),
+        return new JettySpringSecurityUserToken(this.key, response.getPrincipal().toString(),
             response.getCredentials().toString(), response.getAuthorities());
     }
 

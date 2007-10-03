@@ -22,34 +22,25 @@ import org.springframework.security.GrantedAuthorityImpl;
 
 
 /**
- * Tests {@link PrincipalAcegiUserToken}.
+ * Tests {@link PrincipalSpringSecurityUserToken}.
  *
  * @author Ben Alex
  * @version $Id$
  */
-public class PrincipalAcegiUserTokenTests extends TestCase {
+public class PrincipalSpringSecurityUserTokenTests extends TestCase {
     //~ Constructors ===================================================================================================
 
-    public PrincipalAcegiUserTokenTests() {
-        super();
+    public PrincipalSpringSecurityUserTokenTests() {
     }
 
-    public PrincipalAcegiUserTokenTests(String arg0) {
+    public PrincipalSpringSecurityUserTokenTests(String arg0) {
         super(arg0);
     }
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(PrincipalAcegiUserTokenTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testGetters() throws Exception {
-        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("my_password", "Test", "Password",
+        PrincipalSpringSecurityUserToken token = new PrincipalSpringSecurityUserToken("my_password", "Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
                 null);
         assertEquals("Test", token.getPrincipal());
@@ -59,7 +50,7 @@ public class PrincipalAcegiUserTokenTests extends TestCase {
     }
 
     public void testNoArgConstructorDoesntExist() {
-        Class clazz = PrincipalAcegiUserToken.class;
+        Class clazz = PrincipalSpringSecurityUserToken.class;
 
         try {
             clazz.getDeclaredConstructor((Class[]) null);

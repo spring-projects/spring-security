@@ -5,7 +5,7 @@
 <version>14</version>
 </compliance>
 <style>
-<description>Acegi Security System for Spring</description>
+<description>Spring Security</description>
 <name>acegisecurity</name>
 </style>
 </general>

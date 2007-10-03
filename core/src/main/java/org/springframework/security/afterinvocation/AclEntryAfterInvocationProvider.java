@@ -15,7 +15,7 @@
 package org.springframework.security.afterinvocation;
 
 import org.springframework.security.AccessDeniedException;
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
@@ -58,7 +58,7 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 
     //~ Instance fields ================================================================================================
 
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
     //~ Constructors ===================================================================================================
 

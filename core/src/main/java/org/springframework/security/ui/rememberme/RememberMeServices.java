@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
  * Implement by a class that is capable of providing a remember-me service.
  *
  * <p>
- * Acegi Security filters (namely {@link
+ * Spring Security filters (namely {@link
  * org.springframework.security.ui.AbstractProcessingFilter} and {@link
  * org.springframework.security.ui.rememberme.RememberMeProcessingFilter} will call
  * the methods provided by an implementation of this interface.
@@ -44,7 +44,7 @@ import javax.servlet.http.HttpServletResponse;
  * <p>
  * This interface does not define how remember-me services should offer a
  * "cancel all remember-me tokens" type capability, as this will be
- * implementation specific and requires no hooks into Acegi Security.
+ * implementation specific and requires no hooks into Spring Security.
  * </p>
  *
  * @author Ben Alex
@@ -55,14 +55,14 @@ public interface RememberMeServices {
 
     /**
      * This method will be called whenever the <code>SecurityContextHolder</code> does not contain an
-     * <code>Authentication</code> and the Acegi Security system wishes to provide an implementation with an
-     * opportunity to authenticate the request using remember-me capabilities. Acegi Security makes no attempt
+     * <code>Authentication</code> object and Spring Security wishes to provide an implementation with an
+     * opportunity to authenticate the request using remember-me capabilities. Spring Security makes no attempt
      * whatsoever to determine whether the browser has requested remember-me services or presented a valid cookie.
      * Such determinations are left to the implementation. If a browser has presented an unauthorised cookie for
      * whatever reason, it should be silently ignored and invalidated using the <code>HttpServletResponse</code>
      * object.<p>The returned <code>Authentication</code> must be acceptable to  {@link
-     * org.springframework.security.AuthenticationManager} or {@link org.springframework.security.providers.AuthenticationProvider} defined
-     * by the web application. It is recommended {@link
+     * org.springframework.security.AuthenticationManager} or
+     * {@link org.springframework.security.providers.AuthenticationProvider} defined by the web application. It is recommended {@link
      * org.springframework.security.providers.rememberme.RememberMeAuthenticationToken} be used in most cases, as it has a
      * corresponding authentication provider.</p>
      *

@@ -17,7 +17,7 @@ package org.springframework.security.providers;
 
 import org.springframework.security.AbstractAuthenticationManager;
 import org.springframework.security.AccountExpiredException;
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationServiceException;
@@ -108,7 +108,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
     private ApplicationEventPublisher applicationEventPublisher;
     private ConcurrentSessionController sessionController = new NullConcurrentSessionController();
     private List providers;
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private Properties exceptionMappings = new Properties();
 
     static {

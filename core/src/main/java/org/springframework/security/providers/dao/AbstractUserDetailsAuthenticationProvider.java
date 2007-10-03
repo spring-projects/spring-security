@@ -16,7 +16,7 @@
 package org.springframework.security.providers.dao;
 
 import org.springframework.security.AccountExpiredException;
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.BadCredentialsException;
@@ -69,7 +69,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
     MessageSourceAware {
     //~ Instance fields ================================================================================================
 
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private UserCache userCache = new NullUserCache();
     private boolean forcePrincipalAsString = false;
     protected boolean hideUserNotFoundExceptions = true;

@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 
-import org.springframework.security.adapters.PrincipalAcegiUserToken;
+import org.springframework.security.adapters.PrincipalSpringSecurityUserToken;
 
 import java.security.Principal;
 
@@ -31,7 +31,7 @@ import javax.servlet.ServletException;
  * Tests {@link ResinAcegiAuthenticator}.
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id:ResinAcegiAuthenticatorTests.java 2151 2007-09-22 11:54:13Z luke_t $
  */
 public class ResinAcegiAuthenticatorTests extends TestCase {
     //~ Instance fields ================================================================================================
@@ -164,11 +164,11 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
 
         Principal result = adapter.loginImpl("marissa", "koala");
 
-        if (!(result instanceof PrincipalAcegiUserToken)) {
-            fail("Should have returned PrincipalAcegiUserToken");
+        if (!(result instanceof PrincipalSpringSecurityUserToken)) {
+            fail("Should have returned PrincipalSpringSecurityUserToken");
         }
 
-        PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) result;
+        PrincipalSpringSecurityUserToken castResult = (PrincipalSpringSecurityUserToken) result;
         assertEquals("marissa", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
         assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
@@ -185,11 +185,11 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
 
         Principal result = adapter.loginImpl(null, null, null, "marissa", "koala");
 
-        if (!(result instanceof PrincipalAcegiUserToken)) {
-            fail("Should have returned PrincipalAcegiUserToken");
+        if (!(result instanceof PrincipalSpringSecurityUserToken)) {
+            fail("Should have returned PrincipalSpringSecurityUserToken");
         }
 
-        PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) result;
+        PrincipalSpringSecurityUserToken castResult = (PrincipalSpringSecurityUserToken) result;
         assertEquals("marissa", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
         assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
@@ -247,7 +247,7 @@ public class ResinAcegiAuthenticatorTests extends TestCase {
 
     public void testHasRoleWithPrincipalAcegiUserToken()
         throws Exception {
-        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("KEY", "Test", "Password",
+        PrincipalSpringSecurityUserToken token = new PrincipalSpringSecurityUserToken("KEY", "Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
                 null);
         ResinAcegiAuthenticator adapter = new ResinAcegiAuthenticator();

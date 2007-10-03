@@ -37,7 +37,7 @@ package org.springframework.security.providers.cas;
  * <P>
  * To avoid this issue with stateless callers, it is expected stateless callers
  * will obtain a single service ticket or proxy ticket, and then present this
- * same ticket to the Acegi Security System secured application on each
+ * same ticket to the Spring Security secured application on each
  * occasion. As no <code>HttpSession</code> is available for such callers, the
  * affirmative CAS validation outcome cannot be stored in this location.
  * </p>

@@ -17,7 +17,7 @@ package org.springframework.security.intercept;
 
 import org.springframework.security.AccessDecisionManager;
 import org.springframework.security.AccessDeniedException;
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.AfterInvocationManager;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
@@ -134,7 +134,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
 	private AuthenticationManager authenticationManager;
 
-	protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	private RunAsManager runAsManager = new NullRunAsManager();
 

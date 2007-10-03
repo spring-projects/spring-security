@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<document><properties><title>Products Using Acegi Security</title></properties><body><section name="Products Using Acegi Security"><p>Many open source and commercial products either use Acegi Security or at least
+<document><properties><title>Products Using Spring Security</title></properties><body><section name="Products Using Acegi Security"><p>Many open source and commercial products either use Acegi Security or at least
 	  support it. Following is a partial list of such products. If you've integrated Acegi
 	  Security with some other product, please let us know (preferably with a URL
 	  to some page explaining the integration/use)...
 
-  </p><subsection name="Out-Of-the-Box Supported by Acegi Security"><ul>
+  </p><subsection name="Out-Of-the-Box Supported by Spring Security"><ul>
     <li><b><a href="http://springframework.org/">Spring Framework</a></b>: J2EE abstraction framework.<br></br><br></br></li>
     <li><b><a href="http://eclipse.org/aspectj/">AspectJ</a></b>: AOP framework.<br></br><br></br></li>
     <li><b><a href="http://jcaptcha.sourceforge.net/">JCaptcha</a></b>: Detects human users.<br></br><br></br></li>
@@ -30,10 +30,10 @@
     <li><b><a href="http://plazma.sourceforge.net/">Plazma</a></b>: Swing-based ERP and CRM system for SMEs.<br></br><br></br></li>
     <li><b><a href="http://www.jasypt.org/">Jasypt</a></b>: Java encryption project. <a href="http://www.jasypt.org/faq.html#i-am-already-using-spring-security-for-encrypting-passwords">Integration details</a>.<br></br><br></br></li>
   </ul></subsection><subsection name="Commercial Deployments"><ul>
-    <li>A global financial institution uses Acegi Security's SiteMinder integration in a physical security management application.<br></br><br></br></li>
-    <li>A central bank that uses Acegi Security for many of its internal applications with the CAS integration.<br></br><br></br></li>
-    <li>Several Australian Government departments use Acegi Security for securing SOAP-based web services and web applications.<br></br><br></br></li>
-    <li>Enterprise Systems and Services at Rutgers University uses Acegi Security in conjunction with JA-SIG Central Authentication Service to provide authentication and authorization capabilities to its applications including those used by staff and students as well as those utilized by web services.<br></br><br></br></li>
-	<li><a href="http://www.elasticpath.com/ecommerce/architecture/soa.jsp">Elastic Path</a> uses Acegi Security for security.<br></br><br></br></li>
+    <li>A global financial institution uses Spring Security's SiteMinder integration in a physical security management application.<br></br><br></br></li>
+    <li>A central bank that uses Spring Security for many of its internal applications with the CAS integration.<br></br><br></br></li>
+    <li>Several Australian Government departments use Spring Security for securing SOAP-based web services and web applications.<br></br><br></br></li>
+    <li>Enterprise Systems and Services at Rutgers University uses Spring Security in conjunction with JA-SIG Central Authentication Service to provide authentication and authorization capabilities to its applications including those used by staff and students as well as those utilized by web services.<br></br><br></br></li>
+	<li><a href="http://www.elasticpath.com/ecommerce/architecture/soa.jsp">Elastic Path</a> uses Spring Security for security.<br></br><br></br></li>
 	<li>Plus many more... ;-)<br></br><br></br></li>
   </ul></subsection></section></body></document>

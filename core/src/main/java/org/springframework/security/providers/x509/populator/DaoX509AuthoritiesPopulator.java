@@ -15,7 +15,7 @@
 
 package org.springframework.security.providers.x509.populator;
 
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.AuthenticationServiceException;
@@ -53,7 +53,7 @@ public class DaoX509AuthoritiesPopulator implements X509AuthoritiesPopulator, In
 
     //~ Instance fields ================================================================================================
 
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private Pattern subjectDNPattern;
     private String subjectDNRegex = "CN=(.*?),";
     private UserDetailsService userDetailsService;

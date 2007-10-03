@@ -17,7 +17,7 @@ package org.springframework.security.userdetails.jdbc;
 
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
@@ -67,7 +67,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 
     //~ Instance fields ================================================================================================
 
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     protected MappingSqlQuery authoritiesByUsernameMapping;
     protected MappingSqlQuery usersByUsernameMapping;
     private String authoritiesByUsernameQuery;
@@ -169,7 +169,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     /**
      * Allows a default role prefix to be specified. If this is set to a non-empty value, then it is
      * automatically prepended to any roles read in from the db. This may for example be used to add the
-     * <code>ROLE_</code> prefix expected to exist in role names (by default) by some other Acegi Security framework
+     * <code>ROLE_</code> prefix expected to exist in role names (by default) by some other Spring Security
      * classes, in the case that the prefix is not already present in the db.
      *
      * @param rolePrefix the new prefix

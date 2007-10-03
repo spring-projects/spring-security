@@ -26,7 +26,7 @@ import org.springframework.security.userdetails.UserDetails;
  *
  * <p>
  * CAS does not provide the authorities (roles) granted to a user. It merely
- * authenticates their identity. As the Acegi Security System for Spring needs
+ * authenticates their identity. As Spring Security needs
  * to know the authorities granted to a user in order to construct a valid
  * <code>Authentication</code> object, implementations of this interface will
  * provide this information.
@@ -36,7 +36,7 @@ import org.springframework.security.userdetails.UserDetails;
  * A {@link UserDetails} is returned by implementations. The
  * <code>UserDetails</code> must, at minimum, contain the username and
  * <code>GrantedAuthority[]</code> objects applicable to the CAS-authenticated
- * user. Note that Acegi Security ignores the password and enabled/disabled
+ * user. Note that Spring Security ignores the password and enabled/disabled
  * status of the <code>UserDetails</code> because this is
  * authentication-related and should have been enforced by the CAS server. The
  * <code>UserDetails</code> returned by implementations is stored in the

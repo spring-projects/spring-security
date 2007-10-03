@@ -31,17 +31,17 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Extends Acegi's AuthenticationProcessingFilter to pick up CA/Netegrity Siteminder headers.<P>Also provides a
- * backup form-based authentication and the ability set source key names.</p>
- *  <P><B>Siteminder</B> must present two <B>headers</B> to this filter, a username and password. You must set the
+ * Extends Spring Security's AuthenticationProcessingFilter to pick up CA/Netegrity Siteminder headers.
+ * <p>Also provides a backup form-based authentication and the ability set source key names.</p>
+ * <p><b>Siteminder</b> must present two <b>headers</b> to this filter, a username and password. You must set the
  * header keys before this filter is used for authentication, otherwise Siteminder checks will be skipped. If the
  * Siteminder check is unsuccessful (i.e. if the headers are not found), then the form parameters will be checked (see
  * next paragraph). This allows applications to optionally function even when their Siteminder infrastructure is
  * unavailable, as is often the case during development.</p>
- *  <P><B>Login forms</B> must present two <B>parameters</B> to this filter: a username and password. If not
+ *  <p><b>Login forms</b> must present two <b>parameters</b> to this filter: a username and password. If not
  * specified, the parameter names to use are contained in the static fields {@link #SPRING_SECURITY_FORM_USERNAME_KEY}
  * and {@link #SPRING_SECURITY_FORM_PASSWORD_KEY}.</p>
- *  <P><B>Do not use this class directly.</B> Instead, configure <code>web.xml</code> to use the {@link
+ *  <p><b>Do not use this class directly.</b> Instead, configure <code>web.xml</code> to use the {@link
  * org.springframework.security.util.FilterToBeanProxy}.</p>
  */
 public class SiteminderAuthenticationProcessingFilter extends AuthenticationProcessingFilter {
@@ -66,7 +66,7 @@ public class SiteminderAuthenticationProcessingFilter extends AuthenticationProc
 
     //~ Constructors ===================================================================================================
 
-/**
+    /**
      * Basic constructor.
      */
     public SiteminderAuthenticationProcessingFilter() {

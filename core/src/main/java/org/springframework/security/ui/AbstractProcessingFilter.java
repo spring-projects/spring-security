@@ -15,7 +15,7 @@
 
 package org.springframework.security.ui;
 
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
@@ -157,7 +157,7 @@ public abstract class AbstractProcessingFilter implements Filter, InitializingBe
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	private Properties exceptionMappings = new Properties();
 

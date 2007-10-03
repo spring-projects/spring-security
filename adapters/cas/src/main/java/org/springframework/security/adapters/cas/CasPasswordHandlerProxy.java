@@ -32,13 +32,13 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * Enables CAS to use the Acegi Security System for authentication.<P>This class works along with {@link
- * CasPasswordHandler} to enable users to easily migrate from stand-alone Acegi Security System deployments to
+ * Enables CAS to use the Spring Security for authentication.<P>This class works along with {@link
+ * CasPasswordHandler} to enable users to easily migrate from stand-alone Spring Security deployments to
  * enterprise-wide CAS deployments.</p>
- *  <p>It should be noted that the Acegi Security System will operate as a CAS client irrespective of the
+ *  <p>It should be noted that Spring Security will operate as a CAS client irrespective of the
  * <code>PasswordHandler</code> used on the CAS server. In other words, this class need <B>not</B> be used on the CAS
- * server if not desired. It exists solely for the convenience of users wishing have CAS delegate to an Acegi Security
- * System-based <code>AuthenticationManager</code>.</p>
+ * server if not desired. It exists solely for the convenience of users wishing have CAS delegate to a Spring Security-based
+ * <code>AuthenticationManager</code>.</p>
  *  <p>This class works requires a properly configured <code>CasPasswordHandler</code>. On the first authentication
  * request, the class will use Spring's {@link WebApplicationContextUtils#getRequiredWebApplicationContext(ServletContext)}
  * method to obtain an <code>ApplicationContext</code> instance, inside which must be a configured
@@ -49,7 +49,7 @@ import javax.servlet.http.HttpServletRequest;
  * <code>org.springframework.security.adapters.cas.CasPasswordHandlerProxy</code>.</p>
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id:CasPasswordHandlerProxy.java 2151 2007-09-22 11:54:13Z luke_t $
  */
 public class CasPasswordHandlerProxy implements PasswordHandler {
     //~ Static fields/initializers =====================================================================================

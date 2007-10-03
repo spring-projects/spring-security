@@ -18,9 +18,9 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.userdetails.UserDetails;
 
 /**
- * This class wraps Acegi's UserDetails in a way that its getAuthorities()-Method is
- * delegated to RoleHierarchy.getReachableGrantedAuthorities. All other methods are
- * delegated to the UserDetails implementation.
+ * This class wraps Spring Security's <tt>UserDetails</tt> in a way that its <tt>getAuthorities()</tt> method is
+ * delegated to <tt>RoleHierarchy.getReachableGrantedAuthorities</tt>. All other methods are
+ * delegated to the <tt>UserDetails</tt> implementation.
  *
  * @author Michael Mayr
  */

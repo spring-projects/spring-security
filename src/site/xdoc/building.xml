@@ -2,18 +2,18 @@
 <document>
     <properties><title>Building</title></properties>
     <body>
-    <section name="Building Acegi Security System">
+    <section name="Building Spring Security">
 
     <subsection name="Checking Out from Subversion (SVN)">
 
     <p>This project uses <a href="http://maven.apache.org/">Maven</a> as project manager
 	and build tool.	We recommend you to install Maven 2.0.5 or greater before trying
-	the following.</p><p>To checkout Acegi Security from SVN, see our
+	the following.</p><p>To checkout Spring Security from SVN, see our
     <a href="svn-usage.html">SVN Usage</a> page.</p>
 
     </subsection>
 
-    <subsection name="Quick Build"><p>Often people reading this document just want to see if Acegi Security will work
+    <subsection name="Quick Build"><p>Often people reading this document just want to see if Spring Security will work
 	for their projects. They want to deploy a sample application, and that's about it
 	(after all, all the reference documentation can be read online at
 	<a href="http://acegisecurity.org/">http://acegisecurity.org</a>).

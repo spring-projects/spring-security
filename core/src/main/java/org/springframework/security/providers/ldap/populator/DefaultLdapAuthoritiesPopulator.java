@@ -38,9 +38,7 @@ import javax.naming.directory.SearchControls;
 
 /**
  * The default strategy for obtaining user role information from the directory.
- * <p/>
  * <p>It obtains roles by performing a search for "groups" the user is a member of.</p>
- * <p/>
  * <p/>
  * A typical group search scenario would be where each group/role is specified using the <tt>groupOfNames</tt>
  * (or <tt>groupOfUniqueNames</tt>) LDAP objectClass and the user's DN is listed in the <tt>member</tt> (or
@@ -48,10 +46,19 @@ import javax.naming.directory.SearchControls;
  * the groups stored under the DN <tt>ou=groups,dc=springframework,dc=org</tt> and a group called "developers" with
  * "ben" and "marissa" as members:
  * <pre>
- * dn: ou=groups,dc=springframework,dc=orgobjectClass: top
- * objectClass: organizationalUnitou: groupsdn: cn=developers,ou=groups,dc=springframework,dc=org
- * objectClass: groupOfNamesobjectClass: topcn: developersdescription: Acegi Security Developers
- * member: uid=ben,ou=people,dc=springframework,dc=orgmember: uid=marissa,ou=people,dc=springframework,dc=orgou: developer
+ * dn: ou=groups,dc=springframework,dc=org
+ * objectClass: top
+ * objectClass: organizationalUnit
+ * ou: groups
+ *
+ * dn: cn=developers,ou=groups,dc=springframework,dc=org
+ * objectClass: groupOfNameso
+ * objectClass: top
+ * cn: developers
+ * description: Spring Security Developers
+ * member: uid=ben,ou=people,dc=springframework,dc=org
+ * member: uid=marissa,ou=people,dc=springframework,dc=org
+ * ou: developer
  * </pre>
  * </p>
  * <p/>
@@ -65,7 +72,7 @@ import javax.naming.directory.SearchControls;
  * <p>The configuration below shows how the group search might be performed with the above schema.
  * <pre>
  * &lt;bean id="ldapAuthoritiesPopulator"
- *         class="org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
+ *       class="org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator">
  *   &lt;constructor-arg>&lt;ref local="initialDirContextFactory"/>&lt;/constructor-arg>
  *   &lt;constructor-arg>&lt;value>ou=groups&lt;/value>&lt;/constructor-arg>
  *   &lt;property name="groupRoleAttribute">&lt;value>ou&lt;/value>&lt;/property>

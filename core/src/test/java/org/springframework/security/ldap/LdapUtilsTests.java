@@ -60,14 +60,13 @@ public class LdapUtilsTests extends MockObjectTestCase {
             LdapUtils.getRelativeName("cn=jane,dc=springframework,dc=org", (Context) mockCtx.proxy()));
     }
 
-    public void testGetRelativeNameWorksWithArbitrarySpaces()
-        throws Exception {
+    public void testGetRelativeNameWorksWithArbitrarySpaces() throws Exception {
         Mock mockCtx = mock(DirContext.class);
 
-        mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=acegisecurity,dc = org"));
+        mockCtx.expects(atLeastOnce()).method("getNameInNamespace").will(returnValue("dc=springsecurity,dc = org"));
 
         assertEquals("cn=jane smith",
-            LdapUtils.getRelativeName("cn=jane smith, dc = acegisecurity , dc=org", (Context) mockCtx.proxy()));
+            LdapUtils.getRelativeName("cn=jane smith, dc = springsecurity , dc=org", (Context) mockCtx.proxy()));
     }
 
     public void testRootDnsAreParsedFromUrlsCorrectly() {

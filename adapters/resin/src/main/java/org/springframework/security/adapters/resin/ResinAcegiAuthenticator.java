@@ -21,7 +21,7 @@ import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
 
-import org.springframework.security.adapters.PrincipalAcegiUserToken;
+import org.springframework.security.adapters.PrincipalSpringSecurityUserToken;
 
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
@@ -41,12 +41,12 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * Adapter to enable Resin to authenticate via the Acegi Security System for Spring.<p>Returns a {@link
- * PrincipalAcegiUserToken} to Resin's authentication system, which is subsequently available via
+ * Adapter to enable Resin to authenticate via Spring Security.<p>Returns a {@link
+ * PrincipalSpringSecurityUserToken} to Resin's authentication system, which is subsequently available via
  * <code>HttpServletRequest.getUserPrincipal()</code>.</p>
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id:ResinAcegiAuthenticator.java 2151 2007-09-22 11:54:13Z luke_t $
  */
 public class ResinAcegiAuthenticator extends AbstractAuthenticator {
     //~ Static fields/initializers =====================================================================================
@@ -98,15 +98,15 @@ public class ResinAcegiAuthenticator extends AbstractAuthenticator {
 
     public boolean isUserInRole(HttpServletRequest request, HttpServletResponse response, ServletContext application,
         Principal principal, String role) {
-        if (!(principal instanceof PrincipalAcegiUserToken)) {
+        if (!(principal instanceof PrincipalSpringSecurityUserToken)) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Expected passed principal to be of type PrincipalAcegiUserToken");
+                logger.warn("Expected passed principal to be of type PrincipalSpringSecurityUserToken");
             }
 
             return false;
         }
 
-        PrincipalAcegiUserToken test = (PrincipalAcegiUserToken) principal;
+        PrincipalSpringSecurityUserToken test = (PrincipalSpringSecurityUserToken) principal;
 
         return test.isUserInRole(role);
     }
@@ -133,7 +133,7 @@ public class ResinAcegiAuthenticator extends AbstractAuthenticator {
             return null;
         }
 
-        return new PrincipalAcegiUserToken(this.key, response.getPrincipal().toString(),
+        return new PrincipalSpringSecurityUserToken(this.key, response.getPrincipal().toString(),
             response.getCredentials().toString(), response.getAuthorities(), response.getPrincipal());
     }
 

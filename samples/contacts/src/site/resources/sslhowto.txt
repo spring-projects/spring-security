@@ -9,7 +9,7 @@ might find the troubleshooting section at the end helpful).
 
 The following demonstrates how to create a self-signed certificate and add
 it to the cacerts file. If you just want to use the certificate we have
-already created and shipped with the Acegi Security System for Spring, you
+already created and shipped with Spring Security, you
 can skip directly to step 3.
 
 
@@ -18,7 +18,7 @@ can skip directly to step 3.
 What is your first and last name?
   [Unknown]:  localhost
 What is the name of your organizational unit?
-  [Unknown]:  Acegi Security System for Spring
+  [Unknown]:  Spring Security
 What is the name of your organization?
   [Unknown]:  TEST CERTIFICATE ONLY. DO NOT USE IN PRODUCTION.
 What is the name of your City or Locality?
@@ -27,7 +27,7 @@ What is the name of your State or Province?
   [Unknown]:
 What is the two-letter country code for this unit?
   [Unknown]:
-Is CN=localhost, OU=Acegi Security System for Spring, O=TEST CERTIFICATE ONLY. D
+Is CN=localhost, OU=Spring Security, O=TEST CERTIFICATE ONLY. D
 O NOT USE IN PRODUCTION., L=Unknown, ST=Unknown, C=Unknown correct?
   [no]:  yes
 
@@ -47,9 +47,9 @@ O NOT USE IN PRODUCTION., L=Unknown, ST=Unknown, C=Unknown correct?
 
 6. keytool -import -v -file acegisecurity.txt -keypass password -keystore cacerts -storepass changeit -alias acegisecurity
 
-Owner: CN=localhost, OU=Acegi Security System for Spring, O=TEST CERTIFICATE ONL
+Owner: CN=localhost, OU=Spring Security, O=TEST CERTIFICATE ONL
 Y. DO NOT USE IN PRODUCTION., L=Unknown, ST=Unknown, C=Unknown
-Issuer: CN=localhost, OU=Acegi Security System for Spring, O=TEST CERTIFICATE ON
+Issuer: CN=localhost, OU=Spring Security, O=TEST CERTIFICATE ON
 LY. DO NOT USE IN PRODUCTION., L=Unknown, ST=Unknown, C=Unknown
 Serial number: 4080daf4
 Valid from: Sat Apr 17 07:21:24 GMT 2004 until: Tue Sep 02 07:21:24 GMT 2031

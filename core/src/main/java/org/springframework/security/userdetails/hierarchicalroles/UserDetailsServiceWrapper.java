@@ -20,8 +20,8 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.dao.DataAccessException;
 
 /**
- * This class wraps Acegi's UserDetailsService in a way that its loadUserByUsername()
- * method returns wrapped UserDetails that return all hierachically reachable authorities
+ * This class wraps Spring Security's <tt>UserDetailsService</tt> in a way that its <tt>loadUserByUsername()</tt>
+ * method returns wrapped <tt>UserDetails</tt> that return all hierachically reachable authorities
  * instead of only the directly assigned authorities.
  *
  * @author Michael Mayr

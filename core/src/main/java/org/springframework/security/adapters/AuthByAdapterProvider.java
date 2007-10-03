@@ -15,7 +15,7 @@
 
 package org.springframework.security.adapters;
 
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.BadCredentialsException;
@@ -41,7 +41,7 @@ import org.springframework.util.Assert;
 public class AuthByAdapterProvider implements InitializingBean, AuthenticationProvider, MessageSourceAware {
     //~ Instance fields ================================================================================================
 
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private String key;
 
     //~ Methods ========================================================================================================

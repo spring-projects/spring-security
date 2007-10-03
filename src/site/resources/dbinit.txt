@@ -2,9 +2,9 @@
 
 --- Sample Hypersonic SQL compatible schema and data
 ---
---- All Acegi Security JDBC DAOs can be customised to use a different schema.
---- In addition, the Acegi Security JDBC DAOs do not even need to be used
---- with Acegi Security, and an entirely customised persistence strategy
+--- All Spring Security JDBC DAOs can be customised to use a different schema.
+--- In addition, the Spring Security JDBC DAOs do not even need to be used
+--- with Spring Security, and an entirely customised persistence strategy
 --- can be employed via standard interfaces (eg in-memory, Hibernate etc).
 
 SET IGNORECASE TRUE;

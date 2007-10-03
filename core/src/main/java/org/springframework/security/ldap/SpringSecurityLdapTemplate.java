@@ -50,7 +50,7 @@ import javax.naming.directory.SearchResult;
 /**
  * LDAP equivalent of the Spring JdbcTemplate class.
  * <p>
- * This is mainly intended to simplify Ldap access within Acegi Security's LDAP-related services.
+ * This is mainly intended to simplify Ldap access within Spring Security's LDAP-related services.
  * </p>
  *
  * @author Ben Alex

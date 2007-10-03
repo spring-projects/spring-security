@@ -31,7 +31,7 @@ public class NtlmUsernamePasswordAuthenticationToken extends UsernamePasswordAut
 	private static final long serialVersionUID = 1L;
 	
 	/**
-	 * ACEGI often checks password ; but we do not have one. This is the replacement password 
+	 * Spring Security often checks password ; but we do not have one. This is the replacement password 
 	 */
 	public static final String DEFAULT_PASSWORD = "";
 

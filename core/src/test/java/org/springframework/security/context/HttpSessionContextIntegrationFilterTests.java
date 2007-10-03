@@ -22,7 +22,7 @@ import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.MockFilterConfig;
 
-import org.springframework.security.adapters.PrincipalAcegiUserToken;
+import org.springframework.security.adapters.PrincipalSpringSecurityUserToken;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -104,7 +104,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
 	public void testExceptionWithinFilterChainStillClearsSecurityContextHolder() throws Exception {
 		// Build an Authentication object we simulate came from HttpSession
-		PrincipalAcegiUserToken sessionPrincipal = new PrincipalAcegiUserToken(
+		PrincipalSpringSecurityUserToken sessionPrincipal = new PrincipalSpringSecurityUserToken(
 				"key",
 				"someone",
 				"password",
@@ -149,7 +149,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 	public void testExistingContextContentsCopiedIntoContextHolderFromSessionAndChangesToContextCopiedBackToSession()
 			throws Exception {
 		// Build an Authentication object we simulate came from HttpSession
-		PrincipalAcegiUserToken sessionPrincipal = new PrincipalAcegiUserToken(
+		PrincipalSpringSecurityUserToken sessionPrincipal = new PrincipalSpringSecurityUserToken(
 				"key",
 				"someone",
 				"password",
@@ -158,7 +158,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
 		// Build an Authentication object we simulate our Authentication changed
 		// it to
-		PrincipalAcegiUserToken updatedPrincipal = new PrincipalAcegiUserToken(
+		PrincipalSpringSecurityUserToken updatedPrincipal = new PrincipalSpringSecurityUserToken(
 				"key", "someone", "password",
 				new GrantedAuthority[] { new GrantedAuthorityImpl(
 						"SOME_DIFFERENT_ROLE") }, null);
@@ -194,7 +194,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 
 	public void testHttpSessionCreatedWhenContextHolderChanges() throws Exception {
 		// Build an Authentication object we simulate our Authentication changed it to
-		PrincipalAcegiUserToken updatedPrincipal = new PrincipalAcegiUserToken(
+		PrincipalSpringSecurityUserToken updatedPrincipal = new PrincipalSpringSecurityUserToken(
 				"key", "someone", "password",
 				new GrantedAuthority[] { new GrantedAuthorityImpl(
 						"SOME_DIFFERENT_ROLE") }, null);
@@ -260,7 +260,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 	public void testHttpSessionWithNonContextInWellKnownLocationIsOverwritten() throws Exception {
 		// Build an Authentication object we simulate our Authentication changed
 		// it to
-		PrincipalAcegiUserToken updatedPrincipal = new PrincipalAcegiUserToken(
+		PrincipalSpringSecurityUserToken updatedPrincipal = new PrincipalSpringSecurityUserToken(
 				"key", "someone", "password",
 				new GrantedAuthority[] { new GrantedAuthorityImpl(
 						"SOME_DIFFERENT_ROLE") }, null);
@@ -289,7 +289,7 @@ public class HttpSessionContextIntegrationFilterTests extends TestCase {
 	}
 
 	public void testConcurrentThreadsLazilyChangeFilterAppliedValueToTrue() throws Exception {
-		PrincipalAcegiUserToken sessionPrincipal = new PrincipalAcegiUserToken(
+		PrincipalSpringSecurityUserToken sessionPrincipal = new PrincipalSpringSecurityUserToken(
 				"key",
 				"someone",
 				"password",

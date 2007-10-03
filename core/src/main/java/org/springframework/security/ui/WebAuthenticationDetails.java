@@ -42,7 +42,7 @@ public class WebAuthenticationDetails implements SessionIdentifierAware, Seriali
      *
      * <p>
      * NB: This constructor will cause a <code>HttpSession</code> to be created
-     * (this is considered reasonable as all Acegi Security authentication
+     * (this is considered reasonable as all Spring Security authentication
      * requests rely on <code>HttpSession</code> to store the
      * <code>Authentication</code> between requests
      * </p>

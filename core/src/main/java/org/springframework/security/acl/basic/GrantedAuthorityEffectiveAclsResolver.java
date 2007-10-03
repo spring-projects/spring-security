@@ -35,7 +35,7 @@ import java.util.Vector;
  * Authentication#getPrincipal()} or {@link Authentication#getAuthorities()}. The principal object or granted
  * authorities object has its <code>Object.equals(recipient)</code> method called to make the decision as to whether
  * the recipient in the <code>BasicAclEntry</code> is the same as the principal or granted authority.</p>
- *  <P>This class should prove an adequate ACLs resolver if you're using standard Acegi Security classes. This is
+ *  <P>This class should prove an adequate ACLs resolver if you're using standard Spring Security classes. This is
  * because the typical <code>Authentication</code> token is <code>UsernamePasswordAuthenticationToken</code>, which
  * for its <code>principal</code> is usually a <code>String</code>. The <code>GrantedAuthorityImpl</code> is typically
  * used for granted authorities, which tests for equality based on a <code>String</code>. This means

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<document><properties><title>External Web Articles covering Acegi Security</title></properties><body><section name="External Web Articles covering Acegi Security"><p>Here are some of the external pages mentioning Acegi Security. If you've
+<document><properties><title>External Web Articles covering Spring Security</title></properties><body><section name="External Web Articles covering Spring Security"><p>Here are some of the external pages mentioning Spring Security. If you've
 	found another, please let us know.
   <ul>
     <li><b><a href="http://forum.springframework.org">Spring Forums</a></b>:
-		The first place to look for Acegi Security support (use the 'search' function).<br></br><br></br>
+		The first place to look for Spring Security support (use the 'search' function).<br></br><br></br>
 	</li>
-    <li><b><a href="mail-lists.html">Acegi Security Mailing Lists</a></b>:
+    <li><b><a href="mail-lists.html">Spring Security Mailing Lists</a></b>:
 		If you'd like to discuss development of the project.<br></br><br></br>
 	</li>
-    <li><b><a href="powering.html">Numerous frameworks using Acegi Security</a></b>:
+    <li><b><a href="powering.html">Numerous frameworks using Spring Security</a></b>:
 		Look here first for how to integrate with major third-party frameworks...<br></br><br></br>
 	</li>
     <li><b><a href="http://www.vorburger.ch/blog1/2006/10/propagating-acegis-security-context-in.html">Propagating Acegi Security's Context in a WSS UsernameToken SOAP Header via XFire using WSS4J</a></b>:
@@ -141,7 +141,7 @@
 	</li>
     <li><b><a href="http://jakarta.apache.org/commons/attributes/faq.html">Anyone else using C-A (Commons Attributes)?</a></b>: Acegi Security made the list
 		of projects using Jakarta Commons Attributes. Our
-		<a href="/multiproject/acegi-security-sample-attributes/index.html">Attributes Sample</a>
+		<a href="/multiproject/spring-security-sample-attributes/index.html">Attributes Sample</a>
 		demonstrates C-A integration.<br></br><br></br>
 	</li>
     <li><b><a href="http://www.arroco.com/cgi-bin/blosxom.cgi/2005/08/22#acegi-javadoc">Documenting the Future At the Expense of the Present</a></b>:

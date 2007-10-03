@@ -24,27 +24,27 @@ import java.util.Locale;
 
 
 /**
- * Tests {@link org.springframework.security.AcegiMessageSource}.
+ * Tests {@link org.springframework.security.SpringSecurityMessageSource}.
  */
-public class AcegiMessageSourceTests extends TestCase {
+public class SpringSecurityMessageSourceTests extends TestCase {
     //~ Constructors ===================================================================================================
 
-    public AcegiMessageSourceTests() {
+    public SpringSecurityMessageSourceTests() {
         super();
     }
 
-    public AcegiMessageSourceTests(String arg0) {
+    public SpringSecurityMessageSourceTests(String arg0) {
         super(arg0);
     }
 
     //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(AcegiMessageSourceTests.class);
+        junit.textui.TestRunner.run(SpringSecurityMessageSourceTests.class);
     }
 
     public void testOperation() {
-        AcegiMessageSource msgs = new AcegiMessageSource();
+        SpringSecurityMessageSource msgs = new SpringSecurityMessageSource();
         assertEquals("Proxy tickets are rejected", msgs.getMessage("RejectProxyTickets.reject", null, Locale.ENGLISH));
     }
 
@@ -54,7 +54,7 @@ public class AcegiMessageSourceTests extends TestCase {
         LocaleContextHolder.setLocale(Locale.ENGLISH);
 
         // Cause a message to be generated
-        MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+        MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
         assertEquals("Missing mandatory digest value; received header FOOBAR",
             messages.getMessage("DigestProcessingFilter.missingMandatory", new Object[] {"FOOBAR"},
                 "ERROR - FAILED TO LOOKUP"));

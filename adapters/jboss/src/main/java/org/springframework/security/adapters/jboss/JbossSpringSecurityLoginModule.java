@@ -21,7 +21,7 @@ import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
 import org.springframework.security.CredentialsExpiredException;
 
-import org.springframework.security.adapters.PrincipalAcegiUserToken;
+import org.springframework.security.adapters.PrincipalSpringSecurityUserToken;
 
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
@@ -52,15 +52,15 @@ import javax.security.auth.login.LoginException;
 
 
 /**
- * Adapter to enable JBoss to authenticate via the Acegi Security System for Spring.<p>Returns a {@link
- * PrincipalAcegiUserToken} to JBoss' authentication system, which is subsequently available from
- * <code>java:comp/env/security/subject</code>.</p>
+ * Adapter to enable JBoss to authenticate via the Spring Security System for Spring.
+ * <p>Returns a {@link PrincipalSpringSecurityUserToken} to JBoss' authentication system,
+ * which is subsequently available from <code>java:comp/env/security/subject</code>.</p>
  *
  * @author Ben Alex
  * @author Sergio Bern�
- * @version $Id$
+ * @version $Id:JbossSpringSecurityLoginModule.java 2151 2007-09-22 11:54:13Z luke_t $
  */
-public class JbossAcegiLoginModule extends AbstractServerLoginModule {
+public class JbossSpringSecurityLoginModule extends AbstractServerLoginModule {
     //~ Instance fields ================================================================================================
 
     private AuthenticationManager authenticationManager;
@@ -284,7 +284,7 @@ public class JbossAcegiLoginModule extends AbstractServerLoginModule {
 
             super.log.debug("user is logged. redirecting to jaas classes");
 
-            identity = new PrincipalAcegiUserToken(this.key, response.getName(), response.getCredentials().toString(),
+            identity = new PrincipalSpringSecurityUserToken(this.key, response.getName(), response.getCredentials().toString(),
                     response.getAuthorities(), response.getPrincipal());
         }
 

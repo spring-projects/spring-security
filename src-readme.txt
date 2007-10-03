@@ -1,12 +1,12 @@
 ===============================================================================
-              ACEGI SECURITY SYSTEM FOR SPRING - README FILE
+              SPRING SECURITY - README FILE
 ===============================================================================
 
 -------------------------------------------------------------------------------
 OVERVIEW
 -------------------------------------------------------------------------------
 
-The Acegi Security System for Spring provides security services for 
+Spring Security System provides security services for
 The Spring Framework (http://www.springframework.org).
 
 For a detailed list of features and access to the latest release, please visit
@@ -16,10 +16,10 @@ http://acegisecurity.org.
 SOURCE RELEASES
 -------------------------------------------------------------------------------
 
-If you have downloaded an acegi-security-xx-src.zip, you will NOT be able to
+If you have downloaded a spring-security-xx-src.zip, you will NOT be able to
 compile the project. The -src releases are intended for source code review
-and IDE integration only. If you wish to use Acegi Security, you must download
-the full release or compile it from CVS. See the "Building with Maven" page
+and IDE integration only. If you wish to use Spring Security, you must download
+the full release or compile it from CVS. See the "Building" page
 at http://acegisecurity.org for further details. There is also a "Download"
 link if you would prefer to download an already compiled release.
 
@@ -27,12 +27,12 @@ link if you would prefer to download an already compiled release.
 OBTAINING SUPPORT
 -------------------------------------------------------------------------------
 
-If you need any help, please use the Acegi Security System for Spring forum
-located at the Spring Community's forum site: 
+If you need any help, please use the Spring Security forum located at the
+Spring Community's forum site:
 
   http://forum.springframework.org
 
-If you start using Acegi Security in your project, please consider joining
+If you start using Spring Security in your project, please consider joining
 the acegisecurity-developer mailing list. This is currently the best way to
 keep informed about the project's status and provide feedback in design 
 discussions. You can join at:

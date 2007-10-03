@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 
-import org.springframework.security.adapters.PrincipalAcegiUserToken;
+import org.springframework.security.adapters.PrincipalSpringSecurityUserToken;
 
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.context.SecurityContextImpl;
@@ -50,7 +50,7 @@ import javax.servlet.ServletResponse;
  * Tests {@link JbossIntegrationFilter}.
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id:JbossIntegrationFilterTests.java 2151 2007-09-22 11:54:13Z luke_t $
  */
 public class JbossIntegrationFilterTests extends TestCase {
     //~ Constructors ===================================================================================================
@@ -95,7 +95,7 @@ public class JbossIntegrationFilterTests extends TestCase {
     }
 
     public void testCorrectOperation() throws Exception {
-        PrincipalAcegiUserToken principal = new PrincipalAcegiUserToken("key", "someone", "password",
+        PrincipalSpringSecurityUserToken principal = new PrincipalSpringSecurityUserToken("key", "someone", "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")}, null);
 
         JbossIntegrationFilter filter = new MockJbossIntegrationFilter(new MockInitialContext(makeIntoSubject(principal)));

@@ -29,7 +29,7 @@ import org.springframework.context.ApplicationContext;
 
 
 /**
- * Wrapper the implementation of Acegi Security for Spring JSP tag includes:
+ * Wrapper the implementation of Spring Security JSP tag includes:
  * {@link AuthenticationTag}, {@link AclTag}, {@link AuthorizeTag}
  *
  * @author Wang Qi

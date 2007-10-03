@@ -51,7 +51,7 @@ import java.util.*;
  * Hierarchical Roles will dramatically shorten your access rules (and also make the access rules much more elegant).
  * </p>
  * <p>
- * Consider this access rule for Acegi's RoleVoter (background: every user that is authenticated should be
+ * Consider this access rule for Spring Security's RoleVoter (background: every user that is authenticated should be
  * able to log out):<br>
  * /logout.html=ROLE_A,ROLE_B,ROLE_AUTHENTICATED<br>
  * With hierarchical roles this can now be shortened to:<br>

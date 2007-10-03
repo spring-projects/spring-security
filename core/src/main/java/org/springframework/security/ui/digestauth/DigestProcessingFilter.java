@@ -15,7 +15,7 @@
 
 package org.springframework.security.ui.digestauth;
 
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.BadCredentialsException;
@@ -93,7 +93,7 @@ public class DigestProcessingFilter implements Filter, InitializingBean, Message
 
     private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
     private DigestProcessingFilterEntryPoint authenticationEntryPoint;
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private UserCache userCache = new NullUserCache();
     private UserDetailsService userDetailsService;
     private boolean passwordAlreadyEncoded = false;

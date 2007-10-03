@@ -19,7 +19,7 @@ import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationManager;
 
-import org.springframework.security.adapters.PrincipalAcegiUserToken;
+import org.springframework.security.adapters.PrincipalSpringSecurityUserToken;
 
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
@@ -41,17 +41,17 @@ import java.util.Map;
 
 
 /**
- * Adapter to enable Catalina (Tomcat) to authenticate via the Acegi Security System for Spring.<p>Returns a {@link
- * PrincipalAcegiUserToken} to Catalina's authentication system, which is subsequently available via
+ * Adapter to enable Catalina (Tomcat) to authenticate via the Spring Security.<p>Returns a {@link
+ * PrincipalSpringSecurityUserToken} to Catalina's authentication system, which is subsequently available via
  * <code>HttpServletRequest.getUserPrincipal()</code>.</p>
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id:CatalinaSpringSecurityUserRealm.java 2151 2007-09-22 11:54:13Z luke_t $
  */
-public class CatalinaAcegiUserRealm extends RealmBase {
+public class CatalinaSpringSecurityUserRealm extends RealmBase {
     //~ Static fields/initializers =====================================================================================
 
-    private static final Log logger = LogFactory.getLog(CatalinaAcegiUserRealm.class);
+    private static final Log logger = LogFactory.getLog(CatalinaSpringSecurityUserRealm.class);
 
     //~ Instance fields ================================================================================================
 
@@ -59,7 +59,7 @@ public class CatalinaAcegiUserRealm extends RealmBase {
     private Container container;
     private String appContextLocation;
     private String key;
-    protected final String name = "CatalinaSpringUserRealm / $Id$";
+    protected final String name = "CatalinaSpringUserRealm / $Id:CatalinaSpringSecurityUserRealm.java 2151 2007-09-22 11:54:13Z luke_t $";
 
     //~ Methods ========================================================================================================
 
@@ -85,7 +85,7 @@ public class CatalinaAcegiUserRealm extends RealmBase {
             return null;
         }
 
-        return new PrincipalAcegiUserToken(this.key, response.getPrincipal().toString(),
+        return new PrincipalSpringSecurityUserToken(this.key, response.getPrincipal().toString(),
             response.getCredentials().toString(), response.getAuthorities(), response.getPrincipal());
     }
 
@@ -163,14 +163,14 @@ public class CatalinaAcegiUserRealm extends RealmBase {
             return false;
         }
 
-        if (!(principal instanceof PrincipalAcegiUserToken)) {
-            logger.warn("Expected passed principal to be of type PrincipalAcegiUserToken but was "
+        if (!(principal instanceof PrincipalSpringSecurityUserToken)) {
+            logger.warn("Expected passed principal to be of type PrincipalSpringSecurityUserToken but was "
                 + principal.getClass().getName());
 
             return false;
         }
 
-        PrincipalAcegiUserToken test = (PrincipalAcegiUserToken) principal;
+        PrincipalSpringSecurityUserToken test = (PrincipalSpringSecurityUserToken) principal;
 
         return test.isUserInRole(role);
     }
@@ -221,7 +221,7 @@ public class CatalinaAcegiUserRealm extends RealmBase {
 
         String beanName = (String) beans.keySet().iterator().next();
         authenticationManager = (AuthenticationManager) beans.get(beanName);
-        logger.info("CatalinaAcegiUserRealm Started");
+        logger.info("CatalinaSpringSecurityUserRealm Started");
     }
 
     /**

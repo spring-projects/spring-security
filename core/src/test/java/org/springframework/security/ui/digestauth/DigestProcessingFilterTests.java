@@ -63,7 +63,7 @@ public class DigestProcessingFilterTests extends MockObjectTestCase {
     private static final String NC = "00000002";
     private static final String CNONCE = "c822c727a648aba7";
     private static final String REALM = "The Actual, Correct Realm Name";
-    private static final String KEY = "acegi";
+    private static final String KEY = "springsecurity";
     private static final String QOP = "auth";
     private static final String USERNAME = "marissa,ok";
     private static final String PASSWORD = "koala";

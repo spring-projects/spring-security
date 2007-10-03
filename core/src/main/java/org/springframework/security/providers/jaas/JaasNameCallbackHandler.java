@@ -28,7 +28,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 
 /**
  * The most basic Callbacks to be handled when using a LoginContext from JAAS, are the NameCallback and
- * PasswordCallback. The acegi security framework provides the JaasNameCallbackHandler specifically tailored to
+ * PasswordCallback. Spring Security provides the JaasNameCallbackHandler specifically tailored to
  * handling the NameCallback. <br>
  *
  * @author Ray Krueger

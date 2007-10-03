@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
  * <p>
  * Therefore this class isn't actually responsible for the commencement of
  * authentication, as it is in the case of other providers. It will be called if
- * the certificate was rejected by Acegi's X509AuthenticationProvider, resulting
+ * the certificate was rejected by Spring Security's X509AuthenticationProvider, resulting
  * in a null authentication.
  * </p>
  * The <code>commence</code> method will always return an

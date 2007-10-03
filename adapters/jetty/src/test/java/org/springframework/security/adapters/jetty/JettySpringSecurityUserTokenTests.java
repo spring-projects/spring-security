@@ -22,34 +22,25 @@ import org.springframework.security.GrantedAuthorityImpl;
 
 
 /**
- * Tests {@link JettyAcegiUserToken}.
+ * Tests {@link JettySpringSecurityUserToken}.
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id:JettySpringSecurityUserTokenTests.java 2151 2007-09-22 11:54:13Z luke_t $
  */
-public class JettyAcegiUserTokenTests extends TestCase {
+public class JettySpringSecurityUserTokenTests extends TestCase {
     //~ Constructors ===================================================================================================
 
-    public JettyAcegiUserTokenTests() {
-        super();
+    public JettySpringSecurityUserTokenTests() {
     }
 
-    public JettyAcegiUserTokenTests(String arg0) {
+    public JettySpringSecurityUserTokenTests(String arg0) {
         super(arg0);
     }
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(JettyAcegiUserTokenTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testGetters() throws Exception {
-        JettyAcegiUserToken token = new JettyAcegiUserToken("my_password", "Test", "Password",
+        JettySpringSecurityUserToken token = new JettySpringSecurityUserToken("my_password", "Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")});
         assertEquals("Test", token.getPrincipal());
         assertEquals("Password", token.getCredentials());
@@ -59,7 +50,7 @@ public class JettyAcegiUserTokenTests extends TestCase {
 
     public void testNoArgsConstructor() {
         try {
-            new JettyAcegiUserToken();
+            new JettySpringSecurityUserToken();
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);

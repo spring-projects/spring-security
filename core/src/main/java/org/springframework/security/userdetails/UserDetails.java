@@ -25,7 +25,7 @@ import java.io.Serializable;
  * Provides core user information.
  *
  * <p>
- * Implementations are not used directly by Acegi Security for security
+ * Implementations are not used directly by Spring Security for security
  * purposes. They simply store user information which is later encapsulated
  * into {@link Authentication} objects. This allows non-security related user
  * information (such as email addresses, telephone numbers etc) to be stored

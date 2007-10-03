@@ -20,9 +20,9 @@
  * The example CAS AuthenticationHandler should be placed within CAS's
  * AuthenticationManager's authenticationHandler list property.
  *
- * The Acegi-specific beans can just be placed in the context file.
+ * The Spring Security-specific beans can just be placed in the context file.
  * 
- * $Id$
+ * $Id:applicationContext.xml 2151 2007-09-22 11:54:13Z luke_t $
 -->
 <beans>
 

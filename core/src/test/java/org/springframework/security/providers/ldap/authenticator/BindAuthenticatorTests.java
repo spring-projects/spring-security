@@ -15,7 +15,7 @@
 
 package org.springframework.security.providers.ldap.authenticator;
 
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.Authentication;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
@@ -48,7 +48,7 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 
     public void onSetUp() {
         authenticator = new BindAuthenticator((InitialDirContextFactory) getContextSource());
-        authenticator.setMessageSource(new AcegiMessageSource());
+        authenticator.setMessageSource(new SpringSecurityMessageSource());
         bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
         ben = new UsernamePasswordAuthenticationToken("ben", "benspassword");
 

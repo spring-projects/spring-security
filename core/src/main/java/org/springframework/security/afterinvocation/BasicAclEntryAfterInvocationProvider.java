@@ -16,7 +16,7 @@
 package org.springframework.security.afterinvocation;
 
 import org.springframework.security.AccessDeniedException;
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
 import org.springframework.security.ConfigAttributeDefinition;
@@ -72,7 +72,7 @@ public class BasicAclEntryAfterInvocationProvider implements AfterInvocationProv
 
     private AclManager aclManager;
     private Class processDomainObjectClass = Object.class;
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private String processConfigAttribute = "AFTER_ACL_READ";
     private int[] requirePermission = {SimpleAclEntry.READ};
 

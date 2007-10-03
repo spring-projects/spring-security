@@ -173,7 +173,7 @@ public class AuthorizeTag extends TagSupport {
      * returns a <code>null</code> string as the return value of {@link
      * org.springframework.security.GrantedAuthority#getAuthority()}.
      * </p>
-     * <p>Reported by rawdave, on Fri Feb 04, 2005 2:11 pm in the Acegi Security System for Spring forums.</p>
+     * <p>Reported by rawdave, on Fri Feb 04, 2005 2:11 pm in the Spring Security forum.</p>
      *
      * @param granted The authorities granted by the authentication. May be any implementation of {@link
      *        GrantedAuthority} that does <strong>not</strong> return <code>null</code> from {@link

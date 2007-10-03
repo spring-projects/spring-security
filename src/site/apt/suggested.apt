@@ -1,11 +1,11 @@
                                 --------------------------------
-                                Acegi Security Suggested Steps
+                                Spring Security Suggested Steps
                                 --------------------------------
 
 Suggested Steps
 
   Presented below are the steps we encourage you to take in order to gain the most
-  out of Acegi Security in a realistic timeframe.
+  out of Spring Security in a realistic timeframe.
 
 
     [[1]] First of all, deploy the "Tutorial Sample", which is included in the main distribution
@@ -16,9 +16,9 @@ Suggested Steps
 
 
     [[2]] Next, follow the {{{petclinic-tutorial.html}Petclinic Tutorial}}, which
-    covers how to add Acegi Security to the commonly-used Petclinic sample application
+    covers how to add Spring Security to the commonly-used Petclinic sample application
     that ships with Spring. This will give you a hands-on approach to integrating
-    Acegi Security into your own application.
+    Spring Security into your own application.
 
 	Estimated time: 1 hour.
 
@@ -32,10 +32,10 @@ Suggested Steps
 	Estimated time: 1 day.
 
 	[[4]] If you have relatively simple security needs, you can probably start to integrate
-	Acegi Security into your application at this point. Just use the "Tutorial Sample"
+	Spring Security into your application at this point. Just use the "Tutorial Sample"
 	as your basis (now that you understand how it works). Those with more complicated
 	requirements should review the "Contacts Sample" application.
-	This will probably involve deploying <<<acegi-security-sample-contacts-filter.war>>>,
+	This will probably involve deploying <<<spring-security-sample-contacts-filter.war>>>,
 	which is also included in the release ZIP file.
 
 	The purpose of understanding the "Contacts Sample" is to get a better feel for how method
@@ -66,7 +66,7 @@ Suggested Steps
 	Estimated time: 1-2 days.
 
 
-	[[5]]By now you will have a good grasp on how Acegi Security works, and all that is left to
+	[[5]]By now you will have a good grasp on how Spring Security works, and all that is left to
 	do is design your own application's implementation.
 
 
@@ -81,7 +81,7 @@ Suggested Steps
 	{{{reference.html}Reference Guide}},
 	{{{http://www.springframework.org}forums}}, and
 	{{{faq.html}FAQ}}
-	for help, you'll find it pretty easy to implement Acegi Security in your application.
+	for help, you'll find it pretty easy to implement Spring Security in your application.
 	Most importantly, you'll be using a security framework that offers you complete container
 	portability, flexibility, and community support - without needing to write and maintain your
 	own code.
@@ -93,10 +93,10 @@ Suggested Steps
   on how much experience you have, particularly with Java and Spring. They will also vary depending
   on how complex your intended security-enabled application will be. Some people need to push the domain
   object instance access control list capabilities to the maximum, whilst others don't even need anything
-  beyond web request security. The good thing is Acegi Security will either directly support your future
+  beyond web request security. The good thing is Spring Security will either directly support your future
   needs, or provide a clearly-defined extension point for addressing them.
 
 
   We welcome your feedback about how long it has actually taken you to complete each step, so we
   can update this page and help new users better assess their project timetables in the future.
-  Any other tips on what you found helpful in learning Acegi Security are also very welcome.
+  Any other tips on what you found helpful in learning Spring Security are also very welcome.

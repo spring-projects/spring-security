@@ -69,14 +69,14 @@ public class CasProxyTicketValidator extends AbstractTicketValidator {
 
     /**
      * Optional callback URL to obtain a proxy-granting ticket from CAS.
-     * <p>This callback URL belongs to the Acegi Security System for Spring secured application. We suggest you use
+     * <p>This callback URL belongs to the Spring Security secured application. We suggest you use
      * CAS' <code>ProxyTicketReceptor</code> servlet to receive this callback and manage the proxy-granting ticket list.
      * The callback URL is usually something like
      * <code>https://www.mycompany.com/application/casProxy/receptor</code>.
      * </p>
      * <p>If left <code>null</code>, the <code>CasAuthenticationToken</code> will not have a proxy granting
-     * ticket IOU and there will be no proxy-granting ticket callback. Accordingly, the Acegi Securty System for
-     * Spring secured application will be unable to obtain a proxy ticket to call another CAS-secured service on
+     * ticket IOU and there will be no proxy-granting ticket callback. Accordingly, the Spring Securty
+     * secured application will be unable to obtain a proxy ticket to call another CAS-secured service on
      * behalf of the user. This is not really an issue for most applications.</p>
      *
      * @return the proxy callback URL, or <code>null</code> if not used

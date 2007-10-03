@@ -16,7 +16,7 @@
 package org.springframework.security.ui.switchuser;
 
 import org.springframework.security.AccountExpiredException;
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.AuthenticationException;
@@ -70,7 +70,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Switch User processing filter responsible for user context switching.<p>This filter is similar to Unix 'su'
- * however for Acegi-managed web applications.  A common use-case for this feature is the ability to allow
+ * however for Spring Security-managed web applications.  A common use-case for this feature is the ability to allow
  * higher-authority users (i.e. ROLE_ADMIN) to switch to a regular user (i.e. ROLE_USER).</p>
  *  <p>This filter assumes that the user performing the switch will be required to be logged in as normal (i.e.
  * ROLE_ADMIN user). The user will then access a page/controller that enables the administrator to specify who they
@@ -111,7 +111,7 @@ public class SwitchUserProcessingFilter implements Filter, InitializingBean, App
 
     private ApplicationEventPublisher eventPublisher;
     private AuthenticationDetailsSource authenticationDetailsSource = new AuthenticationDetailsSourceImpl();
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private String exitUserUrl = "/j_spring_security_exit_user";
     private String switchUserUrl = "/j_spring_security_switch_user";
     private String targetUrl;

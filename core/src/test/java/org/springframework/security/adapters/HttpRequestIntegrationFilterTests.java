@@ -58,7 +58,7 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
 
     public void testCorrectOperation() throws Exception {
         HttpRequestIntegrationFilter filter = new HttpRequestIntegrationFilter();
-        PrincipalAcegiUserToken principal = new PrincipalAcegiUserToken("key", "someone", "password",
+        PrincipalSpringSecurityUserToken principal = new PrincipalSpringSecurityUserToken("key", "someone", "password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("SOME_ROLE")}, null);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -69,12 +69,12 @@ public class HttpRequestIntegrationFilterTests extends TestCase {
 
         filter.doFilter(request, response, chain);
 
-        if (!(SecurityContextHolder.getContext().getAuthentication() instanceof PrincipalAcegiUserToken)) {
+        if (!(SecurityContextHolder.getContext().getAuthentication() instanceof PrincipalSpringSecurityUserToken)) {
             System.out.println(SecurityContextHolder.getContext().getAuthentication());
-            fail("Should have returned PrincipalAcegiUserToken");
+            fail("Should have returned PrincipalSpringSecurityUserToken");
         }
 
-        PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) SecurityContextHolder.getContext()
+        PrincipalSpringSecurityUserToken castResult = (PrincipalSpringSecurityUserToken) SecurityContextHolder.getContext()
                                                                                             .getAuthentication();
         assertEquals(principal, castResult);
     }

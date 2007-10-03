@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!--
- * The Acegi Security System for Spring is published under the terms
+ * Spring Security is published under the terms
  * of the Apache Software License.
  * $Id$
 -->

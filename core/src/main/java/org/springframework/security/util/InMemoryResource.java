@@ -24,7 +24,7 @@ import java.io.InputStream;
 
 /**
  * An in memory implementation of Spring's {@link org.springframework.core.io.Resource} interface.
- * <p>Used by the "Acegifier" web application to create a bean factory from an XML string, rather than a file.</p>
+ * <p>Used to create a bean factory from an XML string, rather than a file.</p>
  *
  * @author Luke Taylor
  * @version $Id$

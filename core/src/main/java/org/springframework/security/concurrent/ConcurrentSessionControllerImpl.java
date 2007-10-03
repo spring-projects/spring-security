@@ -15,7 +15,7 @@
 
 package org.springframework.security.concurrent;
 
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 
@@ -39,7 +39,7 @@ public class ConcurrentSessionControllerImpl implements ConcurrentSessionControl
     MessageSourceAware {
     //~ Instance fields ================================================================================================
 
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private SessionRegistry sessionRegistry = new SessionRegistryImpl();
     private boolean exceptionIfMaximumExceeded = false;
     private int maximumSessions = 1;

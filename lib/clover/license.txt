@@ -1,4 +1,4 @@
-Cenque has supported the Acegi Security System for Spring project with a free
+Cenque has supported Spring Security project with a free
 Team Edition license of Clover.
 
 We thank Cenqua for their support.

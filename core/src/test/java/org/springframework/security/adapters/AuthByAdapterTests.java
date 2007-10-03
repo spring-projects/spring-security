@@ -59,7 +59,7 @@ public class AuthByAdapterTests extends TestCase {
         AuthByAdapterProvider provider = new AuthByAdapterProvider();
         provider.setKey("my_password");
 
-        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("my_password", "Test", "Password",
+        PrincipalSpringSecurityUserToken token = new PrincipalSpringSecurityUserToken("my_password", "Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
                 null);
         assertTrue(provider.supports(token.getClass()));
@@ -75,7 +75,7 @@ public class AuthByAdapterTests extends TestCase {
             fail("Should have returned same type of object it was given");
         }
 
-        PrincipalAcegiUserToken castResponse = (PrincipalAcegiUserToken) response;
+        PrincipalSpringSecurityUserToken castResponse = (PrincipalSpringSecurityUserToken) response;
         assertEquals(token.getName(), castResponse.getName());
     }
 
@@ -120,8 +120,8 @@ public class AuthByAdapterTests extends TestCase {
         AuthByAdapterProvider provider = new AuthByAdapterProvider();
         provider.setKey("my_password");
 
-        // Should fail as PrincipalAcegiUserToken has different key
-        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("wrong_password", "Test", "Password", null, null);
+        // Should fail as PrincipalSpringSecurityUserToken has different key
+        PrincipalSpringSecurityUserToken token = new PrincipalSpringSecurityUserToken("wrong_password", "Test", "Password", null, null);
 
         try {
             provider.authenticate(token);

@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 
 
 /**
- * An Acegi Security-aware <code>HttpServletRequestWrapper</code>, which uses the
+ * A Spring Security-aware <code>HttpServletRequestWrapper</code>, which uses the
  * <code>SecurityContext</code>-defined <code>Authentication</code> object for {@link
  * SecurityContextHolderAwareRequestWrapper#isUserInRole(java.lang.String)} and {@link
  * javax.servlet.http.HttpServletRequestWrapper#getRemoteUser()} responses.

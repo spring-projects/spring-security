@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <properties>
-        <title>Acegi Security Downloads</title>
+        <title>Spring Security Downloads</title>
     </properties>
     <body>
-        <section name="Acegi Security Downloads">
+        <section name="Spring Security Downloads">
             <p>
                 If you wish to try out this project, you are probably
                 looking for the
-                <strong>acegi-security-xx.zip</strong>
+                <strong>spring-security-xx.zip</strong>
                 file, which contains all of the officially released
                 JARs, a copy of all documentation, and two WAR
                 artifacts. The two WAR artifacts are from the Contacts
@@ -19,9 +19,9 @@
             </p>
 
             <p>
-                The acegi-security-xx-src.zip is intended for use with
+                The spring-security-xx-src.zip is intended for use with
                 IDEs. It does not contain the files needed to compile
-                Acegi Security. It also does not contain the sources to
+                Spring Security. It also does not contain the sources to
                 the sample applications. If you need any of these files,
                 please download from SVN.
             </p>
@@ -38,7 +38,7 @@
             </subsection>
             <subsection name="Maven Dependencies">
                 <p>
-                    The Acegi Security JARs are also available via the
+                    The Spring Security JARs are also available via the
                     <a
                         href="http://repo1.maven.org/maven2/org/acegisecurity">
                         Central Maven Repository

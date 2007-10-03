@@ -15,7 +15,7 @@
 
 package org.springframework.security.providers.anonymous;
 
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.BadCredentialsException;
@@ -42,7 +42,7 @@ public class AnonymousAuthenticationProvider implements AuthenticationProvider, 
 
     //~ Instance fields ================================================================================================
 
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private String key;
 
     //~ Methods ========================================================================================================

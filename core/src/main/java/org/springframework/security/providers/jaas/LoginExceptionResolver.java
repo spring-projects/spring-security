@@ -22,7 +22,7 @@ import javax.security.auth.login.LoginException;
 
 /**
  * The JaasAuthenticationProvider takes an instance of LoginExceptionResolver
- * to resolve LoginModule specific exceptions to Acegi exceptions.  For
+ * to resolve LoginModule specific exceptions to Spring Security exceptions.  For
  * instance, a configured login module could throw a
  * ScrewedUpPasswordException that extends LoginException, in this instance
  * the LoginExceptionResolver implementation would return a {@link

@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 
-import org.springframework.security.adapters.PrincipalAcegiUserToken;
+import org.springframework.security.adapters.PrincipalSpringSecurityUserToken;
 
 import org.apache.catalina.LifecycleException;
 
@@ -32,35 +32,35 @@ import java.security.Principal;
 
 
 /**
- * Tests {@link CatalinaAcegiUserRealm}.
+ * Tests {@link CatalinaSpringSecurityUserRealm}.
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id:CatalinaSpringSecurityUserRealmTests.java 2151 2007-09-22 11:54:13Z luke_t $
  */
-public class CatalinaAcegiUserRealmTests extends TestCase {
+public class CatalinaSpringSecurityUserRealmTests extends TestCase {
     //~ Instance fields ================================================================================================
 
     private final String ADAPTER_KEY = "my_key";
 
     //~ Constructors ===================================================================================================
 
-    public CatalinaAcegiUserRealmTests() {
+    public CatalinaSpringSecurityUserRealmTests() {
         super();
     }
 
-    public CatalinaAcegiUserRealmTests(String arg0) {
+    public CatalinaSpringSecurityUserRealmTests(String arg0) {
         super(arg0);
     }
 
     //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(CatalinaAcegiUserRealmTests.class);
+        junit.textui.TestRunner.run(CatalinaSpringSecurityUserRealmTests.class);
     }
 
-    private CatalinaAcegiUserRealm makeAdapter(String fileName)
+    private CatalinaSpringSecurityUserRealm makeAdapter(String fileName)
         throws Exception {
-        CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
+        CatalinaSpringSecurityUserRealm adapter = new CatalinaSpringSecurityUserRealm();
 
         URL url = Thread.currentThread().getContextClassLoader().getResource("org/springframework/security/adapters/" + fileName);
 
@@ -86,7 +86,7 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
     public void testAdapterAbortsIfAppContextDoesNotContainAnAuthenticationBean()
         throws Exception {
         try {
-            CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-invalid.xml");
+            CatalinaSpringSecurityUserRealm adapter = makeAdapter("catalinaAdapterTest-invalid.xml");
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -95,7 +95,7 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
 
     public void testAdapterAbortsIfNoAppContextSpecified()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
+        CatalinaSpringSecurityUserRealm adapter = new CatalinaSpringSecurityUserRealm();
 
         adapter.setKey("KEY");
 
@@ -117,7 +117,7 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
     }
 
     public void testAdapterAbortsIfNoKeySpecified() throws Exception {
-        CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
+        CatalinaSpringSecurityUserRealm adapter = new CatalinaSpringSecurityUserRealm();
 
         adapter.setAppContextLocation("SOMETHING");
 
@@ -140,7 +140,7 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
 
     public void testAdapterAbortsWithIncorrectApplicationContextLocation()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
+        CatalinaSpringSecurityUserRealm adapter = new CatalinaSpringSecurityUserRealm();
         adapter.setAppContextLocation("SOME_INVALID_PATH");
         adapter.setKey("KEY");
 
@@ -153,48 +153,48 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
     }
 
     public void testAdapterIdentifiesItself() throws Exception {
-        CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
+        CatalinaSpringSecurityUserRealm adapter = new CatalinaSpringSecurityUserRealm();
         assertTrue(adapter.getName().lastIndexOf("CatalinaSpringUserRealm") != -1);
     }
 
     public void testAdapterStartsUpSuccess() throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
+        CatalinaSpringSecurityUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
         assertTrue(true);
     }
 
     public void testAuthenticateManyParamsReturnsNull() {
-        CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
+        CatalinaSpringSecurityUserRealm adapter = new CatalinaSpringSecurityUserRealm();
         assertEquals(null, adapter.authenticate(null, null, null, null, null, null, null, null));
     }
 
     public void testAuthenticateX509ReturnsNull() {
-        CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
+        CatalinaSpringSecurityUserRealm adapter = new CatalinaSpringSecurityUserRealm();
         assertEquals(null, adapter.authenticate(null));
     }
 
     public void testAuthenticationFailsForIncorrectPassword()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
+        CatalinaSpringSecurityUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
         assertEquals(null, adapter.authenticate("marissa", "kangaroo"));
     }
 
     public void testAuthenticationFailsForIncorrectUserName()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
+        CatalinaSpringSecurityUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
         assertEquals(null, adapter.authenticate("melissa", "koala"));
     }
 
     public void testAuthenticationUsingByteArrayForCredentials()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
+        CatalinaSpringSecurityUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
         byte[] credentials = {'k', 'o', 'a', 'l', 'a'};
         Principal result = adapter.authenticate("marissa", credentials);
 
-        if (!(result instanceof PrincipalAcegiUserToken)) {
-            fail("Should have returned PrincipalAcegiUserToken");
+        if (!(result instanceof PrincipalSpringSecurityUserToken)) {
+            fail("Should have returned PrincipalSpringSecurityUserToken");
         }
 
-        PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) result;
+        PrincipalSpringSecurityUserToken castResult = (PrincipalSpringSecurityUserToken) result;
         assertEquals("marissa", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
         assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
@@ -204,14 +204,14 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
 
     public void testAuthenticationUsingStringForCredentials()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
+        CatalinaSpringSecurityUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
         Principal result = adapter.authenticate("marissa", "koala");
 
-        if (!(result instanceof PrincipalAcegiUserToken)) {
-            fail("Should have returned PrincipalAcegiUserToken");
+        if (!(result instanceof PrincipalSpringSecurityUserToken)) {
+            fail("Should have returned PrincipalSpringSecurityUserToken");
         }
 
-        PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) result;
+        PrincipalSpringSecurityUserToken castResult = (PrincipalSpringSecurityUserToken) result;
         assertEquals("marissa", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
         assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
@@ -221,28 +221,28 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
 
     public void testAuthenticationWithNullPasswordHandledGracefully()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
+        CatalinaSpringSecurityUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
         assertEquals(null, adapter.authenticate("marissa", (String) null));
     }
 
     public void testAuthenticationWithNullUserNameHandledGracefully()
         throws Exception {
-        CatalinaAcegiUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
+        CatalinaSpringSecurityUserRealm adapter = makeAdapter("catalinaAdapterTest-valid.xml");
         assertEquals(null, adapter.authenticate(null, "koala"));
     }
 
     public void testGetPasswordReturnsNull() {
-        CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
+        CatalinaSpringSecurityUserRealm adapter = new CatalinaSpringSecurityUserRealm();
         assertEquals(null, adapter.getPassword(null));
     }
 
     public void testGetPrincipalReturnsNull() {
-        CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
+        CatalinaSpringSecurityUserRealm adapter = new CatalinaSpringSecurityUserRealm();
         assertEquals(null, adapter.getPrincipal(null));
     }
 
     public void testGetters() {
-        CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
+        CatalinaSpringSecurityUserRealm adapter = new CatalinaSpringSecurityUserRealm();
         adapter.setKey("KEY");
         assertEquals("KEY", adapter.getKey());
         adapter.setAppContextLocation("SOME_LOCATION");
@@ -250,12 +250,12 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
     }
 
     public void testHasRoleWithANullPrincipalFails() {
-        CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
+        CatalinaSpringSecurityUserRealm adapter = new CatalinaSpringSecurityUserRealm();
         assertTrue(!adapter.hasRole(null, "ROLE_ONE"));
     }
 
     public void testHasRoleWithAPrincipalTheAdapterDidNotCreateFails() {
-        CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
+        CatalinaSpringSecurityUserRealm adapter = new CatalinaSpringSecurityUserRealm();
         assertTrue(!adapter.hasRole(new Principal() {
                 public String getName() {
                     return "MockPrincipal";
@@ -264,10 +264,10 @@ public class CatalinaAcegiUserRealmTests extends TestCase {
     }
 
     public void testHasRoleWithPrincipalAcegiUserToken() {
-        PrincipalAcegiUserToken token = new PrincipalAcegiUserToken("KEY", "Test", "Password",
+        PrincipalSpringSecurityUserToken token = new PrincipalSpringSecurityUserToken("KEY", "Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
                 null);
-        CatalinaAcegiUserRealm adapter = new CatalinaAcegiUserRealm();
+        CatalinaSpringSecurityUserRealm adapter = new CatalinaSpringSecurityUserRealm();
         assertTrue(adapter.hasRole(token, "ROLE_ONE"));
         assertTrue(adapter.hasRole(token, "ROLE_TWO"));
         assertTrue(!adapter.hasRole(token, "ROLE_WE_DO_NOT_HAVE"));

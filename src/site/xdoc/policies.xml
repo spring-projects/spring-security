@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<document><properties><title>Project Policies and Procedures</title></properties><body><section name="Project Policies and Procedures Version 1.0"><p>The following policies and procedures are intended to ensure that Acegi Security will
+<document><properties><title>Project Policies and Procedures</title></properties><body><section name="Project Policies and Procedures Version 1.0"><p>The following policies and procedures are intended to ensure that Spring Security will
   continue to achieve its project objectives and support the community in the context of an
   expanding development team.
 
@@ -55,7 +55,7 @@
 	</li>
 
 	<li>
-	Developers please keep an eye on the <a href="http://forum.springframework.org">Acegi Security forum</a>. It's a very active forum, and it takes a lot of work if not shared around. Please don't hesitate to reply to users - I try to read every thread and correct/confirm the situation if someone mentions they're unsure. I also will generally send developers an email if there's a question I can't answer as I didn't write the code.<br></br><br></br>
+	Developers please keep an eye on the <a href="http://forum.springframework.org">Spring Security forum</a>. It's a very active forum, and it takes a lot of work if not shared around. Please don't hesitate to reply to users - I try to read every thread and correct/confirm the situation if someone mentions they're unsure. I also will generally send developers an email if there's a question I can't answer as I didn't write the code.<br></br><br></br>
 	</li>
 
 	<li>

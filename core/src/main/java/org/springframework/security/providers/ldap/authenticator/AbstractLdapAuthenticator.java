@@ -15,7 +15,7 @@
 
 package org.springframework.security.providers.ldap.authenticator;
 
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 
 import org.springframework.security.ldap.InitialDirContextFactory;
 import org.springframework.security.ldap.LdapUserSearch;
@@ -49,7 +49,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 
     /** Optional search object which can be used to locate a user when a simple DN match isn't sufficient */
     private LdapUserSearch userSearch;
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
     /**
      * The suffix to be added to the DN patterns, worked out internally from the root DN of the configured

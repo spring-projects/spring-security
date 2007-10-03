@@ -117,7 +117,7 @@
 
     <subsection name="Is it called &quot;Acegi&quot; or &quot;Acegi Security&quot;?">
 
-    <p>It's official name is <i>Acegi Security System for Spring</i>,
+    <p>It's official name is <i>Spring Security</i>,
 	although we're happy for it to be abbreviated to
 	<i>Acegi Security</i>. Please don't just call it <i>Acegi</i>, though,
 	as that gets confused with the name of the company that maintains Acegi

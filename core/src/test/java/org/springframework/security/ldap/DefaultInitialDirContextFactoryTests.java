@@ -15,7 +15,7 @@
 
 package org.springframework.security.ldap;
 
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.ldap.UncategorizedLdapException;
 
@@ -43,7 +43,7 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapIntegratio
     public void onSetUp() throws Exception {
         super.onSetUp();
         idf = getInitialDirContextFactory();
-        idf.setMessageSource(new AcegiMessageSource());
+        idf.setMessageSource(new SpringSecurityMessageSource());
     }
 
     @Test
@@ -57,15 +57,15 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapIntegratio
 
     @Test
     public void testBaseDnIsParsedFromCorrectlyFromUrl() {
-        idf = new DefaultInitialDirContextFactory("ldap://acegisecurity.org/dc=springframework,dc=org");
+        idf = new DefaultInitialDirContextFactory("ldap://springsecurity.org/dc=springframework,dc=org");
         assertEquals("dc=springframework,dc=org", idf.getRootDn());
 
         // Check with an empty root
-        idf = new DefaultInitialDirContextFactory("ldap://acegisecurity.org/");
+        idf = new DefaultInitialDirContextFactory("ldap://springsecurity.org/");
         assertEquals("", idf.getRootDn());
 
         // Empty root without trailing slash
-        idf = new DefaultInitialDirContextFactory("ldap://acegisecurity.org");
+        idf = new DefaultInitialDirContextFactory("ldap://springsecurity.org");
         assertEquals("", idf.getRootDn());
     }
 
@@ -125,12 +125,12 @@ public class DefaultInitialDirContextFactoryTests extends AbstractLdapIntegratio
 
     @Test
     public void testEnvironment() {
-        idf = new DefaultInitialDirContextFactory("ldap://acegisecurity.org/");
+        idf = new DefaultInitialDirContextFactory("ldap://springsecurity.org/");
 
         // check basic env
         Hashtable env = idf.getEnvironment();
         //assertEquals("com.sun.jndi.ldap.LdapCtxFactory", env.get(Context.INITIAL_CONTEXT_FACTORY));
-        assertEquals("ldap://acegisecurity.org/", env.get(Context.PROVIDER_URL));
+        assertEquals("ldap://springsecurity.org/", env.get(Context.PROVIDER_URL));
         assertEquals("simple", env.get(Context.SECURITY_AUTHENTICATION));
         assertNull(env.get(Context.SECURITY_PRINCIPAL));
         assertNull(env.get(Context.SECURITY_CREDENTIALS));

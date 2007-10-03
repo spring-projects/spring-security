@@ -19,9 +19,10 @@ import org.springframework.beans.factory.InitializingBean;
 
 
 /**
- * Stores properties related to this CAS service.<P>Each web application capable of processing CAS tickets is known
- * as a service. This class stores the properties that are relevant to the local CAS service, being the application
- * that is being secured by the Acegi Security System for Spring.</p>
+ * Stores properties related to this CAS service.
+ * <p>Each web application capable of processing CAS tickets is known as a service.
+ * This class stores the properties that are relevant to the local CAS service, being the application
+ * that is being secured by Spring Security.</p>
  *
  * @author Ben Alex
  * @version $Id$
@@ -41,9 +42,12 @@ public class ServiceProperties implements InitializingBean {
     }
 
     /**
-     * Represents the service the user is authenticating to.<p>This service is the callback URL belonging to
-     * the local Acegi Security System for Spring secured application. For example,</p>
-     *  <code>https://www.mycompany.com/application/j_spring_cas_security_check</code>
+     * Represents the service the user is authenticating to.
+     * <p>This service is the callback URL belonging to the local Spring Security System for Spring secured application.
+     * For example,
+     * <pre>
+     * https://www.mycompany.com/application/j_spring_cas_security_check
+     * </pre>
      *
      * @return the URL of the service the user is authenticating to
      */

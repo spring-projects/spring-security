@@ -17,10 +17,9 @@ package org.springframework.security.adapters.jboss;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.adapters.PrincipalAcegiUserToken;
+import org.springframework.security.adapters.PrincipalSpringSecurityUserToken;
 
 import org.jboss.security.SimplePrincipal;
-import org.jboss.security.SimpleGroup;
 
 import java.io.IOException;
 
@@ -28,7 +27,6 @@ import java.security.Principal;
 import java.security.acl.Group;
 
 import java.util.Properties;
-import java.util.Enumeration;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -41,30 +39,30 @@ import javax.security.auth.login.LoginException;
 
 
 /**
- * Tests {@link JbossAcegiLoginModule}.
+ * Tests {@link JbossSpringSecurityLoginModule}.
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id:JbossSpringSecurityLoginModuleTests.java 2151 2007-09-22 11:54:13Z luke_t $
  */
-public class JbossAcegiLoginModuleTests extends TestCase {
+public class JbossSpringSecurityLoginModuleTests extends TestCase {
     //~ Instance fields ================================================================================================
 
     private final String ADAPTER_KEY = "my_key";
 
     //~ Constructors ===================================================================================================
 
-    public JbossAcegiLoginModuleTests() {
+    public JbossSpringSecurityLoginModuleTests() {
         super();
     }
 
-    public JbossAcegiLoginModuleTests(String arg0) {
+    public JbossSpringSecurityLoginModuleTests(String arg0) {
         super(arg0);
     }
 
     //~ Methods ========================================================================================================
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(JbossAcegiLoginModuleTests.class);
+        junit.textui.TestRunner.run(JbossSpringSecurityLoginModuleTests.class);
     }
 
     public final void setUp() throws Exception {
@@ -73,7 +71,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
 
     public void testAdapterAbortsIfAppContextDoesNotContainAnAuthenticationBean()
         throws Exception {
-        JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
+        JbossSpringSecurityLoginModule adapter = new JbossSpringSecurityLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation", "org/springframework/security/adapters/adaptertest-invalid.xml");
@@ -88,7 +86,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
 
     public void testAdapterAbortsIfNoAppContextSpecified()
         throws Exception {
-        JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
+        JbossSpringSecurityLoginModule adapter = new JbossSpringSecurityLoginModule();
 
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
@@ -113,7 +111,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
     }
 
     public void testAdapterAbortsIfNoKeySpecified() throws Exception {
-        JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
+        JbossSpringSecurityLoginModule adapter = new JbossSpringSecurityLoginModule();
 
         Properties props = new Properties();
         props.put("appContextLocation", "org/springframework/security/adapters/adaptertest-valid.xml");
@@ -139,7 +137,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
 
     public void testAdapterAbortsWithIncorrectApplicationContextLocation()
         throws Exception {
-        JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
+        JbossSpringSecurityLoginModule adapter = new JbossSpringSecurityLoginModule();
 
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
@@ -155,7 +153,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
 
     public void testAdapterFailsToAuthenticateIfNoCallbackHandlerAvailable()
         throws Exception {
-        JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
+        JbossSpringSecurityLoginModule adapter = new JbossSpringSecurityLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation", "org/springframework/security/adapters/adaptertest-valid.xml");
@@ -173,7 +171,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
     }
 
     public void testAdapterStartsUpSuccess() throws Exception {
-        JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
+        JbossSpringSecurityLoginModule adapter = new JbossSpringSecurityLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation", "org/springframework/security/adapters/adaptertest-valid.xml");
@@ -183,7 +181,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
 
     public void testAuthenticationFailsForIncorrectPassword()
         throws Exception {
-        JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
+        JbossSpringSecurityLoginModule adapter = new JbossSpringSecurityLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation", "org/springframework/security/adapters/adaptertest-valid.xml");
@@ -203,7 +201,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
 
     public void testAuthenticationFailsForIncorrectUserName()
         throws Exception {
-        JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
+        JbossSpringSecurityLoginModule adapter = new JbossSpringSecurityLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation", "org/springframework/security/adapters/adaptertest-valid.xml");
@@ -222,7 +220,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
     }
 
     public void testAuthenticationSuccess() throws Exception {
-        JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
+        JbossSpringSecurityLoginModule adapter = new JbossSpringSecurityLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation", "org/springframework/security/adapters/adaptertest-valid.xml");
@@ -235,11 +233,11 @@ public class JbossAcegiLoginModuleTests extends TestCase {
 
         Principal result = adapter.getIdentity();
 
-        if (!(result instanceof PrincipalAcegiUserToken)) {
-            fail("Should have returned PrincipalAcegiUserToken");
+        if (!(result instanceof PrincipalSpringSecurityUserToken)) {
+            fail("Should have returned PrincipalSpringSecurityUserToken");
         }
 
-        PrincipalAcegiUserToken castResult = (PrincipalAcegiUserToken) result;
+        PrincipalSpringSecurityUserToken castResult = (PrincipalSpringSecurityUserToken) result;
         assertEquals("marissa", castResult.getPrincipal());
         assertEquals("koala", castResult.getCredentials());
         assertEquals("ROLE_TELLER", castResult.getAuthorities()[0].getAuthority());
@@ -249,7 +247,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
 
     public void testAuthenticationWithNullPasswordHandledGracefully()
         throws Exception {
-        JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
+        JbossSpringSecurityLoginModule adapter = new JbossSpringSecurityLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation", "org/springframework/security/adapters/adaptertest-valid.xml");
@@ -269,7 +267,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
 
     public void testAuthenticationWithNullUserNameAndNullPasswordHandledGracefully()
         throws Exception {
-        JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
+        JbossSpringSecurityLoginModule adapter = new JbossSpringSecurityLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation", "org/springframework/security/adapters/adaptertest-valid.xml");
@@ -289,7 +287,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
 
     public void testAuthenticationWithNullUserNameHandledGracefully()
         throws Exception {
-        JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
+        JbossSpringSecurityLoginModule adapter = new JbossSpringSecurityLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation", "org/springframework/security/adapters/adaptertest-valid.xml");
@@ -308,7 +306,7 @@ public class JbossAcegiLoginModuleTests extends TestCase {
     }
 
     public void testGetRoleSets() throws Exception {
-        JbossAcegiLoginModule adapter = new JbossAcegiLoginModule();
+        JbossSpringSecurityLoginModule adapter = new JbossSpringSecurityLoginModule();
         Properties props = new Properties();
         props.put("key", ADAPTER_KEY);
         props.put("appContextLocation", "org/springframework/security/adapters/adaptertest-valid.xml");

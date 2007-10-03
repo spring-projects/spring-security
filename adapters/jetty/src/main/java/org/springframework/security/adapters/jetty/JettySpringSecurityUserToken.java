@@ -13,35 +13,38 @@
  * limitations under the License.
  */
 
-package org.springframework.security.adapters;
+package org.springframework.security.adapters.jetty;
 
 import org.springframework.security.GrantedAuthority;
 
-import java.security.Principal;
+import org.springframework.security.adapters.AbstractAdapterAuthenticationToken;
+
+import org.mortbay.http.UserPrincipal;
 
 
 /**
- * A {@link Principal} compatible  {@link org.springframework.security.Authentication} object.
+ * A Jetty compatible {@link org.springframework.security.Authentication} object.
  *
  * @author Ben Alex
- * @version $Id$
+ * @version $Id:JettySpringSecurityUserToken.java 2151 2007-09-22 11:54:13Z luke_t $
  */
-public class PrincipalAcegiUserToken extends AbstractAdapterAuthenticationToken implements Principal {
+public class JettySpringSecurityUserToken extends AbstractAdapterAuthenticationToken implements UserPrincipal {
     //~ Instance fields ================================================================================================
 
-    private static final long serialVersionUID = 1L;
-    private Object principal;
+	private static final long serialVersionUID = 1L;
     private String password;
     private String username;
 
     //~ Constructors ===================================================================================================
 
-    public PrincipalAcegiUserToken(String key, String username, String password, GrantedAuthority[] authorities,
-        Object principal) {
+    public JettySpringSecurityUserToken(String key, String username, String password, GrantedAuthority[] authorities) {
         super(key, authorities);
         this.username = username;
         this.password = password;
-        this.principal = principal;
+    }
+
+    protected JettySpringSecurityUserToken() {
+        throw new IllegalArgumentException("Cannot use default constructor");
     }
 
     //~ Methods ========================================================================================================
@@ -55,10 +58,6 @@ public class PrincipalAcegiUserToken extends AbstractAdapterAuthenticationToken 
     }
 
     public Object getPrincipal() {
-        if (this.principal == null) {
-            return this.username;
-        }
-
-        return this.principal;
+        return this.username;
     }
 }

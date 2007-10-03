@@ -15,7 +15,7 @@
 
 package org.springframework.security.providers.cas;
 
-import org.springframework.security.AcegiMessageSource;
+import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.Authentication;
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.BadCredentialsException;
@@ -58,7 +58,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
     private CasAuthoritiesPopulator casAuthoritiesPopulator;
     private CasProxyDecider casProxyDecider;
-    protected MessageSourceAccessor messages = AcegiMessageSource.getAccessor();
+    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private StatelessTicketCache statelessTicketCache;
     private String key;
     private TicketValidator ticketValidator;

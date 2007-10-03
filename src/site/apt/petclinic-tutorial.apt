@@ -10,10 +10,10 @@ Tutorial: Adding Security to Spring Petclinic
 * Preparation
 
     To complete this tutorial, you will require a servlet container (such as Tomcat)
-    and a general understanding of using Spring without Acegi Security. The Petclinic
+    and a general understanding of using Spring without Spring Security. The Petclinic
     sample itself is part of Spring and should help you learn Spring. We suggest you
     only try to learn one thing at a time, and start with Spring/Petclinic before
-    Acegi Security.
+    Spring Security.
 
 
 
@@ -21,18 +21,18 @@ Tutorial: Adding Security to Spring Petclinic
 
     * Spring 2.0 M4 with dependencies ZIP file
 
-    * Acegi Security 1.0.2
+    * Spring Security 1.0.2
 
 
-    Unzip both files. After unzipping Acegi Security, you'll need to unzip the
-    acegi-security-sample-tutorial.war file, because we need some files that are
+    Unzip both files. After unzipping Spring Security, you'll need to unzip the
+    spring-security-sample-tutorial.war file, because we need some files that are
     included within it. In the code below, we'll refer to the respective unzipped
     locations as %spring% and %acegi% (with the latter variable referring to the
     unzipped WAR, not the original ZIP). There is no need to setup any environment
     variables to complete the tutorial.
 
 
-* Add required Acegi Security files to Petclinic
+* Add required Spring Security files to Petclinic
 
 
     We now need to put some extra files into Petclinic. The following commands should work:
@@ -56,7 +56,7 @@ copy %acegi%\WEB-INF\lib\commons-codec-1.3.jar %spring%\samples\petclinic\war\WE
 +------------------------------------------------------
 
 <filter>
-  <filter-name>Acegi Filter Chain Proxy</filter-name>
+  <filter-name>Spring Security Filter Chain Proxy</filter-name>
   <filter-class>org.springframework.security.util.FilterToBeanProxy</filter-class>
   <init-param>
     <param-name>targetClass</param-name>
@@ -65,7 +65,7 @@ copy %acegi%\WEB-INF\lib\commons-codec-1.3.jar %spring%\samples\petclinic\war\WE
 </filter>
 
 <filter-mapping>
-  <filter-name>Acegi Filter Chain Proxy</filter-name>
+  <filter-name>Spring Security Filter Chain Proxy</filter-name>
   <url-pattern>/*</url-pattern>
 </filter-mapping>
 
@@ -194,7 +194,7 @@ copy dist\petclinic.war %TOMCAT_HOME%\webapps
     You will receive an access denied error when you attempt to add a visit.
 
     To clean things up a bit, you might want to wrap up by hiding the "add visit" link
-    unless you are authorized to use it. Acegi Security provides a tag library to help
+    unless you are authorized to use it. Spring Security provides a tag library to help
     you do that. Edit %spring%\samples\petclinic\war\WEB-INF\jsp\owner.jsp. Add
     the following line to the top of the file:
 
@@ -220,6 +220,6 @@ copy dist\petclinic.war %TOMCAT_HOME%\webapps
     These steps can be applied to your own application. Although we do suggest
     that you visit <a href="http://acegisecurity.org">http://acegisecurity.org</a>
     and in particular review the "Suggested Steps" for getting started with Acegi
-    Security. The suggested steps are optimized for learning Acegi Security quickly
+    Security. The suggested steps are optimized for learning Spring Security quickly
     and applying it to your own projects. It also includes realistic time estimates
     for each step so you can plan your integration activities.</p>

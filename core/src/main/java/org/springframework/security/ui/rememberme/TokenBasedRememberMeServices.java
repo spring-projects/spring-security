@@ -106,7 +106,7 @@ public class TokenBasedRememberMeServices implements RememberMeServices, Initial
 
 	public static final String SPRING_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY = "SPRING_SECURITY_HASHED_REMEMBER_ME_COOKIE";
 
-	public static final String DEFAULT_PARAMETER = "_acegi_security_remember_me";
+	public static final String DEFAULT_PARAMETER = "_spring_security_remember_me";
 
 	protected static final Log logger = LogFactory.getLog(TokenBasedRememberMeServices.class);
 

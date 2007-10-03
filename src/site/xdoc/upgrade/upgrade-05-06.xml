@@ -56,7 +56,7 @@ Locate and remove all property references to
   in web.xml match the following:<br></br><br></br>
   <code>
     &lt;filter&gt;<br></br>
-        &lt;filter-name&gt;Acegi Security System for Spring Auto Integration Filter&lt;/filter-name&gt;<br></br>
+        &lt;filter-name&gt;Spring Security Auto Integration Filter&lt;/filter-name&gt;<br></br>
         &lt;filter-class&gt;net.sf.acegisecurity.util.FilterToBeanProxy&lt;/filter-class&gt;<br></br>
         &lt;init-param&gt;<br></br>
             &lt;param-name&gt;targetClass&lt;/param-name&gt;<br></br>

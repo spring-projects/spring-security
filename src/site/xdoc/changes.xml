@@ -27,7 +27,7 @@
 
 <document>
   <properties>
-    <title>Acegi Security changes</title>
+    <title>Spring Security changes</title>
   </properties>
   <body>
     <release version="1.0.0 Final" date="In CVS">
