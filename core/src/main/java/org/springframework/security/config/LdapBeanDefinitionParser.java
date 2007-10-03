@@ -34,7 +34,7 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
     /** Defines the Url of the ldap server to use. If not specified, an embedded apache DS instance will be created */
     private static final String URL_ATTRIBUTE = "url";
     private static final String AUTH_TYPE_ATTRIBUTE = "auth";
-    // TODO: Setting login/passwords for non embedded server. 
+    // TODO: Setting login/passwords for non embedded server.
     private static final String PRINCIPAL_ATTRIBUTE = "managerDn";
     private static final String PASSWORD_ATTRIBUTE = "managerPassword";
 
@@ -113,7 +113,7 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
      *
      * @return the BeanDefinition for the ContextSource for the embedded server.
      *
-     * @see ApacheDSStartStopBean
+     * @see ApacheDSContainer
      */
     private RootBeanDefinition createEmbeddedServer(Element element, ParserContext parserContext) {
         MutableServerStartupConfiguration configuration = new MutableServerStartupConfiguration();
@@ -158,7 +158,7 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
         initialDirContextFactory.getPropertyValues().addPropertyValue("managerDn", "uid=admin,ou=system");
         initialDirContextFactory.getPropertyValues().addPropertyValue("managerPassword", "secret");
 
-        RootBeanDefinition apacheDSStartStop = new RootBeanDefinition(ApacheDSStartStopBean.class);
+        RootBeanDefinition apacheDSStartStop = new RootBeanDefinition(ApacheDSContainer.class);
         apacheDSStartStop.getConstructorArgumentValues().addGenericArgumentValue(configuration);
         apacheDSStartStop.getConstructorArgumentValues().addGenericArgumentValue(initialDirContextFactory);
 
