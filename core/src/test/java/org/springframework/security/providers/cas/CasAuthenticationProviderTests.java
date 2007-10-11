@@ -48,7 +48,6 @@ public class CasAuthenticationProviderTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public CasAuthenticationProviderTests() {
-        super();
     }
 
     public CasAuthenticationProviderTests(String arg0) {
@@ -56,10 +55,6 @@ public class CasAuthenticationProviderTests extends TestCase {
     }
 
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CasAuthenticationProviderTests.class);
-    }
 
     private UserDetails makeUserDetails() {
         return new User("user", "password", true, true, true, true,
@@ -170,7 +165,6 @@ public class CasAuthenticationProviderTests extends TestCase {
             Authentication result = cap.authenticate(token);
             fail("Should have thrown BadCredentialsException");
         } catch (BadCredentialsException expected) {
-            assertEquals("Failed to provide a CAS service ticket to validate", expected.getMessage());
         }
     }
 
@@ -192,7 +186,6 @@ public class CasAuthenticationProviderTests extends TestCase {
             Authentication result = cap.authenticate(token);
             fail("Should have thrown BadCredentialsException");
         } catch (BadCredentialsException expected) {
-            assertEquals("The presented CasAuthenticationToken does not contain the expected key", expected.getMessage());
         }
     }
 

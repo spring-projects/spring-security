@@ -35,7 +35,6 @@ public class AnonymousAuthenticationProviderTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public AnonymousAuthenticationProviderTests() {
-        super();
     }
 
     public AnonymousAuthenticationProviderTests(String arg0) {
@@ -43,14 +42,6 @@ public class AnonymousAuthenticationProviderTests extends TestCase {
     }
 
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AnonymousAuthenticationProviderTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testDetectsAnInvalidKey() throws Exception {
         AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
@@ -63,8 +54,6 @@ public class AnonymousAuthenticationProviderTests extends TestCase {
             Authentication result = aap.authenticate(token);
             fail("Should have thrown BadCredentialsException");
         } catch (BadCredentialsException expected) {
-            assertEquals("The presented AnonymousAuthenticationToken does not contain the expected key",
-                expected.getMessage());
         }
     }
 

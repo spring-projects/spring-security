@@ -35,7 +35,6 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public RememberMeAuthenticationProviderTests() {
-        super();
     }
 
     public RememberMeAuthenticationProviderTests(String arg0) {
@@ -43,14 +42,6 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
     }
 
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(RememberMeAuthenticationProviderTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testDetectsAnInvalidKey() throws Exception {
         RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider();
@@ -63,8 +54,6 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
             Authentication result = aap.authenticate(token);
             fail("Should have thrown BadCredentialsException");
         } catch (BadCredentialsException expected) {
-            assertEquals("The presented RememberMeAuthenticationToken does not contain the expected key",
-                expected.getMessage());
         }
     }
 
