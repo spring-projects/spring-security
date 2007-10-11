@@ -51,12 +51,12 @@ public class SpringSecurityMessageSourceTests extends TestCase {
     public void testReplacableLookup() {
         // Change Locale to English
         Locale before = LocaleContextHolder.getLocale();
-        LocaleContextHolder.setLocale(Locale.ENGLISH);
+        LocaleContextHolder.setLocale(Locale.FRENCH);
 
         // Cause a message to be generated
         MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-        assertEquals("Missing mandatory digest value; received header FOOBAR",
-            messages.getMessage("DigestProcessingFilter.missingMandatory", new Object[] {"FOOBAR"},
+        assertEquals("Le jeton nonce est compromis FOOBAR",
+            messages.getMessage("DigestProcessingFilter.nonceCompromised", new Object[] {"FOOBAR"},
                 "ERROR - FAILED TO LOOKUP"));
 
         // Revert to original Locale
