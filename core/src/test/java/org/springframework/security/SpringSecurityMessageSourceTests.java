@@ -30,7 +30,6 @@ public class SpringSecurityMessageSourceTests extends TestCase {
     //~ Constructors ===================================================================================================
 
     public SpringSecurityMessageSourceTests() {
-        super();
     }
 
     public SpringSecurityMessageSourceTests(String arg0) {
@@ -39,13 +38,9 @@ public class SpringSecurityMessageSourceTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(SpringSecurityMessageSourceTests.class);
-    }
-
     public void testOperation() {
         SpringSecurityMessageSource msgs = new SpringSecurityMessageSource();
-        assertEquals("Proxy tickets are rejected", msgs.getMessage("RejectProxyTickets.reject", null, Locale.ENGLISH));
+        assertEquals("Des tickets proxy ont été rejetés", msgs.getMessage("RejectProxyTickets.reject", null, Locale.FRENCH));
     }
 
     public void testReplacableLookup() {
