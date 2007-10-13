@@ -1,0 +1,100 @@
+
+namespace beans = "http://www.springframework.org/schema/beans"
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+
+autoconfig = 
+    ## Provides automatic security configration for a application
+    element autoconfig {autoconfig.attlist, empty}
+autoconfig.attlist = empty
+
+ldap = 
+    ## Sets up an ldap authentication provider, optionally with an embedded ldap server
+    element ldap {ldap.attlist, empty}
+ldap.attlist &=
+    ## Specifies the ldap server Url. If omitted, an embedded server will be created    
+    attribute url { xsd:string }?
+ldap.attlist &=
+    ## Explicitly specify an ldif file resource to load 
+    [ a:defaultValue = "classpath:*.ldif" ] attribute ldif { xsd:string }?
+
+intercept-methods = 
+    ## Can be used inside a bean definition to add a security interceptor to the bean and set up access 
+    ## configuration attributes for the bean's methods
+    element intercept-methods {intercept-methods.attlist, protect+} 
+
+intercept-methods.attlist = empty
+
+protect = 
+    ## Defines a protected method and the access control configuration attributes that apply to it
+    element protect {protect.attlist, empty}
+
+protect.attlist &=
+    ## A method name 
+    attribute method {xsd:string}
+protect.attlist &=
+    ## Access configuration attributes list that applies to the method, e.g. "ROLE_A,ROLE_B"
+    attribute access {xsd:string}
+
+
+http =
+    ## Container element for HTTP security configuration
+   element http {http.attlist, intercept-url+, form-login?, logout? }
+http.attlist &=
+    ## Controls the eagerness with which an HTTP session is created.
+    [ a:defaultValue = "ifRequired" ] attribute createSession {"ifRequired" | "always" | "never" }?
+http.attlist &=
+    ## Defines the type of path used to define URLs in child elements. 
+    [ a:defaultValue = "ant" ] attribute pathType {"regex" | "ant"}?
+http.attlist &=
+    ## Whether test URLs should be converted to lower case prior to comparing with defined path patterns.
+    [ a:defaultValue = "true" ] attribute lowerCaseComparisons {"true" | "true"}?
+
+intercept-url =
+    element intercept-url {intercept-url.attlist, empty}
+intercept-url.attlist &=
+    attribute path {xsd:string} 
+intercept-url.attlist &=
+    attribute access {xsd:string}?
+intercept-url.attlist &=
+    attribute filters {xsd:string}?
+
+logout =
+    element logout {logout.attlist, empty}
+logout.attlist &=
+    [ a:defaultValue = "/j_spring_security_logout" ] attribute logoutUrl {xsd:string}?
+logout.attlist &=
+    [ a:defaultValue = "/" ] attribute logoutSuccessUrl {xsd:string}?
+logout.attlist &=
+    [ a:defaultValue = "true" ] attribute invalidateSession {"true" | "false"}?
+
+form-login =
+    ## Sets up a form login configuration
+    element form-login {form-login.attlist, empty}    
+form-login.attlist &=
+    ## The URL that the form is submitted to
+    [ a:defaultValue = "/j_spring_security_check" ] attribute loginUrl {xsd:string}?   
+
+authentication-provider =
+    element authentication-provider {authentication-provider.attlist, (user-service | jdbc-user-service)}
+authentication-provider.attlist &= empty
+
+user-service =
+    element user-service {user-service.attlist, (user* | jdbc-user-service)}
+user-service.attlist &=
+    attribute properties {xsd:string}*
+
+
+user =
+    element user {user.attlist, empty}
+user.attlist &=
+    attribute name {xsd:string}
+user.attlist &=
+    attribute password {xsd:string}
+user.attlist &=
+    attribute authorities {xsd:string}
+
+jdbc-user-service =
+    element jdbc-user-service {jdbc-users.attlist, empty}
+jdbc-users.attlist &= empty
+
