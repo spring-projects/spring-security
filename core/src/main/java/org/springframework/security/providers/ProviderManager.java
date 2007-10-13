@@ -148,7 +148,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements In
 
     private void checkIfValidList(List listToCheck) {
         if ((listToCheck == null) || (listToCheck.size() == 0)) {
-            throw new IllegalArgumentException("A list of AuthenticationManagers is required");
+            throw new IllegalArgumentException("A list of AuthenticationProviders is required");
         }
     }
 
