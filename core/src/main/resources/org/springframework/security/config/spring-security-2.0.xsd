@@ -1,22 +1,184 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-
-<xsd:schema xmlns="http://www.springframework.org/schema/security"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="http://www.springframework.org/schema/security"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	targetNamespace="http://www.springframework.org/schema/security"
 	xmlns:beans="http://www.springframework.org/schema/beans"
 	elementFormDefault="qualified" attributeFormDefault="unqualified">
-
-
-    <xsd:import namespace="http://www.springframework.org/schema/beans" />
-
-	<xsd:element name="autoconfig" />
-
-
-	<xsd:element name="ldap">
-		<xsd:complexType>
-			<xsd:attribute name="url" type="xsd:string" />            
-			<xsd:attribute name="ldif" default="classpath:*.ldif"/>			
-		</xsd:complexType>
-	</xsd:element>    
-
-</xsd:schema>
+  <xs:element name="autoconfig">
+    <xs:annotation>
+      <xs:documentation>Provides automatic security configration for a application</xs:documentation>
+    </xs:annotation>
+    <xs:complexType/>
+  </xs:element>
+  <xs:element name="ldap">
+    <xs:annotation>
+      <xs:documentation>Sets up an ldap authentication provider, optionally with an embedded ldap server</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="ldap.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="ldap.attlist">
+    <xs:attribute name="url" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Specifies the ldap server Url. If omitted, an embedded server will be created    </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="ldif" default="classpath:*.ldif" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Explicitly specify an ldif file resource to load </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="intercept-methods">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="protect"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="protect">
+    <xs:annotation>
+      <xs:documentation>Defines a protected method and the access control configuration attributes that apply to it</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="protect.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="protect.attlist">
+    <xs:attribute name="method" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>A method name </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="access" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Access configuration attributes list that applies to the method, e.g. "ROLE_A,ROLE_B"</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="http">
+    <xs:annotation>
+      <xs:documentation>Container element for HTTP security configuration</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="intercept-url"/>
+        <xs:element minOccurs="0" ref="form-login"/>
+        <xs:element minOccurs="0" ref="logout"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="http.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="http.attlist">
+    <xs:attribute name="createSession" default="ifRequired">
+      <xs:annotation>
+        <xs:documentation>Controls the eagerness with which an HTTP session is created.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="ifRequired"/>
+          <xs:enumeration value="always"/>
+          <xs:enumeration value="never"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="pathType" default="ant">
+      <xs:annotation>
+        <xs:documentation>Defines the type of path used to define URLs in child elements. </xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="regex"/>
+          <xs:enumeration value="ant"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="lowerCaseComparisons" default="true">
+      <xs:annotation>
+        <xs:documentation>Whether test URLs should be converted to lower case prior to comparing with defined path patterns.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="true"/>
+          <xs:enumeration value="true"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="intercept-url">
+    <xs:complexType>
+      <xs:attributeGroup ref="intercept-url.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="intercept-url.attlist">
+    <xs:attribute name="path" use="required" type="xs:string"/>
+    <xs:attribute name="access" type="xs:string"/>
+    <xs:attribute name="filters" type="xs:string"/>
+  </xs:attributeGroup>
+  <xs:element name="logout">
+    <xs:complexType>
+      <xs:attributeGroup ref="logout.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="logout.attlist">
+    <xs:attribute name="logoutUrl" default="/j_spring_security_logout" type="xs:string"/>
+    <xs:attribute name="logoutSuccessUrl" default="/" type="xs:string"/>
+    <xs:attribute name="invalidateSession" default="true">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="true"/>
+          <xs:enumeration value="false"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="form-login">
+    <xs:annotation>
+      <xs:documentation>Sets up a form login configuration</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="form-login.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="form-login.attlist">
+    <xs:attribute name="loginUrl" default="/j_spring_security_check" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>The URL that the form is submitted to</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="authentication-provider">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="user-service"/>
+        <xs:element ref="jdbc-user-service"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="user-service">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="user"/>
+        <xs:element ref="jdbc-user-service"/>
+      </xs:choice>
+      <xs:attributeGroup ref="user-service.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="user-service.attlist">
+    <xs:attribute name="properties" type="xs:string"/>
+  </xs:attributeGroup>
+  <xs:element name="user">
+    <xs:complexType>
+      <xs:attributeGroup ref="user.attlist"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="user.attlist">
+    <xs:attribute name="name" use="required" type="xs:string"/>
+    <xs:attribute name="password" use="required" type="xs:string"/>
+    <xs:attribute name="authorities" use="required" type="xs:string"/>
+  </xs:attributeGroup>
+  <xs:element name="jdbc-user-service">
+    <xs:complexType/>
+  </xs:element>
+</xs:schema>

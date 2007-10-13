@@ -51,11 +51,8 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
     // Defaults
     private static final String DEFAULT_ROOT_SUFFIX = "dc=springframework,dc=org";
-
-    private static final String DEFAULT_PROVIDER_BEAN_ID = "_ldapProvider";
-
+    private static final String DEFAULT_PROVIDER_BEAN_ID = "_ldapAuthenticationProvider";
     private static final String DEFAULT_DN_PATTERN = "uid={0},ou=people";
-
     private static final String DEFAULT_GROUP_CONTEXT = "ou=groups";
 
 
