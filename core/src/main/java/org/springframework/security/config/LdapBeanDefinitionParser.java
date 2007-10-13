@@ -6,6 +6,7 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.util.StringUtils;
+import org.springframework.util.Assert;
 import org.springframework.security.ldap.DefaultInitialDirContextFactory;
 import org.springframework.security.providers.ldap.LdapAuthenticationProvider;
 import org.springframework.security.providers.ldap.populator.DefaultLdapAuthoritiesPopulator;
@@ -34,7 +35,6 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
     /** Defines the Url of the ldap server to use. If not specified, an embedded apache DS instance will be created */
     private static final String URL_ATTRIBUTE = "url";
     private static final String AUTH_TYPE_ATTRIBUTE = "auth";
-    // TODO: Setting login/passwords for non embedded server.
     private static final String PRINCIPAL_ATTRIBUTE = "managerDn";
     private static final String PASSWORD_ATTRIBUTE = "managerPassword";
 
@@ -67,6 +67,18 @@ public class LdapBeanDefinitionParser extends AbstractBeanDefinitionParser {
             initialDirContextFactory = new RootBeanDefinition(DefaultInitialDirContextFactory.class);
             initialDirContextFactory.getConstructorArgumentValues().addIndexedArgumentValue(0, url);
         }
+
+        String managerDn = elt.getAttribute(PRINCIPAL_ATTRIBUTE);
+        String managerPassword = elt.getAttribute(PASSWORD_ATTRIBUTE);
+
+        if (StringUtils.hasText(managerDn)) {
+            Assert.hasText(managerPassword, "You must specify the " + PASSWORD_ATTRIBUTE +
+                    " if you supply a " + managerDn);
+
+            initialDirContextFactory.getPropertyValues().addPropertyValue("managerDn", managerDn);
+            initialDirContextFactory.getPropertyValues().addPropertyValue("managerPassword", managerPassword);
+        }
+
 
         // TODO: Make these default values for 2.0
         initialDirContextFactory.getPropertyValues().addPropertyValue("useLdapContext", Boolean.TRUE);
