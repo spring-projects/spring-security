@@ -40,7 +40,7 @@ public class SpringSecurityMessageSourceTests extends TestCase {
 
     public void testOperation() {
         SpringSecurityMessageSource msgs = new SpringSecurityMessageSource();
-        assertEquals("Des tickets proxy ont été rejetés", msgs.getMessage("RejectProxyTickets.reject", null, Locale.FRENCH));
+        assertEquals("Proxy\u7968\u6839\u88ab\u62d2\u7edd", msgs.getMessage("RejectProxyTickets.reject", null, Locale.SIMPLIFIED_CHINESE));
     }
 
     public void testReplacableLookup() {
