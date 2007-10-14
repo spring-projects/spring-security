@@ -8,12 +8,13 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
     <security:autoconfig />
 
-    <bean id="someBusinessObject" class="org.springframework.security.config.TestBusinessBeanImpl">
+    <bean id="target" class="org.springframework.security.config.TestBusinessBeanImpl">
         <!-- This will add a security interceptor to the bean -->
         <security:intercept-methods>
-            <security:protect method="set*" access="ROLE_ADMIN" />
-            <security:protect method="get*" access="ROLE_ADMIN,ROLE_USER" />
-            <security:protect method="doSomething" access="ROLE_USER" />
+            <!-- TODO: It would be better if we didn't need the package/interface names here -->
+            <security:protect method="org.springframework.security.config.TestBusinessBean.set*" access="ROLE_ADMIN" />
+            <security:protect method="org.springframework.security.config.TestBusinessBean.get*" access="ROLE_ADMIN,ROLE_USER" />
+            <security:protect method="org.springframework.security.config.TestBusinessBean.doSomething" access="ROLE_USER" />
         </security:intercept-methods>
     </bean>
 

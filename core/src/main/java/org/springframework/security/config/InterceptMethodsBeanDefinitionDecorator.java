@@ -44,7 +44,10 @@ public class InterceptMethodsBeanDefinitionDecorator extends AbstractInterceptor
             String accessConfig = protectmethodElt.getAttribute("access");
             attributeEditor.setAsText(accessConfig);
 
-            methodMap.addSecureMethod(targetClass, protectmethodElt.getAttribute("method"), 
+// TODO: We want to use just the method names, but MethodDefinitionMap won't work that way.            
+//            methodMap.addSecureMethod(targetClass, protectmethodElt.getAttribute("method"),
+//                    (ConfigAttributeDefinition) attributeEditor.getValue());
+            methodMap.addSecureMethod(protectmethodElt.getAttribute("method"), 
                     (ConfigAttributeDefinition) attributeEditor.getValue());
         }
 
