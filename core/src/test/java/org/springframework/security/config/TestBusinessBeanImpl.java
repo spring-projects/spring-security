@@ -21,4 +21,7 @@ public class TestBusinessBeanImpl implements TestBusinessBean {
 
     public void doSomething() {
     }
+
+    public void unprotected() {
+    }
 }

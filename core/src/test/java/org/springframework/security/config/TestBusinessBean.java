@@ -13,4 +13,6 @@ public interface TestBusinessBean {
     void setString(String s);
 
     void doSomething();
+
+    void unprotected();
 }
