@@ -15,8 +15,6 @@
 
 package org.springframework.security.providers.dao;
 
-import java.util.Map;
-
 import org.springframework.security.AuthenticationException;
 import org.springframework.security.AuthenticationServiceException;
 import org.springframework.security.BadCredentialsException;
@@ -26,7 +24,6 @@ import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.springframework.security.providers.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
-import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.util.Assert;
 
@@ -36,141 +33,111 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  * @version $Id: DaoAuthenticationProvider.java 1857 2007-05-24 00:47:12Z
- * benalex $
+ *          benalex $
  */
 public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
-	// ~ Instance fields
-	// ================================================================================================
+    //~ Instance fields ================================================================================================
 
-	private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
+    private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
 
-	private SaltSource saltSource;
+    private SaltSource saltSource;
 
-	private UserDetailsService userDetailsService;
+    private UserDetailsService userDetailsService;
 
-	private boolean includeDetailsObject = true;
+    private boolean includeDetailsObject = true;
 
-	// ~ Methods
-	// ========================================================================================================
+    //~ Methods ========================================================================================================
 
-	protected void additionalAuthenticationChecks(UserDetails userDetails,
-			UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+    protected void additionalAuthenticationChecks(UserDetails userDetails,
+            UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
 		Object salt = null;
 
-		if (this.saltSource != null) {
-			salt = this.saltSource.getSalt(userDetails);
-		}
+        if (this.saltSource != null) {
+            salt = this.saltSource.getSalt(userDetails);
+        }
 
-		if (authentication.getCredentials() == null) {
-			throw new BadCredentialsException(messages.getMessage(
-					"AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
-					includeDetailsObject ? userDetails : null);
-		}
+        if (authentication.getCredentials() == null) {
+            throw new BadCredentialsException(messages.getMessage(
+                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
+                    includeDetailsObject ? userDetails : null);
+        }
 
-		String presentedPassword = authentication.getCredentials() == null ? "" : authentication.getCredentials()
-				.toString();
+        String presentedPassword = authentication.getCredentials() == null ? "" : authentication.getCredentials()
+                .toString();
 
-		if (!passwordEncoder.isPasswordValid(userDetails.getPassword(), presentedPassword, salt)) {
-			throw new BadCredentialsException(messages.getMessage(
-					"AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
-					includeDetailsObject ? userDetails : null);
-		}
-	}
+        if (!passwordEncoder.isPasswordValid(userDetails.getPassword(), presentedPassword, salt)) {
+            throw new BadCredentialsException(messages.getMessage(
+                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
+                    includeDetailsObject ? userDetails : null);
+        }
+    }
 
-	protected void doAfterPropertiesSet() throws Exception {
-		Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
-	}
+    protected void doAfterPropertiesSet() throws Exception {
+        Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
+    }
 
-	/**
-	 * Introspects the <code>Applicationcontext</code> for the single instance
-	 * of {@link AccessDeniedHandler}. If found invoke
-	 * setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) method by
-	 * providing the found instance of accessDeniedHandler as a method
-	 * parameter. If more than one instance of <code>AccessDeniedHandler</code>
-	 * is found, the method throws <code>IllegalStateException</code>.
-	 *
-	 * @param applicationContext to locate the instance
-	 */
-	private void autoDetectAnyUserDetailsServiceAndUseIt(ApplicationContext applicationContext) {
-		if (applicationContext != null) {
-			Map map = applicationContext.getBeansOfType(UserDetailsService.class);
+    public PasswordEncoder getPasswordEncoder() {
+        return passwordEncoder;
+    }
 
-			if (map.size() > 1) {
-				throw new IllegalArgumentException(
-						"More than one UserDetailsService beans detected please refer to the one using "
-								+ " [ principalRepositoryBeanRef  ] " + "attribute");
-			}
-			else if (map.size() == 1) {
-				setUserDetailsService((UserDetailsService) map.values().iterator().next());
-			}
-		}
-	}
+    public SaltSource getSaltSource() {
+        return saltSource;
+    }
 
-	public PasswordEncoder getPasswordEncoder() {
-		return passwordEncoder;
-	}
+    public UserDetailsService getUserDetailsService() {
+        return userDetailsService;
+    }
 
-	public SaltSource getSaltSource() {
-		return saltSource;
-	}
+    protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
+            throws AuthenticationException {
+        UserDetails loadedUser;
 
-	public UserDetailsService getUserDetailsService() {
-		return userDetailsService;
-	}
+        try {
+            loadedUser = this.getUserDetailsService().loadUserByUsername(username);
+        }
+        catch (DataAccessException repositoryProblem) {
+            throw new AuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);
+        }
 
-	protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
-			throws AuthenticationException {
-		UserDetails loadedUser;
+        if (loadedUser == null) {
+            throw new AuthenticationServiceException(
+                    "UserDetailsService returned null, which is an interface contract violation");
+        }
+        return loadedUser;
+    }
 
-		try {
-			loadedUser = this.getUserDetailsService().loadUserByUsername(username);
-		}
-		catch (DataAccessException repositoryProblem) {
-			throw new AuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);
-		}
+    /**
+     * Sets the PasswordEncoder instance to be used to encode and validate passwords.
+     * If not set, {@link PlaintextPasswordEncoder} will be used by default.
+     *
+     * @param passwordEncoder The passwordEncoder to use
+     */
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
-		if (loadedUser == null) {
-			throw new AuthenticationServiceException(
-					"UserDetailsService returned null, which is an interface contract violation");
-		}
-		return loadedUser;
-	}
+    /**
+     * The source of salts to use when decoding passwords. <code>null</code>
+     * is a valid value, meaning the <code>DaoAuthenticationProvider</code>
+     * will present <code>null</code> to the relevant <code>PasswordEncoder</code>.
+     *
+     * @param saltSource to use when attempting to decode passwords via the <code>PasswordEncoder</code>
+     */
+    public void setSaltSource(SaltSource saltSource) {
+        this.saltSource = saltSource;
+    }
 
-	/**
-	 * Sets the PasswordEncoder instance to be used to encode and validate
-	 * passwords. If not set, {@link PlaintextPasswordEncoder} will be used by
-	 * default.
-	 *
-	 * @param passwordEncoder The passwordEncoder to use
-	 */
-	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-		this.passwordEncoder = passwordEncoder;
-	}
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
 
-	/**
-	 * The source of salts to use when decoding passwords. <code>null</code>
-	 * is a valid value, meaning the <code>DaoAuthenticationProvider</code>
-	 * will present <code>null</code> to the relevant
-	 * <code>PasswordEncoder</code>.
-	 *
-	 * @param saltSource to use when attempting to decode passwords via the
-	 * <code>PasswordEncoder</code>
-	 */
-	public void setSaltSource(SaltSource saltSource) {
-		this.saltSource = saltSource;
-	}
+    public boolean isIncludeDetailsObject() {
+        return includeDetailsObject;
+    }
 
-	public void setUserDetailsService(UserDetailsService userDetailsService) {
-		this.userDetailsService = userDetailsService;
-	}
-
-	public boolean isIncludeDetailsObject() {
-		return includeDetailsObject;
-	}
-
-	public void setIncludeDetailsObject(boolean includeDetailsObject) {
-		this.includeDetailsObject = includeDetailsObject;
+    public void setIncludeDetailsObject(boolean includeDetailsObject) {
+        this.includeDetailsObject = includeDetailsObject;
 	}
 
 }
