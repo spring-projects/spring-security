@@ -61,205 +61,181 @@ import javax.servlet.http.HttpServletResponse;
  * @author colin sampaleanu
  * @author Omri Spector
  * @version $Id: AuthenticationProcessingFilterEntryPoint.java 1873 2007-05-25
- * 03:21:17Z benalex $
+ *          03:21:17Z benalex $
  */
 public class AuthenticationProcessingFilterEntryPoint implements AuthenticationEntryPoint, InitializingBean {
-	// ~ Static fields/initializers
-	// =====================================================================================
+    //~ Static fields/initializers =====================================================================================
 
-	private static final Log logger = LogFactory.getLog(AuthenticationProcessingFilterEntryPoint.class);
+    private static final Log logger = LogFactory.getLog(AuthenticationProcessingFilterEntryPoint.class);
 
-	// ~ Instance fields
-	// ================================================================================================
+    //~ Instance fields ================================================================================================
 
-	private PortMapper portMapper = new PortMapperImpl();
+    private PortMapper portMapper = new PortMapperImpl();
 
-	private PortResolver portResolver = new PortResolverImpl();
+    private PortResolver portResolver = new PortResolverImpl();
 
-	private String loginFormUrl;
+    private String loginFormUrl;
 
-	private boolean forceHttps = false;
+    private boolean forceHttps = false;
 
-	private boolean serverSideRedirect = false;
+    private boolean serverSideRedirect = false;
 
-	// ~ Methods
-	// ========================================================================================================
+    //~ Methods ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
-		Assert.hasLength(loginFormUrl, "loginFormUrl must be specified");
-		Assert.notNull(portMapper, "portMapper must be specified");
-		Assert.notNull(portResolver, "portResolver must be specified");
-	}
+    public void afterPropertiesSet() throws Exception {
+        Assert.hasLength(loginFormUrl, "loginFormUrl must be specified");
+        Assert.notNull(portMapper, "portMapper must be specified");
+        Assert.notNull(portResolver, "portResolver must be specified");
+    }
 
-	/**
-	 * Allows subclasses to modify the login form URL that should be applicable
-	 * for a given request.
-	 *
-	 * @param request the request
-	 * @param response the response
-	 * @param exception the exception
-	 * @return the URL (cannot be null or empty; defaults to
-	 * {@link #getLoginFormUrl()})
-	 */
-	protected String determineUrlToUseForThisRequest(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException exception) {
-		return getLoginFormUrl();
-	}
+    /**
+     * Allows subclasses to modify the login form URL that should be applicable for a given request.
+     *
+     * @param request   the request
+     * @param response  the response
+     * @param exception the exception
+     * @return the URL (cannot be null or empty; defaults to {@link #getLoginFormUrl()})
+     */
+    protected String determineUrlToUseForThisRequest(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException exception) {
 
-	public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
-			throws IOException, ServletException {
-		HttpServletRequest req = (HttpServletRequest) request;
-		HttpServletResponse resp = (HttpServletResponse) response;
-		String scheme = request.getScheme();
-		String serverName = request.getServerName();
-		int serverPort = portResolver.getServerPort(request);
-		String contextPath = req.getContextPath();
+        return getLoginFormUrl();
+    }
 
-		boolean inHttp = "http".equals(scheme.toLowerCase());
-		boolean inHttps = "https".equals(scheme.toLowerCase());
+    public void commence(ServletRequest request, ServletResponse response, AuthenticationException authException)
+            throws IOException, ServletException {
 
-		boolean includePort = true;
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        String scheme = request.getScheme();
+        String serverName = request.getServerName();
+        int serverPort = portResolver.getServerPort(request);
+        String contextPath = httpRequest.getContextPath();
 
-		String redirectUrl = null;
-		boolean doForceHttps = false;
-		Integer httpsPort = null;
+        boolean inHttp = "http".equals(scheme.toLowerCase());
+        boolean inHttps = "https".equals(scheme.toLowerCase());
+        boolean includePort = true;
+        boolean doForceHttps = false;
+        Integer httpsPort = null;
 
-		if (inHttp && (serverPort == 80)) {
-			includePort = false;
-		}
-		else if (inHttps && (serverPort == 443)) {
-			includePort = false;
-		}
+        if (inHttp && (serverPort == 80)) {
+            includePort = false;
+        } else if (inHttps && (serverPort == 443)) {
+            includePort = false;
+        }
 
-		if (forceHttps && inHttp) {
-			httpsPort = (Integer) portMapper.lookupHttpsPort(new Integer(serverPort));
+        if (forceHttps && inHttp) {
+            httpsPort = portMapper.lookupHttpsPort(new Integer(serverPort));
 
-			if (httpsPort != null) {
-				doForceHttps = true;
-				if (httpsPort.intValue() == 443) {
-					includePort = false;
-				}
-				else {
-					includePort = true;
-				}
-			}
+            if (httpsPort != null) {
+                doForceHttps = true;
+                if (httpsPort.intValue() == 443) {
+                    includePort = false;
+                } else {
+                    includePort = true;
+                }
+            }
+        }
 
-		}
+        String loginForm = determineUrlToUseForThisRequest(httpRequest, httpResponse, authException);
+        String redirectUrl = null;
 
-		String loginForm = determineUrlToUseForThisRequest(req, resp, authException);
+        if (serverSideRedirect) {
+            if (doForceHttps) {
+                // before doing server side redirect, we need to do client redirect to https.
 
-		if (serverSideRedirect) {
+                String servletPath = httpRequest.getServletPath();
+                String pathInfo = httpRequest.getPathInfo();
+                String query = httpRequest.getQueryString();
 
-			if (doForceHttps) {
+                redirectUrl = "https://" + serverName + ((includePort) ? (":" + httpsPort) : "") + contextPath
+                        + servletPath + (pathInfo == null ? "" : pathInfo) + (query == null ? "" : "?" + query);
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Server side forward to: " + loginForm);
+                }
 
-				// before doing server side redirect, we need to do client
-				// redirect to https.
+                RequestDispatcher dispatcher = httpRequest.getRequestDispatcher(loginForm);
 
-				String servletPath = req.getServletPath();
-				String pathInfo = req.getPathInfo();
-				String query = req.getQueryString();
+                dispatcher.forward(request, response);
 
-				redirectUrl = "https://" + serverName + ((includePort) ? (":" + httpsPort) : "") + contextPath
-						+ servletPath + (pathInfo == null ? "" : pathInfo) + (query == null ? "" : "?" + query);
+                return;
+            }
+        } else {
+            if (doForceHttps) {
+                redirectUrl = "https://" + serverName + ((includePort) ? (":" + httpsPort) : "") + contextPath
+                        + loginForm;
+            } else {
+                redirectUrl = scheme + "://" + serverName + ((includePort) ? (":" + serverPort) : "") + contextPath
+                        + loginForm;
+            }
+        }
 
-			}
-			else {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Redirecting to: " + redirectUrl);
+        }
 
-				if (logger.isDebugEnabled()) {
-					logger.debug("Server side forward to: " + loginForm);
-				}
+        httpResponse.sendRedirect(httpResponse.encodeRedirectURL(redirectUrl));
+    }
 
-				RequestDispatcher dispatcher = req.getRequestDispatcher(loginForm);
+    public boolean getForceHttps() {
+        return forceHttps;
+    }
 
-				dispatcher.forward(request, response);
+    public String getLoginFormUrl() {
+        return loginFormUrl;
+    }
 
-				return;
+    public PortMapper getPortMapper() {
+        return portMapper;
+    }
 
-			}
+    public PortResolver getPortResolver() {
+        return portResolver;
+    }
 
-		}
-		else {
+    public boolean isServerSideRedirect() {
+        return serverSideRedirect;
+    }
 
-			if (doForceHttps) {
+    /**
+     * Set to true to force login form access to be via https. If this value is true (the default is false),
+     * and the incoming request for the protected resource which triggered the interceptor was not already
+     * <code>https</code>, then the client will first be redirected to an https URL, even if <tt>serverSideRedirect</tt>
+     * is set to <tt>true</tt>.
+     *
+     * @param forceHttps
+     */
+    public void setForceHttps(boolean forceHttps) {
+        this.forceHttps = forceHttps;
+    }
 
-				redirectUrl = "https://" + serverName + ((includePort) ? (":" + httpsPort) : "") + contextPath
-						+ loginForm;
+    /**
+     * The URL where the <code>AuthenticationProcessingFilter</code> login
+     * page can be found. Should be relative to the web-app context path, and
+     * include a leading <code>/</code>
+     *
+     * @param loginFormUrl
+     */
+    public void setLoginFormUrl(String loginFormUrl) {
+        this.loginFormUrl = loginFormUrl;
+    }
 
-			}
-			else {
+    public void setPortMapper(PortMapper portMapper) {
+        this.portMapper = portMapper;
+    }
 
-				redirectUrl = scheme + "://" + serverName + ((includePort) ? (":" + serverPort) : "") + contextPath
-						+ loginForm;
+    public void setPortResolver(PortResolver portResolver) {
+        this.portResolver = portResolver;
+    }
 
-			}
-		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Redirecting to: " + redirectUrl);
-		}
-
-		((HttpServletResponse) response).sendRedirect(((HttpServletResponse) response).encodeRedirectURL(redirectUrl));
-	}
-
-	public boolean getForceHttps() {
-		return forceHttps;
-	}
-
-	public String getLoginFormUrl() {
-		return loginFormUrl;
-	}
-
-	public PortMapper getPortMapper() {
-		return portMapper;
-	}
-
-	public PortResolver getPortResolver() {
-		return portResolver;
-	}
-
-	public boolean isServerSideRedirect() {
-		return serverSideRedirect;
-	}
-
-	/**
-	 * Set to true to force login form access to be via https. If this value is
-	 * ture (the default is false), and the incoming request for the protected
-	 * resource which triggered the interceptor was not already
-	 * <code>https</code>, then
-	 *
-	 * @param forceHttps
-	 */
-	public void setForceHttps(boolean forceHttps) {
-		this.forceHttps = forceHttps;
-	}
-
-	/**
-	 * The URL where the <code>AuthenticationProcessingFilter</code> login
-	 * page can be found. Should be relative to the web-app context path, and
-	 * include a leading <code>/</code>
-	 *
-	 * @param loginFormUrl
-	 */
-	public void setLoginFormUrl(String loginFormUrl) {
-		this.loginFormUrl = loginFormUrl;
-	}
-
-	public void setPortMapper(PortMapper portMapper) {
-		this.portMapper = portMapper;
-	}
-
-	public void setPortResolver(PortResolver portResolver) {
-		this.portResolver = portResolver;
-	}
-
-	/**
-	 * Tells if we are to do a server side include of the
-	 * <code>loginFormUrl</code> instead of a 302 redirect.
-	 *
-	 * @param serverSideRedirect
-	 */
-	public void setServerSideRedirect(boolean serverSideRedirect) {
-		this.serverSideRedirect = serverSideRedirect;
+    /**
+     * Tells if we are to do a server side include of the <code>loginFormUrl</code> instead of a 302 redirect.
+     *
+     * @param serverSideRedirect
+     */
+    public void setServerSideRedirect(boolean serverSideRedirect) {
+        this.serverSideRedirect = serverSideRedirect;
 	}
 
 }
