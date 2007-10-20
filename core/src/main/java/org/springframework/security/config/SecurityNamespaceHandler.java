@@ -16,5 +16,6 @@ public class SecurityNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("authentication-provider", new AuthenticationProviderBeanDefinitionParser());
         registerBeanDefinitionParser("autoconfig", new AutoConfigBeanDefinitionParser());
         registerBeanDefinitionDecorator("intercept-methods", new InterceptMethodsBeanDefinitionDecorator());
+        registerBeanDefinitionDecorator("filter-chain-map", new FilterChainMapBeanDefinitionDecorator());        
     }
 }
